@@ -1,0 +1,181 @@
+{
+  "savedAt": "2026-10-26T08:07:50.940688+00:00",
+  "stage": "modeled",
+  "counts": {
+    "controller": 14,
+    "unit": 50,
+    "modeled": 64,
+    "verified": 0
+  },
+  "scope": "New CAN/ENV Pro/ToF4M construction/API smoke and actual three-branch Grove fixture; no browser pixels, optical or hardware acceptance",
+  "products": [
+    {
+      "id": "can",
+      "report": "docs/research/can/smoke.json",
+      "status": "pass",
+      "meshes": 59,
+      "triangles": 25252
+    },
+    {
+      "id": "env-pro",
+      "report": "docs/research/env-pro/smoke.json",
+      "status": "pass",
+      "meshes": 59,
+      "triangles": 12288
+    },
+    {
+      "id": "tof4m",
+      "report": "docs/research/tof4m/smoke.json",
+      "status": "pass",
+      "meshes": 59,
+      "triangles": 8200
+    }
+  ],
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "publicBuild": "exit 0",
+    "privateBuild": "exit 0",
+    "livePreview": "64-product catalog and three runtime chunks byte-identical to public dist",
+    "newSourcePrivacy": "code/self-authored research only, no private sticker inputs or raw official binaries",
+    "narrowSync": "new products/catalog entries/exports/guides only",
+    "existingPublicUnitFilesUnchanged": 296,
+    "privateProtectedFilesUnchanged": 7,
+    "fullCheck": "not run",
+    "browserReview": "not run"
+  },
+  "officialMcpFeedback": {
+    "product": "env-pro",
+    "feedbackId": "677ac2a8e9e1441591989de9eaabda08",
+    "record": "docs/research/env-pro/sources.json",
+    "issue": "MCP summary misread U1 SDO as ground; original official PDF actually ties it to +3.3V, consistent with product address 0x77"
+  },
+  "previewAssets": [
+    {
+      "id": "can",
+      "file": "assets/can-BIigy-yh.js",
+      "sha256": "8f4701ed5662286077806ab3de125c694015922440c2fb08839a3f474cc88875"
+    },
+    {
+      "id": "env-pro",
+      "file": "assets/env-pro-3-hP7Zx0.js",
+      "sha256": "23ad5954a2997fa15aa5060f38b9a2b902ca7e589396efb45a6f7b6f8a3c9973"
+    },
+    {
+      "id": "tof4m",
+      "file": "assets/tof4m-BYB-tUof.js",
+      "sha256": "27b68eca94449633ef047abe19042505a29d99dcec2190c2d2590a5dbf9ddd9f"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/can/dimensions.js",
+      "sha256": "282eca1c71f2b99b854f613974e217f60f0ba12513c26443faff783dff9f9322"
+    },
+    {
+      "path": "src/units/can/index.js",
+      "sha256": "3b6c5d319e836c48d2d5a927d325329135d0f351efb9a7ea138850aa4700c422"
+    },
+    {
+      "path": "src/units/can/cad-map.json",
+      "sha256": "26025373ffdffa60def9133a0512f094b60a3be2764c3f51eb5999aacd53aefe"
+    },
+    {
+      "path": "src/units/can/assembly.js",
+      "sha256": "06ef397b2760a282f5719e555fbd8238f185a23e5ddb9d7b6a4d419320ea1b43"
+    },
+    {
+      "path": "src/units/can/geometry-data.js",
+      "sha256": "d0b958304a6e14c4298cd82cd11a76cf8a565bbf44ed651b0241d6e03eb91070"
+    },
+    {
+      "path": "src/units/can/TerminalPlug.js",
+      "sha256": "1913b63ee9d2fc379f287c6bb8ae1f122460272a0d4382734e265546d3b9ebce"
+    },
+    {
+      "path": "docs/research/can/sources.json",
+      "sha256": "d6e51e19391df6c472dee97e8be058a4b31529ed78b93df4a55d0ccae36fd4f8"
+    },
+    {
+      "path": "docs/research/can/modeling.md",
+      "sha256": "101258e998e71ac58b13bf7c149dff1e99781976b9dbdad8cd922b5b796951e6"
+    },
+    {
+      "path": "docs/research/can/smoke.json",
+      "sha256": "5c10c50e245c81e79319177d2a91095f69ea4acba30d657bfdd105a4f1738187"
+    },
+    {
+      "path": "src/units/env-pro/dimensions.js",
+      "sha256": "fc1592ebbf769fc44148db1e43e9bacf7b0fda00d5a1f13dcbf07254394004d3"
+    },
+    {
+      "path": "src/units/env-pro/index.js",
+      "sha256": "4974f475cc5a33fd8d7db966f19d1185a816c52851ef2df8b449421cd6a67a7a"
+    },
+    {
+      "path": "src/units/env-pro/cad-map.json",
+      "sha256": "70012175e7e86cca9dbb83a25c21895a5c9ede94c9cabcaefde13342e6e6786e"
+    },
+    {
+      "path": "src/units/env-pro/assembly.js",
+      "sha256": "e200297e03487992cac919afafd6e176a0f9639e03fcd7e1584587cd45463e3a"
+    },
+    {
+      "path": "src/units/env-pro/geometry-data.js",
+      "sha256": "e97de04743bafde3fd6d040fc518a35ee68294f4a5050940ac9edf14051f7716"
+    },
+    {
+      "path": "docs/research/env-pro/sources.json",
+      "sha256": "c5f0e6f696e7e2eb02eed9de5f704dbd84c970380fbb9dee07941c09347546da"
+    },
+    {
+      "path": "docs/research/env-pro/README.md",
+      "sha256": "531e3ae3e53af374126a7abe41dc2ae865624f1872b8cb3e8c05b0b8d57b218a"
+    },
+    {
+      "path": "docs/research/env-pro/smoke.json",
+      "sha256": "eba40c2c6ac7aa81a3953bd032d85610bb4bbb104ce60043b189434a002e496b"
+    },
+    {
+      "path": "src/units/tof4m/dimensions.js",
+      "sha256": "d2d22dbc2f78a7317b40bff7a4d2ecf43562d7cd47689b1ab06edac197721b72"
+    },
+    {
+      "path": "src/units/tof4m/index.js",
+      "sha256": "7427bb71fc81e801853bbda77fb64ba5297d30f594bbaed4810a9fbcb9256ad6"
+    },
+    {
+      "path": "src/units/tof4m/cad-map.json",
+      "sha256": "ad785b94cc76cf7ea94eff4882875d5f1df0f31c3e0f39f5aeae46ba01cd7fd1"
+    },
+    {
+      "path": "src/units/tof4m/assembly.js",
+      "sha256": "ab414c749634c4ddf09b9746f9a61329679724cbddde79ed956195265ad4950c"
+    },
+    {
+      "path": "src/units/tof4m/geometry-data.js",
+      "sha256": "a95001e8e0289d3393089f5edc5046134910ae564b7d698a87794e8f024d6b67"
+    },
+    {
+      "path": "docs/research/tof4m/sources.json",
+      "sha256": "0a81e233315a44271b79db5e847fe093002b6933e9a9d8cbb6a2dc6ce1ba8ff4"
+    },
+    {
+      "path": "docs/research/tof4m/README.md",
+      "sha256": "b6c177d2eff3ca45589736e216ba727c6594478618d1f34f3cef70e940096007"
+    },
+    {
+      "path": "docs/research/tof4m/smoke.json",
+      "sha256": "4b396d830b218569b086623141fbfedb2140612bd85564219978da4dddadd676"
+    }
+  ],
+  "limitations": [
+    "PCB installed Z, layout/material details and terminal interiors include documented appearance estimates",
+    "ToF optics are physical appearance; no visible laser, measuring or scanning simulation",
+    "ENV Pro gas/temperature/pressure/humidity/IAQ and CAN bus/electrical behavior belong to external runtime",
+    "New print artwork and micro markings deferred",
+    "Previous sticker and Scroll checkpoints preserved",
+    "StackChan production fit remains unresolved",
+    "No commit or push in this expansion batch"
+  ]
+}

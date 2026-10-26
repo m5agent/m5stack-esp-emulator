@@ -1,0 +1,25 @@
+{
+  "request": {
+    "revision_id": "7cce1f87ee2a842c0ec3b79af11deefc1c17c758ea3a23d84fcefab2264616f1",
+    "expected_execution_id": "c364ce9b739f4fcbace5f94c7688cb05",
+    "timeout_seconds": 120
+  },
+  "status": 404,
+  "response": {
+    "error": {
+      "code": "unknown_program_package",
+      "message": "package revision does not exist"
+    }
+  },
+  "previous_execution_id": "c364ce9b739f4fcbace5f94c7688cb05",
+  "after_execution_id": "c364ce9b739f4fcbace5f94c7688cb05",
+  "before_rejection_offset": 8049,
+  "continuation_offset": 8049,
+  "continuation": {
+    "session_id": "9fc46df433d84775a41186fc339f78d8",
+    "offset": 8049,
+    "next_offset": 8171,
+    "data": "LIVE_PACKAGE_SAMPLE {\"value\": 1, \"computed\": 36, \"init\": 202, \"unit\": \"relay\", \"logic\": 5, \"helper\": 29, \"version\": \"B\"}\r\n",
+    "bytes": 122
+  }
+}

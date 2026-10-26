@@ -47,7 +47,7 @@ export async function createDeviceShell(host, device, options = {}) {
   // Public visual models are loaded per device. A failed WebGL/model import
   // retains the existing renderer and ultimately the accessible generic shell.
   try {
-    const { createModelShell, supportsModelShell } = await import('./model-shell.js?v=20261026g');
+    const { createModelShell, supportsModelShell } = await import('./model-shell.js?v=20261026h');
     if (supportsModelShell(device)) return await createModelShell(host, device, options);
   } catch (error) {
     console.warn(`${device.name} public visual model unavailable; using the existing shell.`, error);

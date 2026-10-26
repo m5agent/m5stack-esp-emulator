@@ -1,0 +1,30 @@
+import sys,time,json,M5
+assert "/m5-uniform-led-36fb19ffb4fb4a418668b924ba7a1fb2" in sys.path, 'MicroPython VM reset'
+M5.begin()
+screen=M5.Display
+screen.setBrightness(255)
+screen.fillScreen(3548248)
+screen.setTextSize(2)
+screen.setTextColor(0xffffff,3548248)
+screen.setCursor(12,12)
+screen.print('LED i2c-hub D')
+from machine import I2C, Pin
+from unit import EncoderUnit, Encoder8Unit
+bus=I2C(0,scl=Pin(1),sda=Pin(2),freq=100000)
+scan=sorted(bus.scan())
+assert scan==[0x40,0x41], 'passive HUB must expose exactly the two independent I2C addresses'
+encoder=EncoderUnit(bus)
+eight=Encoder8Unit(bus)
+for _channel,_color in enumerate([0,0],1):
+ encoder.set_color(_channel,_color)
+for _channel,_color in enumerate([0,0,0,0,0,0,0,0],1):
+ eight.set_led_rgb(_channel,_color)
+# Original helper writes the ninth RGB triplet; no electrical-to-location claim.
+eight.write_reg_data(0x88,[0,0,0])
+sequence=0
+while True:
+ assert "/m5-uniform-led-36fb19ffb4fb4a418668b924ba7a1fb2" in sys.path, 'MicroPython VM reset'
+ M5.update()
+ print("UNIFORM_LED_4c0e5d7eb2f5 "+json.dumps({'kind':'sample','phase':"D",'nonce':"/m5-uniform-led-36fb19ffb4fb4a418668b924ba7a1fb2",'sequence':sequence,'scan':scan,'written_colors':{"encoder":[0,0],"8encoder":[0,0,0,0,0,0,0,0,0]},'values':{'encoder':{'counter':encoder.get_rotary_value(),'pressed':bool(encoder.get_button_status())},'8encoder':{'counters':[eight.get_counter_value(i) for i in range(1,9)],'pressed':[bool(eight.get_button_status(i)) for i in range(1,9)],'switch-on':bool(eight.get_switch_status())}}}))
+ sequence+=1
+ time.sleep_ms(250)

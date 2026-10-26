@@ -1,0 +1,121 @@
+{
+  "checkedAt": "2026-10-26T10:21:56.610Z",
+  "status": "pass",
+  "scope": "Necessary local finite FrontSide geometry, retained complete native shell and mounting bores, SMA helical thread/annular mouth/dielectric/real recessed female centre bore and retained window body, Grove real cavity/four contacts, connector-family rejection, passive anchor and no fabricated effects,2 PNG registrations and artwork:false physical invariance, four-wire attach/pose/detach/resource disposal. No browser/full historical, electrical, signal, frequency, waveform, physical hardware or production-fit validation.",
+  "meshes": 148,
+  "triangles": 41588,
+  "cadEnvelopeMm": [
+    24,
+    64,
+    8
+  ],
+  "visualEnvelopeMm": [
+    24,
+    71.40000019073486,
+    8
+  ],
+  "nativeTriangles": 6562,
+  "mountingRays": 10,
+  "mountingFrontSideWalls": 8,
+  "sma": {
+    "connector": "sma-female",
+    "centreBoreDiameterMm": 0.5,
+    "centreBoreDepthMm": 4.500000001341107,
+    "dielectricRecessMm": 0.2000000953674288,
+    "contactRecessMm": 0.3999999999999986,
+    "thread": "physical continuous9-turn helix",
+    "windowChecks": [
+      {
+        "side": "back",
+        "firstSolid": "DDS SMA retained internal hex body visible through both native windows",
+        "depthFromShellMm": 0.8699998855590803
+      },
+      {
+        "side": "front",
+        "firstSolid": "DDS SMA retained internal hex body visible through both native windows",
+        "depthFromShellMm": 0.8699998855590847
+      }
+    ]
+  },
+  "groveContacts": 4,
+  "externalComponents": [
+    "sma",
+    "grove",
+    "sensor"
+  ],
+  "leds": [],
+  "motion": [],
+  "artwork": {
+    "panels": 2,
+    "kind": "reference-redraw",
+    "physicalGeometryInvariant": true
+  },
+  "closureChecks": [
+    {
+      "origin": [
+        0,
+        45,
+        0
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 12,
+      "purpose": "SMA female true centre bore backed by recessed contact end",
+      "firstSolid": "DDS SMA recessed centre contact blind end",
+      "distanceMm": 10.100000001341108
+    },
+    {
+      "origin": [
+        0,
+        28,
+        10
+      ],
+      "direction": [
+        0,
+        0,
+        -1
+      ],
+      "maxDistance": 8,
+      "purpose": "Front native SMA retention window contains actual gold connector body",
+      "firstSolid": "DDS SMA retained internal hex body visible through both native windows",
+      "distanceMm": 6.869999885559085
+    },
+    {
+      "origin": [
+        0,
+        28,
+        -10
+      ],
+      "direction": [
+        0,
+        0,
+        1
+      ],
+      "maxDistance": 8,
+      "purpose": "Rear native SMA retention window contains actual gold connector body",
+      "firstSolid": "DDS SMA retained internal hex body visible through both native windows",
+      "distanceMm": 6.86999988555908
+    },
+    {
+      "origin": [
+        0,
+        -40,
+        0.6
+      ],
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "maxDistance": 17,
+      "purpose": "Grove socket open to real rear wall rather than empty shell",
+      "firstSolid": "DDS Grove rear wall",
+      "distanceMm": 14.300000011920929
+    }
+  ],
+  "nestedGroveAttachPoseDetach": "pass",
+  "disposedResources": 203
+}

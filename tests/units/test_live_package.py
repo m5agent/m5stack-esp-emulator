@@ -1,6 +1,7 @@
 """Offline failure controls for the package runner; no service or guest calls."""
 from contextlib import redirect_stdout, redirect_stderr
 from copy import deepcopy
+from email.message import Message
 import io
 import json
 from pathlib import Path
@@ -76,6 +77,69 @@ def bundle(contents, manifest):
     return stream.getvalue()
 
 
+def stored_envelope(files):
+    sys.path.insert(0, str(runner.ROOT / "platform/tools"))
+    from program_packages import ProgramPackageStore
+    with tempfile.TemporaryDirectory() as temp:
+        store = ProgramPackageStore(Path(temp))
+        metadata = store.create(runner.checkpoint_payload(files))
+        source = store.source(metadata["revision_id"])
+    return {"revision": metadata, "limits": deepcopy(runner.CHECKPOINT_LIMITS)}, source
+
+
+def reference_evidence_fixture():
+    report, contents, manifest, original = evidence_fixture()
+    contents = {name: data for name, data in contents.items() if not name.startswith("programs/")}
+    packages = {version: {**original["c"], "config.json": runner.canonical({"version": version}) + b"\n"}
+                for version in runner.VERSIONS}
+    report.update(revision_references=True, checkpoints={}, executions={})
+    for version, files in packages.items():
+        envelope, _ = stored_envelope(files)
+        report["checkpoints"][version] = envelope
+    names = ["finite", "a", "b", "syntax", "b-recovery", "mpy-major", "mpy-smallint", "extra-directory",
+             "extra-directory-integrity", "tamper", "integrity", "c-recovery"]
+    references = {"a": "A", "b": "B", "b-recovery": "B", "c-recovery": "C"}
+    completed = {"finite", "extra-directory", "tamper"}
+    failed = {"syntax", "mpy-major", "mpy-smallint", "extra-directory-integrity", "integrity"}
+    submitted, previous = {}, None
+    for index, name in enumerate(names):
+        execution_id = f"fixture-{index:02d}"
+        if name in completed:
+            source = "print(" + repr(name) + ")\n"
+            checkpoint_id = runner.sha(source.encode())
+            program = {"execution_id": execution_id, "revision_id": checkpoint_id, "pid": report["pid"],
+                       "firmware_sha256": report["firmware_sha256"], "state": "completed"}
+            contents[f"programs/{checkpoint_id}/source.json"] = json.dumps({"entrypoint": "main.py", "files": {"main.py": source}}).encode()
+            result = {"program": program, "expected_history_state": "completed", "activated": False}
+            submitted[name] = source
+        else:
+            version = references.get(name, "B")
+            files = packages[version]
+            envelope = report["checkpoints"][version]
+            checkpoint_id = envelope["revision"]["revision_id"]
+            _, source = stored_envelope(files)
+            state = "failed" if name in failed else "running" if name == "c-recovery" else "interrupted"
+            program = {"execution_id": execution_id, "revision_id": checkpoint_id, "pid": report["pid"],
+                       "firmware_sha256": report["firmware_sha256"], "source_sha256": envelope["revision"]["source_sha256"],
+                       "total_file_bytes": envelope["revision"]["total_file_bytes"], "file_count": len(files),
+                       "source_kind": "uiflow2-package", "state": state, "interruption_confirmed": state == "interrupted",
+                       "deployment": {"phase": "activated", "inventory": runner.file_inventory(files),
+                                      "package_path": runner.GUEST_BASE + "/" + checkpoint_id, "reused": name == "b-recovery"}}
+            result = {"program": program, "expected_history_state": state, "activated": name in references,
+                      "reused": name == "b-recovery"}
+            if name in references:
+                result["submission"] = {"mode": "revision-reference", "checkpoint_version": version,
+                                        "previous_execution_id": previous, "request": runner.reference_payload(checkpoint_id, previous)}
+            contents[f"programs/{checkpoint_id}/source.json"] = json.dumps(source).encode()
+            contents[f"programs/{checkpoint_id}/revision.json"] = json.dumps(envelope["revision"]).encode()
+            contents.update({f"programs/{checkpoint_id}/files/{path}": data for path, data in files.items()})
+            submitted[name] = files
+        report["executions"][name] = result
+        contents[f"programs/{execution_id}.json"] = json.dumps(program).encode()
+        previous = execution_id
+    return report, contents, manifest, submitted
+
+
 class LivePackageTests(unittest.TestCase):
     def test_default_only_plans_without_api_compiler_or_output_mutation(self):
         output = io.StringIO()
@@ -88,6 +152,143 @@ class LivePackageTests(unittest.TestCase):
         self.assertEqual(plan["package_directories"], 4)
         self.assertEqual(plan["guest_directory_limit"], 64)
 
+    def test_reference_plan_is_offline_and_execute_keeps_explicit_gates(self):
+        for flags in (["--revision-references"], ["--plan", "--revision-references"]):
+            output = io.StringIO()
+            with mock.patch.object(runner, "RevisionProbeClient", side_effect=AssertionError("service call")), \
+                 mock.patch.object(runner.subprocess, "run", side_effect=AssertionError("compiler call")), \
+                 mock.patch.object(runner, "run", side_effect=AssertionError("execution")), redirect_stdout(output):
+                runner.main(flags)
+            plan = json.loads(output.getvalue())
+            self.assertTrue(plan["revision_references"])
+            self.assertEqual(plan["checkpoints_before_session"], ["A", "B", "C"])
+            self.assertEqual(plan["expected_executions"], 12)
+            self.assertEqual(plan["valid_execution_fields"], ["revision_id", "expected_execution_id", "timeout_seconds"])
+        for flags in (["--execute", "--revision-references"], ["--plan", "--execute", "--revision-references"]):
+            with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+                runner.main(flags)
+            self.assertEqual(error.exception.code, 2)
+
+    def test_checkpoint_contract_and_reference_requests_use_independent_store_identity(self):
+        files = {"main.py": b"print('checkpoint fixture')\n", "config.json": '{"中文":true}\n'.encode(),
+                 "helper.mpy": b"M\x06\x00\x1f-fixture-not-executable"}
+        envelope, _ = stored_envelope(files)
+        self.assertEqual(set(runner.checkpoint_payload(files)), {"source_kind", "entrypoint", "files"})
+        self.assertEqual(runner.validate_checkpoint(envelope, files), envelope["revision"])
+        payload, submission = runner.submission_payload(files, "previous", {"A": envelope})
+        self.assertEqual(payload, runner.reference_payload(runner.revision_id(files), "previous"))
+        self.assertEqual(set(payload), {"revision_id", "expected_execution_id", "timeout_seconds"})
+        self.assertEqual(submission["mode"], "revision-reference")
+        self.assertEqual(submission["checkpoint_version"], "A")
+        legacy, marker = runner.submission_payload(files, None)
+        self.assertEqual(legacy, runner.package_payload(files, None))
+        self.assertIsNone(marker)
+        changed = {**files, "main.py": b"def broken(:\n"}
+        payload, submission = runner.submission_payload(changed, "previous", {"A": envelope})
+        self.assertIn("files", payload)
+        self.assertEqual(submission["mode"], "legacy-files")
+        payload, submission = runner.submission_payload("print('finite')\n", None, {"A": envelope})
+        self.assertEqual(set(payload), {"source", "expected_execution_id", "timeout_seconds"})
+        self.assertEqual(submission["mode"], "legacy-source")
+        for change in (
+            lambda value: value["revision"].update(revision_id="0" * 64),
+            lambda value: value["revision"].update(source_sha256="0" * 64),
+            lambda value: value["revision"]["files"][0].update(size=True),
+            lambda value: value["revision"].update(created_at="2026-10-26T12:00:00"),
+            lambda value: value["limits"].update(gc_enabled=0),
+            lambda value: value.update(unexpected=True),
+        ):
+            altered = deepcopy(envelope)
+            change(altered)
+            with self.subTest(change=change), self.assertRaises(RuntimeError):
+                runner.validate_checkpoint(altered, files)
+
+    def test_registration_repeats_post_and_get_without_mutating_created_at_or_limits(self):
+        packages = {version: {"main.py": b"print('checkpoint fixture')\n", "config.json": runner.canonical({"version": version})}
+                    for version in runner.VERSIONS}
+        envelopes = {runner.revision_id(files): stored_envelope(files)[0] for files in packages.values()}
+        class Client:
+            def __init__(self, alter=None):
+                self.requests, self.alter = [], alter
+            def json(self, path, method="GET", payload=None):
+                checkpoint_id = runner.revision_id({name: value["data"].encode() if value["encoding"] == "utf8" else runner.base64.b64decode(value["data"])
+                    for name, value in payload["files"].items()}) if method == "POST" else path.rsplit("/", 1)[1]
+                self.requests.append({"path": path, "method": method, "payload": payload, "status": 201 if method == "POST" else 200})
+                result = deepcopy(envelopes[checkpoint_id])
+                if self.alter and len(self.requests) == 2:
+                    result["revision"]["created_at"] = "2026-10-27T00:00:00+00:00"
+                return result
+        with tempfile.TemporaryDirectory() as temp:
+            client = Client()
+            checkpoints = runner.register_checkpoints(client, packages, Path(temp))
+            self.assertEqual(set(checkpoints), set(runner.VERSIONS))
+            self.assertEqual([row["method"] for row in client.requests], ["POST", "POST", "GET"] * 3)
+            self.assertTrue(all(set(row["payload"]) == {"source_kind", "entrypoint", "files"}
+                                for row in client.requests if row["method"] == "POST"))
+            with self.assertRaisesRegex(RuntimeError, "created_at or limits changed"):
+                runner.register_checkpoints(Client(alter=True), packages, Path(temp))
+
+    def test_reference_http_recording_keeps_all_routes_full_repeated_headers_and_error_bytes(self):
+        with tempfile.TemporaryDirectory() as temp, mock.patch.dict(runner.os.environ, {"M5_UNIT_WEB_BRIDGE": "0"}):
+            client = runner.RevisionProbeClient("http://127.0.0.1:8787", Path(temp))
+            response = mock.MagicMock()
+            response.__enter__.return_value = response
+            response.read.return_value = b'{"revision":{}}'
+            response.status = 201
+            response.headers = Message()
+            pairs = [["Content-Type", "application/json"], ["Set-Cookie", "fixture-one"],
+                     ["Set-Cookie", "fixture-two"], ["X-Trace", "fixture-trace"]]
+            for key, value in pairs:
+                response.headers[key] = value
+            for path, method, payload in (("program-revisions", "POST", {"fixture": True}),
+                                          ("health", "GET", None), ("sessions/fixture/serial?offset=0", "GET", None),
+                                          ("sessions/fixture/evidence", "GET", None), ("sessions/fixture?purge=0", "DELETE", None)):
+                with mock.patch.object(runner.urllib.request, "urlopen", return_value=response), \
+                     mock.patch.object(runner.ProbeClient, "raw", side_effect=AssertionError("unrecorded delegate")):
+                    self.assertEqual(client.json(path, method, payload), {"revision": {}})
+                self.assertEqual(client.requests[-1]["status"], 201)
+                self.assertEqual(client.requests[-1]["response_headers"], pairs)
+                self.assertEqual((Path(temp) / f"{len(client.requests) - 1:04d}.response").read_bytes(), b'{"revision":{}}')
+            raw = b'{"error":{"code":"unknown_program_package"}}'
+            error = urllib.error.HTTPError("http://127.0.0.1/fixture", 404, "Not Found", response.headers, io.BytesIO(raw))
+            with mock.patch.object(runner.urllib.request, "urlopen", side_effect=error), self.assertRaises(RuntimeError) as caught:
+                client.json("program-revisions/" + "0" * 64)
+            self.assertEqual(runner.decode_rejection(caught.exception)["status"], 404)
+            self.assertEqual(client.requests[-1]["status"], 404)
+            self.assertEqual(client.requests[-1]["response_headers"], pairs)
+            self.assertEqual((Path(temp) / "0005.response").read_bytes(), raw)
+            self.assertEqual(json.loads((Path(temp) / "http.json").read_text())[-1]["response_sha256"], runner.sha(raw))
+            with mock.patch.object(runner.urllib.request, "urlopen", side_effect=urllib.error.URLError("fixture transport failure")), \
+                 self.assertRaises(urllib.error.URLError):
+                client.json("health")
+            self.assertEqual(client.requests[-1]["error"]["type"], "URLError")
+            self.assertNotIn("status", client.requests[-1])
+
+    def test_reference_direct_http_mode_rejects_explicit_web_bridge_before_execution(self):
+        with mock.patch.dict(runner.os.environ, {"M5_UNIT_WEB_BRIDGE": "1"}), \
+             mock.patch.object(runner.ProbeClient, "__init__", side_effect=AssertionError("bridge import")), \
+             self.assertRaisesRegex(RuntimeError, "cannot be combined"):
+            runner.RevisionProbeClient("http://127.0.0.1:8787", Path("unused"))
+
+    def test_public_reference_zip_requires_exact_checkpoint_metadata_and_twelve_executions(self):
+        report, contents, manifest, sources = reference_evidence_fixture()
+        result = runner.validate_bundle(bundle(contents, manifest), report, sources)
+        self.assertTrue(result["public_checkpoints_and_reference_execution_set_verified"])
+        for kind in ("extra-execution", "created-at", "mixed-request", "source-hash", "missing-version"):
+            altered_report, altered_contents = deepcopy(report), deepcopy(contents)
+            if kind == "extra-execution":
+                altered_contents["programs/unexpected.json"] = b"{}"
+            elif kind == "created-at":
+                altered_report["checkpoints"]["A"]["revision"]["created_at"] = "2026-10-27T00:00:00+00:00"
+            elif kind == "mixed-request":
+                altered_report["executions"]["a"]["submission"]["request"]["files"] = {}
+            elif kind == "source-hash":
+                altered_report["executions"]["a"]["program"]["source_sha256"] = "0" * 64
+            else:
+                altered_report["executions"]["a"].pop("submission")
+            with self.subTest(kind=kind), self.assertRaises(RuntimeError):
+                runner.validate_bundle(bundle(altered_contents, manifest), altered_report, sources)
+
     def test_execute_requires_all_explicit_gates_and_new_output(self):
         with tempfile.TemporaryDirectory() as temp:
             directory = Path(temp)
@@ -95,13 +296,14 @@ class LivePackageTests(unittest.TestCase):
             compiler.write_text("fixture compiler must never run\n")
             compiler.chmod(0o755)
             valid = ["--execute", "--out-dir", str(directory / "new"), "--expected-runtime-sha256", "a" * 64, "--mpy-cross", str(compiler)]
-            for omitted in ("--out-dir", "--expected-runtime-sha256", "--mpy-cross"):
-                args = valid[:]
-                at = args.index(omitted)
-                del args[at:at + 2]
-                with self.subTest(omitted=omitted), redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
-                    runner.main(args)
-                self.assertEqual(error.exception.code, 2)
+            for mode in ([], ["--revision-references"]):
+                for omitted in ("--out-dir", "--expected-runtime-sha256", "--mpy-cross"):
+                    args = valid[:] + mode
+                    at = args.index(omitted)
+                    del args[at:at + 2]
+                    with self.subTest(mode=mode, omitted=omitted), redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+                        runner.main(args)
+                    self.assertEqual(error.exception.code, 2)
             with mock.patch.object(runner, "run") as execute:
                 runner.main(valid)
                 execute.assert_called_once()
@@ -109,6 +311,12 @@ class LivePackageTests(unittest.TestCase):
             invalid[invalid.index("--out-dir") + 1] = str(directory)
             with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
                 runner.main(invalid)
+            with mock.patch.dict(runner.os.environ, {"M5_UNIT_WEB_BRIDGE": "1"}), \
+                 mock.patch.object(runner, "run", side_effect=AssertionError("execution")), \
+                 redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+                runner.main(valid + ["--revision-references"])
+            self.assertEqual(error.exception.code, 2)
+            self.assertFalse((directory / "new").exists())
 
     def test_source_uses_original_driver_files_mpy_and_no_host_execution(self):
         for unit, driver in (("pir", "PIRUnit"), ("relay", "RelayUnit")):

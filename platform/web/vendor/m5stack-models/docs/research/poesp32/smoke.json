@@ -1,0 +1,109 @@
+{
+  "checkedAt": "2026-10-26T08:41:12.427Z",
+  "status": "pass",
+  "scope": "Necessary finite geometry, complete native shell pair, clear mounting bores and FrontSide walls, PCB/download bores, real eight-contact stepped RJ45 cavity/stop, physical backing of native port/side openings, two independent fixed-color externally driven LEDs, passive anchor, Grove four-wire nested pose/detach/disposal smoke. No browser, production fit, hardware, Ethernet, PoE or electrical verification.",
+  "meshes": 153,
+  "triangles": 21396,
+  "nativeTriangleCount": 5294,
+  "nominalMm": [
+    26,
+    72,
+    19.2
+  ],
+  "cadEnvelopeMm": [
+    26.000024795532227,
+    72.00000762939453,
+    19.200000762939453
+  ],
+  "visualEnvelopeMm": [
+    26.000024795532227,
+    72.15,
+    19.200000762939453
+  ],
+  "mountingRays": 10,
+  "frontSideWalls": 28,
+  "closureChecks": [
+    {
+      "origin": [
+        0,
+        50,
+        -1.35
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 36,
+      "purpose": "RJ45 real cavity terminates at recessed insertion stop, not a face decal"
+    },
+    {
+      "origin": [
+        0,
+        -50,
+        -5.3
+      ],
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "maxDistance": 22,
+      "purpose": "Grove mouth terminates at recessed physical rear wall"
+    },
+    {
+      "origin": [
+        -12.5,
+        20,
+        -4
+      ],
+      "direction": [
+        1,
+        0,
+        0
+      ],
+      "maxDistance": 7,
+      "purpose": "Native side opening has physical RJ45 shield behind it"
+    }
+  ],
+  "closureHits": [
+    {
+      "purpose": "RJ45 real cavity terminates at recessed insertion stop, not a face decal",
+      "hit": "PoESP32 RJ45 recessed insertion stop and magnetic body",
+      "distanceMm": 34.29999998807907
+    },
+    {
+      "purpose": "Grove mouth terminates at recessed physical rear wall",
+      "hit": "Grove rear wall",
+      "distanceMm": 19.950000011920928
+    },
+    {
+      "purpose": "Native side opening has physical RJ45 shield behind it",
+      "hit": "PoESP32 RJ45 metal side wall",
+      "distanceMm": 4.599999998509884
+    }
+  ],
+  "leds": [
+    "link-led: fixed yellow #ffd400",
+    "activity-led: fixed green #42d51b"
+  ],
+  "ports": [
+    "grove: grove",
+    "ethernet: rj45-8p8c"
+  ],
+  "controls": [],
+  "artwork": {
+    "panels": 3,
+    "disable": "artwork:false suppresses all panels",
+    "finalPngs": [
+      "official-front.png: 798×2200",
+      "official-back.png: 797×2200",
+      "official-certification.png: 1000×336 native preview"
+    ],
+    "certificationPosition": "inferred"
+  },
+  "sensor": "Passive visual anchor; no commands/data",
+  "groveAttachPoseNestedDetach": "pass",
+  "disposedResources": 212,
+  "disposeEvents": 360
+}

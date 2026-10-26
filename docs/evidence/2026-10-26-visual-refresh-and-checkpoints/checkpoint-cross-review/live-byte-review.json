@@ -1,0 +1,201 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-10-26T15:59:50.363460+00:00",
+  "category": "independent-read-only-raw-evidence-review",
+  "new_guest_execution": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "http_main_total": 983,
+  "post_stop_GET_receipts_total": 4,
+  "results": {
+    "pir": {
+      "status": "PASS",
+      "report_sha256": "4019af25431ef5c5acaa275fb7a6279b6be6f8aa8e9b6d67bda8711fa26166ed",
+      "http_main_responses": 572,
+      "ordered_duplicate_header_entries": 0,
+      "post_stop_GET_receipts": 2,
+      "zip_members": 84,
+      "zip_sha256": "d599f1728bb92fe5bba64247a5ae40ff10c5e5272a7b4d90f422f53bd0e6d0c4",
+      "executions": 12,
+      "reference_names": [
+        "a",
+        "b",
+        "b-recovery",
+        "c-recovery"
+      ],
+      "reference_rejections": {
+        "bad-id": {
+          "http_index": 332,
+          "post_rejection_program_GET": 333,
+          "post_rejection_serial_baseline_GET": 334,
+          "fresh_B_serial_GET": 343,
+          "status": 400,
+          "code": "invalid_program"
+        },
+        "unknown": {
+          "http_index": 346,
+          "post_rejection_program_GET": 347,
+          "post_rejection_serial_baseline_GET": 348,
+          "fresh_B_serial_GET": 360,
+          "status": 404,
+          "code": "unknown_program_package"
+        },
+        "python-only": {
+          "http_index": 363,
+          "post_rejection_program_GET": 364,
+          "post_rejection_serial_baseline_GET": 365,
+          "fresh_B_serial_GET": 377,
+          "status": 404,
+          "code": "unknown_program_package"
+        },
+        "mixed-source": {
+          "http_index": 380,
+          "post_rejection_program_GET": 381,
+          "post_rejection_serial_baseline_GET": 382,
+          "fresh_B_serial_GET": 391,
+          "status": 400,
+          "code": "invalid_program"
+        },
+        "mixed-files": {
+          "http_index": 394,
+          "post_rejection_program_GET": 395,
+          "post_rejection_serial_baseline_GET": 396,
+          "fresh_B_serial_GET": 408,
+          "status": 400,
+          "code": "invalid_program"
+        },
+        "mixed-entrypoint": {
+          "http_index": 411,
+          "post_rejection_program_GET": 412,
+          "post_rejection_serial_baseline_GET": 413,
+          "fresh_B_serial_GET": 422,
+          "status": 400,
+          "code": "invalid_program"
+        },
+        "mixed-source_kind": {
+          "http_index": 425,
+          "post_rejection_program_GET": 426,
+          "post_rejection_serial_baseline_GET": 427,
+          "fresh_B_serial_GET": 439,
+          "status": 400,
+          "code": "invalid_program"
+        },
+        "stale": {
+          "http_index": 442,
+          "post_rejection_program_GET": 443,
+          "post_rejection_serial_baseline_GET": 444,
+          "fresh_B_serial_GET": 453,
+          "status": 409,
+          "code": "program_generation_conflict"
+        }
+      },
+      "serial_windows": 27,
+      "session_id": "70e0b10a411a41b39ab32c43d6d12ae9",
+      "pid": 2416,
+      "pid_gone_now": true,
+      "pre_stop_program_state": "running",
+      "post_stop_program_state": "interrupted",
+      "flash_retained": false,
+      "last_frame_sha256": "487d8c7ff7202f718ffd6e00e34c922d653a5ec28f203e923fbffa1ce23cf5cb",
+      "listed_source_fingerprints_matched": 11,
+      "author_self_audit_used_as_reviewer_conclusion": false
+    },
+    "relay": {
+      "status": "PASS",
+      "report_sha256": "b05b12e65815dd46eaf86729a4ded7c820acdae327911f6a7bdf0f83ea1b8181",
+      "http_main_responses": 411,
+      "ordered_duplicate_header_entries": 0,
+      "post_stop_GET_receipts": 2,
+      "zip_members": 84,
+      "zip_sha256": "dffd3992dc867ec2f656a4b97365d5d913084cd387b7c05e206737c75b35c36e",
+      "executions": 12,
+      "reference_names": [
+        "a",
+        "b",
+        "b-recovery",
+        "c-recovery"
+      ],
+      "reference_rejections": {
+        "bad-id": {
+          "http_index": 150,
+          "post_rejection_program_GET": 151,
+          "post_rejection_serial_baseline_GET": 152,
+          "fresh_B_serial_GET": 164,
+          "status": 400,
+          "code": "invalid_program"
+        },
+        "unknown": {
+          "http_index": 167,
+          "post_rejection_program_GET": 168,
+          "post_rejection_serial_baseline_GET": 169,
+          "fresh_B_serial_GET": 184,
+          "status": 404,
+          "code": "unknown_program_package"
+        },
+        "python-only": {
+          "http_index": 187,
+          "post_rejection_program_GET": 188,
+          "post_rejection_serial_baseline_GET": 189,
+          "fresh_B_serial_GET": 201,
+          "status": 404,
+          "code": "unknown_program_package"
+        },
+        "mixed-source": {
+          "http_index": 204,
+          "post_rejection_program_GET": 205,
+          "post_rejection_serial_baseline_GET": 206,
+          "fresh_B_serial_GET": 218,
+          "status": 400,
+          "code": "invalid_program"
+        },
+        "mixed-files": {
+          "http_index": 221,
+          "post_rejection_program_GET": 222,
+          "post_rejection_serial_baseline_GET": 223,
+          "fresh_B_serial_GET": 235,
+          "status": 400,
+          "code": "invalid_program"
+        },
+        "mixed-entrypoint": {
+          "http_index": 238,
+          "post_rejection_program_GET": 239,
+          "post_rejection_serial_baseline_GET": 240,
+          "fresh_B_serial_GET": 255,
+          "status": 400,
+          "code": "invalid_program"
+        },
+        "mixed-source_kind": {
+          "http_index": 258,
+          "post_rejection_program_GET": 259,
+          "post_rejection_serial_baseline_GET": 260,
+          "fresh_B_serial_GET": 272,
+          "status": 400,
+          "code": "invalid_program"
+        },
+        "stale": {
+          "http_index": 275,
+          "post_rejection_program_GET": 276,
+          "post_rejection_serial_baseline_GET": 277,
+          "fresh_B_serial_GET": 289,
+          "status": 409,
+          "code": "program_generation_conflict"
+        }
+      },
+      "serial_windows": 23,
+      "session_id": "9fc46df433d84775a41186fc339f78d8",
+      "pid": 2668,
+      "pid_gone_now": true,
+      "pre_stop_program_state": "running",
+      "post_stop_program_state": "interrupted",
+      "flash_retained": false,
+      "last_frame_sha256": "19f0136cdf33128efa11b1f970e76b98ce3128176a08a3d631c0ab1fcddce24f",
+      "listed_source_fingerprints_matched": 11,
+      "author_self_audit_used_as_reviewer_conclusion": false
+    }
+  },
+  "limits": [
+    "Source fingerprints cover the eleven listed on-disk files; loaded service Python modules are not independently attested",
+    "Serial prefix_sha256 hashes replacement-decoded UTF-8 re-encoding; raw offsets/windows and full ZIP serial member hashes are independently checked",
+    "Virtual controller/UART/frame evidence is not hardware validation",
+    "Stop marks the final program interrupted; this does not establish per-Run cancellation"
+  ]
+}

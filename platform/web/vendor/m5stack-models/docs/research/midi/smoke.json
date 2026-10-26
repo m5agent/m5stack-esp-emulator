@@ -1,0 +1,232 @@
+{
+  "checkedAt": "2026-10-26T10:01:24.530Z",
+  "status": "pass",
+  "scope": "Necessary local finite geometry, retained complete native shell/light guide, native mounting bores, two DIN five-hole/contact/key/insertion cavities and three TRS spring/bore/stops, retained two-detent control, independent fixed-green light, no routing/audio commands, two PNG registrations and physical invariance, Grove four-wire pose/attach/detach/disposal. No browser/full historical, hardware, MIDI protocol, electrical, sound or manufacturing-fit validation.",
+  "meshes": 230,
+  "triangles": 52568,
+  "cadEnvelopeMm": [
+    39.99468994140625,
+    47.98952865600586,
+    25
+  ],
+  "visualEnvelopeMm": [
+    39.99468994140625,
+    47.98952865600586,
+    25
+  ],
+  "nativeTriangles": [
+    3452,
+    2892,
+    254
+  ],
+  "mountingRays": 10,
+  "mountingFrontSideWalls": 8,
+  "dinChecks": [
+    {
+      "port": "midi-in-din",
+      "pin": 3,
+      "firstSolid": "midi-in-din DIN pin 3 recessed insertion stop",
+      "depthFromFaceMm": 8.280000000596047
+    },
+    {
+      "port": "midi-in-din",
+      "pin": 5,
+      "firstSolid": "midi-in-din DIN pin 5 recessed insertion stop",
+      "depthFromFaceMm": 8.280000000596047
+    },
+    {
+      "port": "midi-in-din",
+      "pin": 2,
+      "firstSolid": "midi-in-din DIN pin 2 recessed insertion stop",
+      "depthFromFaceMm": 8.280000000596047
+    },
+    {
+      "port": "midi-in-din",
+      "pin": 4,
+      "firstSolid": "midi-in-din DIN pin 4 recessed insertion stop",
+      "depthFromFaceMm": 8.280000000596047
+    },
+    {
+      "port": "midi-in-din",
+      "pin": 1,
+      "firstSolid": "midi-in-din DIN pin 1 recessed insertion stop",
+      "depthFromFaceMm": 8.280000000596047
+    },
+    {
+      "port": "midi-out-din",
+      "pin": 3,
+      "firstSolid": "midi-out-din DIN pin 3 recessed insertion stop",
+      "depthFromFaceMm": 8.280000000596047
+    },
+    {
+      "port": "midi-out-din",
+      "pin": 5,
+      "firstSolid": "midi-out-din DIN pin 5 recessed insertion stop",
+      "depthFromFaceMm": 8.280000000596047
+    },
+    {
+      "port": "midi-out-din",
+      "pin": 2,
+      "firstSolid": "midi-out-din DIN pin 2 recessed insertion stop",
+      "depthFromFaceMm": 8.280000000596047
+    },
+    {
+      "port": "midi-out-din",
+      "pin": 4,
+      "firstSolid": "midi-out-din DIN pin 4 recessed insertion stop",
+      "depthFromFaceMm": 8.280000000596047
+    },
+    {
+      "port": "midi-out-din",
+      "pin": 1,
+      "firstSolid": "midi-out-din DIN pin 1 recessed insertion stop",
+      "depthFromFaceMm": 8.280000000596047
+    }
+  ],
+  "trsChecks": [
+    {
+      "port": "midi-out-trs",
+      "role": "midi-output",
+      "depthFromFaceMm": 12.825000002980232,
+      "innerDiameterMm": 3.5
+    },
+    {
+      "port": "midi-in-trs",
+      "role": "midi-input",
+      "depthFromFaceMm": 12.825000002980232,
+      "innerDiameterMm": 3.5
+    },
+    {
+      "port": "audio",
+      "role": "stereo-audio-output",
+      "depthFromFaceMm": 12.825000002980232,
+      "innerDiameterMm": 3.5
+    }
+  ],
+  "groveContacts": 4,
+  "externalComponents": [
+    "midi-in-din",
+    "midi-out-din",
+    "midi-out-trs",
+    "midi-in-trs",
+    "audio",
+    "grove",
+    "mode",
+    "power-led",
+    "sensor"
+  ],
+  "controls": {
+    "mode": "retained two-detent Bypass/Separate",
+    "visualTravelMm": 2,
+    "externalDriveNoEcho": true,
+    "noAutomaticRouting": true
+  },
+  "leds": {
+    "power-led": "fixed-green, default off, external only"
+  },
+  "artwork": {
+    "panels": 2,
+    "kind": "reference-redraw",
+    "physicalGeometryInvariant": true
+  },
+  "closureChecks": [
+    {
+      "origin": [
+        30,
+        11.55,
+        0.5
+      ],
+      "direction": [
+        -1,
+        0,
+        0
+      ],
+      "maxDistance": 12,
+      "purpose": "MIDI IN DIN aperture has actual keyed contact carrier backing",
+      "firstSolid": "midi-in-din DIN keyed contact carrier with five real bores",
+      "distanceMm": 11.150000190734865
+    },
+    {
+      "origin": [
+        -30,
+        11.55,
+        0.5
+      ],
+      "direction": [
+        1,
+        0,
+        0
+      ],
+      "maxDistance": 12,
+      "purpose": "MIDI OUT DIN aperture has actual keyed contact carrier backing",
+      "firstSolid": "midi-out-din DIN keyed contact carrier with five real bores",
+      "distanceMm": 11.150000190734865
+    },
+    {
+      "origin": [
+        30,
+        -3.5,
+        -5.8
+      ],
+      "direction": [
+        -1,
+        0,
+        0
+      ],
+      "maxDistance": 24,
+      "purpose": "MIDI IN TRS is a 3.5mm real bore backed by a recessed stop",
+      "firstSolid": "midi-in-trs PJ-342 recessed insertion stop",
+      "distanceMm": 23.175000002980234
+    },
+    {
+      "origin": [
+        -30,
+        -3.5,
+        -5.8
+      ],
+      "direction": [
+        1,
+        0,
+        0
+      ],
+      "maxDistance": 24,
+      "purpose": "MIDI OUT TRS is a 3.5mm real bore backed by a recessed stop",
+      "firstSolid": "midi-out-trs PJ-342 recessed insertion stop",
+      "distanceMm": 23.175000002980234
+    },
+    {
+      "origin": [
+        0,
+        30,
+        4.2
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 20,
+      "purpose": "Stereo AUDIO TRS has an independent recessed physical insertion stop",
+      "firstSolid": "audio PJ-342 recessed insertion stop",
+      "distanceMm": 19.175000002980234
+    },
+    {
+      "origin": [
+        0,
+        -30,
+        -7.1
+      ],
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "maxDistance": 13,
+      "purpose": "Grove mouth has actual four contacts and recessed rear wall",
+      "firstSolid": "MIDI Grove rear wall",
+      "distanceMm": 12.300000011920929
+    }
+  ],
+  "nestedGroveAttachPoseDetach": "pass",
+  "disposedResources": 305
+}

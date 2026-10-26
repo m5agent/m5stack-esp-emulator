@@ -6,6 +6,7 @@ import {buildGroveModuleAssembly} from '../../modeling/grove-cable.js';
 import {mesh,slab,grove,FACE,portQuaternion,screw} from '../../modeling/parts.js';
 import {spec} from './dimensions.js';
 import data from './geometry-data.js';
+import {addStickers} from './stickers.js';
 
 // Local display treatment: the native API remains an external framebuffer.
 // The official configuration photo shows white monochrome emitters, not RGB.
@@ -155,6 +156,7 @@ function build(host){
  const parts=addCadParts(host,data,{shell:materials.plastic(0x686e67,{roughness:.8}),lens:materials.plastic(0xdce3d7,{roughness:.52,transparent:true,opacity:.82})});
  mainBoard(host);display(host);openGrove(host,spec.grove,'Roller485 fixed red Grove socket');pwr485(host);debug(host);fixedRgb(host);host.add(new NativeFlexureButton(parts['Roller485 native fixed OLED face shell']));rotor(host,parts);fasteners(host);
  host.add(new Component({id:'sensor',label:'Roller485 visual anchor',meta:{role:'visual-anchor',sku:'U182',scope:'no encoder counts, current, torque, bus, firmware or electrical model'}}));
+ addStickers(host);
 }
 export class Model extends Device{static meta={id:'m5stack.unit.roller485',name:spec.name,sku:spec.sku,vendor:'M5Stack',size:spec.size,nominalMm:spec.nominalMm,keymap:spec.keymap};build(){build(this);}}
 export class GroveModule extends Module{static meta={id:'m5stack.unit.roller485.grove',name:spec.name,sku:spec.sku,connector:'grove',keymap:spec.keymap};build(options={}){buildGroveModuleAssembly(this,build,options);}}

@@ -1,0 +1,174 @@
+import hashlib,json,os,stat,subprocess,urllib.request,zipfile
+from datetime import datetime,timezone
+from pathlib import Path,PurePosixPath
+from PIL import Image
+root=Path.cwd();base=root/'.work/uniform-led-3681-live-browser-20261026';rp=base/'report.json';r=json.loads(rp.read_text());sha=lambda b:hashlib.sha256(b).hexdigest();original_sha=sha(rp.read_bytes());canonical=lambda v:json.dumps(v,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()
+context='top'
+def check(v,n):
+ if not v:raise AssertionError(context+': '+n)
+check(r['service_start']['capacity']['worker']['generation']==32,'exact service generation32');check(r['status']=='PASS','original status');check(r['unit_posts']==r['physical_events']==r['page_errors']==r['resource_errors']==[],'no echo/errors')
+archive=root/'platform/tests/test_live_uniform_led_service_browser.mjs';source=archive.read_text();probe_sha=sha(archive.read_bytes());check(probe_sha=='e1308a230b6aa0d335ba010f887994c12de5a202310ac038d7f35073d73e164c','exact executed probe')
+validator=source.split('const zipValidator = String.raw`',1)[1].split('`;',1)[0];check(sha(validator.encode())==r['tooling']['zip_validator_sha256'],'frozen ZIP checker hash')
+check("assert.deepEqual(await fingerprints(), report.source_sha256" in source, 'executed probe has final source gate')
+evidence_initial={str(p.relative_to(base)):sha(p.read_bytes()) for p in base.rglob('*') if p.is_file()}
+source_checks=[]
+for path,expected in r['source_sha256'].items():
+ current=sha((root/path).read_bytes());same=current==expected
+ check(same,'all executed product/probe sources current '+path)
+ source_checks.append({'path':path,'executed_sha256':expected,'current_sha256':current,'matches':same,'exception':None})
+guard=source[source.index('const groupAccepted ='):source.index('\nfunction guestSource')]
+js="import assert from 'node:assert/strict';\n"+guard+"""
+const good={status:'PASS',evidence:{status:'PASS'},cleanup:{state:'stopped',pid_gone:true,flash_retained:false}};
+assert.equal(groupAccepted(good),true);const failed=structuredClone(good);await browserTeardown(failed,async()=>{throw new Error('independent teardown negative')});
+assert.equal(failed.status,'FAIL');assert.equal(groupAccepted(failed),false);failed.status='PASS';assert.equal(groupAccepted(failed),false);
+for(const key of ['evidence_error','cleanup_error','browser_teardown_error'])for(const value of ['failed','',null])assert.equal(groupAccepted({...good,[key]:value}),false);
+for(const cleanup of [{...good.cleanup,pid_gone:false},{...good.cleanup,flash_retained:true},{...good.cleanup,state:'running'}])assert.equal(groupAccepted({...good,cleanup}),false);
+console.log(JSON.stringify({status:'PASS',exact_frozen_functions:true,teardown_throw_rejected:true,later_PASS_cannot_hide_error:true,empty_null_errors_rejected:true,invalid_cleanup_rejected:true,guest:'NOT RUN',browser:'NOT RUN',network:'NOT USED'}));
+"""
+guards=json.loads(subprocess.check_output(['/opt/homebrew/bin/node','--input-type=module','-e',js],text=True));check('report.groups.every(groupAccepted)' in source,'guard used in final acceptance')
+counts={'encoder':2,'8encoder':9,'rgb':3};colors={'A':{'encoder':[0x204060]*2,'8encoder':[0x40a020]*9,'rgb':[0xa02040]*3},'B':{'encoder':[0x331122,0x114466],'8encoder':[0x102030+i*0x010203 for i in range(9)],'rgb':[0x102030,0x405060,0x708090]},'C':{'encoder':[0x1040e0]*2,'8encoder':[0xe08010]*9,'rgb':[0x10d0a0]*3},'D':{'encoder':[0]*2,'8encoder':[0]*9,'rgb':[0]*3}}
+def emission(c):
+ return [(v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4)*2.2 for v in [(c>>s&255)/255 for s in [16,8,0]]]
+def near(a,b):return len(a)==len(b) and all(abs(x-y)<1e-6 for x,y in zip(a,b))
+def verify_visual(s,g,phase,unavailable=False):
+ check(s['bindings']=={} and s['physicalEvents']==0,'default bindings and no events')
+ reason='unavailable' if unavailable else 'unmapped' if phase=='B' else None
+ for uid in g['group']['leaves']:
+  u=s['units'][uid];c=0 if reason else colors[phase][uid][0];on=c!=0
+  check(u['available']==(not unavailable),'availability '+uid)
+  check(u['hint']['mode']==(reason or 'uniform') and u['hint']['hidden']==(not reason),'hint '+uid)
+  check(u['readback']==[f'LED[{i}] #{v:06x}' for i,v in enumerate(colors[phase][uid])],'raw numeric readback '+uid)
+  check(len(u['leds'])==counts[uid],'all lights '+uid)
+  for led in u['leds']:
+   check(led['attached'] is True and led['known']==(not reason) and led['userDataKnown']==(not reason),'mounted known '+uid)
+   check(led['state']=={'color':f'#{c:06x}','brightness':int(on)},'state '+uid)
+   check(led['glow']==on and led['opacity']==(.85 if on else 0) and led['glowColor']==f'#{c:06x}','glow '+uid)
+   check(near(led['emissive'],emission(c)),'material '+uid)
+  check(all(j['angleDeg']==j['targetAngleDeg']==j['rpm']==0 for j in u['joints']),'no shaft motion '+uid)
+  if uid=='encoder':
+   check(len(u['diffusion'])==2,'both diffusion uniforms')
+   for d in u['diffusion']:check(d['brightness']==int(on) and near([v*2.2 for v in d['color']],emission(c)),'diffusion')
+def verify_qom(q,g,phase):
+ p=q['payload'];check(p['session_id']==g['session_id'] and p['source']=='live' and p['contract_hashes']==g['contract_hashes'],'live unit contract')
+ for uid in g['group']['leaves']:
+  a=next(a for a in g['attachments'] if a['unit_id']==uid);u=next(u for u in p['units'] if u['id']==a['id']);v=q['raw'][uid];path='/machine/units/'+a['id']
+  check(u['source']=='guest-qom' and u['available'] is True and u['errors']=={} and u['properties']['led-rgb']==colors[phase][uid],'actual leaf readback '+uid)
+  check(v['session_id']==g['session_id'] and v['path']==path and v['property']=='led-rgb' and v['value']==colors[phase][uid],'independent raw LED QOM '+uid)
+  extras=[('led_frames','led-frames',None),('incomplete_frames','incomplete-frames',0)] if uid=='rgb' else [('address','i2c-address',64 if uid=='encoder' else 65),('transactions','transactions',None)]
+  for key,prop,expected in extras:
+   d=v[key];check(d['session_id']==g['session_id'] and d['path']==path and d['property']==prop,'raw counter identity')
+   check(type(d['value']) is int and (d['value']>0 if expected is None else d['value']==expected),'raw data-plane counter')
+png_files=set();screenshot_reviews=[]
+def verify_png(directory,record):
+ p=directory/record['path'];relative=str(p.relative_to(base));check(sha(p.read_bytes())==record['sha256'],'exact PNG SHA '+relative)
+ with Image.open(p) as im:
+  im.load();check(im.format=='PNG' and im.width>0 and im.height>0,'PNG decode '+relative);size=list(im.size)
+ png_files.add(relative);return size
+def verify_screenshot(directory,ss,g,label):
+ check([v['view'] for v in ss['views']]==['front','iso'],'front/iso captured')
+ check(ss['path']==ss['views'][0]['path'] and ss['sha256']==ss['views'][0]['sha256'],'front alias exact')
+ expected_names={'whole-host-and-attached-assembly',*[a['id'] for a in g['attachments']]}
+ for v in ss['views']:
+  width,height=v['width'],v['height'];rect=v['viewport'];check(width>0 and height>0 and rect['x']>=0 and rect['y']>=0 and rect['x']+width<=rect['width'] and rect['y']+height<=rect['height'],'complete canvas fits viewport')
+  check(len(v['bounds'])==len(expected_names) and {b['name'] for b in v['bounds']}==expected_names,'whole host and exact attached model bounds')
+  for b in v['bounds']:
+   check(b['visible'] is True and len(b['points'])==8,'visible model and eight corners')
+   check(all(2<=p['x']<=width-2 and 2<=p['y']<=height-2 and -1<p['z']<1 for p in b['points']),'each model bounding corner inside canvas')
+  browser_size=verify_png(directory,v);renderer=v['renderer'];render_size=verify_png(directory,renderer)
+  check(render_size==[round(width*2),round(height*2)],'exact direct renderer canvas dimensions');check(all(r<=b<=r+2 for b,r in zip(browser_size,render_size)),'stage screenshot encloses full canvas with at most one CSS pixel screenshot rounding');check(browser_size==[878,842] and render_size==[878,840],'recorded actual stage/renderer dimensions')
+  with Image.open(directory/renderer['path']) as im:
+   rgba=im.convert('RGBA');pixels=list(rgba.getdata());visible=[p[:3] for p in pixels if p[3]>0];actual={'size':list(im.size),'visible_pixels':len(visible),'unique_rgb':len(set(visible))}
+  check(actual==renderer['metrics'] and actual['visible_pixels']>1000 and actual['unique_rgb']>50,'independent direct-render nonblank metrics')
+ check([p['unit_id'] for p in ss['panels']]==g['group']['leaves'],'exact leaf panel set')
+ for p in ss['panels']:check(all(n>100 for n in verify_png(directory,p)),'panel readable image dimensions')
+ check(all(n>100 for n in verify_png(directory,ss['overview'])),'full page dimensions')
+ screenshot_reviews.append({'group':g['group']['id'],'phase_or_condition':label,'status':'PASS','browser_views':['front','iso'],'browser_stage_size':[878,842],'direct_renderer_size':[878,840],'screenshot_perimeter_note':'Locator screenshot enclosing fractional CSS coordinates adds one CSS pixel vertically; direct canvas size independently exact.','direct_render_views':['front','iso'],'bounds':'all eight corners of whole assembly and each attachment fit within canvas','LED_optical_unoccluded_claim':False})
+
+group_reviews=[];ids=[];frame_metadata_notes=[];window_count=0
+for g in r['groups']:
+ context=g['group']['id'];directory=base/context
+ check(g['status']=='PASS' and not any(k in g for k in ['cleanup_error','browser_teardown_error','evidence_error']),'no teardown errors')
+ check(json.loads((directory/'report.json').read_text())==g,'group report same bytes/data source')
+ check(g['source_sha256']==r['source_sha256'] and g['worker']['generation']==32,'source and worker identity')
+ check(g['runtime_identity']=={'pid':g['pid'],'executable_name':'qemu-system-xtensa','sha256':'b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2'},'runtime binary identity')
+ checked=json.loads(subprocess.check_output(['/opt/miniconda3/bin/python3.12','-c',validator,str(directory/'evidence.zip'),str(directory/'validation-input.json')],text=True));check(checked['status']=='PASS','original frozen byte validator recheck')
+ with zipfile.ZipFile(directory/'evidence.zip') as z:
+  names=z.namelist();check(len(names)==len(set(names))==23 and z.testzip() is None,'unique 23 members/CRC')
+  for name in names:
+   p=PurePosixPath(name);check(not p.is_absolute() and '..' not in p.parts and '\\' not in name and p.as_posix()==name,'safe member path');check(stat.S_IFMT(z.getinfo(name).external_attr>>16)!=stat.S_IFLNK,'not symlink')
+  manifest=json.loads(z.read('manifest.json'));check(set(manifest['files'])==set(names)-{'manifest.json'},'exact member index')
+  for name,meta in manifest['files'].items():
+   b=z.read(name);check(type(meta['size']) is int and meta['size']==len(b) and meta['sha256']==sha(b),'member size/hash '+name)
+  session=manifest['session']
+  for key in ['session_id','device_id','runtime','pid','firmware_sha256','worker']:check(session[key]==g[key],'manifest '+key)
+  contract=json.loads(z.read('units/contract.json'));state=json.loads(z.read('units/state.json'));check(state==manifest['units'] and state['session_id']==g['session_id'] and state['source']=='live','final unit state identity')
+  check(contract['source_hashes']==state['contract_hashes']==g['contract_hashes'],'frozen contract hashes')
+  current_profiles=json.loads((root/'platform/units/runtime-profiles.json').read_text())['units'];check(all(contract['profiles'][u]==current_profiles[u] for u in g['group']['units']),'exact profiles current/frozen')
+  check(json.loads(z.read('units/runtime.json'))['attachments']==g['attachments']==session['units'],'attachments')
+  for uid in g['group']['leaves']:
+   a=next(a for a in g['attachments'] if a['unit_id']==uid);leaves=[u for u in state['units'] if u['id']==a['id']];check(len(leaves)==1,'one final leaf');u=leaves[0]
+   check(u['unit_id']==uid and u['source']=='guest-qom' and u['available'] is True and u['errors']=={} and u['properties']['led-rgb']==[0]*counts[uid],'final D leaf all-off '+uid)
+  raw=z.read('serial.log');text=raw.decode('utf8',errors='replace');check(text.count('ESP-ROM:')==g['rom_banners'] and text.count('M5EMU_UART_REPL_READY')==1,'no extra boot')
+  executions={p['program']['execution_id'] for p in g['phases']};stored={PurePosixPath(n).stem for n in names if n.startswith('programs/') and n.count('/')==1 and n.endswith('.json')};check(len(executions)==4 and stored==executions,'409 created no fifth execution');ids.extend(executions)
+  check([p['phase'] for p in g['phases']]==['A','B','C','D'],'four stages')
+  for i,p in enumerate(g['phases']):
+   context=g['group']['id']+'/'+p['phase'];program=p['program'];phase=p['phase'];check(p['runtime_identity']==g['runtime_identity'] and program['pid']==g['pid'] and program['firmware_sha256']==g['firmware_sha256'],'same PID/runtime/firmware')
+   check(program['execution_mode']=='same-guest-uart-repl' and program['cleanup_mode']=='interrupt-only' and program['transfer_mode']=='raw-paste','live REPL transport')
+   check(p['source']==p['request']['source']==(directory/(phase+'.py')).read_text(),'exact posted raw source')
+   check(p['source_sha256']==sha(p['source'].encode()) and program['source_bytes']==len(p['source'].encode()),'raw source SHA/bytes')
+   check(p['request']['expected_execution_id']==(g['phases'][i-1]['program']['execution_id'] if i else None),'expected previous execution')
+   check(g['nonce'] in p['source'] and ('sys.path.append' in p['source'])==(i==0),'same VM nonce assertions')
+   prefix='programs/'+program['revision_id'];original=json.loads(z.read(prefix+'/source.json'));check(original=={'entrypoint':'main.py','files':{'main.py':p['source']}},'original revision source bytes')
+   check(sha(canonical({'source_kind':'uiflow2-python',**original}))==program['revision_id'] and sha(canonical(original['files']))==program['source_sha256'],'canonical source/revision SHA')
+   saved=json.loads(z.read('programs/'+program['execution_id']+'.json'));check(saved['state']==('running' if i==3 else 'interrupted'),'final execution state')
+   if i<3:check(saved['interruption_confirmed'] is True,'prior interrupt confirmed')
+   verify_qom(p['capture']['qom'],g,phase);verify_visual(p['capture']['visual'],g,phase)
+   frame=p['capture']['frame'];b=(directory/frame['path']).read_bytes();check(sha(b)==frame['sha256']==frame['headers']['x-frame-sha256'],'exact current PNG SHA')
+   check(frame['headers']['x-frame-execution-id']==program['execution_id'] and frame['headers']['x-frame-revision-id']==program['revision_id'],'current frame execution headers')
+   with Image.open(directory/frame['path']) as im:
+    im.load();check(im.format=='PNG' and list(im.size)==frame['metrics']['size']==[320,240],'PNG decode/size')
+    rgb=im.convert('RGB')
+    for pixel in frame['metrics']['pixels']:check(list(rgb.getpixel((pixel['x'],pixel['y'])))==pixel['rgb'],'sampled actual PNG coordinates')
+   ss=p['capture']['screenshot'];verify_screenshot(directory,ss,g,phase);png_files.add(str((directory/frame['path']).relative_to(base)))
+   fm=p['capture']['visual']['frameMetadata'];check(fm['x-frame-execution-id']==program['execution_id'] and fm['x-frame-revision-id']==program['revision_id'],'mounted frame execution identity')
+   if fm['x-frame-sha256']!=frame['sha256']:frame_metadata_notes.append({'group':g['group']['id'],'phase':phase,'same_execution_revision':True,'atomic_frame_claim':False})
+  context=g['group']['id']+'/UART'
+  for observation in g['serial_observations']:
+   a=observation['offset'];w=observation['window'];b=w['next_offset'];check(type(a) is int and type(b) is int and a==w['offset'] and 0<=a<=b<=len(raw),'fresh raw byte range')
+   check(w['session_id']==g['session_id'] and w['bytes']==b-a and w['data']==raw[a:b].decode('utf8',errors='replace'),'exact UART bytes/session')
+   check(observation['prefix_sha256']==sha(raw[:a].decode('utf8',errors='replace').encode()),'UART prefix hash')
+   matches=[json.loads(line[len(g['marker'])+1:]) for line in w['data'].splitlines(keepends=True) if line.endswith('\n') and line.startswith(g['marker']+' ')]
+   check(observation['sample'] in matches and observation['sample']['nonce']==g['nonce'],'complete marker/nonce sample');window_count+=1
+  n=g['mpy_negative'];check(n['status']==409 and n['body']['error']['code']=='unsupported_program_entrypoint' and n['before_execution_id']==n['after_execution_id']==g['phases'][0]['program']['execution_id'],'negative 409 same execution')
+  check(n['continuation']['sample']['sequence']>g['phases'][0]['observation']['sample']['sequence'],'negative did not stop loop')
+  t=g['transport_negative'];verify_visual(t['unknown'],g,'C',True);verify_visual(t['recovered'],g,'C');verify_qom(t['independent'],g,'C');verify_screenshot(directory,t['screenshots'],g,'C-browser-HTTP503-unknown')
+  check(t['continuation']['sample']['sequence']>g['phases'][2]['observation']['sample']['sequence'],'503 guest continued')
+  check(sum(f['session_id']==g['session_id'] and f['status']==503 for f in r['transport_faults'])>=t['injected_gets']>0,'browser-only actual503 responses; captured prefix before subsequent zero-echo polling')
+  check([w['label'] for w in g['zero_echo']]==['A','B','C','transport-unavailable','D'] and all(w['observed_ms']==1300 and w['unit_posts']==w['physical_events']==0 and w['new_shared_frames']>0 for w in g['zero_echo']),'ten short zero-echo windows')
+  check(sha(z.read('frames/current.png'))==g['phases'][-1]['capture']['frame']['sha256'],'ZIP final frame D')
+ check(sha((directory/'evidence.zip').read_bytes())==g['evidence']['zip_sha256'],'ZIP SHA')
+ stopped=json.loads((directory/'stopped.json').read_text());check(stopped['session_id']==g['session_id'] and stopped['state']=='stopped' and stopped['flash_retained'] is False and stopped['last_frame_available'] is True,'stopped snapshot Flash/history')
+ retained=sha((directory/'retained-frame.png').read_bytes());check(retained==g['phases'][-1]['capture']['frame']['sha256'],'retained frame');verify_png(directory,{'path':'retained-frame.png','sha256':retained})
+ try:os.kill(g['pid'],0)
+ except ProcessLookupError:gone=True
+ else:gone=False
+ check(gone,'PID independently gone')
+ with urllib.request.urlopen('http://127.0.0.1:8787/api/v1/sessions/'+g['session_id'],timeout=10) as response:history=json.load(response)
+ check(history['state']=='stopped' and history['flash_retained'] is False,'history independent GET')
+ with urllib.request.urlopen('http://127.0.0.1:8787/api/v1/sessions/'+g['session_id']+'/frame.png',timeout=10) as response:check(sha(response.read())==retained,'retained frame independent GET')
+ group_reviews.append({'group':g['group']['id'],'data_plane_and_materials':'PASS','session_id':g['session_id'],'pid':g['pid'],'pid_gone_independently':True,'worker_generation':32,'firmware_sha256':g['firmware_sha256'],'runtime_identity':g['runtime_identity'],'executions':sorted(executions),'led_count':sum(counts[u] for u in g['group']['leaves']),'ZIP_revalidation':checked,'history_and_frame_readonly_GET':'PASS','transport_count_snapshot':{'recorded_before_zero_echo':t['injected_gets'],'total_browser_503':sum(f['session_id']==g['session_id'] and f['status']==503 for f in r['transport_faults']),'note':'injected_gets was captured before the following zero-echo observation, so it is a prefix count'},'screenshot_acceptance':'PASS complete front/iso canvas and nonblank direct renderer; no all-LED optical-unoccluded claim'})
+ print('AUDITED',g['group']['id'])
+check(len(ids)==len(set(ids))==8 and window_count==12,'total executions/windows')
+check(sha(rp.read_bytes())==original_sha,'original report unchanged')
+context='final'
+check(png_files=={str(p.relative_to(base)) for p in base.rglob('*.png')} and len(png_files)==75,'exact all 75 PNGs decoded/revalidated')
+check(len(screenshot_reviews)==10,'all eight phases and both HTTP503 conditions')
+check(evidence_initial=={str(p.relative_to(base)):sha(p.read_bytes()) for p in base.rglob('*') if p.is_file()},'all original raw evidence remained unchanged')
+check(all(sha((root/p).read_bytes())==h for p,h in r['source_sha256'].items()),'all product and probe sources still match executed source hashes')
+check(sum(g['transport_count_snapshot']['total_browser_503'] for g in group_reviews)==len(r['transport_faults'])==22,'actual browser HTTP503 response count')
+manual=[
+ 'i2c-hub/A-iso-browser.png','i2c-hub/C-iso-browser.png','i2c-hub/C-transport-unknown-iso-browser.png',
+ 'rmt-rgb/A-iso-browser.png','rmt-rgb/C-iso-browser.png','rmt-rgb/C-transport-unknown-iso-browser.png',
+ 'i2c-hub/A-browser.png','i2c-hub/C-front-render.png','i2c-hub/C-transport-unknown-front-render.png','i2c-hub/C-transport-unknown-encoder-panel.png']
+review={'schema_version':1,'reviewed_at':datetime.now(timezone.utc).isoformat(),'category':'independent-readonly-vendor-3681-uniform-LED-evidence-review','status':'PASS','acceptance_scope':'Actual guest data plane, all 14 mounted LED materials/known states, complete front/iso canvas and nonblank direct renderer. No claim that all 14 LEDs are optically unoccluded simultaneously.','data_plane_and_material_assertions':'PASS','browser_screenshot_acceptance':'PASS within complete-canvas scope','original_report_status':'PASS','original_report_sha256':original_sha,'original_report_path':str(rp),'executed_probe_sha256':probe_sha,'executed_probe_path':str(archive),'source_checks':source_checks,'before_after_sources_match':True,'source_freeze_evidence':'Probe records all initial hashes and asserts the same hashes after execution before PASS. Independent review verified all current hashes before and after audit. No separate freeze-and-cleanup-check.json exists for r3.','all_original_raw_evidence_unchanged':True,'batch_independence':'New 3681 vendor sessions and executions; all prior reviews remain unchanged. No prior image or runtime samples spliced into this review.','groups':group_reviews,'screenshots':screenshot_reviews,'Encoder_optical_readability':'NOT ACCEPTED; partial HUB occlusion and no physical per-LED location proof','manual_visual_review':{'paths':[str(base/p) for p in manual],'observed':'Actual host, HUB/attached models and RGB visible within full canvas; known A/C emission and neutral unknown appearance confirmed in iso views. Front views show structural occlusion of Encoder by 8Encoder. HTTP503 panel explicitly labels unknown, with prior numeric readback retained.','all_14_LEDs_optically_unoccluded':False},'totals':{'executions':8,'actual_LED_components':14,'per_phase_LED_material_checks':56,'ZIP_members':46,'fresh_UART_windows':12,'PNG_frames':8,'PNG_total':75,'screenshot_groups':10,'browser_canvas_views':20,'direct_renderer_views':20,'model_bounding_corner_projections':480,'zero_echo_windows':10,'zero_echo_ms_each':1300,'unit_input_POSTs':0,'physical_events':0,'browser_HTTP503':len(r['transport_faults'])},'teardown_failclosed_host_negative':guards,'separate_frame_sampling_notes':frame_metadata_notes,'limits':['Virtual-device category only; physical hardware NOT RUN.','Stable uniform/latest-value scope; no nonuniform physical permutation or shaft-angle calibration. UNIT-HOST-29 remains OPEN.','Complete canvas and in-bounds Box3 projections establish no image-boundary clipping, not lack of model-to-model optical occlusion. Encoder is partly occluded by 8Encoder in HUB views.','All 14 LED known/material states are independently asserted on mounted objects; screenshots do not establish simultaneous pixel-level visibility of every LED.','HTTP503 removes model emission to neutral unknown; this does not establish electrical off.','qom/snapshot.json is truncated; complete per-leaf raw QOM is recorded independently in capture.qom.raw, final D leaf states separately verified in ZIP units/state.json.','Frame/QOM/materials are separately sampled; no atomic same-frame claim.','Only two framebuffer sample coordinates were compared to mounted display; no full framebuffer equality claim.','transport_negative.injected_gets is an earlier captured prefix; each group transport_count_snapshot records exact prefix and full top-level actual response count.'],'mutations':'Only new independent r3 review and its .work host review script; original evidence/product sources unchanged, no guest/browser launch.'}
+out=root/'.work/visual-3681-live-independent-review-20261026/uniform-review.json';check(not out.exists(),'new review file');out.write_text(json.dumps(review,ensure_ascii=False,indent=2)+'\n');print(json.dumps({'path':str(out),'sha256':sha(out.read_bytes()),'status':review['status'],'acceptance_scope':review['acceptance_scope'],'PNG_total':75,'HTTP503':len(r['transport_faults'])},ensure_ascii=False))

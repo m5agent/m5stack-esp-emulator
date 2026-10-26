@@ -372,6 +372,8 @@ export class DeviceViewer extends EventEmitter {
     return {
       pointerId: e.pointerId, event: e, intersection,
       uv: intersection?.uv ?? null, point: intersection?.point ?? null,
+      // Captured sliders keep following the pointer after it leaves the cap.
+      ray: this.raycaster.ray.clone(),
     };
   }
 

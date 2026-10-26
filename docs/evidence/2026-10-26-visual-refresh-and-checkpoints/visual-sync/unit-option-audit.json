@@ -1,0 +1,1669 @@
+{
+  "source_commit": "3681a6482aff96501d44659ba5a1603246f1fe1f",
+  "scope": "catalog text option candidates; expected material layer counts must be read from actual mounted instance, no upstream JS executed",
+  "units": [
+    {
+      "id": "env-iii",
+      "entry": "src/units/env-iii/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "透镜微结构或网罩局部参考照片近似；非生产 CAD"
+      ],
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（官方照片参考重绘）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pir",
+      "entry": "src/units/pir/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "透镜微结构或网罩局部参考照片近似；非生产 CAD"
+      ],
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（官方照片参考重绘）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
+    },
+    {
+      "id": "angle",
+      "entry": "src/units/angle/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "visualComponents": [
+          "rotation"
+        ]
+      },
+      "limitations": [
+        "官方U005机械图：轴Y8、帽含筋Ø9.5、总高22.3；网页名义高度22保留。固定蓝底/金属框依自身照片；隐藏件与帽分段推导。",
+        "原CAD壳不变；新PCB/孔柱/Grove避让为推导。源壳存在非流形边，有限采样不证明制造配合。",
+        "Grove中心Z1.4及高5.2取自自身CAD槽底−1.2到前面+4包络推导，并非图纸标注口高；旧工程坐标调用者应读取当前Port。",
+        "只提供外部视觉角度定位；viewer ±150°不是官方限位，不提供ADC/固件/电气行为。贴纸等待原文件。"
+      ],
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（官方照片参考重绘）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
+    },
+    {
+      "id": "light",
+      "entry": "src/units/light/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "官方CAD装配壳体保留，新增真实金属槽头相对固定蓝座绕+Z外驱旋转；头半径1.5mm、槽深0.32mm及蓝座尺寸为照片估计。",
+        "trim为位置式关节，不接受非零rpm；demo范围[-135,135]不是额定机械限位，电位器型号、旋向和电气零位仍未确认。",
+        "仅显示外部给定的微调头角度，不模拟电阻、光强阈值、比较器、ADC或传感器读数；参考照片重绘已接入，印刷原稿仍待补充。"
+      ],
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（官方照片参考重绘）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
+    },
+    {
+      "id": "relay",
+      "entry": "src/units/relay/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "accessoryExports": [
+          "TerminalPlug"
+        ]
+      },
+      "limitations": [
+        "对应旧单路Unit Relay U023，保留24×48×8 mm原壳；规格表的8 mm为基壳口径，官方机械图的完整装配为14.6 mm，继电器15.5×10.5×11.8 mm依据链接HK4100F封装图。",
+        "固定3.96 mm三针座和可拆螺钉插头为真实有腔实体，COM/NO/NC按官方J2和前面图排列；PCB、端子壁厚、插头接触深度/线孔和截短引脚为照片推导，不是制造CAD。",
+        "默认固定座无插头；terminalPlug:true或terminal.attach(new TerminalPlug())可显示插头，terminal/screw-1..3只接受外驱可见转角，不推导轴向螺纹运动、夹线、电气或继电器状态。",
+        "状态灯描述与旧官方原理图/照片仍矛盾，保留无猜测灯；全部印刷/参考照片重绘已接入，印刷原稿仍待补充。"
+      ],
+      "configurations": [
+        {
+          "id": "socket",
+          "name": "固定3P座",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "name": "安装螺钉插头",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "thermal",
+      "entry": "src/units/thermal/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "110°原厂黑包体5.70 mm总高、Ø2.60小窗；r4.60位于Ø9.30±0.15公差内以避让原22边孔，原CAD不变",
+        "凹面深度/大口径、header分层、装配yaw、PCB形状/高度及裁短焊脚为外观推导；没有PCB装配STEP/内部实拍",
+        "Grove口由Z0改Z1.4，10×5.2来自自身图纸；默认模块按当前口对齐，显式unitPose仍为装配原点",
+        "只提供实体外观、既有sensor视觉anchor及Grove线缆，不提供温度、热图、IR可见光、电气或固件行为",
+        "局部有限采样/渲染不证明制造或实物；贴纸延期，stage仍modeled"
+      ],
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（官方照片参考重绘）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rs485",
+      "entry": "src/units/rs485/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "accessoryExports": [
+          "TerminalPlug"
+        ]
+      },
+      "limitations": [
+        "对应U034官方8 mm原壳及HT3.96-4P固定座，默认空座与既有10.2 mm名义总厚保持；后螺钉另突出约0.045 mm。",
+        "官方包装明确随附可拆4P螺钉端子；terminalPlug:true或terminal.attach(new TerminalPlug())显示附件，terminal/screw-1..4仅接受外驱可见角度，B/A/12V+/12V-为物理标签。",
+        "附件局部舌深、壁厚、夹笼、螺钉与装配包围为照片推导，HT3.96-4P类型名不证明不同厂牌通配；不模拟螺纹升降、夹线、UART/RS485、供电或电气行为。全部贴纸延期。",
+        "Grove开放顶槽／短舌／四针按官方图补齐，口高5.2 mm；内部8.6 mm通道、壁厚／深度和PCB切口为推导。旧PCB外边缘与原壳局部交叠仍未解决，不声明整板制造配合。"
+      ],
+      "configurations": [
+        {
+          "id": "socket",
+          "name": "固定4P座",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "name": "安装4P螺钉插头",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "fan",
+      "entry": "src/units/fan/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "visualComponents": [
+          "rotor"
+        ]
+      },
+      "limitations": [
+        "对应U063官方CAD保留高起电机罩；名义32 mm壳长之外的轴按官方机械图外露2.6 mm，故默认可见Y包围为34.6 mm",
+        "默认不装可拆叶片，propeller:true可显示60 mm双叶附件；叶片弦长/扭角与隐藏电机包尺寸为照片推导",
+        "PCB具有电机与Grove避让；rotor由外部角度/rpm驱动视觉旋转，不实现PWM、气流或电气行为，贴纸延期"
+      ],
+      "configurations": [
+        {
+          "id": "bare",
+          "name": "裸轴",
+          "options": {}
+        },
+        {
+          "id": "propeller",
+          "name": "安装风叶",
+          "options": {
+            "propeller": true
+          }
+        },
+        {
+          "id": "bare-education-cn",
+          "name": "裸轴 · 官方中文教学贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        },
+        {
+          "id": "propeller-education-cn",
+          "name": "安装风叶 · 官方中文教学贴纸",
+          "options": {
+            "propeller": true,
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
+    },
+    {
+      "id": "key",
+      "entry": "src/units/key/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Official U144 table height 22.6 mm conflicts with linked drawing 24.3 mm; both retained, visible model follows drawing, feedback 0970e056422246f58f8cc3658ab38e54.",
+        "Only the selected fixed native shell pair is official CAD; sculpted red cap, blue stem, real-thickness clear switch, PCB and port assembly use official photographs/drawing. Local fits are visual estimates.",
+        "Press travel 1.6 mm is an appearance estimate, not rated pretravel/overtravel or a stiffness/electrical model. RGB is independent external visual state.",
+        "Sticker artwork is deferred; geometry/browser evidence do not establish physical fit or rated switch travel.",
+        "Inferred PCB uses open boss notches and a central post clearance; default runtime check samples PCB material and hidden package against both closed native shells in three directions. This is appearance geometry, not a manufacturing fit."
+      ]
+    },
+    {
+      "id": "8encoder",
+      "entry": "src/units/8encoder/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Official EC11A fitted variant push pretravel/overtravel and complete cap/shaft CAD are unconfirmed; 0.35mm press and concealed dimensions are visual estimates.",
+        "Official side perimeter base is 8mm, while the original raised-platform shell envelope is 10mm; the assembled cap envelope is 25mm.",
+        "RGB numbering represents physical CH positions; no schematic U1-U9 chain mapping or firmware/electrical interpretation is implemented.",
+        "Only external visual joint/button/LED commands; no encoder counts, registers, bus, firmware, stickers or hardware simulation.",
+        "Hidden PCB outline is an appearance reconstruction with full boss/central relief and narrow bridges, validated by sampled shell-material containment; not fabrication CAD or a tolerance/physical-fit result."
+      ]
+    },
+    {
+      "id": "scroll",
+      "entry": "src/units/scroll/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "0.25 mm push stroke and the paired wheel/axle-insert press group are appearance approximations; the real concealed pivot/switch support motion is unconfirmed. PCB outline is reconstructed within measured source cavities, not fabrication CAD.",
+        "Official assembled STL wheel and axle rotate together; rotation generates no encoder counts, bus values, firmware or physics.",
+        "Source components 1/2/4/6/8 are displaced duplicates and are excluded. Original stickers remain deferred."
+      ],
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（官方照片参考重绘）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
+    },
+    {
+      "id": "weight-i2c",
+      "entry": "src/units/weight-i2c/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "accessoryExports": [
+          "TerminalPlug"
+        ]
+      },
+      "limitations": [
+        "采用同 SKU 官方完整装配壳体；已补 PCB、真实贯穿安装孔、红色敞口 Grove 和橙色四芯固定端子，连接器内部细节与隐藏封装为照片推导",
+        "官方正文表格写 56×24×11.3 mm，尺寸图和 CAD 为 24×32×8 mm 壳体、11.3 mm 装配厚度；模型采用尺寸图/CAD，冲突已向官方反馈，尚未收到修正",
+        "可拔插4P端子与四个螺钉头部外驱角度已接入；插头局部尺寸由同型号官方照片推导，正反印刷与逐面浏览器验收后置。",
+        "仅实现外观、接线姿态与接口元数据，不实现称重、校准、供电、传感器数值或 I2C 协议行为"
+      ],
+      "configurations": [
+        {
+          "id": "socket",
+          "name": "固定4P座",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "name": "安装4P螺钉插头",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "8servos",
+      "entry": "src/units/8servos/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "accessoryExports": [
+          "TerminalPlug"
+        ]
+      },
+      "limitations": [
+        "原始U165版本；官方表格标称10.5mm，尺寸图包含男排针的最大厚度为11.5mm。",
+        "已补完整原生双片外壳、PCB、24个实体排针、HT3.96-4P固定电源插座与Grove插座；隐藏局部尺寸为外观推导。",
+        "可拔插4P端子与四个螺钉头部外驱角度已接入；插头局部尺寸由同型号官方照片推导，正反印刷与逐面浏览器验收后置。",
+        "仅提供实体外观和接口配对框，不模拟舵机运动、PWM、电源或电流。"
+      ],
+      "configurations": [
+        {
+          "id": "socket",
+          "name": "固定4P座",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "name": "安装4P螺钉插头",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "8angle",
+      "entry": "src/units/8angle/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete native shell pair, PCB, eight fixed potentiometer packages and moving knobs/shafts, nine physical lights, stable slide switch and open-top Grove are modeled; hidden dimensions are appearance estimates.",
+        "Finite 280-degree cap travel follows the official U154 annotated photograph; the centered visual zero is not an ADC or mechanical calibration. No potentiometer push button is present.",
+        "Labels and other printed surfaces are deferred; no photographic sticker crop is used.",
+        "External visual commands only: no ADC, resistance, I2C, firmware, electrical behavior or automatic LED response. Browser review was deferred at user request."
+      ]
+    },
+    {
+      "id": "oled",
+      "entry": "src/units/oled/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete native U119 front/rear shell pair with solid display stack, physical PCB, magnetic fixings and open-top red Grove socket.",
+        "Nominal 24×56×8mm portrait orientation; official 128×64 landscape resolution is exposed as 64×128 portrait framebuffer.",
+        "Concealed PCB, display thickness/installed Z, electronics, magnets and Grove interiors are visual inferences; no production assembly STEP.",
+        "Externally written black/white pixels only; no touch, SH1107 registers, I2C, electrical behavior or automatic content.",
+        "Sticker rasters added 2026-10-26; raw inputs remain private and exhaustive browser review has not been run."
+      ]
+    },
+    {
+      "id": "byteswitch",
+      "entry": "src/units/byteswitch/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete native assembled U191 shell pair and two native lightpipes; physical PCB, eight fixed six-pin DPDT bodies and eight moving ball/rod/tips, two contact-complete Grove sockets and screws.",
+        "Eight retained toggle stops use actual rigid rotation. Physical CH0 is the bottom switch-1/rgb-1; CH7 is the top switch-8/rgb-8. Estimated stops ±22.5 degrees and pivot are visual reconstruction.",
+        "Nine independent RGB components reuse native lightpipe surfaces. IDs represent physical location, not schematic/firmware chain order; no automatic switch or power response.",
+        "Both Grove ports support attachment and nested cables; no bus switching, byte state, DPDT electrical truth table, registers, sensor values or firmware simulation.",
+        "Vendor drawing gives 19.6 mm at tilted stops; the estimated upright middle of the lever sweep reaches 20.12 mm total depth.",
+        "Sticker rasters added 2026-10-26; raw inputs remain private and exhaustive browser review has not been run."
+      ]
+    },
+    {
+      "id": "bytebutton",
+      "entry": "src/units/bytebutton/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Native complete front/rear shell assembly and original eight-way/end lightpipes retained with one rigid transform. Eight RGB exit surfaces are partitioned by material without changing or duplicating triangles.",
+        "8 real moving caps/stems have independent press, release and cancellation; 9 external RGBs and dual Grove ports support nested attachment.",
+        "Official 24×88×12mm housing, plus separately dimensioned 2mm button cap projection: complete rest envelope24×88×14mm.",
+        "Concealed PCB, cap/stem details, 0.2mm travel, installed package positions and connector interiors are appearance reconstructions, not production tolerances.",
+        "Input intent and external RGB control only; no I2C, registers, debounce, electrical or automatic button-to-light behavior.",
+        "Sticker rasters added 2026-10-26; raw inputs remain private and exhaustive browser review has not been run."
+      ]
+    },
+    {
+      "id": "2relay",
+      "entry": "src/units/2relay/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "accessoryExports": [
+          "TerminalPlug"
+        ]
+      },
+      "configurations": [
+        {
+          "id": "socket",
+          "name": "Two fixed 4P sockets",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "name": "Two supplied 4P screw plugs",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ],
+      "limitations": [
+        "Complete native assembled U131 shell pair plus full physical PCB, two sealed relay packages, two terminal socket/contacts, two recessed blue LED packages and open-top black Grove socket.",
+        "Two optional removable four-pole plugs expose eight externally driven screw-head angles; dimensions and clamp/cavity details are exact-SKU photo inferences, not production fit tolerances.",
+        "Two independent indicators have fixed blue color and default off; external on/brightness only, without automatic power, GPIO, relay or plug coupling.",
+        "No armature motion, contact switching, truth table, voltage/current, firmware or electrical behavior; sensor is a visual anchor.",
+        "Sticker rasters added 2026-10-26; raw inputs remain private and exhaustive browser review has not been run."
+      ]
+    },
+    {
+      "id": "4relay",
+      "entry": "src/units/4relay/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "accessoryExports": [
+          "TerminalPlug"
+        ],
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "socket",
+          "name": "四路固定4P座",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "name": "四路安装4P螺钉插头",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ],
+      "limitations": [
+        "Official complete U097 assembled shell pair; physical PCB, four sealed relay boxes, four independent fixed-green LED lenses, four fixed upright socket cavities/pins and four removable accessories.",
+        "Prose dimensions and two-hole count conflict with same-page drawing and official CAD; drawing/CAD used; official feedback c652a5b1396f4b56bbb28b97efc62911 accepted but correction not confirmed.",
+        "Hidden packages, connector internal surfaces, insertion depth and visible screw details are photo-derived appearance estimates, not rated fit, isolation or production tolerances.",
+        "Indicators accept external on/brightness; sixteen optional screw heads accept external angle only. No relay switching, electrical, wiring, power, load, clamp, torque, thread, register or protocol behavior.",
+        "Contact numbering is visual only: COM/NO/NC order is unconfirmed. Real relay internals remain sealed and static.",
+        "Sticker rasters added 2026-10-26; raw inputs remain private and exhaustive browser review has not been run."
+      ]
+    },
+    {
+      "id": "dmx",
+      "entry": "src/units/dmx/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete native shell pair retained; physical PCB, mounting/screw clearances, cyan open-top four-contact Grove and fixed XLR-328P female receptacle complete shell openings.",
+        "XLR barrel/rim/insert have actual hollow cavities and three female bore/contact walls; ear bore, key, ribs and moving PUSH linkage are geometry. XLR mating connector xlr-3-male rejects Grove. No external XLR plug/cable accessory.",
+        "SS-1260 termination is retained slide; inferred 1.8 mm travel. XLR PUSH is momentary, returns after release/cancel; inferred 1 mm inward travel. No locking, bus, resistor, UART, isolation or electrical simulation.",
+        "D4 fixed-red power-led is externally driven only. Official marketing RGB LED label conflicts with explicit RED LED schematic; official feedback 66724e13e6234c4a9547fb39e08b066f saved.",
+        "Hidden PCB/package and connector/switch/latch geometry reconstructed; production mechanical fit not verified.",
+        "Sticker rasters added 2026-10-26; raw inputs remain private and exhaustive browser review has not been run."
+      ]
+    },
+    {
+      "id": "can",
+      "entry": "src/units/can/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "accessoryExports": [
+          "TerminalPlug"
+        ]
+      },
+      "configurations": [
+        {
+          "id": "socket",
+          "name": "Fixed 4P socket",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "name": "Supplied 4P screw plug",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ],
+      "limitations": [
+        "Complete official shell pair plus physical PCB, package envelopes, fixed terminal socket/contacts, recessed white indicator lens and open-top Grove; no artwork overlays.",
+        "Optional removable HT/VH3.96-4P screw plug has four externally driven screw-head angles. Socket/contact/plug fit and internal population are appearance estimates, not production tolerances.",
+        "White power-led defaults off and accepts external on/brightness only; no automatic response to power, cable, plug or CAN traffic.",
+        "No CAN controller/transceiver, frames, registers, isolation, termination resistor, supply or firmware simulation. Sensor is only a visual anchor.",
+        "Sticker rasters added 2026-10-26; raw inputs remain private and exhaustive browser review has not been run."
+      ]
+    },
+    {
+      "id": "tof4m",
+      "entry": "src/units/tof4m/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete exact-SKU native assembled shell plus physical PCB, 4.9 × 2.5 × 1.56 mm VL53L1CXV0FY/1 package, two solid filter panes, passive receiver lens and VCSEL, and open red Grove socket.",
+        "Concealed board placement, detailed wells/filter appearance, support components and connector internals are visual inferences, not production mechanical tolerances.",
+        "Sensor is a pure visual anchor. No visible LED, distance/scan simulation, laser beam, I2C, electrical behavior or automatic emission.",
+        "Sticker rasters added 2026-10-26; raw inputs remain private and exhaustive browser review has not been run."
+      ]
+    },
+    {
+      "id": "poesp32",
+      "entry": "src/units/poesp32/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete original shell pair 0+2 retained under one translation; source islands 1+3 are displaced duplicate shells.",
+        "Hidden board stack, electronics and connector internal envelopes are inferred from original apertures and official photos/schematic; no production assembly-fit claim.",
+        "No exposed buttons/USB/moving joint documented or modeled; no network, serial/AT, Ethernet/PHY, PoE/electrical, WiFi, BLE, web, register or firmware simulation.",
+        "Certification sticker side placement is inferred; front/back converted from exact flat artwork; certification final PNG preserves original preview resolution due a missing glyph in CDR conversion.",
+        "No browser or physical-device validation; only necessary local structure/API/Grove/artwork smoke."
+      ]
+    },
+    {
+      "id": "cams3-5mp",
+      "entry": "src/units/cams3-5mp/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Nominal body is 24×40×11 mm in model axes; exact tessellated source envelope retains about 0.056 mm XY tolerance. All three native plastic parts retained under one translation only; no production shell edits.",
+        "PCB outline/Z/thickness, ESP32-S3 module shield/antenna, PY260 optical barrel/glass/sensor/FPC, microSD package/contact envelopes, microphone and LED coupling are inferred from exact-product photos and native apertures; no PCB/production fit claim.",
+        "Exact U174-B photos and dimension drawing show two 1×3 headers and rear G44/G43/5V plus EN/G0/GND labels. Shared schematic/MCP summary says Header4/GPIO3/GPIO8; discrepancy submitted to official feedback. Geometry follows exact-product photos/drawing.",
+        "Fixed PY260 optics have no focus, pan, tilt or shutter joint. The single blue status LED accepts external on/brightness only. No camera capture, image pipeline, audio, networking, card/filesystem, firmware, USB/UART or electrical behavior.",
+        "Front/top/rear brand and die-cut rear pinout are final PNGs rasterized from the supplied original design. Cut/fold guides excluded and outline glyph winding normalized; originals, source links, mappings, vector and conversion intermediates remain private.",
+        "Adhesive rear pinout film bridges its real recessed label region; physical main PCB, card roof/carrier/contacts and two female header packages remain behind it. Artwork does not substitute missing mechanical backing.",
+        "No browser or exhaustive face inspection at user request; stage remains modeled. Sticker world placement and optical/package datums are visual registrations, not manufacturing tolerances."
+      ]
+    },
+    {
+      "id": "extio2",
+      "entry": "src/units/extio2/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete 3500-triangle native assembled U011-B shell retained by common rigid translation and 180-degree Y rotation; displaced spare shell halves excluded. No exterior LED, button or joint is documented or visible.",
+        "PCB outline/plane/thickness, package datums/envelopes, P2 carrier/pin bends/solder installation, concealed SWD connection pad population/placement, passive packages, Grove internals, screw shank and label registration are appearance reconstructions, not production assembly STEP or manufacturing-fit claims.",
+        "Only Grove and the true top ten-pin male P2 are external Ports. P1 SWD connection is a concealed fixed pad representation; exact photos do not establish an exposed populated socket. The io connector rejects Grove.",
+        "No GPIO, ADC, servo, PWM, RGB, bus, registers, firmware or electrical simulation. Advertised external RGB/servo-control capabilities do not imply built-in LEDs/servos. sensor remains a passive visual anchor.",
+        "One reference-redrawn rear label PNG from the exact U011-B official photograph is included, with blank front preserved. Necessary local geometry/API/Grove/artwork-disable smoke passed; browser/full historical and production-fit validation remain deferred."
+      ]
+    },
+    {
+      "id": "acssr",
+      "entry": "src/units/acssr/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "accessoryExport": "TerminalPlug"
+      },
+      "limitations": [
+        "SSR body, thermal base, four clamp cages/guards/terminal wells and installed controller/SSR datum reconstructed against exact U139 photographs and nominal kit dimensions.",
+        "PCB outline/components, switch installed package, fork lugs, internal download socket and recessed 4P fixed/plug envelopes are inferred appearance dimensions.",
+        "Native integral tongue free-end travel 0.22 mm is inferred; original neutral vertices and normals are exactly restored.",
+        "Controller rear PWR optical guide placement is inferred; original CAD shell is not drilled or cut.",
+        "Two exact-model reference PNG redraws: small SSR QR/serial omitted; logo/certification/bulb outlines approximated.",
+        "No cover-removal API, mechanical armature, actual AC/DC switching, voltage, load, mains, Modbus/I2C, network or firmware behavior.",
+        "No browser or physical-device validation; necessary local structure/API/cable/artwork smoke only."
+      ],
+      "configurations": [
+        {
+          "id": "socket",
+          "name": "固定4P座",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "name": "安装两只4P螺钉插头",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "step16",
+      "entry": "src/units/step16/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "PCB outline and installed depth, concealed package sizes/placement, switch fixed seat/shaft depth, seven-segment package/segment spacing, front-membrane light spread, Grove internals and screw shank are appearance reconstructions.",
+        "Warm yellow/amber display appearance follows same-model lit official photo; no measured spectrum or confirmed display part number.",
+        "Native CAD cap rest is visual rest; no firmware mechanical-zero, BCD code order, direction mapping or switch press is inferred.",
+        "No browser/full historical validation, firmware/electrical/hardware verification or manufacturing fit. Stage remains modeled.",
+        "Rear sticker is an independently redrawn reference PNG, not official original artwork. Front and rotary cap are plain white in exact official photographs."
+      ]
+    },
+    {
+      "id": "asr",
+      "entry": "src/units/asr/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Exact U194 original complete assembled shell preserved, including native grille, Grove mouth, mounting holes, fastening relief, embossed mark and seams. This is not Module ASR M147.",
+        "PCB outline/thickness/Z, concealed carrier/module/package envelopes and positions, speaker frame/cone/basket/magnet dimensions, P1 connector pitch/position and fixed wire routing, microphone can/gasket/acoustic-bore/mesh installation are inferred visual reconstruction; no production assembled STEP or manufacturing-fit claim.",
+        "Exact exterior images show a small frontal MIC inlet. The complete native shell is unmodified; the installed acoustic gasket/duct and hidden package behind its shoulder seam are reconstructed, not production acoustic geometry.",
+        "D4 is schematic RED LED; exact exterior photographs do not establish an exposed lens/light path. Concealed fixed red package only, no Led API. The printed blue bulb is artwork.",
+        "Exact rear artwork prints 8Ω@1W while product body specifies 8Ω@0.8W; no electrical/speaker-rating determination.",
+        "No button, USB, synthetic microphone capture, voice/wake recognition, sound/audio playback or moving diaphragm API. Sensor is a passive visual anchor.",
+        "Both exact-U194 label faces are newly code-drawn high-resolution PNGs from official photos; no photographic crop or source vector distributed. Browser re-review deferred; stage modeled."
+      ]
+    },
+    {
+      "id": "uhf-rfid",
+      "entry": "src/units/uhf-rfid/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete native assembled shell retained at scale 1 with four through bores, strap slot, snap windows/tabs and seams. No exposed buttons or LED windows are documented or visible.",
+        "Concealed carrier/module PCB profiles, stack, unmarked shield, ceramic antenna dimensions/electrode/feedthrough, passive package envelopes/XYZ and connector interior depths are inferred visual reconstructions. No populated assembly STEP, RF topology or production-fit claim.",
+        "Passive antenna/module anchor only. No RF field, tag identity, scan, read/write, EPC, RSSI, UART/AT, electrical or firmware behavior.",
+        "Back uses latest exact-product contour-derived PNG; front mark is reference-redrawn. Historic official photos show an older 2M label; supplied 2026-04-30 revision correctly says 1M. No exhaustive browser review; stage remains modeled."
+      ]
+    },
+    {
+      "id": "earth",
+      "entry": "src/units/earth/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（原稿轮廓恢复）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸（原稿轮廓恢复）",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ],
+      "limitations": [
+        "Original complete assembled enclosure retained with all 8436 triangles; source STL contains only the 24 × 32 × 8 mm shell. The overall 24 × 64.3 × 8 mm model adds the genuine exposed two-tine probe and physical electronics from official dimensions/photos.",
+        "Probe tip taper, drill radii/pitch, conductive finish, concealed circuit PCB/package installation, pot body/head/slot depth, connector contact depth and screw shank are visual reconstructions; no production assembly fit or environmental/electrode material claim.",
+        "The exposed threshold head is an external positional angle only, no RPM/press, mechanical limit or electrical zero/direction is inferred. Suggested viewing metadata ±135 degrees is not a measured end-stop range.",
+        "No firmware, moisture/conductivity values, comparator/threshold output, ADC, voltage calibration or electrical behavior. No exterior LED is evidenced by the exact schematic/photos.",
+        "Standard and optional education-cn final PNGs preserve supplied glyph contours with restored paint/layer visibility. Private source documents/mappings/intermediates remain excluded; no browser/full historical or real hardware verification."
+      ]
+    },
+    {
+      "id": "qrcode",
+      "entry": "src/units/qrcode/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "refractor",
+          "label": "安装固定折射头",
+          "options": {
+            "refractor": true
+          }
+        },
+        {
+          "id": "direct",
+          "label": "直视扫描头",
+          "options": {
+            "refractor": false
+          }
+        }
+      ],
+      "limitations": [
+        "Native complete assembled shell, independent original TRIG cap and fixed removable refractor retain all source triangles; displaced duplicate pieces excluded, no scaling to hide drawing/CAD differences.",
+        "Nominal 27.2×65.8×18.4 mm versus original CAD 27.6000004×65.8207893×18.6119833 mm in model-axis order; direct base 24×48×16 mm.",
+        "Concealed carrier PCB/package positions, M14 engine/optical stack, fixed CMOS, LED lens/die, FPC route, buzzer, reflective sheet and installed slide envelopes are inferred physical reconstruction; no production assembled STEP or manufacturing-fit claim.",
+        "TRIG 0.3 mm and mode-slide 2 mm travels are visual estimates, not measured switch specifications.",
+        "One white and one red external LED package are independently driven visual lenses, default off; no scan/mode/trigger coupling or projected beams.",
+        "Removable refractor is fixed-angle, configured with refractor true/false; no invented movable joint.",
+        "Sensor is passive; no image capture, decoding, speech/audio, firmware, register, I2C/UART or electrical simulation.",
+        "All three labels are supplied exact-product original-artwork rasterizations; source vectors/table/mapping/generators are private. Browser re-review deferred; stage modeled."
+      ]
+    },
+    {
+      "id": "laser-tx",
+      "entry": "src/units/laser-tx/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete native U066 assembled shell component 0 retained with original mounting bores, top emission opening, Grove cutout, fastening relief, embossed M5 and seams; no scaling, cutting, hole filling or independent alignment.",
+        "PCB outline/thickness/Z, concealed component packages/XYZ, laser barrel/diode can/collimator/nose/lens profiles and installation, two internal leads, solder and Grove interior are visual reconstruction. No production populated STEP, BOM placement or manufacturing-fit claim.",
+        "Fixed red emitter appearance is supported by exact U066 WL:650NM print. Printed PWR:5mW is a label claim, not measured optical output or laser classification. Only local lens material brightness is external; no beam, spot, light transport, modulation, communication or RX coupling.",
+        "No buttons, moving joints or fabricated exterior indicator LEDs. Sensor is a passive visual anchor, with no readings, GPIO, firmware or electrical simulation.",
+        "Rear artwork says OUT; Grove metadata follows official DIN/NC table and host-to-Q1 gate direction, with no electrical behaviour inferred.",
+        "Two observed label faces are newly code-drawn high-resolution reference-redraw PNGs. No photographic pixels or source originals are distributed. Exhaustive browser inspection deferred; stage stays modeled."
+      ]
+    },
+    {
+      "id": "midi",
+      "entry": "src/units/midi/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete native rear/front shells and own green light guide retained with one common rigid translation at scale 1; displaced duplicate islands excluded.",
+        "PCB/upper board placement, concealed package envelopes, board interconnects, DIN contact/key/depth and TRS spring/depth construction are inferred physical reconstruction; no production assembly datum or manufacturing-fit claim.",
+        "Mode position 0 left Bypass and 1 right Separate follow the exact front print; 2 mm slide travel is a visual estimate, no automatic MIDI route or contact truth table.",
+        "One fixed-green power-led follows exact U187 visible light guide and own LED1 schematic, externally driven/default off; no automatic connection, power, mode or audio linkage.",
+        "DIN and TRS connector families describe physical shape pairing only; five outer jack roles stay distinct; none accepts Grove.",
+        "No MIDI routing, note/synth commands, serial parser, baud rate, signal/electrical simulation or sound. Sensor is a passive appearance anchor.",
+        "Both labels are new code-drawn high-resolution reference redraws from exact U187 photos; no photo crops. Typography/colour/registration are reconstructed, exhaustive browser review deferred."
+      ]
+    },
+    {
+      "id": "dac2",
+      "entry": "src/units/dac2/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "socket",
+          "label": "Fixed socket",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "label": "Supplied screw plug",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ],
+      "limitations": [
+        "Complete native assembled shell preserved at scale1 with one common rigid transform; displaced copies excluded. Native stepped/faceted mounting bores preserved, no circular replacement.",
+        "PCB shape/Z, component population placement, Grove/terminal internals and removable plug geometry are inferred appearance reconstruction, no production installation or fit claim.",
+        "Only JP1 is a populated address strap; JP2/JP3 remain fixed pads. No external DIP switch, button or LED added.",
+        "Four plug screw heads accept external visual angles and duration only; no continuous RPM, axial tightening, clamp force or electrical effect.",
+        "No voltage/current, conversion, short-circuit protection, sensor values, I2C bus or firmware implemented.",
+        "Two source-vector PNGs preserve original contours and fills with compound winding recovery; original vectors and private mapping excluded. Exhaustive browser review deferred."
+      ]
+    },
+    {
+      "id": "dds",
+      "entry": "src/units/dds/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete native assembled shell retained at scale1 with one common translation; displaced separate copies excluded.",
+        "PCB profile/thickness/installation, fixed packages, hidden coax/IPEX arrangement, SMA threads/contact/depth and screw details are visual reconstruction, without production-fit validation.",
+        "Product size24×71.4×8 mm includes SMA; native shell24×64×8 mm has origin at its own centre and overall asymmetric Y bounds[-32,39.4].",
+        "No externally visible LEDs or controls are evidenced; the two gold native windows are backed by actual connector metal, with no invented glow or motion.",
+        "SMA connector family describes physical mating only and rejects Grove; no SMA-to2.54 mm accessory cable is included.",
+        "Sensor is a passive appearance anchor; no waveform, frequency, phase, sleep, signal, I2C firmware, sensor values or electrical simulation.",
+        "Two matching labels are newly code-drawn reference-redraw PNGs from exact U105 photos; typography/colour/diagram/registration are reconstructed; full browser review deferred.",
+        "Observed25MHz print retained; official product text10MHz versus schematic25M/RCC_CLK_25MHz remains a runtime-clock question and is not simulated."
+      ]
+    },
+    {
+      "id": "kmeter-iso-v11",
+      "entry": "src/units/kmeter-iso-v11/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Two complete native U133-V11 shells retained at their original relative assembly with one common translation. No scaling, independent realignment, shell cuts, hole filling or appearance closure planes.",
+        "PCB outline/thickness/Z, populated package installation and lead/solder details, fastener shank, Grove internals and K-socket unequal slot widths/spacing/depth are own-photo visual inferences, not production dimensions or electrical isolation clearances.",
+        "K socket has two different flat-slot widths, full physical bore walls, recessed spring strips and solid polymer rear stops. Independent thermocouple-k-mini-flat Port rejects Grove modules. Supplied 1 m probe is documented but no accessory is fabricated without matching installed mechanical dimensions.",
+        "No buttons, joints or exposed indicator lights. Exact schematic LED1 red is concealed non-emissive physical geometry because no independently evidenced exterior light path was found; no old U133 ESP32-C3 or white power LED imported.",
+        "The sensor is a passive appearance anchor; no temperature, voltage, conversion, compensation, sampling, fault detection, I2C, isolation, firmware or electrical behavior.",
+        "Three final PNGs are included: exact supplied front/back production vector artwork rasterization, including a documented alpha repair against original preview, and same-SKU reference-redrawn connector markings. Stage remains modeled; no browser/full historical, hardware or manufacturing-fit verification."
+      ]
+    },
+    {
+      "id": "extencoder",
+      "entry": "src/units/extencoder/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "socket",
+          "label": "Fixed socket",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "label": "Supplied screw plug",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ],
+      "limitations": [
+        "Complete native U161 assembly component retained at scale1 with one common rigid transform; displaced copies excluded. Original stepped/faceted mounting bores preserved.",
+        "PCB contour/thickness/Z, hidden population and lead details, Grove/fixed connector internals and accessory plug installation geometry are visual estimates, not production mating tolerances.",
+        "No local encoder knob, shaft, motor, button, display or external LED. Main-body sensor is a passive visual anchor.",
+        "Own U161 package photo explicitly supports supplied five-screw plug. Five independent head angles accept external joint commands and duration only; no nonzero RPM, screw axial/clamp motion, tightening or torque behavior.",
+        "No excitation, AB/ABZ pulses/decoding, counts, position, speed, angle, I2C, protection, voltage, continuity, firmware or electrical behavior.",
+        "Two final reference-redraw PNGs synchronize readable connector/front and rear printing. No photo crops, original vectors, private mappings or raw photos are distributed; no browser/exhaustive acceptance claimed."
+      ]
+    },
+    {
+      "id": "nfc",
+      "entry": "src/units/nfc/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Exact U216 complete native assembled shell retained with one common translation, scale1; original stepped/faceted bores, rear fastening recess and top pry opening retained.",
+        "Concealed PCB, QFN32, power/clock/matching components and solid planar antenna are appearance reconstructions; trace turns and installation are inferred, not measured RF geometry or production assembly.",
+        "Only passive sensor and Grove attachment registered. No LED/button/joint, NFC/RFID scan, RF field, tag/card simulation, protocol or electrical behavior.",
+        "Two source-vector final PNGs preserve exact contours and fills after converter compound-winding recovery. Private sources and generation intermediates excluded.",
+        "Necessary local geometry/API/cable/artwork checks passed; exhaustive browser/hardware acceptance deferred."
+      ]
+    },
+    {
+      "id": "adc-v11",
+      "entry": "src/units/adc-v11/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "socket",
+          "label": "Fixed socket",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "label": "Supplied screw plug",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ],
+      "limitations": [
+        "Complete native assembled shell3710 triangles preserved at scale1 using one rigid transform; displaced copies excluded. Native stepped/faceted mounting bores unchanged.",
+        "PCB outline/Z/thickness, concealed package placement, connector internals and removable plug geometry are appearance reconstructions, not production assembly/mating tolerances.",
+        "No exposed LED/button/display. The sensor component is only a passive appearance anchor.",
+        "Two plug screw heads accept external visual angles and duration only, reject nonzero RPM, restore exact rest; no axial/clamp or electrical effects.",
+        "No ADC conversion, voltage/current, PGA/reference/rate, I2C, protection, sensor values, continuity or firmware behavior.",
+        "Two synchronized reference-redraw PNGs from exact own official photos; no photo crops, raw references, vectors or private mappings distributed. Browser/exhaustive visual acceptance deferred.",
+        "Official ADC naming/reference/sample-rate conflicts reported with accepted feedback receipt; exact own ADS1110 schematic and rear printing determine visible package identity."
+      ]
+    },
+    {
+      "id": "ameter",
+      "entry": "src/units/ameter/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "socket",
+          "label": "Fixed measurement socket",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "label": "Supplied four-screw plug",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ],
+      "limitations": [
+        "Nominal shell8mm; exact own dimension drawing gives10.2mm including fixed terminal, preserved separately.",
+        "All5630 native front/rear triangles retained under common scale1 translation; displaced duplicates excluded.",
+        "PCB/population, connector internals and removable plug are photo-reconstructed, no production-fit claim.",
+        "Indicator optical path confirmed; warm-white colour is an explicit unconfirmed appearance estimate, defaults off and independently externally driven.",
+        "Four screw heads accept external visual angles/duration, reject nonzeroRPM, no axial tightening or electrical effect.",
+        "No ADC,current, fuse melting, calibration, protection, isolation, I2C or electrical/firmware behavior.",
+        "Two same-model code-redrawn PNGs; private sources and generators excluded; full browser review deferred."
+      ]
+    },
+    {
+      "id": "vmeter",
+      "entry": "src/units/vmeter/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "socket",
+          "label": "Fixed socket",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "label": "Supplied screw plug",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ],
+      "limitations": [
+        "Complete native front/rear shell retained at scale1 with one shared translation; source duplicates excluded.8mm shell nominal and10.2mm with fixed terminal separately recorded.",
+        "PCB/hidden packages, transformer geometry, Grove/terminal interior and removable plug mating are visual estimates, not production tolerances.",
+        "Power indicator hue is unconfirmed; fixed neutral-white preview markedcolorConfirmed:false, defaultsoff, externalon/brightness only. No RGB capability or automatic electrical response claimed.",
+        "Four independent accessory screw heads accept finite angle/duration only; no nonzeroRPM, axial/clamp motion, tightening torque or electrical effect.",
+        "No voltage/current, ADC conversion, EEPROM calibration, isolation, I2C, continuity, supply or firmware behavior.",
+        "Two reference-redraw PNGs; no photographic crops, source vectors, private table/mappings, generator or raw photos distributed. Front adhesive bridges native clip slots with actual PCB backing. Browser/full historical acceptance deferred."
+      ]
+    },
+    {
+      "id": "mq",
+      "entry": "src/units/mq/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "installed",
+          "label": "MQ-5 installed",
+          "options": {
+            "mq5Cartridge": true
+          }
+        },
+        {
+          "id": "socket",
+          "label": "MQ-5 removed",
+          "options": {
+            "mq5Cartridge": false
+          }
+        }
+      ],
+      "limitations": [
+        "Exact full native shell component0 retained unmodified at scale1; nominal24×64×25 differs from explicitly separate default installed-can80.31mm and bare socket64.4mm reconstructed lengths.",
+        "PCB/adapter/package layout, contact/spring profile, ceramic/heater/lead detail and mesh gauge/pitch are appearance reconstructions, not production mating tolerances.",
+        "D1 GREEN0603 stays concealed without an invented exposed LED or automatic power/glow response.",
+        "Only supplied MQ-5 round-pin cartridge modeled; no invented additional sensor types or rotary joints.",
+        "No gas, heater, alarm, ADC, NTC temperature, electrical, I2C or firmware behavior.",
+        "Four PNGs supplied: exact source-vector back and three code reference redraws; no photo crops/private assets. Browser/full historical acceptance deferred."
+      ]
+    },
+    {
+      "id": "lora-e220-920",
+      "entry": "src/units/lora-e220-920/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "supplied-antenna",
+          "label": "Supplied hinged antenna",
+          "options": {
+            "antenna": true
+          }
+        },
+        {
+          "id": "bare",
+          "label": "Bare Unit",
+          "options": {
+            "antenna": false
+          }
+        }
+      ],
+      "limitations": [
+        "Exact complete native U170 assembled shell6614 triangles retained at scale1;64mm shell and71.4mm includingSMA distinguished; supplied antenna excluded from nominal Unit size.",
+        "PCB/packages, hidden coax, connector internals, DIP travel and antenna seating/hinge shape are visual reconstructions, not production fit.",
+        "Only two independent retained DIP sliders and the documented accessory hinge move; no actual LoRa/RF/UART/WOR/mode/electrical/firmware behavior.",
+        "Antenna0–90degree interval reproduces photographed shapes, not measured stops; no nonzeroRPM or automatic sweep.",
+        "No evidenced exterior LED, no invented control/signal glow.",
+        "Three synchronized reference-redraw PNGs; no photo crops, private mappings, vectors or raw references distributed. Browser/exhaustive validation deferred.",
+        "Official ON/OFF-mode ambiguity submitted with accepted feedback00ea6ae3dfc5419192d9e28306a0bdbe; static print preserved without runtime interpretation."
+      ]
+    },
+    {
+      "id": "watering",
+      "entry": "src/units/watering/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "supplied-hoses",
+          "label": "Supplied dual hoses",
+          "options": {
+            "hoses": true
+          }
+        },
+        {
+          "id": "bare",
+          "label": "Bare Unit",
+          "options": {
+            "hoses": false
+          }
+        }
+      ],
+      "limitations": [
+        "Complete native U101 shell/pump saddle9930 triangles retained at scale1;24×111.995×32.973mm shell distinguished from26.5×192.8×33mm whole Unit. Supplied hoses excluded from Unit nominal size.",
+        "Probe conductor/mask, concealed boards/packages, pump internals, contact/bore installation and ties are appearance reconstruction, not production assembly fit.",
+        "Two real separately bored nipples with deep backing, optional independent hollow tubes and fixed seating sleeves.",
+        "Hose diameters/wall, seating dimensions, default curves and lengths are photo-derived appearance estimates, not certified supplied-hose specifications or fluid physics.",
+        "No visible impeller, external LED or button evidenced; no invented rotor animation, water, glow, automatic wobble, pump state, moisture, ADC, firmware or electrical behavior.",
+        "Two synchronized PNGs: standard rear source contours with preview-guided fill/winding recovery, motor model mark reference-redraw. Private sources and raw references excluded.",
+        "Necessary local geometry/API/connection checks passed; no exhaustive browser or physical hardware verification."
+      ]
+    },
+    {
+      "id": "hbridge-v11",
+      "entry": "src/units/hbridge-v11/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "capacitor",
+          "label": "Supplied plug +470µF capacitor",
+          "options": {
+            "terminalPlug": true,
+            "capacitor": true
+          }
+        },
+        {
+          "id": "plug",
+          "label": "Supplied four-screw plug",
+          "options": {
+            "terminalPlug": true
+          }
+        },
+        {
+          "id": "socket",
+          "label": "Fixed four-pin socket",
+          "options": {}
+        },
+        {
+          "id": "inspection",
+          "label": "Open covers · source/DIP sliders +capacitor",
+          "options": {
+            "covers": false,
+            "terminalPlug": true,
+            "capacitor": true
+          }
+        }
+      ],
+      "limitations": [
+        "All5592 own native triangles retained unscaled; fixed connector and accessory envelopes reported separately.",
+        "Own v1.1 population uses actual schematic22µF C11–C13; generated MCP220µF extraction rejected.",
+        "Source/DIP remain inside real closed covers; covers:false is assembly inspection, no fabricated external opening.",
+        "PCB/package internals, connector fit,5 actuator travel and capacitor dimensions are appearance reconstruction, not production-fit claims.",
+        "No external LED/motor accessory inferred; no motor/PWM/power/current/address/capacitor/electrical/firmware behavior.",
+        "Four screw heads accept visual angles/duration and reject nonzeroRPM; no axial tightening/contact/electrical coupling.",
+        "Two final same-model reference-redraw PNGs; front documented adhesive film, rear original shell projection.",
+        "Full browser/hardware inspection deferred."
+      ]
+    },
+    {
+      "id": "dcssr",
+      "entry": "src/units/dcssr/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "accessoryExport": "TerminalPlug"
+      },
+      "limitations": [
+        "Complete2654-triangle exact U140 native controller shell at scale1;displaced duplicates excluded.",
+        "Full DCSSR outline/installed datum,PCB and concealed component envelopes,plug/socket fit and0.22mm tongue travel are inferred appearance data,no production-fit claim.",
+        "Official45x30.7x11.5mm drawing covers controller including fork lugs only;full-kit45x80x31mm is photo-constrained estimate.",
+        "Two exact-U140 reference-redraw PNGs;SSR QR/serial omitted;logo/icon/typography/registration approximate.",
+        "All lamps and screw-head angles require external commands;no relay state,mode/MCU,DC continuity,voltage/load,Modbus/I2C or firmware implementation.",
+        "No full browser or physical-device validation;necessary local construction/API checks only."
+      ],
+      "configurations": [
+        {
+          "id": "supplied-plugs",
+          "label": "Two supplied four-screw plugs",
+          "options": {
+            "terminalPlug": true
+          }
+        },
+        {
+          "id": "sockets",
+          "label": "Both recessed fixed sockets",
+          "options": {}
+        }
+      ]
+    },
+    {
+      "id": "flashlight",
+      "entry": "src/units/flashlight/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "assembled",
+          "label": "Complete closed shell",
+          "options": {}
+        },
+        {
+          "id": "inspection",
+          "label": "Open covers · internal Flash/Torch slide",
+          "options": {
+            "covers": false
+          }
+        }
+      ],
+      "limitations": [
+        "All3422 own native assembled triangles retained unscaled and unmodified;displaced duplicates excluded.",
+        "Actual mode selector is internal.Default closed shell rejects pointer access;covers:false is assembly inspection,no fabricated exterior opening.",
+        "PCB/package/soldermask,mode installation/throw,connector fit and print registration are appearance reconstruction,no production-fit claim.",
+        "Fixed white appearance is not calibrated spectrum;official5000–5700K versus6000–6500K conflict submitted with received feedback ID.",
+        "No autonomous flash pulse,Flash/Torch state machine,PWM/single-wire,GPIO,power,thermal,protection,firmware,electrical,RGB,beam or scene light.",
+        "Two final same-model reference-redraw PNGs;full browser/hardware visual review deferred."
+      ]
+    },
+    {
+      "id": "gps-sma",
+      "entry": "src/units/gps-sma/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "supplied-antenna",
+          "label": "Supplied active cabled puck",
+          "options": {
+            "antenna": true
+          }
+        },
+        {
+          "id": "bare",
+          "label": "Bare Unit",
+          "options": {
+            "antenna": false
+          }
+        }
+      ],
+      "limitations": [
+        "Exact6592-triangle original assembled shell retained at scale1;64mm shell and71.4mm includingSMA distinguished.",
+        "Concealed circuitry,SMA/coax/adapter installation and accessory details/curve are appearance reconstruction,no production-fit claim.",
+        "No evidenced exterior LED or hinge;no invented glow,tilt,RPM,automatic motion or cable physics.",
+        "Nominal1m accessory cable differs from actual externally posed curve;OD and installed curve are inferred.",
+        "No GNSS,RF,position,fix,satellites,NMEA,PPS,time,UART,electrical or firmware implementation.",
+        "Three synchronized reference-redraw PNGs;browser/exhaustive validation deferred."
+      ]
+    },
+    {
+      "id": "bldc-driver",
+      "entry": "src/units/bldc-driver/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "plug",
+          "label": "Supplied HT3.96-4P plug",
+          "options": {
+            "terminalPlug": true
+          }
+        },
+        {
+          "id": "socket",
+          "label": "Bare phase socket",
+          "options": {}
+        }
+      ],
+      "limitations": [
+        "All3216 own native assembled CAD triangles retained unscaled/unmodified;displaced duplicates excluded.",
+        "PCB/package placement,hidden pin passages,socket seating/plug profile and screw installation are appearance reconstruction,not manufacturing-fit geometry.",
+        "Physical adhesive substrate and PCB back native rear label recess;two final reference-redraw PNGs are separate printed surfaces.",
+        "SYS_LED is concealed with no verified exterior optical path;only physical non-emissive package is modeled,no fabricated window or external light API.",
+        "Four plug screws are position joints accepting angle/duration and rejecting nonzero RPM;no motor/rotor or numeric electrical behavior.",
+        "No I2C/PWM,motor commutation/speed/direction,load,protection,firmware,electrical or hardware validation;full browser acceptance deferred."
+      ]
+    },
+    {
+      "id": "rca",
+      "entry": "src/units/rca/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "assembled",
+          "label": "Complete closed shell",
+          "options": {}
+        },
+        {
+          "id": "inspection",
+          "label": "Open covers · internal channel selector",
+          "options": {
+            "covers": false
+          }
+        }
+      ],
+      "limitations": [
+        "All3216 own native assembled triangles retained unscaled and unmodified;displaced duplicate covers excluded.",
+        "Official table36.4×24×8 mixes overall length and shell thickness;own drawing states14.7mm assembled thickness;recorded separately.",
+        "Actual single internal selector rejects closed-shell pointer access;covers:false is assembly inspection,no fake exterior aperture.",
+        "PCB/package,selector pose/throw,socket/Grove fit and print registration are appearance reconstruction,no production-fit claim.",
+        "Single RCA SIG terminal is modeled.No supplied RCA plug/cable,stereo mixing,audio/video signals,GPIO,electrical,firmware,LED,sensor or motor simulation.",
+        "Two final same-model reference-redraw PNGs;full browser/hardware visual review deferred."
+      ]
+    },
+    {
+      "id": "puzzle",
+      "entry": "src/units/puzzle/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Actual4538-triangle shell/grid and1024-triangle single supplied accessory retained atscale1.",
+        "PCB/package/diffuser/contact installation and sticker registration are appearance reconstruction,no production-fit claim.",
+        "64 row-major pixel IDs are physical appearance coordinates;no automatic WS2812/electrical/address/current behavior.",
+        "No MCU,reset,button,screen,sensor,motor,joint,automatic animation or pixel/IO/power forwarding.",
+        "Bridge exported standalone with no fabricatedPort or unverified installed configuration.",
+        "Two synchronized reference-redrawPNGs;browser/exhaustive validation deferred."
+      ]
+    },
+    {
+      "id": "rs485-iso",
+      "entry": "src/units/rs485-iso/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "terminated",
+          "label": "Supplied plug +120Ω resistor appearance",
+          "options": {
+            "terminalPlug": true,
+            "terminator": true
+          }
+        },
+        {
+          "id": "plug",
+          "label": "Supplied VH3.96-4P plug",
+          "options": {
+            "terminalPlug": true
+          }
+        },
+        {
+          "id": "socket",
+          "label": "Bare isolated bus socket",
+          "options": {}
+        }
+      ],
+      "limitations": [
+        "Complete own U0945630 native assembled triangles retained,scale1,unmodified.Official U094 and U085 shell blobs are identical;linked U085 drawing is shared-shell corroboration only.",
+        "PCB/IC/toroid/protection population,Grove/socket/plug details and installation clearances are appearance reconstruction,not manufacturing-fit geometry.",
+        "Indicator emitted color unconfirmed;fixed neutral-white preview meta.colorConfirmed:false,default off,external brightness only,no RGB/power/traffic simulation.",
+        "Physical120Ω part is documented;body/bands and optional B/A lead-routing posture inferred,not factory installation or a termination simulation.",
+        "Front/rear adhesive substrates and all deep physical geometry survive artwork:false;two separate final own-photo reference-redraw PNGs.",
+        "No sensor/button,UART/RS485/transceiver/direction,isolation,voltage/current/resistance,firmware,protection or hardware validation;browser acceptance remains deferred."
+      ]
+    },
+    {
+      "id": "ain4-20ma",
+      "entry": "src/units/ain4-20ma/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "supplied",
+          "label": "Supplied plug and three horizontal caps",
+          "options": {
+            "terminalPlug": true
+          }
+        },
+        {
+          "id": "two-vertical",
+          "label": "Plug and two vertical caps",
+          "options": {
+            "terminalPlug": true,
+            "jumpers": "two-vertical"
+          }
+        },
+        {
+          "id": "bare-pins",
+          "label": "Bare fixed socket and exposed six pins",
+          "options": {
+            "jumpers": false
+          }
+        },
+        {
+          "id": "inspection",
+          "label": "Cover inspection with fixed electronics",
+          "options": {
+            "terminalPlug": true,
+            "jumpers": "two-vertical",
+            "covers": false
+          }
+        }
+      ],
+      "limitations": [
+        "All5688 own native assembled shell triangles retained unscaled/unmodified.",
+        "PCB/package placement,hidden connector installation,header pitch/placement,cap/screw geometry and adhesive registration are appearance reconstruction,not manufacturing fit.",
+        "Both physical adhesive films and native supporting rails/PCB remain with artwork:false;two separate reference-redraw PNG layers.",
+        "No synthetic sensor anchor,button,LED window,rotor or source-selection state.",
+        "Four plug screws accept angle/duration and reject nonzero RPM;five cap positions reserve physical pins without simulating conductivity.",
+        "No sensor/current/power/I2C/ADC/calibration/firmware/electrical or hardware validation;browser visual acceptance deferred."
+      ]
+    },
+    {
+      "id": "ac-measure",
+      "entry": "src/units/ac-measure/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "plug",
+          "label": "Supplied HT3.96-4P plug",
+          "options": {
+            "terminalPlug": true
+          }
+        },
+        {
+          "id": "socket",
+          "label": "Bare terminal socket",
+          "options": {}
+        }
+      ],
+      "limitations": [
+        "All5592 own native assembled CAD triangles retained unscaled/unmodified;displaced duplicate parts excluded.",
+        "PCB/package placement,socket/plug internals,insertion and screw installation are appearance reconstruction,not manufacturing-fit or isolation-clearance geometry.",
+        "Two exact-model original product label PNGs are printed layers;physical adhesive substrates,native shell and PCB remain independently of artwork.",
+        "Concealed red D1 has no confirmed exterior optical path;no fabricated LED window or public Led API.",
+        "Four accessory screws accept angle/duration and reject nonzero RPM.No CT,button,body joint,synthetic sensor anchor or meter state.",
+        "Official N1/PE table/diagram conflict was reported;terminal names are physical labels only,no wiring advice or mains behavior.",
+        "No I2C,metering,voltage/current/power,electrical,firmware,hardware or full browser validation."
+      ]
+    },
+    {
+      "id": "uwb",
+      "entry": "src/units/uwb/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete own3796 native assembled CAD triangles retained at scale1;two displaced duplicates excluded.",
+        "Concealed board/module/IC positions,connector contacts and integrated antenna thickness are appearance reconstruction,not manufacturing fit or RF geometry.",
+        "No confirmed exterior button,LED light path,moving part or removable SMA antenna;none invented.No synthetic ranging sensor state.",
+        "Two exact standard product-label source-vector-raster PNGs;physical adhesive substrates and internal geometry remain with artwork:false.",
+        "No RF,ranging,positioning,AT,UART,electrical,firmware,hardware or exhaustive browser validation."
+      ]
+    },
+    {
+      "id": "mini-tof-90",
+      "entry": "src/units/mini-tof-90/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete4550 own native assembled shell/insert triangles retained,scale1,unmodified;coarse native bore facet inradii preserved.",
+        "PCB/package/board-link/Grove details and guide material/coupling are appearance reconstruction,not manufacturing tolerances.",
+        "Fixed90-degree optical installation is not a hinge or tilt motion;two passive actual package windows with FrontSide cavities.",
+        "D1 red documented;external power-led uses native insert emissive only,no extra window/halo or automatic power state.",
+        "Front/back adhesive substrates and complete physical geometry survive artwork:false;two final exact-model reference-redraw PNGs.",
+        "No range/optical FoV/IR light,register,I2C,electrical,voltage/power or firmware simulation.No browser/physical acceptance."
+      ]
+    },
+    {
+      "id": "roller485-lite",
+      "entry": "src/units/roller485-lite/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "accessoryExport": "TerminalPlug",
+        "accessoryOption": "terminalPlug:true",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Exact U182-Lite native fixed shells/diffuser retained8730 triangles at scale1;bare motor variant,no top LEGO enclosure,slip-ring,rotating Grove or top indicator.",
+        "Official nominal40mm cube versus native15.2mm case and linkedØ41×14.8mm motor;current41×30×41mm assembly is inferred appearance,not production datum.M5Stack dimension feedback b6a2e2bf5b174a788c7be66dab54c907 accepted.",
+        "Real single HT3.96 socket and optional supplied plug;connector/package/motor axial mounting and hidden circuit placement inferred from own source references.",
+        "Continuous angle/RPM,native A flexure,external64×48 white OLED and2RGB,screw visual angle only;no FOC,current,encoder,bus,power,firmware,clamp-force or load simulation.",
+        "3 own-photo reference-redraw PNGs on real adhesive substrates;all physical geometry stays with artwork:false.",
+        "No exact turntable/flange/bracket fit geometry or exhaustive browser/physical-device acceptance;stage remains modeled."
+      ],
+      "configurations": [
+        {
+          "id": "socket",
+          "label": "Bare terminal socket",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "label": "Supplied HT3.96-4P plug",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "mini-can",
+      "entry": "src/units/mini-can/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "configurations": [
+        {
+          "id": "plug",
+          "label": "Supplied HT3.96-4P plug",
+          "options": {
+            "terminalPlug": true
+          }
+        },
+        {
+          "id": "socket",
+          "label": "Bare terminal socket",
+          "options": {}
+        }
+      ],
+      "limitations": [
+        "Complete3286 own native assembled shell triangles retained,scale1,unmodified;8mm shell and10.2mm socket-inclusive nominal depth distinguished.",
+        "PCB/package locations,socket/plug internals,insertion and screw installation are appearance reconstruction,not manufacturing fit.",
+        "Own U179 non-isolatedTJA1051T/3SO8,ME3116/MST5333/3012 inductor;no isolated CAN U085 module or MCU.",
+        "Physical front die-cut/rear label substrates survive artwork:false;two exact-model reference-redraw PNGs.",
+        "Concealed White LED1 has no confirmed exterior optical path;no public LED,button,sensor or body joint.",
+        "Four accessory screws accept angle/duration,return exactly and reject nonzeroRPM.No thread/clamp/power behavior.",
+        "No CAN messages,registers,voltage/current conversion,electrical,firmware,hardware or full browser validation."
+      ]
+    },
+    {
+      "id": "ina226-10a",
+      "entry": "src/units/ina226-10a/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "accessoryExport": "TerminalPlug",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Exact U20010A/5mΩ variant;all5582 native assembled shell triangles retained at scale1,unmodified.",
+        "Nominal24×58×10.2mm,native shell24×56×8mm and fixed-socket appearance envelope are separate;2mm socket projection awaits official clarification.",
+        "PCB/concealed package installation,connector/cage interiors and mating depth are appearance reconstruction,not manufacturing or isolation clearance evidence.",
+        "No external sensor/button/LED/adjustable body joint;internal blue D2 remains non-emissive.",
+        "Detachable four-screw plug uses external angle/duration only,noRPM or automatic clamping motion.",
+        "Physical label substrates and complete geometry survive artwork:false;two exact source-vector-raster PNGs.",
+        "No current/voltage/power,measurement,I2C,isolation,fuse,electrical or firmware simulation.No browser/physical acceptance."
+      ],
+      "configurations": [
+        {
+          "id": "socket",
+          "label": "Bare terminal socket",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "label": "Supplied HT3.96-4P plug",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "mini-pdm",
+      "entry": "src/units/mini-pdm/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete4162 own native assembled shell triangles retained,scale1,unmodified.",
+        "Table24×24×13mm differs from own drawing/CAD24×24×8mm;nominal and actual separated;feedback dcd6f74080ea478f8745ce19d5542ab8 accepted,not yet corrected by official source.",
+        "Visual24×24×8.05mm includes reconstructed.05mm front adhesive film;concealed PCB/package installation/internal acoustic depth inferred.",
+        "Own datasheet SPM1423HM4H-B3.760×4.720×1.310mm,Ø.840 acoustic bore and6 lands;not generic microphone geometry.",
+        "Both physical films remain with artwork:false;two exact-model reference-redraw final PNGs.",
+        "Only Grove and passive sensor appearance anchor;no fabricated LED,button,joint,audio waveform or recording state.",
+        "No sampling,clock,PDM/I2S,register,value,electrical,power,firmware,hardware,acoustic or full browser validation."
+      ]
+    },
+    {
+      "id": "mic",
+      "entry": "src/units/mic/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete3284 own native assembled shell triangles retained,scale1,unmodified;24×32×8mm CAD and assembled physical envelopes agree.",
+        "PCB/package installation,microphone internals/screen pattern,trimmer installation and Grove details are appearance reconstruction,not manufacturing fit or acoustic validation.",
+        "Real front microphone chamber,perforated screen/diaphragm and blue trimmer/cross-slotted silver head close documented openings.",
+        "Conservative±135°threshold-head visual range is not confirmed production stop,resistance or electrical threshold calibration.",
+        "One physical rear adhesive substrate and exact-model reference-redraw PNG;front has no invented case label.",
+        "No LED/button/display or audio/sampling/recording/waveform/ADC/digital-threshold/electrical/firmware behavior.",
+        "Passive sensor anchor and external head motion only;full browser/physical acceptance unverified."
+      ]
+    },
+    {
+      "id": "accel",
+      "entry": "src/units/accel/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete3490 own native assembled shell triangles retained,scale1,unmodified.",
+        "Product table32×24×8mm length/width order equals model X/Y/Z24×32×8mm.",
+        "Real ADXL3453×5×.95mm14-terminal LGA;PCB/hidden installation and other package envelopes inferred.",
+        "Closed native front/rear label areas retained;no invented sensor window.",
+        "Two seated physical films remain with artwork:false;two exact-model reference-redraw final PNGs.",
+        "Only Grove and passive sensor package anchor;no LED,button,joint,acceleration,orientation or sensor values.",
+        "No I2C,register,electrical,power,firmware,physical measurement,production-fit or full browser validation."
+      ]
+    },
+    {
+      "id": "op180",
+      "entry": "src/units/op180/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete3254 own native shell triangles retained,scale1,unmodified;24×32×8mm shell and24×36×8.8mm full assembled envelope distinguished.",
+        "Drawing5mm true slot width preserved;package width/depth/crossbar,5.5mm slot depth and optical window placement/handedness inferred.",
+        "PCB/package installation and Grove details are appearance reconstruction,not manufacturing fit or optical validation.",
+        "One physical rear adhesive substrate and exact-model reference-redraw PNG;plain front has no invented label.",
+        "No button,joint,visible LED,IR beam,detection cone,occlusion/count/digital-level/electrical/firmware simulation.",
+        "Passive sensor anchor and external Grove pose/cable only;full browser/physical acceptance unverified."
+      ]
+    },
+    {
+      "id": "unit-id",
+      "entry": "src/units/unit-id/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete4178 own native assembled shell triangles retained at scale1,unmodified.",
+        "Real8-pad UDFN model3×2×.55mm with underside paddle;PCB/hidden installation,regulator/passive envelopes inferred.",
+        "Real native top slot retained with recessed PCB/package,not an invented sensor aperture or cap.",
+        "Two seated physical films remain with artwork:false;two exact-model reference-redraw final PNGs.",
+        "Only physical Grove component;no sensor,button,LED,display,joint or secure-element commands.",
+        "No keys,certificates,serial numbers,identity,cryptography,I2C,register,electrical,power,firmware,production-fit or full browser validation."
+      ]
+    },
+    {
+      "id": "rf433r",
+      "entry": "src/units/rf433r/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "Complete3796 own native assembled triangles retained,scale1,unmodified.",
+        "Product48×24×8mm length/width order equals model X/Y/Z24×48×8mm.",
+        "Real SYN531R SOP-8 with eight gull-wing leads;concealed PCB/copper route/Y1/passive installation inferred.",
+        "Product says built-in PCB antenna.E1 ANT_IPEX symbol does not prove a populated exterior connector;accepted official feedback requests PCB/BOM evidence.",
+        "Front real film seats on native support rim and spans existing aperture;back film touches original native rear wall;both remain with artwork:false.",
+        "Two own U113 final ordinary reference-redraw PNGs;no transmitter print or photographic pixels.",
+        "Only Grove;no sensor,RF anchor,LED,button,display,joint,RF/data/strength/distance/protocol/electrical/firmware behavior.",
+        "No browser visual,production-fit,RF,antenna-performance or physical hardware acceptance."
+      ]
+    },
+    {
+      "id": "rf433t",
+      "entry": "src/units/rf433t/index.js",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "limitations": [
+        "All3796 own native assembled shell triangles retained atscale1,unmodified.",
+        "Actual SYN115 six-lead SOT23-6,crystal,PCB and fixed enclosed copper antenna;hidden PCB layout,copper shape/population/installation and connector internals inferred.",
+        "No exterior spring/whip/SMA/IPEX,antenna viewing window,visible RF animation or invented control.",
+        "Only Grove appearance;no sensor,RF/ASK/transmission/data/strength/distance/communication,electrical,protocol or firmware behavior.",
+        "Two exact-model reference-redraw PNGs;physical films remain independent;full browser acceptance deferred."
+      ]
+    }
+  ]
+}

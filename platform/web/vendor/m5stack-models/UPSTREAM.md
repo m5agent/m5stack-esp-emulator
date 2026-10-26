@@ -2,11 +2,11 @@
 
 Source: https://github.com/yuyun2000/m5stack-models
 
-Commit: `48667b728736fbfd4365a06575473ce538d3c972`
+Commit: `3681a6482aff96501d44659ba5a1603246f1fe1f`
 
-Copied from Git objects with an explicit allowlist. Local changes and private research are never copied. `vendor-manifest.json` records every source file's SHA-256. The original `source-manifest.json` records geometry provenance.
+Copied from Git objects with explicit file/hash allowlists. Local changes and private research are never copied. Reviewed public guide/provenance texts preserve their source bytes and close relative links in the bundled guides. `vendor-manifest.json` records each source file and the reviewed guide closure. The unchanged upstream `source-manifest.json` records provenance; its `sourceCommit` is a historical preparation baseline, not this snapshot Git pin.
 
-Preserve `LICENSE`, `THIRD_PARTY_NOTICES.md` and `licenses/` when redistributing. Reviewed product sticker PNGs retain the provider-permission notice and per-file hashes; official remote photos are not bundled or relicensed. All models are visual shells: firmware, controller, bus and sensor evidence come from this project's Device Service.
+Preserve `LICENSE`, `THIRD_PARTY_NOTICES.md` and `licenses/` when redistributing. Reviewed product sticker PNGs, including source-vector rasters and authorized reference redraws, retain the provider-permission notice and per-file hashes. Artwork and marks retain their original rights and are not relicensed as MIT; official remote photos, vectors and generators are not bundled. All models are visual shells: firmware, controller, bus and sensor evidence come from this project's Device Service.
 
 This source uses the site's single Three.js 0.186.1 import-map instance. Load `src/loaders.js` to keep models lazy; do not import `src/index.js` in the first-screen bundle.
 

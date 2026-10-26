@@ -1,0 +1,3 @@
+import{printedArtwork}from'../../modeling/artwork.js';
+const front=new URL('./reference-redraw-front.png',import.meta.url).href,back=new URL('./reference-redraw-back.png',import.meta.url).href;
+export function addStickers(host){const a=host.miniToF90Assembly;return[...printedArtwork(host,{target:a.labels.front,url:front,size:[18.8,4.8],position:[0,7.7,3.89],face:'front',depth:.16,name:'Mini ToF-90 front exact-model reference redraw',artworkKind:'reference-redraw'})??[],...printedArtwork(host,{target:a.labels.back,url:back,size:[18.8,4.8],position:[0,7.7,-3.93],face:'back',depth:.16,name:'Mini ToF-90 rear exact-model pin-label reference redraw',artworkKind:'reference-redraw'})??[]];}

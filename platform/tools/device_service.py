@@ -15,6 +15,7 @@ import io
 import ipaddress
 import json
 import os
+import re
 import shlex
 import shutil
 import signal
@@ -49,7 +50,12 @@ from ble_runtime_limits import (  # noqa: E402
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
 from uiflow_source import UIFlowSourceError, build_uiflow_source_image  # noqa: E402
 from program_revisions import MAX_REVISIONS, ProgramRevisionStore, RevisionError  # noqa: E402
-from program_packages import ProgramPackageStore, ProgramPackageError  # noqa: E402
+from program_packages import (  # noqa: E402
+    MAX_FILE_BYTES as MAX_PROGRAM_FILE_BYTES,
+    MAX_PACKAGE_BYTES, MAX_PACKAGE_FILES,
+    ProgramPackageStore, ProgramPackageError, _snapshot as program_package_snapshot,
+)
+from mpy_bytecode import MPYBytecodeError, validate_bytecode  # noqa: E402
 from uiflow_package_runtime import deploy_package  # noqa: E402
 from frame_cache import CaptureResult, FrameCache, FrameGenerationChanged  # noqa: E402
 from uiflow_runtime import (  # noqa: E402
@@ -1703,6 +1709,29 @@ class ServiceError(Exception):
 
     def payload(self) -> dict:
         return {"error": {"code": self.code, "message": self.message, **self.extra}}
+
+
+def _validate_checkpoint_bytecode(files: dict[str, bytes]) -> None:
+    """Reject known-invalid/native containers without touching the guest.
+
+    This is host format admission only. Deployment still compares bytecode
+    version and small-int requirements with the actual guest capabilities.
+    """
+    for path, data in files.items():
+        if not path.lower().endswith(".mpy"):
+            continue
+        if len(data) < 4 or data[0] != ord("M"):
+            raise ServiceError("program_mpy_invalid", "invalid .mpy header", 409)
+        if data[2] != 0:
+            raise ServiceError(
+                "program_mpy_native_unsupported", "only bytecode-only .mpy dependencies are admitted", 409,
+            )
+        try:
+            validate_bytecode(data)
+        except MPYBytecodeError as error:
+            raise ServiceError(
+                "program_mpy_invalid", "invalid or unsupported bytecode-only .mpy container", 409,
+            ) from error
 
 
 class SessionCancelled(ServiceError):
@@ -6155,7 +6184,13 @@ class DeviceSession:
     def serial_read(self, offset: int = 0, limit: int = 65536) -> dict:
         limit = min(max(int(limit), 1), MAX_SERIAL_READ)
         with self._lock:
-            if not self.serial0.exists():
+            try:
+                with self.serial0.open("rb") as stream:
+                    size = stream.seek(0, os.SEEK_END)
+                    offset = min(max(int(offset), 0), size)
+                    stream.seek(offset)
+                    chunk = stream.read(min(limit, size - offset))
+            except FileNotFoundError:
                 return {
                     "session_id": self.id,
                     "offset": offset,
@@ -6163,9 +6198,6 @@ class DeviceSession:
                     "data": "",
                     "bytes": 0,
                 }
-            data = self.serial0.read_bytes()
-        offset = min(max(int(offset), 0), len(data))
-        chunk = data[offset:offset + limit]
         return {
             "session_id": self.id,
             "offset": offset,
@@ -6218,13 +6250,20 @@ class DeviceSession:
         """Run one source checkpoint in the existing MicroPython VM over UART."""
         from guest_console import GuestConsoleError
 
-        package = isinstance(payload, dict) and "files" in payload
-        allowed = ({"files", "entrypoint", "source_kind", "expected_execution_id", "timeout_seconds"}
-                   if package else {"source", "expected_execution_id", "timeout_seconds"})
-        if not isinstance(payload, dict) or set(payload) - allowed:
-            raise ServiceError("invalid_program", "source, expected_execution_id and optional timeout_seconds are accepted", 400)
-        if "expected_execution_id" not in payload or (not package and not isinstance(payload.get("source"), str)):
-            raise ServiceError("invalid_program", "source and expected_execution_id (null for the first run) are required", 400)
+        if not isinstance(payload, dict) or sum(key in payload for key in ("source", "files", "revision_id")) != 1:
+            raise ServiceError("invalid_program", "exactly one of source, files or revision_id is required", 400)
+        reference = "revision_id" in payload
+        package = reference or "files" in payload
+        allowed = ({"revision_id", "expected_execution_id", "timeout_seconds"} if reference else
+                   {"files", "entrypoint", "source_kind", "expected_execution_id", "timeout_seconds"} if package else
+                   {"source", "expected_execution_id", "timeout_seconds"})
+        if set(payload) - allowed or "expected_execution_id" not in payload:
+            raise ServiceError("invalid_program", "invalid program fields or missing expected_execution_id", 400)
+        if reference and (not isinstance(payload["revision_id"], str)
+                          or re.fullmatch(r"[0-9a-f]{64}", payload["revision_id"]) is None):
+            raise ServiceError("invalid_program", "revision_id must be a lowercase SHA256 package ID", 400)
+        if not package and not isinstance(payload["source"], str):
+            raise ServiceError("invalid_program", "source must be a UTF-8 string", 400)
         source = "" if package else payload["source"]
         try:
             source_size = len(source.encode("utf-8"))
@@ -6249,7 +6288,11 @@ class DeviceSession:
             if payload["expected_execution_id"] != current_id:
                 raise ServiceError("program_generation_conflict", "expected_execution_id is stale", 409)
             try:
-                if package:
+                if reference:
+                    revision = self.service.program_packages.get(payload["revision_id"])
+                    package_files = self.service.program_packages.read_files(payload["revision_id"])
+                    _validate_checkpoint_bytecode(package_files)
+                elif package:
                     revision = self.service.program_packages.create({key: payload[key] for key in ("files", "entrypoint", "source_kind") if key in payload})
                     package_files = self.service.program_packages.read_files(revision["revision_id"])
                 else:
@@ -9238,6 +9281,41 @@ class DeviceService:
                 return {"path": cache_path, "info": _public_flash_info(info)}
             finally:
                 shutil.rmtree(work_dir, ignore_errors=True)
+
+    def _program_revision_response(self, revision: dict) -> dict:
+        return {
+            "revision": revision,
+            "limits": {
+                "max_revisions": self.program_packages.max_count,
+                "max_files": MAX_PACKAGE_FILES,
+                "max_file_bytes": MAX_PROGRAM_FILE_BYTES,
+                "max_total_file_bytes": MAX_PACKAGE_BYTES,
+                "max_http_body_bytes": 2 * 1024 * 1024,
+                "gc_enabled": False,
+            },
+        }
+
+    def create_program_revision(self, payload: dict) -> dict:
+        """Save a complete immutable checkpoint; never interrupt or execute it."""
+        if not isinstance(payload, dict) or set(payload) != {"source_kind", "entrypoint", "files"}:
+            raise ServiceError(
+                "invalid_program_revision", "source_kind, entrypoint and files are required and are the only accepted fields", 400,
+            )
+        try:
+            _, _, files = program_package_snapshot(payload)
+            _validate_checkpoint_bytecode(files)
+            revision = self.program_packages.create(payload)
+        except ProgramPackageError as error:
+            raise ServiceError(error.code, error.message, error.status) from error
+        return self._program_revision_response(revision)
+
+    def get_program_revision(self, revision_id: str) -> dict:
+        """Read metadata only; source bytes remain in the immutable store."""
+        try:
+            revision = self.program_packages.get(revision_id)
+        except ProgramPackageError as error:
+            raise ServiceError(error.code, error.message, error.status) from error
+        return self._program_revision_response(revision)
 
     def create_session(self, payload: dict) -> dict:
         if self._stop.is_set():

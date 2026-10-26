@@ -12,3 +12,5 @@ Official photographs, dimension drawings, PDFs, photographic sticker crops and M
 ## Product sticker rasters
 
 M5Stack product sticker PNGs are included with the provider's permission for public distribution. The artwork, product marks and trademarks remain the property of their respective owners; the project MIT license applies to project-authored code and does not relicense these images or marks. The input table, private source mappings, vector originals and vector conversion intermediates are excluded from the repository and builds.
+
+Some additional printed surfaces are recreated from exact-model official photographs with the user's authorization. These PNGs are identified at runtime as `reference-redraw`, and their public reference photographs and appearance estimates are documented in each product's `artwork-redraw.md`. They are not manufacturer vector originals or evidence of electrical pin compatibility. No photograph pixels, font files, drawing generators or intermediate design files are included. Product marks and trademarks retain their respective owners' rights.

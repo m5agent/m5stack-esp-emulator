@@ -251,3 +251,16 @@ Encoder/8Encoder逐灯映射与机械标定仍缺官方依据。本块先实现�
 本块的限定实现与独立新批次已完成：默认uniform/unknown/恢复和program_features，证据见[归档](../evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。实际组件/材质与完整canvas取景分层；HUB遮挡和Encoder closeup可读性不升级为通过，逐灯/旋转、main.mpy及整体UNIT-01继续OPEN。
 
 默认同色灯/程序能力提交`3b220560`，随后重新fetch/merge主线f2061759，Already up to date；[同步收据](../evidence/2026-10-26-uniform-led-and-program-capabilities/integration.json)。后续继续按Backlog推进Unit、视觉源更新和预览API，不把本块当整体完成。
+
+
+## 当前固定视觉源3681更新与材质门禁
+
+继续同步用户持续新增的外壳，固定公开Git对象`3681a6482aff96501d44659ba5a1603246f1fe1f`；本块不追随移动HEAD。相对48667b7新增84款Unit外壳，原14主机与旧组件目标ID保留。资产准入与Device Service协议准入分开；113视觉Unit不把运行时28种扩大为功能支持，Fader slider尤其不能继承控制桥。
+
+287张PNG逐项固定SHA和notice门禁保留，包含旧65图与新增222图；原图不替换为下载照片。已审169份相对文档闭包按精确路径/固定SHA复制，不泛选research/artifacts；保留原来源、许可与上游source-manifest历史基线，当前pin只以vendor-manifest定义。新增文本先查秘密/MAC/私网配置，source/guide闭包及静态ESM依赖须在写入前拒绝缺项或漂移。
+
+回归runner按printed-artwork角色覆盖所有贴图kind，逐主机/Unit实际加载、等待材质ready并核归属，不以PNG decode替代纹理挂载。287图累计解码量约3.24GiB，采用有界decode与每批context释放；完整默认实例均验，选项配置另列覆盖，不放宽资源错误或超时。保留原屏幕/触摸/按键/异步回退与Unit输出/零回声/清理断言，新增模型所有LED/joint逐项核对。
+
+随后用同一8787可见会话工作流验证限定原驱动程序、默认新外壳的Unit反馈、停止前ZIP与历史/Flash清理。真实会话不能继承上一pin的截图；新视觉图也不升级电气/机械或任意Unit协议支持。更新权威页、快照与精确证据后提交，再fetch/merge最新main。Preview/Run实现复核与该同步并行准备，执行顺序仍只在Backlog维护。
+
+本块限定实施及新独立完整批次已完成，见[3681外壳与checkpoint证据](../evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)。原失败fixture、83配置NOT RUN、Fader bridge不支持、Uniform与Scroll raw-QOM不同证据范围均保留；公共完整checkpoint与同步引用不等于Preview/Run协调完成。UNIT-01整体继续进行。

@@ -1,6 +1,6 @@
 # 外部 Agent：UIFlow 实时编程与 Unit 会话
 
-日期：`2026-10-26`。API 契约：`1.40.0`。
+日期：`2026-10-26`。API 契约：`1.41.0`。
 
 实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
 串口及 Unit 状态”的路径。每次改源码调用 `/sessions/{id}/program`，不重刷
@@ -87,9 +87,33 @@ CoreS3 另有真实网页创建、输入、程序替换、画面进入模型屏�
 早期手动 bootstrap 的 AtomS3R 基线保留在
 [首轮实时程序证据](evidence/2026-10-26-uiflow-live-program/README.md)。
 上述早期结果不外推其它 Unit、任意源码、多文件资源或物理设备。
-每session最多256次execution；单源码与完整包的服务级store各独立限256 revisions，额度
-耗尽返回明确错误，不自动删除历史或重跑未知提交。服务重连期间可能丢失串口输出，
+每session最多256次execution；单源码store默认256、可显式配置1..4096，完整包store独立限256。额度
+耗尽返回明确错误，不自动删除历史或重跑未知提交；公共checkpoint响应明确gc_enabled=false。服务重连期间可能丢失串口输出，
 原活跃程序保持 unknown，不能仅根据旧 START 恢复 running。
+
+## 先保存完整checkpoint，再引用运行
+
+外部Agent可先`POST /api/v1/program-revisions`，必须显式提交下面三个字段：
+
+```json
+{"source_kind":"uiflow2-package","entrypoint":"main.py","files":{
+  "main.py":{"encoding":"utf8","data":"from app import value\nprint(value)\n"},
+  "app.py":{"encoding":"utf8","data":"value = 42\n"}
+}}
+```
+
+响应`revision`含不可变`revision_id`、全部文件SHA/大小和`created_at`；`limits`公开实际包配额和`gc_enabled=false`。
+相同文件bytes使用utf8/base64均得到同ID，重复POST仍201且保留原created_at。
+`GET /api/v1/program-revisions/{revision_id}`核验存储完整性并返回metadata；保存成功还没有运行程序。
+
+在已初始化session中，将返回的ID放入`POST /api/v1/sessions/{id}/program`的`revision_id`，
+同时带当前`expected_execution_id`（首次null）和可选1..120秒timeout。该请求只能有这三个字段，
+不能混入source/files/entrypoint/source_kind。服务端读取既有完整包并在同VM部署/执行，不再create revision。
+未知或旧python-only ID返回404，stale为409，混用/坏ID为400；格式已知不合法/native MPY在分配execution前拒绝。
+实际guest的版本/容量/文件完整性仍在原部署路径检查，运行时拒绝可能已经中断旧程序，应查询执行收据。
+
+这为后续Preview/Run提供不可变输入；当前仍为同步开始确认，没有latest-wins/保VM的Run取消或多租户控制权。
+配额仍有界且不自动回收，不能把复用ID当作长期生命周期已经完成。完整包内容和guest边界见下一节。
 
 ## 同一 VM 的完整文件包
 

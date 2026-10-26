@@ -3,6 +3,7 @@ import {Device,Module,Button,Led,Component,materials} from '../../core/index.js'
 import {mesh,slab,grove} from '../../modeling/parts.js';
 import {buildGroveModuleAssembly} from '../../modeling/grove-cable.js';
 import {spec,KEYS,KEYMAP} from './dimensions.js';
+import {addStickers} from './stickers.js';
 
 function annulus(parent,{outer,inner,depth,position,material,name}){
  const s=new THREE.Shape();s.absarc(0,0,outer,0,Math.PI*2,false);const hole=new THREE.Path();hole.absarc(0,0,inner,0,Math.PI*2,true);s.holes.push(hole);
@@ -60,6 +61,7 @@ function build(host){
   mesh(host.body,new THREE.BoxGeometry(.42,.42,2.65),solder,[-34.2,y,-.975],'CardKB Grove PCB tail');
  }
  host.add(new Component({id:'sensor',label:'CardKB geometry anchor',meta:{role:'visual-anchor',scope:'no-keyboard-firmware'}}));
+ addStickers(host);
 }
 
 export class Model extends Device{

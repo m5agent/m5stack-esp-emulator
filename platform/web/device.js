@@ -1,4 +1,4 @@
-import { createDeviceShell } from './device-shell-factory.js?v=20261026c';
+import { createDeviceShell } from './device-shell-factory.js?v=20261026h';
 
 const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);

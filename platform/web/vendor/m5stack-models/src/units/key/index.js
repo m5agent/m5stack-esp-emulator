@@ -7,6 +7,7 @@ import {roundedRect} from '../../core/geometry.js';
 import {keycapGeometry,switchWallGeometry} from './key-geometry.js';
 import {spec} from './dimensions.js';
 import data from './geometry-data.js';
+import {addStickers} from './stickers.js';
 
 function board(host){
  const shape=new THREE.Shape(),w=9.9,h=18.2,r=2.6,n=5.3,bore=4.1,edgeOffset=w-8,dy=Math.sqrt(bore*bore-edgeOffset*edgeOffset),theta=Math.acos(edgeOffset/bore);
@@ -62,6 +63,7 @@ function build(host){
  for(const x of [-3,-1,1,3])mesh(host.body,new THREE.BoxGeometry(.42,1.2,1.3),materials.metal(0xb0b5a3,{roughness:.5}),[x,-13.6,-1.4],'Key fixed Grove PCB tail');
  screw(host.body,[0,-8,-4.015],'back',1.25);
  host.add(new Component({id:'sensor',label:'Unit Key visual anchor',meta:{role:'visual-anchor',scope:'no-keyboard-firmware-or-electrical-behavior'}}));
+ addStickers(host);
 }
 export class Model extends Device{
  static meta={id:'m5stack.unit.key',name:spec.name,sku:spec.sku,vendor:'M5Stack',size:spec.size,nominalMm:spec.nominalMm,keymap:spec.keymap};

@@ -1,3 +1,4 @@
+import {addStickers} from './stickers.js';
 import {materials} from '../../core/index.js';
 import {slab} from '../../modeling/parts.js';
 import {extractCadCap} from '../../modeling/actuators.js';
@@ -12,5 +13,6 @@ const models=makeUnit(spec,data,host=>{
  const pack=slab(host.body,6,6,.8,.4,[0,7,1.1],materials.plastic(0x202727),[],.04);pack.name='Button recessed tactile switch';
  const cover=slab(host.body,5.6,5.6,.18,.3,[0,7,1.91],materials.metal(0xa1a6a4),[],.025);cover.name='Button tactile switch cover';
  cylinder(host.body,1.1,.2,[0,7,2.15],materials.plastic(0x2b3031)).name='Button recessed switch plunger';
+ addStickers(host);
 });
 export const Model=models.Model;export const GroveModule=models.GroveModule;export default Model;

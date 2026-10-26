@@ -1,0 +1,57 @@
+import ast,hashlib,json,stat,zipfile
+from datetime import datetime,timezone
+from pathlib import Path,PurePosixPath
+root=Path.cwd();out=root/'.work/live-execution-explanation-audit-20261026';sha=lambda b:hashlib.sha256(b).hexdigest()
+current=['platform/tools/uiflow_runtime.py','platform/tools/guest_console.py','platform/tools/uiflow_package_runtime.py']
+source_before={p:sha((root/p).read_bytes()) for p in current};rows=[];all_paths=[];totals={'source_executions':0,'package_attempts':0,'ZIP_members':0,'fresh_UART_windows':0}
+def check(v,s):
+ if not v:raise AssertionError(s)
+def programs(r):
+ e=r['executions'];return [(k,v.get('program',v)) for k,v in (e.items() if isinstance(e,dict) else enumerate(e))]
+def read_source(z,p):
+ if p.get('source_kind')=='uiflow2-package':return z.read('programs/'+p['revision_id']+'/files/main.py').decode()
+ return json.loads(z.read('programs/'+p['revision_id']+'/source.json'))['files']['main.py']
+def nonce_from_source(text):
+ tree=ast.parse(text)
+ for n in ast.walk(tree):
+  if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute) and n.func.attr=='append' and ast.unparse(n.func.value)=='sys.path' and len(n.args)==1 and isinstance(n.args[0],ast.Constant):return n.args[0].value
+ raise AssertionError('no initial VM nonce')
+def zip_check(path):
+ z=zipfile.ZipFile(path);names=z.namelist();check(len(names)==len(set(names)) and z.testzip() is None,'ZIP unique/CRC '+str(path));m=json.loads(z.read('manifest.json'));check(set(m['files'])==set(names)-{'manifest.json'},'exact ZIP index')
+ for name,meta in m['files'].items():
+  p=PurePosixPath(name);check(not p.is_absolute() and '..' not in p.parts and '\\' not in name and p.as_posix()==name,'ZIP path');check(stat.S_IFMT(z.getinfo(name).external_attr>>16)!=stat.S_IFLNK,'no ZIP symlink');b=z.read(name);check(meta['sha256']==sha(b) and meta['size']==len(b),'ZIP byte identity '+name)
+ totals['ZIP_members']+=len(names);all_paths.append(path);return z,m
+for lane,dirname,count in [('source','2026-10-26-live-program-web-and-hosts',5),('package','2026-10-26-live-package-and-detent',12)]:
+ reports=sorted((root/'docs/evidence'/dirname/'hosts').glob('*/report.json'));check(len(reports)==8,'eight case reports')
+ for rp in reports:
+  r=json.loads(rp.read_text());check(r['status']=='PASS' and r['hardware_validation']=='NOT RUN' and all(r['checks'].values()),'case status/checks');entries=programs(r);check(len(entries)==count,'attempt count');ps=[p for _,p in entries];check(len({p['execution_id'] for p in ps})==count,'unique executions');check(all(p['pid']==r['pid'] and p['firmware_sha256']==r['firmware_sha256'] and p['execution_mode']=='same-guest-uart-repl' and p['cleanup_mode']=='interrupt-only' for p in ps),'same guest identity')
+  with zip_check(rp.parent/'evidence.zip')[0] as z:
+   manifest=json.loads(z.read('manifest.json'));check(manifest['session']['pid']==r['pid'] and manifest['session']['firmware_sha256']==r['firmware_sha256'],'ZIP identity');raw=z.read('serial.log');text=raw.decode(errors='replace');check(raw.count(b'ESP-ROM:')==raw.count(b'M5EMU_UART_REPL_READY')==1,'one ROM/bootstrap');nonce=nonce_from_source(read_source(z,ps[0]));checked_nonce=[]
+   for key,p in entries:
+    src=read_source(z,p)
+    if p['state'] in {'running','completed'}:
+     check(('__M5_EXEC_'+p['execution_id']+'__:START').encode() in raw,'actual START '+p['execution_id'])
+     if (lane=='source' and p!=ps[0]) or (lane=='package' and key in {'a','b','b-recovery','c-recovery'}):check(nonce in src,'persistent VM nonce assertion '+str(key));checked_nonce.append(str(key))
+   if lane=='source':
+    check(all(s in text for s in ['LIVE_A_READY','LIVE_B_READY','LIVE_RECOVERED']),'A/B/recovery live markers');check(sha((rp.parent/'frame-a.png').read_bytes())!=sha((rp.parent/'frame-b.png').read_bytes()),'different actual application frames');totals['source_executions']+=count
+   else:
+    inv=r['package_inventory'];check(inv['A']['files']['main.py']['sha256']==inv['B']['files']['main.py']['sha256'],'same main.py in A/B');check(inv['A']['files']['helper.mpy']['sha256']!=inv['B']['files']['helper.mpy']['sha256'],'distinct actual MPY dependency bytes')
+    for phase in r['phases']:
+     ready=phase['guest_ready'];check(ready['helper_file'].endswith('/helper.mpy'),'guest imported MPY');check(ready['old_absent'] is (phase['version']!='A'),'managed old module follows checkpoint version')
+    for obs in r['serial_observations']:
+     w=obs['window'];a,b=w['offset'],w['next_offset'];check(obs['offset']==a and w['bytes']==b-a and 0<=a<=b<=len(raw) and w['data']==raw[a:b].decode(errors='replace'),'fresh exact UART window');check(obs['prefix_sha256']==sha(raw[:a].decode(errors='replace').encode()),'prefix before observation');totals['fresh_UART_windows']+=1
+    totals['package_attempts']+=count
+  provenance=r['runtime_provenance'];check(provenance['pid']==r['pid'] and provenance['observed_binary_sha256']==provenance['expected_binary_sha256'] and provenance['method']=='macOS-proc_pidpath','actual executable provenance')
+  rows.append({'lane':lane,'report':str(rp.relative_to(root)),'report_sha256':sha(rp.read_bytes()),'session_id':r['session_id'],'device_id':r['device_id'],'unit_id':r['unit_id'],'pid':r['pid'],'firmware_sha256':r['firmware_sha256'],'runtime_sha256':provenance['observed_binary_sha256'],'executions_or_attempts':count,'one_ROM_and_bootstrap':True,'nonce_asserted_stages':checked_nonce,'ZIP_sha256':sha((rp.parent/'evidence.zip').read_bytes())});all_paths.append(rp)
+p=root/'docs/evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/guest/report.json';cap=json.loads(p.read_text());check(cap['status']=='PASS' and cap['hardware_validation']=='NOT RUN' and len(cap['executions'])==3,'cap probe status');check(all(v['pid']==cap['pid'] and v['firmware_sha256']==cap['firmware_sha256'] for v in cap['executions']),'cap same PID/firmware');owner=cap['initial_capabilities']['owner_id'];mods=cap['import_false_capabilities']['modules'];check(len(mods)==2 and {m['result']['name'] for m in mods}=={'_m5_cap_plain','_m5_cap_bytecode'},'ordinary module names');check(all(m['status']=='imported' and m['result']['guard_executed'] is False and m['owner_id_before']==m['owner_id_after']==m['result']['import_main_id']==owner for m in mods),'ordinary import does not run if-main');check(cap['recovery']['nonce_retained'] is True and cap['recovery']['owner_id']==owner,'VM/main owner preserved')
+with zip_check(p.parent/'evidence.zip')[0] as z:
+ raw=z.read('serial.log');check(raw.count(b'ESP-ROM:')==raw.count(b'M5EMU_UART_REPL_READY')==1,'cap one boot')
+ for obs in cap['observations']:
+  w=obs['serial'];a,b=w['offset'],w['next_offset'];check(obs['before_offset']==a and w['data']==raw[a:b].decode(errors='replace') and w['bytes']==b-a,'cap exact fresh UART window');check(obs['before_prefix_sha256']==sha(raw[:a].decode(errors='replace').encode()),'cap initial prefix');totals['fresh_UART_windows']+=1
+all_paths.append(p)
+package_snapshot=json.loads((root/'docs/evidence/2026-10-26-live-package-and-detent/source-snapshot.json').read_text());snapshot_checks={p:{'current_sha256':source_before[p],'executed_package_sha256':package_snapshot[p]['sha256'],'same':source_before[p]==package_snapshot[p]['sha256']} for p in current};
+for name,value in snapshot_checks.items():
+ archived=root/'docs/evidence/2026-10-26-live-package-and-detent/sources'/name;value['AST_identical']=ast.dump(ast.parse((root/name).read_text()))==ast.dump(ast.parse(archived.read_text()));check(value['AST_identical'],'underlying executed AST unchanged');value['byte_difference_note']=None if value['same'] else 'Current package runtime removes only two trailing empty lines; raw SHA differs, AST is identical.'
+source_after={p:sha((root/p).read_bytes()) for p in current};check(source_before==source_after,'sources unchanged during read-only audit')
+report={'status':'PASS','reviewed_at':datetime.now(timezone.utc).isoformat(),'scope':'Original UART/raw-REPL execution and already archived virtual-device evidence only. The author new checkpoint HTTP API is excluded from review.','category':'readonly-cross-review','conclusion':'One initialization, then same MicroPython VM dynamic .py compilation/execution and bytecode-only .mpy dependency imports; not per-edit reflashing. main.mpy entrypoint unsupported.','current_source_vs_executed_package_snapshot':snapshot_checks,'cases':rows,'totals':totals,'main_mpy_probe':{'report':str(p.relative_to(root)),'report_sha256':sha(p.read_bytes()),'session_id':cap['session_id'],'pid':cap['pid'],'firmware_sha256':cap['firmware_sha256'],'runtime_sha256':cap['initial_runtime_provenance']['observed_binary_sha256'],'executions':3,'owner_id_preserved':True,'ordinary_import_names_preserved':True,'if_main_not_executed':True,'nonce_retained':True},'evidence_file_sha256':{str(p.relative_to(root)):sha(p.read_bytes()) for p in all_paths},'guest':'NOT RUN by this audit; archived actual virtual sessions revalidated','hardware':'NOT RUN','mutations':'Only new audit files under .work/live-execution-explanation-audit-20261026'}
+(out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');print(json.dumps({'status':'PASS','totals':totals,'source_checks':snapshot_checks,'report_sha256':sha((out/'report.json').read_bytes())},indent=2))

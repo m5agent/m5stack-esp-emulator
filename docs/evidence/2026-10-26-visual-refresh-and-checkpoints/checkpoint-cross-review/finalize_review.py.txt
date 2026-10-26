@@ -1,0 +1,40 @@
+from pathlib import Path
+from types import SimpleNamespace
+from datetime import datetime,timezone
+import hashlib,json,sys,yaml
+root=Path.cwd();out=root/'.work/checkpoint-independent-review-20261026';sys.path.insert(0,str(root/'platform/tools'))
+from device_service import DeviceService
+from program_packages import MAX_PACKAGES,MAX_PACKAGE_FILES,MAX_FILE_BYTES,MAX_PACKAGE_BYTES
+sha=lambda b:hashlib.sha256(b).hexdigest()
+before=(out/'reviewed-sources/docs/device-service.openapi.yaml.txt').read_bytes();after=(root/'docs/device-service.openapi.yaml').read_bytes()
+before_spec=yaml.safe_load(before);spec=yaml.safe_load(after)
+route='/sessions/{session_id}/program'
+assert not {'500','503'} & set(before_spec['paths'][route]['post']['responses'])
+for code in ['500','503']:
+ assert spec['paths'][route]['post']['responses'][code]=={'$ref':'#/components/responses/Error'}
+s=spec['components']['schemas'];assert len(s['RunProgramRequest']['oneOf'])==3
+assert s['ProgramRevisionCreateRequest']['required']==['source_kind','entrypoint','files']
+assert s['ProgramRevisionCreateRequest']['additionalProperties'] is False
+assert s['RunProgramRevisionRequest']['additionalProperties'] is False
+assert s['RunProgramRevisionRequest']['required']==['revision_id','expected_execution_id']
+assert set(s['RunProgramRevisionRequest']['properties'])=={'revision_id','expected_execution_id','timeout_seconds'}
+assert s['RunProgramRevisionRequest']['properties']['timeout_seconds']=={'type':'number','minimum':1,'maximum':120,'default':120,'description':s['RunProgramRevisionRequest']['properties']['timeout_seconds']['description']}
+assert s['ProgramPackageFiles']['maxProperties']==MAX_PACKAGE_FILES==64
+assert s['RunProgramSourceRequest']['properties']['timeout_seconds']['maximum']==30
+assert s['RunProgramSourceRequest']['properties']['timeout_seconds']['default']==10
+limits_schema=s['ProgramRevisionEnvelope']['properties']['limits'];api=object.__new__(DeviceService);api.program_packages=SimpleNamespace(max_count=1)
+limits=api._program_revision_response({})['limits'];assert set(limits_schema['required'])==set(limits)
+expected={'max_revisions':1,'max_files':MAX_PACKAGE_FILES,'max_file_bytes':MAX_FILE_BYTES,'max_total_file_bytes':MAX_PACKAGE_BYTES,'max_http_body_bytes':2097152,'gc_enabled':False};assert limits==expected
+for k,v in expected.items():
+ if k!='max_revisions':assert limits_schema['properties'][k]['const']==v
+assert limits_schema['properties']['max_revisions']['maximum']==MAX_PACKAGES==256
+source_manifest=json.loads((out/'reviewed-source-sha256.json').read_text());changes=[]
+for e in source_manifest['files']:
+ current=sha((root/e['source']).read_bytes())
+ if current!=e['sha256']:changes.append({'source':e['source'],'before':e['sha256'],'after':current})
+assert [e['source'] for e in changes]==['docs/device-service.openapi.yaml'],changes
+receipt={'status':'PASS','checked_at':datetime.now(timezone.utc).isoformat(),'finding':'P3-checkpoint-run-error-responses','resolution':'Root added only 500/503 Error response references; backend unchanged','before_openapi_sha256':sha(before),'final_openapi_sha256':sha(after),'checks':['Original OpenAPI omitted 500/503','Final run route contains structured Error for 500/503','Three strict mutually exclusive source/files/reference schemas','Checkpoint explicit field set and immutable metadata response','Actual dynamic package limits equal OpenAPI constants; independent max256','Legacy source default10/max30 and package/reference default120/max120 preserved','Only OpenAPI changed during independent review'],'source_changes_during_review':changes}
+(out/'resolution.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
+review={'status':'PASS_WITH_RESOLVED_FINDING','open_findings':[],'resolved_findings':[{'priority':3,'title':'Declare reference-run storage 500/503 in OpenAPI','file':'docs/device-service.openapi.yaml','line':177,'resolution':'resolution.json'}],'existing_api_tests':15,'independent_scenarios':3,'guest_execution':'NOT RUN','hardware_validation':'NOT RUN','own_model_tests_in_review_scope':False,'scope':['platform/tools/device_service.py checkpoint delta','platform/tools/serve.py checkpoint routes','platform/tests/test_program_revision_api.py','docs/device-service.openapi.yaml','docs/device-service-api.md','docs/unit-agent-api.md'],'remaining_boundaries':['No physical/guest execution evidence from this review','Host format admission does not prove guest version or small-int compatibility','Existing package quota max256 independent of source quota; no GC','No Preview/Run coordinator, latest-wins, per-run cancellation or tenant ownership']}
+(out/'review.json').write_text(json.dumps(review,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps(receipt,ensure_ascii=False,indent=2))

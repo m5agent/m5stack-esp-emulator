@@ -1,0 +1,71 @@
+import hashlib,json,shutil,zipfile
+from datetime import datetime,timezone
+from pathlib import Path
+from PIL import Image
+root=Path.cwd();dest=root/'docs/evidence/2026-10-26-visual-refresh-and-checkpoints';dest.mkdir(parents=True,exist_ok=True)
+manifest=dest/'file-manifest.json';records=json.loads(manifest.read_text())['files'] if manifest.exists() else []
+index={row['archived']:row for row in records}
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def copy(src,relative):
+ assert src.is_file() and not src.is_symlink(),src
+ if src.suffix in {'.py','.mjs','.js','.md'} and not str(relative).endswith('.txt'):relative=Path(str(relative)+'.txt')
+ assert src.suffix.lower() not in {'.bin','.rom','.elf','.pyc','.dylib','.so'},src
+ b=src.read_bytes();dst=dest/relative;dst.parent.mkdir(parents=True,exist_ok=True)
+ if dst.exists():assert dst.read_bytes()==b,('immutable archive changed',dst)
+ else:dst.write_bytes(b)
+ index[str(relative)]={'original':str(src.relative_to(root)),'archived':str(relative),'size':len(b),'sha256':sha(b)}
+def tree(source,relative):
+ for src in sorted(source.rglob('*')):
+  if src.is_dir() or '__pycache__' in src.parts:continue
+  copy(src,Path(relative)/src.relative_to(source))
+mapping={
+ 'visual-sync-execution-3681-20261026':'visual-sync',
+ 'model-shell-bounded-3681-all-special-leds-20261026':'browser-special-leds',
+ 'checkpoint-reference-live-cores3-pir-r1-20261026':'checkpoint-live-pir',
+ 'checkpoint-reference-live-cores3-relay-r1-20261026':'checkpoint-live-relay',
+ 'checkpoint-reference-static-r2-20261026':'checkpoint-static',
+ 'visual-3681-live-independent-review-20261026':'visual-live-cross-review',
+ 'model-shell-bounded-old-full-r3-20261026':'browser-old-baseline',
+ 'model-shell-bounded-3681-full-20261026':'browser-new-r1-failed',
+ 'model-shell-bounded-3681-full-r2-20261026':'browser-new-r2-final',
+ 'model-shell-bounded-3681-interface-census-20261026':'browser-interface-census',
+ 'model-shell-fixture-freezes-20261026':'browser-fixture-freezes',
+ 'uniform-led-3681-live-browser-20261026':'live-uniform',
+ 'scroll-3681-live-browser-20261026':'live-scroll',
+ 'program-revision-api-20261026':'checkpoint-host',
+ 'live-execution-explanation-audit-20261026':'execution-cross-review',
+}
+for source,relative in mapping.items():tree(root/'.work'/source,relative)
+for source in ['start.json']:
+ copy(root/'.work/visual-checkpoint-service-reload-20261026'/source,Path('verification/service-reload')/source)
+for source in ['serial-window-before-20261026.txt','serial-window-after-20261026.txt']:
+ copy(root/'.work'/source,Path('verification')/source)
+for source in ['check_openapi.py','openapi.json','openapi-initial-failure.json','check_openapi_final.py','openapi-final.json','openapi-before-error-responses.yaml.txt','rendered-models-contact.png','platform-tests-r1.txt','runtime_coverage.txt','peripheral_catalog.txt','qemu_profiles.txt','docs-final.txt','visual-sync-final.txt','snapshot-final.txt','final-service-health.json','staged-diff-check-r1.txt','scan_archive.py','sensitive-scan.json','archive.py']:
+ copy(root/'.work/visual-checkpoint-verification-20261026'/source,Path('verification')/source)
+tree(root/'.work/visual-checkpoint-verification-20261026/node-final','verification/node-final')
+# Current source snapshots are checked against every final actual browser report.
+source_paths=set()
+for relative,key in [('browser-new-r2-final/report.json','integration_sha256'),('live-uniform/report.json','source_sha256'),('live-scroll/report.json','source_sha256')]:
+ report=json.loads((dest/relative).read_text());assert report['status']=='PASS'
+ for path,expected in report[key].items():
+  assert sha((root/path).read_bytes())==expected,path
+  source_paths.add(path)
+for group in ['checkpoint-live-pir','checkpoint-live-relay']:
+ report=json.loads((dest/group/'report.json').read_text());assert report['status']=='PASS'
+ for path,expected in report['source_fingerprints'].items():
+  assert sha((root/path).read_bytes())==expected['sha256'],path
+  source_paths.add(path)
+source_paths.update(['platform/tools/serve.py','platform/tests/test_program_revision_api.py','platform/tests/test_docs_current_state_contract.py','platform/tests/test_device_service.py','platform/tests/test_sync_visual_models.py','platform/tools/guest_console.py','platform/tools/uiflow_package_runtime.py'])
+for path in sorted(source_paths):copy(root/path,Path('sources')/path)
+rows=list(sorted(index.values(),key=lambda row:row['archived']))
+manifest.write_text(json.dumps({'schema_version':1,'captured_at':datetime.now(timezone.utc).isoformat(),'original_bytes_preserved':True,'suffix_policy':'Code and raw Markdown sources append .txt without changing bytes','files':rows},ensure_ascii=False,indent=2)+'\n')
+images=zips=0
+for row in rows:
+ p=dest/row['archived'];b=p.read_bytes();assert len(b)==row['size'] and sha(b)==row['sha256']
+ if p.suffix=='.png':
+  with Image.open(p) as im:im.load();assert im.width>0 and im.height>0
+  images+=1
+ if p.suffix=='.zip':
+  with zipfile.ZipFile(p) as z:assert z.testzip() is None
+  zips+=1
+print(json.dumps({'status':'PASS','files':len(rows),'decoded_pngs':images,'ZIPs':zips,'bytes':sum(x['size'] for x in rows)}))

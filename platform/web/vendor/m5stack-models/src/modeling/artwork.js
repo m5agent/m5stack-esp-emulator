@@ -13,13 +13,13 @@ function rasterMaterial(host,url,panel,roughness){
 }
 
 /** A die-cut adhesive film where the official label itself bridges a recess. */
-export function printedFilm(host,{url,size,position,face='front',rotation=0,parent=host.body,holes=[],name='Official adhesive film',roughness=.8}){
+export function printedFilm(host,{url,size,position,face='front',rotation=0,parent=host.body,holes=[],name='Official adhesive film',roughness=.8,artworkKind='official-raster-film'}){
  if(host.options.artwork===false)return null;
  const shape=roundedRect(size[0],size[1],.05);
  for(const hole of holes)shape.holes.push(roundedRect(hole.w,hole.h,hole.r??Math.min(hole.w,hole.h)/2,{cx:hole.cx??0,cy:hole.cy??0,path:new THREE.Path(),clockwise:true}));
  const geometry=new THREE.ShapeGeometry(shape,32),positions=geometry.attributes.position,uv=geometry.attributes.uv;
  for(let i=0;i<uv.count;i++)uv.setXY(i,positions.getX(i)/size[0]+.5,positions.getY(i)/size[1]+.5);
- const panel=new THREE.Mesh(geometry,null);panel.name=name;panel.userData={role:'printed-artwork',artworkKind:'official-raster-film',textureStatus:'pending'};
+ const panel=new THREE.Mesh(geometry,null);panel.name=name;panel.userData={role:'printed-artwork',artworkKind,textureStatus:'pending'};
  host.body.updateWorldMatrix(true,true);parent.updateWorldMatrix(true,false);
  const pose=new THREE.Matrix4().compose(new THREE.Vector3(...position),FACE[face].clone().multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),rotation)),new THREE.Vector3(1,1,1));
  panel.applyMatrix4(parent.matrixWorld.clone().invert().multiply(host.body.matrixWorld).multiply(pose));
@@ -32,7 +32,7 @@ export function printedFilm(host,{url,size,position,face='front',rotation=0,pare
  * open. Children inherit the target's cap, lid or joint motion automatically.
  * Legacy photographic artwork below remains separately opt-in.
  */
-export function printedArtwork(host,{target,url,size,position,face='front',rotation=0,depth=.3,name='Official printed sticker',roughness=.8}){
+export function printedArtwork(host,{target,url,size,position,face='front',rotation=0,depth=.3,name='Official printed sticker',roughness=.8,artworkKind='official-raster'}){
  if(host.options.artwork===false)return null;
  const targets=Array.isArray(target)?target:[target],panels=[];
  host.body.updateWorldMatrix(true,true);
@@ -70,7 +70,7 @@ export function printedArtwork(host,{target,url,size,position,face='front',rotat
    positions.setXYZ(i,positions.getX(i)+normals.getX(i)*.008,positions.getY(i)+normals.getY(i)*.008,positions.getZ(i)+normals.getZ(i)*.008);
   }
   geometry.computeBoundingBox();geometry.computeBoundingSphere();
-  const panel=new THREE.Mesh(geometry,null);panel.name=name;panel.userData={role:'printed-artwork',artworkKind:'official-raster',surface:source.name,textureStatus:'pending'};
+  const panel=new THREE.Mesh(geometry,null);panel.name=name;panel.userData={role:'printed-artwork',artworkKind,surface:source.name,textureStatus:'pending'};
   panel.material=rasterMaterial(host,url,panel,roughness);
   source.add(panel);panels.push(panel);
  }

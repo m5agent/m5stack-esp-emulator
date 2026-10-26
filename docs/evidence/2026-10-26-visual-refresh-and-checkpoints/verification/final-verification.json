@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "status": "PASS_IN_DOCUMENTED_SCOPE",
+  "category": "virtual-device-and-browser-validation",
+  "hardware_validation": "NOT RUN",
+  "platform_tests": 972,
+  "final_docs_tests": 48,
+  "runner_offline_tests": 19,
+  "node_fixture_programs": 7,
+  "generated_checks": [
+    "runtime_coverage",
+    "peripheral_catalog",
+    "qemu_profiles",
+    "project_snapshot",
+    "visual_snapshot"
+  ],
+  "default_browser_models": {
+    "controllers": 14,
+    "units": 113,
+    "PNGs": 287,
+    "catalog_configurations": "83 NOT RUN",
+    "Fader_slider_output": "UNSUPPORTED"
+  },
+  "actual_checkpoint_runs": {
+    "sessions": 2,
+    "executions_including_expected_failures": 24,
+    "main_HTTP_responses": 983,
+    "post_stop_GETs": 4,
+    "ZIP_members": 168,
+    "review": "PASS"
+  },
+  "actual_visual_rechecks": {
+    "Uniform": "PASS in documented data/material/canvas scope",
+    "Scroll": "API/UART/PNG/material/cleanup PASS; independent raw QOM NOT PRESENT; review PARTIAL",
+    "Encoder_optical_readability": "NOT ACCEPTED"
+  },
+  "full_matrix_this_block": "NOT RUN; no C/QEMU controller change",
+  "open": [
+    "Preview/Run coordinator",
+    "latest-wins",
+    "per-Run cancellation",
+    "SSE",
+    "AIFlow target integration",
+    "revision GC",
+    "main.mpy entrypoint",
+    "hotplug",
+    "save on boot",
+    "native/IRQ/thread full cleanup",
+    "UNIT-HOST-29",
+    "UNIT-HOST-33",
+    "UNIT-HOST-21"
+  ],
+  "source_sha256": {
+    "platform/tools/device_service.py": "1eb317c3b9d8da27f57f6916d2f1dc405d16b7f1af088ee6e9862511118537d0",
+    "platform/tools/serve.py": "1c17e6134c0b80493400dfd0896e75b1094926b343fbf45a9d06a14d12283cb5",
+    "platform/tools/sync_visual_models.py": "e5e02cb205ded1ea2574daa7afbd51fda7720403543a14a31b68e1a495213199",
+    "platform/tests/test_model_shell.mjs": "11ef7036242873d329f3f4804708500968c7dd21658c3592f0674baf2f951f71",
+    "platform/tests/model_shell_probe_helpers.mjs": "0e71632ed0f7df81cf25b47be72fc61c7e1455ef24100c4a0b6d5ed97e895b17",
+    "tests/units/run_live_package.py": "1dffda96f0368328cbe670c050606705880ea1dabbb9da36ff78856c3ca2bc03",
+    "tests/units/test_live_package.py": "564c2a4be191d880a8c58a0cd9ab49ce19a2352c6a14573529e49834a8543b7d",
+    "docs/device-service.openapi.yaml": "aaa3e90ec0db8ed9f73763148922b5b6883d2d71734ffbee75cfc884f43ea162"
+  }
+}

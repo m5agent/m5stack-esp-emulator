@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-10-26T15:51:39.397203+00:00",
+  "finding": "P3-checkpoint-run-error-responses",
+  "resolution": "Root added only 500/503 Error response references; backend unchanged",
+  "before_openapi_sha256": "79df8f3d608586444e07f1c75b038e3ab8b8eb3d4cc8684dcf75acf9dbd207a8",
+  "final_openapi_sha256": "aaa3e90ec0db8ed9f73763148922b5b6883d2d71734ffbee75cfc884f43ea162",
+  "checks": [
+    "Original OpenAPI omitted 500/503",
+    "Final run route contains structured Error for 500/503",
+    "Three strict mutually exclusive source/files/reference schemas",
+    "Checkpoint explicit field set and immutable metadata response",
+    "Actual dynamic package limits equal OpenAPI constants; independent max256",
+    "Legacy source default10/max30 and package/reference default120/max120 preserved",
+    "Only OpenAPI changed during independent review"
+  ],
+  "source_changes_during_review": [
+    {
+      "source": "docs/device-service.openapi.yaml",
+      "before": "79df8f3d608586444e07f1c75b038e3ab8b8eb3d4cc8684dcf75acf9dbd207a8",
+      "after": "aaa3e90ec0db8ed9f73763148922b5b6883d2d71734ffbee75cfc884f43ea162"
+    }
+  ]
+}

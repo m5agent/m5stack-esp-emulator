@@ -1,0 +1,5 @@
+import {printedArtwork} from '../../modeling/artwork.js';
+const front=new URL('./reference-redraw-front.png',import.meta.url).href,back=new URL('./reference-redraw-back.png',import.meta.url).href,antenna=new URL('./reference-redraw-antenna.png',import.meta.url).href;
+/** Readable exact U190 own photographs newly code-drawn;no photo pixels. */
+export function addStickers(host){const target=host.parts['GPS SMA complete native assembled shell'];return [...(printedArtwork(host,{target,url:front,size:[16,36],position:[0,3.2,3.8],face:'front',depth:.2,name:'GPS SMA front model and location mark reference redraw',artworkKind:'reference-redraw'})??[]),...(printedArtwork(host,{target,url:back,size:[16,36],position:[0,3.2,-3.8],face:'back',depth:.2,name:'GPS SMA rear model and Grove labels reference redraw',artworkKind:'reference-redraw'})??[])];}
+export function addAntennaSticker(host,target){return printedArtwork(host,{target,url:antenna,size:[36.4,34.4],position:[0,18,6.5],face:'front',depth:.8,name:'GPS SMA supplied active puck label reference redraw',artworkKind:'reference-redraw'})??[];}

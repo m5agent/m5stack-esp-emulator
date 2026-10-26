@@ -1,0 +1,22 @@
+import sys,time,json,M5
+assert "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e" in sys.path, 'MicroPython VM reset'
+M5.begin()
+screen=M5.Display
+screen.setBrightness(255)
+screen.fillScreen(5649426)
+screen.setTextSize(2)
+screen.setTextColor(0xffffff,5649426)
+screen.setCursor(12,12)
+screen.print('LED rmt-rgb B')
+from unit import RGBUnit
+unit=RGBUnit((1,2),3)
+unit.set_brightness(100)
+unit.set_screen([1056816,4214880,7372944])
+scan=None
+sequence=0
+while True:
+ assert "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e" in sys.path, 'MicroPython VM reset'
+ M5.update()
+ print("UNIFORM_LED_a36b738dd4a8 "+json.dumps({'kind':'sample','phase':"B",'nonce':"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",'sequence':sequence,'scan':scan,'written_colors':{"rgb":[1056816,4214880,7372944]},'values':{}}))
+ sequence+=1
+ time.sleep_ms(250)

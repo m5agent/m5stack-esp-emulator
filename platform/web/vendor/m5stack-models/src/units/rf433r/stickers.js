@@ -1,0 +1,3 @@
+import{printedArtwork}from'../../modeling/artwork.js';
+const front=new URL('./reference-redraw-front.png',import.meta.url).href,back=new URL('./reference-redraw-back.png',import.meta.url).href;
+export function addStickers(host){const a=host.rf433rAssembly;return[...printedArtwork(host,{target:a.labels.front,url:front,size:[17.6,27.4],position:[0,7.65,3.9],face:'front',depth:.12,name:'RF433R front exact-model reference redraw',artworkKind:'reference-redraw'})??[],...printedArtwork(host,{target:a.labels.back,url:back,size:[16,28],position:[0,8,-3.9],face:'back',depth:.12,name:'RF433R back SYN531R and PORT.B exact-model reference redraw',artworkKind:'reference-redraw'})??[]];}

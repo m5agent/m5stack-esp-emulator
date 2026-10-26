@@ -1,0 +1,21 @@
+======================================================================
+FAIL: test_serial_read_is_bounded_to_requested_window (test_device_service.DeviceServiceUnitTests.test_serial_read_is_bounded_to_requested_window)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_service.py", line 5086, in test_serial_read_is_bounded_to_requested_window
+    result = session.serial_read(prefix_size + 2, 5)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6166, in serial_read
+    data = self.serial0.read_bytes()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/miniconda3/lib/python3.12/pathlib.py", line 1020, in read_bytes
+    return f.read()
+           ^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_service.py", line 5075, in read
+    raise AssertionError("serial polling must not read the whole log")
+AssertionError: serial polling must not read the whole log
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.019s
+
+FAILED (failures=1)

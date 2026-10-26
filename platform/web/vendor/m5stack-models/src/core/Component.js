@@ -119,7 +119,7 @@ export class Component extends EventEmitter {
   }
 
   // Pointer hooks (overridden by interactive components). `info` is
-  // { pointerId, intersection|null, uv|null, localPoint|null, event }.
+  // { pointerId, intersection|null, uv|null, point|null, ray, event }.
   onPointerDown(/* info */) {}
   onPointerMove(/* info */) {}
   onPointerUp(/* info */) {}

@@ -1,0 +1,67 @@
+{
+  "id": "dac2",
+  "sku": "U012-B",
+  "kind": "source-vector-raster",
+  "status": "source-vector-raster",
+  "originalsDistributed": false,
+  "privateSourcesDistributed": false,
+  "pngCount": 2,
+  "defaultPanels": 2,
+  "method": "Exact supplied production vector glyph/shape contours rasterized to final high-resolution PNG. Converter compound glyph winding restored from evenodd to nonzero; original fills and visible panels retained. No product-photo crop or preview-bitmap upscaling.",
+  "sources": [
+    {
+      "kind": "user-supplied-exact-product-artwork",
+      "sourceRetainedPrivately": true,
+      "note": "Front T-shaped label and rear rectangular GP8413/I2C label match exact U012-B official photos. Packaging labels excluded. Original vectors, private links, source filenames, spreadsheet and generation intermediates are not distributed."
+    }
+  ],
+  "assets": [
+    {
+      "path": "src/units/dac2/source-vector-front.png",
+      "sha256": "1d4160a0fe69f2552246366deb29e71ecfc004e40d029ae6128b8da18774b4e0",
+      "pixels": [
+        2400,
+        2085
+      ],
+      "sizeMm": [
+        16,
+        13.8996
+      ],
+      "positionMm": [
+        0,
+        -1.75,
+        3.8
+      ],
+      "face": "front",
+      "kind": "source-vector-raster",
+      "method": "printedArtwork",
+      "target": "DAC2 complete native assembled shell"
+    },
+    {
+      "path": "src/units/dac2/source-vector-back.png",
+      "sha256": "1f4511a6281c3e5fc79a1367d494de39980730fe57b0483aa0dc9a44bca769b3",
+      "pixels": [
+        2400,
+        1800
+      ],
+      "sizeMm": [
+        16,
+        12
+      ],
+      "positionMm": [
+        0,
+        7.45,
+        -3.8
+      ],
+      "face": "back",
+      "kind": "source-vector-raster",
+      "method": "printedArtwork",
+      "target": "DAC2 complete native assembled shell"
+    }
+  ],
+  "limitations": [
+    "Physical registration is photo-derived; no production print-fit claim.",
+    "No browser pixel re-review; raster decoding and physical-invariance/registration checks only."
+  ],
+  "rights": "Printed designs, product names and trademarks retain respective rights."
+}

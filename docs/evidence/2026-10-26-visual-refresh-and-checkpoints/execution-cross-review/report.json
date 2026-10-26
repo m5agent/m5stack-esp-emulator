@@ -1,0 +1,402 @@
+{
+  "status": "PASS",
+  "reviewed_at": "2026-10-26T15:40:33.783831+00:00",
+  "scope": "Original UART/raw-REPL execution and already archived virtual-device evidence only. The author new checkpoint HTTP API is excluded from review.",
+  "category": "readonly-cross-review",
+  "conclusion": "One initialization, then same MicroPython VM dynamic .py compilation/execution and bytecode-only .mpy dependency imports; not per-edit reflashing. main.mpy entrypoint unsupported.",
+  "current_source_vs_executed_package_snapshot": {
+    "platform/tools/uiflow_runtime.py": {
+      "current_sha256": "85dbca56564d08c9a50c36d0ea867993eb70964c0d51ef950663f441b28dc506",
+      "executed_package_sha256": "85dbca56564d08c9a50c36d0ea867993eb70964c0d51ef950663f441b28dc506",
+      "same": true,
+      "AST_identical": true,
+      "byte_difference_note": null
+    },
+    "platform/tools/guest_console.py": {
+      "current_sha256": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+      "executed_package_sha256": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+      "same": true,
+      "AST_identical": true,
+      "byte_difference_note": null
+    },
+    "platform/tools/uiflow_package_runtime.py": {
+      "current_sha256": "d0b9978134fb4ecd6269562d42b2d5515e29e5b4ea094a3179c9abe0fddb3f6d",
+      "executed_package_sha256": "989acd2736fff7d7d27369f311999cb79e03c288f4b41f6920e92909031b6d52",
+      "same": false,
+      "AST_identical": true,
+      "byte_difference_note": "Current package runtime removes only two trailing empty lines; raw SHA differs, AST is identical."
+    }
+  },
+  "cases": [
+    {
+      "lane": "source",
+      "report": "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/atoms3r-pir/report.json",
+      "report_sha256": "379a0cfc08b2d54405a9f05a1040d859947cd78c5678f13a7fa8ac95d696a6ab",
+      "session_id": "e37d47de13e54bc7bb15f36e9b5fef1b",
+      "device_id": "atoms3r",
+      "unit_id": "pir",
+      "pid": 51971,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 5,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "1",
+        "2",
+        "4"
+      ],
+      "ZIP_sha256": "8604aa76eb88203ef62cbeecf8ef90471053e7bf10c24b62020caf41aa0f2aed"
+    },
+    {
+      "lane": "source",
+      "report": "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/atoms3r-relay/report.json",
+      "report_sha256": "7debb00bf701e0c753809465d5d023431fb00766ebc3dec148dfc37dc79fd917",
+      "session_id": "9e9aa401c67c4f4988226504441ffcee",
+      "device_id": "atoms3r",
+      "unit_id": "relay",
+      "pid": 64265,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 5,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "1",
+        "2",
+        "4"
+      ],
+      "ZIP_sha256": "036507da80f74237f6c1b5538a7a60b740baf2950afdeb73876e3caebae83cd7"
+    },
+    {
+      "lane": "source",
+      "report": "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/cores3-pir/report.json",
+      "report_sha256": "bca985387e8596bf66df6e3a5f86d9c682f937312ef2aba4ce7098a4aaaf8331",
+      "session_id": "739c7a9f230545a883ca377a8a7ccb3b",
+      "device_id": "cores3",
+      "unit_id": "pir",
+      "pid": 58426,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 5,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "1",
+        "2",
+        "4"
+      ],
+      "ZIP_sha256": "ca6c9351c4b79d80608ee6caf8af8f4071b50ff07fd59b48e738775df87334e4"
+    },
+    {
+      "lane": "source",
+      "report": "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/cores3-relay/report.json",
+      "report_sha256": "50428275a303534c9591c3327f26ed2d4e345fe80da91dd0daca4fac28dcb6a2",
+      "session_id": "f1349d6597d444378be35c82e6eab192",
+      "device_id": "cores3",
+      "unit_id": "relay",
+      "pid": 63836,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 5,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "1",
+        "2",
+        "4"
+      ],
+      "ZIP_sha256": "06bde5f3df44dae516aeb8778384f33955f1bd6c3da78388193fabe3269c06bc"
+    },
+    {
+      "lane": "source",
+      "report": "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/sticks3-pir/report.json",
+      "report_sha256": "1340391980b1d611964e09a65c5ea3fc5cbbb52df1e90655300bdfd29e35cd9e",
+      "session_id": "a8147b28e7894e1ca99e1729e50c5076",
+      "device_id": "sticks3",
+      "unit_id": "pir",
+      "pid": 60601,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 5,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "1",
+        "2",
+        "4"
+      ],
+      "ZIP_sha256": "cc7cf407ee4b5d6fc9b7bdaef583c8101ddc4327525bb74939c2e506bf5e1d92"
+    },
+    {
+      "lane": "source",
+      "report": "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/sticks3-relay/report.json",
+      "report_sha256": "1d8b77403c6beca6e02043775c1283072265f86d97d6cf4fb8e130363a0eb6f5",
+      "session_id": "9ef5028645f84aaeb49361e28289c4f4",
+      "device_id": "sticks3",
+      "unit_id": "relay",
+      "pid": 64651,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 5,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "1",
+        "2",
+        "4"
+      ],
+      "ZIP_sha256": "9735adcb5a0e3f2d8a3878a6c8ee9341e8d4dad639ad962869ba1bb08b7f2cf3"
+    },
+    {
+      "lane": "source",
+      "report": "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/stopwatch-pir/report.json",
+      "report_sha256": "343a30c1fa07ce24c51d4a53397614ae8ae8d64fd09060930e3ca28c59919705",
+      "session_id": "dd4ed9e8357f439389a835bdb858e8fd",
+      "device_id": "stopwatch",
+      "unit_id": "pir",
+      "pid": 63240,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 5,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "1",
+        "2",
+        "4"
+      ],
+      "ZIP_sha256": "bab703aa17b4b8c24dd09108bbd418f67c871b7e34eee310e24d62009f657dce"
+    },
+    {
+      "lane": "source",
+      "report": "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/stopwatch-relay/report.json",
+      "report_sha256": "3a7ae189e41ef3b441c176863143b1ea98373288a04e304a71a07172851d0937",
+      "session_id": "6ab875eb839e4b9cab305f1879ed6187",
+      "device_id": "stopwatch",
+      "unit_id": "relay",
+      "pid": 64990,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 5,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "1",
+        "2",
+        "4"
+      ],
+      "ZIP_sha256": "5874fceb6a1c684f078df0fb5c504a3948867826678f6bc3eb438844055aef19"
+    },
+    {
+      "lane": "package",
+      "report": "docs/evidence/2026-10-26-live-package-and-detent/hosts/atoms3r-pir/report.json",
+      "report_sha256": "9d71d8d81783950ca4690fe2dd3b4534c9b58f7005fca8fd46eb04d1de4ff039",
+      "session_id": "ce36b86ac781458fb2c5bce3d69ac379",
+      "device_id": "atoms3r",
+      "unit_id": "pir",
+      "pid": 81818,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 12,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "a",
+        "b",
+        "b-recovery",
+        "c-recovery"
+      ],
+      "ZIP_sha256": "4049339b8780b90635ad47271492050adc410fcc60289f9ab24e40ab84d61614"
+    },
+    {
+      "lane": "package",
+      "report": "docs/evidence/2026-10-26-live-package-and-detent/hosts/atoms3r-relay/report.json",
+      "report_sha256": "00a761b29775ed9e7796b4807d78dc4b1e04077c629703dcfa0d49e24d628f44",
+      "session_id": "e19f93aceb2c4aeea1d2f45271fb8bc3",
+      "device_id": "atoms3r",
+      "unit_id": "relay",
+      "pid": 81835,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 12,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "a",
+        "b",
+        "b-recovery",
+        "c-recovery"
+      ],
+      "ZIP_sha256": "143529ee23b9139a7187d7d4aaf46ca6e4cace2864e85ac4b7e5ee884f876871"
+    },
+    {
+      "lane": "package",
+      "report": "docs/evidence/2026-10-26-live-package-and-detent/hosts/cores3-pir/report.json",
+      "report_sha256": "26768520b30e71862ccc0c318f0a2389cdfb48a37d65ce4b486f7cea6c9720e9",
+      "session_id": "8241ad6faeaa43369e45f82052484b47",
+      "device_id": "cores3",
+      "unit_id": "pir",
+      "pid": 81711,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 12,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "a",
+        "b",
+        "b-recovery",
+        "c-recovery"
+      ],
+      "ZIP_sha256": "9177c336a422959da78fd1ae760deb463854d9321d53c93a5de47e558f185756"
+    },
+    {
+      "lane": "package",
+      "report": "docs/evidence/2026-10-26-live-package-and-detent/hosts/cores3-relay/report.json",
+      "report_sha256": "ae1f9e30eaa291cb31e76507300c5dc8d7799770082e79292303b5f45b1982d5",
+      "session_id": "6305f64ec4ff4e57a32e0aa66288807e",
+      "device_id": "cores3",
+      "unit_id": "relay",
+      "pid": 81710,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 12,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "a",
+        "b",
+        "b-recovery",
+        "c-recovery"
+      ],
+      "ZIP_sha256": "6e2de358fd3ed0805f741106bf2b8914b227638f8dcd72ea903387c1de418128"
+    },
+    {
+      "lane": "package",
+      "report": "docs/evidence/2026-10-26-live-package-and-detent/hosts/sticks3-pir/report.json",
+      "report_sha256": "7816d770b2c3d8ea5fa0ab3b852e25834cd518d32e78a7207971b6b4f4a7226f",
+      "session_id": "c41a9ff1bc714937b02d300d99f45172",
+      "device_id": "sticks3",
+      "unit_id": "pir",
+      "pid": 81941,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 12,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "a",
+        "b",
+        "b-recovery",
+        "c-recovery"
+      ],
+      "ZIP_sha256": "601bcbd68b0017f780b7869b8995d921d2b90ed1ae8c88053017821b313918fd"
+    },
+    {
+      "lane": "package",
+      "report": "docs/evidence/2026-10-26-live-package-and-detent/hosts/sticks3-relay/report.json",
+      "report_sha256": "6cefa9b6c945bae09bab47b4965a7e98ed2b0986687aa5cf48c0f49ac7168909",
+      "session_id": "d6e7aa2538c94d1e94ea1ea8a1f51e59",
+      "device_id": "sticks3",
+      "unit_id": "relay",
+      "pid": 81948,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 12,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "a",
+        "b",
+        "b-recovery",
+        "c-recovery"
+      ],
+      "ZIP_sha256": "5cb84f9d545d6e13256236756de9603a279b6b45f8babd429d853de19588dfd3"
+    },
+    {
+      "lane": "package",
+      "report": "docs/evidence/2026-10-26-live-package-and-detent/hosts/stopwatch-pir/report.json",
+      "report_sha256": "0426f637282c17945825fd8003d1534fb0798b7308c25d8642b6f64a13efa2e6",
+      "session_id": "21e93e5082554bf5a472e801e9bd40d1",
+      "device_id": "stopwatch",
+      "unit_id": "pir",
+      "pid": 82033,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 12,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "a",
+        "b",
+        "b-recovery",
+        "c-recovery"
+      ],
+      "ZIP_sha256": "7f3f42a387e602275fe930ffb37c1415ace4653d48d11ea5236d6ec9f8ab1a33"
+    },
+    {
+      "lane": "package",
+      "report": "docs/evidence/2026-10-26-live-package-and-detent/hosts/stopwatch-relay/report.json",
+      "report_sha256": "954a63646a67bd279152b5753a3d946a64c307b09f953afeb005af50818f3ba7",
+      "session_id": "ff7337d2a0084df2a30b776a25361d64",
+      "device_id": "stopwatch",
+      "unit_id": "relay",
+      "pid": 82069,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "executions_or_attempts": 12,
+      "one_ROM_and_bootstrap": true,
+      "nonce_asserted_stages": [
+        "a",
+        "b",
+        "b-recovery",
+        "c-recovery"
+      ],
+      "ZIP_sha256": "af692fbf0defb279ee6037bfb1ba6740dafa47e1fae020635000658fbbbfb8a0"
+    }
+  ],
+  "totals": {
+    "source_executions": 40,
+    "package_attempts": 96,
+    "ZIP_members": 900,
+    "fresh_UART_windows": 139
+  },
+  "main_mpy_probe": {
+    "report": "docs/evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/guest/report.json",
+    "report_sha256": "c38126b92dfb20f71f897841cf137192b1655656a522d5797d3a38858e58d12f",
+    "session_id": "8218e02e1dfe43a494f2ed8e54d7f008",
+    "pid": 70868,
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "runtime_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+    "executions": 3,
+    "owner_id_preserved": true,
+    "ordinary_import_names_preserved": true,
+    "if_main_not_executed": true,
+    "nonce_retained": true
+  },
+  "evidence_file_sha256": {
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/atoms3r-pir/evidence.zip": "8604aa76eb88203ef62cbeecf8ef90471053e7bf10c24b62020caf41aa0f2aed",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/atoms3r-pir/report.json": "379a0cfc08b2d54405a9f05a1040d859947cd78c5678f13a7fa8ac95d696a6ab",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/atoms3r-relay/evidence.zip": "036507da80f74237f6c1b5538a7a60b740baf2950afdeb73876e3caebae83cd7",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/atoms3r-relay/report.json": "7debb00bf701e0c753809465d5d023431fb00766ebc3dec148dfc37dc79fd917",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/cores3-pir/evidence.zip": "ca6c9351c4b79d80608ee6caf8af8f4071b50ff07fd59b48e738775df87334e4",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/cores3-pir/report.json": "bca985387e8596bf66df6e3a5f86d9c682f937312ef2aba4ce7098a4aaaf8331",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/cores3-relay/evidence.zip": "06bde5f3df44dae516aeb8778384f33955f1bd6c3da78388193fabe3269c06bc",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/cores3-relay/report.json": "50428275a303534c9591c3327f26ed2d4e345fe80da91dd0daca4fac28dcb6a2",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/sticks3-pir/evidence.zip": "cc7cf407ee4b5d6fc9b7bdaef583c8101ddc4327525bb74939c2e506bf5e1d92",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/sticks3-pir/report.json": "1340391980b1d611964e09a65c5ea3fc5cbbb52df1e90655300bdfd29e35cd9e",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/sticks3-relay/evidence.zip": "9735adcb5a0e3f2d8a3878a6c8ee9341e8d4dad639ad962869ba1bb08b7f2cf3",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/sticks3-relay/report.json": "1d8b77403c6beca6e02043775c1283072265f86d97d6cf4fb8e130363a0eb6f5",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/stopwatch-pir/evidence.zip": "bab703aa17b4b8c24dd09108bbd418f67c871b7e34eee310e24d62009f657dce",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/stopwatch-pir/report.json": "343a30c1fa07ce24c51d4a53397614ae8ae8d64fd09060930e3ca28c59919705",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/stopwatch-relay/evidence.zip": "5874fceb6a1c684f078df0fb5c504a3948867826678f6bc3eb438844055aef19",
+    "docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/stopwatch-relay/report.json": "3a7ae189e41ef3b441c176863143b1ea98373288a04e304a71a07172851d0937",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/atoms3r-pir/evidence.zip": "4049339b8780b90635ad47271492050adc410fcc60289f9ab24e40ab84d61614",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/atoms3r-pir/report.json": "9d71d8d81783950ca4690fe2dd3b4534c9b58f7005fca8fd46eb04d1de4ff039",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/atoms3r-relay/evidence.zip": "143529ee23b9139a7187d7d4aaf46ca6e4cace2864e85ac4b7e5ee884f876871",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/atoms3r-relay/report.json": "00a761b29775ed9e7796b4807d78dc4b1e04077c629703dcfa0d49e24d628f44",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/cores3-pir/evidence.zip": "9177c336a422959da78fd1ae760deb463854d9321d53c93a5de47e558f185756",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/cores3-pir/report.json": "26768520b30e71862ccc0c318f0a2389cdfb48a37d65ce4b486f7cea6c9720e9",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/cores3-relay/evidence.zip": "6e2de358fd3ed0805f741106bf2b8914b227638f8dcd72ea903387c1de418128",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/cores3-relay/report.json": "ae1f9e30eaa291cb31e76507300c5dc8d7799770082e79292303b5f45b1982d5",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/sticks3-pir/evidence.zip": "601bcbd68b0017f780b7869b8995d921d2b90ed1ae8c88053017821b313918fd",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/sticks3-pir/report.json": "7816d770b2c3d8ea5fa0ab3b852e25834cd518d32e78a7207971b6b4f4a7226f",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/sticks3-relay/evidence.zip": "5cb84f9d545d6e13256236756de9603a279b6b45f8babd429d853de19588dfd3",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/sticks3-relay/report.json": "6cefa9b6c945bae09bab47b4965a7e98ed2b0986687aa5cf48c0f49ac7168909",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/stopwatch-pir/evidence.zip": "7f3f42a387e602275fe930ffb37c1415ace4653d48d11ea5236d6ec9f8ab1a33",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/stopwatch-pir/report.json": "0426f637282c17945825fd8003d1534fb0798b7308c25d8642b6f64a13efa2e6",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/stopwatch-relay/evidence.zip": "af692fbf0defb279ee6037bfb1ba6740dafa47e1fae020635000658fbbbfb8a0",
+    "docs/evidence/2026-10-26-live-package-and-detent/hosts/stopwatch-relay/report.json": "954a63646a67bd279152b5753a3d946a64c307b09f953afeb005af50818f3ba7",
+    "docs/evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/guest/evidence.zip": "c4007591780d54d2602ca05b249bbc526ea75cd421163fa058b4a5d76e524e88",
+    "docs/evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/guest/report.json": "c38126b92dfb20f71f897841cf137192b1655656a522d5797d3a38858e58d12f"
+  },
+  "guest": "NOT RUN by this audit; archived actual virtual sessions revalidated",
+  "hardware": "NOT RUN",
+  "mutations": "Only new audit files under .work/live-execution-explanation-audit-20261026"
+}

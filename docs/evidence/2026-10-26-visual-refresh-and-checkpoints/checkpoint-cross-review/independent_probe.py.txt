@@ -1,0 +1,74 @@
+"""Independent host/HTTP evidence. No guest, firmware, real service or devices."""
+from pathlib import Path
+import sys,unittest
+from unittest import mock
+
+ROOT=Path(__file__).resolve().parents[2]
+sys.path[:0]=[str(ROOT/'platform/tools'),str(ROOT/'platform/tests')]
+import test_program_revision_api as fixture
+from test_device_program_packages import _binary
+from test_mpy_bytecode import HELPER
+from uiflow_package_runtime import validate_mpy
+from program_packages import ProgramPackageError
+
+class IndependentCheckpointProbe(fixture.ProgramRevisionApiTests):
+    # Run only these independent scenarios, not inherited tests a second time.
+    def test_save_syntax_uncompiled_while_running_does_not_touch_execution(self):
+        self.execute.return_value={'state':'running','acknowledged':True}
+        status,body,_=self.run_request({'source':'while True: pass','expected_execution_id':None})
+        self.assertEqual(status,200)
+        before=self.target.program_path.read_bytes();events=list(self.target.events)
+        self.execute.reset_mock();self.deploy.reset_mock()
+        revision=self.create(self.checkpoint(files={'main.py':{'encoding':'utf8','data':'def invalid(\n'}}))
+        status,body,_=self.request('GET','/api/v1/program-revisions/'+revision['revision_id'])
+        self.assertEqual(status,200)
+        self.assertEqual(self.target.program_path.read_bytes(),before)
+        self.assertEqual(self.target.events,events)
+        self.execute.assert_not_called();self.deploy.assert_not_called();self.popen.assert_not_called()
+        self.assertFalse(self.target._program_lock.locked())
+
+    def test_real_small_int_validator_failure_after_interrupt_has_new_failed_receipt(self):
+        self.execute.return_value={'state':'running','acknowledged':True}
+        status,body,_=self.run_request({'source':'while True: pass','expected_execution_id':None})
+        self.assertEqual(status,200);old=body['program']['execution_id']
+        before=self.target.program_path.read_bytes()
+        mpy=bytearray(HELPER);mpy[3]=32
+        revision=self.create(self.checkpoint(files={'main.py':{'encoding':'utf8','data':'import helper\n'},'helper.mpy':_binary(bytes(mpy))}))
+        self.assertEqual(self.target.program_path.read_bytes(),before)
+        self.execute.reset_mock()
+        def incompatible(console,files,metadata,*,on_synchronized,**kwargs):
+            on_synchronized()
+            validate_mpy(files,{'mpy':6,'small_int_bits':31})
+            self.fail('real small-int validator must reject this header')
+        self.deploy.side_effect=incompatible
+        with mock.patch.object(self.api.program_packages,'create',side_effect=AssertionError('reference cannot create')):
+            status,body,_=self.run_request(self.reference(revision,old))
+        self.assertEqual((status,body['error']['code']),(409,'program_mpy_incompatible'))
+        record=self.record(self.target)
+        self.assertEqual(record['state'],'failed')
+        self.assertEqual(record['revision_id'],revision['revision_id'])
+        self.assertEqual(record['execution_id'],body['error']['execution_id'])
+        prior=self.record(self.target,old)
+        self.assertEqual(prior['state'],'interrupted');self.assertTrue(prior['interruption_confirmed'])
+        self.execute.assert_not_called();self.popen.assert_not_called()
+        self.assertFalse(self.target._program_lock.locked())
+
+    def test_reference_storage_failure_is_503_without_interrupting_current_program(self):
+        self.execute.return_value={'state':'running','acknowledged':True}
+        status,body,_=self.run_request({'source':'while True: pass','expected_execution_id':None})
+        self.assertEqual(status,200);old=body['program']['execution_id']
+        revision=self.create();before=self.target.program_path.read_bytes();events=list(self.target.events)
+        with mock.patch.object(self.api.program_packages,'get',side_effect=ProgramPackageError('program_package_storage_error','synthetic storage unavailable',503)):
+            status,body,_=self.run_request(self.reference(revision,old))
+        self.assertEqual((status,body['error']['code']),(503,'program_package_storage_error'))
+        self.assertEqual(self.target.program_path.read_bytes(),before);self.assertEqual(self.target.events,events)
+        self.deploy.assert_not_called();self.assertEqual(self.execute.call_count,1);self.popen.assert_not_called()
+        self.assertFalse(self.target._program_lock.locked())
+
+if __name__=='__main__':
+    suite=unittest.TestSuite(IndependentCheckpointProbe(name) for name in [
+        'test_save_syntax_uncompiled_while_running_does_not_touch_execution',
+        'test_real_small_int_validator_failure_after_interrupt_has_new_failed_receipt',
+        'test_reference_storage_failure_is_503_without_interrupting_current_program'])
+    result=unittest.TextTestRunner(verbosity=2).run(suite)
+    sys.exit(not result.wasSuccessful())

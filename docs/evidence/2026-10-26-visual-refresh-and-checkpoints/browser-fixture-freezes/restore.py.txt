@@ -1,0 +1,41 @@
+from pathlib import Path
+import hashlib,json
+root=Path.cwd();out=root/'.work/model-shell-fixture-freezes-20261026'
+runner_path='platform/tests/test_model_shell.mjs';helper_path='platform/tests/model_shell_probe_helpers.mjs'
+s=(root/runner_path).read_text();h=(root/helper_path).read_text()
+s=s.replace("['assets', 'interactions', 'interfaces']", "['assets', 'interactions']")
+s=s.replace('controllers: [], units: [], interface_census: [], runtime_assets: [], contexts: [],','controllers: [], units: [], runtime_assets: [], contexts: [],')
+a=s.index('  // Diagnostic census before a new vendor regression.');b=s.index("  if (full || settings.cases.includes('assets'))",a);s=s[:a]+s[b:]
+s=s.replace('        const interfaces = window.modelProbe.interfaces(module);\n','')
+s=s.replace('components: ownership, interfaces, artwork, outputs,','components: ownership, artwork, outputs,')
+a=h.index('  function interfaces(host) {');b=h.index('  function outputs(shell, host)',a);h=h[:a]+h[b:]
+h=h.replace('{artwork, ownership, interfaces, outputs, watchDisposal, rendered, disposeShell}', '{artwork, ownership, outputs, watchDisposal, rendered, disposeShell}')
+a=h.index("        const fixedColor = ");b=h.index("      }\n      for (const joint",a)
+h=h[:a]+'''        const fixedColor = String(led.meta.colorMode || '').startsWith('fixed-') || led.meta.fixedColor !== undefined;
+        const expectedColor = fixedColor ? led.getState().color : '#00ff00';
+        shell.applyVisualState({type: 'led', target: led.path, color: '#00ff00', brightness: 0.5});
+        const state = led.getState();
+        check(state.color === expectedColor && state.brightness === 0.5 && led.runtimeKnown === true, `LED output failed ${led.path}`);
+        // Fixed-color indicators and concealed/segment emitters deliberately
+        // differ from RGB LEDs and need not have an exterior billboard halo.
+        check(led.invisible ? !led.glow.visible && led.glow.material.opacity === 0 : led.lensMaterial.emissive.toArray().some(channel => channel > 0), `LED material failed ${led.path}`);
+        if (led.glow.visible) check(led.glow.material.opacity > 0, `Visible LED glow is empty ${led.path}`);
+        leds.push({path: led.path, state, color_contract: fixedColor ? 'fixed' : 'rgb', expectedColor,
+          invisible: Boolean(led.invisible), known: led.runtimeKnown, emissive: led.lensMaterial.emissive.toArray(), glow: led.glow.visible});
+'''+h[b:]
+sha=lambda b:hashlib.sha256(b).hexdigest()
+manifest={'status':'PASS','restoration':'Exact reverse of recorded fixture patches; byte SHA required to match each original run report','files':[]}
+for name,report_dir,versions in [
+ ('old-full-r3','.work/model-shell-bounded-old-full-r3-20261026',{runner_path:s.encode(),helper_path:h.encode()}),
+ ('3681-full-r1','.work/model-shell-bounded-3681-full-20261026',{runner_path:s.encode(),helper_path:h.encode()}),
+ ('3681-all-special-leds','.work/model-shell-bounded-3681-all-special-leds-20261026',{runner_path:(root/runner_path).read_bytes(),helper_path:(root/helper_path).read_bytes()}),
+ ('3681-full-r2','.work/model-shell-bounded-3681-full-r2-20261026',{runner_path:(root/runner_path).read_bytes(),helper_path:(root/helper_path).read_bytes()}),
+]:
+ report=json.loads((root/report_dir/'report.json').read_text())
+ for original,b in versions.items():
+  expected=report['integration_sha256'][original]
+  assert sha(b)==expected, (name,original,sha(b),expected)
+  target=out/name/(Path(original).name+'.txt');target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(b)
+  manifest['files'].append({'run':name,'report':report_dir+'/report.json','original':original,'frozen':str(target.relative_to(root)),'sha256':sha(b),'matches_original_report':True})
+(out/'file-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps(manifest,ensure_ascii=False,indent=2))

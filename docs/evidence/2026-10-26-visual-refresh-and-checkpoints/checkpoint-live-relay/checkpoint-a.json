@@ -1,0 +1,326 @@
+{
+  "revision": {
+    "created_at": "2026-10-26T15:49:12.078522+00:00",
+    "entrypoint": "main.py",
+    "files": [
+      {
+        "kind": "resource",
+        "path": "assets/pixel.png",
+        "sha256": "77557fdbe0cf343aa10c373ee3a51e21df0a41a8dd56b4d9eb220b5bb8527d18",
+        "size": 97
+      },
+      {
+        "kind": "resource",
+        "path": "config.json",
+        "sha256": "35fe07ed536af8804691d3b6c0cdabef9feec7a33e00da07a573017bfabcc121",
+        "size": 100
+      },
+      {
+        "kind": "mpy",
+        "path": "helper.mpy",
+        "sha256": "3ed9e2e38e69781157b5ad5da3296c2936dda16070bd0187a82de2253ecd0b33",
+        "size": 66
+      },
+      {
+        "kind": "python",
+        "path": "lib/__init__.py",
+        "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+        "size": 12
+      },
+      {
+        "kind": "python",
+        "path": "lib/logic.py",
+        "sha256": "a78c7c699f85d9086120fd0213d3f61ca98308785377f47aa59be7d03a400630",
+        "size": 86
+      },
+      {
+        "kind": "python",
+        "path": "main.py",
+        "sha256": "c4f09175167c838ce466ef991caf8f41a44a5dc41878fc3b957701cd59a2cf10",
+        "size": 2549
+      },
+      {
+        "kind": "python",
+        "path": "namespace_lib/state.py",
+        "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+        "size": 12
+      },
+      {
+        "kind": "python",
+        "path": "old_only.py",
+        "sha256": "38f31b621fc6c66ba16fd6516ffa6b9bfde669ffbfda253185315afaf49606a3",
+        "size": 17
+      }
+    ],
+    "revision_id": "a4a957ec98ff89c137d006062e6f1a3e2ae5008fa41c6c8dfdcdfc7535d95340",
+    "source_kind": "uiflow2-package",
+    "source_sha256": "65b4cba1bba26c92c30131e1e9d92ab7acae99ad507cd56df27eb3f803acbcbf",
+    "total_file_bytes": 2939
+  },
+  "limits": {
+    "max_revisions": 256,
+    "max_files": 64,
+    "max_file_bytes": 262144,
+    "max_total_file_bytes": 1048576,
+    "max_http_body_bytes": 2097152,
+    "gc_enabled": false
+  },
+  "calls": [
+    {
+      "http_index": 2,
+      "method": "POST",
+      "path": "program-revisions",
+      "status": 201,
+      "response": {
+        "revision": {
+          "created_at": "2026-10-26T15:49:12.078522+00:00",
+          "entrypoint": "main.py",
+          "files": [
+            {
+              "kind": "resource",
+              "path": "assets/pixel.png",
+              "sha256": "77557fdbe0cf343aa10c373ee3a51e21df0a41a8dd56b4d9eb220b5bb8527d18",
+              "size": 97
+            },
+            {
+              "kind": "resource",
+              "path": "config.json",
+              "sha256": "35fe07ed536af8804691d3b6c0cdabef9feec7a33e00da07a573017bfabcc121",
+              "size": 100
+            },
+            {
+              "kind": "mpy",
+              "path": "helper.mpy",
+              "sha256": "3ed9e2e38e69781157b5ad5da3296c2936dda16070bd0187a82de2253ecd0b33",
+              "size": 66
+            },
+            {
+              "kind": "python",
+              "path": "lib/__init__.py",
+              "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+              "size": 12
+            },
+            {
+              "kind": "python",
+              "path": "lib/logic.py",
+              "sha256": "a78c7c699f85d9086120fd0213d3f61ca98308785377f47aa59be7d03a400630",
+              "size": 86
+            },
+            {
+              "kind": "python",
+              "path": "main.py",
+              "sha256": "c4f09175167c838ce466ef991caf8f41a44a5dc41878fc3b957701cd59a2cf10",
+              "size": 2549
+            },
+            {
+              "kind": "python",
+              "path": "namespace_lib/state.py",
+              "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+              "size": 12
+            },
+            {
+              "kind": "python",
+              "path": "old_only.py",
+              "sha256": "38f31b621fc6c66ba16fd6516ffa6b9bfde669ffbfda253185315afaf49606a3",
+              "size": 17
+            }
+          ],
+          "revision_id": "a4a957ec98ff89c137d006062e6f1a3e2ae5008fa41c6c8dfdcdfc7535d95340",
+          "source_kind": "uiflow2-package",
+          "source_sha256": "65b4cba1bba26c92c30131e1e9d92ab7acae99ad507cd56df27eb3f803acbcbf",
+          "total_file_bytes": 2939
+        },
+        "limits": {
+          "max_revisions": 256,
+          "max_files": 64,
+          "max_file_bytes": 262144,
+          "max_total_file_bytes": 1048576,
+          "max_http_body_bytes": 2097152,
+          "gc_enabled": false
+        }
+      }
+    },
+    {
+      "http_index": 3,
+      "method": "POST",
+      "path": "program-revisions",
+      "status": 201,
+      "response": {
+        "revision": {
+          "created_at": "2026-10-26T15:49:12.078522+00:00",
+          "entrypoint": "main.py",
+          "files": [
+            {
+              "kind": "resource",
+              "path": "assets/pixel.png",
+              "sha256": "77557fdbe0cf343aa10c373ee3a51e21df0a41a8dd56b4d9eb220b5bb8527d18",
+              "size": 97
+            },
+            {
+              "kind": "resource",
+              "path": "config.json",
+              "sha256": "35fe07ed536af8804691d3b6c0cdabef9feec7a33e00da07a573017bfabcc121",
+              "size": 100
+            },
+            {
+              "kind": "mpy",
+              "path": "helper.mpy",
+              "sha256": "3ed9e2e38e69781157b5ad5da3296c2936dda16070bd0187a82de2253ecd0b33",
+              "size": 66
+            },
+            {
+              "kind": "python",
+              "path": "lib/__init__.py",
+              "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+              "size": 12
+            },
+            {
+              "kind": "python",
+              "path": "lib/logic.py",
+              "sha256": "a78c7c699f85d9086120fd0213d3f61ca98308785377f47aa59be7d03a400630",
+              "size": 86
+            },
+            {
+              "kind": "python",
+              "path": "main.py",
+              "sha256": "c4f09175167c838ce466ef991caf8f41a44a5dc41878fc3b957701cd59a2cf10",
+              "size": 2549
+            },
+            {
+              "kind": "python",
+              "path": "namespace_lib/state.py",
+              "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+              "size": 12
+            },
+            {
+              "kind": "python",
+              "path": "old_only.py",
+              "sha256": "38f31b621fc6c66ba16fd6516ffa6b9bfde669ffbfda253185315afaf49606a3",
+              "size": 17
+            }
+          ],
+          "revision_id": "a4a957ec98ff89c137d006062e6f1a3e2ae5008fa41c6c8dfdcdfc7535d95340",
+          "source_kind": "uiflow2-package",
+          "source_sha256": "65b4cba1bba26c92c30131e1e9d92ab7acae99ad507cd56df27eb3f803acbcbf",
+          "total_file_bytes": 2939
+        },
+        "limits": {
+          "max_revisions": 256,
+          "max_files": 64,
+          "max_file_bytes": 262144,
+          "max_total_file_bytes": 1048576,
+          "max_http_body_bytes": 2097152,
+          "gc_enabled": false
+        }
+      }
+    },
+    {
+      "http_index": 4,
+      "method": "GET",
+      "path": "program-revisions/a4a957ec98ff89c137d006062e6f1a3e2ae5008fa41c6c8dfdcdfc7535d95340",
+      "status": 200,
+      "response": {
+        "revision": {
+          "created_at": "2026-10-26T15:49:12.078522+00:00",
+          "entrypoint": "main.py",
+          "files": [
+            {
+              "kind": "resource",
+              "path": "assets/pixel.png",
+              "sha256": "77557fdbe0cf343aa10c373ee3a51e21df0a41a8dd56b4d9eb220b5bb8527d18",
+              "size": 97
+            },
+            {
+              "kind": "resource",
+              "path": "config.json",
+              "sha256": "35fe07ed536af8804691d3b6c0cdabef9feec7a33e00da07a573017bfabcc121",
+              "size": 100
+            },
+            {
+              "kind": "mpy",
+              "path": "helper.mpy",
+              "sha256": "3ed9e2e38e69781157b5ad5da3296c2936dda16070bd0187a82de2253ecd0b33",
+              "size": 66
+            },
+            {
+              "kind": "python",
+              "path": "lib/__init__.py",
+              "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+              "size": 12
+            },
+            {
+              "kind": "python",
+              "path": "lib/logic.py",
+              "sha256": "a78c7c699f85d9086120fd0213d3f61ca98308785377f47aa59be7d03a400630",
+              "size": 86
+            },
+            {
+              "kind": "python",
+              "path": "main.py",
+              "sha256": "c4f09175167c838ce466ef991caf8f41a44a5dc41878fc3b957701cd59a2cf10",
+              "size": 2549
+            },
+            {
+              "kind": "python",
+              "path": "namespace_lib/state.py",
+              "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+              "size": 12
+            },
+            {
+              "kind": "python",
+              "path": "old_only.py",
+              "sha256": "38f31b621fc6c66ba16fd6516ffa6b9bfde669ffbfda253185315afaf49606a3",
+              "size": 17
+            }
+          ],
+          "revision_id": "a4a957ec98ff89c137d006062e6f1a3e2ae5008fa41c6c8dfdcdfc7535d95340",
+          "source_kind": "uiflow2-package",
+          "source_sha256": "65b4cba1bba26c92c30131e1e9d92ab7acae99ad507cd56df27eb3f803acbcbf",
+          "total_file_bytes": 2939
+        },
+        "limits": {
+          "max_revisions": 256,
+          "max_files": 64,
+          "max_file_bytes": 262144,
+          "max_total_file_bytes": 1048576,
+          "max_http_body_bytes": 2097152,
+          "gc_enabled": false
+        }
+      }
+    }
+  ],
+  "file_inventory": {
+    "assets/pixel.png": {
+      "size": 97,
+      "sha256": "77557fdbe0cf343aa10c373ee3a51e21df0a41a8dd56b4d9eb220b5bb8527d18"
+    },
+    "config.json": {
+      "size": 100,
+      "sha256": "35fe07ed536af8804691d3b6c0cdabef9feec7a33e00da07a573017bfabcc121"
+    },
+    "helper.mpy": {
+      "size": 66,
+      "sha256": "3ed9e2e38e69781157b5ad5da3296c2936dda16070bd0187a82de2253ecd0b33"
+    },
+    "lib/__init__.py": {
+      "size": 12,
+      "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5"
+    },
+    "lib/logic.py": {
+      "size": 86,
+      "sha256": "a78c7c699f85d9086120fd0213d3f61ca98308785377f47aa59be7d03a400630"
+    },
+    "main.py": {
+      "size": 2549,
+      "sha256": "c4f09175167c838ce466ef991caf8f41a44a5dc41878fc3b957701cd59a2cf10"
+    },
+    "namespace_lib/state.py": {
+      "size": 12,
+      "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5"
+    },
+    "old_only.py": {
+      "size": 17,
+      "sha256": "38f31b621fc6c66ba16fd6516ffa6b9bfde669ffbfda253185315afaf49606a3"
+    }
+  }
+}

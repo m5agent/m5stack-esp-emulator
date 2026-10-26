@@ -1,0 +1,83 @@
+{
+  "checkedAt": "2026-10-26T09:57:19.238Z",
+  "status": "pass",
+  "scope": "Necessary finite geometry, full original assembled shell, real bores and FrontSide walls, connector physical backing, passive API, Grove four-wire pose/detach/disposal and two PNG registrations. No browser/full historical checks, optical reception, communication, firmware, electrical, hardware or production-fit verification.",
+  "meshes": 49,
+  "triangles": 15274,
+  "visualEnvelopeMm": [
+    24,
+    32,
+    8.000000095367431
+  ],
+  "cadEnvelopeMm": [
+    24,
+    32,
+    8
+  ],
+  "mountingRays": 10,
+  "mountingWalls": 8,
+  "pcbHoleWalls": 10,
+  "opticalRays": 9,
+  "opticalWalls": 4,
+  "closureChecks": [
+    {
+      "origin": [
+        0,
+        -24,
+        1.4
+      ],
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "maxDistance": 15,
+      "purpose": "Open Grove mouth has recessed physical rear wall/contact backing"
+    },
+    {
+      "origin": [
+        0,
+        24,
+        0
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "maxDistance": 10,
+      "purpose": "Native optical aperture has real recessed ISO103 receiving surface, never an empty shell or emitting LED"
+    }
+  ],
+  "closureHits": [
+    {
+      "purpose": "Open Grove mouth has recessed physical rear wall/contact backing",
+      "hit": "Grove rear wall",
+      "distanceMm": 13.95000001192093
+    },
+    {
+      "purpose": "Native optical aperture has real recessed ISO103 receiving surface, never an empty shell or emitting LED",
+      "hit": "Laser RX recessed dark non-emissive receiver dome",
+      "distanceMm": 8.400000023841859
+    }
+  ],
+  "artwork": {
+    "panels": 2,
+    "kind": "reference-redraw",
+    "disabledWithFalse": true,
+    "physicalGeometryInvariant": true
+  },
+  "externalComponents": [
+    "grove",
+    "sensor"
+  ],
+  "grovePins": [
+    "GND",
+    "5V",
+    "NC",
+    "DOUT"
+  ],
+  "nestedGroveAttachPoseDetach": "pass",
+  "disposedResources": 93,
+  "disposeEvents": 136
+}

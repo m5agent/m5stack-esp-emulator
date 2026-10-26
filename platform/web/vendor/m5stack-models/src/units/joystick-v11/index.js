@@ -1,3 +1,4 @@
+import {addStickers} from './stickers.js';
 import * as THREE from 'three';
 import {Button,materials} from '../../core/index.js';
 import {slab,mesh} from '../../modeling/parts.js';
@@ -5,6 +6,7 @@ import {makeUnit,cylinder} from '../shared/CADUnit.js';
 import {VisualJoint} from '../../core/components/VisualJoint.js';
 import {spec} from './dimensions.js';import data from './geometry-data.js';
 const models=makeUnit(spec,data,host=>{
+ addStickers(host);
  slab(host.body,18,18,4,1.7,[0,9,4],materials.plastic(0x1e2427),[],.4);
  const stick=new THREE.Group();stick.name='Joystick moving stick';
  cylinder(stick,3,14,[0,0,7],materials.plastic(0x202629));

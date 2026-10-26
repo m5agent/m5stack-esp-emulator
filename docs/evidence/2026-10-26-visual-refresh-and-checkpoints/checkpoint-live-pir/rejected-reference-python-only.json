@@ -1,0 +1,25 @@
+{
+  "request": {
+    "revision_id": "cccc7ff5d0566619ae6ee988129e6dad992354b3511590267fcf017916f3ec94",
+    "expected_execution_id": "ea323b325889470694c8ea603c5da19b",
+    "timeout_seconds": 120
+  },
+  "status": 404,
+  "response": {
+    "error": {
+      "code": "unknown_program_package",
+      "message": "package revision does not exist"
+    }
+  },
+  "previous_execution_id": "ea323b325889470694c8ea603c5da19b",
+  "after_execution_id": "ea323b325889470694c8ea603c5da19b",
+  "before_rejection_offset": 10197,
+  "continuation_offset": 10197,
+  "continuation": {
+    "session_id": "70e0b10a411a41b39ab32c43d6d12ae9",
+    "offset": 10197,
+    "next_offset": 10317,
+    "data": "LIVE_PACKAGE_SAMPLE {\"value\": 0, \"computed\": 34, \"init\": 202, \"unit\": \"pir\", \"logic\": 5, \"helper\": 29, \"version\": \"B\"}\r\n",
+    "bytes": 120
+  }
+}

@@ -17,7 +17,7 @@ export class Core2 extends Device{
   core2Assembly(this);
   // The removable EXT board and its lid occupy the rear shell's long assembly opening.
   slab(this.body,11.8,38.8,.7,1,[16.7,0,-7.65],materials.plastic(0x2b4939,{roughness:.9}),[],.08);
-  slab(this.body,12.1,39.2,1.35,1,[16.7,0,-8.26],materials.plastic(0xd3d7d0,{roughness:.82}),[{w:1.2,h:1.2,r:.6,cy:13.5},{w:1.2,h:1.2,r:.6,cy:-13.5}],.12);
+  const extLid=slab(this.body,12.1,39.2,1.35,1,[16.7,0,-8.26],materials.plastic(0xd3d7d0,{roughness:.82}),[{w:1.2,h:1.2,r:.6,cy:13.5},{w:1.2,h:1.2,r:.6,cy:-13.5}],.12);this.parts['ext-lid']=extLid;
   for(const x of [-22,22])for(const y of [-22,22])screw(this.body,[x,y,-8.3],'back',2.7);
   for(const x of [-15.2,15.2])for(const y of [-22,22]){const m=disc(this.body,2.5,[x,y,-8.3],materials.plastic(0x151a1c));m.quaternion.copy(FACE.back);}
   addStickers(this);

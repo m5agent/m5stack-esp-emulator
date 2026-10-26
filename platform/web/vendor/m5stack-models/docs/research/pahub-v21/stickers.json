@@ -1,0 +1,79 @@
+{
+  "id": "pahub-v21",
+  "sku": "U040-B-V21",
+  "sourceKind": "supplied-exact-product-original-design-rasterization",
+  "sourceVectorsDistributed": false,
+  "photographicCrops": false,
+  "redistribution": "User authorized final PNG distribution; originals, source links, table, mappings and converters remain private. Artwork remains owner copyright.",
+  "surfaces": [
+    {
+      "raster": "official-back.png",
+      "face": "back",
+      "sizeMm": [
+        16,
+        28
+      ],
+      "positionMm": [
+        0,
+        7,
+        -3.8
+      ],
+      "target": "Exact native assembled rear shell",
+      "method": "Physical-surface projection"
+    },
+    {
+      "raster": "official-chip.png",
+      "face": "front",
+      "sizeMm": [
+        3.4,
+        7
+      ],
+      "positionMm": [
+        0,
+        4.3,
+        2.15
+      ],
+      "target": "Real PCA9548AP package top",
+      "method": "Physical-surface projection; upright top 77H and lower 70H match exact official front photo"
+    }
+  ],
+  "rasterFiles": [
+    {
+      "path": "src/units/pahub-v21/official-back.png",
+      "sha256": "6c601a2c540e4bdf6318558b09a660ff6d52d1a1a573b53501cd180664902e2c",
+      "sizePx": [
+        1024,
+        1792
+      ]
+    },
+    {
+      "path": "src/units/pahub-v21/official-chip.png",
+      "sha256": "f371a894269e53792c6ce7af4cbb774fff305cfb719ca2f02c0a7ef120337ab6",
+      "sizePx": [
+        512,
+        1054
+      ]
+    }
+  ],
+  "constructionCheck": {
+    "id": "pahub-v21",
+    "status": "pass",
+    "physicalMeshes": 163,
+    "unchangedPhysicalSha256": "9fcefd537632ddbedbd714c32fa5cbc47863b9063135ffe3c036766fb49a5741",
+    "printedPanels": 2,
+    "artworkFalse": "pass",
+    "physicalBuffersMaterialsWorldComponentsAndPorts": "identical-to-pre-edit",
+    "grovePorts": [
+      "grove",
+      "grove-0",
+      "grove-1",
+      "grove-2",
+      "grove-3",
+      "grove-4",
+      "grove-5"
+    ],
+    "sixOutputsAttachFourWiresAndSelectiveDetach": "pass",
+    "mountingBores": "unchanged-and-open"
+  },
+  "visualVerification": null
+}

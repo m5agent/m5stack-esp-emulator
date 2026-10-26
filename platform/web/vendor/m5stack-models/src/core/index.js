@@ -13,6 +13,7 @@ export {
 } from './registry.js';
 export { Button } from './components/Button.js';
 export { VisualJoint } from './components/VisualJoint.js';
+export { VisualSlide } from './components/VisualSlide.js';
 export { Display } from './components/Display.js';
 export { Led } from './components/Led.js';
 export { Speaker } from './components/Speaker.js';

@@ -1,0 +1,41 @@
+import hashlib,json,tempfile
+from pathlib import Path
+import yaml
+from jsonschema import Draft202012Validator
+from referencing import Registry,Resource
+from referencing.jsonschema import DRAFT202012
+from program_packages import ProgramPackageStore
+root=Path.cwd();source=root/'docs/device-service.openapi.yaml';doc=yaml.safe_load(source.read_text())
+assert doc['info']['version']=='1.41.0'
+assert {'500','503'} <= set(doc['paths']['/sessions/{session_id}/program']['post']['responses'])
+refs=[]
+def walk(x):
+ if isinstance(x,dict):
+  for k,v in x.items():
+   if k=='$ref':
+    assert isinstance(v,str) and v.startswith('#/'),v
+    target=doc
+    for bit in v[2:].split('/'):target=target[bit.replace('~1','/').replace('~0','~')]
+    refs.append(v)
+   else:walk(v)
+ elif isinstance(x,list):
+  for v in x:walk(v)
+walk(doc)
+for schema in doc['components']['schemas'].values():Draft202012Validator.check_schema(schema)
+base="urn:m5:device-service-openapi"
+registry=Registry().with_resource(base,Resource.from_contents(doc,default_specification=DRAFT202012))
+def valid(name,payload):return Draft202012Validator({'$ref':base+'#/components/schemas/'+name},registry=registry).is_valid(payload)
+files={'main.py':{'encoding':'utf8','data':"import helper\nprint(helper.VALUE)\n"},'helper.py':{'encoding':'utf8','data':"VALUE='中文'\n"}}
+checkpoint={'source_kind':'uiflow2-package','entrypoint':'main.py','files':files}
+assert valid('ProgramRevisionCreateRequest',checkpoint)
+for bad in ({k:v for k,v in checkpoint.items() if k!='source_kind'},{**checkpoint,'owner':'synthetic-owner'},{**checkpoint,'source_kind':'uiflow2-python'}):assert not valid('ProgramRevisionCreateRequest',bad)
+reference={'revision_id':'a'*64,'expected_execution_id':None,'timeout_seconds':120}
+for payload in (reference,{'source':'print(1)','expected_execution_id':None},{'files':files,'expected_execution_id':None}):assert valid('RunProgramRequest',payload)
+for bad in ({**reference,'source':'pass'},{**reference,'files':files},{**reference,'entrypoint':'main.py'},{**reference,'revision_id':'A'*64},{**reference,'timeout_seconds':121},{'revision_id':'a'*64}):assert not valid('RunProgramRequest',bad)
+with tempfile.TemporaryDirectory() as d:
+ store=ProgramPackageStore(Path(d));revision=store.create(checkpoint)
+ envelope={'revision':revision,'limits':{'max_revisions':store.max_count,'max_files':64,'max_file_bytes':262144,'max_total_file_bytes':1048576,'max_http_body_bytes':2097152,'gc_enabled':False}}
+ assert valid('ProgramRevisionEnvelope',envelope)
+for path,method in (('/program-revisions','post'),('/program-revisions/{revision_id}','get')):assert method in doc['paths'][path]
+report={'status':'PASS','openapi_version':doc['info']['version'],'sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'resolved_internal_refs':len(refs),'schemas_checked':len(doc['components']['schemas']),'cases':{'checkpoint_positive':1,'checkpoint_negative':3,'run_positive':3,'run_negative':6,'actual_store_metadata_envelope':1},'guest_execution':'NOT RUN'}
+(root/'.work/visual-checkpoint-verification-20261026/openapi-final.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))

@@ -1,6 +1,6 @@
 # 项目当前状态
 
-日期：`2026-10-26`
+日期：`2026-10-27`
 
 本文是当前能力和边界的权威说明。当前未完成工作只在
 [项目 Backlog](project-backlog.md)维护，逐次运行与 evidence 只在
@@ -22,7 +22,7 @@ QEMU 新增显式 `max_age_ms=1..1000` 的按需共享帧样本和 ETag/304；�
 evidence、wait 与 stop 仍采集新帧。无后台采样或固定FPS保证，Tab5/network不继承。
 时间与程序身份冻结于真实采集，preview样本序号不代表guest重绘或与Unit状态的原子快照；真实CoreS3的条件请求、程序/重置失效、历史和导出边界已验收。
 独立有界帧请求与owner/decode隔离、CoreS3 PIR/Relay共享帧与双向控制已验；六leaf另有CoreS3真实网页输入/DOM读回。RGB/Encoder/8Encoder默认全灯同色反馈按排列不变性实现，非对称/不可用时撤色并标unknown；逐灯与旋转binding仍为UNIT-HOST-29 OPEN，范围见[本块证据](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
-`/program`支持完整文件/资源和纯字节码`.mpy`依赖，同guest校验发布与托管模块替换；`program_features`明确main.py/fresh-globals/interrupt-only。当前固件普通导入不会运行if-main，独立main.mpy入口为UNIT-HOST-33 OPEN，见[入口研究](evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/README.md)与[文件包证据](evidence/2026-10-26-live-package-and-detent/README.md)。
+`/program`支持完整文件/资源和纯字节码`.mpy`依赖，同guest校验发布与托管模块替换；公共完整checkpoint保存/查询及同步revision引用已实现，串口按offset只读有界窗口。program_features明确main.py/fresh-globals/interrupt-only；普通导入不运行if-main，独立main.mpy入口为UNIT-HOST-33 OPEN，见[入口研究](evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/README.md)、[文件包证据](evidence/2026-10-26-live-package-and-detent/README.md)和[当前块](evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)。
 Scroll新增独立partial控制器：四主机同guest原驱动与CoreS3真实Web按键/RGB/屏幕已验；RGB队列、轴角、回绕、bootloader/持久化未完成，见[限定证据](evidence/2026-10-26-scroll-controller/README.md)。其它Unit、二进制入口、保存开机、Preview/Run、SSE与AIFlow目标仍开放，见[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。
 interrupt-only 不保证清空 native/定时器/IRQ/线程，断流/重连缺口保持 unknown。
 启动取消已有生命周期事务、pending自动收尾、停止意图版本、Network child收据和draining所有权门禁，见[取消回归](evidence/2026-10-26-session-cancellation-f309/README.md)。
@@ -189,10 +189,10 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 
 ## 当前工作与下一门禁
 
-`UNIT-01` 外壳固定更新至公开 `48667b728736fbfd4365a06575473ce538d3c972`：
-14主机/29视觉Unit、65张许可PNG与51层主机贴纸材质通过浏览器检查；
-Roller485仍visual-only；内部协议库28种，Scroll以明确partial模型准入四主机，不能继承完整STM32或机械等价结论。
-见[外壳更新证据](evidence/2026-10-26-visual-refresh-48667b7/README.md)及[Scroll证据](evidence/2026-10-26-scroll-controller/README.md)：新九patch冷构建、四主机各22次同VM程序和旧控制器回归通过；新完整矩阵66/67，Core2 IMU偶发marker缺失仍UNIT-HOST-21 OPEN。28款控制器源码可从固定QEMU基线重建，各层保留独立来源指纹与范围。
+`UNIT-01` 外壳固定更新至公开 `3681a6482aff96501d44659ba5a1603246f1fe1f`：
+14主机/113视觉Unit及287张许可PNG通过独立完整浏览器检查，默认配置不外推83项变体；
+85款仅视觉；内部协议库仍28种，Scroll以明确partial模型准入四主机，不能继承完整STM32或机械等价结论。
+见[外壳与checkpoint证据](evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)及[Scroll证据](evidence/2026-10-26-scroll-controller/README.md)：新pin下同色灯/Scroll实际Web复测与原I2C/RMT驱动分层验收；九patch冷构建和四主机同VM程序属于前轮控制器证据。上一独立完整矩阵66/67，Core2 IMU偶发marker缺失仍UNIT-HOST-21 OPEN，本块无C变更故完整矩阵NOT RUN。28款控制器可从固定QEMU基线重建，视觉和协议保留独立来源范围。
 
 CoreS3 的逐型号功能证据现已通过严格三层汇总：同 guest/controller、真实
 浏览器和全型号桥契约分别核对；每个运行例都有实际 PID→QEMU SHA、同固件、

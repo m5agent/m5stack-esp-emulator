@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.40.0
+  version: 1.41.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -43,6 +43,70 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /program-revisions:
+    post:
+      summary: Store an immutable complete UIFlow package checkpoint without executing it
+      description: >
+        Requires explicit source_kind=uiflow2-package, entrypoint=main.py and
+        the complete files mapping. Uses the existing package canonical hash
+        and independent package quota. Equivalent UTF-8/base64 bytes retain the
+        same revision_id and original created_at, including duplicate POSTs.
+        The HTTP JSON body is limited to 2 MiB. Structural bytecode checks do
+        not establish compatibility with a particular guest. No firmware or
+        session is created and no code is host-executed. Retention GC is not
+        implemented; the returned package quota is independent of the source
+        revision quota. This uses the service's existing authorization scope,
+        without tenant isolation or caller-provided owner identity.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgramRevisionCreateRequest"
+      responses:
+        "201":
+          description: Immutable package metadata and limits; duplicate content returns the original metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramRevisionEnvelope"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "429":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+  /program-revisions/{revision_id}:
+    get:
+      summary: Read a stored complete package checkpoint's metadata and limits
+      parameters:
+        - name: revision_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{64}$"
+      responses:
+        "200":
+          description: Verified immutable metadata; code and resources are not executed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramRevisionEnvelope"
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
   /sessions/{session_id}/program:
     get:
       summary: Observe the latest same-guest MicroPython execution
@@ -62,7 +126,8 @@ paths:
       description: >
         Requires a running session created with program_transport=uart-repl
         and a guest UART REPL route installed at boot. Accepts either single-file
-        source (65536 UTF-8 bytes) or a complete files snapshot with main.py,
+        source (65536 UTF-8 bytes), a stored package revision_id reference, or
+        a complete files snapshot with main.py,
         Python modules, bytecode-only .mpy dependencies and resources. Packages
         are written and SHA/size-verified through the real guest filesystem before
         activation; main.py compiles before START. The HTTP JSON limit is 2 MiB;
@@ -79,6 +144,11 @@ paths:
         Package directories are limited to 64 per guest, including failed
         staging directories; quota exhaustion never silently recreates a guest.
         Native .mpy emitters and main.mpy entrypoints are not admitted.
+        A revision_id request is mutually exclusive with source, files,
+        source_kind and entrypoint. It reads and verifies the stored package
+        directly without creating another revision; unknown references and
+        old python-only IDs return 404. The acknowledgement remains synchronous,
+        and this does not create a Preview/Run coordinator or latest-wins queue.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       requestBody:
@@ -103,6 +173,10 @@ paths:
         "413":
           $ref: "#/components/responses/Error"
         "429":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
           $ref: "#/components/responses/Error"
         "504":
           $ref: "#/components/responses/Error"
@@ -2378,6 +2452,132 @@ components:
       oneOf:
         - $ref: "#/components/schemas/RunProgramSourceRequest"
         - $ref: "#/components/schemas/RunProgramPackageRequest"
+        - $ref: "#/components/schemas/RunProgramRevisionRequest"
+    ProgramPackageFiles:
+      type: object
+      minProperties: 1
+      maxProperties: 64
+      description: >
+        Complete snapshot including root main.py. Canonical relative UTF-8
+        paths, at most 192 bytes/eight components, without traversal, aliases,
+        casefold collisions, path-prefix collisions or boot.py. Individual
+        decoded files are limited to 256 KiB; decoded total to 1 MiB.
+        Deleted files leave the active import path. Reused guest directories
+        still require every declared file and directory to pass SHA/size checks.
+      additionalProperties:
+        type: object
+        additionalProperties: false
+        required: [encoding, data]
+        properties:
+          encoding:
+            type: string
+            enum: [utf8, base64]
+          data:
+            type: string
+    ProgramRevisionCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [source_kind, entrypoint, files]
+      properties:
+        source_kind:
+          type: string
+          enum: [uiflow2-package]
+        entrypoint:
+          type: string
+          enum: [main.py]
+        files:
+          $ref: "#/components/schemas/ProgramPackageFiles"
+    ProgramRevisionEnvelope:
+      type: object
+      additionalProperties: false
+      required: [revision, limits]
+      properties:
+        revision:
+          type: object
+          additionalProperties: false
+          required: [revision_id, source_sha256, source_kind, entrypoint, total_file_bytes, files, created_at]
+          properties:
+            revision_id:
+              type: string
+              pattern: "^[0-9a-f]{64}$"
+            source_sha256:
+              type: string
+              pattern: "^[0-9a-f]{64}$"
+            source_kind:
+              type: string
+              enum: [uiflow2-package]
+            entrypoint:
+              type: string
+              enum: [main.py]
+            total_file_bytes:
+              type: integer
+              minimum: 0
+              maximum: 1048576
+            files:
+              type: array
+              minItems: 1
+              maxItems: 64
+              items:
+                type: object
+                additionalProperties: false
+                required: [path, size, sha256, kind]
+                properties:
+                  path:
+                    type: string
+                  size:
+                    type: integer
+                    minimum: 0
+                    maximum: 262144
+                  sha256:
+                    type: string
+                    pattern: "^[0-9a-f]{64}$"
+                  kind:
+                    type: string
+                    enum: [python, mpy, resource]
+            created_at:
+              type: string
+              format: date-time
+        limits:
+          type: object
+          additionalProperties: false
+          required: [max_revisions, max_files, max_file_bytes, max_total_file_bytes, max_http_body_bytes, gc_enabled]
+          properties:
+            max_revisions:
+              type: integer
+              minimum: 1
+              maximum: 256
+            max_files:
+              type: integer
+              const: 64
+            max_file_bytes:
+              type: integer
+              const: 262144
+            max_total_file_bytes:
+              type: integer
+              const: 1048576
+            max_http_body_bytes:
+              type: integer
+              const: 2097152
+            gc_enabled:
+              type: boolean
+              const: false
+    RunProgramRevisionRequest:
+      type: object
+      additionalProperties: false
+      required: [revision_id, expected_execution_id]
+      properties:
+        revision_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        expected_execution_id:
+          type: [string, "null"]
+          pattern: "^[0-9a-f]{32}$"
+        timeout_seconds:
+          type: number
+          minimum: 1
+          maximum: 120
+          default: 120
+          description: Shared package deployment/start acknowledgement budget; no async Preview/Run resource is created.
     RunProgramSourceRequest:
       type: object
       additionalProperties: false
@@ -2409,26 +2609,7 @@ components:
           enum: [main.py]
           default: main.py
         files:
-          type: object
-          minProperties: 1
-          maxProperties: 64
-          description: >
-            Complete snapshot, including main.py. Canonical relative UTF-8 paths,
-            at most 192 bytes/eight components, without traversal, aliases,
-            casefold collisions, path-prefix collisions or boot.py. Individual
-            decoded files are limited to 256 KiB; decoded total to 1 MiB.
-            Missing files are absent from the new import path. Reused guest
-            directories must still match every declared file SHA/size.
-          additionalProperties:
-            type: object
-            additionalProperties: false
-            required: [encoding, data]
-            properties:
-              encoding:
-                type: string
-                enum: [utf8, base64]
-              data:
-                type: string
+          $ref: "#/components/schemas/ProgramPackageFiles"
         expected_execution_id:
           type: [string, "null"]
           pattern: "^[0-9a-f]{32}$"

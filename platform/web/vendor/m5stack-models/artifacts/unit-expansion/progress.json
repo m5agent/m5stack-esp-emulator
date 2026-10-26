@@ -1,0 +1,32 @@
+{
+  "savedAt": "2026-10-26T06:45:32.354938+00:00",
+  "scope": "New Unit implementation progress and finite geometry/API checks; no browser or hardware acceptance",
+  "status": "modeled",
+  "products": [
+    {
+      "id": "gps-v11",
+      "meshes": 25,
+      "closureRays": 0,
+      "status": "pass"
+    },
+    {
+      "id": "weight-i2c",
+      "meshes": 44,
+      "closureRays": 0,
+      "status": "pass"
+    },
+    {
+      "id": "8servos",
+      "meshes": 106,
+      "closureRays": 4,
+      "status": "pass"
+    }
+  ],
+  "commands": {
+    "node scripts/check.mjs": "exit 0, 46 model constructions/API checks",
+    "npm run build": "exit 0"
+  },
+  "browserReview": "deferred by user",
+  "artwork": "new-product stickers deferred; prior 50 PNG redraw batch retained as unreviewed checkpoint",
+  "publication": "local only; not committed or pushed"
+}

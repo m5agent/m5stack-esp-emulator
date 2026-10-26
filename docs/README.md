@@ -1,6 +1,6 @@
 # 文档导航与新鲜度规则
 
-日期：`2026-10-26`
+日期：`2026-10-27`
 
 本页只维护阅读顺序、职责和新鲜度。动态测试计数、设备/Task 计数以及
 “非历史页是否落后于当前事实日期”由[自动项目快照](project-snapshot.md)
@@ -100,12 +100,12 @@
 | [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-26` | 先按本轮 P0 区分已完成、在推进和未开始，再给出产品边界、代码盘点、成熟度、阅读顺序、工作流、下一步和文档职责；动态事实仍链接权威入口 |
 | [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-26` | 维护已交付代码面、当前在途、推进顺序、下一验收门禁、稳定代码入口和未完成 Task ID |
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-26` | 分别记录 catalog 日期、当前事实复核和最新 evidence；从 profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
-| [项目当前状态](project-status.md) | 当前结论 | `2026-10-26` | 唯一维护当前能力与边界；按网络、Core2、FirmwareManifest 汇总 P0 已完成和缺口，并保留 Unit 当前范围；Core2 TIMG WDT-mask、stateful SSI、handoff、WDT liveness 和 LVGL/SPI flush wait 的逐项证据仍转验证台账 |
-| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-26` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Core2 的下一门禁是修 SPI completion/`lv_disp_flush_ready`、matching ELF/MAP 和同 SHA 非空应用帧 |
-| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-26` | 当前源码、FirmwareManifest/Secure Boot、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、namespace/container-local execution、Unit、测试/evidence/文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
-| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-26` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-26` | `1.40.0`；同guest程序、文件包/字节码依赖和显式program_features边界；Unit 准入、HUB 拓扑、冻结 schema/QOM mapping、输入/状态/取证；保留 API 对象/状态机/错误码、worker lease ownership fence、8 MiB Core2 PSRAM/MMU、有界地址/CIDR、controlled exact/domain/CNAME answer binding、严格 Host authority、同 guest CNAME 网络证据和 transport 契约 |
-| [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-26` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，硬件 NOT RUN |
+| [项目当前状态](project-status.md) | 当前结论 | `2026-10-27` | 唯一维护当前能力与边界；按网络、Core2、FirmwareManifest 汇总 P0 已完成和缺口，并保留 Unit 当前范围；Core2 TIMG WDT-mask、stateful SSI、handoff、WDT liveness 和 LVGL/SPI flush wait 的逐项证据仍转验证台账 |
+| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-27` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Core2 的下一门禁是修 SPI completion/`lv_disp_flush_ready`、matching ELF/MAP 和同 SHA 非空应用帧 |
+| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-27` | 当前源码、FirmwareManifest/Secure Boot、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、namespace/container-local execution、Unit、测试/evidence/文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
+| [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-27` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-27` | `1.41.0`；公共完整checkpoint与同步revision引用、同guest程序/字节码依赖和program_features；保留Unit准入、冻结schema、lease/evidence及网络契约；Preview/Run协调仍未实现 |
+| [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-27` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-26` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop 和当前容量门禁；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-26` | 导入、规范化、ZIP path/casefold/symlink 与资源唯一性、多 build SoC 选择、mandatory `capabilities.required/optional`、WebBurner 分段 size/digest 复算及来源展示、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、aggregate/image/eFuse understatement fail-closed、文件系统/许可策略、sdkconfig detected / image observed capability 和 evidence 分层 |
@@ -131,19 +131,20 @@
 | [CoreS3 三渲染器](cores3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [StickS3 三渲染器](sticks3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [多设备模拟器设计](plans/2026-10-20-multi-device-emulator-design.md) | 历史设计 | `2026-10-20` | 早期后端和能力分层，不代表当前设备状态 |
-| [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md) | 实现设计 | `2026-10-26` | 同guest程序、限定Unit原驱动与QEMU按需共享采样；完整文件包/纯字节码依赖已接入；其余Unit、AIFlow/Preview/SSE及保存开机仍开放；视觉与功能协议分别验收 |
+| [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md) | 实现设计 | `2026-10-27` | 同guest程序、限定Unit原驱动与QEMU按需共享采样；完整文件包/纯字节码依赖已接入；其余Unit、AIFlow/Preview/SSE及保存开机仍开放；视觉与功能协议分别验收 |
 | [Unit 接入问题](unit-integration-host-issues.md) | 参考记录 | `2026-10-26` | 接入期间发现的主机问题与处理边界 |
 | [Unit 源码 API 首批验收](evidence/2026-10-26-unit-source-api-29d8/README.md) | 历史证据 | `2026-10-26` | 五例源码 API 与逐字 Button/HUB+ENV/NCIR 示例；同 guest/Web/QOM/sourcepin/ZIP 和清理，限 CoreS3，硬件 NOT RUN |
 | [Unit 源码 API 扩展验收](evidence/2026-10-26-unit-source-api-expanded-29d8/README.md) | 历史证据 | `2026-10-26` | 传感器、IO、控制类及显式 custom；原 IR 待审、原 Buzzer 自然归零失败、Thermal 负控与功能例分开，公开研究和可重放原始证据，限 CoreS3 |
 | [三主机 Unit 源码 API](evidence/2026-10-26-unit-source-hosts-29d8/README.md) | 历史证据 | `2026-10-26` | 提交并同步主线后全新准备；AtomS3R、StickS3、StopWatch 各 Button/Relay/ENV III，同 guest 原 host probe、内部总线隔离、真实 Web/源码 pin/取证与清理，其它 Unit 不继承 |
 | [PWM 初始化路由与完整回归](evidence/2026-10-26-unit-pwm-route-d1ba/README.md) | 历史证据 | `2026-10-26` | 同固件无后续setter的八窗A/B、独立冷构建/八patch重放；新单次完整矩阵67/67、274/274与652平台测试通过，不外推60秒soak/完整PWM/硬件，取证限制单列 |
 | [三主机八种 Unit 源码IO](evidence/2026-10-26-unit-source-host-io-d1ba/README.md) | 历史证据 | `2026-10-26` | 新增24源码组合，Fan3在同步前、其余21在同步后；GPIO/RMT/LEDC/UART/HUB多leaf及原host oracle、真实Web/source/PID/取证清理，两准确HEAD与精确源码omission分列，不转授其它组合/硬件 |
-| [AIFlow实时预览API评估计划](plans/2026-10-26-aiflow-live-preview-api.md) | 实现/设计 | `2026-10-26` | UIFlow同guest程序和显式QEMU按需共享帧已实现；Preview/Run、SSE与AIFlow完整接入仍待做，继承Unit/服务Backlog |
+| [AIFlow实时预览API评估计划](plans/2026-10-26-aiflow-live-preview-api.md) | 实现/设计 | `2026-10-27` | UIFlow同guest程序和显式QEMU按需共享帧已实现；Preview/Run、SSE与AIFlow完整接入仍待做，继承Unit/服务Backlog |
 | [UIFlow同guest实时程序验证](evidence/2026-10-26-uiflow-live-program/README.md) | 历史证据 | `2026-10-26` | AtomS3R同固件/VM程序替换、PIR原驱动、应用帧与语法错误恢复；其它主机、AIFlow接入和硬件不继承 |
 | [UIFlow实时Web与四主机](evidence/2026-10-26-live-program-web-and-hosts/README.md) | 历史证据 | `2026-10-26` | 四主机×PIR/Relay八会话/40次预期提交；真实CoreS3两例Web像素、输入输出、同PID/固件替换与语法恢复；picker失败负控及13项fixture，非AIFlow/SSE/硬件结论 |
 | [同guest Unit与共享预览](evidence/2026-10-26-live-unit-preview/README.md) | 历史证据 | `2026-10-26` | 四主机限定HUB传感器/控制leaf原驱动、同guest程序替换与QEMU共享样本/ETag/304、默认fresh兼容；独立browser故障回归与真实CoreS3 PIR/Relay网页链路，非AIFlow/SSE/其它后端或硬件结论 |
 | [同guest文件包与detent事件](evidence/2026-10-26-live-package-and-detent/README.md) | 历史证据 | `2026-10-26` | 完整源码/纯字节码依赖/资源经真实UART部署、模块替换与完整性；detent位置事件fixture，不关闭整体动画或AIFlow集成 |
 | [默认同色灯反馈与程序能力](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md) | 历史证据 | `2026-10-26` | 默认mounted灯uniform/unknown/恢复与同guest实际驱动分层；program_features显式发布main.py/字节码依赖/namespace/清理边界，固定源码和真实guest研究保留main.mpy入口OPEN |
+| [外壳更新与公共checkpoint](evidence/2026-10-26-visual-refresh-and-checkpoints/README.md) | 历史证据 | `2026-10-27` | 固定3681外壳的独立完整浏览器检查、原失败fixture与新pin真实同色灯/Scroll复测；公共完整package保存/查询及同步revision引用，串口有界窗口与执行链复核；视觉与协议准入分别验收 |
 | [同色灯官方绑定研究](evidence/2026-10-26-uniform-led-and-program-capabilities/binding-research/README.md) | 历史证据 | `2026-10-26` | 固定官方电气链和排列不变性证明；逐灯位置与旋转标定仍缺来源 |
 | [同色灯mounted前端fixture](evidence/2026-10-26-uniform-led-and-program-capabilities/frontend/README.md) | 历史证据 | `2026-10-26` | 真实组件材质、unknown/恢复、错误/迟到GET销毁；无guest或硬件结论 |
 | [同色灯早期真实批次](evidence/2026-10-26-uniform-led-and-program-capabilities/live-browser/README.md) | 历史证据 | `2026-10-26` | r1帧接口失败与r2数据面PASS；r2阶段截图裁切，不能替代完整场景 |

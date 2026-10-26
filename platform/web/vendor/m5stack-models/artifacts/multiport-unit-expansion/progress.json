@@ -1,0 +1,151 @@
+{
+  "savedAt": "2026-10-26T07:22:11.100038+00:00",
+  "stage": "modeled",
+  "scope": "New multiport Unit geometry/API and actual demo-controller DOM fixture; no browser pixels or hardware acceptance",
+  "products": [
+    {
+      "id": "pahub-v21",
+      "meshes": 163,
+      "closureRays": 1,
+      "status": "pass"
+    },
+    {
+      "id": "pbhub-v11",
+      "meshes": 166,
+      "closureRays": 0,
+      "status": "pass"
+    },
+    {
+      "id": "gesture",
+      "meshes": 41,
+      "closureRays": 5,
+      "status": "pass"
+    }
+  ],
+  "checks": {
+    "baseGeometryAPI": "exit 0, 52 models",
+    "demoController": "pass",
+    "multiportCases": [
+      "pahub-v21-six-output-menu-nested-controls-and-independent-branch-detach",
+      "pbhub-v11-six-output-menu-nested-controls-and-independent-branch-detach"
+    ]
+  },
+  "builds": {
+    "public": "exit 0",
+    "private": "exit 0"
+  },
+  "browserReview": "deferred by user",
+  "fullCheck": "not run; earlier sticker check remains incomplete",
+  "publication": "local only; not committed or pushed",
+  "files": [
+    {
+      "path": "docs/MULTIPORT-UNITS.md",
+      "sha256": "c8f364203118901f64239c7eef2294aa516c3336e1fe9a1b0c2ba78a3dda5b8b"
+    },
+    {
+      "path": "docs/plans/multiport-unit-expansion.md",
+      "sha256": "d34f7ef38e24c7b1805d4d30dcf65e6c52eb60c9d9e97b715a704175ec4a9fe7"
+    },
+    {
+      "path": "docs/research/gesture/README.md",
+      "sha256": "df836020b5da3c12cd35eac75477aaa492d5491cee5e9313a1c343320810be03"
+    },
+    {
+      "path": "docs/research/gesture/smoke.json",
+      "sha256": "f65df9ef4c73b1f9eafb6b1b6a5f5c65f9d1e17eb0a721ddc61b757975f2a677"
+    },
+    {
+      "path": "docs/research/gesture/sources.json",
+      "sha256": "574941baf3a6f98f8cefaf823e36be49be4a49f17412ddd53acd574a2bdeed6a"
+    },
+    {
+      "path": "docs/research/pahub-v21/README.md",
+      "sha256": "d26115c0c37b9d7da782321950d198f0bb52f97c9b77dd529669703437532fdd"
+    },
+    {
+      "path": "docs/research/pahub-v21/smoke.json",
+      "sha256": "e3856877ed8bb7111fb26a55260f35ec4d69701e64e6f9514eee5e3a6099e84d"
+    },
+    {
+      "path": "docs/research/pahub-v21/sources.json",
+      "sha256": "ab53f468938a7539dd47cada9f6a56079ad1f9198eecf1a70c23d7bb84ad6cf1"
+    },
+    {
+      "path": "docs/research/pbhub-v11/geometry-check.json",
+      "sha256": "4302a2851241afa5e23234f5b562e0c36a0f06074b2938d8cec06b6abfbcf8a9"
+    },
+    {
+      "path": "docs/research/pbhub-v11/modeling.md",
+      "sha256": "0bb665e90fe7318692b493b7ce4b7120a7730707d0fc7ec859c6629406600481"
+    },
+    {
+      "path": "scripts/check-demo-lifecycle.mjs",
+      "sha256": "cdf52e6ee1e2506cad0c57b4ac2f56121fed1ef750118c5c6ee6f7c4baf9d329"
+    },
+    {
+      "path": "src/index.js",
+      "sha256": "4b4241c3b1d0304e274d1af4bf6308546f121b852a33969dd5608e74cde77f20"
+    },
+    {
+      "path": "src/units/gesture/assembly.js",
+      "sha256": "6c3d40eb6fd67c445f30eeb74c19be90af77cde79c8a796362cb628b1ad96e52"
+    },
+    {
+      "path": "src/units/gesture/cad-map.json",
+      "sha256": "eab36933005e767631d0b2338fc3df41292b51ae03a8505fd3c563e593b7ae7c"
+    },
+    {
+      "path": "src/units/gesture/dimensions.js",
+      "sha256": "1cf8f9c35a4c12b787d66e2e8b68de08b8816a5125ddad9e9efe2b1a4ea7baa5"
+    },
+    {
+      "path": "src/units/gesture/geometry-data.js",
+      "sha256": "9a495b4ce3b8695255232eb2c67895e0dc9977d2efd2aa286896e8143d3ce6cb"
+    },
+    {
+      "path": "src/units/gesture/index.js",
+      "sha256": "00423a86e56a75a3a8c5245c30f5b61cf995d2e4eefcc12e733521f681d4d765"
+    },
+    {
+      "path": "src/units/pahub-v21/assembly.js",
+      "sha256": "39edd4d0ec8753f0ec6fc58f226dff06123618417b1b132b5c51839355697388"
+    },
+    {
+      "path": "src/units/pahub-v21/cad-map.json",
+      "sha256": "e2975a73e82bcd52adb955446ced3b39378231ab041d4ac2d81bdfde5e88f903"
+    },
+    {
+      "path": "src/units/pahub-v21/dimensions.js",
+      "sha256": "8ce26690448349d4d8b551f18cbae8b7b324e8686deadefa58b7d5708c1768c7"
+    },
+    {
+      "path": "src/units/pahub-v21/geometry-data.js",
+      "sha256": "dcec065389f82b462cc1800be91966b17a755e196fe41ad330504fe296e96fc0"
+    },
+    {
+      "path": "src/units/pahub-v21/index.js",
+      "sha256": "b5dda58d703554154f964f99fd2bc53840287b22b7d959c81777da4248df5fa5"
+    },
+    {
+      "path": "src/units/pbhub-v11/assembly.js",
+      "sha256": "c6922198dc9bd4a5a606851843777efff4eb61720f3dc10bafd9486c70fb7ad9"
+    },
+    {
+      "path": "src/units/pbhub-v11/cad-map.json",
+      "sha256": "5d8943a1af10c7799dd6f98119a18fef33f035cec1c36f79f13b1aba223dda36"
+    },
+    {
+      "path": "src/units/pbhub-v11/dimensions.js",
+      "sha256": "c5b5de4488524436df3e1b340e6652bbcbbe2d64913988ca3df2a4659d5f2d82"
+    },
+    {
+      "path": "src/units/pbhub-v11/geometry-data.js",
+      "sha256": "3c3023a6bc653f8b7ffd5f13785e4f5fbb6df6a3afe9f3c780763de2b56fead3"
+    },
+    {
+      "path": "src/units/pbhub-v11/index.js",
+      "sha256": "e33bd12afd6ae7507b098c299261d77ab318da968edad276ff6a6f64f6515033"
+    }
+  ],
+  "sourcePrivacyIssues": []
+}

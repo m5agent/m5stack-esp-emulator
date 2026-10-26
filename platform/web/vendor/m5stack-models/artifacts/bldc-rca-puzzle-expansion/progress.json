@@ -1,0 +1,442 @@
+{
+  "savedAt": "2026-10-26T12:10:02.468545+00:00",
+  "stage": "modeled",
+  "scope": "New BLDC Driver/RCA/Puzzle complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 95,
+    "modeled": 109,
+    "verified": 0
+  },
+  "localHead": "ad5d0622518180d347ebe50a462d289771e1c6a3",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "bldc-driver",
+      "status": "pass",
+      "report": "docs/research/bldc-driver/smoke.json",
+      "meshes": 136,
+      "triangles": 14034
+    },
+    {
+      "id": "rca",
+      "status": "pass",
+      "report": "docs/research/rca/smoke.json",
+      "meshes": 53,
+      "triangles": 21078
+    },
+    {
+      "id": "puzzle",
+      "status": "pass",
+      "report": "docs/research/puzzle/smoke.json",
+      "meshes": 435,
+      "triangles": 21694
+    }
+  ],
+  "pngCount": 6,
+  "rasters": [
+    {
+      "path": "src/units/bldc-driver/reference-redraw-back.png",
+      "pixels": [
+        2592,
+        1952
+      ],
+      "sha256": "db4482f68e1d85d4866f44e0442a9157ea104c04c75f0c96f44112415983b0fc"
+    },
+    {
+      "path": "src/units/bldc-driver/reference-redraw-front.png",
+      "pixels": [
+        2528,
+        2320
+      ],
+      "sha256": "2d8b71ffad16d93553d2e1c0c7c071e06c7853853def448ff3798ae5aff4c5a5"
+    },
+    {
+      "path": "src/units/rca/reference-redraw-back.png",
+      "pixels": [
+        2592,
+        1952
+      ],
+      "sha256": "ada3b554f965eacd075c1a7f3d18c433c21a3dddc930c215239320a1acb440fe"
+    },
+    {
+      "path": "src/units/rca/reference-redraw-pcb.png",
+      "pixels": [
+        1560,
+        440
+      ],
+      "sha256": "9185b1c2d2381d2a8004021cc5dee79b08172276830dc8baad330ba6a9a6b5d2"
+    },
+    {
+      "path": "src/units/puzzle/reference-redraw-back.png",
+      "pixels": [
+        1230,
+        1260
+      ],
+      "sha256": "f8c459d39256cd41f30e59deab0a9db4b5c71871a34869b8c5593e6821432c88"
+    },
+    {
+      "path": "src/units/puzzle/reference-redraw-bridge.png",
+      "pixels": [
+        1305,
+        1905
+      ],
+      "sha256": "b804389ea583592d3468c12d6549b674bedc0deb9311dad3d239fcf7fffbb1d6"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "bldc-driver",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "rca",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "puzzle",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "matrix": {
+      "pixelsPerTile": 64,
+      "tiles": 2,
+      "matrixFormats": [
+        "colors64",
+        "rgba256"
+      ],
+      "automaticDataForwarding": false
+    },
+    "bridge": {
+      "separateExport": "Bridge",
+      "fittedAssembly": false,
+      "artworkToggle": "pass"
+    },
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "actual-BLDC-four-screw-plug-and-independent-detach",
+      "real-RCA-single-stable-channel-selector-covered-and-uncovered",
+      "64-real-independent-RGB-packages-and-external-colors-RGBA-matrix",
+      "second-real-Puzzle-four-wire-cascade-without-automatic-data-forwarding",
+      "invalid-frame-rejected-before-mutation",
+      "separate-actual-bridge-shape-without-unsupported-fit-claim",
+      "no-invented-motor-sensor-display-or-hidden-LED",
+      "non-Grove-mating-and-internal-function-rejection",
+      "configured-artwork-keeps-physical-attributes-indices-and-world-matrices",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New actual assemblies, external shapes/lights and input intent only; Node canvas stub, no browser, motor, PWM, protection, audio, video, serial protocol, timing, MCU, electrical, hardware, bridge mating or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "bldc-driver",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "rca",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "puzzle",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "matrix": {
+      "pixelsPerTile": 64,
+      "tiles": 2,
+      "matrixFormats": [
+        "colors64",
+        "rgba256"
+      ],
+      "automaticDataForwarding": false
+    },
+    "bridge": {
+      "separateExport": "Bridge",
+      "fittedAssembly": false,
+      "artworkToggle": "pass"
+    },
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "actual-BLDC-four-screw-plug-and-independent-detach",
+      "real-RCA-single-stable-channel-selector-covered-and-uncovered",
+      "64-real-independent-RGB-packages-and-external-colors-RGBA-matrix",
+      "second-real-Puzzle-four-wire-cascade-without-automatic-data-forwarding",
+      "invalid-frame-rejected-before-mutation",
+      "separate-actual-bridge-shape-without-unsupported-fit-claim",
+      "no-invented-motor-sensor-display-or-hidden-LED",
+      "non-Grove-mating-and-internal-function-rejection",
+      "configured-artwork-keeps-physical-attributes-indices-and-world-matrices",
+      "external-pose-and-selective-detach"
+    ],
+    "scope": "New actual assemblies, external shapes/lights and input intent only; Node canvas stub, no browser, motor, PWM, protection, audio, video, serial protocol, timing, MCU, electrical, hardware, bridge mating or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "bldc-driver",
+        "status": "frozen",
+        "checkedFiles": 14
+      },
+      {
+        "id": "rca",
+        "status": "frozen",
+        "checkedFiles": 12
+      },
+      {
+        "id": "puzzle",
+        "status": "frozen",
+        "checkedFiles": 15
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "7561bef132dca57759697b0852391dfe0d38b4f5eedc72790600f2248b525827",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "f06bb39906e34264d02e86d63e7e5f5b4e1f27cf470a17ec5aa08554c8aceacd",
+      "logDistributed": false
+    },
+    "livePreview": "109-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 733,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "rca",
+      "record": "docs/research/rca/sources.json",
+      "feedback_id": "d23253c3c0f3488895e6aef0bd1ca5d3",
+      "accepted": true
+    },
+    {
+      "product": "puzzle",
+      "record": "docs/research/puzzle/sources.json",
+      "feedback_id": "1676a1f567204952889387890047969b",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "bldc-driver",
+      "file": "assets/bldc-driver-D7mKUk6H.js",
+      "sha256": "901b9067ea0ea2c61defe95490bd32c1bd131558d450e52d9d38680b4eff123c"
+    },
+    {
+      "id": "rca",
+      "file": "assets/rca-Ct2QzTEF.js",
+      "sha256": "00376635e619800c628ec5d926f86c05b1626882c6c017037600ee06dc8e421a"
+    },
+    {
+      "id": "puzzle",
+      "file": "assets/puzzle-CFOoC2iP.js",
+      "sha256": "498e88c23fd3db58589b70a24882bc9e00b9977bd5f760e1deffd204aa73e533"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/bldc-driver/TerminalPlug.js",
+      "sha256": "a9d43874f2aed3e9cde34684f0e97b5d654ac1ef6a496dde04be965853abbd8c"
+    },
+    {
+      "path": "src/units/bldc-driver/assembly.js",
+      "sha256": "0b85450cf49bc828d8866bad9df1d0ad169812d439517f676f631197f189af40"
+    },
+    {
+      "path": "src/units/bldc-driver/cad-map.json",
+      "sha256": "3376b86a2e384aa7c346df7ffd8c2d038583b1550887766d67a4176526f7306b"
+    },
+    {
+      "path": "src/units/bldc-driver/connectors.js",
+      "sha256": "58f58ea906530161c364a7fecfa22762874f5c86db02afad094c66b1f383d8ec"
+    },
+    {
+      "path": "src/units/bldc-driver/dimensions.js",
+      "sha256": "033ecc581cdf54544fc073e16c3386768eace5c49d73f62f44e2aca76acb9efc"
+    },
+    {
+      "path": "src/units/bldc-driver/geometry-data.js",
+      "sha256": "6ae8cc92436d2f76fab94bdcdb37e4c951b92e03eff5c77fcad63aff5a9223c2"
+    },
+    {
+      "path": "src/units/bldc-driver/index.js",
+      "sha256": "5d67ad0170d076ccf4399693b242f9801682ff79630f76cafa9c2234facbe2ae"
+    },
+    {
+      "path": "src/units/bldc-driver/reference-redraw-back.png",
+      "sha256": "db4482f68e1d85d4866f44e0442a9157ea104c04c75f0c96f44112415983b0fc"
+    },
+    {
+      "path": "src/units/bldc-driver/reference-redraw-front.png",
+      "sha256": "2d8b71ffad16d93553d2e1c0c7c071e06c7853853def448ff3798ae5aff4c5a5"
+    },
+    {
+      "path": "src/units/bldc-driver/stickers.js",
+      "sha256": "500ab55a9d18f44afca0938645e5bbf379e8a6b4cf30d296093f7fc637f64dae"
+    },
+    {
+      "path": "docs/research/bldc-driver/artwork.json",
+      "sha256": "2ac3aa110ae1097058aeb9926b66f2a65184bafcb2c275af1f4e0624d42da55e"
+    },
+    {
+      "path": "docs/research/bldc-driver/modeling.md",
+      "sha256": "719164cbdca0b7c1b60f31ca37f165ac622b026ab83298101f463a0e409e1db7"
+    },
+    {
+      "path": "docs/research/bldc-driver/smoke.json",
+      "sha256": "1677fd16ba9ba3a10e2dd605e23aa60af871b33ff86c70dd717fff4a6b8a56c8"
+    },
+    {
+      "path": "docs/research/bldc-driver/sources.json",
+      "sha256": "500023395b55edfd4cab5fa42cb6fc1688f7ae648d2b511df0b72f400586513e"
+    },
+    {
+      "path": "src/units/rca/assembly.js",
+      "sha256": "de1740ab9bb6bea29f3561f3d565c9478b49a13c84f23c940802a9c45028ec15"
+    },
+    {
+      "path": "src/units/rca/cad-map.json",
+      "sha256": "bfe27b3a85588dff797a1a565a8149f1aa6e312fc9f6a605afcd3aa87bbc0486"
+    },
+    {
+      "path": "src/units/rca/dimensions.js",
+      "sha256": "265d8e0fcd02b08be91991960db492e48b9dd52d9e3ea4f6adca93750d61f2cf"
+    },
+    {
+      "path": "src/units/rca/geometry-data.js",
+      "sha256": "3210272fe33d67671d6ca6bf1b95cfa69a356f18333d4a99c878d0ea5472db55"
+    },
+    {
+      "path": "src/units/rca/index.js",
+      "sha256": "0eb28e13c6840e754a286a85b2e7f889b96fe65b2c5c794339efebc6542a509e"
+    },
+    {
+      "path": "src/units/rca/reference-redraw-back.png",
+      "sha256": "ada3b554f965eacd075c1a7f3d18c433c21a3dddc930c215239320a1acb440fe"
+    },
+    {
+      "path": "src/units/rca/reference-redraw-pcb.png",
+      "sha256": "9185b1c2d2381d2a8004021cc5dee79b08172276830dc8baad330ba6a9a6b5d2"
+    },
+    {
+      "path": "src/units/rca/stickers.js",
+      "sha256": "acb83f194f62db47f0d8be4a8f14b33acfbb796f518590bc8d23ca088a253d32"
+    },
+    {
+      "path": "docs/research/rca/artwork.json",
+      "sha256": "e3a37a399c85b4b3f73af5eda623429c7762cdf984e59e5ee62c46ea1ab98b63"
+    },
+    {
+      "path": "docs/research/rca/modeling.md",
+      "sha256": "e4d25c49ea297dbe8ab2e57fa958cf290998fbf692e284ffd9cbd343da96ac3e"
+    },
+    {
+      "path": "docs/research/rca/smoke.json",
+      "sha256": "e32794c46e698539bce8e3d938908d1f1a079d33265b50d28ff5b3f6666d0525"
+    },
+    {
+      "path": "docs/research/rca/sources.json",
+      "sha256": "84fe4c9e35099ab2f69537a591076e93cb5956d363aa253748e9ed0ccb8a6bf0"
+    },
+    {
+      "path": "src/units/puzzle/Bridge.js",
+      "sha256": "28287d8d587e98d12ae16e46a3cceada379d76ac74abba84f720a35e0a04cdcb"
+    },
+    {
+      "path": "src/units/puzzle/Matrix.js",
+      "sha256": "8d219c4767c4d26c41de10fe96e02a7780428a82a2bc18c50052a3680b6f9603"
+    },
+    {
+      "path": "src/units/puzzle/assembly.js",
+      "sha256": "fa86b3718a6d6729f1ba48d129c312aeeecfac20044d712572ef55ca3010bba3"
+    },
+    {
+      "path": "src/units/puzzle/bridge-geometry-data.js",
+      "sha256": "db794502020dbd27e7ed1effd63ab0f201f20e537f59531f32a06310a0aea7ee"
+    },
+    {
+      "path": "src/units/puzzle/cad-map.json",
+      "sha256": "29426d73f95520f69e89a4dae6454a4fb96b0ca56b7bd813717c7ef2d05f098b"
+    },
+    {
+      "path": "src/units/puzzle/dimensions.js",
+      "sha256": "c70e00135d029f8b3cbbaae0fc8c6fb453f1f592a5bd635a3c6bbc1fef7e333f"
+    },
+    {
+      "path": "src/units/puzzle/geometry-data.js",
+      "sha256": "a32948aef9f377171cee40daed3b44cc87980e49ff584a3169dacd07f0276033"
+    },
+    {
+      "path": "src/units/puzzle/index.js",
+      "sha256": "64a0f7b5171f3da36ecd9a4072bb900e2c97839a14d6197c9694096054988b8d"
+    },
+    {
+      "path": "src/units/puzzle/reference-redraw-back.png",
+      "sha256": "f8c459d39256cd41f30e59deab0a9db4b5c71871a34869b8c5593e6821432c88"
+    },
+    {
+      "path": "src/units/puzzle/reference-redraw-bridge.png",
+      "sha256": "b804389ea583592d3468c12d6549b674bedc0deb9311dad3d239fcf7fffbb1d6"
+    },
+    {
+      "path": "src/units/puzzle/stickers.js",
+      "sha256": "079975389a29ae639bb0d477957b725ea894342cdf9b376605fa0288ee6a2b49"
+    },
+    {
+      "path": "docs/research/puzzle/artwork.json",
+      "sha256": "c32a42074b309f866b42d17d6f5465448cc10b09c52c45320b229cac595531ea"
+    },
+    {
+      "path": "docs/research/puzzle/modeling.md",
+      "sha256": "e621016f6dcbb8e5132735d2fda35d9b29b97c193b73319adcf46a2b1493e8ed"
+    },
+    {
+      "path": "docs/research/puzzle/smoke.json",
+      "sha256": "2e9d9a932f6c697826d5ef0b65e52ee3dcac7987903a385ca565bc6d54a946bd"
+    },
+    {
+      "path": "docs/research/puzzle/sources.json",
+      "sha256": "b41a97a0e6fe5ae61ee991159ce17a0cfe9a8ab47135d5647fa82b84256306bb"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "BLDC Driver owns the actual driver PCB and phase connector; no motor rotor, PWM, speed, protection or electrical simulation",
+    "RCA owns its actual female socket and concealed physical channel selectors; no audio, video, switching circuit or signal behavior",
+    "Puzzle owns its actual64 RGB packages and physical Grove cascade; no serial protocol, pixel forwarding, timing, MCU or electrical behavior",
+    "Puzzle Bridge is a separate appearance-only Device; its rigid mating datum/fit remains unresolved and it exposes no attachment Port or custom commands",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows already pushed85-model baseline"
+  ]
+}

@@ -1,0 +1,3 @@
+import {printedArtwork} from '../../modeling/artwork.js';
+const front=new URL('./reference-redraw-front.png',import.meta.url).href,back=new URL('./reference-redraw-back.png',import.meta.url).href;
+export function addStickers(host){const a=host.accelAssembly;return[...printedArtwork(host,{target:a.labels.front,url:front,size:[19.1,13.1],position:[0,7.05,3.84],face:'front',depth:.1,name:'Accel front ACCEL and axis exact-model reference redraw',artworkKind:'reference-redraw'})??[],...printedArtwork(host,{target:a.labels.back,url:back,size:[16,12.3],position:[0,7.15,-3.84],face:'back',depth:.1,name:'Accel back ADXL345 I2C exact-model reference redraw',artworkKind:'reference-redraw'})??[]];}

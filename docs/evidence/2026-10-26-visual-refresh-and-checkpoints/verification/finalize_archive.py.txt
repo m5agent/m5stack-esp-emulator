@@ -1,0 +1,21 @@
+import hashlib,json,runpy
+from pathlib import Path
+root=Path.cwd();work=root/'.work/visual-checkpoint-verification-20261026';dest=root/'docs/evidence/2026-10-26-visual-refresh-and-checkpoints'
+g=runpy.run_path(str(work/'append_final_evidence.py'))
+for name in ['docs-final-r3.txt','snapshot-final-r3.txt','staged-diff-check-r2.txt','finalize_archive.py']:
+ g['copy'](work/name,Path('verification')/name)
+g['copy'](work/'sensitive-scan.json',Path('verification/sensitive-scan-final.json'))
+sha=lambda b:hashlib.sha256(b).hexdigest()
+assert 'Ran 972 tests' in (work/'platform-tests-r1.txt').read_text() and (work/'platform-tests-r1.txt').read_text().endswith('OK\n')
+assert 'Ran 48 tests' in (work/'docs-final-r3.txt').read_text() and (work/'docs-final-r3.txt').read_text().endswith('OK\n')
+report={'schema_version':1,'status':'PASS_IN_DOCUMENTED_SCOPE','category':'virtual-device-and-browser-validation','hardware_validation':'NOT RUN','platform_tests':972,'final_docs_tests':48,'runner_offline_tests':19,'node_fixture_programs':7,'generated_checks':['runtime_coverage','peripheral_catalog','qemu_profiles','project_snapshot','visual_snapshot'],'default_browser_models':{'controllers':14,'units':113,'PNGs':287,'catalog_configurations':'83 NOT RUN','Fader_slider_output':'UNSUPPORTED'},'actual_checkpoint_runs':{'sessions':2,'executions_including_expected_failures':24,'main_HTTP_responses':983,'post_stop_GETs':4,'ZIP_members':168,'review':'PASS'},'actual_visual_rechecks':{'Uniform':'PASS in documented data/material/canvas scope','Scroll':'API/UART/PNG/material/cleanup PASS; independent raw QOM NOT PRESENT; review PARTIAL','Encoder_optical_readability':'NOT ACCEPTED'},'full_matrix_this_block':'NOT RUN; no C/QEMU controller change','open':['Preview/Run coordinator','latest-wins','per-Run cancellation','SSE','AIFlow target integration','revision GC','main.mpy entrypoint','hotplug','save on boot','native/IRQ/thread full cleanup','UNIT-HOST-29','UNIT-HOST-33','UNIT-HOST-21'],'source_sha256':{name:sha((root/name).read_bytes()) for name in ['platform/tools/device_service.py','platform/tools/serve.py','platform/tools/sync_visual_models.py','platform/tests/test_model_shell.mjs','platform/tests/model_shell_probe_helpers.mjs','tests/units/run_live_package.py','tests/units/test_live_package.py','docs/device-service.openapi.yaml']}}
+p=work/'final-verification.json';p.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');g['copy'](p,Path('verification/final-verification.json'))
+g['manifest']['files']=sorted(g['rows'].values(),key=lambda x:x['archived']);g['m'].write_text(json.dumps(g['manifest'],ensure_ascii=False,indent=2)+'\n')
+index={'schema_version':1,'algorithm':'sha256','excludes':['artifact-index.json'],'files':[]}
+for p in sorted(dest.rglob('*')):
+ if p.is_file() and p.name!='artifact-index.json':
+  b=p.read_bytes();index['files'].append({'path':str(p.relative_to(dest)),'size':len(b),'sha256':sha(b)})
+(dest/'artifact-index.json').write_text(json.dumps(index,ensure_ascii=False,indent=2)+'\n')
+for row in index['files']:
+ b=(dest/row['path']).read_bytes();assert len(b)==row['size'] and sha(b)==row['sha256']
+print(json.dumps({'status':'PASS','artifact_index_members':len(index['files']),'bytes':sum(x['size'] for x in index['files']),'source_sha256':report['source_sha256']}))

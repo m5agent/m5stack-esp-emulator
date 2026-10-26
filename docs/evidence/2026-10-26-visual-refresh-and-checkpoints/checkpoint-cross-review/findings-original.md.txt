@@ -1,0 +1,18 @@
+# 原始发现（修复前快照）
+
+P3：`POST /sessions/{session_id}/program` 的 OpenAPI 响应遗漏 500/503。
+
+原快照 `reviewed-sources/docs/device-service.openapi.yaml.txt` 的该操作仅列出
+200/400/404/409/413/429/504。引用读取损坏包会通过原 handler 返回
+500 `program_package_corrupt`，读取不可用存储返回
+503 `program_package_storage_error`；新建 checkpoint 与读取 checkpoint 的操作
+已经声明这两个 Error 响应。建议为引用运行操作补同样的结构化错误响应，便于
+外部 Agent/OpenAPI 客户端区分存储故障、格式拒绝及执行确认超时。
+
+证据：原 API 测试的损坏 store 场景，以及 `independent_probe.py` 的存储 503
+场景；两者使用真实 HTTP handler/临时 store，guest 调用被明确 mock。
+原 OpenAPI SHA256：
+`79df8f3d608586444e07f1c75b038e3ab8b8eb3d4cc8684dcf75acf9dbd207a8`。
+
+此文件保留原发现。root 已只补 OpenAPI 两个响应，未改后端；最终解析与契约核验
+见 `resolution.json`，不将本项计为剩余缺陷。

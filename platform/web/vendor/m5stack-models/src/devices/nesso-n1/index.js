@@ -3,7 +3,7 @@ import {addCadParts} from '../../modeling/cad.js';
 import {slab} from '../../modeling/parts.js';
 import {cadButton} from '../../modeling/actuators.js';
 import {DIM} from './dimensions.js';import data from './geometry-data.js';
-import {artwork} from '../../modeling/artwork.js';
+import {addStickers} from './stickers.js';
 import {nessoAssembly} from './assembly.js';
 export class NessoN1 extends Device{
  static meta={id:'m5stack.nesso-n1',name:'Arduino Nesso N1',sku:'DK001',vendor:'M5Stack / Arduino',size:DIM.body,keymap:{KeyA:'a',KeyP:'power'}};
@@ -19,6 +19,7 @@ export class NessoN1 extends Device{
   slab(this.body,19.1,32.8,3.6,.7,[0,6.2,6.45],materials.plastic(0x192124,{roughness:.82}),[],.1);
   nessoAssembly(this);
   cadButton(this,{source:parts['upper-housing'],id:'power',label:'Side reset / power key',position:[-12,-16,3.3],face:'left',w:4.4,h:6.6,r:.65,depth:1.3,travel:.18});
+  addStickers(this);
  }
 }
 export default NessoN1;

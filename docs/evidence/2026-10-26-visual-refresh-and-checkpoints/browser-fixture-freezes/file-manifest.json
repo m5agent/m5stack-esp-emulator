@@ -1,0 +1,70 @@
+{
+  "status": "PASS",
+  "restoration": "Exact reverse of recorded fixture patches; byte SHA required to match each original run report",
+  "files": [
+    {
+      "run": "old-full-r3",
+      "report": ".work/model-shell-bounded-old-full-r3-20261026/report.json",
+      "original": "platform/tests/test_model_shell.mjs",
+      "frozen": ".work/model-shell-fixture-freezes-20261026/old-full-r3/test_model_shell.mjs.txt",
+      "sha256": "761014171952d485bae2b30dde9fcac7de3fcc05f8b40dd0f7a54f307070de50",
+      "matches_original_report": true
+    },
+    {
+      "run": "old-full-r3",
+      "report": ".work/model-shell-bounded-old-full-r3-20261026/report.json",
+      "original": "platform/tests/model_shell_probe_helpers.mjs",
+      "frozen": ".work/model-shell-fixture-freezes-20261026/old-full-r3/model_shell_probe_helpers.mjs.txt",
+      "sha256": "2f1d34cbc0ee6d30a5617e41e8d866aebf1b4f8e76977f90e492baa3c6298850",
+      "matches_original_report": true
+    },
+    {
+      "run": "3681-full-r1",
+      "report": ".work/model-shell-bounded-3681-full-20261026/report.json",
+      "original": "platform/tests/test_model_shell.mjs",
+      "frozen": ".work/model-shell-fixture-freezes-20261026/3681-full-r1/test_model_shell.mjs.txt",
+      "sha256": "761014171952d485bae2b30dde9fcac7de3fcc05f8b40dd0f7a54f307070de50",
+      "matches_original_report": true
+    },
+    {
+      "run": "3681-full-r1",
+      "report": ".work/model-shell-bounded-3681-full-20261026/report.json",
+      "original": "platform/tests/model_shell_probe_helpers.mjs",
+      "frozen": ".work/model-shell-fixture-freezes-20261026/3681-full-r1/model_shell_probe_helpers.mjs.txt",
+      "sha256": "2f1d34cbc0ee6d30a5617e41e8d866aebf1b4f8e76977f90e492baa3c6298850",
+      "matches_original_report": true
+    },
+    {
+      "run": "3681-all-special-leds",
+      "report": ".work/model-shell-bounded-3681-all-special-leds-20261026/report.json",
+      "original": "platform/tests/test_model_shell.mjs",
+      "frozen": ".work/model-shell-fixture-freezes-20261026/3681-all-special-leds/test_model_shell.mjs.txt",
+      "sha256": "11ef7036242873d329f3f4804708500968c7dd21658c3592f0674baf2f951f71",
+      "matches_original_report": true
+    },
+    {
+      "run": "3681-all-special-leds",
+      "report": ".work/model-shell-bounded-3681-all-special-leds-20261026/report.json",
+      "original": "platform/tests/model_shell_probe_helpers.mjs",
+      "frozen": ".work/model-shell-fixture-freezes-20261026/3681-all-special-leds/model_shell_probe_helpers.mjs.txt",
+      "sha256": "0e71632ed0f7df81cf25b47be72fc61c7e1455ef24100c4a0b6d5ed97e895b17",
+      "matches_original_report": true
+    },
+    {
+      "run": "3681-full-r2",
+      "report": ".work/model-shell-bounded-3681-full-r2-20261026/report.json",
+      "original": "platform/tests/test_model_shell.mjs",
+      "frozen": ".work/model-shell-fixture-freezes-20261026/3681-full-r2/test_model_shell.mjs.txt",
+      "sha256": "11ef7036242873d329f3f4804708500968c7dd21658c3592f0674baf2f951f71",
+      "matches_original_report": true
+    },
+    {
+      "run": "3681-full-r2",
+      "report": ".work/model-shell-bounded-3681-full-r2-20261026/report.json",
+      "original": "platform/tests/model_shell_probe_helpers.mjs",
+      "frozen": ".work/model-shell-fixture-freezes-20261026/3681-full-r2/model_shell_probe_helpers.mjs.txt",
+      "sha256": "0e71632ed0f7df81cf25b47be72fc61c7e1455ef24100c4a0b6d5ed97e895b17",
+      "matches_original_report": true
+    }
+  ]
+}

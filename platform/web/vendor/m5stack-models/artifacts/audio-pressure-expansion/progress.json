@@ -1,0 +1,371 @@
+{
+  "savedAt": "2026-10-26T13:12:53.130893+00:00",
+  "stage": "modeled",
+  "scope": "New Mini PDM/Mini BPS v1.1/MIC complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 107,
+    "modeled": 121,
+    "verified": 0
+  },
+  "localHead": "32c95e05ded1bb7f1ff6437f5bce0db9bf91eefd",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "mini-pdm",
+      "status": "pass",
+      "report": "docs/research/mini-pdm/smoke.json",
+      "meshes": 46,
+      "triangles": 21756
+    },
+    {
+      "id": "mini-bps-v11",
+      "status": "pass",
+      "report": "docs/research/mini-bps-v11/smoke.json",
+      "meshes": 71,
+      "triangles": 21844
+    },
+    {
+      "id": "mic",
+      "status": "pass",
+      "report": "docs/research/mic/smoke.json",
+      "meshes": 123,
+      "triangles": 74162
+    }
+  ],
+  "pngCount": 5,
+  "rasters": [
+    {
+      "path": "src/units/mini-pdm/reference-redraw-back.png",
+      "pixels": [
+        1600,
+        420
+      ],
+      "sha256": "bd4dd60db64f757fbb4743e8ec14c79eacc9359e422e47b552f9506b4159fdd3"
+    },
+    {
+      "path": "src/units/mini-pdm/reference-redraw-front.png",
+      "pixels": [
+        1024,
+        1024
+      ],
+      "sha256": "c3e7fd8c65480b65f22efed5f63fdb4575c5c015ec3d3f9493c1ffa81b23a22b"
+    },
+    {
+      "path": "src/units/mini-bps-v11/reference-redraw-back.png",
+      "pixels": [
+        3200,
+        800
+      ],
+      "sha256": "bf490a396cac2cbe632f5019c2620d41f612ffcbed76add74f5833105560d3eb"
+    },
+    {
+      "path": "src/units/mini-bps-v11/reference-redraw-front.png",
+      "pixels": [
+        1160,
+        1160
+      ],
+      "sha256": "aded45a708b82af9ba8e44d9c69bdc9323769f92ccbc14aaee313ac7d1443cad"
+    },
+    {
+      "path": "src/units/mic/reference-redraw-back.png",
+      "pixels": [
+        1600,
+        1220
+      ],
+      "sha256": "439b5ac88998f36e15be873dab780ee40aee9105325df16c38fd842c508d582f"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "mini-pdm",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "mini-bps-v11",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "mic",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "actual-PDM-MEMS-pressure-LGA-and-electret-microphone-openings",
+      "passive-sensor-anchors-reject-audio-clock-pressure-and-numeric-functions",
+      "MIC-exposed-threshold-head-only-finite-angle-tween-and-exact-restoration",
+      "MIC-fixed-board-sensor-cup-ports-and-labels-never-follow-head",
+      "invalid-head-angles-and-RPM-rejected-with-old-state-preserved",
+      "no-invented-buttons-LEDs-displays-speakers-or-sound-wave-animation",
+      "both-entries-artwork-preserves-all-physical-attributes-indices-world-matrices",
+      "external-pose-and-independent-selective-detach"
+    ],
+    "scope": "New passive acoustic/pressure structures and external adjustment appearance only;Node canvas stub,no browser,PDM/audio/samples/recording/sound/ADC/comparator/pressure/temperature/altitude/I2C/electrical/firmware/physical or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "mini-pdm",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "mini-bps-v11",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "mic",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-four-wire-Grove-branches",
+      "actual-PDM-MEMS-pressure-LGA-and-electret-microphone-openings",
+      "passive-sensor-anchors-reject-audio-clock-pressure-and-numeric-functions",
+      "MIC-exposed-threshold-head-only-finite-angle-tween-and-exact-restoration",
+      "MIC-fixed-board-sensor-cup-ports-and-labels-never-follow-head",
+      "invalid-head-angles-and-RPM-rejected-with-old-state-preserved",
+      "no-invented-buttons-LEDs-displays-speakers-or-sound-wave-animation",
+      "both-entries-artwork-preserves-all-physical-attributes-indices-world-matrices",
+      "external-pose-and-independent-selective-detach"
+    ],
+    "scope": "New passive acoustic/pressure structures and external adjustment appearance only;Node canvas stub,no browser,PDM/audio/samples/recording/sound/ADC/comparator/pressure/temperature/altitude/I2C/electrical/firmware/physical or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "mini-pdm",
+        "status": "frozen",
+        "checkedFiles": 12
+      },
+      {
+        "id": "mini-bps-v11",
+        "status": "frozen",
+        "checkedFiles": 12
+      },
+      {
+        "id": "mic",
+        "status": "frozen",
+        "checkedFiles": 11
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "8b6a2982af373cc1d52c69b0b3312392d4ec3090f67d4e07993eb74e7fee1daf",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "22b443a43bdce513c1bb7f62f18706140500834cff7b580c028734ced8010612",
+      "logDistributed": false
+    },
+    "livePreview": "121-product catalog, three runtime chunks and all corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 847,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "mini-pdm",
+      "record": "docs/research/mini-pdm/sources.json",
+      "feedback_id": "dcd6f74080ea478f8745ce19d5542ab8",
+      "accepted": true
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "mini-pdm",
+      "file": "assets/mini-pdm-nYfwjx60.js",
+      "sha256": "ea0d3a7abbfa3262d74d9aee9fb45afbbcc29fc47b7521b6e8d58f87b9abf855"
+    },
+    {
+      "id": "mini-bps-v11",
+      "file": "assets/mini-bps-v11-B5gSD5fk.js",
+      "sha256": "a5f268c1aebb858def83aa513b1a56b62d0edf5022db5ba23c24f1b74e99b688"
+    },
+    {
+      "id": "mic",
+      "file": "assets/mic-D9Se95VF.js",
+      "sha256": "89efac466888d2313c3eeca914b1b8d38badc9bb0f4c9ec674d3a847cb292155"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/mini-pdm/assembly.js",
+      "sha256": "11ca6cf6d67d771e9e7bc604a4dda168eb3928173edd468171b23ab5f8287034"
+    },
+    {
+      "path": "src/units/mini-pdm/cad-map.json",
+      "sha256": "637cf0bae58ade5504edfa4928e3b6c2dd9542d5554b057c29ff52bdcf4041a9"
+    },
+    {
+      "path": "src/units/mini-pdm/dimensions.js",
+      "sha256": "87c620fcbcc613122115c54c052188a0c254fd76278e1b58d1590586e93654cd"
+    },
+    {
+      "path": "src/units/mini-pdm/geometry-data.js",
+      "sha256": "ba5ede103956271d0937261ae7e967705466eb3875e61f2bebbcd5b5bf0ee0c2"
+    },
+    {
+      "path": "src/units/mini-pdm/index.js",
+      "sha256": "24259d6942aa266d6a407316c4a3c585a1320946ed4cb377cfe418d28c7e4cef"
+    },
+    {
+      "path": "src/units/mini-pdm/reference-redraw-back.png",
+      "sha256": "bd4dd60db64f757fbb4743e8ec14c79eacc9359e422e47b552f9506b4159fdd3"
+    },
+    {
+      "path": "src/units/mini-pdm/reference-redraw-front.png",
+      "sha256": "c3e7fd8c65480b65f22efed5f63fdb4575c5c015ec3d3f9493c1ffa81b23a22b"
+    },
+    {
+      "path": "src/units/mini-pdm/stickers.js",
+      "sha256": "042a2745dfdd05a0a5bbdd34cf49a2cf5189503da55984016e8a2c8cb04e88fc"
+    },
+    {
+      "path": "docs/research/mini-pdm/artwork.json",
+      "sha256": "407949b64f4e0562a40f11a3983ea0969b362900da2ea3fc6d1b2501a1d2adc1"
+    },
+    {
+      "path": "docs/research/mini-pdm/modeling.md",
+      "sha256": "53a0557c3be737452f2399f26ee21e332a767f80cf98ac24787fde6ffc8aacbc"
+    },
+    {
+      "path": "docs/research/mini-pdm/smoke.json",
+      "sha256": "a27e47dfd33f1752bc801d87a3b2f9d17aba648733a0888af7314cfe375434c3"
+    },
+    {
+      "path": "docs/research/mini-pdm/sources.json",
+      "sha256": "8cd8a22bfeb2301ffae650789f743a97e5baa1229f97003f4cd57c7fe26154a5"
+    },
+    {
+      "path": "src/units/mini-bps-v11/assembly.js",
+      "sha256": "6dfa101dad0304e33206f3012f7771a5accb68c6e4d4add8a57abb0528eebbcb"
+    },
+    {
+      "path": "src/units/mini-bps-v11/cad-map.json",
+      "sha256": "e5d027cd845180b397d34c92ae0c0eee067c66e7322af66ec0770ea9b4d9e6af"
+    },
+    {
+      "path": "src/units/mini-bps-v11/dimensions.js",
+      "sha256": "fa1686314914a6cb6e1aeca93717f8a59590a9f347fe58e36e74d2d100a1a5dd"
+    },
+    {
+      "path": "src/units/mini-bps-v11/geometry-data.js",
+      "sha256": "edba5da131d4f5c4d2246cbca9096fa9fe38c31d4715d691bd3ded2d39d7401b"
+    },
+    {
+      "path": "src/units/mini-bps-v11/index.js",
+      "sha256": "cc0a947abfa4a1c810a666e56b70fd28b58566f312e892196fc7d136dbe74fe5"
+    },
+    {
+      "path": "src/units/mini-bps-v11/reference-redraw-back.png",
+      "sha256": "bf490a396cac2cbe632f5019c2620d41f612ffcbed76add74f5833105560d3eb"
+    },
+    {
+      "path": "src/units/mini-bps-v11/reference-redraw-front.png",
+      "sha256": "aded45a708b82af9ba8e44d9c69bdc9323769f92ccbc14aaee313ac7d1443cad"
+    },
+    {
+      "path": "src/units/mini-bps-v11/stickers.js",
+      "sha256": "12dd4987bb63d3b20aaa4187b9df0ddd0a0b72ac545d2f4c3c472c301f918e71"
+    },
+    {
+      "path": "docs/research/mini-bps-v11/artwork.json",
+      "sha256": "328548f176b6379507c2fb03212364cf1475a5d8754e7164ac08e3831669efc1"
+    },
+    {
+      "path": "docs/research/mini-bps-v11/modeling.md",
+      "sha256": "1ec312bc86b19f00a9008e00cb8cf2c009151b6e79752e3789d997ef00e3502a"
+    },
+    {
+      "path": "docs/research/mini-bps-v11/smoke.json",
+      "sha256": "b4d3999e830eea1be0dc37f9cd1ee36ed7141e7fa0fcfddb95fdcbef7f647c20"
+    },
+    {
+      "path": "docs/research/mini-bps-v11/sources.json",
+      "sha256": "b3a704f252b88e67e94c704a68c080ba0e6b317b84558f7560975c355d7c2180"
+    },
+    {
+      "path": "src/units/mic/assembly.js",
+      "sha256": "7cbb6e3f9ab1baaeb26bba1fbd82eb58deec34f114093906de38c71633e71e47"
+    },
+    {
+      "path": "src/units/mic/cad-map.json",
+      "sha256": "0f4e522e2353b71d70b5b0706e8dce72b7d74c6cbb7b159893575900bce7d48b"
+    },
+    {
+      "path": "src/units/mic/dimensions.js",
+      "sha256": "87e5284b0d9d96e204c56be6f407f0b39cf0b7bd4b15cac2c5bac673cc2d5c13"
+    },
+    {
+      "path": "src/units/mic/geometry-data.js",
+      "sha256": "bed9ca5e876306a82cc6970082e7e5e0abe72cb95a51c6719f7e4d15bdf415d2"
+    },
+    {
+      "path": "src/units/mic/index.js",
+      "sha256": "41aa7dc532e4b9e073a0f457da731d9aa6752cf5821c321e0dd9a6979bcf4755"
+    },
+    {
+      "path": "src/units/mic/reference-redraw-back.png",
+      "sha256": "439b5ac88998f36e15be873dab780ee40aee9105325df16c38fd842c508d582f"
+    },
+    {
+      "path": "src/units/mic/stickers.js",
+      "sha256": "672d317033c0f96a3df05969c64f7d5c251ae98aec0ee39fea9b8481ab19450b"
+    },
+    {
+      "path": "docs/research/mic/artwork.json",
+      "sha256": "5ff0daff1ad07f590d42897ccae7909705ca7051a45f3f0030dd13d061cfe646"
+    },
+    {
+      "path": "docs/research/mic/modeling.md",
+      "sha256": "40a94ad98ae1097972c2436e94918265476d10dc5638a54c5cdab2e133b36250"
+    },
+    {
+      "path": "docs/research/mic/smoke.json",
+      "sha256": "5d769a23ebd6ae8f99a6f3e601256adca3dc9d244c5e243affe6797fa28f1686"
+    },
+    {
+      "path": "docs/research/mic/sources.json",
+      "sha256": "088c39497d7169ff11140e46aaad3af9b76a9831eea72522a89f6e01bd6bcfc3"
+    }
+  ],
+  "limitations": [
+    "Hidden PCB, components, connector interior, installed poses and accessory details retain documented appearance estimates",
+    "Mini PDM owns its actual MEMS microphone, sound port, PCB and connector; no microphone samples, sound, recording, PDM clock or electrical behavior",
+    "Mini BPS v1.1 owns its actual QMP6988 pressure package and PCB; no pressure, temperature, altitude, I2C or electrical behavior",
+    "MIC owns its actual electret microphone, amplifier/comparator and exposed adjustment head; no audio, samples, ADC, comparator, threshold or electrical behavior",
+    "Synchronous sticker PNGs use exact-model source rasters or documented reference redraws; original CSV, URLs, vectors, mappings, generators and intermediates remain private",
+    "Earlier sticker checkpoints, private Scroll and unresolved StackChan production-fit checkpoint preserved; this local increment follows the user-requested112-model Git sync;current Git state is recorded separately"
+  ]
+}

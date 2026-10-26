@@ -1,0 +1,121 @@
+"""Independent read-only cross-check of original HTTP/UART/ZIP evidence."""
+from pathlib import Path
+from collections import Counter
+from datetime import datetime,timezone
+import base64,hashlib,io,json,os,re,urllib.request,zipfile
+from PIL import Image
+root=Path.cwd();out=root/'.work/checkpoint-independent-review-20261026'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+canon=lambda x:json.dumps(x,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()
+load=lambda p:json.loads(p.read_bytes())
+results={}
+for unit in ['pir','relay']:
+ p=root/f'.work/checkpoint-reference-live-cores3-{unit}-r1-20261026';r=load(p/'report.json');http=load(p/'http.json')
+ assert r['status']=='PASS' and r['hardware_validation']=='NOT RUN' and r['unit_id']==unit
+ bodies=[];decoded=[];duplicate_headers=0
+ for i,row in enumerate(http):
+  body=(p/f'{i:04d}.response').read_bytes();assert len(body)==row['response_bytes'] and sha(body)==row['response_sha256']
+  assert type(row['status']) is int and 100<=row['status']<=599
+  pairs=row['response_headers'];assert isinstance(pairs,list) and all(isinstance(x,list) and len(x)==2 and all(isinstance(y,str) for y in x) for x in pairs)
+  names=[k.lower() for k,v in pairs];duplicate_headers+=sum(n-1 for n in Counter(names).values())
+  lengths=[v for k,v in pairs if k.lower()=='content-length'];assert lengths and all(int(v)==len(body) for v in lengths)
+  assert len([v for k,v in pairs if k.lower()=='x-request-id'])==1
+  bodies.append(body)
+  try:decoded.append(json.loads(body))
+  except (ValueError,UnicodeError):decoded.append(None)
+ assert len(list(p.glob('[0-9][0-9][0-9][0-9].response')))==len(http)
+ sid=r['session_id'];prefix='sessions/'+sid
+ create_index=next(i for i,x in enumerate(http) if x['method']=='POST' and x['path']=='sessions')
+ zip_index=next(i for i,x in enumerate(http) if x['method']=='GET' and x['path']==prefix+'/evidence')
+ stop_index=next(i for i,x in enumerate(http) if x['method']=='DELETE' and x['path']==prefix+'?purge=0')
+ assert create_index<zip_index<stop_index and http[zip_index]['status']==http[stop_index]['status']==200
+ zipbytes=(p/'evidence.zip').read_bytes();assert zipbytes==bodies[zip_index] and sha(zipbytes)==r['evidence']['sha256']
+ checkpoint_files={}
+ for version,c in r['checkpoints'].items():
+  assert [(x['method'],x['status']) for x in c['calls']]==[('POST',201),('POST',201),('GET',200)]
+  first=c['calls'][0]['http_index'];request=load(p/f'{first:04d}.request.json')
+  files={k:(v['data'].encode() if v['encoding']=='utf8' else base64.b64decode(v['data'],validate=True)) for k,v in request['files'].items()};checkpoint_files[version]=files
+  hashes={k:sha(v) for k,v in sorted(files.items())};meta=c['revision']
+  assert meta['revision_id']==sha(canon({'source_kind':'uiflow2-package','entrypoint':'main.py','files':hashes}))
+  assert meta['source_sha256']==sha(canon(hashes)) and meta['total_file_bytes']==sum(map(len,files.values()))
+  assert {x['path']:(x['size'],x['sha256']) for x in meta['files']}=={k:(len(v),sha(v)) for k,v in files.items()}
+  for call in c['calls']:
+   i=call['http_index'];assert i<create_index and http[i]['method']==call['method'] and http[i]['status']==call['status'] and decoded[i]==call['response'] and decoded[i]['revision']==meta
+  i=c['after_execution_http_index'];assert create_index<i<zip_index and http[i]['method']=='GET' and decoded[i]==c['after_execution'] and decoded[i]['revision']==meta
+ assert len({sha(v['main.py']) for v in checkpoint_files.values()})==1
+ assert len({sha(v['helper.mpy']) for v in checkpoint_files.values()})==3
+ with zipfile.ZipFile(io.BytesIO(zipbytes)) as z:
+  assert z.testzip() is None and len(z.namelist())==84
+  manifest=json.loads(z.read('manifest.json'));serial=z.read('serial.log')
+  assert manifest['session']['session_id']==sid and manifest['session']['state']=='running'
+  for name,info in manifest['files'].items():
+   b=z.read(name);assert len(b)==info['size'] and sha(b)==info['sha256']
+  execution_names=[n for n in z.namelist() if re.fullmatch(r'programs/[0-9a-f]{32}\.json',n)];assert len(execution_names)==12
+  ids=set();reference_names=[]
+  for name,execution in r['executions'].items():
+   program=execution['program'];eid=program['execution_id'];ids.add(eid)
+   assert program['pid']==r['pid'] and program['firmware_sha256']==r['firmware_sha256']
+   saved=json.loads(z.read(f'programs/{eid}.json'))
+   assert saved['state']==execution['expected_history_state']
+   for key in ['execution_id','revision_id','source_sha256','pid','firmware_sha256']:assert saved[key]==program[key]
+   submission=execution['submission'];request=submission['request']
+   matches=[i for i,x in enumerate(http) if x['method']=='POST' and x['path']==prefix+'/program' and (p/f'{i:04d}.request.json').exists() and load(p/f'{i:04d}.request.json')==request]
+   assert len(matches)==1 and matches[0]<zip_index
+   reply=decoded[matches[0]];assert (reply.get('program') or reply.get('error'))['execution_id']==eid
+   if submission['mode']=='revision-reference':
+    reference_names.append(name);assert set(request)=={'revision_id','expected_execution_id','timeout_seconds'}
+    assert request['revision_id']==program['revision_id'] and request['expected_execution_id']==submission['previous_execution_id']
+    files=checkpoint_files[submission['checkpoint_version']];revision=program['revision_id']
+    for path,b in files.items():assert z.read(f'programs/{revision}/files/{path}')==b
+    metadata=json.loads(z.read(f'programs/{revision}/revision.json'));assert metadata==r['checkpoints'][submission['checkpoint_version']]['revision']
+    assert saved['deployment']['phase']=='activated' and saved['deployment']['inventory']=={k:{'size':len(v),'sha256':sha(v)} for k,v in files.items()}
+  assert ids=={n.split('/')[1][:-5] for n in execution_names}
+  assert reference_names==['a','b','b-recovery','c-recovery']
+  for obs in r['serial_observations']:
+   offset=obs['offset'];w=obs['window'];assert sha(serial[:offset].decode('utf8',errors='replace').encode())==obs['prefix_sha256']
+   assert w['offset']>=offset and w['next_offset']-w['offset']==w['bytes']
+   assert serial[w['offset']:w['next_offset']].decode('utf8',errors='replace')==w['data']
+  negatives={};active_b=r['executions']['b']['program']['execution_id']
+  expected={'bad-id':(400,'invalid_program'),'unknown':(404,'unknown_program_package'),'python-only':(404,'unknown_program_package'),'mixed-source':(400,'invalid_program'),'mixed-files':(400,'invalid_program'),'mixed-entrypoint':(400,'invalid_program'),'mixed-source_kind':(400,'invalid_program'),'stale':(409,'program_generation_conflict')}
+  for name,neg in r['negative_controls']['revision-references'].items():
+   assert (neg['status'],neg['response']['error']['code'])==expected[name] and neg['previous_execution_id']==neg['after_execution_id']==active_b
+   i=next(i for i,x in enumerate(http) if x['method']=='POST' and x['path']==prefix+'/program' and load(p/f'{i:04d}.request.json')==neg['request'])
+   assert http[i]['status']==neg['status'] and decoded[i]==neg['response'] and 'execution_id' not in decoded[i]['error']
+   w=neg['continuation'];assert w['offset']>=neg['continuation_offset']>=neg['before_rejection_offset'] and w['next_offset']>w['offset']
+   assert serial[w['offset']:w['next_offset']].decode('utf8',errors='replace')==w['data']
+   later=[j for j in range(i+1,zip_index) if http[j]['method']=='GET' and isinstance(decoded[j],dict)]
+   fresh=next(j for j in later if decoded[j]==w)
+   baseline=next(j for j in later if j<fresh and http[j]['path'].startswith(prefix+'/serial?') and decoded[j].get('next_offset')==neg['continuation_offset'])
+   observed=next(j for j in later if j<baseline and http[j]['path']==prefix+'/program' and decoded[j]['program']['execution_id']==active_b and decoded[j]['program']['state']=='running')
+   assert not any(x['method']=='POST' and x['path']==prefix+'/program' for x in http[i+1:fresh])
+   samples=[json.loads(line.split(' ',1)[1]) for line in w['data'].splitlines() if line.startswith('LIVE_PACKAGE_SAMPLE ')]
+   assert any(s['version']=='B' and s['unit']==unit for s in samples)
+   negatives[name]={'http_index':i,'post_rejection_program_GET':observed,'post_rejection_serial_baseline_GET':baseline,'fresh_B_serial_GET':fresh,'status':neg['status'],'code':neg['response']['error']['code']}
+  assert set(negatives)==set(expected)
+  final_id=r['executions']['c-recovery']['program']['execution_id'];assert manifest['session']['program']['execution_id']==final_id
+  assert sha(z.read('frames/current.png'))==r['final_frame']['sha256']
+  with Image.open(io.BytesIO(z.read('frames/current.png'))) as im:assert list(im.size)==[320,240]
+  for phase in r['phases']:
+   for case in phase['inputs']:
+    q=case['qom']['units'][0];assert q['unit_id']==unit and q['available'] and q['source']=='guest-qom' and not q['errors']
+    w=case['serial_window'];assert serial[w['offset']:w['next_offset']].decode('utf8',errors='replace')==w['data']
+  assert r['executions']['b-recovery']['program']['deployment']['reused'] is True
+ stopped=load(p/'stopped.json');assert decoded[stop_index]==stopped and stopped['state']=='stopped' and stopped['flash_retained'] is False and stopped['last_frame_available'] is True
+ assert stopped['program']['execution_id']==final_id and stopped['program']['state']=='interrupted'
+ for kind in ['session','frame']:
+  info=load(p/f'post-stop-audit/{kind}.http.json');body=(p/f'post-stop-audit/{kind}.response').read_bytes()
+  assert info['status']==200 and len(body)==info['bytes'] and sha(body)==info['sha256'] and isinstance(info['headers'],list)
+  if kind=='session':assert json.loads(body)==stopped
+  else:assert sha(body)==r['final_frame']['sha256']
+ for prov in [r['runtime_provenance'],r['final_runtime_provenance']]:
+  assert prov['status']=='PASS' and prov['pid']==r['pid'] and prov['observed_binary_sha256']==prov['expected_binary_sha256']=='b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2'
+ for path,value in r['source_fingerprints'].items():assert sha((root/path).read_bytes())==value['sha256'] and len((root/path).read_bytes())==value['bytes'],path
+ gone=False
+ try:os.kill(r['pid'],0)
+ except ProcessLookupError:gone=True
+ assert gone
+ results[unit]={'status':'PASS','report_sha256':sha((p/'report.json').read_bytes()),'http_main_responses':len(http),'ordered_duplicate_header_entries':duplicate_headers,'post_stop_GET_receipts':2,'zip_members':84,'zip_sha256':sha(zipbytes),'executions':12,'reference_names':reference_names,'reference_rejections':negatives,'serial_windows':len(r['serial_observations']),'session_id':sid,'pid':r['pid'],'pid_gone_now':gone,'pre_stop_program_state':'running','post_stop_program_state':'interrupted','flash_retained':False,'last_frame_sha256':r['final_frame']['sha256'],'listed_source_fingerprints_matched':len(r['source_fingerprints']),'author_self_audit_used_as_reviewer_conclusion':False}
+receipt={'status':'PASS','checked_at':datetime.now(timezone.utc).isoformat(),'category':'independent-read-only-raw-evidence-review','new_guest_execution':'NOT RUN','hardware_validation':'NOT RUN','http_main_total':sum(x['http_main_responses'] for x in results.values()),'post_stop_GET_receipts_total':4,'results':results,'limits':['Source fingerprints cover the eleven listed on-disk files; loaded service Python modules are not independently attested','Serial prefix_sha256 hashes replacement-decoded UTF-8 re-encoding; raw offsets/windows and full ZIP serial member hashes are independently checked','Virtual controller/UART/frame evidence is not hardware validation','Stop marks the final program interrupted; this does not establish per-Run cancellation']}
+assert receipt['http_main_total']==983
+(out/'live-byte-review.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps({'status':'PASS','main_http':receipt['http_main_total'],'post_stop_GET':4,'results':{k:{a:b for a,b in v.items() if a not in ['reference_rejections']} for k,v in results.items()}},ensure_ascii=False,indent=2))

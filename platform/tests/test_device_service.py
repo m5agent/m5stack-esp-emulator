@@ -5047,6 +5047,65 @@ class DeviceServiceUnitTests(unittest.TestCase):
             persisted["components"]["power"]["properties"]["pa-enabled"], True
         )
 
+    def test_serial_read_is_bounded_to_requested_window(self):
+        session = self._stopped_session()
+        prefix_size = 16 * 1024 * 1024
+        tail = "中文尾\n".encode() + b"\xff"
+        with session.serial0.open("wb") as stream:
+            stream.seek(prefix_size)
+            stream.write(tail)
+        original_open = Path.open
+        reads = []
+
+        class BoundedStream:
+            def __init__(self, stream):
+                self.stream = stream
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return self.stream.__exit__(*args)
+
+            def __getattr__(self, name):
+                return getattr(self.stream, name)
+
+            def read(self, size=-1):
+                if not 0 <= size <= 5:
+                    raise AssertionError("serial polling must not read the whole log")
+                reads.append(size)
+                return self.stream.read(size)
+
+        def opened(path, *args, **kwargs):
+            stream = original_open(path, *args, **kwargs)
+            return BoundedStream(stream) if path == session.serial0 else stream
+
+        # An arbitrary byte offset still has the documented replacement decode;
+        # bounded I/O does not silently introduce a different text cursor.
+        with mock.patch.object(Path, "open", autospec=True, side_effect=opened):
+            result = session.serial_read(prefix_size + 2, 5)
+        self.assertEqual(reads, [5])
+        self.assertEqual(result, {"session_id": session.id,
+                         "offset": prefix_size + 2, "next_offset": prefix_size + 7,
+                         "data": tail[2:7].decode("utf-8", errors="replace"), "bytes": 5})
+
+    def test_serial_read_keeps_empty_clamping_and_stopped_history_contract(self):
+        session = self._stopped_session()
+        session.serial0.write_bytes(b"abc")
+        self.assertEqual(session.state, "stopped")
+        self.assertEqual(session.serial_read(-10, 0), {
+            "session_id": session.id, "offset": 0, "next_offset": 1,
+            "data": "a", "bytes": 1})
+        self.assertEqual(session.serial_read(100, 5), {
+            "session_id": session.id, "offset": 3, "next_offset": 3,
+            "data": "", "bytes": 0})
+        session.serial0.write_bytes(b"")
+        self.assertEqual(session.serial_read(100)["next_offset"], 0)
+        session.serial0.unlink()
+        self.assertEqual(session.serial_read(37), {
+            "session_id": session.id, "offset": 37, "next_offset": 37,
+            "data": "", "bytes": 0})
+
     def test_serial_readiness_and_evidence_bundle(self):
         session = self._stopped_session()
         session.state = "running"

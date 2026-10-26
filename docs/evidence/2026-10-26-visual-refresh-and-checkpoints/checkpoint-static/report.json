@@ -1,0 +1,66 @@
+{
+  "status": "PASS",
+  "semantic_ast_matches_HEAD": {
+    "main_source": true,
+    "compile_helper": true,
+    "build_packages": true,
+    "expected_sample": true,
+    "matching_json_line": true,
+    "frame_observation": true,
+    "live_unit": true,
+    "VERSIONS": true
+  },
+  "source_fingerprints": {
+    "tests/units/run_live_package.py": {
+      "sha256": "1dffda96f0368328cbe670c050606705880ea1dabbb9da36ff78856c3ca2bc03",
+      "bytes": 55636
+    },
+    "tests/units/test_live_package.py": {
+      "sha256": "564c2a4be191d880a8c58a0cd9ab49ce19a2352c6a14573529e49834a8543b7d",
+      "bytes": 30032
+    },
+    "tests/units/run_live_program.py": {
+      "sha256": "e7bece7c11541a558eedee6c7f788749215b697623afe9a5ec6e63f5ef5e36fc",
+      "bytes": 12907
+    },
+    "tests/units/run_service_cases.py": {
+      "sha256": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+      "bytes": 13525
+    },
+    "tests/units/run_host_cases.py": {
+      "sha256": "1ba14d0151c36034f1a47b6dfea9e4f8558d1166bed5a0c60133ef78a2f3b26e",
+      "bytes": 18062
+    },
+    "platform/tools/serve.py": {
+      "sha256": "1c17e6134c0b80493400dfd0896e75b1094926b343fbf45a9d06a14d12283cb5",
+      "bytes": 57218
+    },
+    "platform/tools/device_service.py": {
+      "sha256": "1eb317c3b9d8da27f57f6916d2f1dc405d16b7f1af088ee6e9862511118537d0",
+      "bytes": 422319
+    },
+    "platform/tools/program_packages.py": {
+      "sha256": "b8180b3846ac23ef5a085e49d539d238c4bf42d114c02d4804a39420e07eddac",
+      "bytes": 17355
+    },
+    "platform/tools/program_revisions.py": {
+      "sha256": "3839cd9464fe131a60574180c3cc2b613361409123158dbe613da7fd7f1ad54d",
+      "bytes": 10593
+    },
+    "platform/tools/mpy_bytecode.py": {
+      "sha256": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+      "bytes": 15094
+    },
+    "platform/tools/uiflow_runtime.py": {
+      "sha256": "85dbca56564d08c9a50c36d0ea867993eb70964c0d51ef950663f441b28dc506",
+      "bytes": 9079
+    }
+  },
+  "compiler": {
+    "path": ".work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/mpy-cross/build/mpy-cross",
+    "sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+    "bytes": 481256,
+    "version": "MicroPython 78ff170de9 on 2026-10-26; mpy-cross emitting mpy v6.3"
+  },
+  "tests": "19 PASS"
+}

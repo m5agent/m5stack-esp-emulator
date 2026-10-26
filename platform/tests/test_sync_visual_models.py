@@ -103,7 +103,8 @@ class VisualSnapshotImportTests(unittest.TestCase):
                 return values[arguments[1].split(":", 1)[1]]
             self.fail(f"unexpected Git operation: {arguments}")
 
-        with mock.patch.object(sync, "git", side_effect=git_objects):
+        with mock.patch.object(sync, "git", side_effect=git_objects), \
+                mock.patch.object(sync, "REVIEWED_GUIDE_FILES", {}):
             files = sync.snapshot(Path("/does-not-exist"), commit)
         self.assertNotIn("docs/research/private.txt", files)
         self.assertNotIn("raw-cad.stl", files)
@@ -138,10 +139,86 @@ class VisualSnapshotImportTests(unittest.TestCase):
                 with self.assertRaisesRegex(SystemExit, "inventory differs"):
                     sync.three_addon(files, check=True)
 
+
+    def test_guide_allowlist_requires_exact_commit_paths_and_hashes(self):
+        path = "docs/reviewed.md"
+        body = b"Public visual guide."
+        files = {path: body}
+        with mock.patch.object(sync, "REVIEWED_GUIDE_FILES", {path: hashlib.sha256(body).hexdigest()}):
+            sync.reviewed_guide_texts(sync.GUIDE_SOURCE_COMMIT, list(files), files)
+            for commit, names, values, message in (
+                ("f" * 40, list(files), files, "reviewed commit/allowlist"),
+                (sync.GUIDE_SOURCE_COMMIT, [], files, "reviewed commit/allowlist"),
+                (sync.GUIDE_SOURCE_COMMIT, list(files), {path: body + b"changed"}, "reviewed Git object"),
+                (sync.GUIDE_SOURCE_COMMIT, list(files), {}, "reviewed Git object"),
+            ):
+                with self.subTest(message=message), self.assertRaisesRegex(ValueError, message):
+                    sync.reviewed_guide_texts(commit, names, values)
+
+    def test_guide_text_policy_rejects_credentials_identifiers_and_nontext(self):
+        examples = (
+            (b"-----BEGIN " + b"PRIVATE KEY-----", "private key"),
+            (("sk-" + "x" * 24).encode(), "provider credential"),
+            (("api_key=" + repr("example-credential")).encode(), "credential assignment"),
+            (":".join(["02", "00", "00", "00", "00", "01"]).encode(), "MAC address"),
+            (("/Users/" + "example/private.txt").encode(), "private user path"),
+            (("http://" + "10.0.0.1/private").encode(), "private/authenticated URL"),
+            (("https://" + "example:password@example.test/").encode(), "private/authenticated URL"),
+            (b"binary\x00payload", "binary/control data"),
+            (b"\xff", "not UTF-8 text"),
+        )
+        path = "docs/reviewed.md"
+        for body, message in examples:
+            with self.subTest(message=message), \
+                    mock.patch.object(sync, "REVIEWED_GUIDE_FILES", {path: hashlib.sha256(body).hexdigest()}), \
+                    self.assertRaisesRegex(ValueError, message):
+                sync.reviewed_guide_texts(sync.GUIDE_SOURCE_COMMIT, [path], {path: body})
+        body = b"Public development preview: http://127.0.0.1:5173/"
+        with mock.patch.object(sync, "REVIEWED_GUIDE_FILES", {path: hashlib.sha256(body).hexdigest()}):
+            sync.reviewed_guide_texts(sync.GUIDE_SOURCE_COMMIT, [path], {path: body})
+        for path, body, message in (
+            ("docs/reviewed.png", PNG, "not an allowed public text path"),
+            ("artifacts/reviewed.json", b"not json", "not valid JSON"),
+        ):
+            with self.subTest(message=message), \
+                    mock.patch.object(sync, "REVIEWED_GUIDE_FILES", {path: hashlib.sha256(body).hexdigest()}), \
+                    self.assertRaisesRegex(ValueError, message):
+                sync.reviewed_guide_texts(sync.GUIDE_SOURCE_COMMIT, [path], {path: body})
+
+    def test_guide_relative_links_close_and_unknown_or_unreferenced_texts_fail(self):
+        path = "artifacts/reviewed.json"
+        body = b'{"status":"fixture"}'
+        guides = {path: hashlib.sha256(body).hexdigest()}
+        files = {name: b"No relative links." for name in sync.GUIDE_ENTRY_FILES}
+        files.update({path: body, "docs/AGENT-INTEGRATION.md":
+                      b'[evidence](../artifacts/reviewed.json) [code](../src/example.js) '
+                      b'[external](https://example.test/) ![remote-example](unbundled-image.png)',
+                      "src/example.js": b"throw new Error('not executed');"})
+        with mock.patch.object(sync, "REVIEWED_GUIDE_FILES", guides):
+            closure = sync.guide_resource_closure(files)
+            self.assertEqual(closure["status"], "closed")
+            self.assertEqual(closure["reviewed_additional_files"], 1)
+            self.assertEqual(closure["referenced_files"], len(sync.GUIDE_ENTRY_FILES) + 2)
+            with self.assertRaisesRegex(ValueError, "reference is absent"):
+                sync.guide_resource_closure({**files, "docs/AGENT-INTEGRATION.md": b'[unknown](unreviewed.md)'})
+            with self.assertRaisesRegex(ValueError, "unreviewed visual guide link expression"):
+                sync.guide_resource_closure({**files, "docs/AGENT-INTEGRATION.md": b'[unknown](unreviewed file.md)'})
+            with self.assertRaisesRegex(ValueError, "lack a root-guide reference"):
+                sync.guide_resource_closure({**files, "docs/AGENT-INTEGRATION.md": b"No links."})
+            with self.assertRaisesRegex(ValueError, "entry/reference is absent"):
+                sync.guide_resource_closure({name: value for name, value in files.items() if name != "docs/INTEGRATION.md"})
+
     def test_vendored_snapshot_covers_reviewed_pngs_without_inferring_runtime_admission(self):
         manifest = json.loads((sync.DESTINATION / "vendor-manifest.json").read_text())
         files = {name: (sync.DESTINATION / name).read_bytes() for name in manifest["files"]}
         sync.reviewed_runtime_assets(manifest["source_commit"], list(files), files)
+        sync.reviewed_guide_texts(manifest["source_commit"], list(files), files)
+        self.assertEqual(sync.guide_resource_closure(files), manifest["documentation_closure"])
+        self.assertEqual(set(manifest["reviewed_guide_texts"]), set(sync.REVIEWED_GUIDE_FILES))
+        self.assertIn("historical preparation baseline", manifest["source_manifest_scope"])
+        for name, entry in manifest["reviewed_guide_texts"].items():
+            self.assertEqual(entry["sha256"], hashlib.sha256(files[name]).hexdigest())
+            self.assertIn(manifest["source_commit"], entry["source_url"])
         self.assertEqual(sync.resource_closure(files), manifest["resource_closure"])
         self.assertEqual(set(manifest["runtime_assets"]["files"]), set(sync.REVIEWED_RUNTIME_PNGS))
         for name, entry in manifest["runtime_assets"]["files"].items():

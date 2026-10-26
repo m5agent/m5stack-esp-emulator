@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "source_commit": "3681a6482aff96501d44659ba5a1603246f1fe1f",
+  "files": 169,
+  "bytes": 1023004,
+  "reviewed_findings": [
+    {
+      "path": "docs/LOCAL-EXPANSION.md",
+      "line": 80,
+      "category": "loopback-development-preview-example",
+      "decision": "Preserve exact source bytes. It contains no credentials, private host, user identifier or hardware identifier; production text policy explicitly allows loopback development preview URLs."
+    }
+  ],
+  "credential_mac_private_user_path_findings": 0,
+  "copied_binary_files": 0
+}

@@ -7,6 +7,7 @@ import {slab,mesh,grove,screw} from '../../modeling/parts.js';
 import {roundedRect} from '../../core/geometry.js';
 import {spec,CHANNELS} from './dimensions.js';
 import data from './geometry-data.js';
+import {addStickers} from './stickers.js';
 
 function cylinder(parent,r,depth,position,material,name){
  return mesh(parent,new THREE.CylinderGeometry(r,r,depth,48).rotateX(Math.PI/2),material,position,name);
@@ -90,6 +91,7 @@ function build(host){
  const stableSwitch=slide(host);screw(host.body,[0,spec.mountY,-4.98],'back',1.4);
  host.add(new Component({id:'sensor',label:'8Encoder geometry anchor',meta:{role:'visual-anchor',scope:'no-counts-registers-firmware-or-bus'}}));
  host.encoderMechanisms=mechanisms;host.rgbLights=leds;host.stableSwitch=stableSwitch;
+ addStickers(host);
 }
 const keymap=Object.fromEntries(CHANNELS.map(c=>['Digit'+c.number,c.press]));
 export class Model extends Device{

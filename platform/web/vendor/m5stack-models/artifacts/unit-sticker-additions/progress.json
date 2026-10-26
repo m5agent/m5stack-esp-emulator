@@ -1,0 +1,2754 @@
+{
+  "savedAt": "2026-10-26T09:02:54.234362+00:00",
+  "stage": "modeled",
+  "counts": {
+    "controller": 14,
+    "unit": 59,
+    "modeled": 73,
+    "verified": 0
+  },
+  "localHead": "48667b728736fbfd4365a06575473ce538d3c972",
+  "publication": "Local working-tree increment only; no commit or push",
+  "checks": {
+    "publicBuild": "exit 0",
+    "privateBuild": "exit 0",
+    "livePreview": "73-product catalog, 30 changed model chunks and their sticker PNGs match public dist byte-for-byte",
+    "newSourcePrivacy": "Final PNG/JS/JSON/Markdown only; private table URLs, vectors, raw official binaries and intermediates excluded",
+    "narrowSync": "Only named new product/sticker files and explicit catalog/exports/guides",
+    "existingPublicUnitFilesProtected": 313,
+    "privateProtectedFilesUnchanged": 7,
+    "fullCheck": "not run",
+    "browserReview": "not run",
+    "existingSourceCallsites": "27 pre-existing files differ only by isolated sticker imports/calls and blank lines"
+  },
+  "scope": "Corresponding print mapping for all 30 recent Units, exact-model originals first and authorized official-photo reference redraw otherwise; no whole-catalog or browser acceptance",
+  "products": [
+    {
+      "id": "poesp32",
+      "panels": 3,
+      "kinds": [
+        "official-raster-film",
+        "official-raster"
+      ]
+    },
+    {
+      "id": "cams3-5mp",
+      "panels": 6,
+      "kinds": [
+        "official-raster",
+        "official-raster-film"
+      ]
+    },
+    {
+      "id": "synth",
+      "panels": 2,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "8angle",
+      "panels": 2,
+      "kinds": [
+        "official-raster-film",
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "pahub-v21",
+      "panels": 2,
+      "kinds": [
+        "official-raster"
+      ]
+    },
+    {
+      "id": "pbhub-v11",
+      "panels": 1,
+      "kinds": [
+        "official-raster"
+      ]
+    },
+    {
+      "id": "2relay",
+      "panels": 3,
+      "kinds": [
+        "official-raster"
+      ]
+    },
+    {
+      "id": "env-pro",
+      "panels": 1,
+      "kinds": [
+        "official-raster"
+      ]
+    },
+    {
+      "id": "fingerprint2",
+      "panels": 2,
+      "kinds": [
+        "official-raster"
+      ]
+    },
+    {
+      "id": "byteswitch",
+      "panels": 2,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "bytebutton",
+      "panels": 2,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "gps-v11",
+      "panels": 2,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "weight-i2c",
+      "panels": 2,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "8servos",
+      "panels": 3,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "fader",
+      "panels": 1,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "mini-scales",
+      "panels": 3,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "joystick2",
+      "panels": 1,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "gesture",
+      "panels": 1,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "oled",
+      "panels": 1,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "lcd",
+      "panels": 1,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "co2",
+      "panels": 1,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "tof4m",
+      "panels": 1,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "rtc",
+      "panels": 2,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "4relay",
+      "panels": 5,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "dmx",
+      "panels": 2,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "can",
+      "panels": 2,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "rollercan",
+      "panels": 3,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "rollercan-lite",
+      "panels": 3,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "vibrator",
+      "panels": 1,
+      "kinds": [
+        "reference-redraw"
+      ]
+    },
+    {
+      "id": "audioplayer",
+      "panels": 2,
+      "kinds": [
+        "reference-redraw"
+      ]
+    }
+  ],
+  "pngCount": 61,
+  "rasters": [
+    {
+      "path": "src/units/poesp32/official-back.png",
+      "pixels": [
+        797,
+        2200
+      ],
+      "sha256": "619fb3e47c7f5a82b65b1099d288c8b6f9ed4ecde5aab33fee49787631cf604d"
+    },
+    {
+      "path": "src/units/poesp32/official-certification.png",
+      "pixels": [
+        1000,
+        336
+      ],
+      "sha256": "d49fbdb663547d0cc811ece7396c5801151b1c97c912b12dc9201c1ed5fa0dda"
+    },
+    {
+      "path": "src/units/poesp32/official-front.png",
+      "pixels": [
+        798,
+        2200
+      ],
+      "sha256": "45785b1dc95c147379ca89bfe00c36cdca0b3672cbbb582d18899c2c8703c80c"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-back.png",
+      "pixels": [
+        1024,
+        608
+      ],
+      "sha256": "c2099c15d4c9defee7d1dac9578cb291d27ca95860bb1ae581aa230da0f560d3"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-front.png",
+      "pixels": [
+        1024,
+        320
+      ],
+      "sha256": "2f4fe0be1206d603024f8b8b7b213a642093de9a369010e2f00dbad5770b7af8"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-pinout.png",
+      "pixels": [
+        1024,
+        864
+      ],
+      "sha256": "6a1e9fcf21bbf816f1a31aaacaf93b4e80a60febe2bdc937ff33acb8b3979028"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-top.png",
+      "pixels": [
+        1024,
+        480
+      ],
+      "sha256": "0a61992bf1d4e1e5620fb42b298d5bf1258597bad8bced95e88b09cc4be86086"
+    },
+    {
+      "path": "src/units/synth/reference-redraw-back.png",
+      "pixels": [
+        2624,
+        4640
+      ],
+      "sha256": "25a5320710a04d4637ac5fdba9ec9957a37648be1baa31a6e081ae6d8f8a58f3"
+    },
+    {
+      "path": "src/units/synth/reference-redraw-front.png",
+      "pixels": [
+        1008,
+        4608
+      ],
+      "sha256": "365d345d3d991df2612fd4f311dcf2a4e7116db0ebe998168b0a48cc9fef6533"
+    },
+    {
+      "path": "src/units/8angle/official-back.png",
+      "pixels": [
+        1197,
+        1800
+      ],
+      "sha256": "7d0c399615152ec995bfae07e16fb693b085fbb678898b818305b86887eff0fc"
+    },
+    {
+      "path": "src/units/8angle/reference-front.png",
+      "pixels": [
+        768,
+        4096
+      ],
+      "sha256": "92d885b5679149cf4dfb553374afba5ffda6d8439454e69e015338c23e0c921f"
+    },
+    {
+      "path": "src/units/pahub-v21/official-back.png",
+      "pixels": [
+        1024,
+        1792
+      ],
+      "sha256": "6c601a2c540e4bdf6318558b09a660ff6d52d1a1a573b53501cd180664902e2c"
+    },
+    {
+      "path": "src/units/pahub-v21/official-chip.png",
+      "pixels": [
+        512,
+        1054
+      ],
+      "sha256": "f371a894269e53792c6ce7af4cbb774fff305cfb719ca2f02c0a7ef120337ab6"
+    },
+    {
+      "path": "src/units/pbhub-v11/official-back.png",
+      "pixels": [
+        1024,
+        1792
+      ],
+      "sha256": "5fcec5d5c36da7e49aa3ad047c2d037a4fa6768eba30025f5614443fc4a0f954"
+    },
+    {
+      "path": "src/units/2relay/official-back.png",
+      "pixels": [
+        784,
+        1800
+      ],
+      "sha256": "d3f0b67ca06ec771f9046d7e5bff23dd0317381ad0079466b585152a6534cb19"
+    },
+    {
+      "path": "src/units/2relay/official-relay-1.png",
+      "pixels": [
+        3298,
+        1800
+      ],
+      "sha256": "760cb483fa481347a39707f4d6c87fe315bfb5d3cf9453b08ac3ee46c8f4f646"
+    },
+    {
+      "path": "src/units/2relay/official-relay-2.png",
+      "pixels": [
+        3298,
+        1800
+      ],
+      "sha256": "a9f677916cb098e7bd4b487f6e531948a0072553796370d96d748a83a58a4a92"
+    },
+    {
+      "path": "src/units/env-pro/official-back.png",
+      "pixels": [
+        2415,
+        1800
+      ],
+      "sha256": "2d0ab427ea9798cb4c575ef64f12262cc4997ef9dde5be8dda32766fb04bca79"
+    },
+    {
+      "path": "src/units/fingerprint2/official-back-vector.png",
+      "pixels": [
+        1680,
+        1800
+      ],
+      "sha256": "05a2b85bb1f906f358ead5004531fda274d2adcb8ff430c64a04b56ef9206a6a"
+    },
+    {
+      "path": "src/units/fingerprint2/official-fingerprint-native.png",
+      "pixels": [
+        200,
+        200
+      ],
+      "sha256": "e5bda8d76c7e54f1f9ea8b316a5b143f379123fec22355cd91dde16e0d4b2302"
+    },
+    {
+      "path": "src/units/byteswitch/reference-redraw-back.png",
+      "pixels": [
+        2496,
+        6480
+      ],
+      "sha256": "a32db7aa99fb046320476f3ae83af2c7b16e0e9211d64c0e4fb151a899ecf7d0"
+    },
+    {
+      "path": "src/units/byteswitch/reference-redraw-front.png",
+      "pixels": [
+        6384,
+        792
+      ],
+      "sha256": "4cdf54817475d4a42cfdb21850bfe0fd6179943b190e64a901d88c0e757137c4"
+    },
+    {
+      "path": "src/units/bytebutton/reference-redraw-back.png",
+      "pixels": [
+        2496,
+        6480
+      ],
+      "sha256": "1f145955a04d2ce2b093c912f4dc601cff9238e114268f09d7c0416a43ab81c3"
+    },
+    {
+      "path": "src/units/bytebutton/reference-redraw-front.png",
+      "pixels": [
+        6384,
+        792
+      ],
+      "sha256": "31571c68392cf67212f0e441eed37a34cfe696f28bf38e45899c8dcd3c344e32"
+    },
+    {
+      "path": "src/units/gps-v11/reference-redraw-back.png",
+      "pixels": [
+        1920,
+        3432
+      ],
+      "sha256": "1de94b71d41afa09cb04928663971614bf54ce3a2f9f1d5502a47188c2229742"
+    },
+    {
+      "path": "src/units/gps-v11/reference-redraw-front.png",
+      "pixels": [
+        1920,
+        3432
+      ],
+      "sha256": "1b7977ac30c016c313164488fc9d907b95c4385167e5cf9331e6cc4d9e8bfb3e"
+    },
+    {
+      "path": "src/units/weight-i2c/reference-redraw-back.png",
+      "pixels": [
+        1968,
+        1464
+      ],
+      "sha256": "2413cb288369425f08ef8468dae7870f480e2ab1c9add53270ea5c87ba060736"
+    },
+    {
+      "path": "src/units/weight-i2c/reference-redraw-front.png",
+      "pixels": [
+        1968,
+        1824
+      ],
+      "sha256": "6228ebc5bcde9e504aa0881d0928056b3c2fe25f062155b872a1789ac6becdd0"
+    },
+    {
+      "path": "src/units/8servos/reference-redraw-back.png",
+      "pixels": [
+        1968,
+        4260
+      ],
+      "sha256": "9ed466fdc500c629aa3b1392e283588fa220685ead4342245826be58298242a9"
+    },
+    {
+      "path": "src/units/8servos/reference-redraw-front.png",
+      "pixels": [
+        1236,
+        3240
+      ],
+      "sha256": "d0aecf6ad446b828141c7f0d60ee5985af489fb5292f685ad07908aee9ce86d7"
+    },
+    {
+      "path": "src/units/8servos/reference-redraw-terminal.png",
+      "pixels": [
+        1800,
+        384
+      ],
+      "sha256": "610f5dbf1e1a6deabca89d7587bd25b605832b514cc4e3e66945ac91c199eac9"
+    },
+    {
+      "path": "src/units/fader/reference-redraw-back.png",
+      "pixels": [
+        2016,
+        5328
+      ],
+      "sha256": "5b2a4796113e29ad2962fa8bfb22ec3b165fa68245c7e3f11ff480feb7ba9d86"
+    },
+    {
+      "path": "src/units/mini-scales/reference-redraw-back.png",
+      "pixels": [
+        2544,
+        3540
+      ],
+      "sha256": "c038a4338951842b43d278186481753d1c2500f87338d10e735d5868d3469315"
+    },
+    {
+      "path": "src/units/mini-scales/reference-redraw-end.png",
+      "pixels": [
+        744,
+        384
+      ],
+      "sha256": "a5c869e1d194770c097fc93c1398769f8a51c2c6987b4db18584add814416c37"
+    },
+    {
+      "path": "src/units/mini-scales/reference-redraw-front.png",
+      "pixels": [
+        1224,
+        2184
+      ],
+      "sha256": "8256d1b3ffd950d58d3262689044c379ed4c3190ff8e8b538fdf2f5146ff471e"
+    },
+    {
+      "path": "src/units/joystick2/reference-redraw-back.png",
+      "pixels": [
+        2328,
+        2592
+      ],
+      "sha256": "8793a06b65467b92080fe3f9e0571e70ced3e64128f5ce24df8c98fcc53ce0a5"
+    },
+    {
+      "path": "src/units/gesture/reference-back.png",
+      "pixels": [
+        1024,
+        768
+      ],
+      "sha256": "be933d4274625abf9adaed93953ee189c4887e25983e40f1497819fc01ee5d0f"
+    },
+    {
+      "path": "src/units/oled/reference-back.png",
+      "pixels": [
+        1000,
+        1900
+      ],
+      "sha256": "cfd852f872b263bf64fe8b379cf718cf1a51e769076ce7baf749d69f145566da"
+    },
+    {
+      "path": "src/units/lcd/reference-back.png",
+      "pixels": [
+        1000,
+        1430
+      ],
+      "sha256": "c3b6da96e2257fa0e05e4e0aee470e6a2c4be6f166663a51eb31991b3fdc2142"
+    },
+    {
+      "path": "src/units/co2/reference-back.png",
+      "pixels": [
+        1024,
+        1792
+      ],
+      "sha256": "57d3b7a0f42b6374b60f56b8c68639bf7e85bb4aeb39c95b76fa9ce0dd5ea451"
+    },
+    {
+      "path": "src/units/tof4m/reference-back.png",
+      "pixels": [
+        1024,
+        768
+      ],
+      "sha256": "e89fc122d5a609093d7ad9ce7d2704e5acbd2a8ce3348e5e8ef7db342906862b"
+    },
+    {
+      "path": "src/units/rtc/reference-back.png",
+      "pixels": [
+        1024,
+        1792
+      ],
+      "sha256": "ec8d087e5b569d0279914a5bb1aeb64470b1faa4e94e64fae77df8275bc2c873"
+    },
+    {
+      "path": "src/units/rtc/reference-front.png",
+      "pixels": [
+        1024,
+        1792
+      ],
+      "sha256": "578e2a076ebac051669d0b980dd7df207aec92b4e0894c00b537f6fda976aeeb"
+    },
+    {
+      "path": "src/units/4relay/reference-redraw-front.png",
+      "pixels": [
+        2000,
+        800
+      ],
+      "sha256": "86679c08c590d56d40a6f508350423347f18bc8a453f0dc039ed21528fc54b13"
+    },
+    {
+      "path": "src/units/4relay/reference-redraw-relay-1.png",
+      "pixels": [
+        1800,
+        960
+      ],
+      "sha256": "20b62b1b846d418f76cc746086c5e5507c7f73e0a906d7b30a0446d766774477"
+    },
+    {
+      "path": "src/units/4relay/reference-redraw-relay-2.png",
+      "pixels": [
+        1800,
+        960
+      ],
+      "sha256": "cf33c8199277370bd9178390d8dc3fc6add8b6d499a78ea2a4d2e6c56af62fdd"
+    },
+    {
+      "path": "src/units/4relay/reference-redraw-relay-3.png",
+      "pixels": [
+        1800,
+        960
+      ],
+      "sha256": "7f6afd36fa05ecb8c4e8f8acbd46f2db34830c9c02d0e7003da635a0a7e01506"
+    },
+    {
+      "path": "src/units/4relay/reference-redraw-relay-4.png",
+      "pixels": [
+        1800,
+        960
+      ],
+      "sha256": "cb736a2e8f608e094f9b7dff65ff1691360454d14a7805ea6fc3c21bb2ef2ef1"
+    },
+    {
+      "path": "src/units/dmx/reference-redraw-back.png",
+      "pixels": [
+        900,
+        1430
+      ],
+      "sha256": "29bbf65d859dedbed0af7dc0638696912b6d7f8d480a56f3e0b81013b4c78179"
+    },
+    {
+      "path": "src/units/dmx/reference-redraw-front.png",
+      "pixels": [
+        1600,
+        830
+      ],
+      "sha256": "fa182113ed222085ba19e2dc020cc16ef155f0cc2e89142dd070c0ab466b62fc"
+    },
+    {
+      "path": "src/units/can/reference-redraw-back.png",
+      "pixels": [
+        800,
+        1800
+      ],
+      "sha256": "414aada2eadb011d6b9caa32161bb29b0d33c72a541e54575ab0231e3e8af7d4"
+    },
+    {
+      "path": "src/units/can/reference-redraw-front.png",
+      "pixels": [
+        800,
+        1350
+      ],
+      "sha256": "baaa95ea6ea07355246ca5d1b51156fab82ce53b4942c1c9a6dacc31efedaaf8"
+    },
+    {
+      "path": "src/units/rollercan/reference-redraw-debug.png",
+      "pixels": [
+        1600,
+        580
+      ],
+      "sha256": "5e9c224b964ca1584f760965f56f3e37e184e7a71cb55c487726b35a7c21b59d"
+    },
+    {
+      "path": "src/units/rollercan/reference-redraw-port-a.png",
+      "pixels": [
+        720,
+        920
+      ],
+      "sha256": "765376d01c6e7b278035b8d3e7a548c49410d7bc50616e7d0007a36ac3bfd971"
+    },
+    {
+      "path": "src/units/rollercan/reference-redraw-pwrcan.png",
+      "pixels": [
+        1600,
+        920
+      ],
+      "sha256": "d40ce77e093cb74bebbfe0366ce7d346e38aab74cda0bd146471dede99001bab"
+    },
+    {
+      "path": "src/units/rollercan-lite/reference-redraw-debug.png",
+      "pixels": [
+        1600,
+        580
+      ],
+      "sha256": "5e9c224b964ca1584f760965f56f3e37e184e7a71cb55c487726b35a7c21b59d"
+    },
+    {
+      "path": "src/units/rollercan-lite/reference-redraw-port-a.png",
+      "pixels": [
+        720,
+        920
+      ],
+      "sha256": "765376d01c6e7b278035b8d3e7a548c49410d7bc50616e7d0007a36ac3bfd971"
+    },
+    {
+      "path": "src/units/rollercan-lite/reference-redraw-pwrcan.png",
+      "pixels": [
+        1600,
+        920
+      ],
+      "sha256": "d40ce77e093cb74bebbfe0366ce7d346e38aab74cda0bd146471dede99001bab"
+    },
+    {
+      "path": "src/units/vibrator/reference-back.png",
+      "pixels": [
+        1024,
+        768
+      ],
+      "sha256": "db892d47296ccdfd0e5da60effa3f5db4720e73ddc1a6c2f27521dcc273bd2ef"
+    },
+    {
+      "path": "src/units/audioplayer/reference-back.png",
+      "pixels": [
+        1024,
+        1440
+      ],
+      "sha256": "e89b4698e56fc58947fa23c4b7eaf13c036509b3a7c6e05970f2471fb73e27ac"
+    },
+    {
+      "path": "src/units/audioplayer/reference-front.png",
+      "pixels": [
+        1024,
+        1648
+      ],
+      "sha256": "d43010d90f995b681d8e5a5517db8a6923eef59e209c4cd16ecb696e05fe4274"
+    }
+  ],
+  "artworkFixture": {
+    "status": "pass",
+    "products": [
+      {
+        "id": "poesp32",
+        "panels": 3,
+        "kinds": [
+          "official-raster-film",
+          "official-raster"
+        ]
+      },
+      {
+        "id": "cams3-5mp",
+        "panels": 6,
+        "kinds": [
+          "official-raster",
+          "official-raster-film"
+        ]
+      },
+      {
+        "id": "synth",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "8angle",
+        "panels": 2,
+        "kinds": [
+          "official-raster-film",
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "pahub-v21",
+        "panels": 2,
+        "kinds": [
+          "official-raster"
+        ]
+      },
+      {
+        "id": "pbhub-v11",
+        "panels": 1,
+        "kinds": [
+          "official-raster"
+        ]
+      },
+      {
+        "id": "2relay",
+        "panels": 3,
+        "kinds": [
+          "official-raster"
+        ]
+      },
+      {
+        "id": "env-pro",
+        "panels": 1,
+        "kinds": [
+          "official-raster"
+        ]
+      },
+      {
+        "id": "fingerprint2",
+        "panels": 2,
+        "kinds": [
+          "official-raster"
+        ]
+      },
+      {
+        "id": "byteswitch",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "bytebutton",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "gps-v11",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "weight-i2c",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "8servos",
+        "panels": 3,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "fader",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "mini-scales",
+        "panels": 3,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "joystick2",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "gesture",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "oled",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "lcd",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "co2",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "tof4m",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "rtc",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "4relay",
+        "panels": 5,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "dmx",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "can",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "rollercan",
+        "panels": 3,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "rollercan-lite",
+        "panels": 3,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "vibrator",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "audioplayer",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      }
+    ],
+    "scope": "New sticker construction, artwork:false, identical physical buffers/poses and four-wire Grove assembly only; no exhaustive UV, browser or whole-catalog acceptance"
+  },
+  "authorizedStickerCallsites": [
+    "src/units/8angle/index.js",
+    "src/units/pahub-v21/assembly.js",
+    "src/units/pbhub-v11/index.js",
+    "src/units/2relay/assembly.js",
+    "src/units/env-pro/assembly.js",
+    "src/units/fingerprint2/assembly.js",
+    "src/units/byteswitch/assembly.js",
+    "src/units/bytebutton/assembly.js",
+    "src/units/gps-v11/assembly.js",
+    "src/units/weight-i2c/index.js",
+    "src/units/8servos/index.js",
+    "src/units/fader/index.js",
+    "src/units/mini-scales/index.js",
+    "src/units/joystick2/assembly.js",
+    "src/units/gesture/assembly.js",
+    "src/units/oled/assembly.js",
+    "src/units/lcd/assembly.js",
+    "src/units/co2/assembly.js",
+    "src/units/tof4m/assembly.js",
+    "src/units/rtc/assembly.js",
+    "src/units/4relay/index.js",
+    "src/units/dmx/assembly.js",
+    "src/units/can/assembly.js",
+    "src/units/rollercan/index.js",
+    "src/units/rollercan-lite/index.js",
+    "src/units/vibrator/assembly.js",
+    "src/units/audioplayer/assembly.js"
+  ],
+  "previewAssets": [
+    {
+      "id": "poesp32",
+      "file": "assets/poesp32-ADXuHmpf.js",
+      "sha256": "8e4f0770c1c3b144f648de84ec2c82573831b751f23811ceafa343ac44f4b1ad"
+    },
+    {
+      "id": "cams3-5mp",
+      "file": "assets/cams3-5mp-BHynlLuv.js",
+      "sha256": "57757d7d8eccf8908409e5ed47a886ede808fa6a7d374d96f7604542a352cab9"
+    },
+    {
+      "id": "synth",
+      "file": "assets/synth-BOFrTe5L.js",
+      "sha256": "9c8b883afd71fdb1b01ac2702a784d5a164ef766dc2529da44929725d41a55b4"
+    },
+    {
+      "id": "8angle",
+      "file": "assets/8angle-BCcLEuQw.js",
+      "sha256": "8a953bba7486e1d7a183c89a7c06b1512a80cc6d389dba91456bdceb23716388"
+    },
+    {
+      "id": "pahub-v21",
+      "file": "assets/pahub-v21-CurpqoWs.js",
+      "sha256": "daeca8c48eab7b184b8a9dd4088c4142e7cea4970213740e299e5c1fcf30021d"
+    },
+    {
+      "id": "pbhub-v11",
+      "file": "assets/pbhub-v11-DldsntUI.js",
+      "sha256": "014529188842da016814318e66dc9d2aa26ec8da88b660ba89361fb7ebbeada6"
+    },
+    {
+      "id": "2relay",
+      "file": "assets/2relay-D5Io9dkG.js",
+      "sha256": "14b570677b96b39400f1327dafcd22db592d6efd6d733d23f54e3b1f9f77a1b7"
+    },
+    {
+      "id": "env-pro",
+      "file": "assets/env-pro-nURaISOi.js",
+      "sha256": "39efe51ffbe76e7df29014f8aeff34eaa261aeef9ba063c69979066511b89b15"
+    },
+    {
+      "id": "fingerprint2",
+      "file": "assets/fingerprint2-D6qysbTw.js",
+      "sha256": "e1b1c8fe5bc3166a4d0968dc0c2a32e1572670eeb720f705080e2c2ad6e83fa8"
+    },
+    {
+      "id": "byteswitch",
+      "file": "assets/byteswitch-0otj5L4_.js",
+      "sha256": "a509bc3648ad3923d667e282acbefa733bdb0a7b5d428b4ebe3569ec2c4c1748"
+    },
+    {
+      "id": "bytebutton",
+      "file": "assets/bytebutton-Bb789sH5.js",
+      "sha256": "ec1eb57c606e9323c92c31f02a7f516b3a2164c14cc62467ac84ff3b8d53da1a"
+    },
+    {
+      "id": "gps-v11",
+      "file": "assets/gps-v11-CRmtCFlb.js",
+      "sha256": "b8c652a415e6855da106f2db7f89e23db1d1941841fbd8f4f973ccbcaf0393cf"
+    },
+    {
+      "id": "weight-i2c",
+      "file": "assets/weight-i2c-CMxUsrlV.js",
+      "sha256": "8bbd9737c75d26112b8c73610defd5bd531f618159ef58030ab3faf1f149e20d"
+    },
+    {
+      "id": "8servos",
+      "file": "assets/8servos-Cglvoa3b.js",
+      "sha256": "6f41d006d537a12115861633ad3dc32fff9d3e99583f9ed2ecabe1de02809000"
+    },
+    {
+      "id": "fader",
+      "file": "assets/fader-WULS0uwt.js",
+      "sha256": "0bc46071f3d5ec48a7419cf74b29db783476baa438992f2ad4308ee4b2603d9c"
+    },
+    {
+      "id": "mini-scales",
+      "file": "assets/mini-scales-DMLL0hKv.js",
+      "sha256": "16002dba258df8289e34373e5a40e8affc4c28c4895112349e088bfe19a11457"
+    },
+    {
+      "id": "joystick2",
+      "file": "assets/joystick2-DxQ3_YLf.js",
+      "sha256": "ae657dc6ba19873bf5aaacdfa6cc436f4779d0a385b8d8d6cd7a6c6d28024875"
+    },
+    {
+      "id": "gesture",
+      "file": "assets/gesture-DU_l1XX0.js",
+      "sha256": "7f4364e14906f6fac0f5b057f72ae940b0330a7999c764b6e900bb2605bd3592"
+    },
+    {
+      "id": "oled",
+      "file": "assets/oled-nzet0f1N.js",
+      "sha256": "7a3011fa29fba737cee76d4c02963142038a651123b1764913819a4c09f7c50e"
+    },
+    {
+      "id": "lcd",
+      "file": "assets/lcd-DoADtYNb.js",
+      "sha256": "c6f093eb8bd4ab2bed9a8ef41a00022838e7775cb355d54259d073f5e5d7beab"
+    },
+    {
+      "id": "co2",
+      "file": "assets/co2-CpoTJuOn.js",
+      "sha256": "3b6d8c807b308e3eab3655b7cd7624ea270effc7ff7c1b244999e79a7959f06a"
+    },
+    {
+      "id": "tof4m",
+      "file": "assets/tof4m-BpI-GSM8.js",
+      "sha256": "8f94b655e1386dee327d9635422a7e13e5cade4935b62887f893468538663bf9"
+    },
+    {
+      "id": "rtc",
+      "file": "assets/rtc-CXoj_ajF.js",
+      "sha256": "9d20ca97b3cecea896d96f4bfb7f229a82e4bbabb55e2d57e8a30ee26f790e67"
+    },
+    {
+      "id": "4relay",
+      "file": "assets/4relay-Bu7Uo2gS.js",
+      "sha256": "69b38639063879589810590ec10138f8761ab355d07118fe99f0edce4643a352"
+    },
+    {
+      "id": "dmx",
+      "file": "assets/dmx-lxG5tqbk.js",
+      "sha256": "a6f2bd4e8fab0e85ca800fed8c4b96631424d75aff59368f481245ab29465ad3"
+    },
+    {
+      "id": "can",
+      "file": "assets/can-F7dX-3W7.js",
+      "sha256": "d98755f532eae8c95418127c44ae9eb3c53ce23af432017375eb6c4ef6177060"
+    },
+    {
+      "id": "rollercan",
+      "file": "assets/rollercan-AUdPVCT6.js",
+      "sha256": "2a60f4f5a7de45529a98cb0252632c33ab23e72da7345df99fb040f8261091ca"
+    },
+    {
+      "id": "rollercan-lite",
+      "file": "assets/rollercan-lite-DDreV8yy.js",
+      "sha256": "c095bd3579effc9ad938f09b4fa15492cfb381889d523d946634e04a837071c3"
+    },
+    {
+      "id": "vibrator",
+      "file": "assets/vibrator-DvVDEX53.js",
+      "sha256": "16198e445d9f0bd9cd2accb2c0f5db011b9c20eff89160cd4b56021462d740f6"
+    },
+    {
+      "id": "audioplayer",
+      "file": "assets/audioplayer-iB7oBz0Y.js",
+      "sha256": "eba757c0e5257301bf879c779c9a96d65a02cb5906dbb569bbba7afdf906dea7"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/poesp32/assembly.js",
+      "sha256": "58f74674f0309c70542415d6366e4d7f4270270a6042c403e7aeea6d710c4c1f"
+    },
+    {
+      "path": "src/units/poesp32/cad-map.json",
+      "sha256": "d32e3cd02447269fb1486f393efe7a27d98a3cb2b15e279669c5a4397d71ee3a"
+    },
+    {
+      "path": "src/units/poesp32/dimensions.js",
+      "sha256": "2f7f921f700742718315a8e59c2c1f814883ea8d9c2917645d6f01bb2bbb44a0"
+    },
+    {
+      "path": "src/units/poesp32/geometry-data.js",
+      "sha256": "0bb0b4c2384c4b49d63a1cb7e66a3a3f433f8c2da4d6888439cc190612e1f854"
+    },
+    {
+      "path": "src/units/poesp32/index.js",
+      "sha256": "b11f99a0a4237f3455620cecb338fb89ec783f657acaedaed48a83b7c3122ac3"
+    },
+    {
+      "path": "src/units/poesp32/official-back.png",
+      "sha256": "619fb3e47c7f5a82b65b1099d288c8b6f9ed4ecde5aab33fee49787631cf604d"
+    },
+    {
+      "path": "src/units/poesp32/official-certification.png",
+      "sha256": "d49fbdb663547d0cc811ece7396c5801151b1c97c912b12dc9201c1ed5fa0dda"
+    },
+    {
+      "path": "src/units/poesp32/official-front.png",
+      "sha256": "45785b1dc95c147379ca89bfe00c36cdca0b3672cbbb582d18899c2c8703c80c"
+    },
+    {
+      "path": "src/units/poesp32/stickers.js",
+      "sha256": "a551d2780eb671b2f5adf163cea2e6f7065f65f918a22944cb60c984bf42fe05"
+    },
+    {
+      "path": "docs/research/poesp32/README.md",
+      "sha256": "a936f8bf0e9029db70a161d0054b115dae5bb0028a661497d047eb1aebb767fc"
+    },
+    {
+      "path": "docs/research/poesp32/smoke.json",
+      "sha256": "525ca0c4fa9937876895a0568bc39850a37c45d1e6e315c2cdffa168f5d2b7cf"
+    },
+    {
+      "path": "docs/research/poesp32/sources.json",
+      "sha256": "0216369cfc7fa1210d1c29ab0b145089ccc4219381ab65ee65c832414656e41d"
+    },
+    {
+      "path": "src/units/cams3-5mp/assembly.js",
+      "sha256": "cebaec263f1b97f707d25d8b0dfbbfe4cf4ba757a774a99362ae12d7c7f1b207"
+    },
+    {
+      "path": "src/units/cams3-5mp/cad-map.json",
+      "sha256": "81f96c020346e527774a18122b00a584d86094e595f9245bc70e8ce5e0431154"
+    },
+    {
+      "path": "src/units/cams3-5mp/dimensions.js",
+      "sha256": "3490c3020b9bbab7feb1fdad9672b797344ccfc4d18059c88eff4f7639d55188"
+    },
+    {
+      "path": "src/units/cams3-5mp/geometry-data.js",
+      "sha256": "98f0f43cb7c1085ad807e50f6bc4ae979a1e31173bda0b29f5c4a2e6cf8bde31"
+    },
+    {
+      "path": "src/units/cams3-5mp/index.js",
+      "sha256": "2eeaafd0dc3f19bf2b1355fb7e3b0b42a8c43d0966ef534ac4cb439ee3856fc2"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-back.png",
+      "sha256": "c2099c15d4c9defee7d1dac9578cb291d27ca95860bb1ae581aa230da0f560d3"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-front.png",
+      "sha256": "2f4fe0be1206d603024f8b8b7b213a642093de9a369010e2f00dbad5770b7af8"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-pinout.png",
+      "sha256": "6a1e9fcf21bbf816f1a31aaacaf93b4e80a60febe2bdc937ff33acb8b3979028"
+    },
+    {
+      "path": "src/units/cams3-5mp/official-top.png",
+      "sha256": "0a61992bf1d4e1e5620fb42b298d5bf1258597bad8bced95e88b09cc4be86086"
+    },
+    {
+      "path": "src/units/cams3-5mp/stickers.js",
+      "sha256": "7a4e0045f077cf9f4f098d48e90b8b4cfc5f9a55356ad3dbe11d8843ada4a932"
+    },
+    {
+      "path": "docs/research/cams3-5mp/modeling.md",
+      "sha256": "a870245e21a4b00dd1a40f7282e0029f7a7c4e190e2a5fbebcbbcbaf1bc27d7e"
+    },
+    {
+      "path": "docs/research/cams3-5mp/smoke.json",
+      "sha256": "dfaf995de4fba50ad304ff98c75329a0ca96ec5e4206c73d4727e6afbb6576e8"
+    },
+    {
+      "path": "docs/research/cams3-5mp/sources.json",
+      "sha256": "9db1d767538a990bb14874c812d0657bbe2449f8883ce2eab23d2d41acda3959"
+    },
+    {
+      "path": "src/units/synth/assembly.js",
+      "sha256": "26a08b9e360124e75f0dd65e4cee05662d9cadde5c068d819701e2cb678b6545"
+    },
+    {
+      "path": "src/units/synth/cad-map.json",
+      "sha256": "e2fd9346ef70c79b164a084ce8f350b6e7bd6aed52078ce3626670beb174de27"
+    },
+    {
+      "path": "src/units/synth/dimensions.js",
+      "sha256": "14432742a60eac4784f41baaccfc6d7a809a05c04a5c245e651ef9fe27c8fee9"
+    },
+    {
+      "path": "src/units/synth/geometry-data.js",
+      "sha256": "669c8d32c9f1cbf5ed359880a0ac06bf07a8d9fe628a0be9487b9b7dde560b0a"
+    },
+    {
+      "path": "src/units/synth/index.js",
+      "sha256": "2b946b2e1f786e055dd2c79a310472e3d26963afe626cc88a13708526a4e91e4"
+    },
+    {
+      "path": "src/units/synth/reference-redraw-back.png",
+      "sha256": "25a5320710a04d4637ac5fdba9ec9957a37648be1baa31a6e081ae6d8f8a58f3"
+    },
+    {
+      "path": "src/units/synth/reference-redraw-front.png",
+      "sha256": "365d345d3d991df2612fd4f311dcf2a4e7116db0ebe998168b0a48cc9fef6533"
+    },
+    {
+      "path": "src/units/synth/stickers.js",
+      "sha256": "fe8ea32702e010e91b867384c75098e3513c339ac25f59582ec457a992384467"
+    },
+    {
+      "path": "docs/research/synth/artwork.md",
+      "sha256": "0bec150f104976eb0ef48df2a25b3383bcaafa581b281f64177724a75baee921"
+    },
+    {
+      "path": "docs/research/synth/modeling.md",
+      "sha256": "6cacc2c44366ef4c5e07bc8129b8b79fb8a2fc33f099ce216b7d2e4ca5057a44"
+    },
+    {
+      "path": "docs/research/synth/smoke.json",
+      "sha256": "c568ba0b0f7d6a385aa5f4ed17ce973d3bf1ebc553c765b4557c54f2629e447d"
+    },
+    {
+      "path": "docs/research/synth/sources.json",
+      "sha256": "e06a5badcc1ca1548d45b3a3472cf5c5cfafff297ee4ba1c00a8d555723b3988"
+    },
+    {
+      "path": "src/units/8angle/cad-map.json",
+      "sha256": "b806c0a62b1c36f3fa4d58c8d7447c45b62b570059ede39122d33416924d1e96"
+    },
+    {
+      "path": "src/units/8angle/dimensions.js",
+      "sha256": "2925dd5d25dd9c6850854e2761be2e0e4fddae09b15ea529a5952b76d27f1a49"
+    },
+    {
+      "path": "src/units/8angle/geometry-data.js",
+      "sha256": "2cbcb70228d42056a0e2e8943ea3e04a291e36a8c6dd1b147020f86996ffa1ae"
+    },
+    {
+      "path": "src/units/8angle/index.js",
+      "sha256": "8d91cfebcefeb9e316a4011ed74c01942db42138da7ed2eccf483a332954f789"
+    },
+    {
+      "path": "src/units/8angle/official-back.png",
+      "sha256": "7d0c399615152ec995bfae07e16fb693b085fbb678898b818305b86887eff0fc"
+    },
+    {
+      "path": "src/units/8angle/reference-front.png",
+      "sha256": "92d885b5679149cf4dfb553374afba5ffda6d8439454e69e015338c23e0c921f"
+    },
+    {
+      "path": "src/units/8angle/stickers.js",
+      "sha256": "95114d246b131cc9b182bd169eb3f69317aa80d7da069e6d2a6228c4e7457023"
+    },
+    {
+      "path": "docs/research/8angle/README.md",
+      "sha256": "579a465ea0d618f9995d87867dcd65e23110859daae1105d7aa7f56ce935a681"
+    },
+    {
+      "path": "docs/research/8angle/artwork.md",
+      "sha256": "aa9745d7b7f3c665b0143e32b78449ad140e69ee31ec004312e8eb22a5a14931"
+    },
+    {
+      "path": "docs/research/8angle/geometry-check.json",
+      "sha256": "1dacf4d34d923253d60e154a6032e232da80bc666db6c42d8b187e547f68dfa1"
+    },
+    {
+      "path": "docs/research/8angle/sources.json",
+      "sha256": "1fed64ab5b43f7c722f6c8d525eaad320aff298012878854098454136bb077b8"
+    },
+    {
+      "path": "src/units/pahub-v21/assembly.js",
+      "sha256": "a39d1e9e4585d5e655fa990ff7e0e4f8d6cc810d5bfb8c54a8ed915ce52c5364"
+    },
+    {
+      "path": "src/units/pahub-v21/cad-map.json",
+      "sha256": "e2975a73e82bcd52adb955446ced3b39378231ab041d4ac2d81bdfde5e88f903"
+    },
+    {
+      "path": "src/units/pahub-v21/dimensions.js",
+      "sha256": "8ce26690448349d4d8b551f18cbae8b7b324e8686deadefa58b7d5708c1768c7"
+    },
+    {
+      "path": "src/units/pahub-v21/geometry-data.js",
+      "sha256": "dcec065389f82b462cc1800be91966b17a755e196fe41ad330504fe296e96fc0"
+    },
+    {
+      "path": "src/units/pahub-v21/index.js",
+      "sha256": "b5dda58d703554154f964f99fd2bc53840287b22b7d959c81777da4248df5fa5"
+    },
+    {
+      "path": "src/units/pahub-v21/official-back.png",
+      "sha256": "6c601a2c540e4bdf6318558b09a660ff6d52d1a1a573b53501cd180664902e2c"
+    },
+    {
+      "path": "src/units/pahub-v21/official-chip.png",
+      "sha256": "f371a894269e53792c6ce7af4cbb774fff305cfb719ca2f02c0a7ef120337ab6"
+    },
+    {
+      "path": "src/units/pahub-v21/stickers.js",
+      "sha256": "1dbd96d3796176f613bb57d71da1cdfea92305221a406ae175b639e20af9b132"
+    },
+    {
+      "path": "docs/research/pahub-v21/README.md",
+      "sha256": "3699be9d19143a758be1703457d954836932f06f2e35060d522e6b25590d6513"
+    },
+    {
+      "path": "docs/research/pahub-v21/smoke.json",
+      "sha256": "e3856877ed8bb7111fb26a55260f35ec4d69701e64e6f9514eee5e3a6099e84d"
+    },
+    {
+      "path": "docs/research/pahub-v21/sources.json",
+      "sha256": "ab53f468938a7539dd47cada9f6a56079ad1f9198eecf1a70c23d7bb84ad6cf1"
+    },
+    {
+      "path": "docs/research/pahub-v21/sticker-check.json",
+      "sha256": "97c3fe85f8b72a15c2dc0b3cbe50d5d17b1dcb150a97c7217a3ab79e7c0d41dc"
+    },
+    {
+      "path": "docs/research/pahub-v21/stickers.json",
+      "sha256": "eb047bdadb3ebb716416071f0f8de175b5b732701edbe93a0d0310126b4b3308"
+    },
+    {
+      "path": "docs/research/pahub-v21/stickers.md",
+      "sha256": "2d8e9d523e6f9edce006cd2e4611a6494bdf1e6a4e0cab95c7df652d6ae5d1e4"
+    },
+    {
+      "path": "src/units/pbhub-v11/assembly.js",
+      "sha256": "c6922198dc9bd4a5a606851843777efff4eb61720f3dc10bafd9486c70fb7ad9"
+    },
+    {
+      "path": "src/units/pbhub-v11/cad-map.json",
+      "sha256": "5d8943a1af10c7799dd6f98119a18fef33f035cec1c36f79f13b1aba223dda36"
+    },
+    {
+      "path": "src/units/pbhub-v11/dimensions.js",
+      "sha256": "c5b5de4488524436df3e1b340e6652bbcbbe2d64913988ca3df2a4659d5f2d82"
+    },
+    {
+      "path": "src/units/pbhub-v11/geometry-data.js",
+      "sha256": "3c3023a6bc653f8b7ffd5f13785e4f5fbb6df6a3afe9f3c780763de2b56fead3"
+    },
+    {
+      "path": "src/units/pbhub-v11/index.js",
+      "sha256": "4922802b2f220e2bc0deec9b1728817618c1fb145c50ce6e6297e90efc2b2831"
+    },
+    {
+      "path": "src/units/pbhub-v11/official-back.png",
+      "sha256": "5fcec5d5c36da7e49aa3ad047c2d037a4fa6768eba30025f5614443fc4a0f954"
+    },
+    {
+      "path": "src/units/pbhub-v11/stickers.js",
+      "sha256": "ea4b04df7d98ad7fe4ae9febfdd4632100f677f77b810d1e671b49638678981a"
+    },
+    {
+      "path": "docs/research/pbhub-v11/geometry-check.json",
+      "sha256": "4302a2851241afa5e23234f5b562e0c36a0f06074b2938d8cec06b6abfbcf8a9"
+    },
+    {
+      "path": "docs/research/pbhub-v11/modeling.md",
+      "sha256": "f6eab9a7093c9682b958830b452d32d7a16e7e4c5c359c51ab6146d70d7e63c3"
+    },
+    {
+      "path": "docs/research/pbhub-v11/sticker-check.json",
+      "sha256": "eb14556dae4c75b643c775d05d0aa6d1d6f96694b9478703ab4d4136a8e73dae"
+    },
+    {
+      "path": "docs/research/pbhub-v11/stickers.json",
+      "sha256": "dbdc5a965331b04707d5357fc414976147db871e61d9331674f17cfd3c0803b9"
+    },
+    {
+      "path": "docs/research/pbhub-v11/stickers.md",
+      "sha256": "6854b340d422fed136e7578713bc4daa863d9b1a4b6bd02d2c8e27724db04a39"
+    },
+    {
+      "path": "src/units/2relay/TerminalPlug.js",
+      "sha256": "9169c5ce7942c80dde21bd34cf8480352094e8973ca3df925164d5d5e61568cb"
+    },
+    {
+      "path": "src/units/2relay/assembly.js",
+      "sha256": "b029e8b2c0a337cafeb7b54db226e595c8dca5cdd561981a44b4828bc801a871"
+    },
+    {
+      "path": "src/units/2relay/cad-map.json",
+      "sha256": "13e72bc2b4a68152f7cbf822819143753e7f11879b23e4e3643e72cd7d91c2b9"
+    },
+    {
+      "path": "src/units/2relay/dimensions.js",
+      "sha256": "2cae8f26dcab88017594505e9402f6f54417867fc3b88c6d69ec853d2eccba57"
+    },
+    {
+      "path": "src/units/2relay/geometry-data.js",
+      "sha256": "78d5f6b1ac53c2b57f9bb558f2e07333e23c2ee2fe111e87efd41003cc925fae"
+    },
+    {
+      "path": "src/units/2relay/index.js",
+      "sha256": "fdd6f7b2880d3c0a71590b03261f6aa8372a6138b6f317b5035647606785a614"
+    },
+    {
+      "path": "src/units/2relay/official-back.png",
+      "sha256": "d3f0b67ca06ec771f9046d7e5bff23dd0317381ad0079466b585152a6534cb19"
+    },
+    {
+      "path": "src/units/2relay/official-relay-1.png",
+      "sha256": "760cb483fa481347a39707f4d6c87fe315bfb5d3cf9453b08ac3ee46c8f4f646"
+    },
+    {
+      "path": "src/units/2relay/official-relay-2.png",
+      "sha256": "a9f677916cb098e7bd4b487f6e531948a0072553796370d96d748a83a58a4a92"
+    },
+    {
+      "path": "src/units/2relay/stickers.js",
+      "sha256": "6a1b40468c1b465c5e7af6cb188c08f5b11bfdcf9c6a8141f9f7cc1e82aa763e"
+    },
+    {
+      "path": "docs/research/2relay/STICKERS.md",
+      "sha256": "5713108d8fb2618f879cffa8234a4ce19877d50028f3c9f07f3e1205ebb04e2a"
+    },
+    {
+      "path": "docs/research/2relay/modeling.md",
+      "sha256": "520dcdde36914f0653cf5ef9a71c2f5b357eb7062957145f452a0169b7b1fc13"
+    },
+    {
+      "path": "docs/research/2relay/smoke.json",
+      "sha256": "37b96bfd48c63ccd9a9014b032c3e02cd0e2746e339d6bef8136de862783af12"
+    },
+    {
+      "path": "docs/research/2relay/sources.json",
+      "sha256": "e7c37fa696650aa60ef5a68a63878c3201d39efef48d63424e24730878184e0b"
+    },
+    {
+      "path": "docs/research/2relay/stickers-smoke.json",
+      "sha256": "9a3c77c7efcecb36b45ce4991bf38b64e736e8cda562f796ad8f174a6026a942"
+    },
+    {
+      "path": "src/units/env-pro/assembly.js",
+      "sha256": "7fbc5bc4b2011f0d28e1f4273e1dc0be5ad50ff49a4197290a28460a3617c020"
+    },
+    {
+      "path": "src/units/env-pro/cad-map.json",
+      "sha256": "70012175e7e86cca9dbb83a25c21895a5c9ede94c9cabcaefde13342e6e6786e"
+    },
+    {
+      "path": "src/units/env-pro/dimensions.js",
+      "sha256": "fc1592ebbf769fc44148db1e43e9bacf7b0fda00d5a1f13dcbf07254394004d3"
+    },
+    {
+      "path": "src/units/env-pro/geometry-data.js",
+      "sha256": "e97de04743bafde3fd6d040fc518a35ee68294f4a5050940ac9edf14051f7716"
+    },
+    {
+      "path": "src/units/env-pro/index.js",
+      "sha256": "4974f475cc5a33fd8d7db966f19d1185a816c52851ef2df8b449421cd6a67a7a"
+    },
+    {
+      "path": "src/units/env-pro/official-back.png",
+      "sha256": "2d0ab427ea9798cb4c575ef64f12262cc4997ef9dde5be8dda32766fb04bca79"
+    },
+    {
+      "path": "src/units/env-pro/stickers.js",
+      "sha256": "a177da306aaa481fbb7cc2979abe653481850bf8a900f5650cdf9a7e11bc317b"
+    },
+    {
+      "path": "docs/research/env-pro/README.md",
+      "sha256": "531e3ae3e53af374126a7abe41dc2ae865624f1872b8cb3e8c05b0b8d57b218a"
+    },
+    {
+      "path": "docs/research/env-pro/STICKERS.md",
+      "sha256": "e65cc6abc4d4c89d8090edf0af9b820c1b4e29d4db73b7a11af16e0bbce8431c"
+    },
+    {
+      "path": "docs/research/env-pro/smoke.json",
+      "sha256": "eba40c2c6ac7aa81a3953bd032d85610bb4bbb104ce60043b189434a002e496b"
+    },
+    {
+      "path": "docs/research/env-pro/sources.json",
+      "sha256": "c57dbe3996c4087d083dc1e660d14c89c188c2cf87777a1235e4f35c1b69fe34"
+    },
+    {
+      "path": "docs/research/env-pro/stickers-smoke.json",
+      "sha256": "65363811e0937fd87bbab0d1954c9e5266426e1f1e137df77114a67b81aebd4b"
+    },
+    {
+      "path": "src/units/fingerprint2/assembly.js",
+      "sha256": "0cb724eca0a25da4250b915f192a019b7f0b66042b24817ca2ee47b708100227"
+    },
+    {
+      "path": "src/units/fingerprint2/cad-map.json",
+      "sha256": "f33151c368576d493239734af107bd5ff10110b18bf5c56212f7de215b5aa20a"
+    },
+    {
+      "path": "src/units/fingerprint2/dimensions.js",
+      "sha256": "5b7a9533d45c1da466b727fabdd4db36d7a0179d1d0c5755b8f25f37161e35d0"
+    },
+    {
+      "path": "src/units/fingerprint2/geometry-data.js",
+      "sha256": "8b8c74b999b3e7db6432b64b12e2225cf46d939df8b86d3d17566a1328658434"
+    },
+    {
+      "path": "src/units/fingerprint2/index.js",
+      "sha256": "ea61c362a101d4e55dc90bef190d781529e9322c57fca6c0f7d3312a5ec70542"
+    },
+    {
+      "path": "src/units/fingerprint2/official-back-vector.png",
+      "sha256": "05a2b85bb1f906f358ead5004531fda274d2adcb8ff430c64a04b56ef9206a6a"
+    },
+    {
+      "path": "src/units/fingerprint2/official-fingerprint-native.png",
+      "sha256": "e5bda8d76c7e54f1f9ea8b316a5b143f379123fec22355cd91dde16e0d4b2302"
+    },
+    {
+      "path": "src/units/fingerprint2/stickers.js",
+      "sha256": "2266f4281e42f1ec31a07696bb191cf042bdcb957dd6f532741f89821b62ca9d"
+    },
+    {
+      "path": "docs/research/fingerprint2/README.md",
+      "sha256": "a3080bacff1bf27c57855ef838ef20d518436f856ff6fbd90e5739b2a0f0dca9"
+    },
+    {
+      "path": "docs/research/fingerprint2/STICKERS.md",
+      "sha256": "f82c65a9ffbd0395867d8a00c1052400f211a651158c2be7985aec4ba2254d3c"
+    },
+    {
+      "path": "docs/research/fingerprint2/smoke.json",
+      "sha256": "a6ae0f37b94c3713e861af61db1af2edddb33af7e64999ff41ab7901ab150792"
+    },
+    {
+      "path": "docs/research/fingerprint2/sources.json",
+      "sha256": "58cfdea3a47ad1330a9353d96ac024275a36bcd1137c480957cb30957f9ece94"
+    },
+    {
+      "path": "docs/research/fingerprint2/stickers-smoke.json",
+      "sha256": "2e010e12057b766200aac7133ac9f033227a7d91cb06f181d494ba1bce7956cf"
+    },
+    {
+      "path": "src/units/byteswitch/ToggleButton.js",
+      "sha256": "bb213916d7556a3971b84bc1b5c9f9c544e73f52d96450e18cb763e91cf53191"
+    },
+    {
+      "path": "src/units/byteswitch/assembly.js",
+      "sha256": "76a9825f35830656f666522d848222121ee6768c6151494f239a15ceaf041f76"
+    },
+    {
+      "path": "src/units/byteswitch/cad-map.json",
+      "sha256": "bca73588601e5b5cf0966b31eec2099ea09a5d1b272ac8070e2d272d4500250f"
+    },
+    {
+      "path": "src/units/byteswitch/dimensions.js",
+      "sha256": "f744e1f751cb4ceb3ca49873748358b901070297031480624c6e0f094212d59c"
+    },
+    {
+      "path": "src/units/byteswitch/geometry-data.js",
+      "sha256": "8769cfb7a3857ce9c510e9e21089682690a24b06ea8b20a1b90cb9feca2357ec"
+    },
+    {
+      "path": "src/units/byteswitch/index.js",
+      "sha256": "6a96fc93422768fbd04b4034a09b2b208a9d5a139d95fa2ae4401426b4bccc11"
+    },
+    {
+      "path": "src/units/byteswitch/reference-redraw-back.png",
+      "sha256": "a32db7aa99fb046320476f3ae83af2c7b16e0e9211d64c0e4fb151a899ecf7d0"
+    },
+    {
+      "path": "src/units/byteswitch/reference-redraw-front.png",
+      "sha256": "4cdf54817475d4a42cfdb21850bfe0fd6179943b190e64a901d88c0e757137c4"
+    },
+    {
+      "path": "src/units/byteswitch/stickers.js",
+      "sha256": "3a6bf6ac7fa1fa8ce1b1117f907db17f30999062ba586e702c2ac481d403a2e6"
+    },
+    {
+      "path": "docs/research/byteswitch/artwork.json",
+      "sha256": "671be6fd033a86153f560a4ced39095eb966f3900661d6b9b35326afe42de7c6"
+    },
+    {
+      "path": "docs/research/byteswitch/artwork.md",
+      "sha256": "671899777076c3900acebf36beeac098e52ee824d6413e043b31147ac6535e15"
+    },
+    {
+      "path": "docs/research/byteswitch/modeling.md",
+      "sha256": "94579b4864a9a11295c7ab87b534dc1a2f4e09340d419a60bbad8374147349d9"
+    },
+    {
+      "path": "docs/research/byteswitch/smoke.json",
+      "sha256": "982efa001f3e2c24b8db146988f02800d55cd9e20a8e5260821361082e62467c"
+    },
+    {
+      "path": "docs/research/byteswitch/sticker-smoke.json",
+      "sha256": "01ab0d89032d0d2ea93b0dc8aef870a6b94a9a26ea723e7db9479f56aae19ef4"
+    },
+    {
+      "path": "src/units/bytebutton/assembly.js",
+      "sha256": "ac105a1813b6d0de031d3abbf0ba6c27b624693a5bed6566df75c5bc13b7f233"
+    },
+    {
+      "path": "src/units/bytebutton/cad-map.json",
+      "sha256": "a238d8fc792fe1a5fa3a36db6d326cfac7a93b826c5874fb1fc78820321d44c9"
+    },
+    {
+      "path": "src/units/bytebutton/dimensions.js",
+      "sha256": "6a3be6c6e3ca0cd8134989d31749fb2801883033e5c29705936726cf6175b96a"
+    },
+    {
+      "path": "src/units/bytebutton/geometry-data.js",
+      "sha256": "d3aa66373c25a3d151bd989060ae4ebfde44f2cca1b1055293ae6ef656e54da4"
+    },
+    {
+      "path": "src/units/bytebutton/index.js",
+      "sha256": "3b70a4b4b1427a554bc68d4482f45eed6c8b9e24e31d960844a9f0406e97c629"
+    },
+    {
+      "path": "src/units/bytebutton/reference-redraw-back.png",
+      "sha256": "1f145955a04d2ce2b093c912f4dc601cff9238e114268f09d7c0416a43ab81c3"
+    },
+    {
+      "path": "src/units/bytebutton/reference-redraw-front.png",
+      "sha256": "31571c68392cf67212f0e441eed37a34cfe696f28bf38e45899c8dcd3c344e32"
+    },
+    {
+      "path": "src/units/bytebutton/stickers.js",
+      "sha256": "528571299113ae5fa6466278f16c3313cd6d43866fb74d27cf1524e4127a8707"
+    },
+    {
+      "path": "docs/research/bytebutton/README.md",
+      "sha256": "735dec9eba1709da427f00def71d72b194b639895ad5b2d78ae5f38b6226c822"
+    },
+    {
+      "path": "docs/research/bytebutton/artwork.json",
+      "sha256": "758069f1c6dd07e2bfb17cd985054dc1dedb31a2d61c7224be7368895505e81d"
+    },
+    {
+      "path": "docs/research/bytebutton/artwork.md",
+      "sha256": "0a0819a6d13ebfb328bcc24d8adb32e17d9577cb6509724b9019f48726f5a44b"
+    },
+    {
+      "path": "docs/research/bytebutton/smoke.json",
+      "sha256": "10f2aacd4918c0a3cc98d3aa59a3fca9c523c0276e944db72bb62ba14c6fbc83"
+    },
+    {
+      "path": "docs/research/bytebutton/sources.json",
+      "sha256": "4a6256340fe62cc6ba04d64fd974c69ec0880ae0de35df4250672e64ca7b41d0"
+    },
+    {
+      "path": "docs/research/bytebutton/sticker-smoke.json",
+      "sha256": "69f7662f1dc97818ac58099974763ddece2ff6799dcae2d47b681cbb3323f17f"
+    },
+    {
+      "path": "src/units/gps-v11/assembly.js",
+      "sha256": "2795081c090ed128b3b03df94980cda253aaff176c8a2d93d1b0e2f5be08b274"
+    },
+    {
+      "path": "src/units/gps-v11/cad-map.json",
+      "sha256": "e0f3991e122f361101c73e7505810ccc4196095c463fb6a0bb3538811224f072"
+    },
+    {
+      "path": "src/units/gps-v11/dimensions.js",
+      "sha256": "0062674c2696db13dc69c1a45ab5c0eb011a07a1fb62bdd4f1f3b7ffe48f8b81"
+    },
+    {
+      "path": "src/units/gps-v11/geometry-data.js",
+      "sha256": "e6b4742218d7a28ca37a005fd6c412834a80dfbdd6caa109631631a1e637098c"
+    },
+    {
+      "path": "src/units/gps-v11/index.js",
+      "sha256": "04e647b237311f3d40d0e1b1b081777f8c2a6ae581f28e744e6e29ab64d3995c"
+    },
+    {
+      "path": "src/units/gps-v11/reference-redraw-back.png",
+      "sha256": "1de94b71d41afa09cb04928663971614bf54ce3a2f9f1d5502a47188c2229742"
+    },
+    {
+      "path": "src/units/gps-v11/reference-redraw-front.png",
+      "sha256": "1b7977ac30c016c313164488fc9d907b95c4385167e5cf9331e6cc4d9e8bfb3e"
+    },
+    {
+      "path": "src/units/gps-v11/stickers.js",
+      "sha256": "fc757d4b5e1884ceba3ed220804f29e6751fc0eb4096f0404ad63af8b36128a4"
+    },
+    {
+      "path": "docs/research/gps-v11/README.md",
+      "sha256": "8f34a3c6011be2dab11ec4e27cb39ab23e126e1634194af15da1f1cc24c9bbc0"
+    },
+    {
+      "path": "docs/research/gps-v11/artwork.json",
+      "sha256": "18885b7e5d5b2fb515e3e8ad1399f72581262e811a435e5e630a0ad0e5f9226b"
+    },
+    {
+      "path": "docs/research/gps-v11/artwork.md",
+      "sha256": "987eb9fcd0af3e7e1766782f780fabc665d2ae6b265447b00ec0fb53e5f32255"
+    },
+    {
+      "path": "docs/research/gps-v11/smoke.json",
+      "sha256": "4e632275573825bffaad2ffabb60b869e5c623ed93c1ba60736ada88fc5713f1"
+    },
+    {
+      "path": "docs/research/gps-v11/sources.json",
+      "sha256": "a4eea5c4c68e0831c839cab673f9f32e27df84c1206286dead1426a16160d45a"
+    },
+    {
+      "path": "docs/research/gps-v11/sticker-smoke.json",
+      "sha256": "bc66385b607d6f5cf5e0ed8b9e9593ae673077c97e80108931f697af2904ce17"
+    },
+    {
+      "path": "src/units/weight-i2c/TerminalPlug.js",
+      "sha256": "483b8268092e7e0990aee94a7a3fb5c1a5ba7f76460f97c8c65e53eaf335d6a8"
+    },
+    {
+      "path": "src/units/weight-i2c/assembly.js",
+      "sha256": "a5f361dffa0735b2190d2a5206ddb9a917824addcb4102f5982d976d24b6e41f"
+    },
+    {
+      "path": "src/units/weight-i2c/cad-map.json",
+      "sha256": "306dea4ebfec96311fa12ff6fbb12a7584b3ac9142d855b79d529823bf0b1578"
+    },
+    {
+      "path": "src/units/weight-i2c/dimensions.js",
+      "sha256": "4146702860ed1f62877eaa2cd52520d9c62187021a85b4d5eaa33aaa387338e7"
+    },
+    {
+      "path": "src/units/weight-i2c/geometry-data.js",
+      "sha256": "15ab3b04c240aef5be4b1711755f2afbe61c7b792d3900b4b6679971032be37d"
+    },
+    {
+      "path": "src/units/weight-i2c/index.js",
+      "sha256": "ae6f45ed2f70a0a36e925ec3cf9133e151d62685fbaf7050f557ac9d9e67fd22"
+    },
+    {
+      "path": "src/units/weight-i2c/reference-redraw-back.png",
+      "sha256": "2413cb288369425f08ef8468dae7870f480e2ab1c9add53270ea5c87ba060736"
+    },
+    {
+      "path": "src/units/weight-i2c/reference-redraw-front.png",
+      "sha256": "6228ebc5bcde9e504aa0881d0928056b3c2fe25f062155b872a1789ac6becdd0"
+    },
+    {
+      "path": "src/units/weight-i2c/stickers.js",
+      "sha256": "8cc0664a52e53cd3e3106a3ced88ecf63fc462e174ab0d9ab20abfbcf99540e3"
+    },
+    {
+      "path": "docs/research/weight-i2c/artwork.json",
+      "sha256": "44a1d76fcc3825cf193f94c255d460d4b3b6b73a49893f0c5fd37de1c1b53dde"
+    },
+    {
+      "path": "docs/research/weight-i2c/artwork.md",
+      "sha256": "6bfdbb3fdb4df30f3d2bbc37d0d2100bcac9f141818938f8af9d2367efeb6fc9"
+    },
+    {
+      "path": "docs/research/weight-i2c/modeling.md",
+      "sha256": "3907beebb61fcc05d239faf3358a59c825da99de5abcf919231fd002a777b54a"
+    },
+    {
+      "path": "docs/research/weight-i2c/smoke-result.json",
+      "sha256": "e0a52323790834ca707ac501a58a739f57d5e0162a9879b6ed7d1d6591b2b459"
+    },
+    {
+      "path": "docs/research/weight-i2c/sticker-smoke.json",
+      "sha256": "41fc7f5a33e7edb95603b826f91dfee38d95e1a1c54729f415941ae78404af7c"
+    },
+    {
+      "path": "docs/research/weight-i2c/terminal-accessory.md",
+      "sha256": "8d2cf323f4f990bbdf35c78295f34a706af6fdc89f1e1917b42fbfd72e369493"
+    },
+    {
+      "path": "docs/research/weight-i2c/terminal-smoke.json",
+      "sha256": "c2f9d4697001fd9560c5ac878583cd6fe7e8ed67a8b4853ac197efe8d6291ffc"
+    },
+    {
+      "path": "src/units/8servos/TerminalPlug.js",
+      "sha256": "ba3872a746b75264bf5b3e280666ff24967ae3c86aa82046492bacff510f5df9"
+    },
+    {
+      "path": "src/units/8servos/cad-map.json",
+      "sha256": "8a6860f2b143601fe7fcb22dbd673c5cb46c127e206e0a2e88b00edfdb32c818"
+    },
+    {
+      "path": "src/units/8servos/dimensions.js",
+      "sha256": "ea32fd34401689e19aecffef6dedb71f6dde22ad21f865217de6069e4adc2711"
+    },
+    {
+      "path": "src/units/8servos/geometry-data.js",
+      "sha256": "cd929599b9eb4d3871f83de8484c7b3e4fd41a2a95c0c01878b0d18cad440dd5"
+    },
+    {
+      "path": "src/units/8servos/index.js",
+      "sha256": "b3c76b7308cf984f399dfd7bffb632538993f93fb0ad17ecb9e874f6195debd3"
+    },
+    {
+      "path": "src/units/8servos/reference-redraw-back.png",
+      "sha256": "9ed466fdc500c629aa3b1392e283588fa220685ead4342245826be58298242a9"
+    },
+    {
+      "path": "src/units/8servos/reference-redraw-front.png",
+      "sha256": "d0aecf6ad446b828141c7f0d60ee5985af489fb5292f685ad07908aee9ce86d7"
+    },
+    {
+      "path": "src/units/8servos/reference-redraw-terminal.png",
+      "sha256": "610f5dbf1e1a6deabca89d7587bd25b605832b514cc4e3e66945ac91c199eac9"
+    },
+    {
+      "path": "src/units/8servos/stickers.js",
+      "sha256": "9dfa83f9ddaf5f92d0ee55dc39be040ceebf634a48b5bb7d6dcad8d153cbeca6"
+    },
+    {
+      "path": "docs/research/8servos/README.md",
+      "sha256": "8cc91a93c7407262ebfc64c28e57b22d3303007c37821e7d27721ac7cd748dfd"
+    },
+    {
+      "path": "docs/research/8servos/artwork.json",
+      "sha256": "6d34c6585ddaf6890f1ae6b911224ba248e2876e9125cf60a5efb4fa3658e851"
+    },
+    {
+      "path": "docs/research/8servos/artwork.md",
+      "sha256": "6ae93c78bce7e9cfe78ad94c4185b7fa04903e372f05af91b9de53e522460422"
+    },
+    {
+      "path": "docs/research/8servos/geometry-check.json",
+      "sha256": "6056e2c4d9384fbc8963e2b114a2f60c91776ff553169eda8b1c01c04593426d"
+    },
+    {
+      "path": "docs/research/8servos/sticker-smoke.json",
+      "sha256": "b1608619785836250a2f91a89dcdc10b6eda6618f02887afcf15a66b242b1ba3"
+    },
+    {
+      "path": "docs/research/8servos/terminal-accessory.md",
+      "sha256": "b9b1ae0e97b7028adaa6848845b18aadbe754cf64588bbdcd61ec6ac89f2c6dd"
+    },
+    {
+      "path": "docs/research/8servos/terminal-check.json",
+      "sha256": "7c221b020dec5568d4e731e52f500fae1009e60c3550ae16bd5bfe0153f783b5"
+    },
+    {
+      "path": "src/units/fader/cad-map.json",
+      "sha256": "c1b3c3f4451e7db7469a393c8e213ff139b01d7398b53e997e3f2ba2261f360e"
+    },
+    {
+      "path": "src/units/fader/dimensions.js",
+      "sha256": "de859b3f2c88ffa15157053d0a259df349f7ca7e76e8139bc52530496d2fc1a4"
+    },
+    {
+      "path": "src/units/fader/geometry-data.js",
+      "sha256": "8a34fac7413be2c4844a184eea641b0f9964a56f8820667aa8d26dd1cd672fa5"
+    },
+    {
+      "path": "src/units/fader/index.js",
+      "sha256": "9016dab3aec120b237a4a42773e5d166be5fbe0a01b13032c1fd3221418ba81c"
+    },
+    {
+      "path": "src/units/fader/reference-redraw-back.png",
+      "sha256": "5b2a4796113e29ad2962fa8bfb22ec3b165fa68245c7e3f11ff480feb7ba9d86"
+    },
+    {
+      "path": "src/units/fader/stickers.js",
+      "sha256": "c81d5e0d996cc2cc8577126daa80443fde40c4ba24490c36d8778c0eb6db6feb"
+    },
+    {
+      "path": "docs/research/fader/README.md",
+      "sha256": "28e44ae368a84be758605f4c84f2e74adb2bca9ee8481974afccd23a09fc6f6c"
+    },
+    {
+      "path": "docs/research/fader/artwork.json",
+      "sha256": "a64ae7f6020ecbf2001b42cb63e70dd353d1957692de03cd66e276ae6c9dd6fc"
+    },
+    {
+      "path": "docs/research/fader/artwork.md",
+      "sha256": "0b394d5acbf5a1c25bfd43c5eaec4542e6c17639acfa0630115b624ba8e8520c"
+    },
+    {
+      "path": "docs/research/fader/geometry-check.json",
+      "sha256": "ce0db88708895497b290aadaed66c5fdc2fb764236584b9af89d00a920926c2b"
+    },
+    {
+      "path": "docs/research/fader/sticker-smoke.json",
+      "sha256": "10ff415d8ff13b18653faf3c72ac959a180d544e90fc2b815704a3cd477fea2e"
+    },
+    {
+      "path": "src/units/mini-scales/assembly.js",
+      "sha256": "328ad12c465dd30c199684a7c30f7e84d9a4e599727ebc0ea1ec1985f61e8d58"
+    },
+    {
+      "path": "src/units/mini-scales/cad-map.json",
+      "sha256": "6785b5fbd778c2f6038619252aced36168e49c57971059ed274b43e7c208cd79"
+    },
+    {
+      "path": "src/units/mini-scales/dimensions.js",
+      "sha256": "9a6343f87cfa03e00ec9951eb802f8ed3bc53331af884aa7fade634710cde4fb"
+    },
+    {
+      "path": "src/units/mini-scales/geometry-data.js",
+      "sha256": "2ae60f70c972936575ad696579f8fcfcc290cab28316020b583cb94cc9bf4f11"
+    },
+    {
+      "path": "src/units/mini-scales/index.js",
+      "sha256": "60f2d428fae92cc31c9c26c530ff2695d2e1956ba8c823ce2d5439c02df6d71f"
+    },
+    {
+      "path": "src/units/mini-scales/reference-redraw-back.png",
+      "sha256": "c038a4338951842b43d278186481753d1c2500f87338d10e735d5868d3469315"
+    },
+    {
+      "path": "src/units/mini-scales/reference-redraw-end.png",
+      "sha256": "a5c869e1d194770c097fc93c1398769f8a51c2c6987b4db18584add814416c37"
+    },
+    {
+      "path": "src/units/mini-scales/reference-redraw-front.png",
+      "sha256": "8256d1b3ffd950d58d3262689044c379ed4c3190ff8e8b538fdf2f5146ff471e"
+    },
+    {
+      "path": "src/units/mini-scales/stickers.js",
+      "sha256": "ced48916557ddb8190e69cc543e374bae163f9472007126b6bf8812f95f8460f"
+    },
+    {
+      "path": "docs/research/mini-scales/artwork.json",
+      "sha256": "f6726650239edbdc64c893619d01c90f88e9b3fc575e257bf4e11fbf688a2ed6"
+    },
+    {
+      "path": "docs/research/mini-scales/artwork.md",
+      "sha256": "9a052ac7eb210d5084b1b32c68e3aa73a61586dea4b3d4f4eba5a781890baf66"
+    },
+    {
+      "path": "docs/research/mini-scales/geometry-check.json",
+      "sha256": "b07a5bcf287b3322ebf07f81de1d1de02cabf5e93ec7ca0dd98e4f0656c199d8"
+    },
+    {
+      "path": "docs/research/mini-scales/modeling.md",
+      "sha256": "19b87c2a2e67ec07fcc9df9e10e644f77e7f1ab1694f36eb1c90ad88c578a7e0"
+    },
+    {
+      "path": "docs/research/mini-scales/sources.json",
+      "sha256": "8725bd243f104528be56a4f849f126dc68ac78f321bdda2ff453a438d231f6dc"
+    },
+    {
+      "path": "docs/research/mini-scales/sticker-smoke.json",
+      "sha256": "39d871c7367ed512aec925d5eba1a82829f5198acbf2e33b9135a5235550bd7d"
+    },
+    {
+      "path": "src/units/joystick2/assembly.js",
+      "sha256": "5200b8dc966d547fc9ce9291abeb81ee5da1e398b8d5ad3eb7c7441f70736972"
+    },
+    {
+      "path": "src/units/joystick2/cad-map.json",
+      "sha256": "2c8821aaa6e100516f13a68237fa03005bc21da30060f0cc3951abc1bae1d639"
+    },
+    {
+      "path": "src/units/joystick2/dimensions.js",
+      "sha256": "c84fbb20fad5421e7a92ef75331312d7d69607ad04faea23372a53f076728bab"
+    },
+    {
+      "path": "src/units/joystick2/geometry-data.js",
+      "sha256": "ec29e9ea6ad11bf98a7a1f35bc876bcc9314528d1f92fc674ad2cb59b032c9b3"
+    },
+    {
+      "path": "src/units/joystick2/index.js",
+      "sha256": "3c9a62f8ebf3bec17ae82bf37c7ed22811bf70b49c0004c50868d8cc0c5853a9"
+    },
+    {
+      "path": "src/units/joystick2/reference-redraw-back.png",
+      "sha256": "8793a06b65467b92080fe3f9e0571e70ced3e64128f5ce24df8c98fcc53ce0a5"
+    },
+    {
+      "path": "src/units/joystick2/stickers.js",
+      "sha256": "3e1ab9b3d576244b0571b55df67ed8940a9645a0da43a1c1f345363d7ddb867e"
+    },
+    {
+      "path": "docs/research/joystick2/README.md",
+      "sha256": "3a386e6bc7a5fed9853fa3332ac97daa4e98019bab32b93bd4fc159eaad7bd05"
+    },
+    {
+      "path": "docs/research/joystick2/artwork.json",
+      "sha256": "307f203e64d64c35adb70adbd1d2f0775fa3805f17fabd2537053e5fcbf56834"
+    },
+    {
+      "path": "docs/research/joystick2/artwork.md",
+      "sha256": "4f98ca30dae1766b3c7035f46d2d0cd76db5a88937d8bf1098c6698705e2d5d6"
+    },
+    {
+      "path": "docs/research/joystick2/smoke.json",
+      "sha256": "0631924006ee01f094d599ca46908ac5f1c498b5c4147635da517de6992c9e30"
+    },
+    {
+      "path": "docs/research/joystick2/sources.json",
+      "sha256": "af3d43e605db669e703db6ac8160c730f3bd737d1ff603a1b408a87a435e09e3"
+    },
+    {
+      "path": "docs/research/joystick2/sticker-smoke.json",
+      "sha256": "ddaf34143589e0e6a5e90ee1438a56be377cc0f0cc183308c9325eee58938015"
+    },
+    {
+      "path": "src/units/gesture/assembly.js",
+      "sha256": "60f3898ca2fc89124eb6b68a82b9a28ec1c7993b987d68538780cdbf765b47f2"
+    },
+    {
+      "path": "src/units/gesture/cad-map.json",
+      "sha256": "eab36933005e767631d0b2338fc3df41292b51ae03a8505fd3c563e593b7ae7c"
+    },
+    {
+      "path": "src/units/gesture/dimensions.js",
+      "sha256": "1cf8f9c35a4c12b787d66e2e8b68de08b8816a5125ddad9e9efe2b1a4ea7baa5"
+    },
+    {
+      "path": "src/units/gesture/geometry-data.js",
+      "sha256": "9a495b4ce3b8695255232eb2c67895e0dc9977d2efd2aa286896e8143d3ce6cb"
+    },
+    {
+      "path": "src/units/gesture/index.js",
+      "sha256": "00423a86e56a75a3a8c5245c30f5b61cf995d2e4eefcc12e733521f681d4d765"
+    },
+    {
+      "path": "src/units/gesture/reference-back.png",
+      "sha256": "be933d4274625abf9adaed93953ee189c4887e25983e40f1497819fc01ee5d0f"
+    },
+    {
+      "path": "src/units/gesture/stickers.js",
+      "sha256": "10ee99f2daaee9848c904dccbfc6cfc140a89e37ecd6bc2a95d0c91ed5da4d01"
+    },
+    {
+      "path": "docs/research/gesture/README.md",
+      "sha256": "3088dd0a051e2fdc8fa44031f59b3d3ce1fd4e76ce6b10bff76571e916e86d80"
+    },
+    {
+      "path": "docs/research/gesture/smoke.json",
+      "sha256": "f65df9ef4c73b1f9eafb6b1b6a5f5c65f9d1e17eb0a721ddc61b757975f2a677"
+    },
+    {
+      "path": "docs/research/gesture/sources.json",
+      "sha256": "69b8d44d08e9e3914e71b7bc791bec4de08f0331da2073810d23d9908ca9c3eb"
+    },
+    {
+      "path": "docs/research/gesture/sticker-check.json",
+      "sha256": "751cb56b7bff87284a9adb15991559fa2cab36f6c214aaf8e84af34aa8e902fc"
+    },
+    {
+      "path": "docs/research/gesture/stickers.json",
+      "sha256": "743c474c19e448a1346b7dfabbc89e4f25a64989e5c77492e0ee6fd04ef97236"
+    },
+    {
+      "path": "docs/research/gesture/stickers.md",
+      "sha256": "4ad22d310f3cd63ef30b82c38c7cd1b9a20c93208d442366a48383254e8d117e"
+    },
+    {
+      "path": "src/units/oled/assembly.js",
+      "sha256": "d934b70aa75ee78b5e05caf948f22ed79bcc889d8cc2c2ad38feb139447e1310"
+    },
+    {
+      "path": "src/units/oled/cad-map.json",
+      "sha256": "7419bf0892ad45f03f02d03e857503f826a7542ba38c3dc54da72e2d691a520d"
+    },
+    {
+      "path": "src/units/oled/dimensions.js",
+      "sha256": "504e67d3bff2e97585c1e71130aaf2190646df4fa839ce9101b31c2ab2dcef33"
+    },
+    {
+      "path": "src/units/oled/geometry-data.js",
+      "sha256": "b0835df8534738101ff8c8e3bd97a1821df49db99e77f2fc644719eb4bbae9fc"
+    },
+    {
+      "path": "src/units/oled/index.js",
+      "sha256": "c9cbf64626c47a0f5f43e28909dfe53451825aa20bbfcaa321bee797a7170b72"
+    },
+    {
+      "path": "src/units/oled/reference-back.png",
+      "sha256": "cfd852f872b263bf64fe8b379cf718cf1a51e769076ce7baf749d69f145566da"
+    },
+    {
+      "path": "src/units/oled/stickers.js",
+      "sha256": "ab1e35062f115cd7608d3709368fcfeccece38fafb55d8eca711bcabef87085a"
+    },
+    {
+      "path": "docs/research/oled/README.md",
+      "sha256": "76474b03a7d143feff50fae31e816f9ae18ecfa026a474f22e330ee4b8d7482e"
+    },
+    {
+      "path": "docs/research/oled/smoke.json",
+      "sha256": "5526dba2f9ee10ef42aace59bdabd969502908c69ad39775fa13b9eec7c8e7d9"
+    },
+    {
+      "path": "docs/research/oled/sources.json",
+      "sha256": "4cac76e2e36b4e7612f5dd6cbb28534106873673dc50501658329b44f818fd79"
+    },
+    {
+      "path": "docs/research/oled/sticker-check.json",
+      "sha256": "ab1ba8cddafcc2ea23294a88bffb34a2da1e15254948b9347b10d38329773434"
+    },
+    {
+      "path": "docs/research/oled/stickers.json",
+      "sha256": "40e0f756708ca1adfb5b7c1eedc13ef3f01e3fc8efa52bd443bc991b04f4a058"
+    },
+    {
+      "path": "docs/research/oled/stickers.md",
+      "sha256": "30dad52de0d3b8c0fd802ea02e9474d854a540a43aac996e9677a2eadc29c1dc"
+    },
+    {
+      "path": "src/units/lcd/assembly.js",
+      "sha256": "499c18c814d77bfe0684591e00a334b47367b64fa36fed0af323b7523eb32612"
+    },
+    {
+      "path": "src/units/lcd/cad-map.json",
+      "sha256": "7490849f4e6adae6c3988625f14f9ac7006c114e667be309f661e5ddb2090fdd"
+    },
+    {
+      "path": "src/units/lcd/dimensions.js",
+      "sha256": "a8e133944bb8c3804f4116451bf32394fb54df0e380092781fb59b7a1ce23483"
+    },
+    {
+      "path": "src/units/lcd/geometry-data.js",
+      "sha256": "2cbe2c39830ad880db868d00aa7c65846f0dfdf6ee627fa00d5a4771873b350b"
+    },
+    {
+      "path": "src/units/lcd/index.js",
+      "sha256": "3abdb9f26f294b67cd93a40f292558dc270d2809f3a5833d33f24ba77da14225"
+    },
+    {
+      "path": "src/units/lcd/reference-back.png",
+      "sha256": "c3b6da96e2257fa0e05e4e0aee470e6a2c4be6f166663a51eb31991b3fdc2142"
+    },
+    {
+      "path": "src/units/lcd/stickers.js",
+      "sha256": "8354a795492a70be2b3fa7b2c1ac875d5ff7118ef2c5c37ecfc9b50adb64ce68"
+    },
+    {
+      "path": "docs/research/lcd/README.md",
+      "sha256": "ea197f9ee916cfb435ccaf175c36259ad9c7c49219a3fd87f9a1c9ef58e06c83"
+    },
+    {
+      "path": "docs/research/lcd/smoke.json",
+      "sha256": "8e97ea422b1a494fab37f30812d97b0fd6cb4b6ef2988def80431adb32ff1654"
+    },
+    {
+      "path": "docs/research/lcd/sources.json",
+      "sha256": "5779b90d1e186ac68b9d6bf31ace77c6940e8a7bb9caccd8b70c81b2167a85e4"
+    },
+    {
+      "path": "docs/research/lcd/sticker-check.json",
+      "sha256": "37e9663a998006adcabacd32a7a1bac8c39dc632227b70cd031b50cbf2431412"
+    },
+    {
+      "path": "docs/research/lcd/stickers.json",
+      "sha256": "8c012ed42f560ec0ab36f3ce5bcaddc23b15155318835d9c2f661e06185a2cf4"
+    },
+    {
+      "path": "docs/research/lcd/stickers.md",
+      "sha256": "3e30f94744a6caa120c38a79466d1f38617ff43542362486023364db803cc4a8"
+    },
+    {
+      "path": "src/units/co2/assembly.js",
+      "sha256": "e3afe28b070d8f23753f7197965995901e3896a583ce7813481f935b24ea4d5a"
+    },
+    {
+      "path": "src/units/co2/cad-map.json",
+      "sha256": "c30521d2b6138fa43af28dd77b92a71a32e8ae16217c9ae24644e803ff57d874"
+    },
+    {
+      "path": "src/units/co2/dimensions.js",
+      "sha256": "05e143cfdf169e9bbe6226b5f959f8041f7614480701e2ae3ec786c738bc192e"
+    },
+    {
+      "path": "src/units/co2/geometry-data.js",
+      "sha256": "c437f55c0b687d75562077fe42fee6b40e955824f28426e75bf5e6ba84f47c8d"
+    },
+    {
+      "path": "src/units/co2/index.js",
+      "sha256": "0776d4fd39cfb3503592f110291bbe1f448ec7b6e6f5c7ee59d9d9a07821ca71"
+    },
+    {
+      "path": "src/units/co2/reference-back.png",
+      "sha256": "57d3b7a0f42b6374b60f56b8c68639bf7e85bb4aeb39c95b76fa9ce0dd5ea451"
+    },
+    {
+      "path": "src/units/co2/stickers.js",
+      "sha256": "ee134ec4624f6cd3d60a810e5b65267a1dd7fbdb34ce17e6443c9ec1ed046c4e"
+    },
+    {
+      "path": "docs/research/co2/README.md",
+      "sha256": "2862524dbb3ceb5ec0b449ceffddae6073b4d233df98fa9be6a51b5aa560ddd8"
+    },
+    {
+      "path": "docs/research/co2/smoke.json",
+      "sha256": "36ed5af97c8ae1e8e1c0f4bac760c67517901fe1086e007377be3be66277d770"
+    },
+    {
+      "path": "docs/research/co2/sources.json",
+      "sha256": "9c72163a94a133135956f598b9953067169312d40f69c9580b3a2947fef5573b"
+    },
+    {
+      "path": "docs/research/co2/sticker-check.json",
+      "sha256": "3000927518d82f6e8d9b207e87cd9fd8516c473fdfd08279cec3f22e54ca3a53"
+    },
+    {
+      "path": "docs/research/co2/stickers.json",
+      "sha256": "87379e637a789a545a0815f0d10c27bedda2c0f1f723845902b34f02d9827eed"
+    },
+    {
+      "path": "docs/research/co2/stickers.md",
+      "sha256": "b8a0261b997618bcc12855ce2751e2b8fb2e026c3a3623b828edc3dc8bffcd2d"
+    },
+    {
+      "path": "src/units/tof4m/assembly.js",
+      "sha256": "8c782c649fd95fd9790173a872d9ac61caaf27b7740953445a8966aeba3163cd"
+    },
+    {
+      "path": "src/units/tof4m/cad-map.json",
+      "sha256": "ad785b94cc76cf7ea94eff4882875d5f1df0f31c3e0f39f5aeae46ba01cd7fd1"
+    },
+    {
+      "path": "src/units/tof4m/dimensions.js",
+      "sha256": "d2d22dbc2f78a7317b40bff7a4d2ecf43562d7cd47689b1ab06edac197721b72"
+    },
+    {
+      "path": "src/units/tof4m/geometry-data.js",
+      "sha256": "a95001e8e0289d3393089f5edc5046134910ae564b7d698a87794e8f024d6b67"
+    },
+    {
+      "path": "src/units/tof4m/index.js",
+      "sha256": "7427bb71fc81e801853bbda77fb64ba5297d30f594bbaed4810a9fbcb9256ad6"
+    },
+    {
+      "path": "src/units/tof4m/reference-back.png",
+      "sha256": "e89fc122d5a609093d7ad9ce7d2704e5acbd2a8ce3348e5e8ef7db342906862b"
+    },
+    {
+      "path": "src/units/tof4m/stickers.js",
+      "sha256": "18c21cad04ba5db8c60924bda79ed486f2b91d40be3fa5674f8903df079fd46e"
+    },
+    {
+      "path": "docs/research/tof4m/README.md",
+      "sha256": "367a0862656ae4a08d04d62cea9fecd8cdf4590b4046f6b92b8582c0c0034065"
+    },
+    {
+      "path": "docs/research/tof4m/smoke.json",
+      "sha256": "4b396d830b218569b086623141fbfedb2140612bd85564219978da4dddadd676"
+    },
+    {
+      "path": "docs/research/tof4m/sources.json",
+      "sha256": "588fb20ca82ff001379a6823654a077e9bca1cd9f1d920152c1d61b0a09c6447"
+    },
+    {
+      "path": "docs/research/tof4m/sticker-check.json",
+      "sha256": "5e1202875ced20bf1e6ba74b843fd26d2f0fd04faf60e4746f2389e084f8b0cd"
+    },
+    {
+      "path": "docs/research/tof4m/stickers.json",
+      "sha256": "7c77f842b768242b7050cf88cee10f13777e5c9492a178e4d5b7636a87a193fb"
+    },
+    {
+      "path": "docs/research/tof4m/stickers.md",
+      "sha256": "7619f9b75e398c236de7e240bd2a9d3cfd8e25343ee089697ada533288dc8e18"
+    },
+    {
+      "path": "src/units/rtc/assembly.js",
+      "sha256": "e66385a8110ebb78b12a7a38df080687fa3dfc0aad7778b1cb6b1020ad959902"
+    },
+    {
+      "path": "src/units/rtc/cad-map.json",
+      "sha256": "8c6ccea886e07cef006c0a10cb9863d01c611d34da97fb06cf763b8b4525caae"
+    },
+    {
+      "path": "src/units/rtc/dimensions.js",
+      "sha256": "c2eb217cbd181f6b905c42577839a5843c83d0540d79c09fc66ce4ad9eb388ce"
+    },
+    {
+      "path": "src/units/rtc/geometry-data.js",
+      "sha256": "22e364d016fac4e8137fb42c98adf5d23942df82dc1a8cff1d153c073516047e"
+    },
+    {
+      "path": "src/units/rtc/index.js",
+      "sha256": "bebdd8bf22fc86c41994cb89c2ac7bee40144443ff67136a9b8f0576ab4b1009"
+    },
+    {
+      "path": "src/units/rtc/reference-back.png",
+      "sha256": "ec8d087e5b569d0279914a5bb1aeb64470b1faa4e94e64fae77df8275bc2c873"
+    },
+    {
+      "path": "src/units/rtc/reference-front.png",
+      "sha256": "578e2a076ebac051669d0b980dd7df207aec92b4e0894c00b537f6fda976aeeb"
+    },
+    {
+      "path": "src/units/rtc/stickers.js",
+      "sha256": "9933f03e9c6b748198bf2874a29ccc726dc300c82de8ee614d7d72be4c010eea"
+    },
+    {
+      "path": "docs/research/rtc/README.md",
+      "sha256": "cfaec08265fb4935b708ec0e087d72a3b240744991a66b551e076064dd057689"
+    },
+    {
+      "path": "docs/research/rtc/smoke.json",
+      "sha256": "9d4f504ec273a3eee80d6cd3c018a5be521ee4bd010db116ce528c2b480a751b"
+    },
+    {
+      "path": "docs/research/rtc/sources.json",
+      "sha256": "b29f2f4920cb86f41cb4686b18f160bf8a577f38ae2f522d2b100b0b01e493f9"
+    },
+    {
+      "path": "docs/research/rtc/sticker-check.json",
+      "sha256": "6ff55aad644be29dea44a845fc065eb4bf353a01066faf875046d2bca52bf170"
+    },
+    {
+      "path": "docs/research/rtc/stickers.json",
+      "sha256": "c0c840f845df4864deb80b4ec99e6e7bb9c07c5026a254f095ffdeccff0a015e"
+    },
+    {
+      "path": "docs/research/rtc/stickers.md",
+      "sha256": "bc88ff39e6f56713ff76593f44060811ef66c2d8eea06e822a478693f6e54e5b"
+    },
+    {
+      "path": "src/units/4relay/TerminalPlug.js",
+      "sha256": "83b2d2f825b10ea237fd4aa8aa2d1386bdccaa0aa4390829eb79eced3a904d63"
+    },
+    {
+      "path": "src/units/4relay/assembly.js",
+      "sha256": "627d7d4168b2677df617367718f594720927de0d8796ac612d7e3c1e6e911f98"
+    },
+    {
+      "path": "src/units/4relay/cad-map.json",
+      "sha256": "01c7dabac0ffcf4918e3e945ab316a7843ee4bc5f4370a98c95e69629a640a8f"
+    },
+    {
+      "path": "src/units/4relay/dimensions.js",
+      "sha256": "85019df569d71959fc94a3a88b75934ba6a03c2b43edfaa74ca2979e23fb8319"
+    },
+    {
+      "path": "src/units/4relay/geometry-data.js",
+      "sha256": "627553d295c8b2c9b48694809280d0deae7b130843c577c99ae74c0cb72f7ef3"
+    },
+    {
+      "path": "src/units/4relay/index.js",
+      "sha256": "4b15b750e815d4a5cd7eab6436b4babfcc812bae53134602f0e2a2f6aa066c2c"
+    },
+    {
+      "path": "src/units/4relay/reference-redraw-front.png",
+      "sha256": "86679c08c590d56d40a6f508350423347f18bc8a453f0dc039ed21528fc54b13"
+    },
+    {
+      "path": "src/units/4relay/reference-redraw-relay-1.png",
+      "sha256": "20b62b1b846d418f76cc746086c5e5507c7f73e0a906d7b30a0446d766774477"
+    },
+    {
+      "path": "src/units/4relay/reference-redraw-relay-2.png",
+      "sha256": "cf33c8199277370bd9178390d8dc3fc6add8b6d499a78ea2a4d2e6c56af62fdd"
+    },
+    {
+      "path": "src/units/4relay/reference-redraw-relay-3.png",
+      "sha256": "7f6afd36fa05ecb8c4e8f8acbd46f2db34830c9c02d0e7003da635a0a7e01506"
+    },
+    {
+      "path": "src/units/4relay/reference-redraw-relay-4.png",
+      "sha256": "cb736a2e8f608e094f9b7dff65ff1691360454d14a7805ea6fc3c21bb2ef2ef1"
+    },
+    {
+      "path": "src/units/4relay/stickers.js",
+      "sha256": "5648ba1296e995ab97687e3ffc0e22b41b1d3855133272e13ec76c996d75fea0"
+    },
+    {
+      "path": "docs/research/4relay/STICKERS.md",
+      "sha256": "26a212e9a56ae904b24ce65247d098ea45f77f824df4cae2f8e6503612962a47"
+    },
+    {
+      "path": "docs/research/4relay/modeling.md",
+      "sha256": "0ee5179ad483eec3302c822c08a76bee4368b98f50f667f09f7b95504e7551b2"
+    },
+    {
+      "path": "docs/research/4relay/smoke.json",
+      "sha256": "787942d7d2e6f29f53d6301ecab2156a0641e256019366a2ec918e60f2d73bba"
+    },
+    {
+      "path": "docs/research/4relay/sources.json",
+      "sha256": "1f3638e185f98d7ac7bbeae6a631fa1f280224e430e66f4cf42def1b85b574e6"
+    },
+    {
+      "path": "docs/research/4relay/stickers-smoke.json",
+      "sha256": "bd0f892d2af33f529a627efae4cc4affcf4f7074d30a4f6c09c1b6a4e8e4800a"
+    },
+    {
+      "path": "src/units/dmx/assembly.js",
+      "sha256": "05f65943ab9aef2ce6377c7dca70f3a053691f9d788feae876c0afa9073a7a01"
+    },
+    {
+      "path": "src/units/dmx/cad-map.json",
+      "sha256": "2b575e1b197d216a87e84b799b884114852c14ef0649548ede8f285ba7368c3e"
+    },
+    {
+      "path": "src/units/dmx/dimensions.js",
+      "sha256": "d5d5d28b2ca045141c7efe08a27551be814a4a0f60fa3acab9e87dd9a945fe05"
+    },
+    {
+      "path": "src/units/dmx/geometry-data.js",
+      "sha256": "40e3afee3f5ed09be6ee24bca2d60761b1402b85cc0a451708f7316c86906ad5"
+    },
+    {
+      "path": "src/units/dmx/index.js",
+      "sha256": "ce546632c536e0d3c02cfbdd6221435c26b505035229c0fc33b3dbf814e6d638"
+    },
+    {
+      "path": "src/units/dmx/reference-redraw-back.png",
+      "sha256": "29bbf65d859dedbed0af7dc0638696912b6d7f8d480a56f3e0b81013b4c78179"
+    },
+    {
+      "path": "src/units/dmx/reference-redraw-front.png",
+      "sha256": "fa182113ed222085ba19e2dc020cc16ef155f0cc2e89142dd070c0ab466b62fc"
+    },
+    {
+      "path": "src/units/dmx/stickers.js",
+      "sha256": "a5c2ec8ef81fa4099a18c8fb9a2353f546153656751fd61181ae7d6660dae0b6"
+    },
+    {
+      "path": "docs/research/dmx/STICKERS.md",
+      "sha256": "8875c8c79b5a62faf0a16b4585d22e4e706ce7059981e12d681af49af38c20d3"
+    },
+    {
+      "path": "docs/research/dmx/modeling.md",
+      "sha256": "b4a83684918d834e7af84e0694d8016bfbcb1525a09ac69a9879b0716f5c7a1d"
+    },
+    {
+      "path": "docs/research/dmx/smoke.json",
+      "sha256": "183c981f2d65b6d497d20e325224bc6af480a2bdfd00e590e5811f5f155c46cc"
+    },
+    {
+      "path": "docs/research/dmx/sources.json",
+      "sha256": "08975ba79779420893bc9ce017d14b631f7ba7c12e746b0dccf3cdcbf6ec2808"
+    },
+    {
+      "path": "docs/research/dmx/stickers-smoke.json",
+      "sha256": "284d44dc9110a22bac5ee933138894a567542a7657d7568f92637d8a27941fb4"
+    },
+    {
+      "path": "src/units/can/TerminalPlug.js",
+      "sha256": "1913b63ee9d2fc379f287c6bb8ae1f122460272a0d4382734e265546d3b9ebce"
+    },
+    {
+      "path": "src/units/can/assembly.js",
+      "sha256": "ccea9312e4d57615efcb770ccff4c42dcd649e49e5dfdfcf5374e3cccf81ba53"
+    },
+    {
+      "path": "src/units/can/cad-map.json",
+      "sha256": "26025373ffdffa60def9133a0512f094b60a3be2764c3f51eb5999aacd53aefe"
+    },
+    {
+      "path": "src/units/can/dimensions.js",
+      "sha256": "282eca1c71f2b99b854f613974e217f60f0ba12513c26443faff783dff9f9322"
+    },
+    {
+      "path": "src/units/can/geometry-data.js",
+      "sha256": "d0b958304a6e14c4298cd82cd11a76cf8a565bbf44ed651b0241d6e03eb91070"
+    },
+    {
+      "path": "src/units/can/index.js",
+      "sha256": "3b6c5d319e836c48d2d5a927d325329135d0f351efb9a7ea138850aa4700c422"
+    },
+    {
+      "path": "src/units/can/reference-redraw-back.png",
+      "sha256": "414aada2eadb011d6b9caa32161bb29b0d33c72a541e54575ab0231e3e8af7d4"
+    },
+    {
+      "path": "src/units/can/reference-redraw-front.png",
+      "sha256": "baaa95ea6ea07355246ca5d1b51156fab82ce53b4942c1c9a6dacc31efedaaf8"
+    },
+    {
+      "path": "src/units/can/stickers.js",
+      "sha256": "7a929fbd2107088f1c40c2932ff4cd270d1193c4bd2b9f10adf3a2edb57a0150"
+    },
+    {
+      "path": "docs/research/can/STICKERS.md",
+      "sha256": "658171a18809218415f99d994923ba9bf45dc77b34345c79fba77995c5250989"
+    },
+    {
+      "path": "docs/research/can/modeling.md",
+      "sha256": "101258e998e71ac58b13bf7c149dff1e99781976b9dbdad8cd922b5b796951e6"
+    },
+    {
+      "path": "docs/research/can/smoke.json",
+      "sha256": "5c10c50e245c81e79319177d2a91095f69ea4acba30d657bfdd105a4f1738187"
+    },
+    {
+      "path": "docs/research/can/sources.json",
+      "sha256": "8d019d25edfd35d98fafd3cf7dfd014f85d4eb13193991ee28f88d1e9893a139"
+    },
+    {
+      "path": "docs/research/can/stickers-smoke.json",
+      "sha256": "807bf1bf61d3737eee4c1c5b5d9be7654eedc43ec1415925a0c9e757c4813eb6"
+    },
+    {
+      "path": "src/units/rollercan/cad-map.json",
+      "sha256": "83e30fdcc1ce32e65e4e64e0d9336ef0d61a131db04c08d8212d6e3a1dcad82f"
+    },
+    {
+      "path": "src/units/rollercan/dimensions.js",
+      "sha256": "5e34c16b66699b9aff744e8f65fcf0c9a635e951cf5b3dc2a27d8508d745a577"
+    },
+    {
+      "path": "src/units/rollercan/geometry-data.js",
+      "sha256": "db1aae83d466b8ad87770a3676fc8aba8bd7997cf23d68c8b7f25b0dea2dfb5e"
+    },
+    {
+      "path": "src/units/rollercan/index.js",
+      "sha256": "2e01e4939b1ac7c002c7dcd3752add4cd9b469d290d7e6e45bcc8b96c3803f87"
+    },
+    {
+      "path": "src/units/rollercan/reference-redraw-debug.png",
+      "sha256": "5e9c224b964ca1584f760965f56f3e37e184e7a71cb55c487726b35a7c21b59d"
+    },
+    {
+      "path": "src/units/rollercan/reference-redraw-port-a.png",
+      "sha256": "765376d01c6e7b278035b8d3e7a548c49410d7bc50616e7d0007a36ac3bfd971"
+    },
+    {
+      "path": "src/units/rollercan/reference-redraw-pwrcan.png",
+      "sha256": "d40ce77e093cb74bebbfe0366ce7d346e38aab74cda0bd146471dede99001bab"
+    },
+    {
+      "path": "src/units/rollercan/stickers.js",
+      "sha256": "a0431d845a8ccacfc0f45aaea4e4be05a53fa9d9330414dc3028524fbf619b17"
+    },
+    {
+      "path": "docs/research/rollercan/README.md",
+      "sha256": "9cb8ade518f6415ff812648779df909d5b6bf02baa776c352fa4bee2d991b0eb"
+    },
+    {
+      "path": "docs/research/rollercan/STICKERS.md",
+      "sha256": "78ab66c23cf79650255ced9175bbf621801f5afc4824370ec1dd004db9aef734"
+    },
+    {
+      "path": "docs/research/rollercan/smoke.json",
+      "sha256": "249e65be5fa551ac06181b38c9785e2914111c74914d1793da032f714bd16a7a"
+    },
+    {
+      "path": "docs/research/rollercan/sources.json",
+      "sha256": "82e5b505fed278dda705f89f3c444716a96e57244b9223da252f0a0f4c9d956d"
+    },
+    {
+      "path": "docs/research/rollercan/stickers-smoke.json",
+      "sha256": "4abc207d79ea42bceb8f3236045331e2f85dac128b0b4d82e2577f117743b68b"
+    },
+    {
+      "path": "src/units/rollercan-lite/cad-map.json",
+      "sha256": "b2ed08cfdc0fd41356acb36065276da71cdc929cdf7b63bae61c37e2dd2abf0a"
+    },
+    {
+      "path": "src/units/rollercan-lite/dimensions.js",
+      "sha256": "7b47742929d701bfe95270ca41719e03f16710b1fd1b7f1241410514553faddb"
+    },
+    {
+      "path": "src/units/rollercan-lite/geometry-data.js",
+      "sha256": "09f71c6d9fa4546e95ae19a102decca546364797c585752ef725ce945464af20"
+    },
+    {
+      "path": "src/units/rollercan-lite/index.js",
+      "sha256": "3e3a7a5cb572902746fee4f06ce81d79c1bcb0e394ab0d7d71564759bf3971e4"
+    },
+    {
+      "path": "src/units/rollercan-lite/reference-redraw-debug.png",
+      "sha256": "5e9c224b964ca1584f760965f56f3e37e184e7a71cb55c487726b35a7c21b59d"
+    },
+    {
+      "path": "src/units/rollercan-lite/reference-redraw-port-a.png",
+      "sha256": "765376d01c6e7b278035b8d3e7a548c49410d7bc50616e7d0007a36ac3bfd971"
+    },
+    {
+      "path": "src/units/rollercan-lite/reference-redraw-pwrcan.png",
+      "sha256": "d40ce77e093cb74bebbfe0366ce7d346e38aab74cda0bd146471dede99001bab"
+    },
+    {
+      "path": "src/units/rollercan-lite/stickers.js",
+      "sha256": "0c1ead9a8db0482bf8122963e9a69125131bf9f2e0482761210e6eedc7e48c35"
+    },
+    {
+      "path": "docs/research/rollercan-lite/STICKERS.md",
+      "sha256": "0fa2c44b1761b45b9932eef774bcf0156493e52d9b751f00226fb745a435301d"
+    },
+    {
+      "path": "docs/research/rollercan-lite/modeling.md",
+      "sha256": "a52d0df650c5d0cef9618cc15a7dc448cde9abdaf8c215b5441575800fc6df49"
+    },
+    {
+      "path": "docs/research/rollercan-lite/smoke.json",
+      "sha256": "3028aa774ff26ee4a6efb68aef6ef6199ff6c548645aa37d9d84803d93601648"
+    },
+    {
+      "path": "docs/research/rollercan-lite/sources.json",
+      "sha256": "4f9925b1fe1b42e8ca3c63e77fb8df2908ddc2fb307fdb4cf3a2d5cfc66c7965"
+    },
+    {
+      "path": "docs/research/rollercan-lite/stickers-smoke.json",
+      "sha256": "58f40e3ba8526acbfeea48b5ef5448dd80a397c0045ced13ff16812bba0dc440"
+    },
+    {
+      "path": "src/units/vibrator/assembly.js",
+      "sha256": "f8d8224989f23cd8ee20b9d8028f464d675ed7a40e2b2b2ef1fcad95611ca22d"
+    },
+    {
+      "path": "src/units/vibrator/cad-map.json",
+      "sha256": "6c7e5d8f3bf8e119e1b69846a9f117c7873741534acd906e5de6c79df8f23ca0"
+    },
+    {
+      "path": "src/units/vibrator/dimensions.js",
+      "sha256": "c0b2e3a716d892e0f5c8cda103a9f69b882015cc20c4feb564bb1bd13a825955"
+    },
+    {
+      "path": "src/units/vibrator/geometry-data.js",
+      "sha256": "2ec3670a7508c9e475fd922fbc89519d85d4577140990039b106ed1e7939461b"
+    },
+    {
+      "path": "src/units/vibrator/index.js",
+      "sha256": "fc2e24b43cc8809eb95d0d36415adf16a1596c3df3ee4691eccc8a3eea4a2f11"
+    },
+    {
+      "path": "src/units/vibrator/reference-back.png",
+      "sha256": "db892d47296ccdfd0e5da60effa3f5db4720e73ddc1a6c2f27521dcc273bd2ef"
+    },
+    {
+      "path": "src/units/vibrator/stickers.js",
+      "sha256": "de8e930a3b6f89ab417b881d17db9731bc569ee57bff7a3195b5965afb94a1a1"
+    },
+    {
+      "path": "docs/research/vibrator/README.md",
+      "sha256": "508496850d7d4054bc44a3fd393b20580ef40f619fe1b77291e47ffed2bddfab"
+    },
+    {
+      "path": "docs/research/vibrator/smoke.json",
+      "sha256": "d8859c9a2d10bd542ed9b4a4926ff2e3223979fed69b3296c0a727953153258d"
+    },
+    {
+      "path": "docs/research/vibrator/sources.json",
+      "sha256": "8c92d6dccb38972f0866f64e98e87bdc1103a66a2105ea57d57605d57a0c50df"
+    },
+    {
+      "path": "docs/research/vibrator/sticker-check.json",
+      "sha256": "9f9d2e69bc2800702902cb4f011035f3594e674b2e2afbca9ba431579ee8ef8e"
+    },
+    {
+      "path": "docs/research/vibrator/stickers.json",
+      "sha256": "c9bf03a8810f4e99bb946258dd28ac784f220b384c8428320af45d940e92b56a"
+    },
+    {
+      "path": "docs/research/vibrator/stickers.md",
+      "sha256": "16ffac11ef6d6443fe3ed8e37f13fe11c81b91ecdab58e647695ee012943fb09"
+    },
+    {
+      "path": "src/units/audioplayer/assembly.js",
+      "sha256": "6e0a84f7b3cf29724d1900971d7e6d000f8eb9203de6b39377efdbbcb83cc4f6"
+    },
+    {
+      "path": "src/units/audioplayer/cad-map.json",
+      "sha256": "f2b50b32963c5649a636e09a5de0a05dd85e2d2de5ffff47575f4ff089554ec2"
+    },
+    {
+      "path": "src/units/audioplayer/dimensions.js",
+      "sha256": "385cbf8c5c5f62814cf0d74e50ee59cf66d4fe6b77cb9a9e79eff58594c7ef4b"
+    },
+    {
+      "path": "src/units/audioplayer/geometry-data.js",
+      "sha256": "1a03f52b1449e05e18a419f6621e5c27a52dcd3b778cc99eb05f66e937c797cc"
+    },
+    {
+      "path": "src/units/audioplayer/index.js",
+      "sha256": "8296cc1f371ead79972d4c72f9c4a4155a0d9ec3dc07bfbda37cc712e4352d51"
+    },
+    {
+      "path": "src/units/audioplayer/reference-back.png",
+      "sha256": "e89b4698e56fc58947fa23c4b7eaf13c036509b3a7c6e05970f2471fb73e27ac"
+    },
+    {
+      "path": "src/units/audioplayer/reference-front.png",
+      "sha256": "d43010d90f995b681d8e5a5517db8a6923eef59e209c4cd16ecb696e05fe4274"
+    },
+    {
+      "path": "src/units/audioplayer/stickers.js",
+      "sha256": "c46ebedc4f44ed10452538d896f4471c5e4b32769262cc41aa5ee9461a003a32"
+    },
+    {
+      "path": "docs/research/audioplayer/modeling.md",
+      "sha256": "45795c8442312ae0e87bc4f2d4e133ba9c57c70a5747b7bade25ee301c3a697e"
+    },
+    {
+      "path": "docs/research/audioplayer/smoke.json",
+      "sha256": "fffbb95d1e72816555b9dd97dde04561739b0287eaaf31e6f7750afbb54da6b6"
+    },
+    {
+      "path": "docs/research/audioplayer/sources.json",
+      "sha256": "bab385d24e1ab1376bb51395cd728e640d17e43a155f42d2f1079b7e39e0cd1f"
+    },
+    {
+      "path": "docs/research/audioplayer/sticker-check.json",
+      "sha256": "801d803d2b17c8e56bbd1ee09668d70faaf913745c1eb9c22654f7e79441cbd7"
+    },
+    {
+      "path": "docs/research/audioplayer/stickers.json",
+      "sha256": "a7311dbc93a676cf70cac56dab46100d02c93878fc2eb035c65062264da68bbe"
+    },
+    {
+      "path": "docs/research/audioplayer/stickers.md",
+      "sha256": "d510031d7c193045f29663a9bb9a1301f79dab39a0482345a5bb8f3c93719254"
+    }
+  ],
+  "limitations": [
+    "At least one corresponding print mapping per listed model; unreadable or unsupported micro markings remain explicitly documented in product notes",
+    "Fingerprint2 fingerprint bitmap retains its native 200x200 resolution and is layered with high-resolution vector-derived lettering",
+    "2Relay some Grove-adjacent micro lettering not present in supplied originals remains pending",
+    "Screen shipping-protection graphics and marketing annotations are not permanent print layers",
+    "No vectors, table, source URL mapping or generators published",
+    "Earlier 43-product 50-PNG reference-redraw batch remains its separate unverified checkpoint",
+    "Private Scroll WIP and StackChan unresolved production fit preserved"
+  ]
+}

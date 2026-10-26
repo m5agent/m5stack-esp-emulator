@@ -2,7 +2,7 @@
 
 # 项目快照（自动生成）
 
-设备目录日期：`2026-10-26`；当前事实复核：`2026-10-26`；最新 evidence 日期：`2026-10-26`。
+设备目录日期：`2026-10-26`；当前事实复核：`2026-10-27`；最新 evidence 日期：`2026-10-26`。
 
 本页只汇总机器可读源和已提交 evidence，避免在多个文档手写同一组动态事实。实现结论、风险说明和验证层级仍以[项目当前状态](project-status.md)、[验证证据台账](validation-ledger.md)和 [项目 Backlog](project-backlog.md) 为准。
 
@@ -33,8 +33,8 @@
 
 - Unit 登记：`28` 款；主机接线登记：`14` 款。
 - Runtime profile 状态：`implemented` 28。
-- 固定视觉源：[https://github.com/yuyun2000/m5stack-models](https://github.com/yuyun2000/m5stack-models)，commit `48667b728736fbfd4365a06575473ce538d3c972`；包含 `14` 款主机、`29` 款 Unit。视觉库存不构成控制器或电气验证。
-- 仅视觉、尚无内部协议契约：`roller485`；这些型号不计 runtime 准入，也不能创建功能附件。
+- 固定视觉源：[https://github.com/yuyun2000/m5stack-models](https://github.com/yuyun2000/m5stack-models)，commit `3681a6482aff96501d44659ba5a1603246f1fe1f`；包含 `14` 款主机、`113` 款 Unit。视觉库存不构成控制器或电气验证。
+- 仅视觉、尚无内部协议契约：`2relay`，`4relay`，`8angle`，`8servos`，`ac-measure`，`accel`，`acssr`，`adc-v11`，`ain4-20ma`，`ameter`，`asr`，`audioplayer`，`bldc-driver`，`bytebutton`，`byteswitch`，`cams3-5mp`，`can`，`co2`，`dac2`，`dcssr`，`dds`，`dlight`，`dmx`，`earth`，`env-pro`，`extencoder`，`extio2`，`fader`，`fingerprint2`，`flashlight`，`gesture`，`gps-sma`，`gps-v11`，`hall`，`hbridge-v11`，`ina226-10a`，`joystick2`，`kmeter-iso-v11`，`laser-rx`，`laser-tx`，`lcd`，`lora-e220-920`，`mic`，`midi`，`mini-bps-v11`，`mini-can`，`mini-imu`，`mini-pdm`，`mini-scales`，`mini-tof-90`，`mq`，`ncir2`，`nfc`，`oled`，`op180`，`op90`，`pahub-v21`，`pbhub-v11`，`poesp32`，`puzzle`，`qrcode`，`rca`，`reflective-ir`，`rf433r`，`rf433t`，`roller485`，`roller485-lite`，`rollercan`，`rollercan-lite`，`rs485-iso`，`rtc`，`step16`，`synth`，`thermal2`，`timerpwr`，`tmos-pir`，`tof4m`，`tube-pressure`，`uhf-rfid`，`unit-id`，`uwb`，`vibrator`，`vmeter`，`watering`，`weight-i2c`；这些型号不计 runtime 准入，也不能创建功能附件。
 - 数据源：[`catalog`](../platform/units/catalog.json)，[`runtime_profiles`](../platform/units/runtime-profiles.json)，[`host_ports`](../platform/units/host-ports.json)，[`visual_vendor`](../platform/web/vendor/m5stack-models/vendor-manifest.json)。
 
 准入仅统计 `implemented`/`validated` profile 的主机声明和已确认主机接口；准入不等于同设备固件、Web 或真机验证。`planned`/`partial`/`unsupported` 不计准入，`implemented` 不提升为 `validated`。
@@ -93,30 +93,70 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`52` 个 Python 模块，`39519` 行；规模最大的模块如下。
+- `platform/tools`：`52` 个 Python 模块，`40113` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 10832 |
+| `device_service.py` | 10910 |
 | `firmware_manifest.py` | 3612 |
 | `user_firmware_matrix.py` | 2069 |
 | `network_sandbox.py` | 1681 |
+| `serve.py` | 1476 |
 | `firmware_filesystems.py` | 1469 |
-| `serve.py` | 1462 |
 
 - `tests/`：`103` 个可执行 Python 测试文件，分布在 `55` 个目录；`221` 个 evidence JSON。
 - `patches/`：`13` 个补丁组，`82` 个 patch 文件。
-- 文档：`309` 个 Markdown 页面；除本生成页外共 `30963` 行。
+- 文档：`403` 个 Markdown 页面；除本生成页外共 `35010` 行。
 
 ## 文档与测试
 
-- 平台测试：`952` 项。
-- Docs 新鲜度登记：`105` 行；其中非历史页 `36` 行，历史固定页 `69` 行。
-- 文档职责分布：待办 `3`，契约 `6`，历史固定 `69`，实现/设计 `8`，参考 `15`，工作流/导航 `4`。
-- 全量文档盘点：`309` 个 Markdown 页面；职责分布：权威/专题页 `105`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `14`，平台说明 `4`，仓内历史记录 `5`，测试/用例说明 `147`，未登记 docs 页面 `2`，第三方来源说明 `9`。
-- 所有非历史页的最近复核日期均与当前事实日期一致。
+- 平台测试：`972` 项。
+- Docs 新鲜度登记：`106` 行；其中非历史页 `36` 行，历史固定页 `70` 行。
+- 文档职责分布：待办 `3`，契约 `6`，历史固定 `70`，实现/设计 `8`，参考 `15`，工作流/导航 `4`。
+- 全量文档盘点：`403` 个 Markdown 页面；职责分布：权威/专题页 `106`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `14`，平台说明 `4`，仓内历史记录 `5`，测试/用例说明 `147`，未登记 docs 页面 `2`，第三方来源说明 `102`。
+- 复核日期早于当前事实日期的非历史页：[engineering-handoff.md](engineering-handoff.md) `2026-10-26`，[workstreams.md](workstreams.md) `2026-10-26`，[project-snapshot.md](project-snapshot.md) `2026-10-26`，[unified-device-runtime.md](unified-device-runtime.md) `2026-10-26`，[core2-native-hci-backend.md](core2-native-hci-backend.md) `2026-10-26`，[firmware-manifest.md](firmware-manifest.md) `2026-10-26`，[runtime-model-gap-register.md](runtime-model-gap-register.md) `2026-10-26`，[network-simulation-plan.md](network-simulation-plan.md) `2026-10-26`，[network-lane.md](network-lane.md) `2026-10-26`，[qemu-device-adaptation-matrix.md](qemu-device-adaptation-matrix.md) `2026-10-26`，[uiflow2-peripheral-test-matrix.md](uiflow2-peripheral-test-matrix.md) `2026-10-26`，[tab5-deferred-backlog.md](tab5-deferred-backlog.md) `2026-10-26`，[device-visual-fidelity-backlog.md](device-visual-fidelity-backlog.md) `2026-10-26`，[deployment.md](deployment.md) `2026-10-26`，[device-center-adapter.md](device-center-adapter.md) `2026-10-26`，[device-functional-test-workflow.md](device-functional-test-workflow.md) `2026-10-26`，[firmware-review-and-simulation-workflow.md](firmware-review-and-simulation-workflow.md) `2026-10-26`，[peripheral-simulation-architecture.md](peripheral-simulation-architecture.md) `2026-10-26`，[p4-peripheral-backend-requirements.md](p4-peripheral-backend-requirements.md) `2026-10-26`，[simulator-service-architecture.md](simulator-service-architecture.md) `2026-10-26`，[user-firmware-simulation-matrix.md](user-firmware-simulation-matrix.md) `2026-10-26`，[cores3-image-rendering-boundary.md](cores3-image-rendering-boundary.md) `2026-10-26`，[unit-integration-host-issues.md](unit-integration-host-issues.md) `2026-10-26`，[unit-research/official-protocols.md](unit-research/official-protocols.md) `2026-10-26`，[unit-research/scroll-roller485.md](unit-research/scroll-roller485.md) `2026-10-26`，[unit-research/encoder-protocol-conflicts.md](unit-research/encoder-protocol-conflicts.md) `2026-10-26`，[unit-research/esp32s3-adc-calibration.md](unit-research/esp32s3-adc-calibration.md) `2026-10-26`，[unit-research/visual-bindings-and-component-gaps.md](unit-research/visual-bindings-and-component-gaps.md) `2026-10-26`，[unit-research/host-runtime-compatibility.md](unit-research/host-runtime-compatibility.md) `2026-10-26`。这不自动表示内容错误；状态页变更时应优先复核。
 - 带显式旧复核日期的委派文档（需按相邻索引和权威页复核）：
   - [platform/web/vendor/m5stack-models/docs/INTEGRATION.md](../platform/web/vendor/m5stack-models/docs/INTEGRATION.md) `2026-10-25`
+  - [docs/evidence/2026-10-26-unit-ledc-audio-29d8/replay/README.md](evidence/2026-10-26-unit-ledc-audio-29d8/replay/README.md) `2026-10-26`
+  - [docs/evidence/2026-10-26-unit-ledc-audio-29d8/replay/getter-independent-review/README.md](evidence/2026-10-26-unit-ledc-audio-29d8/replay/getter-independent-review/README.md) `2026-10-26`
+  - [patches/README.md](../patches/README.md) `2026-10-26`
+  - [patches/qemu-core2-ble-controller/README.md](../patches/qemu-core2-ble-controller/README.md) `2026-10-26`
+  - [patches/qemu-core2-native-hci/README.md](../patches/qemu-core2-native-hci/README.md) `2026-10-26`
+  - [patches/qemu-core2-openmac-wifi/README.md](../patches/qemu-core2-openmac-wifi/README.md) `2026-10-26`
+  - [patches/qemu-esp32c6-uiflow2-adapters/README.md](../patches/qemu-esp32c6-uiflow2-adapters/README.md) `2026-10-26`
+  - [patches/qemu-multi-board-uiflow2/README.md](../patches/qemu-multi-board-uiflow2/README.md) `2026-10-26`
+  - [platform/README.md](../platform/README.md) `2026-10-26`
+  - [platform/web/vendor/m5stack-models/docs/STICKER-COVERAGE.md](../platform/web/vendor/m5stack-models/docs/STICKER-COVERAGE.md) `2026-10-26`
+  - [platform/web/vendor/m5stack-models/docs/THERMAL-MODEL-NOTES.md](../platform/web/vendor/m5stack-models/docs/THERMAL-MODEL-NOTES.md) `2026-10-26`
+  - [tests/README.md](../tests/README.md) `2026-10-26`
+  - [tests/firmware/README.md](../tests/firmware/README.md) `2026-10-26`
+  - [tests/firmware/image_capability_observation/README.md](../tests/firmware/image_capability_observation/README.md) `2026-10-26`
+  - [tests/firmware/manifest_policy/README.md](../tests/firmware/manifest_policy/README.md) `2026-10-26`
+  - [tests/firmware/openai_nvs_precondition/README.md](../tests/firmware/openai_nvs_precondition/README.md) `2026-10-26`
+  - [tests/firmware/webburner_import_policy/README.md](../tests/firmware/webburner_import_policy/README.md) `2026-10-26`
+  - [tests/firmware/webburner_part_integrity/README.md](../tests/firmware/webburner_part_integrity/README.md) `2026-10-26`
+  - [tests/network/README.md](../tests/network/README.md) `2026-10-26`
+  - [tests/network/cname_guest_lifecycle/README.md](../tests/network/cname_guest_lifecycle/README.md) `2026-10-26`
+  - [tests/network/core2_openeth/README.md](../tests/network/core2_openeth/README.md) `2026-10-26`
+  - [tests/network/core2_openmac_wifi/README.md](../tests/network/core2_openmac_wifi/README.md) `2026-10-26`
+  - [tests/network/dns_cname_chain/README.md](../tests/network/dns_cname_chain/README.md) `2026-10-26`
+  - [tests/network/egress_allowlist/README.md](../tests/network/egress_allowlist/README.md) `2026-10-26`
+  - [tests/network/idf_dhcp_renewal/README.md](../tests/network/idf_dhcp_renewal/README.md) `2026-10-26`
+  - [tests/network/ipv6_end_to_end/README.md](../tests/network/ipv6_end_to_end/README.md) `2026-10-26`
+  - [tests/network/linux_isolation/README.md](../tests/network/linux_isolation/README.md) `2026-10-26`
+  - [tests/network/reconnect_probe/README.md](../tests/network/reconnect_probe/README.md) `2026-10-26`
+  - [tests/network/worker_cross_container/README.md](../tests/network/worker_cross_container/README.md) `2026-10-26`
+  - [tests/network/worker_cross_netns/README.md](../tests/network/worker_cross_netns/README.md) `2026-10-26`
+  - [tests/network/worker_executor/README.md](../tests/network/worker_executor/README.md) `2026-10-26`
+  - [tests/network/worker_queue/README.md](../tests/network/worker_queue/README.md) `2026-10-26`
+  - [tests/network/worker_reattach/README.md](../tests/network/worker_reattach/README.md) `2026-10-26`
+  - [tests/network/worker_tls/README.md](../tests/network/worker_tls/README.md) `2026-10-26`
+  - [tests/network/wrong_password/README.md](../tests/network/wrong_password/README.md) `2026-10-26`
+  - [tests/uiflow2/README.md](../tests/uiflow2/README.md) `2026-10-26`
+  - [tests/uiflow2/core2_native_hci/README.md](../tests/uiflow2/core2_native_hci/README.md) `2026-10-26`
+  - [tests/uiflow2/core2_native_vhci/README.md](../tests/uiflow2/core2_native_vhci/README.md) `2026-10-26`
+  - [tests/uiflow2/sticks3_peripherals/README.md](../tests/uiflow2/sticks3_peripherals/README.md) `2026-10-26`
+  - [tests/uiflow2/unified_core2/README.md](../tests/uiflow2/unified_core2/README.md) `2026-10-26`
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 
 ## 维护入口

@@ -1,0 +1,159 @@
+{
+  "id": "poesp32",
+  "sku": "U138",
+  "officialDocs": "https://docs.m5stack.com/en/unit/poesp32",
+  "retrievedAt": "2026-10-26",
+  "reference": {
+    "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/poesp32/poesp32_01.webp",
+    "sha256": "e163b5d1b26f39a84c0e73da87382e67612fd93eef63cadc99ab0f00429adadb"
+  },
+  "structures": [
+    {
+      "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/Products/U138_Unit_PoESP32/Structures/Unit_PoESP32.stl",
+      "gitBlob": "5cd00fdd601aed0712b9fa79857f2f6980a7f8b5",
+      "sha256": "5d0a93b9dc16d62fc2759917594e49d7c5a823e7045d870a7180a273f6bff34d",
+      "license": "MIT"
+    }
+  ],
+  "referenceSources": [
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/poesp32/poesp32_01.webp",
+      "sha256": "e163b5d1b26f39a84c0e73da87382e67612fd93eef63cadc99ab0f00429adadb"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/poesp32/poesp32_02.webp",
+      "sha256": "73c882864016bd665097ccb3f57568373499169ae89aaa1cf9050869d58b13d3"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/poesp32/poesp32_03.webp",
+      "sha256": "c4e40d2926589d11d3da63ee87c50819e416d6e26d8beab9757f10cdaf09811e"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/poesp32/poesp32_04.webp",
+      "sha256": "0570637cbef04916b16c87554a9b66b74817ff9524dcb324541aeb5f948b4ff4"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/poesp32/poesp32_05.webp",
+      "sha256": "d11adab3da763cec1a0cd6fb8cf58b35b5402d703540c01bf985546b0fd9171f"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/poesp32/poesp32_06.webp",
+      "sha256": "30858d3081c9cc75c712c453567269c6327ec40429e9152bc62ebb5a2ab4efec"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/832/U138_operation.jpg",
+      "sha256": "14e65b38534c9ee2b52776962d3130549bd9a88c43a4a5bb7cd3718ac9bfda4c"
+    },
+    {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/597/SCH_UNIT-PoESP32.pdf",
+      "sha256": "b33df28d827ac86fd45115eda2eadcaea385ccdc1f43e7bbb681f22b2dbb4cd8"
+    }
+  ],
+  "selectedAssembly": {
+    "origin": [
+      0,
+      24,
+      9.6
+    ],
+    "axes": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "parts": [
+      {
+        "component": 0,
+        "name": "PoESP32 complete native rear shell",
+        "material": "shell"
+      },
+      {
+        "component": 2,
+        "name": "PoESP32 complete native front shell",
+        "material": "shell"
+      }
+    ],
+    "excludedComponents": [
+      1,
+      3
+    ],
+    "notes": "Original shell pair 0 and 2 share a single source datum and translation. Islands 1 and 3 are displaced duplicate shells. Complete native bores, groove, port reliefs, side recesses and molded seams retained without scaling, cuts, fills or independent part alignment."
+  },
+  "runtimeFiles": [
+    {
+      "path": "src/units/poesp32/assembly.js",
+      "sha256": "58f74674f0309c70542415d6366e4d7f4270270a6042c403e7aeea6d710c4c1f"
+    },
+    {
+      "path": "src/units/poesp32/cad-map.json",
+      "sha256": "d32e3cd02447269fb1486f393efe7a27d98a3cb2b15e279669c5a4397d71ee3a"
+    },
+    {
+      "path": "src/units/poesp32/dimensions.js",
+      "sha256": "2f7f921f700742718315a8e59c2c1f814883ea8d9c2917645d6f01bb2bbb44a0"
+    },
+    {
+      "path": "src/units/poesp32/geometry-data.js",
+      "sha256": "0bb0b4c2384c4b49d63a1cb7e66a3a3f433f8c2da4d6888439cc190612e1f854"
+    },
+    {
+      "path": "src/units/poesp32/index.js",
+      "sha256": "b11f99a0a4237f3455620cecb338fb89ec783f657acaedaed48a83b7c3122ac3"
+    },
+    {
+      "path": "src/units/poesp32/official-back.png",
+      "sha256": "619fb3e47c7f5a82b65b1099d288c8b6f9ed4ecde5aab33fee49787631cf604d"
+    },
+    {
+      "path": "src/units/poesp32/official-certification.png",
+      "sha256": "d49fbdb663547d0cc811ece7396c5801151b1c97c912b12dc9201c1ed5fa0dda"
+    },
+    {
+      "path": "src/units/poesp32/official-front.png",
+      "sha256": "45785b1dc95c147379ca89bfe00c36cdca0b3672cbbb582d18899c2c8703c80c"
+    },
+    {
+      "path": "src/units/poesp32/stickers.js",
+      "sha256": "a551d2780eb671b2f5adf163cea2e6f7065f65f918a22944cb60c984bf42fe05"
+    }
+  ],
+  "artwork": [
+    {
+      "path": "src/units/poesp32/official-back.png",
+      "sha256": "619fb3e47c7f5a82b65b1099d288c8b6f9ed4ecde5aab33fee49787631cf604d",
+      "rights": "M5Stack supplied flat artwork; final raster redistribution authorized by user; original vectors and download mapping excluded."
+    },
+    {
+      "path": "src/units/poesp32/official-certification.png",
+      "sha256": "d49fbdb663547d0cc811ece7396c5801151b1c97c912b12dc9201c1ed5fa0dda",
+      "rights": "M5Stack supplied flat artwork; final raster redistribution authorized by user; original vectors and download mapping excluded."
+    },
+    {
+      "path": "src/units/poesp32/official-front.png",
+      "sha256": "45785b1dc95c147379ca89bfe00c36cdca0b3672cbbb582d18899c2c8703c80c",
+      "rights": "M5Stack supplied flat artwork; final raster redistribution authorized by user; original vectors and download mapping excluded."
+    }
+  ],
+  "inferences": [
+    "Main/base PCB contours, thickness and layer spacing; interboard connector installed transforms",
+    "ESP32 module/PHY/regulator/crystal, converter board, transformer, capacitors and passive installed package transforms",
+    "RJ45 stepped cavity, LED window proportions, internal contact bends, shield springs and 0.15 mm face protrusion",
+    "Certification label right-side position/size inferred; main labels registered to original shell recess and documented continuous rear film"
+  ],
+  "knowledgeFeedback": {
+    "feedback_id": "42b7036af5ac41b4b36fb8b6aa1995e4",
+    "category": "missing_documentation",
+    "scope": "Populated board-stack/PoE/RJ45 production assembly datum missing from public shell-only STL and available gallery; refinement request only."
+  }
+}

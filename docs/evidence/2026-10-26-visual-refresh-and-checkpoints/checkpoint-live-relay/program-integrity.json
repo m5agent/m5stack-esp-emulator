@@ -1,0 +1,98 @@
+{
+  "session_id": "9fc46df433d84775a41186fc339f78d8",
+  "program_transport": "uart-repl",
+  "program": {
+    "execution_id": "0f86e65fa1e2461db645ecdd68ef04ce",
+    "revision_id": "9c7d4e34ac45fbbb33a5561eb64e5fa2daf5c3bab1ae91816e6522f3419aca69",
+    "source_sha256": "5129ccbacfe137dcaaba792fc42446d2d76ed0864f62be980ad913d2b599afd4",
+    "source_bytes": 2549,
+    "state": "failed",
+    "submitted_at": "2026-10-26T15:49:32.563475+00:00",
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "pid": 2668,
+    "execution_mode": "same-guest-uart-repl",
+    "cleanup_mode": "interrupt-only",
+    "serial_offset": 16125,
+    "source_kind": "uiflow2-package",
+    "total_file_bytes": 2923,
+    "file_count": 7,
+    "deployment": {
+      "phase": "capabilities",
+      "staging_path": "/flash/.m5-live-packages/.stage-a9742645ad3f40df9c7b37849b9b95be",
+      "package_path": "/flash/.m5-live-packages/9c7d4e34ac45fbbb33a5561eb64e5fa2daf5c3bab1ae91816e6522f3419aca69",
+      "events": [
+        {
+          "phase": "preflight",
+          "staging_path": "/flash/.m5-live-packages/.stage-a9742645ad3f40df9c7b37849b9b95be",
+          "package_path": "/flash/.m5-live-packages/9c7d4e34ac45fbbb33a5561eb64e5fa2daf5c3bab1ae91816e6522f3419aca69",
+          "observed_at": "2026-10-26T15:49:32.677260+00:00"
+        },
+        {
+          "phase": "capabilities",
+          "capabilities": {
+            "existing": true,
+            "directory_count": 3,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 4595712
+          },
+          "observed_at": "2026-10-26T15:49:33.155765+00:00"
+        }
+      ],
+      "capabilities": {
+        "existing": true,
+        "directory_count": 3,
+        "mpy": 11014,
+        "small_int_bits": 31,
+        "free_bytes": 4595712
+      }
+    },
+    "error": {
+      "code": "program_package_integrity",
+      "message": "guest package bytes differ from the snapshot"
+    }
+  },
+  "history_error": null,
+  "expected_history_state": "failed",
+  "activated": false,
+  "error_code": "program_package_integrity",
+  "submission": {
+    "mode": "legacy-files-negative",
+    "request": {
+      "files": {
+        "assets/pixel.png": {
+          "encoding": "base64",
+          "data": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAKUlEQVR4nGNk+M9AFcBEHWMYRg0iAowaRBiMGkQYjBpEGIwaRBgMPoMAeqsBLxmnMtoAAAAASUVORK5CYII="
+        },
+        "config.json": {
+          "encoding": "utf8",
+          "data": "{\"color\":[0,255,0],\"helper\":29,\"init\":202,\"logic\":5,\"old_present\":false,\"relay\":true,\"version\":\"B\"}\n"
+        },
+        "helper.mpy": {
+          "encoding": "base64",
+          "data": "TQYAHwUAEmhlbHBlci5weQAPEnRyYW5zZm9ybQAKVkFMVUUAgkVsAAQBI50WAzIAFgJRYwFgEQYCBECwgvQSA/Jj"
+        },
+        "lib/__init__.py": {
+          "encoding": "utf8",
+          "data": "VALUE = 202\n"
+        },
+        "lib/logic.py": {
+          "encoding": "utf8",
+          "data": "import helper\nVALUE = 5\ndef calculate(value):\n return helper.transform(value) + VALUE\n"
+        },
+        "main.py": {
+          "encoding": "utf8",
+          "data": "import os, sys, json, time\nimport M5\nassert '/m5-live-package-fffd3a0100a340e39ab237ff426ba81f' in sys.path, \"MicroPython VM was reset\"\nwith open('config.json') as stream:\n config = json.load(stream)\nimport helper\nimport lib\nfrom lib import logic\nimport namespace_lib.state as namespace_state\nassert helper.VALUE == config['helper']\nassert lib.VALUE == config['init']\nassert logic.VALUE == config['logic']\nassert namespace_state.VALUE == config['init']\nassert logic.calculate(5) == 10 + config['helper'] + config['logic']\ncwd = os.getcwd()\nmanaged_paths = [path for path in sys.path if isinstance(path, str) and path.startswith('/flash/.m5-live-packages/')]\nassert managed_paths == [cwd], 'stale managed import path'\nfor module in (helper, lib, logic, namespace_state):\n assert module.__file__.startswith(cwd + '/'), 'stale module cache'\nif config['old_present']:\n import old_only\n assert old_only.VALUE == 'A-only'\n old_absent = False\nelse:\n assert 'old_only' not in sys.modules, 'removed module stayed cached'\n try:\n  import old_only\n except ImportError:\n  old_absent = True\n else:\n  raise AssertionError('removed file is still importable')\nM5.begin()\nscreen = M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0)\nwith open('assets/pixel.png', 'rb') as stream:\n screen.drawImage(stream.read(), (screen.width() - 24) // 2, (screen.height() - 24) // 2 - 24)\nscreen.setTextSize(2)\nscreen.setTextColor(0xFFFFFF, 0)\nscreen.setCursor(screen.width() // 2 - 24, screen.height() // 2 + 4)\nscreen.print('PKG ' + config['version'])\nfrom unit import RelayUnit\nunit = RelayUnit((1, 2))\nunit.set_status(config['relay'])\nprint('LIVE_PACKAGE_READY ' + json.dumps({'version': config['version'], 'helper': helper.VALUE, 'init': lib.VALUE, 'logic': logic.VALUE, 'cwd': cwd, 'managed_paths': managed_paths, 'old_absent': old_absent, 'helper_file': helper.__file__, 'logic_file': logic.__file__}))\nprevious = None\nlast_sample = time.ticks_ms()\nwhile True:\n M5.update()\n value = int(unit.get_status())\n now = time.ticks_ms()\n if value != previous:\n  screen.fillRect(0, screen.height() // 2 + 24, screen.width(), 28, 0)\n  screen.setCursor(screen.width() // 2 - 36, screen.height() // 2 + 24)\n  screen.print('RELAY ' + str(value))\n if value != previous or time.ticks_diff(now, last_sample) >= 250:\n  print('LIVE_PACKAGE_SAMPLE ' + json.dumps({'version': config['version'], 'unit': 'relay', 'value': value, 'helper': helper.VALUE, 'init': lib.VALUE, 'logic': logic.VALUE, 'computed': logic.calculate(value)}))\n  last_sample = now\n previous = value\n time.sleep_ms(25)\n"
+        },
+        "namespace_lib/state.py": {
+          "encoding": "utf8",
+          "data": "VALUE = 202\n"
+        }
+      },
+      "entrypoint": "main.py",
+      "expected_execution_id": "fce632d4a668463fb27878d777ee24e5",
+      "timeout_seconds": 120
+    },
+    "previous_execution_id": "fce632d4a668463fb27878d777ee24e5"
+  }
+}

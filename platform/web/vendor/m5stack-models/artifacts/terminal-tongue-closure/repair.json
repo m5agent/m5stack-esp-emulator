@@ -1,0 +1,230 @@
+{
+  "savedAt": "2026-10-26T13:01:02.744860+00:00",
+  "status": "local-geometry-amendment",
+  "catalogCount": 118,
+  "products": [
+    {
+      "id": "ac-measure",
+      "path": "src/units/ac-measure/TerminalPlug.js",
+      "beforeSha256": "abee537ba4accea61e302baf294e5e841edfb79cc592a0544483f0e29215dc30",
+      "afterSha256": "d1065585f2009bf8800b93847444db59e40fcbc8ea14dfb306662cc94ecd9f58",
+      "change": {
+        "field": "tongue cross-section h",
+        "oldMm": 2.5,
+        "newMm": 2.9,
+        "otherSourceBytesUnchanged": true,
+        "reason": "Preserve material beneath four mating bores at bevelled end caps;old cap contour and bore lower edges touched."
+      },
+      "before": {
+        "tongueTriangles": 9996,
+        "signedVolumeMm3": 225.92883641421324,
+        "unpairedEdges": 20,
+        "allAtLowerCapBoundary": true
+      },
+      "after": {
+        "tongueTriangles": 10012,
+        "signedVolumeMm3": 268.792612317946,
+        "unpairedEdges": 0,
+        "frontSideBoreWallRays": 16,
+        "emptyAxialBoreRays": 8
+      },
+      "assertions": {
+        "screwJoints": 4,
+        "angleDurationAndExactReset": "pass",
+        "rpmRejected": true,
+        "noInputEcho": true,
+        "fixedBodyPortSocketPlugTongueFrames": "pass",
+        "artworkConfigurations": 4,
+        "allPhysicalAttributesIndexWorldInvariant": true,
+        "outerEnvelopeUnchanged": true,
+        "onlyTongueGeometryChanged": true,
+        "ownComponentsJointsAndLabelsUnchanged": true
+      },
+      "savedAt": "2026-10-26T13:01:02.659575+00:00",
+      "stage": "modeled",
+      "scope": "Local terminal-tongue geometry amendment only;historical frozen/smoke receipts remain snapshots,no production fit or browser acceptance",
+      "regression": "node scripts/check-terminal-tongue-closure.mjs"
+    },
+    {
+      "id": "ain4-20ma",
+      "path": "src/units/ain4-20ma/TerminalPlug.js",
+      "beforeSha256": "cc03075a1fe8a566b2ccbdb853fbf30ddf29779b48e0bd61d42978870113439a",
+      "afterSha256": "8aaa624f0af2b3975655bb0fe0dfa4f303ce8b91df7808db4ad1abaeba363008",
+      "change": {
+        "field": "tongue cross-section h",
+        "oldMm": 2.5,
+        "newMm": 2.9,
+        "otherSourceBytesUnchanged": true,
+        "reason": "Preserve material beneath four mating bores at bevelled end caps;old cap contour and bore lower edges touched."
+      },
+      "before": {
+        "tongueTriangles": 9996,
+        "signedVolumeMm3": 225.92883641421324,
+        "unpairedEdges": 20,
+        "allAtLowerCapBoundary": true
+      },
+      "after": {
+        "tongueTriangles": 10012,
+        "signedVolumeMm3": 268.792612317946,
+        "unpairedEdges": 0,
+        "frontSideBoreWallRays": 16,
+        "emptyAxialBoreRays": 8
+      },
+      "assertions": {
+        "screwJoints": 4,
+        "angleDurationAndExactReset": "pass",
+        "rpmRejected": true,
+        "noInputEcho": true,
+        "fixedBodyPortSocketPlugTongueFrames": "pass",
+        "artworkConfigurations": 4,
+        "allPhysicalAttributesIndexWorldInvariant": true,
+        "outerEnvelopeUnchanged": true,
+        "onlyTongueGeometryChanged": true,
+        "ownComponentsJointsAndLabelsUnchanged": true
+      },
+      "savedAt": "2026-10-26T13:01:02.684258+00:00",
+      "stage": "modeled",
+      "scope": "Local terminal-tongue geometry amendment only;historical frozen/smoke receipts remain snapshots,no production fit or browser acceptance",
+      "regression": "node scripts/check-terminal-tongue-closure.mjs"
+    },
+    {
+      "id": "bldc-driver",
+      "path": "src/units/bldc-driver/TerminalPlug.js",
+      "beforeSha256": "a9d43874f2aed3e9cde34684f0e97b5d654ac1ef6a496dde04be965853abbd8c",
+      "afterSha256": "b819870a6643962b56bed7c0e0f3910303bf41566270860ac99b677d99f6b784",
+      "change": {
+        "field": "tongue cross-section h",
+        "oldMm": 2.5,
+        "newMm": 2.9,
+        "otherSourceBytesUnchanged": true,
+        "reason": "Preserve material beneath four mating bores at bevelled end caps;old cap contour and bore lower edges touched."
+      },
+      "before": {
+        "tongueTriangles": 9996,
+        "signedVolumeMm3": 225.92883641421324,
+        "unpairedEdges": 20,
+        "allAtLowerCapBoundary": true
+      },
+      "after": {
+        "tongueTriangles": 10012,
+        "signedVolumeMm3": 268.792612317946,
+        "unpairedEdges": 0,
+        "frontSideBoreWallRays": 16,
+        "emptyAxialBoreRays": 8
+      },
+      "assertions": {
+        "screwJoints": 4,
+        "angleDurationAndExactReset": "pass",
+        "rpmRejected": true,
+        "noInputEcho": true,
+        "fixedBodyPortSocketPlugTongueFrames": "pass",
+        "artworkConfigurations": 4,
+        "allPhysicalAttributesIndexWorldInvariant": true,
+        "outerEnvelopeUnchanged": true,
+        "onlyTongueGeometryChanged": true,
+        "ownComponentsJointsAndLabelsUnchanged": true
+      },
+      "savedAt": "2026-10-26T13:01:02.707622+00:00",
+      "stage": "modeled",
+      "scope": "Local terminal-tongue geometry amendment only;historical frozen/smoke receipts remain snapshots,no production fit or browser acceptance",
+      "regression": "node scripts/check-terminal-tongue-closure.mjs"
+    }
+  ],
+  "necessaryProductCheck": {
+    "checkedAt": "2026-10-26T12:59:06.204Z",
+    "status": "pass",
+    "scope": "Only three repaired old-product mating tongues;paired directed closure,positive volume,real FrontSide and axial bores,four screw angle/duration/reset and fixed transforms,noRPM/noecho,Model/Grove bare/plug artwork invariance,old/new outer envelope and every non-tongue geometry/world/port/API/label unchanged.No historical suite,browser,build or production mating validation.",
+    "checks": [
+      {
+        "id": "ac-measure",
+        "path": "src/units/ac-measure/TerminalPlug.js",
+        "sourceSha256": "d1065585f2009bf8800b93847444db59e40fcbc8ea14dfb306662cc94ecd9f58",
+        "status": "pass",
+        "tongueClosure": {
+          "triangles": 10012,
+          "quantizationMm": 1e-05,
+          "signedVolumeMm3": 268.792612317946,
+          "uniqueCoordinateEdges": 15018,
+          "nonClosedOrMisdirectedEdges": 0,
+          "incidenceOneEdges": 0,
+          "otherEdgeFailures": 0,
+          "allFailuresAtLowerCapBoundary": true
+        },
+        "positiveSignedVolumeMm3": 268.792612317946,
+        "frontSideBoreWallRays": 16,
+        "emptyAxialBoreRays": 8,
+        "screwJoints": 4,
+        "angleDurationAndExactReset": "pass",
+        "rpmRejected": true,
+        "noInputEcho": true,
+        "fixedBodyPortSocketPlugTongueFrames": "pass",
+        "artworkConfigurations": 4,
+        "allPhysicalAttributesIndexWorldInvariant": true,
+        "outerEnvelopeUnchanged": true,
+        "onlyTongueGeometryChanged": true,
+        "ownComponentsJointsAndLabelsUnchanged": true
+      },
+      {
+        "id": "ain4-20ma",
+        "path": "src/units/ain4-20ma/TerminalPlug.js",
+        "sourceSha256": "8aaa624f0af2b3975655bb0fe0dfa4f303ce8b91df7808db4ad1abaeba363008",
+        "status": "pass",
+        "tongueClosure": {
+          "triangles": 10012,
+          "quantizationMm": 1e-05,
+          "signedVolumeMm3": 268.792612317946,
+          "uniqueCoordinateEdges": 15018,
+          "nonClosedOrMisdirectedEdges": 0,
+          "incidenceOneEdges": 0,
+          "otherEdgeFailures": 0,
+          "allFailuresAtLowerCapBoundary": true
+        },
+        "positiveSignedVolumeMm3": 268.792612317946,
+        "frontSideBoreWallRays": 16,
+        "emptyAxialBoreRays": 8,
+        "screwJoints": 4,
+        "angleDurationAndExactReset": "pass",
+        "rpmRejected": true,
+        "noInputEcho": true,
+        "fixedBodyPortSocketPlugTongueFrames": "pass",
+        "artworkConfigurations": 4,
+        "allPhysicalAttributesIndexWorldInvariant": true,
+        "outerEnvelopeUnchanged": true,
+        "onlyTongueGeometryChanged": true,
+        "ownComponentsJointsAndLabelsUnchanged": true
+      },
+      {
+        "id": "bldc-driver",
+        "path": "src/units/bldc-driver/TerminalPlug.js",
+        "sourceSha256": "b819870a6643962b56bed7c0e0f3910303bf41566270860ac99b677d99f6b784",
+        "status": "pass",
+        "tongueClosure": {
+          "triangles": 10012,
+          "quantizationMm": 1e-05,
+          "signedVolumeMm3": 268.792612317946,
+          "uniqueCoordinateEdges": 15018,
+          "nonClosedOrMisdirectedEdges": 0,
+          "incidenceOneEdges": 0,
+          "otherEdgeFailures": 0,
+          "allFailuresAtLowerCapBoundary": true
+        },
+        "positiveSignedVolumeMm3": 268.792612317946,
+        "frontSideBoreWallRays": 16,
+        "emptyAxialBoreRays": 8,
+        "screwJoints": 4,
+        "angleDurationAndExactReset": "pass",
+        "rpmRejected": true,
+        "noInputEcho": true,
+        "fixedBodyPortSocketPlugTongueFrames": "pass",
+        "artworkConfigurations": 4,
+        "allPhysicalAttributesIndexWorldInvariant": true,
+        "outerEnvelopeUnchanged": true,
+        "onlyTongueGeometryChanged": true,
+        "ownComponentsJointsAndLabelsUnchanged": true
+      }
+    ]
+  },
+  "regression": "node scripts/check-terminal-tongue-closure.mjs",
+  "priorReceipts": "Existing batch22/23 and batch25 freezes/progress remain their historical snapshots",
+  "publication": "Local only;Git112 baseline32c95e0 retained,no commit or push"
+}

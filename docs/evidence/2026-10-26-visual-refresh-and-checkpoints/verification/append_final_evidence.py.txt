@@ -1,0 +1,28 @@
+import hashlib,json,zipfile
+from pathlib import Path
+from PIL import Image
+root=Path.cwd();dest=root/'docs/evidence/2026-10-26-visual-refresh-and-checkpoints';m=dest/'file-manifest.json';manifest=json.loads(m.read_text());rows={x['archived']:x for x in manifest['files']}
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def copy(p,rel):
+ assert p.is_file() and not p.is_symlink(),p
+ if p.suffix in {'.py','.mjs','.js','.md'} and not str(rel).endswith('.txt'):rel=Path(str(rel)+'.txt')
+ assert p.suffix not in {'.pyc','.bin','.rom','.elf','.so','.dylib'}
+ b=p.read_bytes();out=dest/rel;out.parent.mkdir(parents=True,exist_ok=True)
+ if out.exists():assert out.read_bytes()==b,rel
+ else:out.write_bytes(b)
+ rows[str(rel)]={'original':str(p.relative_to(root)),'archived':str(rel),'size':len(b),'sha256':sha(b)}
+def tree(p,rel):
+ for source in sorted(p.rglob('*')):
+  if source.is_file() and '__pycache__' not in source.parts:copy(source,Path(rel)/source.relative_to(p))
+tree(root/'.work/checkpoint-independent-review-20261026','checkpoint-cross-review')
+for name in ['append_final_evidence.py','docs-final-r2.txt','snapshot-final-r2.txt']:
+ p=root/'.work/visual-checkpoint-verification-20261026'/name
+ if p.exists():copy(p,Path('verification')/name)
+manifest['files']=sorted(rows.values(),key=lambda x:x['archived']);m.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
+for row in manifest['files']:
+ p=dest/row['archived'];b=p.read_bytes();assert len(b)==row['size'] and sha(b)==row['sha256']
+ if p.suffix=='.zip':
+  with zipfile.ZipFile(p) as z:assert z.testzip() is None
+ if p.suffix=='.png':
+  with Image.open(p) as im:im.load()
+print(json.dumps({'status':'PASS','files':len(rows),'bytes':sum(x['size'] for x in rows.values())}))

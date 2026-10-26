@@ -1,0 +1,65 @@
+{
+  "id": "midi",
+  "sku": "U187",
+  "kind": "reference-redraw",
+  "sourceArtworkDistributed": false,
+  "method": "New high-resolution code-drawn raster reconstruction from exact-model official photographs; no photograph crop or resized product image used as a texture. Only final PNG is distributed.",
+  "files": [
+    {
+      "path": "src/units/midi/reference-redraw-front.png",
+      "sha256": "43cc24f2aeabef54a67cd1f819f4396b4494a3f608cc85786d0b4a3488feb196",
+      "pixels": [
+        4200,
+        2997
+      ],
+      "sizeMm": [
+        35,
+        24.973
+      ],
+      "positionMm": [
+        0,
+        9.75,
+        12.3
+      ],
+      "face": "front",
+      "method": "printedArtwork",
+      "artworkKind": "reference-redraw",
+      "target": "MIDI native assembled front shell",
+      "reference": {
+        "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/11.webp",
+        "sha256": "f8950b2830916b5e4830f9bc26224ccb2586fddd6cd9f90465e043b1d113a915"
+      }
+    },
+    {
+      "path": "src/units/midi/reference-redraw-back.png",
+      "sha256": "dcf65077e69daf77c5478dfeb3b1a0863b8631d40dd0a48a73da8acb4c35293d",
+      "pixels": [
+        4200,
+        3405
+      ],
+      "sizeMm": [
+        35,
+        28.378
+      ],
+      "positionMm": [
+        0,
+        7.7,
+        -12.3
+      ],
+      "face": "back",
+      "method": "printedArtwork",
+      "artworkKind": "reference-redraw",
+      "target": "MIDI native assembled rear shell",
+      "reference": {
+        "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-MIDI/12.webp",
+        "sha256": "1d49e774633188cd88d6ce3ce54cc61e618f7c84a34eafd3a8cd3d0f9cf1f9c8"
+      }
+    }
+  ],
+  "limitations": [
+    "Typeface, shade, drawing stroke, reconstructed diagram placement and physical registration are visual reconstructions.",
+    "All readable front/back port names, Bypass/Separate print, UART coloured pin key, DIN pin numbers and TRS diagram labels are transcribed from own U187 photos. Printed routing text is preserved as observed and is not a promise of electrical behavior.",
+    "No serial, QR, vendor vector source, private table or source download link is included.",
+    "No separate interface sticker was observed on the two DIN or three TRS socket rims; their port roles are indicated by front/back labels."
+  ]
+}

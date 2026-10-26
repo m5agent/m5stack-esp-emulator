@@ -1,0 +1,131 @@
+{
+  "status": "pass",
+  "cases": [
+    {
+      "product": "weight-i2c",
+      "status": "pass",
+      "plugMeshes": 50,
+      "screwCommands": 5,
+      "nestedCableRetained": true,
+      "defaultPlug": false
+    },
+    {
+      "product": "8servos",
+      "status": "pass",
+      "plugMeshes": 50,
+      "screwCommands": 5,
+      "nestedCableRetained": true,
+      "defaultPlug": false
+    }
+  ],
+  "scope": "Real constructor options, plug modules, screw geometry, fixed default solids, nested commands and selective detach; no hardware or browser verification",
+  "savedAt": "2026-10-26T07:09:41.291951+00:00",
+  "stage": "modeled",
+  "browserReview": "deferred by user",
+  "fullCheck": "not run; earlier sticker check remains incomplete",
+  "builds": {
+    "public": "exit 0",
+    "private": "exit 0"
+  },
+  "defaultAssemblyComparison": "Exact buffers/materials/world frames/component API retained for both products",
+  "publication": "local only; not committed or pushed",
+  "files": [
+    {
+      "path": "docs/UNIT-TERMINALS.md",
+      "sha256": "4e5a42d0c32eca633ab3c90a7be57028ca2c07e228fefe58db83bb236309fe83"
+    },
+    {
+      "path": "docs/plans/unit-terminal-accessories.md",
+      "sha256": "b241e3dd24682cb0e8d31281673fabf8de9a635edf644735c8692793cbf57ffe"
+    },
+    {
+      "path": "docs/research/8servos/README.md",
+      "sha256": "729a007218f65216606b498e9f2c762c952e5e700931972b449c9295927a7433"
+    },
+    {
+      "path": "docs/research/8servos/geometry-check.json",
+      "sha256": "6056e2c4d9384fbc8963e2b114a2f60c91776ff553169eda8b1c01c04593426d"
+    },
+    {
+      "path": "docs/research/8servos/terminal-accessory.md",
+      "sha256": "40656c36c908c231129f9080207fb1cad554d7a3f5db6ea136b7b6258e723fe4"
+    },
+    {
+      "path": "docs/research/8servos/terminal-check.json",
+      "sha256": "7c221b020dec5568d4e731e52f500fae1009e60c3550ae16bd5bfe0153f783b5"
+    },
+    {
+      "path": "docs/research/weight-i2c/modeling.md",
+      "sha256": "ec1e725155a78c5494e54be6ba798c3a63bbc56c9ed28d112c211669e8132c4d"
+    },
+    {
+      "path": "docs/research/weight-i2c/smoke-result.json",
+      "sha256": "e0a52323790834ca707ac501a58a739f57d5e0162a9879b6ed7d1d6591b2b459"
+    },
+    {
+      "path": "docs/research/weight-i2c/terminal-accessory.md",
+      "sha256": "c6f1c4be9060535f1c11f2d80dfef4a0afd622b99afcfaf96aa1737cb782ec90"
+    },
+    {
+      "path": "docs/research/weight-i2c/terminal-smoke.json",
+      "sha256": "c2f9d4697001fd9560c5ac878583cd6fe7e8ed67a8b4853ac197efe8d6291ffc"
+    },
+    {
+      "path": "scripts/check-details.mjs",
+      "sha256": "6237906eca74516192478b9566a06699a5ae5ed0fcfe45d836fe4f635460c53b"
+    },
+    {
+      "path": "scripts/check-unit-terminal-accessories.mjs",
+      "sha256": "2700cb2bf8427f28c8a78413ce8793dcb1e536d9531389c68e43ea55c7c88c10"
+    },
+    {
+      "path": "src/index.js",
+      "sha256": "46bc57363f9c89040dc7b45cfc864b292104ce0c564a6391ece65e7c6ca46f98"
+    },
+    {
+      "path": "src/units/8servos/TerminalPlug.js",
+      "sha256": "ba3872a746b75264bf5b3e280666ff24967ae3c86aa82046492bacff510f5df9"
+    },
+    {
+      "path": "src/units/8servos/cad-map.json",
+      "sha256": "8a6860f2b143601fe7fcb22dbd673c5cb46c127e206e0a2e88b00edfdb32c818"
+    },
+    {
+      "path": "src/units/8servos/dimensions.js",
+      "sha256": "ea32fd34401689e19aecffef6dedb71f6dde22ad21f865217de6069e4adc2711"
+    },
+    {
+      "path": "src/units/8servos/geometry-data.js",
+      "sha256": "cd929599b9eb4d3871f83de8484c7b3e4fd41a2a95c0c01878b0d18cad440dd5"
+    },
+    {
+      "path": "src/units/8servos/index.js",
+      "sha256": "e4d53fa5790d49ee499221bc2178f10974f9ccf308e7f36b17b148c835ce3800"
+    },
+    {
+      "path": "src/units/weight-i2c/TerminalPlug.js",
+      "sha256": "483b8268092e7e0990aee94a7a3fb5c1a5ba7f76460f97c8c65e53eaf335d6a8"
+    },
+    {
+      "path": "src/units/weight-i2c/assembly.js",
+      "sha256": "a5f361dffa0735b2190d2a5206ddb9a917824addcb4102f5982d976d24b6e41f"
+    },
+    {
+      "path": "src/units/weight-i2c/cad-map.json",
+      "sha256": "306dea4ebfec96311fa12ff6fbb12a7584b3ac9142d855b79d529823bf0b1578"
+    },
+    {
+      "path": "src/units/weight-i2c/dimensions.js",
+      "sha256": "4146702860ed1f62877eaa2cd52520d9c62187021a85b4d5eaa33aaa387338e7"
+    },
+    {
+      "path": "src/units/weight-i2c/geometry-data.js",
+      "sha256": "15ab3b04c240aef5be4b1711755f2afbe61c7b792d3900b4b6679971032be37d"
+    },
+    {
+      "path": "src/units/weight-i2c/index.js",
+      "sha256": "b41d4055af59bce20b8f4472eb1387e0eb161624652f02353aa5ec2abdf2dc82"
+    }
+  ],
+  "sourcePrivacyIssues": []
+}

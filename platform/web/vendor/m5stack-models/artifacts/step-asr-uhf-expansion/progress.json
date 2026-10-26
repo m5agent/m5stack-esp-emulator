@@ -1,0 +1,395 @@
+{
+  "savedAt": "2026-10-26T09:38:12.588928+00:00",
+  "stage": "modeled",
+  "scope": "New Step16/ASR/UHF RFID complete physical assemblies, synchronous corresponding print mapping, actual three-branch Grove/API fixture and builds; no browser or whole-catalog acceptance",
+  "counts": {
+    "controller": 14,
+    "unit": 65,
+    "modeled": 79,
+    "verified": 0
+  },
+  "localHead": "48667b728736fbfd4365a06575473ce538d3c972",
+  "publication": "Local working-tree increment only; no commit or push",
+  "products": [
+    {
+      "id": "step16",
+      "status": "pass",
+      "report": "docs/research/step16/smoke.json",
+      "meshes": 101,
+      "triangles": 43064
+    },
+    {
+      "id": "asr",
+      "status": "pass",
+      "report": "docs/research/asr/smoke.json",
+      "meshes": 115,
+      "triangles": 26920
+    },
+    {
+      "id": "uhf-rfid",
+      "status": "pass",
+      "report": "docs/research/uhf-rfid/smoke.json",
+      "meshes": 60,
+      "triangles": 20935
+    }
+  ],
+  "pngCount": 5,
+  "rasters": [
+    {
+      "path": "src/units/step16/reference-redraw-back.png",
+      "pixels": [
+        2292,
+        1704
+      ],
+      "sha256": "da553d39593acfff18d14b1b785503e8705d0043df1687c0a48e4031865a126b"
+    },
+    {
+      "path": "src/units/asr/reference-redraw-back.png",
+      "pixels": [
+        1968,
+        3480
+      ],
+      "sha256": "bc9aaa27a71f88d2093fa4acef6e8f3f94d75b083693aefdf895c3dc7863a330"
+    },
+    {
+      "path": "src/units/asr/reference-redraw-front.png",
+      "pixels": [
+        756,
+        3456
+      ],
+      "sha256": "ddd1b4911cc50289df98529bb3b4e5f05cf75ec710e80b0019a0c33300f4fba7"
+    },
+    {
+      "path": "src/units/uhf-rfid/official-back.png",
+      "pixels": [
+        2400,
+        2400
+      ],
+      "sha256": "da75a923d4419af4205250021375b4dba84d0f7b4f268787873169294d52f834"
+    },
+    {
+      "path": "src/units/uhf-rfid/reference-redraw-front.png",
+      "pixels": [
+        3300,
+        2200
+      ],
+      "sha256": "bb6ba2599411837286868844ad6d62939faacf3358d0a4ae1d0bada7af587d9f"
+    }
+  ],
+  "fixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "step16",
+        "panels": 1,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "asr",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw"
+        ]
+      },
+      {
+        "id": "uhf-rfid",
+        "panels": 2,
+        "kinds": [
+          "reference-redraw",
+          "official-vector-raster"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-Grove-branches",
+      "actual-knob-angle-transition-and-exact-restoration",
+      "eight-independent-fixed-colour-segments-and-RGB",
+      "no-automatic-digit-or-firmware-state",
+      "fixed-acoustic-and-RF-assemblies-with-passive-anchors",
+      "artwork-toggle-keeps-physical-buffers-and-poses",
+      "four-wire-poses-and-selective-detach"
+    ],
+    "scope": "New product construction/API only; canvas stub, no browser, audio/recognition, RF, firmware, hardware or whole-catalog acceptance"
+  },
+  "privateFixture": {
+    "status": "pass",
+    "artwork": [
+      {
+        "id": "step16",
+        "panels": 1,
+        "kinds": [
+          "official-raster"
+        ]
+      },
+      {
+        "id": "asr",
+        "panels": 2,
+        "kinds": [
+          "official-raster",
+          "official-raster-film"
+        ]
+      },
+      {
+        "id": "uhf-rfid",
+        "panels": 2,
+        "kinds": [
+          "official-raster"
+        ]
+      }
+    ],
+    "cases": [
+      "three-real-Unit-Grove-branches",
+      "actual-knob-angle-transition-and-exact-restoration",
+      "eight-independent-fixed-colour-segments-and-RGB",
+      "no-automatic-digit-or-firmware-state",
+      "fixed-acoustic-and-RF-assemblies-with-passive-anchors",
+      "artwork-toggle-keeps-physical-buffers-and-poses",
+      "four-wire-poses-and-selective-detach"
+    ],
+    "scope": "New product construction/API only; canvas stub, no browser, audio/recognition, RF, firmware, hardware or whole-catalog acceptance"
+  },
+  "checks": {
+    "localProductSmoke": "all three pass",
+    "frozenRuntimeAndResearch": [
+      {
+        "id": "step16",
+        "status": "modeled-local-smoke-pass",
+        "checkedFiles": 11
+      },
+      {
+        "id": "asr",
+        "status": "frozen",
+        "checkedFiles": 13
+      },
+      {
+        "id": "uhf-rfid",
+        "status": "frozen",
+        "checkedFiles": 13
+      }
+    ],
+    "realThreeBranchGroveFixture": "pass in public and private workspaces",
+    "artworkToggle": "physical geometry attributes/index/poses identical with artwork:false, covered by saved local fixture",
+    "publicBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "4b6c1ab93a294d5eaf058ec6845caac35d42044ed490fcfae51bf27576ffc5eb",
+      "logDistributed": false
+    },
+    "privateBuild": {
+      "status": "completion-marker-present",
+      "logSha256": "5977a74ca0593911d6d72e79e1a149431791b0a032b3a48ae225280528b7043e",
+      "logDistributed": false
+    },
+    "livePreview": "79-product catalog, three runtime chunks and all five corresponding sticker PNGs byte-identical to public dist",
+    "newSourcePrivacy": "Final JS/JSON/Markdown/PNG and six added catalog/manifest records checked; no private URLs/table/vectors/raw sources/intermediates; PNG metadata limited to safe numeric DPI",
+    "catalogAndManifestPrivacyRecordsChecked": 6,
+    "narrowSync": "Only new products/catalog entries/exports/guide/plan",
+    "existingPublicUnitFilesUnchanged": 472,
+    "publicCoreFilesUnchanged": 19,
+    "privateProtectedFilesUnchanged": 7,
+    "browserReview": "not run",
+    "fullCheck": "not run"
+  },
+  "officialDocumentationFeedback": [
+    {
+      "product": "asr",
+      "record": "docs/research/asr/sources.json",
+      "feedback_id": "6bd4721d4c394947a8bf872de266f1cd",
+      "accepted": true,
+      "summary": {
+        "id": "6bd4721d4c394947a8bf872de266f1cd",
+        "result": "Accepted and queued for human evaluation",
+        "scope": "U194 body speaker 0.8W vs rear print 1W; missing production assembly datums and D4 optical-path evidence."
+      }
+    },
+    {
+      "product": "uhf-rfid",
+      "record": "docs/research/uhf-rfid/sources.json",
+      "feedback_id": "6ce62148ba3442c3b9bf6a3aa103c70e",
+      "accepted": true,
+      "summary": {
+        "id": "6ce62148ba3442c3b9bf6a3aa103c70e",
+        "category": "incorrect_information",
+        "status": "accepted",
+        "summary": "Older schematic summary invents LDO/UART series resistors/RF internals absent from the exact public P1/J1 interface diagram; do not use it as PCB evidence."
+      }
+    }
+  ],
+  "previewAssets": [
+    {
+      "id": "step16",
+      "file": "assets/step16-CDnOpRk4.js",
+      "sha256": "7cc1d5e4940c71961ab0b5deb88125321d71399b33399d90d543683ba3f189df"
+    },
+    {
+      "id": "asr",
+      "file": "assets/asr-BnTm501q.js",
+      "sha256": "9fd107b4f53abc68c76f6a3fbeda658d6a79c31f3d9e0d7f2264001e658bcd95"
+    },
+    {
+      "id": "uhf-rfid",
+      "file": "assets/uhf-rfid-BgTU6MXX.js",
+      "sha256": "080ff4d1f8f66ce5cf1fd9d765d9c4dbf79f75ace046edce062e8c49afc0b97f"
+    }
+  ],
+  "runtimeFiles": [
+    {
+      "path": "src/units/step16/assembly.js",
+      "sha256": "4170c4003634c2709049410386a90662635f551cb794a2c9f11986b670d48c37"
+    },
+    {
+      "path": "src/units/step16/cad-map.json",
+      "sha256": "977f0f37421714f1282df8b186261a90ad43735b82e108a10bc806374075e531"
+    },
+    {
+      "path": "src/units/step16/dimensions.js",
+      "sha256": "ed407493cb0b5a4138e73b5e6d5dc14d783982b4d621a8c9d94160e2847d0ac6"
+    },
+    {
+      "path": "src/units/step16/geometry-data.js",
+      "sha256": "406e89240dd6f54184f8026a16c7c3fb5a62c145d425a2b34d4afb85f5c8745d"
+    },
+    {
+      "path": "src/units/step16/index.js",
+      "sha256": "34e25e377bd9e1ba5c678457b41b0d66d0742467c7d036b9ec0c9f2848a21965"
+    },
+    {
+      "path": "src/units/step16/reference-redraw-back.png",
+      "sha256": "da553d39593acfff18d14b1b785503e8705d0043df1687c0a48e4031865a126b"
+    },
+    {
+      "path": "src/units/step16/stickers.js",
+      "sha256": "2752d61f5e2a9cda25883e5cfff2487e8f898e77fa6eac4f94e74e1115578d36"
+    },
+    {
+      "path": "docs/research/step16/artwork.json",
+      "sha256": "7f7ad5f55929afff8226ab0f4d7065ba2b47d8b745e85ad90194a8913b7c9a73"
+    },
+    {
+      "path": "docs/research/step16/modeling.md",
+      "sha256": "15ceabf64d9cb38ecdef11d94c3d0f334a12a71b0500c16934bca94573c17a12"
+    },
+    {
+      "path": "docs/research/step16/smoke.json",
+      "sha256": "750a0bc543fac7d50a9d88beaad0d672eb01a6f311aaf6ed9cd3b043ac11c2f7"
+    },
+    {
+      "path": "docs/research/step16/sources.json",
+      "sha256": "dabef6cd275c507a8095585d13dca63964374dc2233038530167951bf530e266"
+    },
+    {
+      "path": "src/units/asr/assembly.js",
+      "sha256": "e38521645c91c73c78fa8def7b1c512b3a30afbe954648418557b8eee9073be1"
+    },
+    {
+      "path": "src/units/asr/cad-map.json",
+      "sha256": "4c9647a81c9950d9f30db4d3d4a470893ba1f449d562be2ba99351b28a2d96f5"
+    },
+    {
+      "path": "src/units/asr/dimensions.js",
+      "sha256": "1975cafc2710ff5bb5c4519807732bb1abd05e679478371649d3af6a4b65e8e0"
+    },
+    {
+      "path": "src/units/asr/geometry-data.js",
+      "sha256": "fa67f7fdababf554bb22305af76e9bfdc089b02d7484c0dcd5cfbff674b54e6e"
+    },
+    {
+      "path": "src/units/asr/index.js",
+      "sha256": "10c3b597327ab27e92814f2ae2264c84a89539b817a0dda9ea530865b2cf71ae"
+    },
+    {
+      "path": "src/units/asr/reference-redraw-back.png",
+      "sha256": "bc9aaa27a71f88d2093fa4acef6e8f3f94d75b083693aefdf895c3dc7863a330"
+    },
+    {
+      "path": "src/units/asr/reference-redraw-front.png",
+      "sha256": "ddd1b4911cc50289df98529bb3b4e5f05cf75ec710e80b0019a0c33300f4fba7"
+    },
+    {
+      "path": "src/units/asr/stickers.js",
+      "sha256": "e591d2925179f4ff8af0fa56cd3414d8d40416f18f43772cdab35bbde4ac2c02"
+    },
+    {
+      "path": "docs/research/asr/artwork.json",
+      "sha256": "8ffa421df6ee60013d9264f4bb67f94808ad0f50421baf684b75ea9753ebbf68"
+    },
+    {
+      "path": "docs/research/asr/artwork.md",
+      "sha256": "420fb7cc594b553855922ed4ac44558ba96bdd5b576a435cca4e9e221d49affa"
+    },
+    {
+      "path": "docs/research/asr/modeling.md",
+      "sha256": "d3977ee3081f52dccddcbe370a9d3595931945de4799723e674ef5265d022cd6"
+    },
+    {
+      "path": "docs/research/asr/smoke.json",
+      "sha256": "0699aa38efed3bc3a5ca99df145fcda67ad3dfbcabcd25a8abc581bd4f3f3e56"
+    },
+    {
+      "path": "docs/research/asr/sources.json",
+      "sha256": "51b50ee866ea98dcb42e9a9de0e24a585fcba6199ac35b240e93018325bb975b"
+    },
+    {
+      "path": "src/units/uhf-rfid/assembly.js",
+      "sha256": "6a4f717bd3f9d3a3ce65f1603ed19a8c4a5ce3a59888f9705be682e889ba8535"
+    },
+    {
+      "path": "src/units/uhf-rfid/cad-map.json",
+      "sha256": "5745726b1112e91c1e289dbf9302c80b453fd40935c2c5b09566adfc5d6dbe54"
+    },
+    {
+      "path": "src/units/uhf-rfid/dimensions.js",
+      "sha256": "cf15e71041c5a2e639e5f5aa17eadff13a44805e7b4ea861497b9dc8a1195b67"
+    },
+    {
+      "path": "src/units/uhf-rfid/geometry-data.js",
+      "sha256": "36ecf8faaf97878e3874c0a9a328ada7fe8e55749175d44ce8f4789f13e45fc9"
+    },
+    {
+      "path": "src/units/uhf-rfid/index.js",
+      "sha256": "e33b4fd6a303b77e1c405a04448a708efea5d5956dd425f74643a8bc1ae76ad5"
+    },
+    {
+      "path": "src/units/uhf-rfid/official-back.png",
+      "sha256": "da75a923d4419af4205250021375b4dba84d0f7b4f268787873169294d52f834"
+    },
+    {
+      "path": "src/units/uhf-rfid/reference-redraw-front.png",
+      "sha256": "bb6ba2599411837286868844ad6d62939faacf3358d0a4ae1d0bada7af587d9f"
+    },
+    {
+      "path": "src/units/uhf-rfid/stickers.js",
+      "sha256": "bd4d26fcf69330d40f85ad62a94449f3b97e96ab399d8fdb1c001b619e978f92"
+    },
+    {
+      "path": "docs/research/uhf-rfid/artwork.json",
+      "sha256": "9d05313a390a712eded2d2b5cb4ad60e76467287014d4c64eaad96ae1597bc8e"
+    },
+    {
+      "path": "docs/research/uhf-rfid/artwork.md",
+      "sha256": "ee21e04ffa01d669ba9901fd99415bace767374c1c25b34b292c5f870b42ce87"
+    },
+    {
+      "path": "docs/research/uhf-rfid/modeling.md",
+      "sha256": "899655fbcf3c21af962a5462c3a1d4dc52727f6c4f013b415d6d4737fd5dcefd"
+    },
+    {
+      "path": "docs/research/uhf-rfid/smoke.json",
+      "sha256": "03019d7d490c7633fec089ce91790dfdb919e156573b7369837c053fc9a6273d"
+    },
+    {
+      "path": "docs/research/uhf-rfid/sources.json",
+      "sha256": "e211ca7ccb50c860b5b2919d36f3b9096a9a653e27a3fcd926345107a077c099"
+    }
+  ],
+  "limitations": [
+    "PCB, hidden component, connector interior, installed transforms and light spread retain documented appearance estimates",
+    "Step16 rotation is an externally driven original cap/shaft with 16-position spacing metadata and intermediate poses; no press, BCD code order/zero/direction or automatic glyph mapping",
+    "Step16 seven-segment A-G/DP are eight independent fixed warm-yellow visual indicators, separate from its RGB; observed color is not a measured spectrum",
+    "ASR microphone, internal speaker and CI-03T assembly are physical appearance only; no capture, recognition, playback, synthesis or invented user controls/LED output API",
+    "UHF RFID ceramic antenna/JRD-4035 assembly is physical appearance only; no scanning, RF/UART data, invented control or unsupported schematic internals",
+    "Five final sticker PNGs include exact-model official-source raster and reference redraws; original vector/table/mapping/generators and intermediates remain private",
+    "Earlier sticker checkpoints, isolated private Scroll and unresolved StackChan production-fit checkpoint preserved"
+  ]
+}

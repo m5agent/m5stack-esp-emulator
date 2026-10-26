@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "status": "HOST_PASS_GUEST_NOT_RUN",
+  "frozen_at": "2026-10-26T15:28:45.694209+00:00",
+  "scope": "public immutable package checkpoint and synchronous same-guest revision-reference execution; Preview/Run still OPEN",
+  "source_sha256": {
+    "platform/tools/device_service.py": "1eb317c3b9d8da27f57f6916d2f1dc405d16b7f1af088ee6e9862511118537d0",
+    "platform/tools/serve.py": "1c17e6134c0b80493400dfd0896e75b1094926b343fbf45a9d06a14d12283cb5",
+    "platform/tests/test_program_revision_api.py": "50e69616e8106b988bf9801ff57335b3e2d0ca84ddd2fc583bf0e0b7145ee698"
+  },
+  "protected_root_serial_read_sha256": "3e179a49fc1921eba0ba9c805adaf5f89e2bb3495378f3ff5182210a0a3215c3",
+  "tests": {
+    "command": "PYTHONPATH=platform/tools:platform/tests /opt/miniconda3/bin/python3.12 -m unittest test_program_revision_api test_device_program_packages test_device_program_runtime test_program_packages test_program_revisions test_program_revision_config test_serve_api test_mpy_bytecode",
+    "count": 135,
+    "status": "PASS",
+    "seconds": 13.7,
+    "new_HTTP_host_tests": 15,
+    "guest": "NOT RUN",
+    "runtime": "MOCKED"
+  },
+  "checks": {
+    "diff_check": "PASS",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "STALE; authority-doc/snapshot updates owned by root"
+  },
+  "notes": [
+    "Source Python request hash semantics preserved.",
+    "Reference execution never calls either revision store create.",
+    "Native/invalid MPY structure is rejected before creating execution; actual guest capability/deployment failures retain existing semantics.",
+    "No changes to serial_read or existing test files, no guest/stage/commit.",
+    "Shared Bearer authorization is unchanged; no owner/tenant or Preview/Run HTTP promise."
+  ]
+}

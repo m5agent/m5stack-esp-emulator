@@ -3,7 +3,7 @@ import {Device,Display,Led,materials} from '../../core/index.js';
 import {addCadParts} from '../../modeling/cad.js';
 import {socket,grove,slab} from '../../modeling/parts.js';
 import {cadButton,physicalButton} from '../../modeling/actuators.js';
-import {artwork} from '../../modeling/artwork.js';
+import {addStickers} from './stickers.js';
 import {stampS3A} from '../../modeling/subassemblies.js';
 import {stamplcTerminals,stamplcDC} from './terminals.js';
 import {DIM} from './dimensions.js';import data from './geometry-data.js';
@@ -31,6 +31,7 @@ export class StamPLC extends Device{
   stamplcDC(this);
   socket(this,{position:[36.02,11,3],face:'right',w:8.7,h:3.1});
   physicalButton(this,{id:'reset',label:'Reset/boot key',mesh:parts['reset-key'],axis:[0,-1,0],travel:.2,isolateMaterials:true,meta:{surfaceCenter:[-24,37.5,8.5],surfaceFace:'top'}});
+  addStickers(this);
  }
 }
 export default StamPLC;

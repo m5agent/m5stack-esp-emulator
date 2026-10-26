@@ -1,0 +1,30 @@
+{
+  "commit": "3681a6482aff96501d44659ba5a1603246f1fe1f",
+  "files": 169,
+  "bytes": 1023004,
+  "exact_sha_status": "PASS",
+  "utf8_text_and_json": "PASS",
+  "unusual_controls": [],
+  "findings": [
+    {
+      "path": "docs/LOCAL-EXPANSION.md",
+      "line": 80,
+      "kind": "private-url",
+      "match_sha256": "a94da230e56f7314abebf0ea4f935245706c7983174cc3cd4334e1d590a25dd6",
+      "redacted_line": "本地预览为<[REDACTED-private-url]>。`npm run catalog`生成loader、服务catalog与STATUS；各批专项命令见对应指南。后续新增时应按本页批次和当前实际diff保留依赖，保留公开基线已有的素材净化规则。"
+    }
+  ],
+  "url_host_inventory": {
+    "docs.m5stack.com": 19,
+    "m5stack-doc.oss-cn-shenzhen.aliyuncs.com": 33,
+    "static-cdn.m5stack.com": 108,
+    "127.0.0.1": 1,
+    "media.melexis.com": 3,
+    "m5stack.oss-cn-shenzhen.aliyuncs.com": 35,
+    "www.melexis.com": 2,
+    "shop.m5stack.com": 8,
+    "github.com": 2,
+    "raw.githubusercontent.com": 7
+  },
+  "status": "REQUIRES_REVIEW"
+}

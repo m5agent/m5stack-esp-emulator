@@ -1,0 +1,21 @@
+# Fixed 3681 visual snapshot import
+
+Imported exact public source `3681a6482aff96501d44659ba5a1603246f1fe1f` after the independent old-vendor browser baseline released its freeze. No moving HEAD was followed.
+
+Changed ownership scope: `platform/tools/sync_visual_models.py`, `platform/tests/test_sync_visual_models.py`, `platform/web/vendor/m5stack-models/`. `changed-files.txt` is the exact 914-file whitelist (including newly imported source/assets). No stage, commit, push or guest launch was performed. Shared Three.js files have no Git diff.
+
+The importer preserves exact 287-PNG path/hash/commit/notice checks, adds 169 exact public guide text path/hash declarations, validates UTF-8/JSON and rejects credential/private-key/MAC/private-user-path/private-endpoint content, and closes the selected guides 176-file relative-link graph. Unknown inline link expressions/references and unreferenced text are rejected. The one scanned loopback development-preview URL was reviewed as a noncredential local example and preserved. All public texts retain original upstream bytes.
+
+Generated vendor metadata records the source pin, 169 reviewed guide hashes and closure scope. UPSTREAM and manifest distinguish source-manifest.json's historical sourceCommit preparation baseline from the actual pinned vendor source_commit. Product rasters retain their original rights and provider/reference-redraw notices; no source photos, raw CAD, vector originals, firmware, generators or installed dependencies were imported.
+
+Validation:
+
+- Normal CLI sync: 912 files updated, 1162 source/generated files plus the existing Three addon manifest.
+- Strict CLI `--check`: PASS.
+- Sync unit tests: 12 PASS, including original PNG/notice/URL-template guards, exact guide identity, content negatives, unknown/unreviewed/missing-reference negatives, and the actual 169-guide/287-PNG vendor snapshot.
+- Static JS/PNG closure: 687 JS, 287 PNG, unchanged four Three imports, closed.
+- Documentation: 176 referenced files, 169 reviewed additional texts, closed.
+- `git diff --check` for owned changes: PASS. Upstream original whitespace inventory preserved separately.
+- Literal sensitive pattern scan of 875 vendored text files: PASS, no private-key/provider-key/MAC/private-user-path matches.
+
+`final-freeze.json` and `vendor-file-sha256.json` freeze all 1163 vendor files plus importer/test hashes. Root and browser-test agent have received the freeze and may proceed after root's cache chain update. This subtask ran no browser, guest, matrix or physical-hardware validation; those results must be reported separately.

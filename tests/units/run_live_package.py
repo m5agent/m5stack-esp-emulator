@@ -21,6 +21,7 @@ import subprocess
 import sys
 import time
 import urllib.error
+import urllib.request
 import uuid
 import zipfile
 
@@ -46,6 +47,14 @@ OFFICIAL_DOCS = {
     "relay": "https://uiflow-micropython.readthedocs.io/en/latest/units/relay.html",
     "mpy": "https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/docs/reference/mpyfiles.rst",
 }
+CHECKPOINT_LIMITS = {"max_revisions": 256, "max_files": 64, "max_file_bytes": 262144,
+                     "max_total_file_bytes": 1048576, "max_http_body_bytes": 2097152, "gc_enabled": False}
+REFERENCE_SOURCE_FILES = (
+    "tests/units/run_live_package.py", "tests/units/test_live_package.py",
+    "tests/units/run_live_program.py", "tests/units/run_service_cases.py", "tests/units/run_host_cases.py",
+    "platform/tools/serve.py", "platform/tools/device_service.py", "platform/tools/program_packages.py",
+    "platform/tools/program_revisions.py", "platform/tools/mpy_bytecode.py", "platform/tools/uiflow_runtime.py",
+)
 
 
 def sha(data):
@@ -72,6 +81,132 @@ def package_payload(files, expected):
         encoded[path] = {"encoding": "utf8" if text else "base64",
                          "data": data.decode("utf-8") if text else base64.b64encode(data).decode("ascii")}
     return {"files": encoded, "entrypoint": "main.py", "expected_execution_id": expected, "timeout_seconds": 120}
+
+
+class RevisionProbeClient(ProbeClient):
+    """Record every direct API response, including repeated headers/error bytes.
+
+    Reference validation is an explicit direct-HTTP lane. Reject a requested
+    Web bridge rather than quietly routing its calls outside this recorder.
+    """
+    def __init__(self, url, output):
+        require(os.environ.get("M5_UNIT_WEB_BRIDGE") != "1",
+                "--revision-references records direct HTTP and cannot be combined with M5_UNIT_WEB_BRIDGE=1")
+        super().__init__(url, output)
+
+    def raw(self, path, method="GET", payload=None, body=None, headers=None, via_ui=True):
+        index = len(self.requests)
+        row = {"path": path, "method": method}
+        self.requests.append(row)
+        if payload is not None:
+            save(self.output / f"{index:04d}.request.json", payload)
+        headers = dict(headers or {})
+        if payload is not None:
+            body = json.dumps(payload, allow_nan=False).encode()
+            headers["Content-Type"] = "application/json"
+        request = urllib.request.Request(self.url + "/api/v1/" + path, data=body, headers=headers, method=method)
+        started = time.monotonic()
+        try:
+            try:
+                with urllib.request.urlopen(request, timeout=180) as response:
+                    data, status, response_headers = response.read(), response.status, response.headers
+            except urllib.error.HTTPError as error:
+                data, status, response_headers = error.read(), error.code, error.headers
+                self._record_response(index, row, status, response_headers, data)
+                raise RuntimeError(f"{method} {path}: HTTP {status} {data.decode('utf-8', errors='replace')}") from error
+            self._record_response(index, row, status, response_headers, data)
+            return data
+        except Exception as error:
+            row["error"] = {"type": type(error).__name__, "message": str(error)}
+            raise
+        finally:
+            row["elapsed_seconds"] = time.monotonic() - started
+            save(self.output / "http.json", self.requests)
+
+    def _record_response(self, index, row, status, headers, data):
+        pairs = list(headers.raw_items() if hasattr(headers, "raw_items") else (headers or {}).items())
+        row.update(status=status, response_bytes=len(data), response_sha256=sha(data),
+                   response_headers=[[key, value] for key, value in pairs])
+        (self.output / f"{index:04d}.response").write_bytes(data)
+
+
+def checkpoint_payload(files):
+    return {"source_kind": "uiflow2-package", "entrypoint": "main.py",
+            "files": package_payload(files, None)["files"]}
+
+
+def reference_payload(checkpoint_id, expected, *, timeout=120):
+    return {"revision_id": checkpoint_id, "expected_execution_id": expected, "timeout_seconds": timeout}
+
+
+def submission_payload(content, expected, checkpoints=None):
+    payload = package_payload(content, expected) if isinstance(content, dict) else {"source": content, "expected_execution_id": expected, "timeout_seconds": 20}
+    if checkpoints is None:
+        return payload, None
+    version = next((version for version, checkpoint in checkpoints.items()
+                    if isinstance(content, dict) and checkpoint["revision"]["revision_id"] == revision_id(content)), None)
+    if version is not None:
+        payload = reference_payload(checkpoints[version]["revision"]["revision_id"], expected)
+    submission = {"mode": "revision-reference" if version is not None else "legacy-files" if isinstance(content, dict) else "legacy-source",
+                  "request": payload, "previous_execution_id": expected}
+    if version is not None:
+        submission["checkpoint_version"] = version
+    return payload, submission
+
+
+def validate_checkpoint(envelope, files):
+    require(type(envelope) is dict and set(envelope) == {"revision", "limits"}, "checkpoint envelope fields differ")
+    metadata, limits = envelope["revision"], envelope["limits"]
+    require(type(metadata) is dict and set(metadata) == {
+        "revision_id", "source_sha256", "source_kind", "entrypoint", "total_file_bytes", "files", "created_at"},
+        "checkpoint metadata fields differ")
+    inventory = file_inventory(files)
+    rows = [{"path": path, **row, "kind": "python" if path.endswith(".py") else "mpy" if path.endswith(".mpy") else "resource"}
+            for path, row in inventory.items()]
+    require(metadata["revision_id"] == revision_id(files)
+            and metadata["source_sha256"] == sha(canonical({path: row["sha256"] for path, row in inventory.items()}))
+            and metadata["source_kind"] == "uiflow2-package" and metadata["entrypoint"] == "main.py"
+            and type(metadata["total_file_bytes"]) is int and metadata["total_file_bytes"] == sum(len(data) for data in files.values())
+            and canonical(metadata["files"]) == canonical(rows), "checkpoint identity/metadata differs from original file bytes")
+    try:
+        created = datetime.fromisoformat(metadata["created_at"])
+    except (TypeError, ValueError) as error:
+        raise RuntimeError("checkpoint created_at is not a dated timestamp") from error
+    require(created.tzinfo is not None, "checkpoint created_at has no timezone")
+    require(canonical(limits) == canonical(CHECKPOINT_LIMITS), "checkpoint limits differ")
+    return metadata
+
+
+def register_checkpoints(client, packages, output):
+    checkpoints = {}
+    for version, files in packages.items():
+        payload = checkpoint_payload(files)
+        calls = []
+        first = None
+        for method, path, body, status in (
+            ("POST", "program-revisions", payload, 201),
+            ("POST", "program-revisions", payload, 201),
+            ("GET", "program-revisions/" + revision_id(files), None, 200),
+        ):
+            envelope = client.json(path, method, body)
+            request = client.requests[-1]
+            require(request.get("path") == path and request.get("method") == method and request.get("status") == status,
+                    "checkpoint HTTP method/path/status differs")
+            validate_checkpoint(envelope, files)
+            if first is None:
+                first = envelope
+            require(canonical(first) == canonical(envelope), "checkpoint duplicate/GET metadata, created_at or limits changed")
+            calls.append({"http_index": len(client.requests) - 1, "method": method, "path": path,
+                          "status": status, "response": envelope})
+        checkpoints[version] = {"revision": first["revision"], "limits": first["limits"], "calls": calls,
+                                "file_inventory": file_inventory(files)}
+        save(output / f"checkpoint-{version.lower()}.json", checkpoints[version])
+    return checkpoints
+
+
+def reference_source_fingerprints():
+    return {name: {"sha256": sha((ROOT / name).read_bytes()), "bytes": (ROOT / name).stat().st_size}
+            for name in REFERENCE_SOURCE_FILES}
 
 
 def main_source(nonce, pins, unit):
@@ -304,6 +439,15 @@ def validate_bundle(data, report, submitted):
                         and archive.read(f"programs/{program['revision_id']}/files/{path}") == expected,
                         "ZIP package original file bytes differ: " + path)
             require(program["revision_id"] == revision_id(files), "ZIP package revision is not bound to all original files")
+            if result.get("submission", {}).get("mode") == "revision-reference":
+                submission = result["submission"]
+                checkpoint = report["checkpoints"][submission["checkpoint_version"]]
+                validate_checkpoint({"revision": metadata, "limits": checkpoint["limits"]}, files)
+                require(canonical(metadata) == canonical(checkpoint["revision"]), "ZIP public checkpoint metadata/created_at differs")
+                require(submission["request"] == reference_payload(program["revision_id"], submission["previous_execution_id"])
+                        and program["source_sha256"] == history.get("source_sha256") == metadata["source_sha256"]
+                        and history.get("total_file_bytes") == metadata["total_file_bytes"]
+                        and history.get("file_count") == len(files), "ZIP referenced execution/request identity differs")
             if result.get("activated"):
                 deployment = history["deployment"]
                 require(deployment["phase"] == "activated" and deployment["inventory"] == file_inventory(files), "ZIP verified guest inventory differs")
@@ -311,22 +455,44 @@ def validate_bundle(data, report, submitted):
                 require(deployment.get("reused") is result["reused"], "ZIP package reuse claim differs")
             if result.get("error_code"):
                 require(history.get("error", {}).get("code") == result["error_code"], "ZIP rejected execution error differs")
+        if report.get("revision_references"):
+            expected_ids = {row["program"]["execution_id"] for row in report["executions"].values()}
+            stored_ids = {PurePosixPath(name).stem for name in names
+                          if name.startswith("programs/") and name.count("/") == 1 and name.endswith(".json")}
+            require(len(expected_ids) == 12 and stored_ids == expected_ids, "ZIP shows missing/additional execution after rejected references")
+            referenced = {result["submission"]["checkpoint_version"] for result in report["executions"].values()
+                          if result.get("submission", {}).get("mode") == "revision-reference"}
+            require(referenced == set(VERSIONS), "not every public A/B/C checkpoint was executed by reference")
+            require({name for name, result in report["executions"].items()
+                     if result.get("submission", {}).get("mode") == "revision-reference"} == {"a", "b", "b-recovery", "c-recovery"},
+                    "valid A/B/C execution did not exclusively use stored revision references")
+            for version, checkpoint in report["checkpoints"].items():
+                checkpoint_id = checkpoint["revision"]["revision_id"]
+                metadata = json.loads(archive.read(f"programs/{checkpoint_id}/revision.json"))
+                require(canonical(metadata) == canonical(checkpoint["revision"]), "ZIP checkpoint original metadata differs: " + version)
         frame_observation(archive.read("frames/current.png"), report["expected_frame_size"], "C")
         return {"members": len(names), "sha256": sha(data), "original_files_and_guest_inventory_verified": True,
-                "serial_byte_offsets_verified": True}
+                "serial_byte_offsets_verified": True,
+                **({"public_checkpoints_and_reference_execution_set_verified": True} if report.get("revision_references") else {})}
 
 
 def run(args):
     args.out_dir.mkdir(parents=True, exist_ok=False)
-    client = ProbeClient(args.api, args.out_dir)
+    references = getattr(args, "revision_references", False)
+    client = (RevisionProbeClient if references else ProbeClient)(args.api, args.out_dir)
     report = {"schema_version": 1, "status": "FAIL", "captured_at": datetime.now(timezone.utc).isoformat(),
               "validation": "virtual-device validation", "hardware_validation": "NOT RUN", "device_id": args.device,
               "unit_id": args.unit, "runtime": "qemu", "program_mode": "uiflow-live", "official_docs": OFFICIAL_DOCS,
               "runner_sha256": sha(Path(__file__).read_bytes()), "executions": {}, "serial_observations": [],
               "phases": [], "negative_controls": {}, "planned_unique_guest_directories": 4}
+    if references:
+        report.update(revision_references=True, source_fingerprints=reference_source_fingerprints(), checkpoints={},
+                      source_fingerprint_scope="On-disk runner/helpers/backend bytes frozen through the run; health records service PID/generation, not independently attested loaded-module bytes")
     session_id, expected = None, None
     submitted = {}
     try:
+        if references:
+            report["service_before"] = client.json("health")
         inventory = client.json(f"units?device_id={args.device}")
         host = next(row for row in inventory["hosts"] if row["device_id"] == args.device)
         ports = [row for row in host["ports"] if row.get("visual_port") == "grove" and row.get("wiring_status") == "confirmed" and row.get("physical_presence") == "main-device"]
@@ -336,6 +502,9 @@ def run(args):
         packages, compiler_receipt = build_packages(args.mpy_cross, args.out_dir / "compiled", nonce, pins, args.unit)
         report["compiler"] = compiler_receipt
         report["package_inventory"] = {name: {"revision_id": revision_id(files), "files": file_inventory(files)} for name, files in packages.items()}
+        if references:
+            report["checkpoints"] = register_checkpoints(client, packages, args.out_dir)
+            report["checkpoint_registration_before_session"] = True
         created = client.json("sessions", "POST", {"device_id": args.device, "runtime": "qemu", "program_mode": "uiflow-live",
                               "ttl_seconds": 1200, "ready_timeout_seconds": 40,
                               "units": [{"id": "external1", "unit_id": args.unit, "port_id": ports[0]["id"]}]})
@@ -362,7 +531,7 @@ def run(args):
 
         def submit(name, content, *, history_state, activated=False, reused=False):
             nonlocal expected
-            payload = package_payload(content, expected) if isinstance(content, dict) else {"source": content, "expected_execution_id": expected, "timeout_seconds": 20}
+            payload, submission = submission_payload(content, expected, report["checkpoints"] if references else None)
             started = time.monotonic()
             result = client.json(prefix + "/program", "POST", payload)
             result["request_seconds"] = time.monotonic() - started
@@ -371,6 +540,9 @@ def run(args):
             expected = program["execution_id"]
             submitted[name] = content
             result.update(expected_history_state=history_state, activated=activated, reused=reused)
+            if submission is not None:
+                require(client.requests[-1].get("status") == 200, "program HTTP status differs")
+                result["submission"] = submission
             report["executions"][name] = result
             if activated:
                 require(program["revision_id"] == revision_id(content), "submitted package revision differs")
@@ -440,6 +612,9 @@ def run(args):
                 require(expected != previous_id and rejected["response"]["error"].get("execution_id") == expected
                         and program["state"] == "failed" and program.get("error", {}).get("code") == error_code, "failed package execution identity/state differs")
                 current.update(expected_history_state="failed", activated=False, error_code=error_code)
+                if references:
+                    current["submission"] = {"mode": "legacy-files-negative", "request": payload,
+                                             "previous_execution_id": previous_id}
                 report["executions"][name] = current
                 submitted[name] = files
                 save(args.out_dir / f"program-{name}.json", current)
@@ -448,6 +623,31 @@ def run(args):
             report["negative_controls"][name] = rejected
             save(args.out_dir / f"rejected-{name}.json", rejected)
             return program
+
+        def reject_reference(name, payload, status, code):
+            before = before_serial()
+            previous = client.json(prefix + "/program")["program"]
+            require(previous["execution_id"] == expected and previous["state"] == "running", "reference negative needs the active B program")
+            try:
+                client.json(prefix + "/program", "POST", payload)
+            except RuntimeError as error:
+                rejected = decode_rejection(error)
+            else:
+                raise RuntimeError("negative reference was accepted: " + name)
+            require(rejected["status"] == status and rejected["response"]["error"]["code"] == code,
+                    "unexpected reference rejection: " + str(rejected))
+            current = client.json(prefix + "/program")["program"]
+            same_guest(current)
+            require(current["execution_id"] == previous["execution_id"] == expected and current["state"] == "running",
+                    "rejected reference interrupted/replaced the current application")
+            value = 0 if args.unit == "pir" else int(VERSIONS["B"]["relay"])
+            continuation_before = before_serial()
+            window = observe(continuation_before, version="B", value=value)
+            result = {"request": payload, **rejected, "previous_execution_id": expected,
+                      "after_execution_id": current["execution_id"], "before_rejection_offset": before["next_offset"],
+                      "continuation_offset": continuation_before["next_offset"], "continuation": window}
+            report["negative_controls"].setdefault("revision-references", {})[name] = result
+            save(args.out_dir / f"rejected-reference-{name}.json", result)
 
         before = before_serial()
         finite = submit("finite", f"import sys\nsys.path.append({NONCE_PREFIX + nonce!r})\nprint('LIVE_PACKAGE_FINITE_DONE')\n", history_state="completed")
@@ -481,6 +681,25 @@ def run(args):
                 phase["inputs"].append({"value": value, "serial_window": window, "qom": qom, "frame": {"path": frame_name, **metrics}})
             save(args.out_dir / f"phase-{version.lower()}.json", phase)
 
+        if references:
+            known = report["checkpoints"]["A"]["revision"]["revision_id"]
+            unknown = sha(("unknown-public-package-" + nonce).encode())
+            try:
+                client.json("program-revisions/" + unknown)
+            except RuntimeError as error:
+                missing = decode_rejection(error)
+                require(missing["status"] == 404 and missing["response"]["error"]["code"] == "unknown_program_package", "unknown public checkpoint lookup differs")
+                report["unknown_checkpoint_lookup"] = missing
+            else:
+                raise RuntimeError("unknown checkpoint collision")
+            reject_reference("bad-id", reference_payload("not-a-sha256", expected), 400, "invalid_program")
+            reject_reference("unknown", reference_payload(unknown, expected), 404, "unknown_program_package")
+            reject_reference("python-only", reference_payload(finite["revision_id"], expected), 404, "unknown_program_package")
+            for field, value in (("source", "pass\n"), ("files", checkpoint_payload(packages["A"])["files"]),
+                                 ("entrypoint", "main.py"), ("source_kind", "uiflow2-package")):
+                reject_reference("mixed-" + field, {**reference_payload(known, expected), field: value}, 400, "invalid_program")
+            reject_reference("stale", reference_payload(known, report["executions"]["a"]["program"]["execution_id"]),
+                             409, "program_generation_conflict")
         reject("stale", packages["B"], "program_generation_conflict", stale=True)
         syntax_files = {**packages["B"], "main.py": b"def broken(:\n"}
         before = before_serial()
@@ -547,6 +766,20 @@ print('LIVE_PACKAGE_TAMPERED ' + json.dumps({{'sha256': binascii.hexlify(hashlib
         require(current["state"] == "running" and current["pid"] == ready["pid"] and current["firmware_sha256"] == ready["firmware_sha256"]
                 and current.get("worker") == ready.get("worker"), "guest process, firmware or worker changed")
         report["final_program"] = client.json(prefix + "/program")
+        if references:
+            for version, checkpoint in report["checkpoints"].items():
+                envelope = client.json("program-revisions/" + checkpoint["revision"]["revision_id"])
+                validate_checkpoint(envelope, packages[version])
+                require(canonical(envelope) == canonical({key: checkpoint[key] for key in ("revision", "limits")}),
+                        "execution changed public checkpoint metadata: " + version)
+                checkpoint["after_execution"] = envelope
+                checkpoint["after_execution_http_index"] = len(client.requests) - 1
+                require(client.requests[-1].get("status") == 200, "checkpoint final GET status differs")
+            report["service_after"] = client.json("health")
+            first_worker = report["service_before"]["capacity"]["worker"]
+            last_worker = report["service_after"]["capacity"]["worker"]
+            require(all(first_worker.get(key) == last_worker.get(key) for key in ("pid", "generation")), "Device Service process/generation changed")
+            require(reference_source_fingerprints() == report["source_fingerprints"], "runner/helper/backend source changed during reference validation")
         bundle = client.raw(prefix + "/evidence")
         (args.out_dir / "evidence.zip").write_bytes(bundle)
         report["evidence"] = validate_bundle(bundle, report, submitted)
@@ -556,6 +789,9 @@ print('LIVE_PACKAGE_TAMPERED ' + json.dumps({{'sha256': binascii.hexlify(hashlib
             "mpy_capability_and_stale_execution_rejected": True, "guest_mutation_rejected_before_app": True,
             "new_c_recovered": True, "same_process_firmware_vm_and_banner": True,
             "zip_original_bytes_guest_inventory_and_executions": True})
+        if references:
+            report["checks"].update(public_checkpoint_duplicate_get_identity=True, valid_packages_run_by_reference=True,
+                                    invalid_references_preserve_active_program=True, reference_rejections_add_no_execution=True)
     except Exception as error:
         report["error"] = str(error)
     finally:
@@ -573,6 +809,13 @@ print('LIVE_PACKAGE_TAMPERED ' + json.dumps({{'sha256': binascii.hexlify(hashlib
                 require(stopped["state"] == "stopped" and stopped.get("flash_retained") is False
                         and stopped.get("last_frame_available") is True, "session stop/history frame/Flash release was not confirmed")
                 report["cleanup"] = {"state": "stopped", "flash_retained": False, "history_retained": True, "last_frame_available": True}
+                if references:
+                    try:
+                        os.kill(report["pid"], 0)
+                    except ProcessLookupError:
+                        report["cleanup"]["pid_gone"] = True
+                    else:
+                        raise RuntimeError("stopped reference-session guest process still exists")
             except Exception as error:
                 report.update(status="FAIL", cleanup_error=str(error))
         save(args.out_dir / "report.json", report)
@@ -587,23 +830,38 @@ def main(argv=None):
     parser.add_argument("--api", default="http://127.0.0.1:8787")
     parser.add_argument("--device", choices=DEVICES, default="cores3")
     parser.add_argument("--unit", choices=("pir", "relay"), default="pir")
-    parser.add_argument("--execute", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--plan", action="store_true", help="Print the offline plan without compiler or API calls")
+    mode.add_argument("--execute", action="store_true")
+    parser.add_argument("--revision-references", action="store_true",
+                        help="Store A/B/C through the public checkpoint API before session creation, then execute their immutable IDs")
     parser.add_argument("--out-dir", type=Path)
     parser.add_argument("--expected-runtime-sha256")
     parser.add_argument("--mpy-cross", type=Path)
     args = parser.parse_args(argv)
     if not args.execute:
-        print(json.dumps({"status": "PLANNED_NOT_EXECUTED", "device_id": args.device, "unit_id": args.unit,
+        plan = {"status": "PLANNED_NOT_EXECUTED", "device_id": args.device, "unit_id": args.unit,
             "program_mode": "uiflow-live", "api": args.api, "versions": ["A", "B", "C"],
             "same_main_py": True, "files": ["main.py", "config.json", "helper.mpy", "lib/__init__.py", "lib/logic.py", "namespace_lib/state.py", "assets/pixel.png", "old_only.py (A only)"],
             "package_directories": 4, "guest_directory_limit": 64,
             "negative_controls": ["stale execution", "SyntaxError", "incompatible mpy major/small-int", "extra empty namespace directory", "mutated existing guest file"],
-            "guest_execution": "NOT RUN", "hardware_validation": "NOT RUN"}, indent=2))
+            "guest_execution": "NOT RUN", "hardware_validation": "NOT RUN"}
+        if args.revision_references:
+            plan.update(revision_references=True, checkpoints_before_session=["A", "B", "C"],
+                        checkpoint_fields=["source_kind=uiflow2-package", "entrypoint=main.py", "files"],
+                        checkpoint_duplicate_post_status=201, checkpoint_get_status=200,
+                        valid_execution_fields=["revision_id", "expected_execution_id", "timeout_seconds"],
+                        expected_executions=12, additional_execution_count_from_reference_negatives=0,
+                        reference_negative_controls=["bad ID", "unknown package", "legacy Python-only revision", "mixed source/files/entrypoint/source_kind", "stale execution"],
+                        legacy_negative_controls_remain="SyntaxError, guest mpy incompatibility, guest directory/file integrity; separately identified")
+        print(json.dumps(plan, indent=2))
         return
     if args.out_dir is None or args.mpy_cross is None or not re.fullmatch(r"[0-9a-f]{64}", args.expected_runtime_sha256 or ""):
         parser.error("--execute requires a new --out-dir, exact --expected-runtime-sha256 and explicit --mpy-cross")
     if args.out_dir.exists() or not args.mpy_cross.is_file() or not os.access(args.mpy_cross, os.X_OK):
         parser.error("--out-dir must not exist and --mpy-cross must be an existing executable file")
+    if args.revision_references and os.environ.get("M5_UNIT_WEB_BRIDGE") == "1":
+        parser.error("--revision-references records direct HTTP and cannot be combined with M5_UNIT_WEB_BRIDGE=1")
     run(args)
 
 

@@ -1,0 +1,5 @@
+{
+  "source": "import os, sys, json, hashlib, binascii\nassert '/m5-live-package-3da18e42806244b890b196090a33b9b0' in sys.path\nos.rmdir('/flash/.m5-live-packages/cfded8f79112b400bfc219aa54c5540d40ee895064feff2ed6805705aa6b652c/extra_empty_namespace')\nwith open('/flash/.m5-live-packages/cfded8f79112b400bfc219aa54c5540d40ee895064feff2ed6805705aa6b652c/config.json', 'ab') as stream:\n assert stream.write(b' ') == 1\nwith open('/flash/.m5-live-packages/cfded8f79112b400bfc219aa54c5540d40ee895064feff2ed6805705aa6b652c/config.json', 'rb') as stream:\n data = stream.read()\nprint('LIVE_PACKAGE_TAMPERED ' + json.dumps({'sha256': binascii.hexlify(hashlib.sha256(data).digest()).decode(), 'size': len(data)}))\n",
+  "expected_execution_id": "d5c65019f11d43b3ae07bf82b3865f88",
+  "timeout_seconds": 20
+}

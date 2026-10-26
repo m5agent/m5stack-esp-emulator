@@ -25,7 +25,8 @@ export class PaperMono extends Device {
   this.add(new Led({id:'rgb',label:'RGB light guide',mesh:rgbGuide(),position:DIM.rgb.position,quaternion:FACE.left,radius:.45,glowSize:3,meta:{role:'externally-driven-visual'}}));
   // Orthographic rear reference: the NFC cover starts below the complete
   // circuit sticker. Keep its original lower edge and thickness.
-  slab(this.body,59.6,34.65,.6,3.4,[.5,-31.725,-4.06],materials.glossy(0x151a1d,{roughness:.25,clearcoat:.25}),[],.035).name='NFC rear molded cover';
+  const nfcCover=slab(this.body,59.6,34.65,.6,3.4,[.5,-31.725,-4.06],materials.glossy(0x151a1d,{roughness:.25,clearcoat:.25}),[],.035);nfcCover.name='NFC rear molded cover';
+  printedArtwork(this,{target:nfcCover,url:new URL('./artwork/nfc-reference-redraw.png',import.meta.url).href,size:[38,38*450/1400],position:[.5,-31.725,-4.06],face:'back',depth:.12,artworkKind:'reference-redraw',name:'PaperMono NFC cover - official-photo reference redraw'});
   printedArtwork(this,{target:parts['paper-shell'],url:new URL('./artwork/rear.png',import.meta.url).href,size:[57.5,62.9447],position:[.5,18.2,-3.8],face:'back',depth:.5,name:'PaperMono official rear circuit sticker'});
  }
 }

@@ -1,0 +1,32 @@
+from pathlib import Path
+import collections,hashlib,io,ipaddress,json,re,subprocess,tarfile,urllib.parse
+root=Path.cwd();out=root/'.work/visual-sync-execution-3681-20261026';base=root/'.work/visual-upstream-audit-3681-20261026';repo=base/'source';commit='3681a6482aff96501d44659ba5a1603246f1fe1f';c=json.loads((base/'sync-preparation/guide-link-closure.json').read_text());entries={x['path']:x for x in c['files'] if not x['already_selected']};assert len(entries)==169
+blob=subprocess.check_output(['git','-C',str(repo),'archive',commit,'--',*entries])
+with tarfile.open(fileobj=io.BytesIO(blob),mode='r:') as tar:files={x.name:tar.extractfile(x).read() for x in tar.getmembers() if x.isfile()}
+patterns={
+ 'mac':re.compile(r'(?i)(?<![0-9a-f])(?:[0-9a-f]{2}[:-]){5}[0-9a-f]{2}(?![0-9a-f])'),
+ 'private-key':re.compile(r'-----BEGIN (?:RSA |OPENSSH |EC |DSA )?PRIVATE KEY-----'),
+ 'provider-key':re.compile(r'\b(?:sk-(?:proj-)?[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{16}|xox[baprs]-[A-Za-z0-9-]{12,})\b'),
+ 'secret-assignment':re.compile(r'''(?i)(?:api[_-]?key|access[_-]?token|authorization|password|client[_-]?secret|secret[_-]?key)\s*[:=]\s*["']([^"'\n]{8,})["']'''),
+ 'local-user-path':re.compile(r'(?:/Users/[^/\s"\x27)]+|/home/[^/\s"\x27)]+|[A-Z]:\\Users\\[^\\\s"\x27)]+)'),
+ 'private-url':re.compile(r'https?://[^\s<>)"\x27]+'),
+}
+hits=[];hosts=collections.Counter();controls=[]
+for name,b in files.items():
+ assert hashlib.sha256(b).hexdigest()==entries[name]['sha256'];text=b.decode('utf8');assert b'\0' not in b;assert name.endswith(('.md','.json','.txt'))
+ if name.endswith('.json'):json.loads(text)
+ for lineno,line in enumerate(text.splitlines(),1):
+  for kind,p in patterns.items():
+   for m in p.finditer(line):
+    if kind=='private-url':
+     parsed=urllib.parse.urlsplit(m.group());hosts[parsed.hostname or 'unknown']+=1
+     try:addr=ipaddress.ip_address(parsed.hostname or '')
+     except ValueError:
+      if parsed.username or parsed.password or (parsed.hostname or '').endswith(('.local','.lan','.internal')):pass
+      else:continue
+     else:
+      if not addr.is_private and not addr.is_loopback:continue
+    hits.append({'path':name,'line':lineno,'kind':kind,'match_sha256':hashlib.sha256(m.group().encode()).hexdigest(),'redacted_line':line[:m.start()]+'[REDACTED-'+kind+']'+line[m.end():]})
+  if any(ord(ch)<32 and ch not in '\t' for ch in line):controls.append({'path':name,'line':lineno})
+report={'commit':commit,'files':len(files),'bytes':sum(len(v) for v in files.values()),'exact_sha_status':'PASS','utf8_text_and_json':'PASS','unusual_controls':controls,'findings':hits,'url_host_inventory':dict(hosts),'status':'REQUIRES_REVIEW' if hits else 'PASS'}
+(out/'guide-content-scan.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');print(json.dumps(report,ensure_ascii=False,indent=2))

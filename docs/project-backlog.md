@@ -1,6 +1,6 @@
 # 项目 Backlog
 
-日期：`2026-10-26`
+日期：`2026-10-27`
 
 本文只记录尚未完成的工作、依赖和验收条件。当前能力见
 [项目当前状态](project-status.md)，历史运行和 evidence 见
@@ -65,7 +65,7 @@ eFuse 或生产 key。
 已满足前置为取消事务、同 guest UART raw REPL、Web 程序面板、限定HUB传感器/
 控制leaf的原驱动执行及显式按需共享QEMU帧样本，范围见[本轮证据](evidence/2026-10-26-live-unit-preview/README.md)。
 完整文件包/资源与纯字节码`.mpy`依赖已实现，范围见[文件包证据](evidence/2026-10-26-live-package-and-detent/README.md)。
-Scroll限定原驱动与按键/RGB闭环已有前置；继续补剩余Unit原驱动、二进制入口/保存开机、Preview/Run、AIFlow checkpoint/虚拟目标、SSE及程序revision引用保留/有界回收。显式配额可配置不关闭长期回收。
+Scroll限定原驱动与按键/RGB闭环、公共完整checkpoint及同步revision引用已有前置；继续补剩余Unit原驱动、二进制入口/保存开机、Preview/Run、AIFlow checkpoint事件/虚拟目标、SSE及程序revision引用保留/有界回收。显式配额可配置不关闭长期回收。
 双向动画继续闭合 `UNIT-HOST-29`：默认全灯同色反馈取任意通道排列均相同的准确子集；
 非对称逐灯颜色仍需官方通道到模型位置依据，旋转需独立物理source和计数/方向标定，
 不能把逻辑counter写入/reset当轴运动。验收须核真实mounted组件。

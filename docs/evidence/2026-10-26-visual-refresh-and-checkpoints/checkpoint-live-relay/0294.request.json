@@ -1,0 +1,35 @@
+{
+  "files": {
+    "assets/pixel.png": {
+      "encoding": "base64",
+      "data": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAKUlEQVR4nGNk+M9AFcBEHWMYRg0iAowaRBiMGkQYjBpEGIwaRBgMPoMAeqsBLxmnMtoAAAAASUVORK5CYII="
+    },
+    "config.json": {
+      "encoding": "utf8",
+      "data": "{\"color\":[0,255,0],\"helper\":29,\"init\":202,\"logic\":5,\"old_present\":false,\"relay\":true,\"version\":\"B\"}\n"
+    },
+    "helper.mpy": {
+      "encoding": "base64",
+      "data": "TQYAHwUAEmhlbHBlci5weQAPEnRyYW5zZm9ybQAKVkFMVUUAgkVsAAQBI50WAzIAFgJRYwFgEQYCBECwgvQSA/Jj"
+    },
+    "lib/__init__.py": {
+      "encoding": "utf8",
+      "data": "VALUE = 202\n"
+    },
+    "lib/logic.py": {
+      "encoding": "utf8",
+      "data": "import helper\nVALUE = 5\ndef calculate(value):\n return helper.transform(value) + VALUE\n"
+    },
+    "main.py": {
+      "encoding": "utf8",
+      "data": "def broken(:\n"
+    },
+    "namespace_lib/state.py": {
+      "encoding": "utf8",
+      "data": "VALUE = 202\n"
+    }
+  },
+  "entrypoint": "main.py",
+  "expected_execution_id": "c364ce9b739f4fcbace5f94c7688cb05",
+  "timeout_seconds": 120
+}

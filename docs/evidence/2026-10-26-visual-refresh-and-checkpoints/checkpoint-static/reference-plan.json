@@ -1,0 +1,62 @@
+{
+  "status": "PLANNED_NOT_EXECUTED",
+  "device_id": "cores3",
+  "unit_id": "pir",
+  "program_mode": "uiflow-live",
+  "api": "http://127.0.0.1:8787",
+  "versions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "same_main_py": true,
+  "files": [
+    "main.py",
+    "config.json",
+    "helper.mpy",
+    "lib/__init__.py",
+    "lib/logic.py",
+    "namespace_lib/state.py",
+    "assets/pixel.png",
+    "old_only.py (A only)"
+  ],
+  "package_directories": 4,
+  "guest_directory_limit": 64,
+  "negative_controls": [
+    "stale execution",
+    "SyntaxError",
+    "incompatible mpy major/small-int",
+    "extra empty namespace directory",
+    "mutated existing guest file"
+  ],
+  "guest_execution": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "revision_references": true,
+  "checkpoints_before_session": [
+    "A",
+    "B",
+    "C"
+  ],
+  "checkpoint_fields": [
+    "source_kind=uiflow2-package",
+    "entrypoint=main.py",
+    "files"
+  ],
+  "checkpoint_duplicate_post_status": 201,
+  "checkpoint_get_status": 200,
+  "valid_execution_fields": [
+    "revision_id",
+    "expected_execution_id",
+    "timeout_seconds"
+  ],
+  "expected_executions": 12,
+  "additional_execution_count_from_reference_negatives": 0,
+  "reference_negative_controls": [
+    "bad ID",
+    "unknown package",
+    "legacy Python-only revision",
+    "mixed source/files/entrypoint/source_kind",
+    "stale execution"
+  ],
+  "legacy_negative_controls_remain": "SyntaxError, guest mpy incompatibility, guest directory/file integrity; separately identified"
+}

@@ -1,3 +1,4 @@
+import {addStickers} from './stickers.js';
 import * as THREE from 'three';
 import {Led,materials} from '../../core/index.js';
 import {slab} from '../../modeling/parts.js';
@@ -5,6 +6,7 @@ import {makeUnit} from '../shared/CADUnit.js';
 import {spec} from './dimensions.js';import data from './geometry-data.js';
 void 0;
 const models=makeUnit(spec,data,host=>{
+ addStickers(host);
  slab(host.body,9,4,.1,1.8,[0,8,3.75],materials.plastic(0x252c30),[],.02).name='Color fixed optical package backing';
  slab(host.body,3.1,3.1,.1,.3,[0,8,3.87],materials.glossy(0x211e32,{roughness:.15}),[],.02).name='Color fixed sensor window';
  for(const [side,x] of [['left',-3.4],['right',3.4]]){

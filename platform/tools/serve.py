@@ -407,6 +407,8 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.get_device(parts[1])
             elif method == "GET" and parts == ["capacity"]:
                 response = service.capacity()
+            elif method == "GET" and len(parts) == 2 and parts[0] == "program-revisions":
+                response = service.get_program_revision(parts[1])
             elif method == "GET" and parts == ["units"]:
                 try:
                     response = UnitRegistry().inventory(query.get("device_id", [None])[0])
@@ -684,6 +686,10 @@ class Handler(SimpleHTTPRequestHandler):
                         "invalid_qom", "path and property query values are required", 400
                     )
                 response = session.qom_get(path_value, prop)
+            elif method == "POST" and parts == ["program-revisions"]:
+                response = service.create_program_revision(self._read_json(max_bytes=2 * 1024 * 1024, reject_duplicate_keys=True))
+                status = 201
+                headers["Location"] = f"/api/v1/program-revisions/{response['revision']['revision_id']}"
             elif method == "POST" and parts == ["artifact-uploads"]:
                 payload = self._read_json()
                 expected_size = payload.get("expected_size")
@@ -1027,12 +1033,20 @@ class Handler(SimpleHTTPRequestHandler):
                 409,
             )
 
-    def _read_json(self, required: bool = True, *, max_bytes: int = 1024 * 1024) -> dict:
+    def _read_json(self, required: bool = True, *, max_bytes: int = 1024 * 1024,
+                   reject_duplicate_keys: bool = False) -> dict:
         if not required and int(self.headers.get("Content-Length", "0") or "0") == 0:
             return {}
         raw = self._read_body(max_bytes=max_bytes)
+        def unique_object(pairs):
+            result = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ServiceError("invalid_json", "duplicate JSON field", 400)
+                result[key] = value
+            return result
         try:
-            payload = json.loads(raw)
+            payload = json.loads(raw, object_pairs_hook=unique_object if reject_duplicate_keys else None)
         except json.JSONDecodeError as error:
             raise ServiceError("invalid_json", "request body must be valid JSON", 400) from error
         if not isinstance(payload, dict):

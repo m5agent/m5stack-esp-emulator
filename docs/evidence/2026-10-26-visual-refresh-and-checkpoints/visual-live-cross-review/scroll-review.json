@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-26T15:49:42.812454+00:00",
+  "category": "independent-readonly-vendor-3681-scroll-evidence-review",
+  "status": "PARTIAL",
+  "scope": "PASS for original-driver guest UART/controller-API/button/RGB/material/application-PNG/history and cleanup path. Independent raw QOM criterion is unfulfilled.",
+  "original_report_status": "PASS",
+  "original_report_sha256": "6259be6b7c8d1118f9e8b1a52327bc9e8a5e1fc6573762d282f85440ce09efb9",
+  "source_checks": [
+    {
+      "path": "platform/tests/test_live_scroll_service_browser.mjs",
+      "executed_sha256": "4f1f3872abb92e084a6825cbb1ed9aa5bb899cacd286d01e92246d99add8a472",
+      "current_sha256": "4f1f3872abb92e084a6825cbb1ed9aa5bb899cacd286d01e92246d99add8a472"
+    },
+    {
+      "path": "platform/web/sessions.js",
+      "executed_sha256": "18b5a9f1e4f74c59eb1a7265b7d7bb1cf7190195c9278915f7f4770927b655b4",
+      "current_sha256": "18b5a9f1e4f74c59eb1a7265b7d7bb1cf7190195c9278915f7f4770927b655b4"
+    },
+    {
+      "path": "platform/web/sessions.html",
+      "executed_sha256": "5c400f139c1acf570b55f0fd17a08fb33eaa9c135e83063e19ce92459fb5de21",
+      "current_sha256": "5c400f139c1acf570b55f0fd17a08fb33eaa9c135e83063e19ce92459fb5de21"
+    },
+    {
+      "path": "platform/web/program-panel.js",
+      "executed_sha256": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+      "current_sha256": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05"
+    },
+    {
+      "path": "platform/web/unit-panel.js",
+      "executed_sha256": "ba1fa1a6d557255d12de20f1f44a76c886c09f8f8292c7da71feb8dc2434de51",
+      "current_sha256": "ba1fa1a6d557255d12de20f1f44a76c886c09f8f8292c7da71feb8dc2434de51"
+    },
+    {
+      "path": "platform/web/model-shell.js",
+      "executed_sha256": "1cfee042e184fc936da1b9eaef142cf08b7f82daa5fbcbbdd7c150718e5a1876",
+      "current_sha256": "1cfee042e184fc936da1b9eaef142cf08b7f82daa5fbcbbdd7c150718e5a1876"
+    },
+    {
+      "path": "platform/web/unit-visual-mappings.js",
+      "executed_sha256": "3170a5b02080b4600aa98f93776fa5fba79c7a49ad09de09e9255fd0e869e52a",
+      "current_sha256": "3170a5b02080b4600aa98f93776fa5fba79c7a49ad09de09e9255fd0e869e52a"
+    },
+    {
+      "path": "platform/units/catalog.json",
+      "executed_sha256": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+      "current_sha256": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c"
+    },
+    {
+      "path": "platform/units/runtime-profiles.json",
+      "executed_sha256": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480",
+      "current_sha256": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/vendor-manifest.json",
+      "executed_sha256": "b4b92bebabac0e40ced79e39a652c26726ff0243d0c04989b76c0d82de3090fb",
+      "current_sha256": "b4b92bebabac0e40ced79e39a652c26726ff0243d0c04989b76c0d82de3090fb"
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/src/units/scroll/index.js",
+      "executed_sha256": "412c4887d3a34a2bff833d273fe4bc26df3be1be6b5377fc9195c090946d034c",
+      "current_sha256": "412c4887d3a34a2bff833d273fe4bc26df3be1be6b5377fc9195c090946d034c"
+    },
+    {
+      "path": "tests/units/scroll_protocol_probe.py",
+      "executed_sha256": "21b1368d863c64bbe2135acf751d51d1d6c2e0786f7bd871edd4b2a4466e7039",
+      "current_sha256": "21b1368d863c64bbe2135acf751d51d1d6c2e0786f7bd871edd4b2a4466e7039"
+    }
+  ],
+  "all_sources_and_original_evidence_unchanged": true,
+  "worker_generation": 32,
+  "runtime_identity": {
+    "pid": 168,
+    "executable_name": "qemu-system-xtensa",
+    "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+  },
+  "session_id": "e2c64013218e4af3bb3e84e9b8a7aeb5",
+  "pid_gone_independently": true,
+  "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "execution_id": "8ac25feb6fff40039f71071d422f9117",
+  "revision_id": "7f22089d00c62bdb5e1e33879a7c051904d637316a63c06876655513f0d54ebb",
+  "same_VM_nonce": "/m5-scroll-web-be0061b8b71f4391aae2ad894f200f60",
+  "ZIP_revalidation": {
+    "status": "PASS",
+    "members": 14,
+    "serial_windows": 5,
+    "original_source_and_revision_sha": true,
+    "identity_and_member_sha": true,
+    "zip_sha256": "ff20bf8befa9d50403eb59b384c14ae4e5d9fdd27c843d1da147d0505b787eb5"
+  },
+  "frames": [
+    {
+      "phase": "released-initial",
+      "controller_api_readback": "PASS",
+      "independent_raw_QOM": "NOT PRESENT in this batch",
+      "mounted_material_and_PNG": "PASS",
+      "frame_sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc"
+    },
+    {
+      "phase": "pressed",
+      "controller_api_readback": "PASS",
+      "independent_raw_QOM": "NOT PRESENT in this batch",
+      "mounted_material_and_PNG": "PASS",
+      "frame_sha256": "8d9c8e3dec4a74d2e626dcf451fe5dec8f0aab5e5cce24c4009e24de853b9108"
+    },
+    {
+      "phase": "released",
+      "controller_api_readback": "PASS",
+      "independent_raw_QOM": "NOT PRESENT in this batch",
+      "mounted_material_and_PNG": "PASS",
+      "frame_sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc"
+    },
+    {
+      "phase": "source-3",
+      "controller_api_readback": "PASS",
+      "independent_raw_QOM": "NOT PRESENT in this batch",
+      "mounted_material_and_PNG": "PASS",
+      "frame_sha256": "c7ff4a2e49c5d64955d6d7f229161ab4513297376351a636853610f3969e8274"
+    },
+    {
+      "phase": "source--2",
+      "controller_api_readback": "PASS",
+      "independent_raw_QOM": "NOT PRESENT in this batch",
+      "mounted_material_and_PNG": "PASS",
+      "frame_sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e"
+    }
+  ],
+  "independent_raw_QOM": {
+    "status": "NOT PRESENT",
+    "reason": "General ZIP QOM snapshot nodes contain __truncated__ before units. No independent per-leaf raw QOM HTTP responses are retained. Controller /units API is guest-qom readback, not a second independent raw sample.",
+    "snapshot_sha256": "46c468539fc0115bfabd13a14c943b1678d355df4082731b005abac883ec1a1f",
+    "truncation": true
+  },
+  "totals": {
+    "executions": 1,
+    "fixture_POSTs": 4,
+    "fresh_UART_windows": 5,
+    "application_PNGs": 5,
+    "all_saved_PNGs": 11,
+    "ZIP_members": 14,
+    "zero_echo_ms": 1600
+  },
+  "history_and_frame_readonly_GET": "PASS",
+  "separate_frame_sampling_notes": [],
+  "manual_visual_review": {
+    "paths": [
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/scroll-3681-live-browser-20261026/pressed-browser.png",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/scroll-3681-live-browser-20261026/source--2-browser.png"
+    ],
+    "observed": "CoreS3/Scroll/cable complete in captured canvas; screen changes red PRESSED to green RELEASED/count -2. Unit panel reports matching state. Card screenshot lower readouts are cropped; no full page claim."
+  },
+  "limits": [
+    "Virtual-device evidence only; physical hardware NOT RUN.",
+    "No independent per-leaf raw QOM responses retained; generic QOM is truncated before units.",
+    "Only one guest execution in this Scroll batch; same VM/PID/firmware observations do not establish a multi-program replacement test.",
+    "Stable latest RGB values only; no queue/slot/burst, calibrated shaft angle, TIM rollover, bootloader/persistence or physical equivalence.",
+    "Frame/Unit/serial/materials are separately sampled; no atomic same-frame claim.",
+    "Trusted pointer/raycast is asserted by exact frozen probe source; no independent raw pointer telemetry array is retained."
+  ],
+  "mutations": "Only new .work review files; no new guest/browser or code/docs/raw-evidence mutation."
+}

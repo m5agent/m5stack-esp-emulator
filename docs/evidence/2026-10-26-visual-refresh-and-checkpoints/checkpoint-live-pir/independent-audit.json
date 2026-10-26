@@ -1,0 +1,34 @@
+{
+  "status": "PASS",
+  "http_responses_verified": 572,
+  "all_http_real_status_complete_header_pairs_body_hashes": true,
+  "reference_execution_names": [
+    "a",
+    "b",
+    "b-recovery",
+    "c-recovery"
+  ],
+  "reference_negative_controls": [
+    "bad-id",
+    "mixed-entrypoint",
+    "mixed-files",
+    "mixed-source",
+    "mixed-source_kind",
+    "python-only",
+    "stale",
+    "unknown"
+  ],
+  "zip_before_stop": true,
+  "zip_sha256": "d599f1728bb92fe5bba64247a5ae40ff10c5e5272a7b4d90f422f53bd0e6d0c4",
+  "report_sha256": "4019af25431ef5c5acaa275fb7a6279b6be6f8aa8e9b6d67bda8711fa26166ed",
+  "executions": 12,
+  "cleanup": {
+    "state": "stopped",
+    "flash_retained": false,
+    "history_retained": true,
+    "last_frame_available": true,
+    "pid_gone": true
+  },
+  "post_stop_GET_history_frame_verified": true,
+  "source_fingerprints_unchanged": true
+}

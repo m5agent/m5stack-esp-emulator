@@ -1,0 +1,157 @@
+// Installed inside each disposable browser context by test_model_shell.mjs.
+// This inspects real model objects; it does not synthesize firmware state.
+export function installModelProbe({assetPaths, timeoutMs}) {
+  const assets = new Set(assetPaths);
+  const check = (ok, message) => {if (!ok) throw new Error(message);};
+  const within = (object, root) => {for (let p = object; p; p = p.parent) if (p === root) return true; return false;};
+  const artworkRows = root => {
+    const rows = [];
+    root.traverse(object => {
+      if (object.userData.role !== 'printed-artwork') return;
+      const materials = Array.isArray(object.material) ? object.material : [object.material];
+      const maps = materials.map(material => {
+        const image = material?.map?.image;
+        const url = image?.currentSrc || image?.src || '';
+        const path = url ? decodeURIComponent(new URL(url, location.href).pathname).replace('/platform/web/vendor/m5stack-models/', '') : '';
+        return {path, width: image?.naturalWidth || image?.width || 0, height: image?.naturalHeight || image?.height || 0,
+          registered: assets.has(path), hasMap: Boolean(material?.map), opacity: material?.opacity};
+      });
+      rows.push({name: object.name, kind: object.userData.artworkKind || null, status: object.userData.textureStatus || null,
+        surface: object.userData.surface || null, parent: object.parent?.name || null,
+        vertices: object.geometry?.getAttribute('position')?.count || 0, owned: within(object, root), maps});
+    });
+    return rows;
+  };
+  async function artwork(host, expectedMinimum) {
+    const end = performance.now() + timeoutMs;
+    let rows;
+    do {
+      rows = artworkRows(host.root);
+      check(!rows.some(row => row.status === 'error'), `${host.meta.id}: artwork loading error`);
+      if (rows.every(row => row.status !== 'pending')) break;
+      await new Promise(resolve => setTimeout(resolve, 50));
+    } while (performance.now() < end);
+    check(rows.length >= expectedMinimum, `${host.meta.id}: expected at least ${expectedMinimum} printed-artwork layer(s), got ${rows.length}`);
+    for (const row of rows) {
+      check(row.status === 'ready', `${host.meta.id}: ${row.name} (${row.kind}) is ${row.status}`);
+      check(row.owned && row.vertices > 0, `${host.meta.id}: artwork has no owned surface geometry`);
+      if (row.surface) check(row.surface === row.parent, `${host.meta.id}: artwork surface ownership mismatch`);
+      check(row.maps.length > 0 && row.maps.every(map => map.hasMap && map.registered && map.width > 0 && map.height > 0 && map.opacity > 0), `${host.meta.id}: artwork map is absent, unregistered or empty`);
+    }
+    return {expected_minimum_layers: expectedMinimum, layers: rows.length, ready: rows.length, rows};
+  }
+  function ownership(shell, host) {
+    const paths = new Set();
+    return host.list().map(component => {
+      check(!paths.has(component.path), `Duplicate component path ${component.path}`); paths.add(component.path);
+      check(shell.model.find(component.path, component.kind) === component, `Wrong command target owner ${component.path}`);
+      check(within(component.object3d, host.root), `Component ${component.path} is outside its model`);
+      return {path: component.path, kind: component.kind, meta: component.meta};
+    });
+  }
+  function outputs(shell, host) {
+    const events = [], onInput = event => events.push({id: event.id, kind: event.kind, action: event.action});
+    shell.on('model-input', onInput);
+    const leds = [], joints = [], sliders = [];
+    try {
+      for (const led of host.list('led')) {
+        const fixedColor = String(led.meta.colorMode || '').startsWith('fixed-') || led.meta.fixedColor !== undefined;
+        const expectedColor = fixedColor ? led.getState().color : '#00ff00';
+        shell.applyVisualState({type: 'led', target: led.path, color: '#00ff00', brightness: 0.5});
+        const state = led.getState();
+        check(state.color === expectedColor && state.brightness === 0.5 && led.runtimeKnown === true, `LED output failed ${led.path}`);
+        // Fixed-color indicators and concealed/segment emitters deliberately
+        // differ from RGB LEDs and need not have an exterior billboard halo.
+        check(led.invisible ? !led.glow.visible && led.glow.material.opacity === 0 : led.lensMaterial.emissive.toArray().some(channel => channel > 0), `LED material failed ${led.path}`);
+        if (led.glow.visible) check(led.glow.material.opacity > 0, `Visible LED glow is empty ${led.path}`);
+        leds.push({path: led.path, state, color_contract: fixedColor ? 'fixed' : 'rgb', expectedColor,
+          invisible: Boolean(led.invisible), known: led.runtimeKnown, emissive: led.lensMaterial.emissive.toArray(), glow: led.glow.visible});
+      }
+      for (const joint of host.list('joint')) {
+        const before = joint.getState(), range = before.rangeDeg;
+        let wanted = range ? range[0] + (range[1] - range[0]) * 0.25 : before.angleDeg + 15;
+        if (wanted === before.angleDeg && range) wanted = range[0] + (range[1] - range[0]) * 0.75;
+        const quaternion = joint.object3d.quaternion.clone();
+        shell.applyVisualState({type: 'joint', target: joint.path, angleDeg: wanted});
+        const state = joint.getState();
+        check(Math.abs(state.angleDeg - wanted) < 1e-8 && !state.transitioning, `Joint output failed ${joint.path}`);
+        if (Math.abs(wanted - before.angleDeg) % 360 > 1e-8) check(quaternion.angleTo(joint.object3d.quaternion) > 1e-8, `Joint geometry did not move ${joint.path}`);
+        joints.push({path: joint.path, before: before.angleDeg, wanted, state});
+      }
+      for (const slider of host.list('slider')) {
+        let rejected = false;
+        try {shell.applyVisualState({type: 'slider', target: slider.path, value: 0.5});} catch (error) {rejected = error instanceof TypeError;}
+        check(rejected, `Slider unexpectedly admitted to output bridge ${slider.path}`);
+        sliders.push({path: slider.path, state: slider.getState(), shell_only: true, runtime_bridge: 'UNSUPPORTED'});
+      }
+      check(events.length === 0, `Visual output echoed as input on ${host.meta.id}`);
+      return {leds, joints, sliders, outputEcho: events.length};
+    } finally {shell.off('model-input', onInput);}
+  }
+  // Capture actual Three.js disposal events before detach/dispose. Releasing the
+  // context after each small batch also bounds browser module/image caches.
+  function watchDisposal(root) {
+    const geometry = new Set(), material = new Set(), texture = new Set();
+    root.traverse(object => {
+      if (object.geometry) geometry.add(object.geometry);
+      for (const mat of object.material ? (Array.isArray(object.material) ? object.material : [object.material]) : []) {
+        material.add(mat);
+        for (const value of Object.values(mat)) if (value?.isTexture) texture.add(value);
+      }
+    });
+    const groups = {geometry, material, texture}, disposed = {};
+    for (const [kind, resources] of Object.entries(groups)) {
+      disposed[kind] = new Set();
+      for (const resource of resources) resource.addEventListener('dispose', () => disposed[kind].add(resource));
+    }
+    return () => Object.fromEntries(Object.entries(groups).map(([kind, resources]) => {
+      check(disposed[kind].size === resources.size, `${kind} resources not disposed: ${disposed[kind].size}/${resources.size}`);
+      return [kind, {total: resources.size, disposed: disposed[kind].size}];
+    }));
+  }
+  async function rendered(shell) {
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('Model render deadline exceeded')), timeoutMs);
+      shell.viewer.once('render', () => {clearTimeout(timer); resolve();});
+      shell.viewer.requestRender();
+    });
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  }
+  function disposeShell() {
+    const shell = window.testShell;
+    if (!shell || shell.disposed) return null;
+    if (!shell.model) {
+      shell.dispose(); window.testShell = null;
+      check(document.querySelector('#host').children.length === 0, 'Legacy shell DOM leaked');
+      return {legacy: true};
+    }
+    const finish = watchDisposal(shell.model.root), components = shell.model.list();
+    shell.dispose();
+    const resources = finish();
+    check(shell.model.components.size === 0 && components.every(component => component.host === null), 'Shell component ownership leaked');
+    check(document.querySelector('#host').children.length === 0, 'Shell DOM leaked');
+    window.testShell = null;
+    return resources;
+  }
+  window.modelProbe = {artwork, ownership, outputs, watchDisposal, rendered, disposeShell};
+}
+
+export async function decodeAssetBatch({paths, concurrency, timeoutMs}) {
+  let cursor = 0, active = 0, peak = 0;
+  const rows = new Array(paths.length);
+  async function worker() {
+    while (cursor < paths.length) {
+      const index = cursor++, path = paths[index];
+      let image = new Image(), timer;
+      active++; peak = Math.max(peak, active);
+      try {
+        image.src = `/platform/web/vendor/m5stack-models/${path}`;
+        await Promise.race([image.decode(), new Promise((_, reject) => {timer = setTimeout(() => reject(new Error(`PNG decode deadline: ${path}`)), timeoutMs);})]);
+        if (!(image.naturalWidth > 0 && image.naturalHeight > 0)) throw new Error(`Empty PNG: ${path}`);
+        rows[index] = {path, width: image.naturalWidth, height: image.naturalHeight, decoded: true, source_released: true};
+      } finally {clearTimeout(timer); image.removeAttribute('src'); image = null; active--;}
+    }
+  }
+  await Promise.all(Array.from({length: Math.min(concurrency, paths.length)}, worker));
+  return {rows, peak_concurrency: peak, final_active: active};
+}

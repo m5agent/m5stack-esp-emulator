@@ -1,6 +1,6 @@
-import {CARDKB_KEY_IDS, arrayLedFeedback, physicalInput, visualCommands} from './unit-visual-mappings.js?v=20261026g';
+import {CARDKB_KEY_IDS, arrayLedFeedback, physicalInput, visualCommands} from './unit-visual-mappings.js?v=20261026h';
 import {UnitAudio} from './unit-audio.js';
-export {physicalInput, visualCommands} from './unit-visual-mappings.js?v=20261026g';
+export {physicalInput, visualCommands} from './unit-visual-mappings.js?v=20261026h';
 
 const ACTIVE = new Set(['booting', 'running']);
 const inputId = (id, field, index) => `unit-${id}-${field}${index === undefined ? '' : `-${index}`}`;

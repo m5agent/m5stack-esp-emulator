@@ -1,3 +1,4 @@
+import {addStickers} from './stickers.js';
 import * as THREE from 'three';
 import {Device,Module,Component,materials} from '../../core/index.js';
 import {addCadParts} from '../../modeling/cad.js';
@@ -48,6 +49,7 @@ function buildLimit(host){
  const control=host.add(new LeverButton({id:'press',label:'Limit switch lever',mesh:cap,position:lever.pivot,lever,plunger,longPressMs:800,meta:{role:'visual-control',actuation:'momentary',motion:'hinged-lever',visualMotion:'lever',angularTravelDeg:8,rangeEvidence:lever.evidence,part:'KW4A (S)',scope:'no-electrical-state'}}));
  host.add(new Component({id:'sensor',label:'Limit switch visual anchor',meta:{role:'visual-anchor',scope:'no-sensor-behavior'}}));
  host.limitMechanism={control,plunger,collar};
+ addStickers(host);
 }
 export class Model extends Device{
  static meta={id:'m5stack.unit.limit',name:spec.name,sku:spec.sku,vendor:'M5Stack',size:spec.size,keymap:{Space:'press'}};

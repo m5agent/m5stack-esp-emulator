@@ -1,0 +1,577 @@
+diff --git a/docs/device-service-api.md b/docs/device-service-api.md
+index 51888d1b..ea22920b 100644
+--- a/docs/device-service-api.md
++++ b/docs/device-service-api.md
+@@ -2,7 +2,7 @@
+ 
+ Last reviewed: `2026-10-26`.
+ 
+-Status: local MVP with unified-device runtime contract `1.40.0` and bounded
++Status: local MVP with unified-device runtime contract `1.41.0` and bounded
+ storage retention implemented on `2026-10-24`.
+ 
+ The service creates an on-demand virtual M5Stack device, flashes an exact
+@@ -46,12 +46,35 @@ the current firmware preserves its module name, so an if-main guard will not run
+ Package limits are 1 MiB decoded content, 64 files and 256 KiB per file. Paths
+ are canonical relative UTF-8 POSIX paths, at most 192 bytes/eight components;
+ absolute paths, traversal, backslashes, aliases/casefold collisions, file/parent
+-collisions and any `boot.py` are rejected. Only `/program` admits 2 MiB JSON
++collisions and any `boot.py` are rejected. `/program` and `POST /program-revisions` admit 2 MiB JSON
+ bodies for base64 overhead; other endpoints retain their existing limits.
+ The legacy source limit/default timeout remain 64 KiB/10 seconds. Package
+ timeout defaults to 120 seconds and covers both deployment and start
+ acknowledgement, not application lifetime.
+ 
++Public checkpoints use `POST /program-revisions`, with exactly the required
++`source_kind="uiflow2-package"`, `entrypoint="main.py"` and complete `files`.
++The response is `{revision, limits}`; duplicate content returns 201 with the
++same ID and original `created_at`. `GET /program-revisions/{revision_id}`
++returns verified metadata and limits. Stored does not mean compiled or run.
++Old `uiflow2-python` store IDs are not accepted as complete package references.
++
++A third `/sessions/{id}/program` request form accepts only `revision_id`,
++`expected_execution_id` and optional `timeout_seconds` (1–120, default 120).
++It verifies and uses the existing package without recreating the revision.
++Do not include `source`, `files`, `entrypoint` or `source_kind` in this form.
++Stale expected execution returns 409 before interrupt; unknown package returns
++404 and corrupt stored bytes fail closed. Structural MPY checks on public
++save/reference reject known invalid/native containers before execution
++allocation. Guest version/small-int compatibility still needs the actual
++transfer and can fail after the old program has been interrupted.
++
++`limits.max_revisions` is the independent package store capacity, normally 256;
++`gc_enabled=false` explicitly retains the current lifecycle gap. It does not
++inherit a larger configured Python-source capacity. No Preview/Run resource,
++latest-wins queue, per-Run cancellation or tenant ownership is established by
++these checkpoint routes. Existing service authorization remains in effect.
++
+ The service owns immutable package bytes separately from uploaded artifacts.
+ Files go through the actual UART raw REPL into a unique guest staging directory
+ under `/flash/.m5-live-packages`. Guest reads verify each file SHA256/size and
+diff --git a/docs/device-service.openapi.yaml b/docs/device-service.openapi.yaml
+index 72ff6295..81b234bf 100644
+--- a/docs/device-service.openapi.yaml
++++ b/docs/device-service.openapi.yaml
+@@ -1,7 +1,7 @@
+ openapi: 3.1.0
+ info:
+   title: M5Stack Device Service API
+-  version: 1.40.0
++  version: 1.41.0
+   description: >
+     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
+     keep board and radio evidence in one guest; separate esp-emu network/BLE
+@@ -43,6 +43,70 @@ servers:
+ security:
+   - bearerAuth: []
+ paths:
++  /program-revisions:
++    post:
++      summary: Store an immutable complete UIFlow package checkpoint without executing it
++      description: >
++        Requires explicit source_kind=uiflow2-package, entrypoint=main.py and
++        the complete files mapping. Uses the existing package canonical hash
++        and independent package quota. Equivalent UTF-8/base64 bytes retain the
++        same revision_id and original created_at, including duplicate POSTs.
++        The HTTP JSON body is limited to 2 MiB. Structural bytecode checks do
++        not establish compatibility with a particular guest. No firmware or
++        session is created and no code is host-executed. Retention GC is not
++        implemented; the returned package quota is independent of the source
++        revision quota. This uses the service's existing authorization scope,
++        without tenant isolation or caller-provided owner identity.
++      requestBody:
++        required: true
++        content:
++          application/json:
++            schema:
++              $ref: "#/components/schemas/ProgramRevisionCreateRequest"
++      responses:
++        "201":
++          description: Immutable package metadata and limits; duplicate content returns the original metadata
++          content:
++            application/json:
++              schema:
++                $ref: "#/components/schemas/ProgramRevisionEnvelope"
++        "400":
++          $ref: "#/components/responses/Error"
++        "409":
++          $ref: "#/components/responses/Error"
++        "413":
++          $ref: "#/components/responses/Error"
++        "429":
++          $ref: "#/components/responses/Error"
++        "500":
++          $ref: "#/components/responses/Error"
++        "503":
++          $ref: "#/components/responses/Error"
++  /program-revisions/{revision_id}:
++    get:
++      summary: Read a stored complete package checkpoint's metadata and limits
++      parameters:
++        - name: revision_id
++          in: path
++          required: true
++          schema:
++            type: string
++            pattern: "^[0-9a-f]{64}$"
++      responses:
++        "200":
++          description: Verified immutable metadata; code and resources are not executed
++          content:
++            application/json:
++              schema:
++                $ref: "#/components/schemas/ProgramRevisionEnvelope"
++        "400":
++          $ref: "#/components/responses/Error"
++        "404":
++          $ref: "#/components/responses/Error"
++        "500":
++          $ref: "#/components/responses/Error"
++        "503":
++          $ref: "#/components/responses/Error"
+   /sessions/{session_id}/program:
+     get:
+       summary: Observe the latest same-guest MicroPython execution
+@@ -62,7 +126,8 @@ paths:
+       description: >
+         Requires a running session created with program_transport=uart-repl
+         and a guest UART REPL route installed at boot. Accepts either single-file
+-        source (65536 UTF-8 bytes) or a complete files snapshot with main.py,
++        source (65536 UTF-8 bytes), a stored package revision_id reference, or
++        a complete files snapshot with main.py,
+         Python modules, bytecode-only .mpy dependencies and resources. Packages
+         are written and SHA/size-verified through the real guest filesystem before
+         activation; main.py compiles before START. The HTTP JSON limit is 2 MiB;
+@@ -79,6 +144,11 @@ paths:
+         Package directories are limited to 64 per guest, including failed
+         staging directories; quota exhaustion never silently recreates a guest.
+         Native .mpy emitters and main.mpy entrypoints are not admitted.
++        A revision_id request is mutually exclusive with source, files,
++        source_kind and entrypoint. It reads and verifies the stored package
++        directly without creating another revision; unknown references and
++        old python-only IDs return 404. The acknowledgement remains synchronous,
++        and this does not create a Preview/Run coordinator or latest-wins queue.
+       parameters:
+         - $ref: "#/components/parameters/SessionId"
+       requestBody:
+@@ -2378,6 +2448,132 @@ components:
+       oneOf:
+         - $ref: "#/components/schemas/RunProgramSourceRequest"
+         - $ref: "#/components/schemas/RunProgramPackageRequest"
++        - $ref: "#/components/schemas/RunProgramRevisionRequest"
++    ProgramPackageFiles:
++      type: object
++      minProperties: 1
++      maxProperties: 64
++      description: >
++        Complete snapshot including root main.py. Canonical relative UTF-8
++        paths, at most 192 bytes/eight components, without traversal, aliases,
++        casefold collisions, path-prefix collisions or boot.py. Individual
++        decoded files are limited to 256 KiB; decoded total to 1 MiB.
++        Deleted files leave the active import path. Reused guest directories
++        still require every declared file and directory to pass SHA/size checks.
++      additionalProperties:
++        type: object
++        additionalProperties: false
++        required: [encoding, data]
++        properties:
++          encoding:
++            type: string
++            enum: [utf8, base64]
++          data:
++            type: string
++    ProgramRevisionCreateRequest:
++      type: object
++      additionalProperties: false
++      required: [source_kind, entrypoint, files]
++      properties:
++        source_kind:
++          type: string
++          enum: [uiflow2-package]
++        entrypoint:
++          type: string
++          enum: [main.py]
++        files:
++          $ref: "#/components/schemas/ProgramPackageFiles"
++    ProgramRevisionEnvelope:
++      type: object
++      additionalProperties: false
++      required: [revision, limits]
++      properties:
++        revision:
++          type: object
++          additionalProperties: false
++          required: [revision_id, source_sha256, source_kind, entrypoint, total_file_bytes, files, created_at]
++          properties:
++            revision_id:
++              type: string
++              pattern: "^[0-9a-f]{64}$"
++            source_sha256:
++              type: string
++              pattern: "^[0-9a-f]{64}$"
++            source_kind:
++              type: string
++              enum: [uiflow2-package]
++            entrypoint:
++              type: string
++              enum: [main.py]
++            total_file_bytes:
++              type: integer
++              minimum: 0
++              maximum: 1048576
++            files:
++              type: array
++              minItems: 1
++              maxItems: 64
++              items:
++                type: object
++                additionalProperties: false
++                required: [path, size, sha256, kind]
++                properties:
++                  path:
++                    type: string
++                  size:
++                    type: integer
++                    minimum: 0
++                    maximum: 262144
++                  sha256:
++                    type: string
++                    pattern: "^[0-9a-f]{64}$"
++                  kind:
++                    type: string
++                    enum: [python, mpy, resource]
++            created_at:
++              type: string
++              format: date-time
++        limits:
++          type: object
++          additionalProperties: false
++          required: [max_revisions, max_files, max_file_bytes, max_total_file_bytes, max_http_body_bytes, gc_enabled]
++          properties:
++            max_revisions:
++              type: integer
++              minimum: 1
++              maximum: 256
++            max_files:
++              type: integer
++              const: 64
++            max_file_bytes:
++              type: integer
++              const: 262144
++            max_total_file_bytes:
++              type: integer
++              const: 1048576
++            max_http_body_bytes:
++              type: integer
++              const: 2097152
++            gc_enabled:
++              type: boolean
++              const: false
++    RunProgramRevisionRequest:
++      type: object
++      additionalProperties: false
++      required: [revision_id, expected_execution_id]
++      properties:
++        revision_id:
++          type: string
++          pattern: "^[0-9a-f]{64}$"
++        expected_execution_id:
++          type: [string, "null"]
++          pattern: "^[0-9a-f]{32}$"
++        timeout_seconds:
++          type: number
++          minimum: 1
++          maximum: 120
++          default: 120
++          description: Shared package deployment/start acknowledgement budget; no async Preview/Run resource is created.
+     RunProgramSourceRequest:
+       type: object
+       additionalProperties: false
+@@ -2409,26 +2605,7 @@ components:
+           enum: [main.py]
+           default: main.py
+         files:
+-          type: object
+-          minProperties: 1
+-          maxProperties: 64
+-          description: >
+-            Complete snapshot, including main.py. Canonical relative UTF-8 paths,
+-            at most 192 bytes/eight components, without traversal, aliases,
+-            casefold collisions, path-prefix collisions or boot.py. Individual
+-            decoded files are limited to 256 KiB; decoded total to 1 MiB.
+-            Missing files are absent from the new import path. Reused guest
+-            directories must still match every declared file SHA/size.
+-          additionalProperties:
+-            type: object
+-            additionalProperties: false
+-            required: [encoding, data]
+-            properties:
+-              encoding:
+-                type: string
+-                enum: [utf8, base64]
+-              data:
+-                type: string
++          $ref: "#/components/schemas/ProgramPackageFiles"
+         expected_execution_id:
+           type: [string, "null"]
+           pattern: "^[0-9a-f]{32}$"
+diff --git a/docs/unit-agent-api.md b/docs/unit-agent-api.md
+index 5d93e947..9b19dd5d 100644
+--- a/docs/unit-agent-api.md
++++ b/docs/unit-agent-api.md
+@@ -1,6 +1,6 @@
+ # 外部 Agent：UIFlow 实时编程与 Unit 会话
+ 
+-日期：`2026-10-26`。API 契约：`1.40.0`。
++日期：`2026-10-26`。API 契约：`1.41.0`。
+ 
+ 实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
+ 串口及 Unit 状态”的路径。每次改源码调用 `/sessions/{id}/program`，不重刷
+@@ -87,10 +87,34 @@ CoreS3 另有真实网页创建、输入、程序替换、画面进入模型屏
+ 早期手动 bootstrap 的 AtomS3R 基线保留在
+ [首轮实时程序证据](evidence/2026-10-26-uiflow-live-program/README.md)。
+ 上述早期结果不外推其它 Unit、任意源码、多文件资源或物理设备。
+-每session最多256次execution；单源码与完整包的服务级store各独立限256 revisions，额度
+-耗尽返回明确错误，不自动删除历史或重跑未知提交。服务重连期间可能丢失串口输出，
++每session最多256次execution；单源码store默认256、可显式配置1..4096，完整包store独立限256。额度
++耗尽返回明确错误，不自动删除历史或重跑未知提交；公共checkpoint响应明确gc_enabled=false。服务重连期间可能丢失串口输出，
+ 原活跃程序保持 unknown，不能仅根据旧 START 恢复 running。
+ 
++## 先保存完整checkpoint，再引用运行
++
++外部Agent可先`POST /api/v1/program-revisions`，必须显式提交下面三个字段：
++
++```json
++{"source_kind":"uiflow2-package","entrypoint":"main.py","files":{
++  "main.py":{"encoding":"utf8","data":"from app import value\nprint(value)\n"},
++  "app.py":{"encoding":"utf8","data":"value = 42\n"}
++}}
++```
++
++响应`revision`含不可变`revision_id`、全部文件SHA/大小和`created_at`；`limits`公开实际包配额和`gc_enabled=false`。
++相同文件bytes使用utf8/base64均得到同ID，重复POST仍201且保留原created_at。
++`GET /api/v1/program-revisions/{revision_id}`核验存储完整性并返回metadata；保存成功还没有运行程序。
++
++在已初始化session中，将返回的ID放入`POST /api/v1/sessions/{id}/program`的`revision_id`，
++同时带当前`expected_execution_id`（首次null）和可选1..120秒timeout。该请求只能有这三个字段，
++不能混入source/files/entrypoint/source_kind。服务端读取既有完整包并在同VM部署/执行，不再create revision。
++未知或旧python-only ID返回404，stale为409，混用/坏ID为400；格式已知不合法/native MPY在分配execution前拒绝。
++实际guest的版本/容量/文件完整性仍在原部署路径检查，运行时拒绝可能已经中断旧程序，应查询执行收据。
++
++这为后续Preview/Run提供不可变输入；当前仍为同步开始确认，没有latest-wins/保VM的Run取消或多租户控制权。
++配额仍有界且不自动回收，不能把复用ID当作长期生命周期已经完成。完整包内容和guest边界见下一节。
++
+ ## 同一 VM 的完整文件包
+ 
+ `GET /devices` 的 `program_source_kinds` 中，`uiflow2-python` 对应原 `source`，
+diff --git a/platform/tools/device_service.py b/platform/tools/device_service.py
+index f824f02a..2e182571 100644
+--- a/platform/tools/device_service.py
++++ b/platform/tools/device_service.py
+@@ -15,6 +15,7 @@ import io
+ import ipaddress
+ import json
+ import os
++import re
+ import shlex
+ import shutil
+ import signal
+@@ -49,7 +50,12 @@ from ble_runtime_limits import (  # noqa: E402
+ from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
+ from uiflow_source import UIFlowSourceError, build_uiflow_source_image  # noqa: E402
+ from program_revisions import MAX_REVISIONS, ProgramRevisionStore, RevisionError  # noqa: E402
+-from program_packages import ProgramPackageStore, ProgramPackageError  # noqa: E402
++from program_packages import (  # noqa: E402
++    MAX_FILE_BYTES as MAX_PROGRAM_FILE_BYTES,
++    MAX_PACKAGE_BYTES, MAX_PACKAGE_FILES,
++    ProgramPackageStore, ProgramPackageError, _snapshot as program_package_snapshot,
++)
++from mpy_bytecode import MPYBytecodeError, validate_bytecode  # noqa: E402
+ from uiflow_package_runtime import deploy_package  # noqa: E402
+ from frame_cache import CaptureResult, FrameCache, FrameGenerationChanged  # noqa: E402
+ from uiflow_runtime import (  # noqa: E402
+@@ -1705,6 +1711,29 @@ class ServiceError(Exception):
+         return {"error": {"code": self.code, "message": self.message, **self.extra}}
+ 
+ 
++def _validate_checkpoint_bytecode(files: dict[str, bytes]) -> None:
++    """Reject known-invalid/native containers without touching the guest.
++
++    This is host format admission only. Deployment still compares bytecode
++    version and small-int requirements with the actual guest capabilities.
++    """
++    for path, data in files.items():
++        if not path.lower().endswith(".mpy"):
++            continue
++        if len(data) < 4 or data[0] != ord("M"):
++            raise ServiceError("program_mpy_invalid", "invalid .mpy header", 409)
++        if data[2] != 0:
++            raise ServiceError(
++                "program_mpy_native_unsupported", "only bytecode-only .mpy dependencies are admitted", 409,
++            )
++        try:
++            validate_bytecode(data)
++        except MPYBytecodeError as error:
++            raise ServiceError(
++                "program_mpy_invalid", "invalid or unsupported bytecode-only .mpy container", 409,
++            ) from error
++
++
+ class SessionCancelled(ServiceError):
+     """A lifecycle transaction was superseded by an explicit stop request."""
+ 
+@@ -6155,7 +6184,13 @@ class DeviceSession:
+     def serial_read(self, offset: int = 0, limit: int = 65536) -> dict:
+         limit = min(max(int(limit), 1), MAX_SERIAL_READ)
+         with self._lock:
+-            if not self.serial0.exists():
++            try:
++                with self.serial0.open("rb") as stream:
++                    size = stream.seek(0, os.SEEK_END)
++                    offset = min(max(int(offset), 0), size)
++                    stream.seek(offset)
++                    chunk = stream.read(min(limit, size - offset))
++            except FileNotFoundError:
+                 return {
+                     "session_id": self.id,
+                     "offset": offset,
+@@ -6163,9 +6198,6 @@ class DeviceSession:
+                     "data": "",
+                     "bytes": 0,
+                 }
+-            data = self.serial0.read_bytes()
+-        offset = min(max(int(offset), 0), len(data))
+-        chunk = data[offset:offset + limit]
+         return {
+             "session_id": self.id,
+             "offset": offset,
+@@ -6218,13 +6250,20 @@ class DeviceSession:
+         """Run one source checkpoint in the existing MicroPython VM over UART."""
+         from guest_console import GuestConsoleError
+ 
+-        package = isinstance(payload, dict) and "files" in payload
+-        allowed = ({"files", "entrypoint", "source_kind", "expected_execution_id", "timeout_seconds"}
+-                   if package else {"source", "expected_execution_id", "timeout_seconds"})
+-        if not isinstance(payload, dict) or set(payload) - allowed:
+-            raise ServiceError("invalid_program", "source, expected_execution_id and optional timeout_seconds are accepted", 400)
+-        if "expected_execution_id" not in payload or (not package and not isinstance(payload.get("source"), str)):
+-            raise ServiceError("invalid_program", "source and expected_execution_id (null for the first run) are required", 400)
++        if not isinstance(payload, dict) or sum(key in payload for key in ("source", "files", "revision_id")) != 1:
++            raise ServiceError("invalid_program", "exactly one of source, files or revision_id is required", 400)
++        reference = "revision_id" in payload
++        package = reference or "files" in payload
++        allowed = ({"revision_id", "expected_execution_id", "timeout_seconds"} if reference else
++                   {"files", "entrypoint", "source_kind", "expected_execution_id", "timeout_seconds"} if package else
++                   {"source", "expected_execution_id", "timeout_seconds"})
++        if set(payload) - allowed or "expected_execution_id" not in payload:
++            raise ServiceError("invalid_program", "invalid program fields or missing expected_execution_id", 400)
++        if reference and (not isinstance(payload["revision_id"], str)
++                          or re.fullmatch(r"[0-9a-f]{64}", payload["revision_id"]) is None):
++            raise ServiceError("invalid_program", "revision_id must be a lowercase SHA256 package ID", 400)
++        if not package and not isinstance(payload["source"], str):
++            raise ServiceError("invalid_program", "source must be a UTF-8 string", 400)
+         source = "" if package else payload["source"]
+         try:
+             source_size = len(source.encode("utf-8"))
+@@ -6249,7 +6288,11 @@ class DeviceSession:
+             if payload["expected_execution_id"] != current_id:
+                 raise ServiceError("program_generation_conflict", "expected_execution_id is stale", 409)
+             try:
+-                if package:
++                if reference:
++                    revision = self.service.program_packages.get(payload["revision_id"])
++                    package_files = self.service.program_packages.read_files(payload["revision_id"])
++                    _validate_checkpoint_bytecode(package_files)
++                elif package:
+                     revision = self.service.program_packages.create({key: payload[key] for key in ("files", "entrypoint", "source_kind") if key in payload})
+                     package_files = self.service.program_packages.read_files(revision["revision_id"])
+                 else:
+@@ -9239,6 +9282,41 @@ class DeviceService:
+             finally:
+                 shutil.rmtree(work_dir, ignore_errors=True)
+ 
++    def _program_revision_response(self, revision: dict) -> dict:
++        return {
++            "revision": revision,
++            "limits": {
++                "max_revisions": self.program_packages.max_count,
++                "max_files": MAX_PACKAGE_FILES,
++                "max_file_bytes": MAX_PROGRAM_FILE_BYTES,
++                "max_total_file_bytes": MAX_PACKAGE_BYTES,
++                "max_http_body_bytes": 2 * 1024 * 1024,
++                "gc_enabled": False,
++            },
++        }
++
++    def create_program_revision(self, payload: dict) -> dict:
++        """Save a complete immutable checkpoint; never interrupt or execute it."""
++        if not isinstance(payload, dict) or set(payload) != {"source_kind", "entrypoint", "files"}:
++            raise ServiceError(
++                "invalid_program_revision", "source_kind, entrypoint and files are required and are the only accepted fields", 400,
++            )
++        try:
++            _, _, files = program_package_snapshot(payload)
++            _validate_checkpoint_bytecode(files)
++            revision = self.program_packages.create(payload)
++        except ProgramPackageError as error:
++            raise ServiceError(error.code, error.message, error.status) from error
++        return self._program_revision_response(revision)
++
++    def get_program_revision(self, revision_id: str) -> dict:
++        """Read metadata only; source bytes remain in the immutable store."""
++        try:
++            revision = self.program_packages.get(revision_id)
++        except ProgramPackageError as error:
++            raise ServiceError(error.code, error.message, error.status) from error
++        return self._program_revision_response(revision)
++
+     def create_session(self, payload: dict) -> dict:
+         if self._stop.is_set():
+             raise ServiceError("service_stopping", "device service is shutting down", 503)
+diff --git a/platform/tools/serve.py b/platform/tools/serve.py
+index f5ab8adc..2095c223 100755
+--- a/platform/tools/serve.py
++++ b/platform/tools/serve.py
+@@ -407,6 +407,8 @@ class Handler(SimpleHTTPRequestHandler):
+                 response = service.get_device(parts[1])
+             elif method == "GET" and parts == ["capacity"]:
+                 response = service.capacity()
++            elif method == "GET" and len(parts) == 2 and parts[0] == "program-revisions":
++                response = service.get_program_revision(parts[1])
+             elif method == "GET" and parts == ["units"]:
+                 try:
+                     response = UnitRegistry().inventory(query.get("device_id", [None])[0])
+@@ -684,6 +686,10 @@ class Handler(SimpleHTTPRequestHandler):
+                         "invalid_qom", "path and property query values are required", 400
+                     )
+                 response = session.qom_get(path_value, prop)
++            elif method == "POST" and parts == ["program-revisions"]:
++                response = service.create_program_revision(self._read_json(max_bytes=2 * 1024 * 1024, reject_duplicate_keys=True))
++                status = 201
++                headers["Location"] = f"/api/v1/program-revisions/{response['revision']['revision_id']}"
+             elif method == "POST" and parts == ["artifact-uploads"]:
+                 payload = self._read_json()
+                 expected_size = payload.get("expected_size")
+@@ -1027,12 +1033,20 @@ class Handler(SimpleHTTPRequestHandler):
+                 409,
+             )
+ 
+-    def _read_json(self, required: bool = True, *, max_bytes: int = 1024 * 1024) -> dict:
++    def _read_json(self, required: bool = True, *, max_bytes: int = 1024 * 1024,
++                   reject_duplicate_keys: bool = False) -> dict:
+         if not required and int(self.headers.get("Content-Length", "0") or "0") == 0:
+             return {}
+         raw = self._read_body(max_bytes=max_bytes)
++        def unique_object(pairs):
++            result = {}
++            for key, value in pairs:
++                if key in result:
++                    raise ServiceError("invalid_json", "duplicate JSON field", 400)
++                result[key] = value
++            return result
+         try:
+-            payload = json.loads(raw)
++            payload = json.loads(raw, object_pairs_hook=unique_object if reject_duplicate_keys else None)
+         except json.JSONDecodeError as error:
+             raise ServiceError("invalid_json", "request body must be valid JSON", 400) from error
+         if not isinstance(payload, dict):

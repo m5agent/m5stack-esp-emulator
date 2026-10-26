@@ -1,0 +1,87 @@
+{
+  "id": "hall",
+  "sku": "U084",
+  "retrievedAt": "2026-10-26",
+  "kind": "reference-redraw",
+  "originalsDistributed": false,
+  "method": "New text and shapes drawn from exact official U084 product photographs; no photographic pixels or production original distributed.",
+  "sources": [
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/hall/hall_01.webp",
+      "sha256": "db32c92d489c6c5d29a29721d8645fabafbfe42eed401c30755ca8d29a491223"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/hall/hall_02.webp",
+      "sha256": "a281057fdece329d9b7d58b2aaadb0b32a5369d5c409e9912d8201445b767732"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/hall/hall_06.webp",
+      "sha256": "1fdb98c15def7967b0eb7a63fa08590b4fb9f162162c9a1876d1fa213bd76c4c"
+    },
+    {
+      "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/hall/hall_07.webp",
+      "sha256": "f2d3934d0d26278f179e9bbe4fc9ae33513b7b9fa4cd814af9d174102a1da4e7"
+    }
+  ],
+  "assets": [
+    {
+      "path": "src/units/hall/reference-redraw-front.png",
+      "sha256": "65afd822b525f79ef83fd7ef20a61e88829fdce3c3480f8e9d5f05e3d27458a4",
+      "pixels": [
+        2400,
+        1680
+      ],
+      "sizeMm": [
+        20,
+        14
+      ],
+      "positionMm": [
+        0,
+        7,
+        3.8
+      ],
+      "face": "front",
+      "method": "printedArtwork",
+      "artworkKind": "reference-redraw",
+      "target": "Hall complete native assembled shell",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/hall/hall_07.webp",
+        "sha256": "f2d3934d0d26278f179e9bbe4fc9ae33513b7b9fa4cd814af9d174102a1da4e7"
+      }
+    },
+    {
+      "path": "src/units/hall/reference-redraw-back.png",
+      "sha256": "5b07c4bff51023731ac9fdae64e0db5ba46b06858f1261e34c6275ee3f856c7d",
+      "pixels": [
+        1944,
+        1464
+      ],
+      "sizeMm": [
+        16.2,
+        12.2
+      ],
+      "positionMm": [
+        0,
+        7,
+        -3.8
+      ],
+      "face": "back",
+      "method": "printedArtwork",
+      "artworkKind": "reference-redraw",
+      "target": "Hall complete native assembled shell",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/hall/hall_02.webp",
+        "sha256": "a281057fdece329d9b7d58b2aaadb0b32a5369d5c409e9912d8201445b767732"
+      }
+    }
+  ],
+  "coverage": "Front directional S/N magnet diagram, TOP/BOTTOM arrow and HALL footer; back HALL/A3144E, SIGNAL/arrow and I/blank/5V/GND blocks.",
+  "remainingKnownPrintedFaces": [],
+  "limits": [
+    "Colour, typography and registration are photo/native-recess estimates, not production-print measurements.",
+    "Molded M5 remains original shell geometry. No concealed package stamps, serial codes or unknown legends invented.",
+    "Blank gray rear pin block is left blank as photographed; NC appears only in connector metadata.",
+    "No exhaustive browser pixel verification."
+  ],
+  "rights": "M5Stack original printed designs and product marks retain their respective rights."
+}

@@ -1,0 +1,67 @@
+{
+  "checkedAt": "2026-10-26T09:19:26.811Z",
+  "status": "pass",
+  "scope": "Necessary finite geometry, complete unscaled original controller shell, full SSR package/thermal base/four clamp cages and guards, true bore FrontSide walls, native tongue press/cancel exact restoration, independent externally driven indicators/screws, two detachable 4P plugs, four-wire Grove pose/nested paths/release, artwork:false physical invariance. No browser or production fit, mains, hardware, electrical, network, Modbus or I2C verification.",
+  "meshes": 184,
+  "triangles": 123990,
+  "nativeTriangleCount": 2654,
+  "nominalMm": [
+    45,
+    80,
+    31
+  ],
+  "controllerCadEnvelopeMm": [
+    44.939388275146484,
+    18.73927879333496,
+    11.500001907348633
+  ],
+  "visualEnvelopeMm": [
+    45.00000002384186,
+    80,
+    31.000001906454564
+  ],
+  "frontSideWalls": 18,
+  "button": {
+    "id": "button",
+    "travelMm": 0.22,
+    "movedNativeVertices": 502,
+    "untouchedNativeVertices": 2209,
+    "positionsNormalsExactCancel": true,
+    "travelEvidence": "appearance estimate"
+  },
+  "leds": [
+    "rgb: SK6812 full color",
+    "power-led: D4 fixed red",
+    "ssr-led: fixed red"
+  ],
+  "ports": [
+    "grove: grove",
+    "terminal-1: ht3.96-4p",
+    "terminal-2: ht3.96-4p"
+  ],
+  "ssrScrews": [
+    "ssr-screw-1",
+    "ssr-screw-2",
+    "ssr-screw-3",
+    "ssr-screw-4"
+  ],
+  "terminalAccessory": {
+    "export": "TerminalPlug",
+    "options": "terminalPlug:true attaches two independent plugs",
+    "joints": "each screw-1…4"
+  },
+  "artwork": {
+    "panels": 2,
+    "files": [
+      "reference-redraw-ssr.png: 2150x1450",
+      "reference-redraw-controller-back.png: 2250x900"
+    ],
+    "kind": "reference-redraw",
+    "physicalInvariant": true,
+    "unresolved": [
+      "SSR serial/QR unreadable and omitted; icon/logo outlines approximated"
+    ]
+  },
+  "groveAttachPoseNestedDetach": "pass",
+  "disposedResources": 359
+}

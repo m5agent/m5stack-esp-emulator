@@ -15,11 +15,13 @@ class DocsCurrentStateContractTests(DocsContractBase):
     def test_new_visual_shells_remain_separate_from_runtime_admission(self) -> None:
         snapshot = project_snapshot.collect()
         units = snapshot["external_units"]
-        self.assertEqual({"roller485"}, set(units["visual_source"]["visual_only_units"]))
+        visual_only = set(units["visual_source"]["visual_only_units"])
+        self.assertTrue({"roller485", "puzzle", "fader", "midi"} <= visual_only)
         catalog = project_snapshot.load_json(project_snapshot.UNIT_CATALOG)
         registered = {unit["id"] for unit in catalog["units"]}
         self.assertIn("scroll", registered)
-        self.assertFalse(registered & set(units["visual_source"]["visual_only_units"]))
+        self.assertFalse(registered & visual_only)
+        self.assertEqual(len(registered) + len(visual_only), units["visual_source"]["units"])
         self.assertEqual(sum(units["runtime_status"].values()), len(registered))
         load_json = project_snapshot.load_json
 

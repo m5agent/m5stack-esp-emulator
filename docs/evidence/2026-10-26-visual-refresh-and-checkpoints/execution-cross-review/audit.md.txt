@@ -1,0 +1,48 @@
+# UIFlow 实时执行：只读交叉复核
+
+2026-10-26。结论：**可以准确回答“首次初始化一次，之后在原 MicroPython VM 通过真实 UART raw REPL 连续运行；不是每次把新业务代码刷成新固件”。** 本审计只复核原执行层与已归档实际虚拟会话；不自审本作者刚实现的 checkpoint HTTP API，不把它的宿主测试当真实 guest 证据。
+
+建议直接答复用户：
+
+> 你说得对，UIFlow 支持运行时加载 MicroPython 程序。当前实现已在首次启动时初始化 REPL，之后改代码直接在同一个 VM 内编译执行 `.py`，不用每次重刷固件；完整文件包里的纯字节码 `.mpy` 依赖也已实际运行。独立 `main.mpy` 入口还没接通，这是入口语义的缺口，不是每次必须刷固件。接下来要补的是 AIFlow 连续提交时的版本、取消和预览协调。
+
+## 执行层的确切依据
+
+| 判断 | 当前源码位置 |
+| --- | --- |
+| 一次初始化安装 guest UART0、dupterm 与 IRQ；初始 main.py 只是 pass | [uiflow_runtime.py:17](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/uiflow_runtime.py:17)，24–31行；[create_session 的初始化分支:9392](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:9392) |
+| UART 连接的是实际 QEMU chardev，不是 host Python | [device_service.py:5653](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:5653)；[guest_console.py:109](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/guest_console.py:109)创建 AF_UNIX socket；145–168行从该 socket 接收并落原始串口日志；184–221行实际 send及部分写错误 |
+| 每次中断旧程序后等真实 raw prompt，再传源码；不是 reset | [uiflow_runtime.py:89](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/uiflow_runtime.py:89)，107–120行发送 Ctrl-C/Ctrl-A并确认 prompt；162–198行做 raw-paste/paced raw REPL；没有固件 compose、Popen 或空 Ctrl-D soft reset |
+| `.py` 在 guest 中 compile，然后 START，再 exec | [uiflow_runtime.py:122](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/uiflow_runtime.py:122)，132–140行构建下发包装；exec使用 fresh globals，非新 VM；201–209行以本 execution 的新串口标记确认 |
+| 状态来自保留字节窗口，不以 HTTP 发出当执行成功 | [guest_console.py:246](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/guest_console.py:246)按offset seek；266–305行等待确切字节并检查 EOF/错误；[uiflow_runtime.py:56](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/uiflow_runtime.py:56)独立execution scanner |
+| 完整包经原 guest 文件系统发布，并由原 importer 加载依赖 | [uiflow_package_runtime.py:89](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/uiflow_package_runtime.py:89)，101–126行真实REPL/guest能力；129行后重验目录；218–227行切换sys.path/cwd并确认。29–48行仍按实际guest能力拒绝不兼容或native `.mpy` |
+
+`uiflow_runtime.py` 和 `guest_console.py` 当前 SHA 与实际文件包批次冻结源码逐字节相同。`uiflow_package_runtime.py` 仅删除了末尾两个空行，原始 SHA不同但完整AST相同；没有把它误报为字节一致。逐项见 [report.json](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/live-execution-explanation-audit-20261026/report.json)。
+
+## 实际证据，而不只看源码
+
+本次离线重新检查16份主机case及1份入口探针：17个 ZIP、900个成员的CRC/唯一性/路径/大小/SHA，以及139个已保存的新鲜串口窗口。未重新启动guest，也未现场重测物理设备。
+
+| 实际批次 | 本次独立确认 |
+| --- | --- |
+| [四主机 source 批次](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-26-live-program-web-and-hosts/README.md:15) | CoreS3/AtomS3R/StickS3/StopWatch各PIR/Relay，8会话共40次程序尝试（含预期SyntaxError）。各会话所有execution PID/firmware相同；串口只有一次ROM和bootstrap；初始程序写入sys.path的VM nonce在A/B及恢复源码中被断言，实际START/READY和恢复marker存在；A/B原始PNG字节不同。CoreS3例 [report:15](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-26-live-program-web-and-hosts/hosts/cores3-pir/report.json:15) 的PID58426；150–157行保留各检查结果。 |
+| [四主机完整包批次](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-26-live-package-and-detent/README.md:16) | 另外8会话、96次尝试，包含预期失败，不能称96个应用成功。各例保持PID/固件/nonce，一次ROM/bootstrap；A/B的main.py字节相同、helper.mpy字节不同，guest实际报告对应 `/helper.mpy` 路径及变化的结果。CoreS3例PID81711；[guest读回:1909](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-26-live-package-and-detent/hosts/cores3-pir/report.json:1909)，[编译依赖结果:4041](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-26-live-package-and-detent/hosts/cores3-pir/report.json:4041)。 |
+| [main.mpy入口探针](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/README.md:21) | 独立CoreS3 PID70868三次执行；同固件与VM nonce。普通.py和.mpy导入保留各自模块名，两个if-main均false；REPL main owner ID前后相同。[结果:338](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/guest/report.json:338)，[恢复:381](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/guest/report.json:381)。 |
+
+这些是不同会话/不同时间的独立证据，不能拼成一台设备的一次原子测量。完整固件/runtime SHA和每例execution数保存在本审计JSON；不把PID相同单独当VM证明，也不把已保存PID说成现在仍存活。
+
+## `.py` / `.mpy` 入口的准确边界
+
+当前入口是 `main.py`：source方式在内存compile/exec；文件包方式从guest文件系统读取main.py后仍compile/exec；纯字节码 `.mpy` 由真正MicroPython importer作为依赖加载。固件不是“只能跑固定main.py”，但当前API不提供独立二进制脚本入口。
+
+不能用普通 `import main`、导入后改 `__name__` 或重命名 `__main__.mpy` 声称具备完整main脚本语义。固定MicroPython源码 [builtinimport.c:609](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/research/micropython/py/builtinimport.c.txt:609)要求启用override-main宏；[mpconfig.h:1130](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/research/micropython/py/mpconfig.h.txt:1130)默认0；[runtime.c:62](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/research/micropython/py/runtime.c.txt:62)注册REPL主模块。实际探针印证当前固定固件行为，不能外推所有UIFlow固件配置。main.mpy为UNIT-HOST-33 OPEN，native emitter仍不准入。
+
+## AIFlow 连续编辑的真实限制与下一步
+
+- 现有同VM路径足够支撑“完整checkpoint提交后执行”，不是逐token执行；单传输owner和expected_execution_id会拒绝冲突，尚无可靠latest-wins队列、保VM的独立Run取消或持久化Preview/Run身份。START只表示编译完成并进入执行，不等于应用READY或第一张新应用帧。
+- IRQ/timer/thread/native模块/外设可残留；fresh globals不等于重置VM。guest若阻塞native或改写UART/dupterm，不能承诺可中断；超时需要保留unknown，不能盲重传或暗中换VM后仍称同guest。
+- 实时观察仍以轮询/按需共享样本为主，未证明AIFlow端到端接入、SSE分发、首帧/输入延迟SLA；新旧run观测、输入和图像decode仍需身份fence。装配固定在session创建时，不具备运行中Unit hotplug。单文件/整包、host/guest目录及历史配额有上限，自动引用GC仍未完成。
+
+因此下一块应围绕同VM链路补Preview/Run协调：持久化run/generation/幂等、单pending latest-wins、取消后真实raw prompt确认，随后补带run/revision身份的订阅与采样。不要再把业务checkpoint路由回每次固件compose/新建guest。执行队列仍只维护在project-backlog；本审计不另立排期，也不评价刚新增checkpoint API的质量。
+
+所有结论仅为已准入四款QEMU虚拟设备及具体固件/Unit路径；任意上传固件、其它主机/Unit组合、物理硬件仍需分别验收。

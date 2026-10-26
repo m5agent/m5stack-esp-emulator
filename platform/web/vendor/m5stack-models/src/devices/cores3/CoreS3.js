@@ -67,6 +67,9 @@ export class CoreS3 extends Device {
   const corePcb=slab(this.body,49,49,.7,3,[0,0,3.1],materials.plastic(0x252b28,{roughness:.86,clearcoat:0}),[],.05);corePcb.name='Core main PCB';
   const holes=[[-12,0,2],[12,0,2],[0,-12,1.5],[0,12,1.5],[-20,0,1.6],[20,0,1.6],...[-21,21].flatMap(x=>[-21,21].map(y=>[x,y,1.8]))].map(([cx,cy,r])=>({w:r*2,h:r*2,r,cx,cy}));
   const board=slab(this.body,49,49,.8,3,[0,0,-5.8],materials.plastic(0x202b25,{roughness:.88,clearcoat:0}),holes,.05);board.name='DinBase proto PCB';
+  // Transparent reference silk belongs to the real internal PCB, beneath the
+  // removable base cover. It cannot fill its mounting holes or stand in for pads.
+  for(const panel of printedArtwork(this,{target:board,url:new URL('./artwork/reference-redraw-din-pcb.png',import.meta.url).href,size:[49,49],position:[0,0,-5.8],face:'back',depth:.12,artworkKind:'reference-redraw',name:'DinBase internal PCB silk (partial reference redraw)'})??[])panel.userData.source='reference-redraw';
   grove(this,{id:'grove-c',position:[-11,27.02,-2.1],face:'top',w:10.4,h:5.1,color:0x008ba6});
   grove(this,{id:'grove-b',position:[11,27.02,-2.1],face:'top',w:10.4,h:5.1,color:0x171a1b});
   const dc=new THREE.Group();dc.position.set(-10,-27.02,-3.1);dc.quaternion.copy(FACE.bottom);dc.name='DinBase DC barrel jack';this.body.add(dc);

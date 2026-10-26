@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-26`.
 
-Status: local MVP with unified-device runtime contract `1.40.0` and bounded
+Status: local MVP with unified-device runtime contract `1.41.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -46,11 +46,34 @@ the current firmware preserves its module name, so an if-main guard will not run
 Package limits are 1 MiB decoded content, 64 files and 256 KiB per file. Paths
 are canonical relative UTF-8 POSIX paths, at most 192 bytes/eight components;
 absolute paths, traversal, backslashes, aliases/casefold collisions, file/parent
-collisions and any `boot.py` are rejected. Only `/program` admits 2 MiB JSON
+collisions and any `boot.py` are rejected. `/program` and `POST /program-revisions` admit 2 MiB JSON
 bodies for base64 overhead; other endpoints retain their existing limits.
 The legacy source limit/default timeout remain 64 KiB/10 seconds. Package
 timeout defaults to 120 seconds and covers both deployment and start
 acknowledgement, not application lifetime.
+
+Public checkpoints use `POST /program-revisions`, with exactly the required
+`source_kind="uiflow2-package"`, `entrypoint="main.py"` and complete `files`.
+The response is `{revision, limits}`; duplicate content returns 201 with the
+same ID and original `created_at`. `GET /program-revisions/{revision_id}`
+returns verified metadata and limits. Stored does not mean compiled or run.
+Old `uiflow2-python` store IDs are not accepted as complete package references.
+
+A third `/sessions/{id}/program` request form accepts only `revision_id`,
+`expected_execution_id` and optional `timeout_seconds` (1–120, default 120).
+It verifies and uses the existing package without recreating the revision.
+Do not include `source`, `files`, `entrypoint` or `source_kind` in this form.
+Stale expected execution returns 409 before interrupt; unknown package returns
+404 and corrupt stored bytes fail closed. Structural MPY checks on public
+save/reference reject known invalid/native containers before execution
+allocation. Guest version/small-int compatibility still needs the actual
+transfer and can fail after the old program has been interrupted.
+
+`limits.max_revisions` is the independent package store capacity, normally 256;
+`gc_enabled=false` explicitly retains the current lifecycle gap. It does not
+inherit a larger configured Python-source capacity. No Preview/Run resource,
+latest-wins queue, per-Run cancellation or tenant ownership is established by
+these checkpoint routes. Existing service authorization remains in effect.
 
 The service owns immutable package bytes separately from uploaded artifacts.
 Files go through the actual UART raw REPL into a unique guest staging directory

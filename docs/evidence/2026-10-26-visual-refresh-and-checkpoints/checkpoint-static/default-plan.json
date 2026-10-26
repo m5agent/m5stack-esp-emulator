@@ -1,0 +1,34 @@
+{
+  "status": "PLANNED_NOT_EXECUTED",
+  "device_id": "cores3",
+  "unit_id": "pir",
+  "program_mode": "uiflow-live",
+  "api": "http://127.0.0.1:8787",
+  "versions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "same_main_py": true,
+  "files": [
+    "main.py",
+    "config.json",
+    "helper.mpy",
+    "lib/__init__.py",
+    "lib/logic.py",
+    "namespace_lib/state.py",
+    "assets/pixel.png",
+    "old_only.py (A only)"
+  ],
+  "package_directories": 4,
+  "guest_directory_limit": 64,
+  "negative_controls": [
+    "stale execution",
+    "SyntaxError",
+    "incompatible mpy major/small-int",
+    "extra empty namespace directory",
+    "mutated existing guest file"
+  ],
+  "guest_execution": "NOT RUN",
+  "hardware_validation": "NOT RUN"
+}

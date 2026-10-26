@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "status": "PARTIAL",
+  "scope": "Uniform data/material/complete-canvas PASS; Scroll UART/controller-API/PNG/material/cleanup PASS with independent raw QOM NOT PRESENT. Encoder optical readability NOT ACCEPTED.",
+  "vendor_manifest_sha256": "b4b92bebabac0e40ced79e39a652c26726ff0243d0c04989b76c0d82de3090fb",
+  "source_union_checked": 24,
+  "source_sha256": {
+    "platform/tests/test_live_uniform_led_service_browser.mjs": "e1308a230b6aa0d335ba010f887994c12de5a202310ac038d7f35073d73e164c",
+    "platform/web/sessions.js": "18b5a9f1e4f74c59eb1a7265b7d7bb1cf7190195c9278915f7f4770927b655b4",
+    "platform/web/sessions.html": "5c400f139c1acf570b55f0fd17a08fb33eaa9c135e83063e19ce92459fb5de21",
+    "platform/web/program-panel.js": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+    "platform/web/device-shell-factory.js": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2",
+    "platform/web/unit-panel.js": "ba1fa1a6d557255d12de20f1f44a76c886c09f8f8292c7da71feb8dc2434de51",
+    "platform/web/model-shell.js": "1cfee042e184fc936da1b9eaef142cf08b7f82daa5fbcbbdd7c150718e5a1876",
+    "platform/web/unit-visual-mappings.js": "3170a5b02080b4600aa98f93776fa5fba79c7a49ad09de09e9255fd0e869e52a",
+    "platform/units/catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+    "platform/units/runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480",
+    "platform/web/vendor/m5stack-models/vendor-manifest.json": "b4b92bebabac0e40ced79e39a652c26726ff0243d0c04989b76c0d82de3090fb",
+    "platform/web/vendor/m5stack-models/src/core/components/Led.js": "220f32c62ad83b41a86ba6f3d280697fe47008e81bde074c4c9542120f47a0cb",
+    "platform/web/vendor/m5stack-models/src/units/encoder/assembly.js": "6120c4e66937d8ca86112550cc9d380e332fabaec2a9283aab54a83d4674999f",
+    "platform/web/vendor/m5stack-models/src/units/8encoder/index.js": "a4f9888f385b9263b2697588de4b561ac89cfacc2f9ffe1c3fffac36524ad110",
+    "platform/web/vendor/m5stack-models/src/units/rgb/index.js": "9e2cf44386e3808214f005fb788993b683e8a422dccdf1cf19fd76a64aa24a74",
+    "tests/units/run_live_unit_batch.py": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+    "tests/units/controls_probe/control_drivers/source-manifest.json": "84e76fe1ece3bb026772d66c92f998c41f500b1b39f6be892ee10ff09f03b3ab",
+    "tests/units/io_probe/io_drivers/source-manifest.json": "9dec61dc22cdb00b7794731f38291021fa824aaabff74019a8c04cbc4aecfcf1",
+    "platform/tools/device_service.py": "1eb317c3b9d8da27f57f6916d2f1dc405d16b7f1af088ee6e9862511118537d0",
+    "platform/tools/program_packages.py": "b8180b3846ac23ef5a085e49d539d238c4bf42d114c02d4804a39420e07eddac",
+    "platform/tools/uiflow_runtime.py": "85dbca56564d08c9a50c36d0ea867993eb70964c0d51ef950663f441b28dc506",
+    "platform/tests/test_live_scroll_service_browser.mjs": "4f1f3872abb92e084a6825cbb1ed9aa5bb899cacd286d01e92246d99add8a472",
+    "platform/web/vendor/m5stack-models/src/units/scroll/index.js": "412c4887d3a34a2bff833d273fe4bc26df3be1be6b5377fc9195c090946d034c",
+    "tests/units/scroll_protocol_probe.py": "21b1368d863c64bbe2135acf751d51d1d6c2e0786f7bd871edd4b2a4466e7039"
+  },
+  "original_reports": [
+    {
+      "path": ".work/uniform-led-3681-live-browser-20261026/report.json",
+      "sha256": "67d17d83a4d4d56e62cebaca4f2f8a846e12041f59f99d7be7ae366082b7b998"
+    },
+    {
+      "path": ".work/scroll-3681-live-browser-20261026/report.json",
+      "sha256": "6259be6b7c8d1118f9e8b1a52327bc9e8a5e1fc6573762d282f85440ce09efb9"
+    }
+  ],
+  "reviews": {
+    "uniform": {
+      "path": "uniform-review.json",
+      "status": "PASS",
+      "sha256": "a661cf77198c97c062391729c39e320446c5a68d2a96b4a3963d21e9702f0bc5"
+    },
+    "scroll": {
+      "path": "scroll-review.json",
+      "status": "PARTIAL",
+      "sha256": "6ad0a663f8771b894d602fed941cae273e7afc04018b069952c30c688f5f92ec"
+    }
+  },
+  "service_generation": 32,
+  "observed_service_generation_at_final_review": 32,
+  "observed_active_sessions_at_final_review": 0,
+  "runtime_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+  "totals": {
+    "sessions": 3,
+    "executions": 9,
+    "ZIP_members": 60,
+    "fresh_UART_windows": 17,
+    "all_saved_PNGs": 86
+  },
+  "Encoder_optical_readability": "NOT ACCEPTED",
+  "all_14_LEDs_simultaneously_unoccluded": "NOT CLAIMED",
+  "hardware": "NOT RUN",
+  "no_new_guest_or_browser": true,
+  "original_sources_and_evidence_unmodified": true,
+  "reviewed_at": "2026-10-26T15:51:17.519674+00:00",
+  "vendor_source_commit": "3681a6482aff96501d44659ba5a1603246f1fe1f"
+}

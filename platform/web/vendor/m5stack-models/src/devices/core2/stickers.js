@@ -1,6 +1,7 @@
-import {printedFilm} from '../../modeling/artwork.js';
+import {printedFilm,printedArtwork} from '../../modeling/artwork.js';
 
 export function addStickers(host){
+ for(const panel of printedArtwork(host,{target:host.parts['ext-lid'],url:new URL('./artwork/reference-redraw-ext.png',import.meta.url).href,size:[11.8,38.2],position:[16.7,0,-8.26],face:'back',depth:.12,artworkKind:'reference-redraw',name:'Core2 v1.1 EXT CORE2 nameplate (reference redraw)'})??[])panel.userData.source='reference-redraw';
  // The factory adhesive sheet spans the molded rear mounting recesses. Keep
  // those recesses beneath the real printed film instead of painting their walls.
  printedFilm(host,{parent:host.parts['bottom-cover'],url:new URL('./artwork/rear-main.png',import.meta.url).href,size:[34.7666672,51.1],position:[-7.8,0,-8.275],face:'back',name:'Official Core2 v1.1 circuit adhesive film'});

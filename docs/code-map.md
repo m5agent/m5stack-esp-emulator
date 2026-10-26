@@ -81,7 +81,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
 | `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
 | `platform/tools/program_revisions.py` | 完整 Python 文件快照的不可变身份、完整性校验与有界存储 | program 执行记录与 evidence |
-| `platform/tools/program_packages.py` | 完整源码、字节码依赖与资源的不可变文件包；规范路径、内容哈希和有界磁盘存储 | `files` program 请求、包证据 |
+| `platform/tools/program_packages.py` | 完整源码、字节码依赖与资源的不可变文件包；规范路径、内容哈希和有界磁盘存储 | `files`/`revision_id` program请求、公共checkpoint、包证据 |
 | `platform/tools/micropython_repl.py` | 单 owner 的有限 raw REPL RPC、raw-paste credit、双 EOF 与错误恢复门禁；不 soft reset | guest 文件传输与读回 |
 | `platform/tools/uiflow_package_runtime.py` | guest 文件暂存、逐文件 SHA/size 读回、发布与工作目录/托管模块切换 | 同 guest 文件包部署 |
 | `platform/tools/mpy_bytecode.py` | 固定官方 v6 容器与指令边界的有界静态检查，递归拒绝 native；非 VM 类型验证或沙箱 | `.mpy` 依赖准入、负控测试 |
@@ -133,6 +133,8 @@ Unit 集成的其他入口：`platform/web/unit-visual-mappings.js` 与
 `run_sensor_cases.py`、`run_control_cases.py`、`run_io_cases.py` 分组执行
 Device Service 固件探针；`run_live_unit_batch.py` 验证同guest多Unit连续程序，
 `run_frame_preview.py` 与 `platform/tests/test_frame_preview.mjs` 分别验证实际预览和浏览器异步隔离。
+`DeviceService.create/get_program_revision`提供完整package公共保存/查询；`DeviceSession.run_program`按引用读取且不重建revision。`test_program_revision_api.py`区分宿主HTTP/准入与guest部署，`run_live_package.py --revision-references`以8787实际会话验证原文件包路径；新接口不等于Preview/Run协调器。`serial_read`按offset seek读取有界窗口，任意byte切片的UTF-8 replace解码边界保持。
+`test_model_shell.mjs`及`model_shell_probe_helpers.mjs`以有界context/PNG decode核固定vendor、全部printed-artwork种类和公开LED/joint输出；默认配置、census、明确变体和真实guest证据分别标记，不从新增视觉壳子继承Unit协议准入。
 `arrayLedFeedback`在默认无binding时只映射全N灯同色，非对称/不可用状态撤回旧颜色并标unknown；`test_uniform_unit_led_feedback.mjs`核真实mounted材质与销毁/失败fixture，`test_live_uniform_led_service_browser.mjs`经可见session核原I2C/RMT驱动、同VM四阶段与默认网页反馈。`device_service._public_device`的`program_features`显式发布入口/字节码/namespace/清理边界；[固定源码与真实guest研究](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)不等于二进制入口已实现。
 `scroll_protocol_probe.py`/`run_live_scroll.py`经同guest原ScrollUnit与raw I2C验证Scroll限定协议；`test_live_scroll_service_browser.mjs`验证真实Web按键、RGB灯与屏幕，`test_scroll_visual_mapping.mjs`另做无guest的可信pointer/零回声/销毁fixture。`0043-unit-scroll-controller.patch`为独立部分C模型；RGB队列、回绕、bootloader/持久化与机械角度不能继承PASS。证据见[Scroll](evidence/2026-10-26-scroll-controller/README.md)。
 `scripts/bootstrap-unit-runtime.py` 和

@@ -1,0 +1,153 @@
+{
+  "savedAt": "2026-10-26T06:59:54.912428+00:00",
+  "scope": "Interactive Unit progress and necessary finite checks; no browser pixels or hardware acceptance",
+  "status": "modeled",
+  "products": [
+    {
+      "id": "fader",
+      "meshes": 74,
+      "closureRays": 3,
+      "status": "pass"
+    },
+    {
+      "id": "8angle",
+      "meshes": 243,
+      "closureRays": 2,
+      "status": "pass"
+    },
+    {
+      "id": "mini-scales",
+      "meshes": 31,
+      "closureRays": 0,
+      "status": "pass"
+    }
+  ],
+  "commands": {
+    "node scripts/check.mjs": "exit 0, 49 models",
+    "npm run build": "exit 0",
+    "visualSlide": "13 finite checks passed",
+    "viewerLifecycle": "passed including actual ray-picked off-cap slider drag and blur cancellation in no-GPU fixture",
+    "demoLifecycle": "passed including slider-only panel/range/external position/reset with DOM fixture"
+  },
+  "browserReview": "deferred by user",
+  "artwork": "new-product artwork deferred; prior 50 PNG batch retained unreviewed",
+  "publication": "local only; not committed or pushed",
+  "files": [
+    {
+      "path": "demo/dynamics.js",
+      "sha256": "9f4238c59a69e532a438a1e51e08adb6d5865feef46808ef9a05ea8255b8dfa3"
+    },
+    {
+      "path": "docs/research/8angle/README.md",
+      "sha256": "579a465ea0d618f9995d87867dcd65e23110859daae1105d7aa7f56ce935a681"
+    },
+    {
+      "path": "docs/research/8angle/geometry-check.json",
+      "sha256": "1dacf4d34d923253d60e154a6032e232da80bc666db6c42d8b187e547f68dfa1"
+    },
+    {
+      "path": "docs/research/8angle/sources.json",
+      "sha256": "1fed64ab5b43f7c722f6c8d525eaad320aff298012878854098454136bb077b8"
+    },
+    {
+      "path": "docs/research/fader/README.md",
+      "sha256": "35e90bb11f72ec00a9c1c5f6873e24134a501b5a3b6909ce4ecea321c94cb885"
+    },
+    {
+      "path": "docs/research/fader/geometry-check.json",
+      "sha256": "ce0db88708895497b290aadaed66c5fdc2fb764236584b9af89d00a920926c2b"
+    },
+    {
+      "path": "docs/research/mini-scales/geometry-check.json",
+      "sha256": "b07a5bcf287b3322ebf07f81de1d1de02cabf5e93ec7ca0dd98e4f0656c199d8"
+    },
+    {
+      "path": "docs/research/mini-scales/modeling.md",
+      "sha256": "b4e81bd508ad39297b722a19caa2850890e238d1274dc78761422d2ad32782cc"
+    },
+    {
+      "path": "docs/research/mini-scales/sources.json",
+      "sha256": "8725bd243f104528be56a4f849f126dc68ac78f321bdda2ff453a438d231f6dc"
+    },
+    {
+      "path": "scripts/check-demo-lifecycle.mjs",
+      "sha256": "e7c4f9de015d982c8ebc18bc24280484a6064735e5f21fadfcafb10799842db8"
+    },
+    {
+      "path": "scripts/check-viewer-lifecycle.mjs",
+      "sha256": "37c11bb801b5fd32b68a61cf3361e934fb2f06c75e86de5c10ee44bf84a63db5"
+    },
+    {
+      "path": "scripts/check-visual-slide.mjs",
+      "sha256": "885aec68b84c187befc84b9873848c03ad30ead53df1ece48cba64f3998823e3"
+    },
+    {
+      "path": "src/core/Component.js",
+      "sha256": "3314a7d5559485de5f95e98b2f90b8b06688d1ae236e521fca148bce7b13212e"
+    },
+    {
+      "path": "src/core/DeviceViewer.js",
+      "sha256": "259d5dcfa39fb010a118761951aba1c69c5361048a30fbcec12861ffe7544d5b"
+    },
+    {
+      "path": "src/core/components/VisualSlide.js",
+      "sha256": "86f18336f53e52f6410ba2533868f3031a6e941b2eb073675cc3a2f277b2c396"
+    },
+    {
+      "path": "src/core/index.js",
+      "sha256": "955d9dfd4f2e3bedaac528e0a8c50318f0fc16579f4d4e3cfce5c01802e552de"
+    },
+    {
+      "path": "src/units/8angle/cad-map.json",
+      "sha256": "b806c0a62b1c36f3fa4d58c8d7447c45b62b570059ede39122d33416924d1e96"
+    },
+    {
+      "path": "src/units/8angle/dimensions.js",
+      "sha256": "2925dd5d25dd9c6850854e2761be2e0e4fddae09b15ea529a5952b76d27f1a49"
+    },
+    {
+      "path": "src/units/8angle/geometry-data.js",
+      "sha256": "2cbcb70228d42056a0e2e8943ea3e04a291e36a8c6dd1b147020f86996ffa1ae"
+    },
+    {
+      "path": "src/units/8angle/index.js",
+      "sha256": "c4de39df65a2b58d84d30ecad76a32dbb0087e965144c360376719030b764fa6"
+    },
+    {
+      "path": "src/units/fader/cad-map.json",
+      "sha256": "c1b3c3f4451e7db7469a393c8e213ff139b01d7398b53e997e3f2ba2261f360e"
+    },
+    {
+      "path": "src/units/fader/dimensions.js",
+      "sha256": "de859b3f2c88ffa15157053d0a259df349f7ca7e76e8139bc52530496d2fc1a4"
+    },
+    {
+      "path": "src/units/fader/geometry-data.js",
+      "sha256": "8a34fac7413be2c4844a184eea641b0f9964a56f8820667aa8d26dd1cd672fa5"
+    },
+    {
+      "path": "src/units/fader/index.js",
+      "sha256": "07a16ca3ef745db312bc21961921bdddc95c872a7f0f8ebf8f18a04e415ed484"
+    },
+    {
+      "path": "src/units/mini-scales/assembly.js",
+      "sha256": "328ad12c465dd30c199684a7c30f7e84d9a4e599727ebc0ea1ec1985f61e8d58"
+    },
+    {
+      "path": "src/units/mini-scales/cad-map.json",
+      "sha256": "6785b5fbd778c2f6038619252aced36168e49c57971059ed274b43e7c208cd79"
+    },
+    {
+      "path": "src/units/mini-scales/dimensions.js",
+      "sha256": "9a6343f87cfa03e00ec9951eb802f8ed3bc53331af884aa7fade634710cde4fb"
+    },
+    {
+      "path": "src/units/mini-scales/geometry-data.js",
+      "sha256": "2ae60f70c972936575ad696579f8fcfcc290cab28316020b583cb94cc9bf4f11"
+    },
+    {
+      "path": "src/units/mini-scales/index.js",
+      "sha256": "f9b7063ac0d99cfa28b13cf37b561838c84a07db2f7313b94601ad02b57eea6b"
+    }
+  ]
+}

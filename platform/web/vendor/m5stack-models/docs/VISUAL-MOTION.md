@@ -56,15 +56,39 @@ type JointState = {
 | --- | --- | --- |
 | StackChan `yaw` | 颈部机构和头的整体绕+Y转，底脚与base-usb固定 | 官方水平360°无限旋转；demo≤20rpm |
 | StackChan `pitch` | 头壳、CoreS3、LCD、头部PCB/端口、左右联接件绕-X转 | 接受0…90°，0是现有正视姿态，正角抬头；官方确认总行程90°，绝对硬件零位未确认 |
+| RollerCAN U188 `rotor` | D3504外转子、扩展盘、顶部PCB/Grove/红灯绕+Y转，下级Unit与线缆同帧随动 | 连续外驱；底部OLED、固定CAN/Grove及原生弹舌不转；`press`对真壳顶点形变 |
+| RollerCAN Lite U188-Lite `rotor` | 裸D3504外转子绕+Y转 | 连续外驱；无顶部Grove，底部OLED/固定座/原生弹舌保持，动作不驱动CAN或电机物理 |
+| Vibrator U059 `rotor` | 实际外露金属偏心轮绕电机输出轴转 | 连续外驱；默认静止，不自动抖动外壳/线缆，不换算振幅或PWM |
 | Fan `rotor` | +Y轴上的实心输出轴；`propeller:true`时连同60mm双叶和轮毂 | 默认裸轴；只有外部给rpm后才转；demo≤240rpm |
 | Encoder `rotation` | 整个带肋旋钮绕+Z转 | 连续轴；保留原 `press` 真帽压放；demo≤60rpm |
 | Angle `rotation` | 电位器旋钮绕+Z转，底座不动 | 仅绝对角度；viewer建议−150…150°；官方机械总转角/零位未确认 |
 | Light U021 `trim` | 位置`[0,2.5,3.72]` mm上的金属微调头绕+Z转，蓝色座和光敏电阻固定 | 位置式，不接受非零rpm；viewer建议−135…135°，额定机械限位/旋向/电气零位未确认 |
 | Joystick `tilt-x`, `tilt-y` | 真实摇杆/帽在座口附近分别绕X/Y倾斜 | viewer建议每轴−20…20°；实际机械限位未确认；原 `press` 沿倾斜后的杆轴压放 |
+| Joystick2 U024-V2 `tilt-x`, `tilt-y` / `press` | 原生红帽、柄和球体绕局部X/Y倾斜，Z按压沿倾斜后的杆轴，固定座和导光件不动 | 接受每轴−18…18°，0.4 mm帽行程；均为视觉估计，不代表霍尔标定或额定限位 |
+| ByteSwitch U191 `switch-1`…`switch-8` | 八个独立钮子杆绕局部+Y摆动，固定开关座保持 | 稳定Button，`setPosition(0\|1)`切档；两档±22.5°为照片推导，不实现位图/DPDT通断 |
+| ByteButton U192 `press-1`…`press-8` | 八个独立实体帽沿−Z压下与回弹，壳和LED导光体保持 | 瞬时Button，0.2 mm行程为视觉估计；支持独立输入来源和取消复位 |
 | 8Encoder `rotation-1`…`rotation-8` | 八个独立带肋空心旋钮绕+Z转 | 连续外驱；各自 `press-1`…`press-8` 沿局部−Z压放0.35 mm，行程为外观估计 |
+| Fader `slider` | 实体帽、杆和滑架沿+Y移动，轨道固定 | `kind:'slider'`，以毫米设置 `positionMm`；范围−17.5…17.5 mm，中位0；松手保持位置，不换算电阻或ADC |
+| 8Angle `rotation-1`…`rotation-8` / `switch` | 八个帽与轴各绕+Z转；开关沿+X在两档间移动 | 旋钮接受−140…140°且拒绝非零rpm，280°总转角依据官方图，中位不是ADC零点；开关为稳定Button，2.2 mm档距为外观估计 |
+| PaHUB v2.1 `dip-1`…`dip-3` | 三个独立拨码帽沿+X在两档间移动，开关座固定 | 稳定Button，`setPosition(0\|1)`；松手保持档位，0.9 mm档距为照片推导，不计算地址或I2C通道 |
 | Scroll `rotation` | 官方原始滚轮与轴绕+X转 | 连续外驱；`press` 将轮与轴端插入件作为共同按压组，沿机身−Z压0.25 mm，隐藏支撑机理未确认 |
+| 2Relay / 4Relay `terminal-N/screw-1`…`screw-4` | 随附4P插头内各自真实带槽螺钉头绕插入轴转 | 默认空座，`terminalPlug:true`装全部；只外驱头部角度，不模拟螺纹/夹线/触点通断；单独卸插头保留固定座和Grove线 |
+| DMX U183 `termination` / `xlr-release` | 真实终端滑块保持两档，XLR PUSH释放片沿实际局部轴压放 | 稳定Button与瞬时Button，行程为照片推导；不模拟终端电阻或锁线 |
+| CAN U085 `terminal/screw-1`…`screw-4` | 随附4P插头内各自真实带槽螺钉头绕插入轴转 | 默认空座，`terminalPlug:true`装入；仅头部角度，不模拟螺纹/夹线/电气隔离或CAN收发 |
 | Relay `terminal/screw-1`…`terminal/screw-3` | 可拆3P插头中各自带工具槽的螺钉头绕局部轴转 | 仅位置式角度；demo ±180°不代表额定限位，不模拟螺纹升降、夹紧或触点通断；拆除`terminal`后这些路径随附件移除 |
 | RS485 U034 `terminal/screw-1`…`terminal/screw-4` | 随附4P插头中B/A/12V+/12V-各螺钉头绕局部+Z转 | 默认空座，`terminalPlug:true`或产品`TerminalPlug`附件安装后出现；只外驱角度，不模拟螺纹、夹线或通信/供电 |
+| Weight-I2C U180 `terminal/screw-1`…`terminal/screw-4` | 随附4P插头中A+/A−/E−/E+各螺钉头绕局部+Z转 | 默认空座，`terminalPlug:true`安装；仅位置式角度，demo ±180°不是机械限位；不模拟螺纹、夹线、激励或称重 |
+| 8Servos U165 `terminal/screw-1`…`terminal/screw-4` | 随附4P插头中HPWR/GND/GND/5V各螺钉头绕局部+Z转 | 默认空座，`terminalPlug:true`安装；仅位置式角度，demo ±180°不是机械限位；不模拟螺纹、夹线、供电或PWM |
+
+Fader的毫米位置命令、拖动与输入取消见[Agent接入](AGENT-INTEGRATION.md)；PaHUB拨码和六口挂接见[多接口Unit](MULTIPORT-UNITS.md)。Weight-I2C与8Servos的可拆插头、路径前缀及生命周期见[可拆端子](UNIT-TERMINALS.md)。
+
+Joystick2与Byte系列的详细多级连接见[可动输入Unit](INTERACTIVE-INPUT-UNITS.md)。
+
+Relay与DMX的多插头、滑块和释放片见[Relay与DMX](RELAY-DMX-UNITS.md)。
+
+CAN端子与固定传感器的边界见[CAN与环境/测距Unit](CAN-ENV-TOF-UNITS.md)。
+
+RollerCAN标准/Lite与Vibrator的真实随转件和接线见[旋转Unit](ROTATING-UNITS.md)。
 
 StackChan前侧Power板属于pitch，下端Adapter属于yaw，七根实体线束的两端跟随各自装配坐标。后部真实开放，底座USB保持固定。隐藏舵机包装和线束路线为外观近似，不声明实物制造配合。
 

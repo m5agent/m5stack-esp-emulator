@@ -1,0 +1,125 @@
+from pathlib import Path
+import ast,json,pprint
+root=Path.cwd();out=root/'.work/visual-sync-execution-3681-20261026';prep=root/'.work/visual-upstream-audit-3681-20261026/sync-preparation'
+source=(root/'platform/tools/sync_visual_models.py').read_text();tree=ast.parse(source);lines=source.splitlines(keepends=True)
+assignments={n.targets[0].id:n for n in tree.body if isinstance(n,ast.Assign) and len(n.targets)==1 and isinstance(n.targets[0],ast.Name)}
+replacements={'PINNED_COMMIT':repr('3681a6482aff96501d44659ba5a1603246f1fe1f'),'RASTER_NOTICE_SHA256':repr('ada400c9e83a9cf8bb92adc6e8312e453e757e827a6949364442ab31a83455db'),'REVIEWED_RUNTIME_PNGS':pprint.pformat(json.loads((prep/'proposed-reviewed-runtime-pngs.json').read_text()),sort_dicts=True,width=120)}
+for name,value in sorted(replacements.items(),key=lambda item:assignments[item[0]].lineno,reverse=True):
+ node=assignments[name];lines[node.lineno-1:node.end_lineno]=[name+' = '+value+'\n']
+source=''.join(lines)
+source=source.replace('metadata and redistribution notices are allowed. Research, raw CAD/photographs,\ndemo and dependencies are not copied.', 'metadata, redistribution notices and exact reviewed public guide texts are\nallowed. Private research, raw CAD/photographs, demo and dependencies are not copied.')
+source=source.replace('import io\n','import io\nimport ipaddress\n').replace('import urllib.request\n','import urllib.request\nfrom urllib.parse import unquote, urlsplit\n')
+source=source.replace('RASTER_SOURCE_COMMIT = PINNED_COMMIT\n','RASTER_SOURCE_COMMIT = PINNED_COMMIT\nGUIDE_SOURCE_COMMIT = PINNED_COMMIT\n')
+closure=json.loads((prep/'guide-link-closure.json').read_text());guides={x['path']:x['sha256'] for x in closure['files'] if not x['already_selected']};assert len(guides)==169
+marker='EXPLICIT_FILES = {'
+guide_constants='''# Exact public text closure reviewed at GUIDE_SOURCE_COMMIT. Never glob docs,
+# research or artifacts: additions require source/hash/content/link review.
+REVIEWED_GUIDE_FILES = '''+pprint.pformat(guides,sort_dicts=True,width=120)+'''\nGUIDE_ENTRY_FILES = {
+    "docs/AGENT-INTEGRATION.md", "docs/INTEGRATION.md",
+    "docs/GROVE-CABLE.md", "docs/VISUAL-MOTION.md", "THIRD_PARTY_NOTICES.md",
+}
+'''
+source=source.replace(marker,guide_constants+marker)
+helpers=r'''
+def reviewed_guide_texts(commit: str, names: list[str], files: dict[str, bytes]) -> None:
+    """Authenticate the exact reviewed public text closure before any writes."""
+    if not REVIEWED_GUIDE_FILES:
+        return
+    if commit != GUIDE_SOURCE_COMMIT or not set(REVIEWED_GUIDE_FILES) <= set(names):
+        raise ValueError("public guide texts differ from the explicitly reviewed commit/allowlist")
+    patterns = {
+        "MAC address": re.compile(r"(?i)(?<![0-9a-f])(?:[0-9a-f]{2}[:-]){5}[0-9a-f]{2}(?![0-9a-f])"),
+        "private key": re.compile(r"-----BEGIN (?:RSA |OPENSSH |EC |DSA )?PRIVATE KEY-----"),
+        "provider credential": re.compile(r"\b(?:sk-(?:proj-)?[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{16}|xox[baprs]-[A-Za-z0-9-]{12,})\b"),
+        "credential assignment": re.compile(r"(?i)(?:api[_-]?key|access[_-]?token|authorization|password|client[_-]?secret|secret[_-]?key)\s*[:=]\s*[\"']([^\"'\n]{8,})[\"']"),
+        "private user path": re.compile(r"(?:/Users/[^/\s\"')]+|/home/[^/\s\"')]+|[A-Z]:\\Users\\[^\\\s\"')]+)"),
+    }
+    for name, expected in sorted(REVIEWED_GUIDE_FILES.items()):
+        if not name.startswith(("docs/", "artifacts/")) or not name.endswith((".md", ".json", ".txt")):
+            raise ValueError(f"reviewed guide is not an allowed public text path: {name}")
+        data = files.get(name)
+        if data is None or hashlib.sha256(data).hexdigest() != expected:
+            raise ValueError(f"public guide differs from reviewed Git object: {name}")
+        try:
+            text = data.decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise ValueError(f"reviewed guide is not UTF-8 text: {name}") from error
+        if any(ord(char) < 32 and char not in "\t\n\r" for char in text):
+            raise ValueError(f"reviewed guide contains binary/control data: {name}")
+        for category, pattern in patterns.items():
+            if pattern.search(text):
+                raise ValueError(f"reviewed guide contains prohibited {category}: {name}")
+        for match in re.finditer(r"https?://[^\s<>)\"']+", text):
+            try:
+                url = urlsplit(match.group())
+                hostname = url.hostname or ""
+                private = bool(url.username or url.password) or hostname.endswith((".local", ".lan", ".internal"))
+                try:
+                    address = ipaddress.ip_address(hostname)
+                    # Loopback development-preview examples contain no private endpoint.
+                    private |= address.is_private and not address.is_loopback
+                except ValueError:
+                    pass
+            except ValueError as error:
+                raise ValueError(f"reviewed guide contains an invalid URL: {name}") from error
+            if private:
+                raise ValueError(f"reviewed guide contains a private/authenticated URL: {name}")
+        if name.endswith(".json"):
+            try:
+                json.loads(text)
+            except json.JSONDecodeError as error:
+                raise ValueError(f"reviewed guide is not valid JSON: {name}") from error
+
+
+def guide_resource_closure(files: dict[str, bytes]) -> dict[str, object]:
+    """Close reviewed inline Markdown links; code and evidence JSON are leaves.
+
+    This does not execute examples, follow JSON string references or validate
+    Markdown anchors. Absolute URLs retain their upstream attribution.
+    """
+    links = re.compile(r'(?<!!)\[[^\]\n]+\]\(([^\s)]+)(?:\s+"[^"]*")?\)')
+    pending = sorted(GUIDE_ENTRY_FILES)
+    visited: set[str] = set()
+    while pending:
+        name = pending.pop()
+        if name in visited:
+            continue
+        visited.add(name)
+        if name not in files:
+            raise ValueError(f"visual guide entry/reference is absent: {name}")
+        if not name.endswith(".md"):
+            continue
+        for match in links.finditer(files[name].decode("utf-8")):
+            reference = match[1].strip("<>")
+            url = urlsplit(reference)
+            if url.scheme or url.netloc or not url.path:
+                continue
+            path = posixpath.normpath(posixpath.join(posixpath.dirname(name), unquote(url.path)))
+            if path not in files:
+                raise ValueError(f"visual guide reference is absent from the reviewed snapshot: {name}: {reference}")
+            pending.append(path)
+    unused = set(REVIEWED_GUIDE_FILES) - visited
+    if unused:
+        raise ValueError(f"reviewed guide texts lack a root-guide reference: {sorted(unused)}")
+    return {"status": "closed", "root_guides": sorted(GUIDE_ENTRY_FILES),
+            "referenced_files": len(visited), "reviewed_additional_files": len(REVIEWED_GUIDE_FILES),
+            "scope": "Inline Markdown non-image links; JSON/code are leaves; anchors not validated"}
+
+'''
+source=source.replace('\ndef resource_closure(',helpers+'\ndef resource_closure(')
+source=source.replace('or name in REVIEWED_RUNTIME_PNGS\n','or name in REVIEWED_RUNTIME_PNGS\n                or name in REVIEWED_GUIDE_FILES\n')
+source=source.replace('    reviewed_runtime_assets(commit, names, files)\n    closure = resource_closure(files)\n','    reviewed_runtime_assets(commit, names, files)\n    reviewed_guide_texts(commit, names, files)\n    closure = resource_closure(files)\n    guide_closure = guide_resource_closure(files)\n')
+source=source.replace('        "resource_closure": closure,\n','''        "resource_closure": closure,
+        "documentation_closure": guide_closure,
+        "reviewed_guide_texts": {
+            name: {"sha256": REVIEWED_GUIDE_FILES[name], "bytes": len(files[name]),
+                   "source_url": f"{PUBLIC_REPOSITORY}/blob/{commit}/{name}"}
+            for name in sorted(REVIEWED_GUIDE_FILES)
+        },
+        "source_manifest_scope": "source-manifest.json is unchanged upstream provenance; its sourceCommit is a historical preparation baseline, not this vendor source_commit",
+''')
+source=source.replace('"Copied from Git objects with an explicit allowlist. Local changes and private "\n        "research are never copied. `vendor-manifest.json` records every source file\'s "\n        "SHA-256. The original `source-manifest.json` records geometry provenance.\\n\\n"', '"Copied from Git objects with explicit file/hash allowlists. Local changes and "\n        "private research are never copied. Reviewed public guide/provenance texts "\n        "preserve their source bytes and close the bundled guides relative links. "\n        "`vendor-manifest.json` records each source file and the reviewed guide closure. "\n        "The unchanged upstream `source-manifest.json` records provenance; its "\n        "`sourceCommit` is a historical preparation baseline, not this snapshot Git pin.\\n\\n"')
+source=source.replace('"Reviewed product sticker PNGs retain the provider-permission notice and "\n        "per-file hashes; official remote photos are not bundled or relicensed. All models are visual "', '"Reviewed product sticker PNGs, including source-vector rasters and authorized "\n        "reference redraws, retain the provider-permission notice and per-file hashes. "\n        "They retain their owners rights and are not relicensed as MIT; official remote "\n        "photos, vectors and generators are not bundled. All models are visual "')
+ast.parse(source)
+(out/'prepared_sync_visual_models.py').write_text(source)
+print('prepared bytes',len(source.encode()),'guides',len(guides),'pngs',len(json.loads((prep/'proposed-reviewed-runtime-pngs.json').read_text())))

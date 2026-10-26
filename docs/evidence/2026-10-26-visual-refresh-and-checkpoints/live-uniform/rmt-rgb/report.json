@@ -1,0 +1,4307 @@
+{
+  "group": {
+    "id": "rmt-rgb",
+    "units": [
+      "rgb"
+    ],
+    "leaves": [
+      "rgb"
+    ]
+  },
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "output": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-3681-live-browser-20261026/rmt-rgb",
+  "phases": [
+    {
+      "phase": "A",
+      "source": "import sys,time,json,M5\nsys.path.append(\"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\")\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(1325148)\nscreen.setTextSize(2)\nscreen.setTextColor(0xffffff,1325148)\nscreen.setCursor(12,12)\nscreen.print('LED rmt-rgb A')\nfrom unit import RGBUnit\nunit=RGBUnit((1,2),3)\nunit.set_brightness(100)\nunit.set_screen([10494016,10494016,10494016])\nscan=None\nsequence=0\nwhile True:\n assert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\n M5.update()\n print(\"UNIFORM_LED_a36b738dd4a8 \"+json.dumps({'kind':'sample','phase':\"A\",'nonce':\"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\",'sequence':sequence,'scan':scan,'written_colors':{\"rgb\":[10494016,10494016,10494016]},'values':{}}))\n sequence+=1\n time.sleep_ms(250)\n",
+      "source_sha256": "57857a686615a8381857d25f217a7467e672130e95990b23f9a0d1de83e8d625",
+      "program": {
+        "execution_id": "bd049e16701b43b8b9d6ad0ae2259587",
+        "revision_id": "2bd423073b42c81de322dc175bb0f5c364a28772dc4d462311c3a05de04e32e8",
+        "source_sha256": "87dfc7207f084607d0d29d15101994a8b2671798c9b752f387f69fe4d736ca35",
+        "source_bytes": 815,
+        "state": "running",
+        "submitted_at": "2026-10-26T15:38:05.132910+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 99783,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 491,
+        "next_offset": 556,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T15:38:05.458057+00:00"
+      },
+      "request": {
+        "source": "import sys,time,json,M5\nsys.path.append(\"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\")\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(1325148)\nscreen.setTextSize(2)\nscreen.setTextColor(0xffffff,1325148)\nscreen.setCursor(12,12)\nscreen.print('LED rmt-rgb A')\nfrom unit import RGBUnit\nunit=RGBUnit((1,2),3)\nunit.set_brightness(100)\nunit.set_screen([10494016,10494016,10494016])\nscan=None\nsequence=0\nwhile True:\n assert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\n M5.update()\n print(\"UNIFORM_LED_a36b738dd4a8 \"+json.dumps({'kind':'sample','phase':\"A\",'nonce':\"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\",'sequence':sequence,'scan':scan,'written_colors':{\"rgb\":[10494016,10494016,10494016]},'values':{}}))\n sequence+=1\n time.sleep_ms(250)\n",
+        "expected_execution_id": null
+      },
+      "observation": {
+        "offset": 444,
+        "prefix_sha256": "ff8dea90c1fd83ed127b6c9bac02f81b5f569590d3e5d65a58999c492b935862",
+        "window": {
+          "session_id": "c6d4ba7058444401814f627170c15399",
+          "offset": 444,
+          "next_offset": 780,
+          "data": "\r\n>>> \r\n>>> \r\n>>> \r\nraw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_bd049e16701b43b8b9d6ad0ae2259587__:START\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 0, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [10494016, 10494016, 10494016]}, \"values\": {}, \"phase\": \"A\"}\r\n",
+          "bytes": 336
+        },
+        "sample": {
+          "sequence": 0,
+          "scan": null,
+          "kind": "sample",
+          "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+          "written_colors": {
+            "rgb": [
+              10494016,
+              10494016,
+              10494016
+            ]
+          },
+          "values": {},
+          "phase": "A"
+        }
+      },
+      "capture": {
+        "qom": {
+          "payload": {
+            "session_id": "c6d4ba7058444401814f627170c15399",
+            "state": "running",
+            "source": "live",
+            "captured_at": "2026-10-26T15:38:05.720505+00:00",
+            "units": [
+              {
+                "id": "external1",
+                "unit_id": "rgb",
+                "port_id": "port-a",
+                "pins": {
+                  "yellow": 2,
+                  "white": 1
+                },
+                "visual_port": "grove",
+                "initial": {},
+                "source": "guest-qom",
+                "available": true,
+                "properties": {
+                  "led-rgb": [
+                    10494016,
+                    10494016,
+                    10494016
+                  ],
+                  "led-frames": 2,
+                  "incomplete-frames": 0,
+                  "transactions": 0,
+                  "read-bytes": 0,
+                  "written-bytes": 0,
+                  "input-events": 0,
+                  "output-transitions": 2
+                },
+                "errors": {}
+              }
+            ],
+            "definitions": [
+              {
+                "id": "rgb",
+                "name": "RGB LED",
+                "sku": "U003",
+                "visual_asset": {
+                  "entry": "src/units/rgb/index.js",
+                  "export": "GroveModule"
+                },
+                "official_docs": "https://docs.m5stack.com/en/unit/rgb",
+                "checked_at": "2026-10-26",
+                "chips": [
+                  {
+                    "part": "SK6812 x3",
+                    "status": "officially-documented"
+                  }
+                ],
+                "interface": {
+                  "bus": "gpio-rmt",
+                  "connector": "HY2.0-4P",
+                  "address_7bit": [],
+                  "pins": {
+                    "red": {
+                      "signal": "5V",
+                      "direction": "power"
+                    },
+                    "black": {
+                      "signal": "GND",
+                      "direction": "ground"
+                    },
+                    "yellow": {
+                      "signal": "LED data in",
+                      "direction": "host-to-unit"
+                    },
+                    "white": {
+                      "signal": "NC in product PinMap",
+                      "direction": "none"
+                    }
+                  },
+                  "power": {
+                    "nominal_v": 5,
+                    "source": "official-product-PinMap",
+                    "logic_v": null,
+                    "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+                  }
+                },
+                "protocol": {
+                  "status": "documented",
+                  "summary": "Three daisy-chained addressable SK6812 RGB LEDs on the yellow data wire. The official RGBUnit delegates to SK6812; a model must decode the guest pulse stream instead of accepting a host-side color as guest output. Verified SK6812 driver has ORDER=(1,0,2,3), bpp=3 and timing=1: the RGB variant transmits GRB byte order.",
+                  "registers": [],
+                  "gaps": [
+                    "The schematic exposes a chain DOUT on one connector while the current product PinMap labels white NC; preserve connector-specific uncertainty."
+                  ]
+                },
+                "inputs": {},
+                "outputs": {
+                  "led-rgb": {
+                    "type": "array",
+                    "label": "三颗灯颜色",
+                    "default": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "default_source": "synthetic-test-fixture",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 16777215
+                    },
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "readOnly": true
+                  }
+                },
+                "evidence": [
+                  {
+                    "kind": "official-product",
+                    "url": "https://docs.m5stack.com/en/unit/rgb",
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "SKU and chip identity",
+                      "PinMap wire colors",
+                      "documented electrical and functional limits"
+                    ]
+                  },
+                  {
+                    "kind": "official-driver",
+                    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rgb.py",
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "guest driver transaction path and encoding"
+                    ],
+                    "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c"
+                  },
+                  {
+                    "kind": "official-driver",
+                    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/sk6812.py",
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "guest driver transaction path and encoding"
+                    ],
+                    "sha256": "a03925be7ed5c61c644d3a176990a53c21dbb5bad4b2e854200ee4a0725ecb39"
+                  },
+                  {
+                    "kind": "official-linked-datasheet-or-schematic",
+                    "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/760/U003-UNIT_RGB-SCHE.pdf",
+                    "checked_at": "2026-10-26",
+                    "retrieval_status": "linked-by-verified-product-page",
+                    "claims": [
+                      "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                    ]
+                  }
+                ],
+                "research_status": "confirmed-contract",
+                "model_status": "implemented",
+                "runtime": {
+                  "status": "implemented",
+                  "hosts": [
+                    "cores3",
+                    "atoms3r",
+                    "sticks3",
+                    "stopwatch"
+                  ],
+                  "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+                  "inputs": {},
+                  "state": {
+                    "led-rgb": {
+                      "property": "led-rgb"
+                    },
+                    "led-frames": {
+                      "property": "led-frames"
+                    },
+                    "incomplete-frames": {
+                      "property": "incomplete-frames"
+                    },
+                    "transactions": {
+                      "property": "transactions"
+                    },
+                    "read-bytes": {
+                      "property": "read-bytes"
+                    },
+                    "written-bytes": {
+                      "property": "written-bytes"
+                    },
+                    "input-events": {
+                      "property": "input-events"
+                    },
+                    "output-transitions": {
+                      "property": "output-transitions"
+                    }
+                  },
+                  "guest_validation": {
+                    "status": "PASS",
+                    "device_id": "cores3",
+                    "runtime": "qemu",
+                    "firmware_sha256": "459c3bb719faf0530b81acc426ce58aae3ca71dfc92121db382aecaa94791568",
+                    "firmware_flavor": "reference-app-with-original-unit-drivers",
+                    "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/report.json",
+                    "report_sha256": "c14e8b11d410e95395c1eb83ac2154e3dfcac302eb16801c8e92176a3fcd917b",
+                    "evidence_sha256": "284c86c8dcb643481bfa85b4f30082de54857d738a6dd595053d174a0f7b589a",
+                    "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                    "runtime_proof_kind": "direct-pid",
+                    "worker_generation": 7,
+                    "live_browser": "PASS",
+                    "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                    "hardware": "NOT RUN"
+                  },
+                  "host_validation": {
+                    "atoms3r": {
+                      "status": "NOT RUN",
+                      "device_id": "atoms3r",
+                      "unit_id": "rgb",
+                      "runtime": "qemu",
+                      "validation": "development-admission-only",
+                      "guest_controller": "NOT RUN",
+                      "live_browser": "NOT RUN",
+                      "hardware": "NOT RUN",
+                      "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                    },
+                    "sticks3": {
+                      "status": "NOT RUN",
+                      "device_id": "sticks3",
+                      "unit_id": "rgb",
+                      "runtime": "qemu",
+                      "validation": "development-admission-only",
+                      "guest_controller": "NOT RUN",
+                      "live_browser": "NOT RUN",
+                      "hardware": "NOT RUN",
+                      "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                    },
+                    "stopwatch": {
+                      "status": "NOT RUN",
+                      "device_id": "stopwatch",
+                      "unit_id": "rgb",
+                      "runtime": "qemu",
+                      "validation": "development-admission-only",
+                      "guest_controller": "NOT RUN",
+                      "live_browser": "NOT RUN",
+                      "hardware": "NOT RUN",
+                      "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                    }
+                  }
+                },
+                "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+                "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+                "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+                "limitations": [
+                  "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+                  "This catalog alone does not authorize a simulated or functional-PASS claim."
+                ],
+                "research_snapshot": {
+                  "scope": "protocol research only; not current runtime capability",
+                  "model_status": "planned",
+                  "runtime_status": "unsupported",
+                  "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: The schematic exposes a chain DOUT on one connector while the current product PinMap labels white NC; preserve connector-specific uncertainty."
+                }
+              }
+            ],
+            "contract_hashes": {
+              "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+              "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+              "runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+            },
+            "contract_status": "frozen"
+          },
+          "raw": {
+            "rgb": {
+              "session_id": "c6d4ba7058444401814f627170c15399",
+              "path": "/machine/units/external1",
+              "property": "led-rgb",
+              "value": [
+                10494016,
+                10494016,
+                10494016
+              ],
+              "led_frames": {
+                "session_id": "c6d4ba7058444401814f627170c15399",
+                "path": "/machine/units/external1",
+                "property": "led-frames",
+                "value": 2
+              },
+              "incomplete_frames": {
+                "session_id": "c6d4ba7058444401814f627170c15399",
+                "path": "/machine/units/external1",
+                "property": "incomplete-frames",
+                "value": 0
+              }
+            }
+          }
+        },
+        "visual": {
+          "bindings": {},
+          "physicalEvents": 0,
+          "frameMetadata": {
+            "x-frame-capture-seq": "14",
+            "x-frame-captured-at": "2026-10-26T15:38:05.954913+00:00",
+            "x-frame-execution-id": "bd049e16701b43b8b9d6ad0ae2259587",
+            "x-frame-height": "240",
+            "x-frame-program-state": "running",
+            "x-frame-revision-id": "2bd423073b42c81de322dc175bb0f5c364a28772dc4d462311c3a05de04e32e8",
+            "x-frame-sha256": "5c51dccad92caf61603ed93165cc5f4b06e11ad8682323771fcd479415e2b300",
+            "x-frame-source": "live",
+            "x-frame-width": "320"
+          },
+          "units": {
+            "rgb": {
+              "id": "external1",
+              "port": "grove",
+              "available": true,
+              "hint": {
+                "hidden": true,
+                "text": "",
+                "mode": "uniform"
+              },
+              "note": "实时模型状态",
+              "readback": [
+                "LED[0] #a02040",
+                "LED[1] #a02040",
+                "LED[2] #a02040"
+              ],
+              "leds": [
+                {
+                  "id": "led0",
+                  "path": "grove/led0",
+                  "attached": true,
+                  "known": true,
+                  "userDataKnown": true,
+                  "state": {
+                    "color": "#a02040",
+                    "brightness": 1
+                  },
+                  "emissive": [
+                    0.7733717188776619,
+                    0.03177645590290483,
+                    0.11279280840765386
+                  ],
+                  "glow": true,
+                  "opacity": 0.85,
+                  "glowColor": "#a02040"
+                },
+                {
+                  "id": "led1",
+                  "path": "grove/led1",
+                  "attached": true,
+                  "known": true,
+                  "userDataKnown": true,
+                  "state": {
+                    "color": "#a02040",
+                    "brightness": 1
+                  },
+                  "emissive": [
+                    0.7733717188776619,
+                    0.03177645590290483,
+                    0.11279280840765386
+                  ],
+                  "glow": true,
+                  "opacity": 0.85,
+                  "glowColor": "#a02040"
+                },
+                {
+                  "id": "led2",
+                  "path": "grove/led2",
+                  "attached": true,
+                  "known": true,
+                  "userDataKnown": true,
+                  "state": {
+                    "color": "#a02040",
+                    "brightness": 1
+                  },
+                  "emissive": [
+                    0.7733717188776619,
+                    0.03177645590290483,
+                    0.11279280840765386
+                  ],
+                  "glow": true,
+                  "opacity": 0.85,
+                  "glowColor": "#a02040"
+                }
+              ],
+              "diffusion": null,
+              "joints": []
+            }
+          }
+        },
+        "frame": {
+          "path": "A-frame.png",
+          "sha256": "5c51dccad92caf61603ed93165cc5f4b06e11ad8682323771fcd479415e2b300",
+          "headers": {
+            "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+            "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+            "access-control-allow-origin": "*",
+            "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+            "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+            "content-length": "1151",
+            "content-type": "image/png",
+            "date": "Mon, 26 Oct 2026 15:38:05 GMT",
+            "etag": "\"5c51dccad92caf61603ed93165cc5f4b06e11ad8682323771fcd479415e2b300\"",
+            "expires": "0",
+            "pragma": "no-cache",
+            "server": "SimpleHTTP/0.6 Python/3.12.8",
+            "x-frame-capture-seq": "14",
+            "x-frame-captured-at": "2026-10-26T15:38:05.954913+00:00",
+            "x-frame-execution-id": "bd049e16701b43b8b9d6ad0ae2259587",
+            "x-frame-height": "240",
+            "x-frame-program-state": "running",
+            "x-frame-revision-id": "2bd423073b42c81de322dc175bb0f5c364a28772dc4d462311c3a05de04e32e8",
+            "x-frame-sha256": "5c51dccad92caf61603ed93165cc5f4b06e11ad8682323771fcd479415e2b300",
+            "x-frame-source": "live",
+            "x-frame-width": "320",
+            "x-request-id": "e71dd0c8960148c5a4b8f8871a37b4b2"
+          },
+          "metrics": {
+            "size": [
+              320,
+              240
+            ],
+            "matching_pixels": 75260,
+            "ratio": 0.9799479166666667,
+            "pixels": [
+              {
+                "x": 2,
+                "y": 2,
+                "rgb": [
+                  16,
+                  56,
+                  90
+                ]
+              },
+              {
+                "x": 318,
+                "y": 238,
+                "rgb": [
+                  16,
+                  56,
+                  90
+                ]
+              }
+            ]
+          }
+        },
+        "screenshot": {
+          "path": "A-browser.png",
+          "sha256": "4be95e8d0e766020b544b03588ed029bdaf135b08ab5d06685f08835ef26e5c3",
+          "views": [
+            {
+              "view": "front",
+              "width": 439,
+              "height": 420,
+              "viewport": {
+                "x": 401,
+                "y": 164.1875,
+                "width": 1440,
+                "height": 1080
+              },
+              "bounds": [
+                {
+                  "name": "whole-host-and-attached-assembly",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 80.48139197401619,
+                      "y": 272.17177665135125,
+                      "z": 0.9194491178545298
+                    },
+                    {
+                      "x": 72.42635081706204,
+                      "y": 275.77414490146344,
+                      "z": 0.9138141629215902
+                    },
+                    {
+                      "x": 80.48139197401619,
+                      "y": 147.82822334864872,
+                      "z": 0.9194491178545298
+                    },
+                    {
+                      "x": 72.42635081706204,
+                      "y": 144.22585509853653,
+                      "z": 0.9138141629215902
+                    },
+                    {
+                      "x": 358.51860802598384,
+                      "y": 272.17177665135125,
+                      "z": 0.9194491178545298
+                    },
+                    {
+                      "x": 366.57364918293797,
+                      "y": 275.77414490146344,
+                      "z": 0.9138141629215902
+                    },
+                    {
+                      "x": 358.51860802598384,
+                      "y": 147.82822334864872,
+                      "z": 0.9194491178545298
+                    },
+                    {
+                      "x": 366.57364918293797,
+                      "y": 144.22585509853653,
+                      "z": 0.9138141629215902
+                    }
+                  ]
+                },
+                {
+                  "name": "external1",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 80.48139197401619,
+                      "y": 269.81338617512097,
+                      "z": 0.9194491178545298
+                    },
+                    {
+                      "x": 73.96370941340255,
+                      "y": 272.6176486368194,
+                      "z": 0.9148896318406616
+                    },
+                    {
+                      "x": 80.48139197401619,
+                      "y": 214.58333776125977,
+                      "z": 0.9194491178545298
+                    },
+                    {
+                      "x": 73.96370941340255,
+                      "y": 214.79822079756798,
+                      "z": 0.9148896318406616
+                    },
+                    {
+                      "x": 236.96652898202456,
+                      "y": 269.81338617512097,
+                      "z": 0.9194491178545298
+                    },
+                    {
+                      "x": 237.7854214522996,
+                      "y": 272.6176486368194,
+                      "z": 0.9148896318406616
+                    },
+                    {
+                      "x": 236.96652898202456,
+                      "y": 214.58333776125977,
+                      "z": 0.9194491178545298
+                    },
+                    {
+                      "x": 237.7854214522996,
+                      "y": 214.79822079756798,
+                      "z": 0.9148896318406616
+                    }
+                  ]
+                }
+              ],
+              "path": "A-browser.png",
+              "sha256": "4be95e8d0e766020b544b03588ed029bdaf135b08ab5d06685f08835ef26e5c3",
+              "renderer": {
+                "path": "A-front-render.png",
+                "sha256": "822c9eadc16867acc5d2b36b5aca799ec054b0e6786cb26771cb2d31a5cab1ce",
+                "metrics": {
+                  "size": [
+                    878,
+                    840
+                  ],
+                  "visible_pixels": 101695,
+                  "unique_rgb": 3094
+                }
+              }
+            },
+            {
+              "view": "iso",
+              "width": 439,
+              "height": 420,
+              "viewport": {
+                "x": 401,
+                "y": 164.1875,
+                "width": 1440,
+                "height": 1080
+              },
+              "bounds": [
+                {
+                  "name": "whole-host-and-attached-assembly",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 135.90875916776227,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 113.64512497586121,
+                      "y": 295.7913298555993,
+                      "z": 0.9077378378459345
+                    },
+                    {
+                      "x": 135.90875916776227,
+                      "y": 148.59046592165976,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 113.64512497586121,
+                      "y": 132.2346924099454,
+                      "z": 0.9077378378459345
+                    },
+                    {
+                      "x": 356.54353797016535,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 393.0436206026866,
+                      "y": 295.7913298555993,
+                      "z": 0.9077378378459345
+                    },
+                    {
+                      "x": 356.54353797016535,
+                      "y": 148.59046592165976,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 393.0436206026866,
+                      "y": 132.2346924099454,
+                      "z": 0.9077378378459345
+                    }
+                  ]
+                },
+                {
+                  "name": "external1",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 135.90875916776227,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 125.85790396054692,
+                      "y": 285.89333932762617,
+                      "z": 0.9203091668789544
+                    },
+                    {
+                      "x": 135.90875916776227,
+                      "y": 220.77018287295016,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 125.85790396054692,
+                      "y": 222.0651696147848,
+                      "z": 0.9203091668789544
+                    },
+                    {
+                      "x": 264.61002386334343,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 270.0339691682639,
+                      "y": 285.89333932762617,
+                      "z": 0.9203091668789544
+                    },
+                    {
+                      "x": 264.61002386334343,
+                      "y": 220.77018287295016,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 270.0339691682639,
+                      "y": 222.0651696147848,
+                      "z": 0.9203091668789544
+                    }
+                  ]
+                }
+              ],
+              "path": "A-iso-browser.png",
+              "sha256": "049e86e29c37961fa15bb08e374afa23ef99cc8e3d274675071c9f78da16fc77",
+              "renderer": {
+                "path": "A-iso-render.png",
+                "sha256": "19c58e5787dd97a66b5ad38e0a43d6a07c7642d4524f60fff111ba935dabaac0",
+                "metrics": {
+                  "size": [
+                    878,
+                    840
+                  ],
+                  "visible_pixels": 88211,
+                  "unique_rgb": 3062
+                }
+              }
+            }
+          ],
+          "panels": [
+            {
+              "unit_id": "rgb",
+              "path": "A-rgb-panel.png",
+              "sha256": "96d566cce58462a3125331b50306be92964b91bbba073fea9615ea65ab543f00"
+            }
+          ],
+          "overview": {
+            "path": "A-full-page.png",
+            "sha256": "f60bf07f86fc906a74be4d32f65a5991dbe2b07f44c46c3ddf793a2156c899ac"
+          }
+        }
+      },
+      "runtime_identity": {
+        "pid": 99783,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+      }
+    },
+    {
+      "phase": "B",
+      "source": "import sys,time,json,M5\nassert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(5649426)\nscreen.setTextSize(2)\nscreen.setTextColor(0xffffff,5649426)\nscreen.setCursor(12,12)\nscreen.print('LED rmt-rgb B')\nfrom unit import RGBUnit\nunit=RGBUnit((1,2),3)\nunit.set_brightness(100)\nunit.set_screen([1056816,4214880,7372944])\nscan=None\nsequence=0\nwhile True:\n assert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\n M5.update()\n print(\"UNIFORM_LED_a36b738dd4a8 \"+json.dumps({'kind':'sample','phase':\"B\",'nonce':\"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\",'sequence':sequence,'scan':scan,'written_colors':{\"rgb\":[1056816,4214880,7372944]},'values':{}}))\n sequence+=1\n time.sleep_ms(250)\n",
+      "source_sha256": "a92efa4cfb02444a6b4d3c79c21bb685edace28bd382a251e0606abaef33a6b8",
+      "program": {
+        "execution_id": "bae5ff33ad99486faa2ac516be82c871",
+        "revision_id": "56f74a79789fbd47740059b949c50671de2ce59a911b41047bceaa109016bcbf",
+        "source_sha256": "51d69b34d718d188cec97356d7b265be8a637517a25479d8eed9198409fa2b47",
+        "source_bytes": 835,
+        "state": "running",
+        "submitted_at": "2026-10-26T15:38:11.152568+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 99783,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 5702,
+        "next_offset": 5768,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T15:38:11.501312+00:00"
+      },
+      "request": {
+        "source": "import sys,time,json,M5\nassert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(5649426)\nscreen.setTextSize(2)\nscreen.setTextColor(0xffffff,5649426)\nscreen.setCursor(12,12)\nscreen.print('LED rmt-rgb B')\nfrom unit import RGBUnit\nunit=RGBUnit((1,2),3)\nunit.set_brightness(100)\nunit.set_screen([1056816,4214880,7372944])\nscan=None\nsequence=0\nwhile True:\n assert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\n M5.update()\n print(\"UNIFORM_LED_a36b738dd4a8 \"+json.dumps({'kind':'sample','phase':\"B\",'nonce':\"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\",'sequence':sequence,'scan':scan,'written_colors':{\"rgb\":[1056816,4214880,7372944]},'values':{}}))\n sequence+=1\n time.sleep_ms(250)\n",
+        "expected_execution_id": "bd049e16701b43b8b9d6ad0ae2259587"
+      },
+      "observation": {
+        "offset": 5454,
+        "prefix_sha256": "c35c9d8c7be953e0f31768dd9bf0c40dc60274ee248df60855075401da25c99c",
+        "window": {
+          "session_id": "c6d4ba7058444401814f627170c15399",
+          "offset": 5454,
+          "next_offset": 5989,
+          "data": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 4, in <module>\r\n  File \"<m5-bd049e16701b43b8b9d6ad0ae2259587>\", line 22, in <module>\r\nKeyboardInterrupt: \r\n__M5_EXEC_bd049e16701b43b8b9d6ad0ae2259587__:ERROR\r\n\u0004\u0004>raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_bae5ff33ad99486faa2ac516be82c871__:START\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 0, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1056816, 4214880, 7372944]}, \"values\": {}, \"phase\": \"B\"}\r\n",
+          "bytes": 535
+        },
+        "sample": {
+          "sequence": 0,
+          "scan": null,
+          "kind": "sample",
+          "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+          "written_colors": {
+            "rgb": [
+              1056816,
+              4214880,
+              7372944
+            ]
+          },
+          "values": {},
+          "phase": "B"
+        }
+      },
+      "capture": {
+        "qom": {
+          "payload": {
+            "session_id": "c6d4ba7058444401814f627170c15399",
+            "state": "running",
+            "source": "live",
+            "captured_at": "2026-10-26T15:38:11.636532+00:00",
+            "units": [
+              {
+                "id": "external1",
+                "unit_id": "rgb",
+                "port_id": "port-a",
+                "pins": {
+                  "yellow": 2,
+                  "white": 1
+                },
+                "visual_port": "grove",
+                "initial": {},
+                "source": "guest-qom",
+                "available": true,
+                "properties": {
+                  "led-rgb": [
+                    1056816,
+                    4214880,
+                    7372944
+                  ],
+                  "led-frames": 4,
+                  "incomplete-frames": 0,
+                  "transactions": 0,
+                  "read-bytes": 0,
+                  "written-bytes": 0,
+                  "input-events": 0,
+                  "output-transitions": 4
+                },
+                "errors": {}
+              }
+            ],
+            "definitions": [
+              {
+                "id": "rgb",
+                "name": "RGB LED",
+                "sku": "U003",
+                "visual_asset": {
+                  "entry": "src/units/rgb/index.js",
+                  "export": "GroveModule"
+                },
+                "official_docs": "https://docs.m5stack.com/en/unit/rgb",
+                "checked_at": "2026-10-26",
+                "chips": [
+                  {
+                    "part": "SK6812 x3",
+                    "status": "officially-documented"
+                  }
+                ],
+                "interface": {
+                  "bus": "gpio-rmt",
+                  "connector": "HY2.0-4P",
+                  "address_7bit": [],
+                  "pins": {
+                    "red": {
+                      "signal": "5V",
+                      "direction": "power"
+                    },
+                    "black": {
+                      "signal": "GND",
+                      "direction": "ground"
+                    },
+                    "yellow": {
+                      "signal": "LED data in",
+                      "direction": "host-to-unit"
+                    },
+                    "white": {
+                      "signal": "NC in product PinMap",
+                      "direction": "none"
+                    }
+                  },
+                  "power": {
+                    "nominal_v": 5,
+                    "source": "official-product-PinMap",
+                    "logic_v": null,
+                    "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+                  }
+                },
+                "protocol": {
+                  "status": "documented",
+                  "summary": "Three daisy-chained addressable SK6812 RGB LEDs on the yellow data wire. The official RGBUnit delegates to SK6812; a model must decode the guest pulse stream instead of accepting a host-side color as guest output. Verified SK6812 driver has ORDER=(1,0,2,3), bpp=3 and timing=1: the RGB variant transmits GRB byte order.",
+                  "registers": [],
+                  "gaps": [
+                    "The schematic exposes a chain DOUT on one connector while the current product PinMap labels white NC; preserve connector-specific uncertainty."
+                  ]
+                },
+                "inputs": {},
+                "outputs": {
+                  "led-rgb": {
+                    "type": "array",
+                    "label": "三颗灯颜色",
+                    "default": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "default_source": "synthetic-test-fixture",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 16777215
+                    },
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "readOnly": true
+                  }
+                },
+                "evidence": [
+                  {
+                    "kind": "official-product",
+                    "url": "https://docs.m5stack.com/en/unit/rgb",
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "SKU and chip identity",
+                      "PinMap wire colors",
+                      "documented electrical and functional limits"
+                    ]
+                  },
+                  {
+                    "kind": "official-driver",
+                    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rgb.py",
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "guest driver transaction path and encoding"
+                    ],
+                    "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c"
+                  },
+                  {
+                    "kind": "official-driver",
+                    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/sk6812.py",
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "guest driver transaction path and encoding"
+                    ],
+                    "sha256": "a03925be7ed5c61c644d3a176990a53c21dbb5bad4b2e854200ee4a0725ecb39"
+                  },
+                  {
+                    "kind": "official-linked-datasheet-or-schematic",
+                    "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/760/U003-UNIT_RGB-SCHE.pdf",
+                    "checked_at": "2026-10-26",
+                    "retrieval_status": "linked-by-verified-product-page",
+                    "claims": [
+                      "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                    ]
+                  }
+                ],
+                "research_status": "confirmed-contract",
+                "model_status": "implemented",
+                "runtime": {
+                  "status": "implemented",
+                  "hosts": [
+                    "cores3",
+                    "atoms3r",
+                    "sticks3",
+                    "stopwatch"
+                  ],
+                  "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+                  "inputs": {},
+                  "state": {
+                    "led-rgb": {
+                      "property": "led-rgb"
+                    },
+                    "led-frames": {
+                      "property": "led-frames"
+                    },
+                    "incomplete-frames": {
+                      "property": "incomplete-frames"
+                    },
+                    "transactions": {
+                      "property": "transactions"
+                    },
+                    "read-bytes": {
+                      "property": "read-bytes"
+                    },
+                    "written-bytes": {
+                      "property": "written-bytes"
+                    },
+                    "input-events": {
+                      "property": "input-events"
+                    },
+                    "output-transitions": {
+                      "property": "output-transitions"
+                    }
+                  },
+                  "guest_validation": {
+                    "status": "PASS",
+                    "device_id": "cores3",
+                    "runtime": "qemu",
+                    "firmware_sha256": "459c3bb719faf0530b81acc426ce58aae3ca71dfc92121db382aecaa94791568",
+                    "firmware_flavor": "reference-app-with-original-unit-drivers",
+                    "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/report.json",
+                    "report_sha256": "c14e8b11d410e95395c1eb83ac2154e3dfcac302eb16801c8e92176a3fcd917b",
+                    "evidence_sha256": "284c86c8dcb643481bfa85b4f30082de54857d738a6dd595053d174a0f7b589a",
+                    "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                    "runtime_proof_kind": "direct-pid",
+                    "worker_generation": 7,
+                    "live_browser": "PASS",
+                    "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                    "hardware": "NOT RUN"
+                  },
+                  "host_validation": {
+                    "atoms3r": {
+                      "status": "NOT RUN",
+                      "device_id": "atoms3r",
+                      "unit_id": "rgb",
+                      "runtime": "qemu",
+                      "validation": "development-admission-only",
+                      "guest_controller": "NOT RUN",
+                      "live_browser": "NOT RUN",
+                      "hardware": "NOT RUN",
+                      "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                    },
+                    "sticks3": {
+                      "status": "NOT RUN",
+                      "device_id": "sticks3",
+                      "unit_id": "rgb",
+                      "runtime": "qemu",
+                      "validation": "development-admission-only",
+                      "guest_controller": "NOT RUN",
+                      "live_browser": "NOT RUN",
+                      "hardware": "NOT RUN",
+                      "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                    },
+                    "stopwatch": {
+                      "status": "NOT RUN",
+                      "device_id": "stopwatch",
+                      "unit_id": "rgb",
+                      "runtime": "qemu",
+                      "validation": "development-admission-only",
+                      "guest_controller": "NOT RUN",
+                      "live_browser": "NOT RUN",
+                      "hardware": "NOT RUN",
+                      "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                    }
+                  }
+                },
+                "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+                "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+                "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+                "limitations": [
+                  "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+                  "This catalog alone does not authorize a simulated or functional-PASS claim."
+                ],
+                "research_snapshot": {
+                  "scope": "protocol research only; not current runtime capability",
+                  "model_status": "planned",
+                  "runtime_status": "unsupported",
+                  "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: The schematic exposes a chain DOUT on one connector while the current product PinMap labels white NC; preserve connector-specific uncertainty."
+                }
+              }
+            ],
+            "contract_hashes": {
+              "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+              "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+              "runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+            },
+            "contract_status": "frozen"
+          },
+          "raw": {
+            "rgb": {
+              "session_id": "c6d4ba7058444401814f627170c15399",
+              "path": "/machine/units/external1",
+              "property": "led-rgb",
+              "value": [
+                1056816,
+                4214880,
+                7372944
+              ],
+              "led_frames": {
+                "session_id": "c6d4ba7058444401814f627170c15399",
+                "path": "/machine/units/external1",
+                "property": "led-frames",
+                "value": 4
+              },
+              "incomplete_frames": {
+                "session_id": "c6d4ba7058444401814f627170c15399",
+                "path": "/machine/units/external1",
+                "property": "incomplete-frames",
+                "value": 0
+              }
+            }
+          }
+        },
+        "visual": {
+          "bindings": {},
+          "physicalEvents": 0,
+          "frameMetadata": {
+            "x-frame-capture-seq": "37",
+            "x-frame-captured-at": "2026-10-26T15:38:11.525574+00:00",
+            "x-frame-execution-id": "bae5ff33ad99486faa2ac516be82c871",
+            "x-frame-height": "240",
+            "x-frame-program-state": "running",
+            "x-frame-revision-id": "56f74a79789fbd47740059b949c50671de2ce59a911b41047bceaa109016bcbf",
+            "x-frame-sha256": "5c51dccad92caf61603ed93165cc5f4b06e11ad8682323771fcd479415e2b300",
+            "x-frame-source": "live",
+            "x-frame-width": "320"
+          },
+          "units": {
+            "rgb": {
+              "id": "external1",
+              "port": "grove",
+              "available": true,
+              "hint": {
+                "hidden": false,
+                "text": "灯位未确认，颜色分布请看读回",
+                "mode": "unmapped"
+              },
+              "note": "实时模型状态",
+              "readback": [
+                "LED[0] #102030",
+                "LED[1] #405060",
+                "LED[2] #708090"
+              ],
+              "leds": [
+                {
+                  "id": "led0",
+                  "path": "grove/led0",
+                  "attached": true,
+                  "known": false,
+                  "userDataKnown": false,
+                  "state": {
+                    "color": "#000000",
+                    "brightness": 0
+                  },
+                  "emissive": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "glow": false,
+                  "opacity": 0,
+                  "glowColor": "#000000"
+                },
+                {
+                  "id": "led1",
+                  "path": "grove/led1",
+                  "attached": true,
+                  "known": false,
+                  "userDataKnown": false,
+                  "state": {
+                    "color": "#000000",
+                    "brightness": 0
+                  },
+                  "emissive": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "glow": false,
+                  "opacity": 0,
+                  "glowColor": "#000000"
+                },
+                {
+                  "id": "led2",
+                  "path": "grove/led2",
+                  "attached": true,
+                  "known": false,
+                  "userDataKnown": false,
+                  "state": {
+                    "color": "#000000",
+                    "brightness": 0
+                  },
+                  "emissive": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "glow": false,
+                  "opacity": 0,
+                  "glowColor": "#000000"
+                }
+              ],
+              "diffusion": null,
+              "joints": []
+            }
+          }
+        },
+        "frame": {
+          "path": "B-frame.png",
+          "sha256": "391128c8ff569f3893ee91a58ce635e5810f26a3730e43e1ad41f1a258e69498",
+          "headers": {
+            "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+            "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+            "access-control-allow-origin": "*",
+            "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+            "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+            "content-length": "1136",
+            "content-type": "image/png",
+            "date": "Mon, 26 Oct 2026 15:38:11 GMT",
+            "etag": "\"391128c8ff569f3893ee91a58ce635e5810f26a3730e43e1ad41f1a258e69498\"",
+            "expires": "0",
+            "pragma": "no-cache",
+            "server": "SimpleHTTP/0.6 Python/3.12.8",
+            "x-frame-capture-seq": "38",
+            "x-frame-captured-at": "2026-10-26T15:38:11.775175+00:00",
+            "x-frame-execution-id": "bae5ff33ad99486faa2ac516be82c871",
+            "x-frame-height": "240",
+            "x-frame-program-state": "running",
+            "x-frame-revision-id": "56f74a79789fbd47740059b949c50671de2ce59a911b41047bceaa109016bcbf",
+            "x-frame-sha256": "391128c8ff569f3893ee91a58ce635e5810f26a3730e43e1ad41f1a258e69498",
+            "x-frame-source": "live",
+            "x-frame-width": "320",
+            "x-request-id": "04fecc47178847d085c858787682e71a"
+          },
+          "metrics": {
+            "size": [
+              320,
+              240
+            ],
+            "matching_pixels": 75216,
+            "ratio": 0.979375,
+            "pixels": [
+              {
+                "x": 2,
+                "y": 2,
+                "rgb": [
+                  82,
+                  52,
+                  16
+                ]
+              },
+              {
+                "x": 318,
+                "y": 238,
+                "rgb": [
+                  82,
+                  52,
+                  16
+                ]
+              }
+            ]
+          }
+        },
+        "screenshot": {
+          "path": "B-browser.png",
+          "sha256": "51d73157a85a328b4117229b9da7c5c77cf72596767106b7642c1574c3736fb1",
+          "views": [
+            {
+              "view": "front",
+              "width": 439,
+              "height": 420,
+              "viewport": {
+                "x": 401,
+                "y": 164.1875,
+                "width": 1440,
+                "height": 1080
+              },
+              "bounds": [
+                {
+                  "name": "whole-host-and-attached-assembly",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 75.97670183028589,
+                      "y": 259.69137155390615,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 68.98522539610714,
+                      "y": 262.1119963418785,
+                      "z": 0.9165462955117751
+                    },
+                    {
+                      "x": 75.97670183028589,
+                      "y": 154.23322267136948,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 68.98522539610714,
+                      "y": 151.51664554085943,
+                      "z": 0.9165462955117751
+                    },
+                    {
+                      "x": 311.7853895063935,
+                      "y": 259.69137155390615,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 316.28090441011324,
+                      "y": 262.1119963418785,
+                      "z": 0.9165462955117751
+                    },
+                    {
+                      "x": 311.7853895063935,
+                      "y": 154.23322267136948,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 316.28090441011324,
+                      "y": 151.51664554085943,
+                      "z": 0.9165462955117751
+                    }
+                  ]
+                },
+                {
+                  "name": "external1",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 75.97670183028589,
+                      "y": 257.6911754250407,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 70.31016105394119,
+                      "y": 259.57410310064523,
+                      "z": 0.9174502306702587
+                    },
+                    {
+                      "x": 75.97670183028589,
+                      "y": 210.84951364431612,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 70.31016105394119,
+                      "y": 210.88305386926194,
+                      "z": 0.9174502306702587
+                    },
+                    {
+                      "x": 208.69474340273973,
+                      "y": 257.6911754250407,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 208.2681337310832,
+                      "y": 259.57410310064523,
+                      "z": 0.9174502306702587
+                    },
+                    {
+                      "x": 208.69474340273973,
+                      "y": 210.84951364431612,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 208.2681337310832,
+                      "y": 210.88305386926194,
+                      "z": 0.9174502306702587
+                    }
+                  ]
+                }
+              ],
+              "path": "B-browser.png",
+              "sha256": "51d73157a85a328b4117229b9da7c5c77cf72596767106b7642c1574c3736fb1",
+              "renderer": {
+                "path": "B-front-render.png",
+                "sha256": "856db262773dc5218c263667363f0f288184c295de6413f116eae44b7358144a",
+                "metrics": {
+                  "size": [
+                    878,
+                    840
+                  ],
+                  "visible_pixels": 70955,
+                  "unique_rgb": 2411
+                }
+              }
+            },
+            {
+              "view": "iso",
+              "width": 439,
+              "height": 420,
+              "viewport": {
+                "x": 401,
+                "y": 164.1875,
+                "width": 1440,
+                "height": 1080
+              },
+              "bounds": [
+                {
+                  "name": "whole-host-and-attached-assembly",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 135.90875916776227,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 113.64512497586121,
+                      "y": 295.7913298555993,
+                      "z": 0.9077378378459345
+                    },
+                    {
+                      "x": 135.90875916776227,
+                      "y": 148.59046592165976,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 113.64512497586121,
+                      "y": 132.2346924099454,
+                      "z": 0.9077378378459345
+                    },
+                    {
+                      "x": 356.54353797016535,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 393.0436206026866,
+                      "y": 295.7913298555993,
+                      "z": 0.9077378378459345
+                    },
+                    {
+                      "x": 356.54353797016535,
+                      "y": 148.59046592165976,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 393.0436206026866,
+                      "y": 132.2346924099454,
+                      "z": 0.9077378378459345
+                    }
+                  ]
+                },
+                {
+                  "name": "external1",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 135.90875916776227,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 125.85790396054692,
+                      "y": 285.89333932762617,
+                      "z": 0.9203091668789544
+                    },
+                    {
+                      "x": 135.90875916776227,
+                      "y": 220.77018287295016,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 125.85790396054692,
+                      "y": 222.0651696147848,
+                      "z": 0.9203091668789544
+                    },
+                    {
+                      "x": 264.61002386334343,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 270.0339691682639,
+                      "y": 285.89333932762617,
+                      "z": 0.9203091668789544
+                    },
+                    {
+                      "x": 264.61002386334343,
+                      "y": 220.77018287295016,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 270.0339691682639,
+                      "y": 222.0651696147848,
+                      "z": 0.9203091668789544
+                    }
+                  ]
+                }
+              ],
+              "path": "B-iso-browser.png",
+              "sha256": "c83a34d93a463713cbae8abadae57bb4ddad64a349c893ae8df95b51c1b88fb6",
+              "renderer": {
+                "path": "B-iso-render.png",
+                "sha256": "74332b462fd2cc6cbd2fc16fa27448c2e22d7335d6ded65ac9a75cf72690169d",
+                "metrics": {
+                  "size": [
+                    878,
+                    840
+                  ],
+                  "visible_pixels": 88211,
+                  "unique_rgb": 2800
+                }
+              }
+            }
+          ],
+          "panels": [
+            {
+              "unit_id": "rgb",
+              "path": "B-rgb-panel.png",
+              "sha256": "e1c3ad7b6bb2c734b28c7a27a6f849887213f0f86fc1240d822b047a08147bbb"
+            }
+          ],
+          "overview": {
+            "path": "B-full-page.png",
+            "sha256": "e95916983dce117534e176b8c1a8933522234158be7bf790ebaba0b9a3432e62"
+          }
+        }
+      },
+      "runtime_identity": {
+        "pid": 99783,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+      }
+    },
+    {
+      "phase": "C",
+      "source": "import sys,time,json,M5\nassert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(1199670)\nscreen.setTextSize(2)\nscreen.setTextColor(0xffffff,1199670)\nscreen.setCursor(12,12)\nscreen.print('LED rmt-rgb C')\nfrom unit import RGBUnit\nunit=RGBUnit((1,2),3)\nunit.set_brightness(100)\nunit.set_screen([1101984,1101984,1101984])\nscan=None\nsequence=0\nwhile True:\n assert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\n M5.update()\n print(\"UNIFORM_LED_a36b738dd4a8 \"+json.dumps({'kind':'sample','phase':\"C\",'nonce':\"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\",'sequence':sequence,'scan':scan,'written_colors':{\"rgb\":[1101984,1101984,1101984]},'values':{}}))\n sequence+=1\n time.sleep_ms(250)\n",
+      "source_sha256": "9c5134903f133dd2fb9afb0e844e6b243dda0d577aa2358742b393db95c0ce43",
+      "program": {
+        "execution_id": "86de241d15ee46f1b98537cff226ea35",
+        "revision_id": "4e0434ee5d7d1c6644177b00ac39f01ff63fd45eee7f654650fe0202082ca3aa",
+        "source_sha256": "1222cb253f85c5caf1301a6b8fb45adef78279b78bc51f6fbcd1f4af2ee7467f",
+        "source_bytes": 835,
+        "state": "running",
+        "submitted_at": "2026-10-26T15:38:17.073021+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 99783,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 10848,
+        "next_offset": 10916,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T15:38:17.427253+00:00"
+      },
+      "request": {
+        "source": "import sys,time,json,M5\nassert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(1199670)\nscreen.setTextSize(2)\nscreen.setTextColor(0xffffff,1199670)\nscreen.setCursor(12,12)\nscreen.print('LED rmt-rgb C')\nfrom unit import RGBUnit\nunit=RGBUnit((1,2),3)\nunit.set_brightness(100)\nunit.set_screen([1101984,1101984,1101984])\nscan=None\nsequence=0\nwhile True:\n assert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\n M5.update()\n print(\"UNIFORM_LED_a36b738dd4a8 \"+json.dumps({'kind':'sample','phase':\"C\",'nonce':\"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\",'sequence':sequence,'scan':scan,'written_colors':{\"rgb\":[1101984,1101984,1101984]},'values':{}}))\n sequence+=1\n time.sleep_ms(250)\n",
+        "expected_execution_id": "bae5ff33ad99486faa2ac516be82c871"
+      },
+      "observation": {
+        "offset": 10380,
+        "prefix_sha256": "60e3cfa2eb053ccdaa9e382a2f853ea11320c55e61c157740bb50c2db016d598",
+        "window": {
+          "session_id": "c6d4ba7058444401814f627170c15399",
+          "offset": 10380,
+          "next_offset": 11135,
+          "data": "UNIFORM_LED_a36b738dd4a8 {\"sequence\": 21, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1056816, 4214880, 7372944]}, \"values\": {}, \"phase\": \"B\"}\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 4, in <module>\r\n  File \"<m5-bae5ff33ad99486faa2ac516be82c871>\", line 22, in <module>\r\nKeyboardInterrupt: \r\n__M5_EXEC_bae5ff33ad99486faa2ac516be82c871__:ERROR\r\n\u0004\u0004>raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_86de241d15ee46f1b98537cff226ea35__:START\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 0, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1101984, 1101984, 1101984]}, \"values\": {}, \"phase\": \"C\"}\r\n",
+          "bytes": 755
+        },
+        "sample": {
+          "sequence": 0,
+          "scan": null,
+          "kind": "sample",
+          "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+          "written_colors": {
+            "rgb": [
+              1101984,
+              1101984,
+              1101984
+            ]
+          },
+          "values": {},
+          "phase": "C"
+        }
+      },
+      "capture": {
+        "qom": {
+          "payload": {
+            "session_id": "c6d4ba7058444401814f627170c15399",
+            "state": "running",
+            "source": "live",
+            "captured_at": "2026-10-26T15:38:17.562080+00:00",
+            "units": [
+              {
+                "id": "external1",
+                "unit_id": "rgb",
+                "port_id": "port-a",
+                "pins": {
+                  "yellow": 2,
+                  "white": 1
+                },
+                "visual_port": "grove",
+                "initial": {},
+                "source": "guest-qom",
+                "available": true,
+                "properties": {
+                  "led-rgb": [
+                    1101984,
+                    1101984,
+                    1101984
+                  ],
+                  "led-frames": 6,
+                  "incomplete-frames": 0,
+                  "transactions": 0,
+                  "read-bytes": 0,
+                  "written-bytes": 0,
+                  "input-events": 0,
+                  "output-transitions": 6
+                },
+                "errors": {}
+              }
+            ],
+            "definitions": [
+              {
+                "id": "rgb",
+                "name": "RGB LED",
+                "sku": "U003",
+                "visual_asset": {
+                  "entry": "src/units/rgb/index.js",
+                  "export": "GroveModule"
+                },
+                "official_docs": "https://docs.m5stack.com/en/unit/rgb",
+                "checked_at": "2026-10-26",
+                "chips": [
+                  {
+                    "part": "SK6812 x3",
+                    "status": "officially-documented"
+                  }
+                ],
+                "interface": {
+                  "bus": "gpio-rmt",
+                  "connector": "HY2.0-4P",
+                  "address_7bit": [],
+                  "pins": {
+                    "red": {
+                      "signal": "5V",
+                      "direction": "power"
+                    },
+                    "black": {
+                      "signal": "GND",
+                      "direction": "ground"
+                    },
+                    "yellow": {
+                      "signal": "LED data in",
+                      "direction": "host-to-unit"
+                    },
+                    "white": {
+                      "signal": "NC in product PinMap",
+                      "direction": "none"
+                    }
+                  },
+                  "power": {
+                    "nominal_v": 5,
+                    "source": "official-product-PinMap",
+                    "logic_v": null,
+                    "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+                  }
+                },
+                "protocol": {
+                  "status": "documented",
+                  "summary": "Three daisy-chained addressable SK6812 RGB LEDs on the yellow data wire. The official RGBUnit delegates to SK6812; a model must decode the guest pulse stream instead of accepting a host-side color as guest output. Verified SK6812 driver has ORDER=(1,0,2,3), bpp=3 and timing=1: the RGB variant transmits GRB byte order.",
+                  "registers": [],
+                  "gaps": [
+                    "The schematic exposes a chain DOUT on one connector while the current product PinMap labels white NC; preserve connector-specific uncertainty."
+                  ]
+                },
+                "inputs": {},
+                "outputs": {
+                  "led-rgb": {
+                    "type": "array",
+                    "label": "三颗灯颜色",
+                    "default": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "default_source": "synthetic-test-fixture",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 16777215
+                    },
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "readOnly": true
+                  }
+                },
+                "evidence": [
+                  {
+                    "kind": "official-product",
+                    "url": "https://docs.m5stack.com/en/unit/rgb",
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "SKU and chip identity",
+                      "PinMap wire colors",
+                      "documented electrical and functional limits"
+                    ]
+                  },
+                  {
+                    "kind": "official-driver",
+                    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rgb.py",
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "guest driver transaction path and encoding"
+                    ],
+                    "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c"
+                  },
+                  {
+                    "kind": "official-driver",
+                    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/sk6812.py",
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "guest driver transaction path and encoding"
+                    ],
+                    "sha256": "a03925be7ed5c61c644d3a176990a53c21dbb5bad4b2e854200ee4a0725ecb39"
+                  },
+                  {
+                    "kind": "official-linked-datasheet-or-schematic",
+                    "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/760/U003-UNIT_RGB-SCHE.pdf",
+                    "checked_at": "2026-10-26",
+                    "retrieval_status": "linked-by-verified-product-page",
+                    "claims": [
+                      "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                    ]
+                  }
+                ],
+                "research_status": "confirmed-contract",
+                "model_status": "implemented",
+                "runtime": {
+                  "status": "implemented",
+                  "hosts": [
+                    "cores3",
+                    "atoms3r",
+                    "sticks3",
+                    "stopwatch"
+                  ],
+                  "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+                  "inputs": {},
+                  "state": {
+                    "led-rgb": {
+                      "property": "led-rgb"
+                    },
+                    "led-frames": {
+                      "property": "led-frames"
+                    },
+                    "incomplete-frames": {
+                      "property": "incomplete-frames"
+                    },
+                    "transactions": {
+                      "property": "transactions"
+                    },
+                    "read-bytes": {
+                      "property": "read-bytes"
+                    },
+                    "written-bytes": {
+                      "property": "written-bytes"
+                    },
+                    "input-events": {
+                      "property": "input-events"
+                    },
+                    "output-transitions": {
+                      "property": "output-transitions"
+                    }
+                  },
+                  "guest_validation": {
+                    "status": "PASS",
+                    "device_id": "cores3",
+                    "runtime": "qemu",
+                    "firmware_sha256": "459c3bb719faf0530b81acc426ce58aae3ca71dfc92121db382aecaa94791568",
+                    "firmware_flavor": "reference-app-with-original-unit-drivers",
+                    "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/report.json",
+                    "report_sha256": "c14e8b11d410e95395c1eb83ac2154e3dfcac302eb16801c8e92176a3fcd917b",
+                    "evidence_sha256": "284c86c8dcb643481bfa85b4f30082de54857d738a6dd595053d174a0f7b589a",
+                    "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                    "runtime_proof_kind": "direct-pid",
+                    "worker_generation": 7,
+                    "live_browser": "PASS",
+                    "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                    "hardware": "NOT RUN"
+                  },
+                  "host_validation": {
+                    "atoms3r": {
+                      "status": "NOT RUN",
+                      "device_id": "atoms3r",
+                      "unit_id": "rgb",
+                      "runtime": "qemu",
+                      "validation": "development-admission-only",
+                      "guest_controller": "NOT RUN",
+                      "live_browser": "NOT RUN",
+                      "hardware": "NOT RUN",
+                      "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                    },
+                    "sticks3": {
+                      "status": "NOT RUN",
+                      "device_id": "sticks3",
+                      "unit_id": "rgb",
+                      "runtime": "qemu",
+                      "validation": "development-admission-only",
+                      "guest_controller": "NOT RUN",
+                      "live_browser": "NOT RUN",
+                      "hardware": "NOT RUN",
+                      "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                    },
+                    "stopwatch": {
+                      "status": "NOT RUN",
+                      "device_id": "stopwatch",
+                      "unit_id": "rgb",
+                      "runtime": "qemu",
+                      "validation": "development-admission-only",
+                      "guest_controller": "NOT RUN",
+                      "live_browser": "NOT RUN",
+                      "hardware": "NOT RUN",
+                      "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                    }
+                  }
+                },
+                "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+                "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+                "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+                "limitations": [
+                  "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+                  "This catalog alone does not authorize a simulated or functional-PASS claim."
+                ],
+                "research_snapshot": {
+                  "scope": "protocol research only; not current runtime capability",
+                  "model_status": "planned",
+                  "runtime_status": "unsupported",
+                  "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: The schematic exposes a chain DOUT on one connector while the current product PinMap labels white NC; preserve connector-specific uncertainty."
+                }
+              }
+            ],
+            "contract_hashes": {
+              "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+              "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+              "runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+            },
+            "contract_status": "frozen"
+          },
+          "raw": {
+            "rgb": {
+              "session_id": "c6d4ba7058444401814f627170c15399",
+              "path": "/machine/units/external1",
+              "property": "led-rgb",
+              "value": [
+                1101984,
+                1101984,
+                1101984
+              ],
+              "led_frames": {
+                "session_id": "c6d4ba7058444401814f627170c15399",
+                "path": "/machine/units/external1",
+                "property": "led-frames",
+                "value": 6
+              },
+              "incomplete_frames": {
+                "session_id": "c6d4ba7058444401814f627170c15399",
+                "path": "/machine/units/external1",
+                "property": "incomplete-frames",
+                "value": 0
+              }
+            }
+          }
+        },
+        "visual": {
+          "bindings": {},
+          "physicalEvents": 0,
+          "frameMetadata": {
+            "x-frame-capture-seq": "63",
+            "x-frame-captured-at": "2026-10-26T15:38:18.057962+00:00",
+            "x-frame-execution-id": "86de241d15ee46f1b98537cff226ea35",
+            "x-frame-height": "240",
+            "x-frame-program-state": "running",
+            "x-frame-revision-id": "4e0434ee5d7d1c6644177b00ac39f01ff63fd45eee7f654650fe0202082ca3aa",
+            "x-frame-sha256": "a67d47990364552d3ead10a4ceca095ff6c90b9788e5d5b3ec4f567dc6a91f72",
+            "x-frame-source": "live",
+            "x-frame-width": "320"
+          },
+          "units": {
+            "rgb": {
+              "id": "external1",
+              "port": "grove",
+              "available": true,
+              "hint": {
+                "hidden": true,
+                "text": "",
+                "mode": "uniform"
+              },
+              "note": "实时模型状态",
+              "readback": [
+                "LED[0] #10d0a0",
+                "LED[1] #10d0a0",
+                "LED[2] #10d0a0"
+              ],
+              "leds": [
+                {
+                  "id": "led0",
+                  "path": "grove/led0",
+                  "attached": true,
+                  "known": true,
+                  "userDataKnown": true,
+                  "state": {
+                    "color": "#10d0a0",
+                    "brightness": 1
+                  },
+                  "emissive": [
+                    0.011399336740135652,
+                    1.3876656999453079,
+                    0.7733717188776619
+                  ],
+                  "glow": true,
+                  "opacity": 0.85,
+                  "glowColor": "#10d0a0"
+                },
+                {
+                  "id": "led1",
+                  "path": "grove/led1",
+                  "attached": true,
+                  "known": true,
+                  "userDataKnown": true,
+                  "state": {
+                    "color": "#10d0a0",
+                    "brightness": 1
+                  },
+                  "emissive": [
+                    0.011399336740135652,
+                    1.3876656999453079,
+                    0.7733717188776619
+                  ],
+                  "glow": true,
+                  "opacity": 0.85,
+                  "glowColor": "#10d0a0"
+                },
+                {
+                  "id": "led2",
+                  "path": "grove/led2",
+                  "attached": true,
+                  "known": true,
+                  "userDataKnown": true,
+                  "state": {
+                    "color": "#10d0a0",
+                    "brightness": 1
+                  },
+                  "emissive": [
+                    0.011399336740135652,
+                    1.3876656999453079,
+                    0.7733717188776619
+                  ],
+                  "glow": true,
+                  "opacity": 0.85,
+                  "glowColor": "#10d0a0"
+                }
+              ],
+              "diffusion": null,
+              "joints": []
+            }
+          }
+        },
+        "frame": {
+          "path": "C-frame.png",
+          "sha256": "a67d47990364552d3ead10a4ceca095ff6c90b9788e5d5b3ec4f567dc6a91f72",
+          "headers": {
+            "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+            "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+            "access-control-allow-origin": "*",
+            "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+            "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+            "content-length": "1127",
+            "content-type": "image/png",
+            "date": "Mon, 26 Oct 2026 15:38:18 GMT",
+            "etag": "\"a67d47990364552d3ead10a4ceca095ff6c90b9788e5d5b3ec4f567dc6a91f72\"",
+            "expires": "0",
+            "pragma": "no-cache",
+            "server": "SimpleHTTP/0.6 Python/3.12.8",
+            "x-frame-capture-seq": "63",
+            "x-frame-captured-at": "2026-10-26T15:38:18.057962+00:00",
+            "x-frame-execution-id": "86de241d15ee46f1b98537cff226ea35",
+            "x-frame-height": "240",
+            "x-frame-program-state": "running",
+            "x-frame-revision-id": "4e0434ee5d7d1c6644177b00ac39f01ff63fd45eee7f654650fe0202082ca3aa",
+            "x-frame-sha256": "a67d47990364552d3ead10a4ceca095ff6c90b9788e5d5b3ec4f567dc6a91f72",
+            "x-frame-source": "live",
+            "x-frame-width": "320",
+            "x-request-id": "111d548641994494b51b95b64b8d1f43"
+          },
+          "metrics": {
+            "size": [
+              320,
+              240
+            ],
+            "matching_pixels": 75296,
+            "ratio": 0.9804166666666667,
+            "pixels": [
+              {
+                "x": 2,
+                "y": 2,
+                "rgb": [
+                  16,
+                  76,
+                  49
+                ]
+              },
+              {
+                "x": 318,
+                "y": 238,
+                "rgb": [
+                  16,
+                  76,
+                  49
+                ]
+              }
+            ]
+          }
+        },
+        "screenshot": {
+          "path": "C-browser.png",
+          "sha256": "6bc9ef1741fd327e1f2d457c9c41f9e0120b0695ce44eab26d33f7397605e7d1",
+          "views": [
+            {
+              "view": "front",
+              "width": 439,
+              "height": 420,
+              "viewport": {
+                "x": 401,
+                "y": 164.1875,
+                "width": 1440,
+                "height": 1080
+              },
+              "bounds": [
+                {
+                  "name": "whole-host-and-attached-assembly",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 75.97670183028589,
+                      "y": 259.69137155390615,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 68.98522539610714,
+                      "y": 262.1119963418785,
+                      "z": 0.9165462955117751
+                    },
+                    {
+                      "x": 75.97670183028589,
+                      "y": 154.23322267136948,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 68.98522539610714,
+                      "y": 151.51664554085943,
+                      "z": 0.9165462955117751
+                    },
+                    {
+                      "x": 311.7853895063935,
+                      "y": 259.69137155390615,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 316.28090441011324,
+                      "y": 262.1119963418785,
+                      "z": 0.9165462955117751
+                    },
+                    {
+                      "x": 311.7853895063935,
+                      "y": 154.23322267136948,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 316.28090441011324,
+                      "y": 151.51664554085943,
+                      "z": 0.9165462955117751
+                    }
+                  ]
+                },
+                {
+                  "name": "external1",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 75.97670183028589,
+                      "y": 257.6911754250407,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 70.31016105394119,
+                      "y": 259.57410310064523,
+                      "z": 0.9174502306702587
+                    },
+                    {
+                      "x": 75.97670183028589,
+                      "y": 210.84951364431612,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 70.31016105394119,
+                      "y": 210.88305386926194,
+                      "z": 0.9174502306702587
+                    },
+                    {
+                      "x": 208.69474340273973,
+                      "y": 257.6911754250407,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 208.2681337310832,
+                      "y": 259.57410310064523,
+                      "z": 0.9174502306702587
+                    },
+                    {
+                      "x": 208.69474340273973,
+                      "y": 210.84951364431612,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 208.2681337310832,
+                      "y": 210.88305386926194,
+                      "z": 0.9174502306702587
+                    }
+                  ]
+                }
+              ],
+              "path": "C-browser.png",
+              "sha256": "6bc9ef1741fd327e1f2d457c9c41f9e0120b0695ce44eab26d33f7397605e7d1",
+              "renderer": {
+                "path": "C-front-render.png",
+                "sha256": "5bcae0b23ed477a2db62100b9dc54f1b3ae7d551e8e2125948d1588e57268cfd",
+                "metrics": {
+                  "size": [
+                    878,
+                    840
+                  ],
+                  "visible_pixels": 70955,
+                  "unique_rgb": 2530
+                }
+              }
+            },
+            {
+              "view": "iso",
+              "width": 439,
+              "height": 420,
+              "viewport": {
+                "x": 401,
+                "y": 164.1875,
+                "width": 1440,
+                "height": 1080
+              },
+              "bounds": [
+                {
+                  "name": "whole-host-and-attached-assembly",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 135.90875916776227,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 113.64512497586121,
+                      "y": 295.7913298555993,
+                      "z": 0.9077378378459345
+                    },
+                    {
+                      "x": 135.90875916776227,
+                      "y": 148.59046592165976,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 113.64512497586121,
+                      "y": 132.2346924099454,
+                      "z": 0.9077378378459345
+                    },
+                    {
+                      "x": 356.54353797016535,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 393.0436206026866,
+                      "y": 295.7913298555993,
+                      "z": 0.9077378378459345
+                    },
+                    {
+                      "x": 356.54353797016535,
+                      "y": 148.59046592165976,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 393.0436206026866,
+                      "y": 132.2346924099454,
+                      "z": 0.9077378378459345
+                    }
+                  ]
+                },
+                {
+                  "name": "external1",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 135.90875916776227,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 125.85790396054692,
+                      "y": 285.89333932762617,
+                      "z": 0.9203091668789544
+                    },
+                    {
+                      "x": 135.90875916776227,
+                      "y": 220.77018287295016,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 125.85790396054692,
+                      "y": 222.0651696147848,
+                      "z": 0.9203091668789544
+                    },
+                    {
+                      "x": 264.61002386334343,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 270.0339691682639,
+                      "y": 285.89333932762617,
+                      "z": 0.9203091668789544
+                    },
+                    {
+                      "x": 264.61002386334343,
+                      "y": 220.77018287295016,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 270.0339691682639,
+                      "y": 222.0651696147848,
+                      "z": 0.9203091668789544
+                    }
+                  ]
+                }
+              ],
+              "path": "C-iso-browser.png",
+              "sha256": "d9350a9147170a80ac3085c9e00659b2236d682c6ab43ea4a9454cb41852bbc7",
+              "renderer": {
+                "path": "C-iso-render.png",
+                "sha256": "929c7879b0064ad3bc9b5f6cbde3960c5ed04b4046b102bc9b84cda314fe3a8d",
+                "metrics": {
+                  "size": [
+                    878,
+                    840
+                  ],
+                  "visible_pixels": 88211,
+                  "unique_rgb": 3073
+                }
+              }
+            }
+          ],
+          "panels": [
+            {
+              "unit_id": "rgb",
+              "path": "C-rgb-panel.png",
+              "sha256": "6220c5c6f92e9b4e37fde52f32aa9b40a8a52d22899490c76895f9c969e4a7d1"
+            }
+          ],
+          "overview": {
+            "path": "C-full-page.png",
+            "sha256": "a67fcb15a898beaa5a8f7ad78368bece9c3b627fb038d7afc912751889dcd090"
+          }
+        }
+      },
+      "runtime_identity": {
+        "pid": 99783,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+      }
+    },
+    {
+      "phase": "D",
+      "source": "import sys,time,json,M5\nassert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(3548248)\nscreen.setTextSize(2)\nscreen.setTextColor(0xffffff,3548248)\nscreen.setCursor(12,12)\nscreen.print('LED rmt-rgb D')\nfrom unit import RGBUnit\nunit=RGBUnit((1,2),3)\nunit.set_brightness(100)\nunit.set_screen([0,0,0])\nscan=None\nsequence=0\nwhile True:\n assert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\n M5.update()\n print(\"UNIFORM_LED_a36b738dd4a8 \"+json.dumps({'kind':'sample','phase':\"D\",'nonce':\"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\",'sequence':sequence,'scan':scan,'written_colors':{\"rgb\":[0,0,0]},'values':{}}))\n sequence+=1\n time.sleep_ms(250)\n",
+      "source_sha256": "e2cd181644bcdb8022a4b95760c346628e8f74b3ba9d4e07b0c2a9005cdab6de",
+      "program": {
+        "execution_id": "7f1f966b7dcc4d78a9533fa6b450ddef",
+        "revision_id": "eae3e1c43424982ca3dd7133afbfd35749a8b699570e92b16892d371b6f0dbc1",
+        "source_sha256": "4c2975c3403ec9cb45e7efb0e2ae517648409f5844efb28419fea574637c9dea",
+        "source_bytes": 799,
+        "state": "running",
+        "submitted_at": "2026-10-26T15:38:28.798941+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 99783,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 21054,
+        "next_offset": 21119,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T15:38:29.129019+00:00"
+      },
+      "request": {
+        "source": "import sys,time,json,M5\nassert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(3548248)\nscreen.setTextSize(2)\nscreen.setTextColor(0xffffff,3548248)\nscreen.setCursor(12,12)\nscreen.print('LED rmt-rgb D')\nfrom unit import RGBUnit\nunit=RGBUnit((1,2),3)\nunit.set_brightness(100)\nunit.set_screen([0,0,0])\nscan=None\nsequence=0\nwhile True:\n assert \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\" in sys.path, 'MicroPython VM reset'\n M5.update()\n print(\"UNIFORM_LED_a36b738dd4a8 \"+json.dumps({'kind':'sample','phase':\"D\",'nonce':\"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\",'sequence':sequence,'scan':scan,'written_colors':{\"rgb\":[0,0,0]},'values':{}}))\n sequence+=1\n time.sleep_ms(250)\n",
+        "expected_execution_id": "86de241d15ee46f1b98537cff226ea35"
+      },
+      "observation": {
+        "offset": 20806,
+        "prefix_sha256": "470ea06a2c20eefad3a8d55c8add54b8661b11b4514e7ddd06e195516031abd2",
+        "window": {
+          "session_id": "c6d4ba7058444401814f627170c15399",
+          "offset": 20806,
+          "next_offset": 21322,
+          "data": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 4, in <module>\r\n  File \"<m5-86de241d15ee46f1b98537cff226ea35>\", line 22, in <module>\r\nKeyboardInterrupt: \r\n__M5_EXEC_86de241d15ee46f1b98537cff226ea35__:ERROR\r\n\u0004\u0004>raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_7f1f966b7dcc4d78a9533fa6b450ddef__:START\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 0, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [0, 0, 0]}, \"values\": {}, \"phase\": \"D\"}\r\n",
+          "bytes": 516
+        },
+        "sample": {
+          "sequence": 0,
+          "scan": null,
+          "kind": "sample",
+          "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+          "written_colors": {
+            "rgb": [
+              0,
+              0,
+              0
+            ]
+          },
+          "values": {},
+          "phase": "D"
+        }
+      },
+      "capture": {
+        "qom": {
+          "payload": {
+            "session_id": "c6d4ba7058444401814f627170c15399",
+            "state": "running",
+            "source": "live",
+            "captured_at": "2026-10-26T15:38:29.263256+00:00",
+            "units": [
+              {
+                "id": "external1",
+                "unit_id": "rgb",
+                "port_id": "port-a",
+                "pins": {
+                  "yellow": 2,
+                  "white": 1
+                },
+                "visual_port": "grove",
+                "initial": {},
+                "source": "guest-qom",
+                "available": true,
+                "properties": {
+                  "led-rgb": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "led-frames": 8,
+                  "incomplete-frames": 0,
+                  "transactions": 0,
+                  "read-bytes": 0,
+                  "written-bytes": 0,
+                  "input-events": 0,
+                  "output-transitions": 8
+                },
+                "errors": {}
+              }
+            ],
+            "definitions": [
+              {
+                "id": "rgb",
+                "name": "RGB LED",
+                "sku": "U003",
+                "visual_asset": {
+                  "entry": "src/units/rgb/index.js",
+                  "export": "GroveModule"
+                },
+                "official_docs": "https://docs.m5stack.com/en/unit/rgb",
+                "checked_at": "2026-10-26",
+                "chips": [
+                  {
+                    "part": "SK6812 x3",
+                    "status": "officially-documented"
+                  }
+                ],
+                "interface": {
+                  "bus": "gpio-rmt",
+                  "connector": "HY2.0-4P",
+                  "address_7bit": [],
+                  "pins": {
+                    "red": {
+                      "signal": "5V",
+                      "direction": "power"
+                    },
+                    "black": {
+                      "signal": "GND",
+                      "direction": "ground"
+                    },
+                    "yellow": {
+                      "signal": "LED data in",
+                      "direction": "host-to-unit"
+                    },
+                    "white": {
+                      "signal": "NC in product PinMap",
+                      "direction": "none"
+                    }
+                  },
+                  "power": {
+                    "nominal_v": 5,
+                    "source": "official-product-PinMap",
+                    "logic_v": null,
+                    "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+                  }
+                },
+                "protocol": {
+                  "status": "documented",
+                  "summary": "Three daisy-chained addressable SK6812 RGB LEDs on the yellow data wire. The official RGBUnit delegates to SK6812; a model must decode the guest pulse stream instead of accepting a host-side color as guest output. Verified SK6812 driver has ORDER=(1,0,2,3), bpp=3 and timing=1: the RGB variant transmits GRB byte order.",
+                  "registers": [],
+                  "gaps": [
+                    "The schematic exposes a chain DOUT on one connector while the current product PinMap labels white NC; preserve connector-specific uncertainty."
+                  ]
+                },
+                "inputs": {},
+                "outputs": {
+                  "led-rgb": {
+                    "type": "array",
+                    "label": "三颗灯颜色",
+                    "default": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "default_source": "synthetic-test-fixture",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 16777215
+                    },
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "readOnly": true
+                  }
+                },
+                "evidence": [
+                  {
+                    "kind": "official-product",
+                    "url": "https://docs.m5stack.com/en/unit/rgb",
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "SKU and chip identity",
+                      "PinMap wire colors",
+                      "documented electrical and functional limits"
+                    ]
+                  },
+                  {
+                    "kind": "official-driver",
+                    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rgb.py",
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "guest driver transaction path and encoding"
+                    ],
+                    "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c"
+                  },
+                  {
+                    "kind": "official-driver",
+                    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/sk6812.py",
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "guest driver transaction path and encoding"
+                    ],
+                    "sha256": "a03925be7ed5c61c644d3a176990a53c21dbb5bad4b2e854200ee4a0725ecb39"
+                  },
+                  {
+                    "kind": "official-linked-datasheet-or-schematic",
+                    "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/760/U003-UNIT_RGB-SCHE.pdf",
+                    "checked_at": "2026-10-26",
+                    "retrieval_status": "linked-by-verified-product-page",
+                    "claims": [
+                      "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                    ]
+                  }
+                ],
+                "research_status": "confirmed-contract",
+                "model_status": "implemented",
+                "runtime": {
+                  "status": "implemented",
+                  "hosts": [
+                    "cores3",
+                    "atoms3r",
+                    "sticks3",
+                    "stopwatch"
+                  ],
+                  "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+                  "inputs": {},
+                  "state": {
+                    "led-rgb": {
+                      "property": "led-rgb"
+                    },
+                    "led-frames": {
+                      "property": "led-frames"
+                    },
+                    "incomplete-frames": {
+                      "property": "incomplete-frames"
+                    },
+                    "transactions": {
+                      "property": "transactions"
+                    },
+                    "read-bytes": {
+                      "property": "read-bytes"
+                    },
+                    "written-bytes": {
+                      "property": "written-bytes"
+                    },
+                    "input-events": {
+                      "property": "input-events"
+                    },
+                    "output-transitions": {
+                      "property": "output-transitions"
+                    }
+                  },
+                  "guest_validation": {
+                    "status": "PASS",
+                    "device_id": "cores3",
+                    "runtime": "qemu",
+                    "firmware_sha256": "459c3bb719faf0530b81acc426ce58aae3ca71dfc92121db382aecaa94791568",
+                    "firmware_flavor": "reference-app-with-original-unit-drivers",
+                    "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/report.json",
+                    "report_sha256": "c14e8b11d410e95395c1eb83ac2154e3dfcac302eb16801c8e92176a3fcd917b",
+                    "evidence_sha256": "284c86c8dcb643481bfa85b4f30082de54857d738a6dd595053d174a0f7b589a",
+                    "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                    "runtime_proof_kind": "direct-pid",
+                    "worker_generation": 7,
+                    "live_browser": "PASS",
+                    "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                    "hardware": "NOT RUN"
+                  },
+                  "host_validation": {
+                    "atoms3r": {
+                      "status": "NOT RUN",
+                      "device_id": "atoms3r",
+                      "unit_id": "rgb",
+                      "runtime": "qemu",
+                      "validation": "development-admission-only",
+                      "guest_controller": "NOT RUN",
+                      "live_browser": "NOT RUN",
+                      "hardware": "NOT RUN",
+                      "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                    },
+                    "sticks3": {
+                      "status": "NOT RUN",
+                      "device_id": "sticks3",
+                      "unit_id": "rgb",
+                      "runtime": "qemu",
+                      "validation": "development-admission-only",
+                      "guest_controller": "NOT RUN",
+                      "live_browser": "NOT RUN",
+                      "hardware": "NOT RUN",
+                      "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                    },
+                    "stopwatch": {
+                      "status": "NOT RUN",
+                      "device_id": "stopwatch",
+                      "unit_id": "rgb",
+                      "runtime": "qemu",
+                      "validation": "development-admission-only",
+                      "guest_controller": "NOT RUN",
+                      "live_browser": "NOT RUN",
+                      "hardware": "NOT RUN",
+                      "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                    }
+                  }
+                },
+                "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+                "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+                "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+                "limitations": [
+                  "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+                  "This catalog alone does not authorize a simulated or functional-PASS claim."
+                ],
+                "research_snapshot": {
+                  "scope": "protocol research only; not current runtime capability",
+                  "model_status": "planned",
+                  "runtime_status": "unsupported",
+                  "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: The schematic exposes a chain DOUT on one connector while the current product PinMap labels white NC; preserve connector-specific uncertainty."
+                }
+              }
+            ],
+            "contract_hashes": {
+              "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+              "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+              "runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+            },
+            "contract_status": "frozen"
+          },
+          "raw": {
+            "rgb": {
+              "session_id": "c6d4ba7058444401814f627170c15399",
+              "path": "/machine/units/external1",
+              "property": "led-rgb",
+              "value": [
+                0,
+                0,
+                0
+              ],
+              "led_frames": {
+                "session_id": "c6d4ba7058444401814f627170c15399",
+                "path": "/machine/units/external1",
+                "property": "led-frames",
+                "value": 8
+              },
+              "incomplete_frames": {
+                "session_id": "c6d4ba7058444401814f627170c15399",
+                "path": "/machine/units/external1",
+                "property": "incomplete-frames",
+                "value": 0
+              }
+            }
+          }
+        },
+        "visual": {
+          "bindings": {},
+          "physicalEvents": 0,
+          "frameMetadata": {
+            "x-frame-capture-seq": "111",
+            "x-frame-captured-at": "2026-10-26T15:38:29.400849+00:00",
+            "x-frame-execution-id": "7f1f966b7dcc4d78a9533fa6b450ddef",
+            "x-frame-height": "240",
+            "x-frame-program-state": "running",
+            "x-frame-revision-id": "eae3e1c43424982ca3dd7133afbfd35749a8b699570e92b16892d371b6f0dbc1",
+            "x-frame-sha256": "a76e3f0d3a8e792058283e32a3be6c000d583e4b05673c84d4548073632e83d0",
+            "x-frame-source": "live",
+            "x-frame-width": "320"
+          },
+          "units": {
+            "rgb": {
+              "id": "external1",
+              "port": "grove",
+              "available": true,
+              "hint": {
+                "hidden": true,
+                "text": "",
+                "mode": "uniform"
+              },
+              "note": "实时模型状态",
+              "readback": [
+                "LED[0] #000000",
+                "LED[1] #000000",
+                "LED[2] #000000"
+              ],
+              "leds": [
+                {
+                  "id": "led0",
+                  "path": "grove/led0",
+                  "attached": true,
+                  "known": true,
+                  "userDataKnown": true,
+                  "state": {
+                    "color": "#000000",
+                    "brightness": 0
+                  },
+                  "emissive": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "glow": false,
+                  "opacity": 0,
+                  "glowColor": "#000000"
+                },
+                {
+                  "id": "led1",
+                  "path": "grove/led1",
+                  "attached": true,
+                  "known": true,
+                  "userDataKnown": true,
+                  "state": {
+                    "color": "#000000",
+                    "brightness": 0
+                  },
+                  "emissive": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "glow": false,
+                  "opacity": 0,
+                  "glowColor": "#000000"
+                },
+                {
+                  "id": "led2",
+                  "path": "grove/led2",
+                  "attached": true,
+                  "known": true,
+                  "userDataKnown": true,
+                  "state": {
+                    "color": "#000000",
+                    "brightness": 0
+                  },
+                  "emissive": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "glow": false,
+                  "opacity": 0,
+                  "glowColor": "#000000"
+                }
+              ],
+              "diffusion": null,
+              "joints": []
+            }
+          }
+        },
+        "frame": {
+          "path": "D-frame.png",
+          "sha256": "a76e3f0d3a8e792058283e32a3be6c000d583e4b05673c84d4548073632e83d0",
+          "headers": {
+            "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+            "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+            "access-control-allow-origin": "*",
+            "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+            "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+            "content-length": "1105",
+            "content-type": "image/png",
+            "date": "Mon, 26 Oct 2026 15:38:29 GMT",
+            "etag": "\"a76e3f0d3a8e792058283e32a3be6c000d583e4b05673c84d4548073632e83d0\"",
+            "expires": "0",
+            "pragma": "no-cache",
+            "server": "SimpleHTTP/0.6 Python/3.12.8",
+            "x-frame-capture-seq": "112",
+            "x-frame-captured-at": "2026-10-26T15:38:29.651595+00:00",
+            "x-frame-execution-id": "7f1f966b7dcc4d78a9533fa6b450ddef",
+            "x-frame-height": "240",
+            "x-frame-program-state": "running",
+            "x-frame-revision-id": "eae3e1c43424982ca3dd7133afbfd35749a8b699570e92b16892d371b6f0dbc1",
+            "x-frame-sha256": "a76e3f0d3a8e792058283e32a3be6c000d583e4b05673c84d4548073632e83d0",
+            "x-frame-source": "live",
+            "x-frame-width": "320",
+            "x-request-id": "5eb6107ab9994c7abe1c213c8834926b"
+          },
+          "metrics": {
+            "size": [
+              320,
+              240
+            ],
+            "matching_pixels": 75240,
+            "ratio": 0.9796875,
+            "pixels": [
+              {
+                "x": 2,
+                "y": 2,
+                "rgb": [
+                  49,
+                  36,
+                  90
+                ]
+              },
+              {
+                "x": 318,
+                "y": 238,
+                "rgb": [
+                  49,
+                  36,
+                  90
+                ]
+              }
+            ]
+          }
+        },
+        "screenshot": {
+          "path": "D-browser.png",
+          "sha256": "64a720c543a44dea30015197f54155dd8076baca7e4396a6fa93e7c206d90c08",
+          "views": [
+            {
+              "view": "front",
+              "width": 439,
+              "height": 420,
+              "viewport": {
+                "x": 401,
+                "y": 164.1875,
+                "width": 1440,
+                "height": 1080
+              },
+              "bounds": [
+                {
+                  "name": "whole-host-and-attached-assembly",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 75.97670183028589,
+                      "y": 259.69137155390615,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 68.98522539610714,
+                      "y": 262.1119963418785,
+                      "z": 0.9165462955117751
+                    },
+                    {
+                      "x": 75.97670183028589,
+                      "y": 154.23322267136948,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 68.98522539610714,
+                      "y": 151.51664554085943,
+                      "z": 0.9165462955117751
+                    },
+                    {
+                      "x": 311.7853895063935,
+                      "y": 259.69137155390615,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 316.28090441011324,
+                      "y": 262.1119963418785,
+                      "z": 0.9165462955117751
+                    },
+                    {
+                      "x": 311.7853895063935,
+                      "y": 154.23322267136948,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 316.28090441011324,
+                      "y": 151.51664554085943,
+                      "z": 0.9165462955117751
+                    }
+                  ]
+                },
+                {
+                  "name": "external1",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 75.97670183028589,
+                      "y": 257.6911754250407,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 70.31016105394119,
+                      "y": 259.57410310064523,
+                      "z": 0.9174502306702587
+                    },
+                    {
+                      "x": 75.97670183028589,
+                      "y": 210.84951364431612,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 70.31016105394119,
+                      "y": 210.88305386926194,
+                      "z": 0.9174502306702587
+                    },
+                    {
+                      "x": 208.69474340273973,
+                      "y": 257.6911754250407,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 208.2681337310832,
+                      "y": 259.57410310064523,
+                      "z": 0.9174502306702587
+                    },
+                    {
+                      "x": 208.69474340273973,
+                      "y": 210.84951364431612,
+                      "z": 0.9213162187312132
+                    },
+                    {
+                      "x": 208.2681337310832,
+                      "y": 210.88305386926194,
+                      "z": 0.9174502306702587
+                    }
+                  ]
+                }
+              ],
+              "path": "D-browser.png",
+              "sha256": "64a720c543a44dea30015197f54155dd8076baca7e4396a6fa93e7c206d90c08",
+              "renderer": {
+                "path": "D-front-render.png",
+                "sha256": "99be64b2c0f73d2126fd4ed5dc82176155ab4dac5e58ff8d2d4fb8c119e219ca",
+                "metrics": {
+                  "size": [
+                    878,
+                    840
+                  ],
+                  "visible_pixels": 70955,
+                  "unique_rgb": 2408
+                }
+              }
+            },
+            {
+              "view": "iso",
+              "width": 439,
+              "height": 420,
+              "viewport": {
+                "x": 401,
+                "y": 164.1875,
+                "width": 1440,
+                "height": 1080
+              },
+              "bounds": [
+                {
+                  "name": "whole-host-and-attached-assembly",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 135.90875916776227,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 113.64512497586121,
+                      "y": 295.7913298555993,
+                      "z": 0.9077378378459345
+                    },
+                    {
+                      "x": 135.90875916776227,
+                      "y": 148.59046592165976,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 113.64512497586121,
+                      "y": 132.2346924099454,
+                      "z": 0.9077378378459345
+                    },
+                    {
+                      "x": 356.54353797016535,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 393.0436206026866,
+                      "y": 295.7913298555993,
+                      "z": 0.9077378378459345
+                    },
+                    {
+                      "x": 356.54353797016535,
+                      "y": 148.59046592165976,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 393.0436206026866,
+                      "y": 132.2346924099454,
+                      "z": 0.9077378378459345
+                    }
+                  ]
+                },
+                {
+                  "name": "external1",
+                  "visible": true,
+                  "points": [
+                    {
+                      "x": 135.90875916776227,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 125.85790396054692,
+                      "y": 285.89333932762617,
+                      "z": 0.9203091668789544
+                    },
+                    {
+                      "x": 135.90875916776227,
+                      "y": 220.77018287295016,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 125.85790396054692,
+                      "y": 222.0651696147848,
+                      "z": 0.9203091668789544
+                    },
+                    {
+                      "x": 264.61002386334343,
+                      "y": 277.74750538075835,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 270.0339691682639,
+                      "y": 285.89333932762617,
+                      "z": 0.9203091668789544
+                    },
+                    {
+                      "x": 264.61002386334343,
+                      "y": 220.77018287295016,
+                      "z": 0.9306551010870152
+                    },
+                    {
+                      "x": 270.0339691682639,
+                      "y": 222.0651696147848,
+                      "z": 0.9203091668789544
+                    }
+                  ]
+                }
+              ],
+              "path": "D-iso-browser.png",
+              "sha256": "c5b56941ffad6b9a7694b60f04a8d2bf9961ca63a8ec5a6c35e5aa9bf5d43933",
+              "renderer": {
+                "path": "D-iso-render.png",
+                "sha256": "ceb1c586c3a43f95377746fda6da8fcf6c85cb57d02d0c915fce528acdf8fadf",
+                "metrics": {
+                  "size": [
+                    878,
+                    840
+                  ],
+                  "visible_pixels": 88211,
+                  "unique_rgb": 2799
+                }
+              }
+            }
+          ],
+          "panels": [
+            {
+              "unit_id": "rgb",
+              "path": "D-rgb-panel.png",
+              "sha256": "46d14e9e4d5cc30908ab116d0d32319447abe05d4b6f41f87f017b3243cdf44f"
+            }
+          ],
+          "overview": {
+            "path": "D-full-page.png",
+            "sha256": "e3f5a20056de606dc8f3f9ceb294805087bbb3724cee974eb54d16502e64d1ec"
+          }
+        }
+      },
+      "runtime_identity": {
+        "pid": 99783,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+      }
+    }
+  ],
+  "serial_observations": [
+    {
+      "offset": 444,
+      "prefix_sha256": "ff8dea90c1fd83ed127b6c9bac02f81b5f569590d3e5d65a58999c492b935862",
+      "window": {
+        "session_id": "c6d4ba7058444401814f627170c15399",
+        "offset": 444,
+        "next_offset": 780,
+        "data": "\r\n>>> \r\n>>> \r\n>>> \r\nraw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_bd049e16701b43b8b9d6ad0ae2259587__:START\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 0, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [10494016, 10494016, 10494016]}, \"values\": {}, \"phase\": \"A\"}\r\n",
+        "bytes": 336
+      },
+      "sample": {
+        "sequence": 0,
+        "scan": null,
+        "kind": "sample",
+        "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+        "written_colors": {
+          "rgb": [
+            10494016,
+            10494016,
+            10494016
+          ]
+        },
+        "values": {},
+        "phase": "A"
+      }
+    },
+    {
+      "offset": 5231,
+      "prefix_sha256": "e739ec78181275021b7e64fbb0f7b3f4067597a5f2d27c9d0dcda944525a069f",
+      "window": {
+        "session_id": "c6d4ba7058444401814f627170c15399",
+        "offset": 5231,
+        "next_offset": 5454,
+        "data": "UNIFORM_LED_a36b738dd4a8 {\"sequence\": 21, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [10494016, 10494016, 10494016]}, \"values\": {}, \"phase\": \"A\"}\r\n",
+        "bytes": 223
+      },
+      "sample": {
+        "sequence": 21,
+        "scan": null,
+        "kind": "sample",
+        "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+        "written_colors": {
+          "rgb": [
+            10494016,
+            10494016,
+            10494016
+          ]
+        },
+        "values": {},
+        "phase": "A"
+      }
+    },
+    {
+      "offset": 5454,
+      "prefix_sha256": "c35c9d8c7be953e0f31768dd9bf0c40dc60274ee248df60855075401da25c99c",
+      "window": {
+        "session_id": "c6d4ba7058444401814f627170c15399",
+        "offset": 5454,
+        "next_offset": 5989,
+        "data": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 4, in <module>\r\n  File \"<m5-bd049e16701b43b8b9d6ad0ae2259587>\", line 22, in <module>\r\nKeyboardInterrupt: \r\n__M5_EXEC_bd049e16701b43b8b9d6ad0ae2259587__:ERROR\r\n\u0004\u0004>raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_bae5ff33ad99486faa2ac516be82c871__:START\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 0, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1056816, 4214880, 7372944]}, \"values\": {}, \"phase\": \"B\"}\r\n",
+        "bytes": 535
+      },
+      "sample": {
+        "sequence": 0,
+        "scan": null,
+        "kind": "sample",
+        "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+        "written_colors": {
+          "rgb": [
+            1056816,
+            4214880,
+            7372944
+          ]
+        },
+        "values": {},
+        "phase": "B"
+      }
+    },
+    {
+      "offset": 10380,
+      "prefix_sha256": "60e3cfa2eb053ccdaa9e382a2f853ea11320c55e61c157740bb50c2db016d598",
+      "window": {
+        "session_id": "c6d4ba7058444401814f627170c15399",
+        "offset": 10380,
+        "next_offset": 11135,
+        "data": "UNIFORM_LED_a36b738dd4a8 {\"sequence\": 21, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1056816, 4214880, 7372944]}, \"values\": {}, \"phase\": \"B\"}\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 4, in <module>\r\n  File \"<m5-bae5ff33ad99486faa2ac516be82c871>\", line 22, in <module>\r\nKeyboardInterrupt: \r\n__M5_EXEC_bae5ff33ad99486faa2ac516be82c871__:ERROR\r\n\u0004\u0004>raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_86de241d15ee46f1b98537cff226ea35__:START\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 0, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1101984, 1101984, 1101984]}, \"values\": {}, \"phase\": \"C\"}\r\n",
+        "bytes": 755
+      },
+      "sample": {
+        "sequence": 0,
+        "scan": null,
+        "kind": "sample",
+        "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+        "written_colors": {
+          "rgb": [
+            1101984,
+            1101984,
+            1101984
+          ]
+        },
+        "values": {},
+        "phase": "C"
+      }
+    },
+    {
+      "offset": 15746,
+      "prefix_sha256": "29fd77268a3a34edc3afba07fa79b6a102077cd0adecb7ab7c5e858ced11849a",
+      "window": {
+        "session_id": "c6d4ba7058444401814f627170c15399",
+        "offset": 15746,
+        "next_offset": 16626,
+        "data": "UNIFORM_LED_a36b738dd4a8 {\"sequence\": 22, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1101984, 1101984, 1101984]}, \"values\": {}, \"phase\": \"C\"}\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 23, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1101984, 1101984, 1101984]}, \"values\": {}, \"phase\": \"C\"}\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 24, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1101984, 1101984, 1101984]}, \"values\": {}, \"phase\": \"C\"}\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 25, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1101984, 1101984, 1101984]}, \"values\": {}, \"phase\": \"C\"}\r\n",
+        "bytes": 880
+      },
+      "sample": {
+        "sequence": 22,
+        "scan": null,
+        "kind": "sample",
+        "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+        "written_colors": {
+          "rgb": [
+            1101984,
+            1101984,
+            1101984
+          ]
+        },
+        "values": {},
+        "phase": "C"
+      }
+    },
+    {
+      "offset": 20806,
+      "prefix_sha256": "470ea06a2c20eefad3a8d55c8add54b8661b11b4514e7ddd06e195516031abd2",
+      "window": {
+        "session_id": "c6d4ba7058444401814f627170c15399",
+        "offset": 20806,
+        "next_offset": 21322,
+        "data": "Traceback (most recent call last):\r\n  File \"<stdin>\", line 4, in <module>\r\n  File \"<m5-86de241d15ee46f1b98537cff226ea35>\", line 22, in <module>\r\nKeyboardInterrupt: \r\n__M5_EXEC_86de241d15ee46f1b98537cff226ea35__:ERROR\r\n\u0004\u0004>raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_7f1f966b7dcc4d78a9533fa6b450ddef__:START\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 0, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [0, 0, 0]}, \"values\": {}, \"phase\": \"D\"}\r\n",
+        "bytes": 516
+      },
+      "sample": {
+        "sequence": 0,
+        "scan": null,
+        "kind": "sample",
+        "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+        "written_colors": {
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        "values": {},
+        "phase": "D"
+      }
+    }
+  ],
+  "zero_echo": [
+    {
+      "label": "A",
+      "observed_ms": 1300,
+      "unit_posts": 0,
+      "physical_events": 0,
+      "new_shared_frames": 11
+    },
+    {
+      "label": "B",
+      "observed_ms": 1300,
+      "unit_posts": 0,
+      "physical_events": 0,
+      "new_shared_frames": 10
+    },
+    {
+      "label": "C",
+      "observed_ms": 1300,
+      "unit_posts": 0,
+      "physical_events": 0,
+      "new_shared_frames": 10
+    },
+    {
+      "label": "transport-unavailable",
+      "observed_ms": 1300,
+      "unit_posts": 0,
+      "physical_events": 0,
+      "new_shared_frames": 12
+    },
+    {
+      "label": "D",
+      "observed_ms": 1300,
+      "unit_posts": 0,
+      "physical_events": 0,
+      "new_shared_frames": 11
+    }
+  ],
+  "source_sha256": {
+    "platform/tests/test_live_uniform_led_service_browser.mjs": "e1308a230b6aa0d335ba010f887994c12de5a202310ac038d7f35073d73e164c",
+    "platform/web/sessions.js": "18b5a9f1e4f74c59eb1a7265b7d7bb1cf7190195c9278915f7f4770927b655b4",
+    "platform/web/sessions.html": "5c400f139c1acf570b55f0fd17a08fb33eaa9c135e83063e19ce92459fb5de21",
+    "platform/web/program-panel.js": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+    "platform/web/device-shell-factory.js": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2",
+    "platform/web/unit-panel.js": "ba1fa1a6d557255d12de20f1f44a76c886c09f8f8292c7da71feb8dc2434de51",
+    "platform/web/model-shell.js": "1cfee042e184fc936da1b9eaef142cf08b7f82daa5fbcbbdd7c150718e5a1876",
+    "platform/web/unit-visual-mappings.js": "3170a5b02080b4600aa98f93776fa5fba79c7a49ad09de09e9255fd0e869e52a",
+    "platform/units/catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+    "platform/units/runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480",
+    "platform/web/vendor/m5stack-models/vendor-manifest.json": "b4b92bebabac0e40ced79e39a652c26726ff0243d0c04989b76c0d82de3090fb",
+    "platform/web/vendor/m5stack-models/src/core/components/Led.js": "220f32c62ad83b41a86ba6f3d280697fe47008e81bde074c4c9542120f47a0cb",
+    "platform/web/vendor/m5stack-models/src/units/encoder/assembly.js": "6120c4e66937d8ca86112550cc9d380e332fabaec2a9283aab54a83d4674999f",
+    "platform/web/vendor/m5stack-models/src/units/8encoder/index.js": "a4f9888f385b9263b2697588de4b561ac89cfacc2f9ffe1c3fffac36524ad110",
+    "platform/web/vendor/m5stack-models/src/units/rgb/index.js": "9e2cf44386e3808214f005fb788993b683e8a422dccdf1cf19fd76a64aa24a74",
+    "tests/units/run_live_unit_batch.py": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+    "tests/units/controls_probe/control_drivers/source-manifest.json": "84e76fe1ece3bb026772d66c92f998c41f500b1b39f6be892ee10ff09f03b3ab",
+    "tests/units/io_probe/io_drivers/source-manifest.json": "9dec61dc22cdb00b7794731f38291021fa824aaabff74019a8c04cbc4aecfcf1",
+    "platform/tools/device_service.py": "1eb317c3b9d8da27f57f6916d2f1dc405d16b7f1af088ee6e9862511118537d0",
+    "platform/tools/program_packages.py": "b8180b3846ac23ef5a085e49d539d238c4bf42d114c02d4804a39420e07eddac",
+    "platform/tools/uiflow_runtime.py": "85dbca56564d08c9a50c36d0ea867993eb70964c0d51ef950663f441b28dc506"
+  },
+  "qom_evidence_boundary": "General qom/snapshot.json can be node-limited/truncated; complete per-leaf raw QOM replies are in each group report phases[].capture.qom.raw. ZIP final units/state.json is checked separately.",
+  "creation_request": {
+    "device_id": "cores3",
+    "ttl_seconds": 600,
+    "program_mode": "uiflow-live",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "rgb",
+        "port_id": "port-a"
+      }
+    ]
+  },
+  "created": {
+    "session_id": "c6d4ba7058444401814f627170c15399",
+    "device_id": "cores3",
+    "state": "flashing",
+    "pid": null,
+    "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "firmware_source": "uploaded",
+    "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+    "source_artifacts": [
+      "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+    ],
+    "program_transport": "uart-repl",
+    "program": null,
+    "firmware_provenance": {
+      "kind": "uiflow",
+      "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+      "metadata": {
+        "schema_version": 1,
+        "kind": "uiflow2-source-composition",
+        "status": "COMPOSED_NOT_EXECUTED",
+        "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+        "entrypoint": "main.py",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "base_size": 16121856,
+        "flash_size": 16777216,
+        "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+        "files": [
+          {
+            "path": "boot.py",
+            "size": 245,
+            "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+            "origin": "caller"
+          },
+          {
+            "path": "main.py",
+            "size": 5,
+            "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+            "origin": "caller"
+          }
+        ],
+        "caller_file_count": 2,
+        "caller_source_bytes": 250,
+        "generated_files": [],
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "vfs": {
+          "label": "vfs",
+          "type": 1,
+          "subtype": 129,
+          "flags": 0,
+          "offset": 11141120,
+          "size": 4980736,
+          "partition_table_offset": 32768,
+          "source": "actual-base-partition-table",
+          "filesystem": "LittleFS",
+          "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+          "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+          "base_disk_version": 131072,
+          "derived_disk_version": 131073
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "toolchain": {
+          "builder": "uiflow_source/1",
+          "python": "3.12.8",
+          "python_abi": "cpython-312",
+          "littlefs_python": "0.19.0",
+          "littlefs_library": "(2, 11)",
+          "littlefs_disk": "(2, 1)",
+          "config": {
+            "block_size": 4096,
+            "read_size": 128,
+            "prog_size": 32,
+            "lookahead_size": 128,
+            "block_cycles": 100
+          }
+        }
+      }
+    },
+    "runtime_env": {},
+    "runtime": "qemu",
+    "runtime_memory": {
+      "requested_psram_mib": null,
+      "cli_requested_psram_mib": null,
+      "effective_psram_mib": null,
+      "effective_source": "qemu-cli-request",
+      "policy": "not-configured",
+      "claim": "qemu-memory-configuration-only",
+      "physical_cache_psram_timing": "NOT RUN"
+    },
+    "network": null,
+    "storage": null,
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "rgb",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {}
+      }
+    ],
+    "nvs": null,
+    "flash": null,
+    "flash_retained": false,
+    "serial_bytes": 0,
+    "created_at": "2026-10-26T15:38:00.325114+00:00",
+    "expires_at": "2026-10-26T15:48:00.325117+00:00",
+    "error": null,
+    "display": {
+      "driver": "ILI9342C / ILI9342E",
+      "width": 320,
+      "height": 240,
+      "shape": "rect",
+      "touch": true
+    },
+    "display_available": true,
+    "last_frame_available": false,
+    "last_frame_captured_at": null,
+    "device_state_supported": true,
+    "last_device_state_available": false,
+    "last_device_state_at": null,
+    "completed_at": null,
+    "event_count": 3,
+    "restored": false,
+    "interrupted": false,
+    "reattached_process": false,
+    "recovery_scope": null,
+    "companions": {
+      "http_fixture": {
+        "required": false
+      },
+      "ble_probe": {
+        "required": false
+      }
+    },
+    "worker": {
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 32,
+      "lease_active": true
+    },
+    "idempotent_replay": false
+  },
+  "session_id": "c6d4ba7058444401814f627170c15399",
+  "pid": 99783,
+  "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 32,
+    "lease_active": true
+  },
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "rgb",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "runtime_identity": {
+    "pid": 99783,
+    "executable_name": "qemu-system-xtensa",
+    "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+  },
+  "contract_hashes": {
+    "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+    "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+  },
+  "rom_banners": 1,
+  "framing": {
+    "width": 439,
+    "height": 420,
+    "points": [
+      {
+        "x": 95.4379967897878,
+        "y": 263.3782391655407,
+        "z": 0.920702384695282
+      },
+      {
+        "x": 90.27335969358316,
+        "y": 265.6003476837896,
+        "z": 0.9166343398434114
+      },
+      {
+        "x": 95.4379967897878,
+        "y": 214.09022987731697,
+        "z": 0.920702384695282
+      },
+      {
+        "x": 90.27335969358316,
+        "y": 214.26050403386594,
+        "z": 0.9166343398434114
+      },
+      {
+        "x": 235.08735629286534,
+        "y": 263.3782391655407,
+        "z": 0.920702384695282
+      },
+      {
+        "x": 235.73624988202886,
+        "y": 265.6003476837896,
+        "z": 0.9166343398434114
+      },
+      {
+        "x": 235.08735629286534,
+        "y": 214.09022987731697,
+        "z": 0.920702384695282
+      },
+      {
+        "x": 235.73624988202886,
+        "y": 214.26050403386594,
+        "z": 0.9166343398434114
+      }
+    ]
+  },
+  "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+  "marker": "UNIFORM_LED_a36b738dd4a8",
+  "execution_id": "7f1f966b7dcc4d78a9533fa6b450ddef",
+  "mpy_negative": {
+    "status": 409,
+    "body": {
+      "error": {
+        "code": "unsupported_program_entrypoint",
+        "message": "package entrypoint must be main.py"
+      }
+    },
+    "before_execution_id": "bd049e16701b43b8b9d6ad0ae2259587",
+    "after_execution_id": "bd049e16701b43b8b9d6ad0ae2259587",
+    "continuation": {
+      "offset": 5231,
+      "prefix_sha256": "e739ec78181275021b7e64fbb0f7b3f4067597a5f2d27c9d0dcda944525a069f",
+      "window": {
+        "session_id": "c6d4ba7058444401814f627170c15399",
+        "offset": 5231,
+        "next_offset": 5454,
+        "data": "UNIFORM_LED_a36b738dd4a8 {\"sequence\": 21, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [10494016, 10494016, 10494016]}, \"values\": {}, \"phase\": \"A\"}\r\n",
+        "bytes": 223
+      },
+      "sample": {
+        "sequence": 21,
+        "scan": null,
+        "kind": "sample",
+        "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+        "written_colors": {
+          "rgb": [
+            10494016,
+            10494016,
+            10494016
+          ]
+        },
+        "values": {},
+        "phase": "A"
+      }
+    },
+    "valid_mpy_sha256": "583a0028999b53b0ba576f0a2c79c6a7cb2b7243b91725215e3de284a18a41fd"
+  },
+  "transport_negative": {
+    "scope": "browser-only HTTP 503; real guest state remains available",
+    "unknown": {
+      "bindings": {},
+      "physicalEvents": 0,
+      "frameMetadata": {
+        "x-frame-capture-seq": "84",
+        "x-frame-captured-at": "2026-10-26T15:38:23.152058+00:00",
+        "x-frame-execution-id": "86de241d15ee46f1b98537cff226ea35",
+        "x-frame-height": "240",
+        "x-frame-program-state": "running",
+        "x-frame-revision-id": "4e0434ee5d7d1c6644177b00ac39f01ff63fd45eee7f654650fe0202082ca3aa",
+        "x-frame-sha256": "a67d47990364552d3ead10a4ceca095ff6c90b9788e5d5b3ec4f567dc6a91f72",
+        "x-frame-source": "live",
+        "x-frame-width": "320"
+      },
+      "units": {
+        "rgb": {
+          "id": "external1",
+          "port": "grove",
+          "available": false,
+          "hint": {
+            "hidden": false,
+            "text": "灯光状态未知，模型颜色已撤下",
+            "mode": "unavailable"
+          },
+          "note": "状态请求失败：503: Explicit browser-only transport negative",
+          "readback": [
+            "LED[0] #10d0a0",
+            "LED[1] #10d0a0",
+            "LED[2] #10d0a0"
+          ],
+          "leds": [
+            {
+              "id": "led0",
+              "path": "grove/led0",
+              "attached": true,
+              "known": false,
+              "userDataKnown": false,
+              "state": {
+                "color": "#000000",
+                "brightness": 0
+              },
+              "emissive": [
+                0,
+                0,
+                0
+              ],
+              "glow": false,
+              "opacity": 0,
+              "glowColor": "#000000"
+            },
+            {
+              "id": "led1",
+              "path": "grove/led1",
+              "attached": true,
+              "known": false,
+              "userDataKnown": false,
+              "state": {
+                "color": "#000000",
+                "brightness": 0
+              },
+              "emissive": [
+                0,
+                0,
+                0
+              ],
+              "glow": false,
+              "opacity": 0,
+              "glowColor": "#000000"
+            },
+            {
+              "id": "led2",
+              "path": "grove/led2",
+              "attached": true,
+              "known": false,
+              "userDataKnown": false,
+              "state": {
+                "color": "#000000",
+                "brightness": 0
+              },
+              "emissive": [
+                0,
+                0,
+                0
+              ],
+              "glow": false,
+              "opacity": 0,
+              "glowColor": "#000000"
+            }
+          ],
+          "diffusion": null,
+          "joints": []
+        }
+      }
+    },
+    "independent": {
+      "payload": {
+        "session_id": "c6d4ba7058444401814f627170c15399",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T15:38:23.966145+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "rgb",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "led-rgb": [
+                1101984,
+                1101984,
+                1101984
+              ],
+              "led-frames": 6,
+              "incomplete-frames": 0,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 6
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "rgb",
+            "name": "RGB LED",
+            "sku": "U003",
+            "visual_asset": {
+              "entry": "src/units/rgb/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/rgb",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "SK6812 x3",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio-rmt",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "LED data in",
+                  "direction": "host-to-unit"
+                },
+                "white": {
+                  "signal": "NC in product PinMap",
+                  "direction": "none"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "Three daisy-chained addressable SK6812 RGB LEDs on the yellow data wire. The official RGBUnit delegates to SK6812; a model must decode the guest pulse stream instead of accepting a host-side color as guest output. Verified SK6812 driver has ORDER=(1,0,2,3), bpp=3 and timing=1: the RGB variant transmits GRB byte order.",
+              "registers": [],
+              "gaps": [
+                "The schematic exposes a chain DOUT on one connector while the current product PinMap labels white NC; preserve connector-specific uncertainty."
+              ]
+            },
+            "inputs": {},
+            "outputs": {
+              "led-rgb": {
+                "type": "array",
+                "label": "三颗灯颜色",
+                "default": [
+                  0,
+                  0,
+                  0
+                ],
+                "default_source": "synthetic-test-fixture",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16777215
+                },
+                "minItems": 3,
+                "maxItems": 3,
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/rgb",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rgb.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c"
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/sk6812.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a03925be7ed5c61c644d3a176990a53c21dbb5bad4b2e854200ee4a0725ecb39"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/760/U003-UNIT_RGB-SCHE.pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+              "inputs": {},
+              "state": {
+                "led-rgb": {
+                  "property": "led-rgb"
+                },
+                "led-frames": {
+                  "property": "led-frames"
+                },
+                "incomplete-frames": {
+                  "property": "incomplete-frames"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "459c3bb719faf0530b81acc426ce58aae3ca71dfc92121db382aecaa94791568",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/report.json",
+                "report_sha256": "c14e8b11d410e95395c1eb83ac2154e3dfcac302eb16801c8e92176a3fcd917b",
+                "evidence_sha256": "284c86c8dcb643481bfa85b4f30082de54857d738a6dd595053d174a0f7b589a",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "NOT RUN",
+                  "device_id": "atoms3r",
+                  "unit_id": "rgb",
+                  "runtime": "qemu",
+                  "validation": "development-admission-only",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                },
+                "sticks3": {
+                  "status": "NOT RUN",
+                  "device_id": "sticks3",
+                  "unit_id": "rgb",
+                  "runtime": "qemu",
+                  "validation": "development-admission-only",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                },
+                "stopwatch": {
+                  "status": "NOT RUN",
+                  "device_id": "stopwatch",
+                  "unit_id": "rgb",
+                  "runtime": "qemu",
+                  "validation": "development-admission-only",
+                  "guest_controller": "NOT RUN",
+                  "live_browser": "NOT RUN",
+                  "hardware": "NOT RUN",
+                  "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+                }
+              }
+            },
+            "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: The schematic exposes a chain DOUT on one connector while the current product PinMap labels white NC; preserve connector-specific uncertainty."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+        },
+        "contract_status": "frozen"
+      },
+      "raw": {
+        "rgb": {
+          "session_id": "c6d4ba7058444401814f627170c15399",
+          "path": "/machine/units/external1",
+          "property": "led-rgb",
+          "value": [
+            1101984,
+            1101984,
+            1101984
+          ],
+          "led_frames": {
+            "session_id": "c6d4ba7058444401814f627170c15399",
+            "path": "/machine/units/external1",
+            "property": "led-frames",
+            "value": 6
+          },
+          "incomplete_frames": {
+            "session_id": "c6d4ba7058444401814f627170c15399",
+            "path": "/machine/units/external1",
+            "property": "incomplete-frames",
+            "value": 0
+          }
+        }
+      }
+    },
+    "continuation": {
+      "offset": 15746,
+      "prefix_sha256": "29fd77268a3a34edc3afba07fa79b6a102077cd0adecb7ab7c5e858ced11849a",
+      "window": {
+        "session_id": "c6d4ba7058444401814f627170c15399",
+        "offset": 15746,
+        "next_offset": 16626,
+        "data": "UNIFORM_LED_a36b738dd4a8 {\"sequence\": 22, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1101984, 1101984, 1101984]}, \"values\": {}, \"phase\": \"C\"}\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 23, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1101984, 1101984, 1101984]}, \"values\": {}, \"phase\": \"C\"}\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 24, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1101984, 1101984, 1101984]}, \"values\": {}, \"phase\": \"C\"}\r\nUNIFORM_LED_a36b738dd4a8 {\"sequence\": 25, \"scan\": null, \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e\", \"written_colors\": {\"rgb\": [1101984, 1101984, 1101984]}, \"values\": {}, \"phase\": \"C\"}\r\n",
+        "bytes": 880
+      },
+      "sample": {
+        "sequence": 22,
+        "scan": null,
+        "kind": "sample",
+        "nonce": "/m5-uniform-led-414f5ba9e64a47a78c26ca7ddd7f421e",
+        "written_colors": {
+          "rgb": [
+            1101984,
+            1101984,
+            1101984
+          ]
+        },
+        "values": {},
+        "phase": "C"
+      }
+    },
+    "injected_gets": 7,
+    "screenshots": {
+      "path": "C-transport-unknown-browser.png",
+      "sha256": "c7a3bb068f470b94438a2bc46d3af883e8d6c8fdbd5763a0230864ac71f201a3",
+      "views": [
+        {
+          "view": "front",
+          "width": 439,
+          "height": 420,
+          "viewport": {
+            "x": 401,
+            "y": 164.1875,
+            "width": 1440,
+            "height": 1080
+          },
+          "bounds": [
+            {
+              "name": "whole-host-and-attached-assembly",
+              "visible": true,
+              "points": [
+                {
+                  "x": 75.97670183028589,
+                  "y": 259.69137155390615,
+                  "z": 0.9213162187312132
+                },
+                {
+                  "x": 68.98522539610714,
+                  "y": 262.1119963418785,
+                  "z": 0.9165462955117751
+                },
+                {
+                  "x": 75.97670183028589,
+                  "y": 154.23322267136948,
+                  "z": 0.9213162187312132
+                },
+                {
+                  "x": 68.98522539610714,
+                  "y": 151.51664554085943,
+                  "z": 0.9165462955117751
+                },
+                {
+                  "x": 311.7853895063935,
+                  "y": 259.69137155390615,
+                  "z": 0.9213162187312132
+                },
+                {
+                  "x": 316.28090441011324,
+                  "y": 262.1119963418785,
+                  "z": 0.9165462955117751
+                },
+                {
+                  "x": 311.7853895063935,
+                  "y": 154.23322267136948,
+                  "z": 0.9213162187312132
+                },
+                {
+                  "x": 316.28090441011324,
+                  "y": 151.51664554085943,
+                  "z": 0.9165462955117751
+                }
+              ]
+            },
+            {
+              "name": "external1",
+              "visible": true,
+              "points": [
+                {
+                  "x": 75.97670183028589,
+                  "y": 257.6911754250407,
+                  "z": 0.9213162187312132
+                },
+                {
+                  "x": 70.31016105394119,
+                  "y": 259.57410310064523,
+                  "z": 0.9174502306702587
+                },
+                {
+                  "x": 75.97670183028589,
+                  "y": 210.84951364431612,
+                  "z": 0.9213162187312132
+                },
+                {
+                  "x": 70.31016105394119,
+                  "y": 210.88305386926194,
+                  "z": 0.9174502306702587
+                },
+                {
+                  "x": 208.69474340273973,
+                  "y": 257.6911754250407,
+                  "z": 0.9213162187312132
+                },
+                {
+                  "x": 208.2681337310832,
+                  "y": 259.57410310064523,
+                  "z": 0.9174502306702587
+                },
+                {
+                  "x": 208.69474340273973,
+                  "y": 210.84951364431612,
+                  "z": 0.9213162187312132
+                },
+                {
+                  "x": 208.2681337310832,
+                  "y": 210.88305386926194,
+                  "z": 0.9174502306702587
+                }
+              ]
+            }
+          ],
+          "path": "C-transport-unknown-browser.png",
+          "sha256": "c7a3bb068f470b94438a2bc46d3af883e8d6c8fdbd5763a0230864ac71f201a3",
+          "renderer": {
+            "path": "C-transport-unknown-front-render.png",
+            "sha256": "be0fda23605b15d2fc398b531a286bcd484e064fa4a0d41d9f7dd037c1506224",
+            "metrics": {
+              "size": [
+                878,
+                840
+              ],
+              "visible_pixels": 70955,
+              "unique_rgb": 2410
+            }
+          }
+        },
+        {
+          "view": "iso",
+          "width": 439,
+          "height": 420,
+          "viewport": {
+            "x": 401,
+            "y": 164.1875,
+            "width": 1440,
+            "height": 1080
+          },
+          "bounds": [
+            {
+              "name": "whole-host-and-attached-assembly",
+              "visible": true,
+              "points": [
+                {
+                  "x": 135.90875916776227,
+                  "y": 277.74750538075835,
+                  "z": 0.9306551010870152
+                },
+                {
+                  "x": 113.64512497586121,
+                  "y": 295.7913298555993,
+                  "z": 0.9077378378459345
+                },
+                {
+                  "x": 135.90875916776227,
+                  "y": 148.59046592165976,
+                  "z": 0.9306551010870152
+                },
+                {
+                  "x": 113.64512497586121,
+                  "y": 132.2346924099454,
+                  "z": 0.9077378378459345
+                },
+                {
+                  "x": 356.54353797016535,
+                  "y": 277.74750538075835,
+                  "z": 0.9306551010870152
+                },
+                {
+                  "x": 393.0436206026866,
+                  "y": 295.7913298555993,
+                  "z": 0.9077378378459345
+                },
+                {
+                  "x": 356.54353797016535,
+                  "y": 148.59046592165976,
+                  "z": 0.9306551010870152
+                },
+                {
+                  "x": 393.0436206026866,
+                  "y": 132.2346924099454,
+                  "z": 0.9077378378459345
+                }
+              ]
+            },
+            {
+              "name": "external1",
+              "visible": true,
+              "points": [
+                {
+                  "x": 135.90875916776227,
+                  "y": 277.74750538075835,
+                  "z": 0.9306551010870152
+                },
+                {
+                  "x": 125.85790396054692,
+                  "y": 285.89333932762617,
+                  "z": 0.9203091668789544
+                },
+                {
+                  "x": 135.90875916776227,
+                  "y": 220.77018287295016,
+                  "z": 0.9306551010870152
+                },
+                {
+                  "x": 125.85790396054692,
+                  "y": 222.0651696147848,
+                  "z": 0.9203091668789544
+                },
+                {
+                  "x": 264.61002386334343,
+                  "y": 277.74750538075835,
+                  "z": 0.9306551010870152
+                },
+                {
+                  "x": 270.0339691682639,
+                  "y": 285.89333932762617,
+                  "z": 0.9203091668789544
+                },
+                {
+                  "x": 264.61002386334343,
+                  "y": 220.77018287295016,
+                  "z": 0.9306551010870152
+                },
+                {
+                  "x": 270.0339691682639,
+                  "y": 222.0651696147848,
+                  "z": 0.9203091668789544
+                }
+              ]
+            }
+          ],
+          "path": "C-transport-unknown-iso-browser.png",
+          "sha256": "1de01bee4c62ac82ebcc630b5614e0fc674eb48c8fe89e5e24022801df6d3705",
+          "renderer": {
+            "path": "C-transport-unknown-iso-render.png",
+            "sha256": "80fe109a2981b148e44eb1c167863393b5a12217aa7e05b9f8847d5f866c40b7",
+            "metrics": {
+              "size": [
+                878,
+                840
+              ],
+              "visible_pixels": 88211,
+              "unique_rgb": 2801
+            }
+          }
+        }
+      ],
+      "panels": [
+        {
+          "unit_id": "rgb",
+          "path": "C-transport-unknown-rgb-panel.png",
+          "sha256": "057cdcfbc3dc33022fab9145af62e505745bf70c0bd5c556d2e0362ae5bbc1c6"
+        }
+      ],
+      "overview": {
+        "path": "C-transport-unknown-full-page.png",
+        "sha256": "e4e0307a190fde83ec7b3004750fbba61c3693fc05ec85d279a104059b1e622a"
+      }
+    },
+    "recovered": {
+      "bindings": {},
+      "physicalEvents": 0,
+      "frameMetadata": {
+        "x-frame-capture-seq": "107",
+        "x-frame-captured-at": "2026-10-26T15:38:28.521852+00:00",
+        "x-frame-execution-id": "86de241d15ee46f1b98537cff226ea35",
+        "x-frame-height": "240",
+        "x-frame-program-state": "running",
+        "x-frame-revision-id": "4e0434ee5d7d1c6644177b00ac39f01ff63fd45eee7f654650fe0202082ca3aa",
+        "x-frame-sha256": "a67d47990364552d3ead10a4ceca095ff6c90b9788e5d5b3ec4f567dc6a91f72",
+        "x-frame-source": "live",
+        "x-frame-width": "320"
+      },
+      "units": {
+        "rgb": {
+          "id": "external1",
+          "port": "grove",
+          "available": true,
+          "hint": {
+            "hidden": true,
+            "text": "",
+            "mode": "uniform"
+          },
+          "note": "实时模型状态",
+          "readback": [
+            "LED[0] #10d0a0",
+            "LED[1] #10d0a0",
+            "LED[2] #10d0a0"
+          ],
+          "leds": [
+            {
+              "id": "led0",
+              "path": "grove/led0",
+              "attached": true,
+              "known": true,
+              "userDataKnown": true,
+              "state": {
+                "color": "#10d0a0",
+                "brightness": 1
+              },
+              "emissive": [
+                0.011399336740135652,
+                1.3876656999453079,
+                0.7733717188776619
+              ],
+              "glow": true,
+              "opacity": 0.85,
+              "glowColor": "#10d0a0"
+            },
+            {
+              "id": "led1",
+              "path": "grove/led1",
+              "attached": true,
+              "known": true,
+              "userDataKnown": true,
+              "state": {
+                "color": "#10d0a0",
+                "brightness": 1
+              },
+              "emissive": [
+                0.011399336740135652,
+                1.3876656999453079,
+                0.7733717188776619
+              ],
+              "glow": true,
+              "opacity": 0.85,
+              "glowColor": "#10d0a0"
+            },
+            {
+              "id": "led2",
+              "path": "grove/led2",
+              "attached": true,
+              "known": true,
+              "userDataKnown": true,
+              "state": {
+                "color": "#10d0a0",
+                "brightness": 1
+              },
+              "emissive": [
+                0.011399336740135652,
+                1.3876656999453079,
+                0.7733717188776619
+              ],
+              "glow": true,
+              "opacity": 0.85,
+              "glowColor": "#10d0a0"
+            }
+          ],
+          "diffusion": null,
+          "joints": []
+        }
+      }
+    }
+  },
+  "evidence": {
+    "status": "PASS",
+    "members": 23,
+    "executions": 4,
+    "serial_windows": 6,
+    "identity_source_byte_windows_and_member_sha": true,
+    "final_leaf_unit_state_phase_D_verified": true,
+    "generic_qom_snapshot_truncated": true,
+    "generic_qom_used_as_complete_unit_raw_evidence": false,
+    "independent_unit_raw_qom_location": "report phases[].capture.qom.raw",
+    "zip_sha256": "154b5bb92e31fc201b0dd2a36cdfb5686ca2629ed94e8c6e940e67bba513b4f6"
+  },
+  "status": "PASS",
+  "cleanup": {
+    "state": "stopped",
+    "flash_retained": false,
+    "history_retained": true,
+    "last_frame_available": true,
+    "pid_gone": true
+  }
+}

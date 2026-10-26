@@ -1,0 +1,35 @@
+{
+  "session_id": "9fc46df433d84775a41186fc339f78d8",
+  "program_transport": "uart-repl",
+  "program": {
+    "execution_id": "8abec71da597479cbc58e937a8910076",
+    "revision_id": "7b24f9663a50c2923e2d997d312781358975c46db02ec4b1e4065f8135322845",
+    "source_sha256": "b4e8033acc3b40184d47516deac78fe548b14d502f966fdd61e41f2fbf46085c",
+    "source_bytes": 172,
+    "state": "running",
+    "submitted_at": "2026-10-26T15:49:30.276296+00:00",
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "pid": 2668,
+    "execution_mode": "same-guest-uart-repl",
+    "cleanup_mode": "interrupt-only",
+    "serial_offset": 14559,
+    "next_offset": 14619,
+    "acknowledged": true,
+    "transfer_mode": "raw-paste",
+    "observed_at": "2026-10-26T15:49:30.480639+00:00"
+  },
+  "history_error": null,
+  "request_seconds": 0.21428041718900204,
+  "expected_history_state": "completed",
+  "activated": false,
+  "reused": false,
+  "submission": {
+    "mode": "legacy-source",
+    "request": {
+      "source": "import os\nos.mkdir('/flash/.m5-live-packages/9c7d4e34ac45fbbb33a5561eb64e5fa2daf5c3bab1ae91816e6522f3419aca69/extra_empty_namespace')\nprint('LIVE_PACKAGE_EXTRA_DIRECTORY')\n",
+      "expected_execution_id": "9d29e91d9f6645e185dd8694105414a4",
+      "timeout_seconds": 20
+    },
+    "previous_execution_id": "9d29e91d9f6645e185dd8694105414a4"
+  }
+}

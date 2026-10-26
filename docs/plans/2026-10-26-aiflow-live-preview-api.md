@@ -97,7 +97,7 @@ workspace；相关十文件前后哈希稳定。本观察不代表部署版本�
 | 更新/取消 | `/program` 使用 `expected_execution_id` 和单个传输 owner；session 生命周期已有取消 fence | 可拒绝过期/并发提交；旧程序中断需 raw REPL 同步确认，尚无 Preview latest-wins 编排 |
 | 主机/Unit交互 | input、unit-input、QOM、真实帧/串口/设备态；Unit装配在创建时固定 | 能复用；运行中hotplug未实现，新装配需新执行实例 |
 | 实时画面 | 默认GET仍直采；QEMU显式max_age_ms复用同session样本/在途采集，ETag/304；网页每visual独立有界请求 | 减少重复采集和慢session阻塞；采集元数据不证明应用ready，不保证8FPS或端到端SLA |
-| 实时状态/日志 | events为JSON读取，串口/设备态/Unit各自轮询 | 缺订阅、背压、断线游标和统一run/revision标签；现串口按offset返回但读全日志 |
+| 实时状态/日志 | events为JSON读取，串口/设备态/Unit各自轮询；串口按offset seek后只读请求窗口 | 缺订阅、背压、断线游标和统一run/revision标签；任意byte切片仍使用replace解码 |
 | 资源文件 | `/program` 保留64KiB `source`，并新增完整 `files` 包；guest UART真实写入、哈希读回与托管模块切换 | 同guest多文件/纯字节码`.mpy`依赖和资源；总decoded 1MiB/64文件，原生emitter及开机保存不准入 |
 | AIFlow消费者 | 有SSE/sequence恢复；file_ready在runner完成后整批发，下载读当前workspace | 可做任务结束后预览；持续预览还需中途checkpoint和不可变多文件快照 |
 | AIFlow目标 | direct-run/server部署接物理DevicePusher；当前身份/部分配额依赖物理设备 | 虚拟预览需独立执行目标，不能误用物理push或伪造真机MAC |
@@ -159,8 +159,8 @@ native、timer、IRQ、其它thread和外设状态仍可能存在。单源码引
 `Preview`是AIFlow项目的稳定逻辑资源；`ProgramRevision`是完整不可变文件/资源
 快照；`Run`绑定一次确定的源码、装配与实际 Device Service 执行实例。这是后续
 编排模型：同 guest 执行应复用当前 `/program` 主路径，每次执行仍保留独立身份；
-新 guest 是初始化、兼容或配置变化时的另一执行方式。当前内部已有源码 Revision
-存储与 session 程序记录，不能将其等同于已实现 Preview/Run HTTP 资源。现有
+新 guest 是初始化、兼容或配置变化时的另一执行方式。当前已有公共完整package
+checkpoint保存/查询、同步revision引用执行和session程序记录，不能将其等同于已实现 Preview/Run HTTP 资源。现有
 session 的固件/evidence 身份不被静默覆盖。
 
 ```mermaid
@@ -174,13 +174,14 @@ flowchart LR
   W -->|输入附带run_id| P
 ```
 
-以下仅为后续拟定契约，不能按现有 API 调用；其中独立 Revision HTTP 入口及
-asset/CAS 扩展也不由当前单源码接口提供：
+以下Preview/Run接口仍为后续拟定契约，不能按现有API调用。公共
+`POST /api/v1/program-revisions`与对应GET已实现，首版接收完整文件包；
+仅上传变化blob的CAS/manifest扩展仍未实现：
 
 | 拟定接口 | 责任 |
 | --- | --- |
 | `POST /api/v1/previews` | 建立逻辑preview，固定设备、runtime/profile及Unit装配版本；响应能力和执行方式 |
-| `POST /api/v1/program-revisions` | 提交完整源码/asset manifest或CAS引用；只上传变化blob，但revision必须代表完整快照 |
+| `POST /api/v1/program-revisions`（已实现，扩展待做） | 当前提交完整文件包，返回不可变revision；未来CAS增量上传仍须得到完整快照 |
 | `POST /api/v1/previews/{id}/runs` | 以revision启动，带client_generation、expected_generation及Idempotency-Key，返回202/run_id |
 | `POST /api/v1/previews/{id}/runs/{run_id}/cancel` | 取消指定运行；有界回收，未确认回收时为cancelling，完成后禁止复活 |
 | `GET /api/v1/previews/{id}` / `GET /api/v1/previews/{id}/runs/{run_id}` | 读取desired/active运行、实际状态与事件游标，供初次加载或事件缺口后resync |
@@ -208,7 +209,7 @@ SSE/帧订阅不自动无限续租。具体租期、续租及保留配额在实�
 替代，不再作为实施要求。原 `uiflow2-python` 冻结单源码，新 `uiflow2-package`
 冻结完整文件/资源集合，两个store及哈希语义独立；composer保留初始化用途。
 逐token、运行中Unit hotplug、完整VM清理、native emitter及开机保存仍未支持。
-后续独立Revision HTTP、CAS增量blob/manifest与Preview编排保持扩展点。
+公共Revision HTTP与同步引用执行已落地；CAS增量blob/manifest与Preview编排保持扩展点。
 
 后续 Preview 编排应放在独立模块，通过 DeviceService 现有方法管理执行；保持
 `/sessions`、固件元数据、source pin、历史恢复与 evidence 契约兼容。先完成下列
@@ -325,3 +326,14 @@ AIFlow补完整多文件/asset checkpoint事件和不可变artifact snapshot，�
 多个用户。preview/run/source/stream需要owner范围和配额，物理设备额度规则另行
 明确，不能伪造MAC绕过。远程worker、隔离和资源上限按现有PILOT/NET-04边界
 继续处理。本次未变更账户、计费、部署、物理设备或外部消息。
+
+
+## 当前前置实施：公共完整checkpoint与引用执行
+
+在同VM文件包路径之上，先提供公共不可变`uiflow2-package` checkpoint创建/元数据查询，以及既有同步`/sessions/{id}/program`的`revision_id`引用。其作用是让外部Agent把完整文件快照与实际执行分开，之后Preview/Run直接引用同一revision；不把旧/program改成假异步202，不假称已实现Preview协调器、latest-wins或保VM的Run取消。
+
+公共入口只准完整package，复用当前规范化路径、文件/总字节和纯字节码检查；旧python source store/哈希保持原样，不能用旧多文件python revision只执行main代替完整checkpoint。source/files/revision_id必须互斥，引用请求也须expected_execution_id；坏ID、未知/损坏包、已知native/损坏bytecode或stale请求在执行分配前拒绝。guest实际版本/small-int不兼容仍可能在同步并中断旧程序后才发现，保留failed execution和收据。引用执行验证存储后直接复用包，不重新create revision。响应公开实际配额和gc_enabled=false，沿用现有服务Bearer授权，不信任body owner或声称多租户隔离。
+
+验收包括真实HTTP/宿主故障负控、现有source/files兼容、引用不重创revision，以及8787可见session中同VM运行A/B多文件/纯字节码依赖和资源、实际Unit输入输出/帧/串口、旧请求拒绝与停止前取证。root另修serial_read按offset seek只读请求窗口，16MiB稀疏日志负控原版全量read失败，新版边界/历史/缺失行为通过；该优化不改变任意byte切片的replace解码，不冒称UTF8分片策略已解决。
+
+该前置已通过CoreS3 PIR/Relay各自的新实际同VM引用运行和旧路径负控，见[checkpoint与复测证据](../evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)。公共checkpoint/save-get和同步引用可按1.41契约调用；本页Preview/Run/取消/SSE/CAS设计仍是未来接口，不与已实现端点混写。

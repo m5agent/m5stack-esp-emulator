@@ -1,4 +1,4 @@
-// Browser integration/geometry evidence only. No QEMU, firmware or hardware PASS.
+// Browser integration/geometry evidence only. No guest, firmware or hardware PASS.
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
@@ -6,68 +6,170 @@ import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, extname } from 'node:path';
 import { chromium } from 'playwright';
+import {installModelProbe, decodeAssetBatch} from './model_shell_probe_helpers.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const output = process.env.M5_MODEL_TEST_OUT || '/tmp/m5-model-shell-test';
-await mkdir(output, { recursive: true });
+const settings = {batchSize: 4, assetBatchSize: 12, decodeConcurrency: 3, timeoutMs: 20000, cases: []};
+for (let i = 2; i < process.argv.length; i++) {
+  const option = process.argv[i], value = process.argv[++i];
+  assert.ok(value, `Missing value for ${option}`);
+  if (option === '--case') {settings.cases.push(value); continue;}
+  const spec = {'--batch-size': ['batchSize', 1, 12], '--asset-batch-size': ['assetBatchSize', 2, 24],
+    '--decode-concurrency': ['decodeConcurrency', 2, 4], '--timeout-ms': ['timeoutMs', 1000, 60000]}[option];
+  assert.ok(spec, `Unknown option ${option}`);
+  assert.ok(/^\d+$/.test(value) && Number(value) >= spec[1] && Number(value) <= spec[2], `Invalid ${option}`);
+  settings[spec[0]] = Number(value);
+}
+await mkdir(output, {recursive: true});
 const catalog = JSON.parse(await readFile(resolve(root, 'devices/catalog.source.json'), 'utf8'));
-const manifest = JSON.parse(await readFile(resolve(root, 'platform/web/vendor/m5stack-models/vendor-manifest.json'), 'utf8'));
+const vendorPath = 'platform/web/vendor/m5stack-models/';
+const manifest = JSON.parse(await readFile(resolve(root, vendorPath + 'vendor-manifest.json'), 'utf8'));
+const products = JSON.parse(await readFile(resolve(root, vendorPath + 'catalog/products.json'), 'utf8')).products;
+const assetPaths = Object.keys(manifest.runtime_assets.files);
 assert.deepEqual(manifest.controllers.slice().sort(), catalog.devices.map(device => device.id).sort());
+const modelCases = [...catalog.devices.map(device => ({kind: 'controller', id: device.id})), ...manifest.units.map(id => ({kind: 'unit', id}))]
+  .map(test => ({...test, key: `${test.kind}:${test.id}`, configuration: 'default', options: {}}));
+const full = settings.cases.length === 0;
+const selected = full ? modelCases : settings.cases.filter(key => !['assets', 'interactions', 'interfaces'].includes(key)).map(key => {
+  const [identity, configuration] = key.split('#'), test = modelCases.find(test => test.key === identity);
+  assert.ok(test, `Unknown model case ${key}`);
+  if (!configuration) return {...test};
+  const config = products.find(product => product.id === test.id)?.configurations?.find(config => config.id === configuration);
+  assert.ok(config, `Unknown catalog configuration ${key}`);
+  return {...test, key, configuration, options: config.options};
+});
+assert.equal(new Set(selected.map(test => test.key)).size, selected.length, 'Duplicate model case');
+const expectedArtwork = test => {
+  const product = products.find(product => product.id === test.id);
+  const prefix = product.entry.slice(0, product.entry.lastIndexOf('/') + 1);
+  // One PNG can project onto several surfaces. This is a non-vacuity minimum,
+  // not a fabricated equality between image count and material layer count.
+  const eligible = assetPaths.filter(path => path.startsWith(prefix) && (test.options.stickerVariant === 'education-cn'
+    ? path.includes('education-cn') : !path.includes('education-cn')));
+  return eligible.length ? 1 : 0;
+};
 const harness = `<!doctype html><html><head><meta charset="utf-8">
 <style>html,body{margin:0;background:#fff}#host{width:900px;height:700px}.three-device-root,.three-device-stage{min-height:700px!important}.three-device-hint{color:#ccc}</style>
 <link rel="stylesheet" href="/platform/web/three-device-viewer.css">
 <script type="importmap">{"imports":{"three":"/platform/web/vendor/three/three.module.js","three/addons/":"/platform/web/vendor/three/addons/"}}</script>
 </head><body><div id="host"></div></body></html>`;
-const mime = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.png': 'image/png' };
+const mime = {'.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.png': 'image/png'};
 const server = createServer(async (request, response) => {
   try {
     const pathname = new URL(request.url, 'http://localhost').pathname;
-    if (pathname === '/__test__') { response.setHeader('Content-Type', 'text/html'); response.end(harness); return; }
+    if (pathname === '/__test__') {response.setHeader('Content-Type', 'text/html'); response.end(harness); return;}
+    if (pathname === '/favicon.ico') {response.writeHead(204); response.end(); return;}
     const path = resolve(root, '.' + decodeURIComponent(pathname));
-    if (!path.startsWith(root + '/')) { response.writeHead(403); response.end(); return; }
-    const data = await readFile(path);
-    response.setHeader('Content-Type', mime[extname(path)] || 'application/octet-stream');
-    response.end(data);
-  } catch { response.writeHead(404); response.end(); }
+    if (!path.startsWith(root + '/')) {response.writeHead(403); response.end(); return;}
+    const data = await readFile(path); response.setHeader('Content-Type', mime[extname(path)] || 'application/octet-stream'); response.end(data);
+  } catch {response.writeHead(404); response.end();}
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const base = `http://127.0.0.1:${server.address().port}`;
-const browser = await chromium.launch({
-  executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  headless: true,
-  args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
-});
-const page = await browser.newPage({ viewport: { width: 1000, height: 760 } });
-const errors = [], missing = [];
-page.on('pageerror', error => errors.push(error.message));
-page.on('response', response => { if (response.status() >= 400 && !response.url().endsWith('/favicon.ico')) missing.push(response.url()); });
-const integrationFiles = ['platform/web/model-shell.js', 'platform/web/device-shell-factory.js',
-  'platform/web/unit-annotations.js', 'platform/web/unit-assembly-layout.js',
-  'platform/web/sessions.js', 'platform/web/sessions.html', 'platform/tools/sync_visual_models.py',
-  'platform/tests/test_model_shell.mjs'];
-const integrationSha256 = Object.fromEntries(await Promise.all(integrationFiles.map(async name =>
+const browser = await chromium.launch({executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  headless: true, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']});
+const integrationFiles = ['platform/web/model-shell.js', 'platform/web/device-shell-factory.js', 'platform/web/unit-annotations.js',
+  'platform/web/unit-assembly-layout.js', 'platform/web/sessions.js', 'platform/web/sessions.html', 'platform/tools/sync_visual_models.py',
+  'platform/tests/test_model_shell.mjs', 'platform/tests/model_shell_probe_helpers.mjs', vendorPath + 'vendor-manifest.json', vendorPath + 'catalog/products.json'];
+const fingerprints = async () => Object.fromEntries(await Promise.all(integrationFiles.map(async name =>
   [name, createHash('sha256').update(await readFile(resolve(root, name))).digest('hex')])));
-const report = { category: 'browser-visual-integration', captured_at: new Date().toISOString(),
-  browser_version: browser.version(), source_commit: manifest.source_commit,
-  integration_sha256: integrationSha256, controllers: [], units: [] };
-
+const report = {status: 'FAIL', category: 'browser-visual-integration', captured_at: new Date().toISOString(),
+  guest_validation: 'NOT RUN', hardware_validation: 'NOT RUN', browser_version: browser.version(), source_commit: manifest.source_commit,
+  scope: full ? 'complete-default-models-and-all-assets' : 'explicit-cases', settings,
+  integration_sha256: await fingerprints(), controllers: [], units: [], interface_census: [], runtime_assets: [], contexts: [],
+  catalog_configurations: products.filter(product => product.configurations?.length).map(product => ({id: product.id,
+    default: 'constructor options {} tested separately; no configuration alias inferred', configurations: product.configurations.map(config =>
+      ({id: config.id, options: config.options, status: selected.some(test => test.id === product.id && test.configuration === config.id) ? 'SELECTED' : 'NOT RUN'}))})),
+  limits: ['Browser visual components do not grant Device Service runtime admission', 'Default instances do not cover optional catalog configurations',
+    'Printed layer geometry and decoded textures do not prove optical registration, dimensions or electrical behavior', 'Slider output bridge is unsupported; Fader is shell-only'],
+};
+const errors = [], missing = [];
+let context, page, activeLabel;
+async function evaluate(callback, argument) {
+  let timer;
+  try {
+    return await Promise.race([page.evaluate(callback, argument), new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`Browser case deadline exceeded: ${activeLabel}`)), settings.timeoutMs);
+    })]);
+  } finally {clearTimeout(timer);}
+}
+async function assetFingerprints() {
+  const values = {};
+  for (const path of assetPaths) {
+    const bytes = await readFile(resolve(root, vendorPath, path));
+    const sha256 = createHash('sha256').update(bytes).digest('hex'), expected = manifest.runtime_assets.files[path];
+    assert.equal(bytes.length, expected.bytes, `PNG byte count: ${path}`); assert.equal(sha256, expected.sha256, `PNG SHA256: ${path}`);
+    values[path] = sha256;
+  }
+  return values;
+}
+async function closePage() {
+  if (!context) return;
+  if (page && !page.isClosed()) await evaluate(() => window.modelProbe.disposeShell());
+  await context.close(); report.contexts.at(-1).closed = true; context = page = null;
+}
+async function openPage(label) {
+  await closePage(); activeLabel = label;
+  context = await browser.newContext({viewport: {width: 1000, height: 760}}); page = await context.newPage(); page.setDefaultTimeout(settings.timeoutMs);
+  page.on('pageerror', error => errors.push({case: activeLabel, message: error.message}));
+  page.on('response', response => {if (response.status() >= 400) missing.push({case: activeLabel, status: response.status(), url: response.url().replace(base, '')});});
+  report.contexts.push({label, closed: false});
+  await page.goto(`${base}/__test__`, {waitUntil: 'networkidle', timeout: settings.timeoutMs});
+  await evaluate(installModelProbe, {assetPaths, timeoutMs: settings.timeoutMs});
+}
+async function stickShell() {
+  await evaluate(async device => {
+    window.modelProbe.disposeShell();
+    const {createModelShell} = await import('/platform/web/model-shell.js');
+    window.testShell = await createModelShell(document.querySelector('#host'), device, {live: true});
+  }, catalog.devices.find(device => device.id === 'sticks3'));
+}
+async function screenshot(name) {
+  await evaluate(() => window.modelProbe.rendered(window.testShell));
+  const bytes = await page.screenshot({path: `${output}/${name}.png`});
+  return {path: name + '.png', sha256: createHash('sha256').update(bytes).digest('hex')};
+}
 try {
-  await page.goto(`${base}/__test__`, { waitUntil: 'networkidle' });
-  // Decode every reviewed PNG, including optional education variants. Module
-  // loading alone would miss broken new URL() paths or absent raster assets.
-  report.runtime_assets = await page.evaluate(async paths => Promise.all(paths.map(async path => {
-    const image = new Image();
-    image.src = `/platform/web/vendor/m5stack-models/${path}`;
-    await image.decode();
-    return {path, width: image.naturalWidth, height: image.naturalHeight};
-  })), Object.keys(manifest.runtime_assets.files));
-  assert.ok(report.runtime_assets.every(asset => asset.width > 0 && asset.height > 0));
-  assert.equal(report.runtime_assets.length, Object.keys(manifest.runtime_assets.files).length);
-  for (const device of catalog.devices) {
-    const result = await page.evaluate(async device => {
-      window.testShell?.dispose();
+  report.runtime_asset_sha256 = await assetFingerprints();
+  // Diagnostic census before a new vendor regression. This inventories every
+  // public LED/joint/slider contract without calling it a functional output PASS.
+  if (settings.cases.includes('interfaces')) {
+    for (const [index, id] of manifest.units.entries()) {
+      if (index % settings.batchSize === 0) {await openPage(`interfaces-${Math.floor(index / settings.batchSize)}`); await stickShell();}
+      activeLabel = `interfaces:${id}`;
+      const record = await evaluate(async ({id, expectedMinimum}) => {
+        const shell = window.testShell, module = await shell.attachUnit(id, {cableLength: 70});
+        const artwork = await window.modelProbe.artwork(module, expectedMinimum);
+        const interfaces = window.modelProbe.interfaces(module);
+        shell.detachUnit();
+        return {unit_id: id, options: {}, interfaces, artwork, output_validation: 'NOT RUN'};
+      }, {id, expectedMinimum: expectedArtwork({id, options: {}})});
+      report.interface_census.push(record);
+    }
+    assert.equal(report.interface_census.length, manifest.units.length);
+    console.log(`MODEL_INTERFACE_CENSUS_PASS ${report.interface_census.length}; output validation NOT RUN`);
+  }
+  if (full || settings.cases.includes('assets')) {
+    for (let i = 0; i < assetPaths.length; i += settings.assetBatchSize) {
+      await openPage(`asset-batch-${i / settings.assetBatchSize}`);
+      const batch = await evaluate(decodeAssetBatch, {paths: assetPaths.slice(i, i + settings.assetBatchSize), concurrency: settings.decodeConcurrency, timeoutMs: settings.timeoutMs});
+      assert.ok(batch.peak_concurrency <= settings.decodeConcurrency); assert.equal(batch.final_active, 0);
+      report.runtime_assets.push(...batch.rows); report.contexts.at(-1).peak_decode_concurrency = batch.peak_concurrency;
+      await closePage();
+    }
+    assert.equal(report.runtime_assets.length, assetPaths.length); assert.equal(new Set(report.runtime_assets.map(asset => asset.path)).size, assetPaths.length);
+    console.log(`MODEL_ASSETS_PASS ${report.runtime_assets.length} bounded concurrency=${settings.decodeConcurrency}`);
+  }
+  const controllerCases = selected.filter(test => test.kind === 'controller');
+  for (const [index, test] of controllerCases.entries()) {
+    if (index % settings.batchSize === 0) await openPage(`controllers-${Math.floor(index / settings.batchSize)}`);
+    activeLabel = test.key;
+    const device = catalog.devices.find(device => device.id === test.id);
+    const result = await evaluate(async ({device, options, expectedMinimum}) => {
+      window.modelProbe.disposeShell();
       const { createDeviceShell } = await import('/platform/web/device-shell-factory.js');
-      const shell = await createDeviceShell(document.querySelector('#host'), device, { live: true });
+      const shell = await createDeviceShell(document.querySelector('#host'), device, { live: true, modelOptions: options });
       window.testShell = shell;
       shell.setViewMode('shell');
       const controls = [], touches = [], raw = [];
@@ -98,15 +200,16 @@ try {
       const button = shell.model.list('button').find(component => component.meta.electricalBehavior !== false);
       if (button) { button.press('integration-probe'); button.release('integration-probe'); }
       const before = raw.length;
-      const led = shell.model.list('led')[0];
-      if (led) shell.applyVisualState({ type: 'led', target: led.path, color: '#ff0000', brightness: 0.25 });
-      shell.viewer.renderer.render(shell.viewer.scene, shell.viewer.camera);
+      const ownership = window.modelProbe.ownership(shell, shell.model);
+      const outputs = window.modelProbe.outputs(shell, shell.model);
+      const artwork = await window.modelProbe.artwork(shell.model, expectedMinimum);
+      await window.modelProbe.rendered(shell);
       return {
         id: device.id, source: shell.root?.dataset.modelSource, ports: shell.listPorts(),
         display: display ? [display.width, display.height] : null,
-        frame, controls, touches, resets, outputEcho: raw.length - before,
+        frame, controls, touches, resets, ownership, outputs, artwork, outputEcho: raw.length - before,
       };
-    }, device);
+    }, {device, options: test.options, expectedMinimum: expectedArtwork(test)});
     assert.equal(result.source, 'm5stack-models', `${device.id} fell back to the old renderer`);
     if (result.frame) {
       assert.deepEqual(result.frame.pixel, [255, 0, 0], `${device.id} RGB565 mapping`);
@@ -122,34 +225,25 @@ try {
       nanoc6: 'a', stackchan: 'p', atoms3r: 'a', stamplc: 'a' };
     if (firstKeys[device.id]) assert.deepEqual(result.controls.map(event => [event.key, event.down]), [[firstKeys[device.id], true], [firstKeys[device.id], false]], `${device.id} runtime input mapping`);
     if (device.id === 'tab5') assert.equal(result.resets, 1);
-    await page.waitForFunction(() => {
-      const statuses = [];
-      window.testShell.model.root.traverse(object => {
-        if (object.userData.artworkKind?.startsWith('official-raster')) statuses.push(object.userData.textureStatus);
-      });
-      return statuses.every(status => status !== 'pending');
-    });
-    result.artwork = await page.evaluate(() => {
-      const statuses = [];
-      window.testShell.model.root.traverse(object => {
-        if (object.userData.artworkKind?.startsWith('official-raster')) statuses.push(object.userData.textureStatus);
-      });
-      return {layers: statuses.length, ready: statuses.filter(status => status === 'ready').length};
-    });
-    assert.equal(result.artwork.ready, result.artwork.layers, `${device.id} model material raster loading`);
+    result.case = test.key; result.configuration = test.configuration; result.options = test.options;
     report.controllers.push(result);
-    await page.screenshot({ path: `${output}/${device.id}.png` });
-    await page.evaluate(() => window.testShell.viewer.setView('back', { duration: 0 }));
-    await page.screenshot({ path: `${output}/${device.id}-back.png` });
+    const filename = test.configuration === 'default' ? test.id : test.key.replaceAll(':', '-').replaceAll('#', '-');
+    result.screenshots = [await screenshot(filename)];
+    await evaluate(() => window.testShell.viewer.setView('back', {duration: 0}));
+    result.screenshots.push(await screenshot(filename + '-back'));
+    result.disposal = await evaluate(() => window.modelProbe.disposeShell());
+    console.log(`MODEL_CONTROLLER_PASS ${test.key} artwork=${result.artwork.layers}`);
   }
-
+  if (full || settings.cases.includes('interactions')) {
+    await openPage('legacy-input-readback-interactions');
+    await stickShell();
   const stick = catalog.devices.find(device => device.id === 'sticks3');
-  await page.evaluate(async device => {
-    window.testShell.dispose();
+  await evaluate(async device => {
+    window.modelProbe.disposeShell();
     const { createModelShell } = await import('/platform/web/model-shell.js');
     window.testShell = await createModelShell(document.querySelector('#host'), device, { live: true });
   }, stick);
-  const readback = await page.evaluate(async () => {
+  const readback = await evaluate(async () => {
     const shell = window.testShell;
     await shell.attachUnit('button');
     const events = [], listener = event => events.push(`${event.action}:${event.source}`);
@@ -181,18 +275,18 @@ try {
   report.button_readback_release = readback;
 
   for (const unitId of ['button', 'env-iii', 'fan', 'encoder']) {
-    await page.evaluate(async unitId => {
+    await evaluate(async unitId => {
       await window.testShell.attachUnit(unitId, { cableLength: 70 });
       window.testShell.viewer.setView('iso', { duration: 0 });
       window.testShell.viewer.fit();
     }, unitId);
     await page.screenshot({ path: `${output}/unit-${unitId}.png` });
-    await page.evaluate(() => window.testShell.detachUnit());
+    await evaluate(() => window.testShell.detachUnit());
   }
 
   // Focused keyboard presses and blur must produce one matching release.
-  await page.evaluate(async device => {
-    window.testShell.dispose();
+  await evaluate(async device => {
+    window.modelProbe.disposeShell();
     const { createModelShell } = await import('/platform/web/model-shell.js');
     window.testShell = await createModelShell(document.querySelector('#host'), device, { live: true });
     window.inputEvents = [];
@@ -200,60 +294,70 @@ try {
   }, stick);
   await page.locator('canvas').focus();
   await page.keyboard.down('a');
-  await page.evaluate(() => document.querySelector('canvas').blur());
+  await evaluate(() => document.querySelector('canvas').blur());
   await page.keyboard.up('a');
-  const held = await page.evaluate(() => window.inputEvents.map(event => `${event.key}:${event.down}`));
+  const held = await evaluate(() => window.inputEvents.map(event => `${event.key}:${event.down}`));
   assert.deepEqual(held, ['a:true', 'a:false']);
   report.focused_keyboard = 'PASS';
 
-  for (const unitId of manifest.units) {
-    const result = await page.evaluate(async unitId => {
+  }
+  const unitCases = selected.filter(test => test.kind === 'unit');
+  for (const [index, test] of unitCases.entries()) {
+    if (index % settings.batchSize === 0) {await openPage(`units-${Math.floor(index / settings.batchSize)}`); await stickShell();}
+    activeLabel = test.key;
+    const result = await evaluate(async ({test, expectedMinimum}) => {
       const shell = window.testShell;
-      const module = await shell.attachUnit(unitId, { cableLength: 70 });
-      const events = [];
-      const onInput = event => events.push(event);
+      const module = await shell.attachUnit(test.id, {cableLength: 70, ...test.options});
+      const ownership = window.modelProbe.ownership(shell, module);
+      const artwork = await window.modelProbe.artwork(module, expectedMinimum);
+      const events = [], onInput = event => events.push(event);
       shell.on('unit-input', onInput);
-      const button = module.list('button')[0];
-      if (button) { button.press('unit-probe'); button.release('unit-probe'); }
-      const before = events.length;
-      const led = module.list('led')[0];
-      if (led) shell.applyVisualState({ type: 'led', target: led.path, color: '#00ff00', brightness: 0.5 });
-      const joint = module.list('joint')[0];
-      if (joint) shell.applyVisualState({ type: 'joint', target: joint.path, angleDeg: 15 });
-      let driveActivity = null;
-      if (unitId === 'fan') {
-        shell.applyVisualState({type: 'drive-activity', target: joint.path, active: true});
-        const before = joint.getState().angleDeg;
-        joint.update(0.1);
-        const moving = joint.getState();
-        shell.applyVisualState({type: 'drive-activity', target: joint.path, active: false});
-        joint.update(0.1);
-        driveActivity = {moves: moving.angleDeg !== before, stops: moving.angleDeg === joint.getState().angleDeg, rpmUnmodeled: moving.rpm === 0};
-      }
-      shell.viewer.renderer.render(shell.viewer.scene, shell.viewer.camera);
-      const result = { unit_id: unitId, attached: shell.model.port('grove').module === module,
-        paths: module.list().map(component => component.path), input: events.map(event => ({ id: event.id, kind: event.kind, action: event.action })),
-        components: module.list().map(component => ({path: component.path, kind: component.kind, meta: component.meta})),
-        ...(driveActivity ? {driveActivity} : {}),
-        outputEcho: events.length - before };
-      shell.off('unit-input', onInput);
+      try {
+        const button = module.list('button')[0];
+        if (button) {button.press('unit-probe'); button.release('unit-probe');}
+        const before = events.length;
+        const interfaces = window.modelProbe.interfaces(module);
+        const outputs = window.modelProbe.outputs(shell, module);
+        let driveActivity = null;
+        if (test.id === 'fan') {
+          const joint = module.list('joint')[0];
+          shell.applyVisualState({type: 'drive-activity', target: joint.path, active: true});
+          const before = joint.getState().angleDeg; joint.update(0.1); const moving = joint.getState();
+          shell.applyVisualState({type: 'drive-activity', target: joint.path, active: false}); joint.update(0.1);
+          driveActivity = {moves: moving.angleDeg !== before, stops: moving.angleDeg === joint.getState().angleDeg, rpmUnmodeled: moving.rpm === 0};
+        }
+        shell.viewer.setView('iso', {duration: 0}); shell.viewer.fit();
+        await window.modelProbe.rendered(shell);
+        window.currentModule = module;
+        return {unit_id: test.id, case: test.key, configuration: test.configuration, options: test.options,
+          attached: shell.model.port('grove').module === module && module.parentHost === shell.model,
+          paths: module.list().map(component => component.path), components: ownership, interfaces, artwork, outputs,
+          input: events.map(event => ({id: event.id, kind: event.kind, action: event.action})),
+          ...(driveActivity ? {driveActivity} : {}), outputEcho: events.length - before};
+      } finally {shell.off('unit-input', onInput);}
+    }, {test, expectedMinimum: expectedArtwork(test)});
+    result.screenshots = [await screenshot(test.key.replaceAll(':', '-').replaceAll('#', '-'))];
+    Object.assign(result, await evaluate(() => {
+      const shell = window.testShell, module = window.currentModule;
+      const components = module.list(), finish = window.modelProbe.watchDisposal(module.root);
       shell.detachUnit();
-      result.detached = shell.model.port('grove').module === null;
-      result.disposed = module.components.size === 0;
-      result.activityReleased = shell.driveActivities.size === 0;
-      return result;
-    }, unitId);
-    assert.equal(result.attached, true, `${unitId} attach`);
-    assert.equal(result.detached, true, `${unitId} detach`);
-    assert.equal(result.disposed, true, `${unitId} dispose`);
-    assert.equal(result.outputEcho, 0, `${unitId} output echoed as input`);
-    assert.equal(result.activityReleased, true, `${unitId} activity state disposed with its module`);
-    if (unitId === 'fan') assert.deepEqual(result.driveActivity, {moves: true, stops: true, rpmUnmodeled: true});
+      const disposal = finish(); window.currentModule = null;
+      return {detached: shell.model.port('grove').module === null && module.parentHost === null && module.attachedTo === null,
+        disposed: module.components.size === 0 && components.every(component => component.host === null),
+        activityReleased: shell.driveActivities.size === 0, disposal};
+    }));
+    assert.equal(result.attached, true, `${test.key} attach`); assert.equal(result.detached, true, `${test.key} detach`);
+    assert.equal(result.disposed, true, `${test.key} dispose`); assert.equal(result.outputEcho, 0, `${test.key} output echoed as input`);
+    assert.equal(result.activityReleased, true, `${test.key} activity state disposed with its module`);
+    if (test.id === 'fan') assert.deepEqual(result.driveActivity, {moves: true, stops: true, rpmUnmodeled: true});
     assert.ok(result.input.every(event => event.id.startsWith('grove/')));
     report.units.push(result);
+    console.log(`MODEL_UNIT_PASS ${test.key} artwork=${result.artwork.layers} leds=${result.outputs.leds.length} joints=${result.outputs.joints.length}`);
   }
-
-  const race = await page.evaluate(async () => {
+  if (full || settings.cases.includes('interactions')) {
+    await openPage('legacy-attachment-and-fallback'); await stickShell();
+    const stick = catalog.devices.find(device => device.id === 'sticks3');
+  const race = await evaluate(async () => {
     const shell = window.testShell;
     const first = shell.attachUnit('button'), second = shell.attachUnit('fan');
     const [stale, current] = await Promise.all([first, second]);
@@ -264,7 +368,7 @@ try {
   assert.deepEqual(race, { stale: true, current: true });
   report.async_attachment_race = 'PASS';
 
-  const nested = await page.evaluate(async () => {
+  const nested = await evaluate(async () => {
     const shell = window.testShell;
     const hub = await shell.attachUnit('hub');
     const children = [];
@@ -285,8 +389,8 @@ try {
   report.nested_hub_attachment_input_and_dispose = nested;
 
   // A failed WebGL context must still leave a usable legacy DOM shell.
-  const fallback = await page.evaluate(async device => {
-    window.testShell.dispose();
+  const fallback = await evaluate(async device => {
+    window.modelProbe.disposeShell();
     const original = HTMLCanvasElement.prototype.getContext;
     HTMLCanvasElement.prototype.getContext = function (type, ...args) {
       return type.startsWith('webgl') ? null : original.call(this, type, ...args);
@@ -305,12 +409,23 @@ try {
   }, stick);
   assert.deepEqual(fallback, { available: true, pixel: [2, 130, 203], sequence: 19, disposed: true });
   report.webgl_fallback = 'PASS';
-  assert.deepEqual(errors, []);
-  assert.deepEqual(missing, []);
-  report.page_errors = errors; report.missing_imports = missing;
-  await writeFile(`${output}/report.json`, JSON.stringify(report, null, 2) + '\n');
-  console.log(`PASS browser shells=${report.controllers.length} units=${report.units.length}; focus/frame/input/output/lifecycle/fallback verified; ${output}/report.json`);
+  }
+  await closePage();
+  assert.deepEqual(errors, []); assert.deepEqual(missing, []);
+  assert.deepEqual(await fingerprints(), report.integration_sha256, 'Integration source changed during browser run');
+  assert.deepEqual(await assetFingerprints(), report.runtime_asset_sha256, 'PNG source changed during browser run');
+  if (full) {assert.equal(report.controllers.length, manifest.controllers.length); assert.equal(report.units.length, manifest.units.length);}
+  for (const entry of report.catalog_configurations) for (const config of entry.configurations) {
+    if (config.status === 'SELECTED') config.status = 'PASS';
+  }
+  report.status = 'PASS';
+} catch (error) {
+  report.error = error.stack || String(error); report.failed_case = activeLabel;
 } finally {
-  await browser.close();
-  await new Promise(resolve => server.close(resolve));
+  try {await closePage();} catch (error) {report.status = 'FAIL'; report.cleanup_error = String(error);}
+  await browser.close(); await new Promise(resolve => server.close(resolve));
 }
+report.page_errors = errors; report.missing_imports = missing;
+await writeFile(`${output}/report.json`, JSON.stringify(report, null, 2) + '\n');
+console.log(`${report.status} browser shells=${report.controllers.length} units=${report.units.length} assets=${report.runtime_assets.length}; ${output}/report.json`);
+if (report.status !== 'PASS') {console.error(report.error || report.cleanup_error); process.exitCode = 1;}
