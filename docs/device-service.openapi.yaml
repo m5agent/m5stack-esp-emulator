@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.39.0
+  version: 1.40.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1806,6 +1806,49 @@ components:
           type: array
           items:
             type: string
+        program_modes:
+          type: array
+          items:
+            type: string
+            enum: [uiflow-live]
+        program_source_kinds:
+          type: array
+          items:
+            type: string
+            enum: [uiflow2-python, uiflow2-package]
+        program_features:
+          type: object
+          additionalProperties: false
+          description: >
+            Same-guest programming admission. Empty on unadmitted devices;
+            this does not grant arbitrary uploaded firmware a compatible REPL.
+            main_namespace describes the initial execution context, not a
+            replacement sys.modules.__main__ module. mpy dependencies use the
+            actual guest importer and require separate compatibility checks.
+          properties:
+            runtimes:
+              type: array
+              items:
+                type: string
+                enum: [qemu]
+            entrypoints:
+              type: array
+              items:
+                type: string
+                enum: [main.py]
+            mpy_dependencies:
+              type: string
+              enum: [bytecode-only]
+            mpy_entrypoint:
+              type: boolean
+            native_mpy:
+              type: boolean
+            main_namespace:
+              type: string
+              enum: [fresh-exec-globals]
+            cleanup_mode:
+              type: string
+              enum: [interrupt-only]
         coverage:
           type: object
           additionalProperties: true

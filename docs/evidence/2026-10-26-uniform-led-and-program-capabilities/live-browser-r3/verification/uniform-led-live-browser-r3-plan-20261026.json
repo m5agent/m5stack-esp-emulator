@@ -1,0 +1,152 @@
+{
+  "mode": "offline-plan",
+  "guest_execution": "NOT RUN",
+  "browser_execution": "NOT RUN",
+  "sessions": [
+    {
+      "id": "i2c-hub",
+      "units": [
+        "hub",
+        "encoder",
+        "8encoder"
+      ],
+      "leaves": [
+        "encoder",
+        "8encoder"
+      ]
+    },
+    {
+      "id": "rmt-rgb",
+      "units": [
+        "rgb"
+      ],
+      "leaves": [
+        "rgb"
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "phase": "A",
+      "electrical_colors": {
+        "encoder": [
+          2113632,
+          2113632
+        ],
+        "8encoder": [
+          4235296,
+          4235296,
+          4235296,
+          4235296,
+          4235296,
+          4235296,
+          4235296,
+          4235296,
+          4235296
+        ],
+        "rgb": [
+          10494016,
+          10494016,
+          10494016
+        ]
+      },
+      "visual": "known-uniform"
+    },
+    {
+      "phase": "B",
+      "electrical_colors": {
+        "encoder": [
+          3346722,
+          1131622
+        ],
+        "8encoder": [
+          1056816,
+          1122867,
+          1188918,
+          1254969,
+          1321020,
+          1387071,
+          1453122,
+          1519173,
+          1585224
+        ],
+        "rgb": [
+          1056816,
+          4214880,
+          7372944
+        ]
+      },
+      "visual": "unknown-unmapped"
+    },
+    {
+      "phase": "C",
+      "electrical_colors": {
+        "encoder": [
+          1065184,
+          1065184
+        ],
+        "8encoder": [
+          14712848,
+          14712848,
+          14712848,
+          14712848,
+          14712848,
+          14712848,
+          14712848,
+          14712848,
+          14712848
+        ],
+        "rgb": [
+          1101984,
+          1101984,
+          1101984
+        ]
+      },
+      "visual": "known-uniform"
+    },
+    {
+      "phase": "D",
+      "electrical_colors": {
+        "encoder": [
+          0,
+          0
+        ],
+        "8encoder": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "rgb": [
+          0,
+          0,
+          0
+        ]
+      },
+      "visual": "known-uniform"
+    }
+  ],
+  "led_components": "2 Encoder + 9 8Encoder + 3 RGB; no index permutation or angle claim",
+  "transport_negative": "Browser-only HTTP 503, independent real HTTP/QOM stays live; then recover without program replacement",
+  "prerequisites": [
+    "M5_UNIT_SERVICE_E2E=1",
+    "M5_EXPECTED_RUNTIME_SHA256=<frozen sha256>",
+    "M5_EXPECTED_SERVICE_PID=<reloaded service pid>",
+    "M5_EXPECTED_WORKER_GENERATION=<reloaded generation>",
+    "M5_UNIFORM_LED_LIVE_BROWSER_OUT=<new directory>"
+  ],
+  "assertions": [
+    "actual /devices program_features and main.mpy 409 without new execution",
+    "fresh UART + independent QOM + all mounted LED materials",
+    "known=false distinguishes unknown from electrical off",
+    "raw electrical array readback survives unknown",
+    "zero unit-input echo",
+    "same VM/PID/firmware + source/revision/frame identity",
+    "evidence ZIP before purge=0 stop; Flash released"
+  ]
+}

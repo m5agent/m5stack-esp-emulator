@@ -1,0 +1,39 @@
+{
+  "category": "root-manual-image-review",
+  "status": "PASS_WITH_LIMITS",
+  "method": "view_image original archived image bytes",
+  "images": [
+    {
+      "path": "live-browser-r3/run/i2c-hub/A-iso-browser.png",
+      "sha256": "b540378893640f0c9f532544393ad48e03852ddb924a6f13ac1d88c8bd885418"
+    },
+    {
+      "path": "live-browser-r3/run/i2c-hub/C-front-render.png",
+      "sha256": "dd1e71c57213f110d71b6be28cb3e429c6e0efb3f6aaef37c62a0264ef589d17"
+    },
+    {
+      "path": "live-browser-r3/run/rmt-rgb/C-iso-browser.png",
+      "sha256": "d9350a9147170a80ac3085c9e00659b2236d682c6ab43ea4a9454cb41852bbc7"
+    },
+    {
+      "path": "live-browser-r3/run/rmt-rgb/C-transport-unknown-rgb-panel.png",
+      "sha256": "057cdcfbc3dc33022fab9145af62e505745bf70c0bd5c556d2e0362ae5bbc1c6"
+    },
+    {
+      "path": "main-mpy/guest/frame.png",
+      "sha256": "17b94fe5b266accb83447a20bf899f5e66f78273001fffeda1433cdde302a25f"
+    }
+  ],
+  "accepted": [
+    "RGB C three cyan-green lamps are visibly lit",
+    "HUB assembly and host present inside canvas",
+    "transport failure panel explicitly marks unknown and withdrawn model colors",
+    "main.mpy research recovery uses actual solid frame"
+  ],
+  "remaining": [
+    "HUB natural occlusion varies by view",
+    "Encoder diffusion closeup readability not accepted",
+    "No claim of all 14 lamps simultaneously optically discernible",
+    "No physical optical/electrical measurement"
+  ]
+}

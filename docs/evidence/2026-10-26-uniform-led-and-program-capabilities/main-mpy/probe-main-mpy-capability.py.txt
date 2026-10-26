@@ -1,0 +1,237 @@
+"""One visible CoreS3 session: inspect real import(False) capability only."""
+import base64
+from datetime import datetime, timezone
+import hashlib
+import io
+import json
+from pathlib import Path, PurePosixPath
+import subprocess
+import sys
+import uuid
+import zipfile
+from PIL import Image
+
+ROOT = Path.cwd()
+sys.path[:0] = [str(ROOT / 'tests/units'), str(ROOT / 'platform/tools')]
+from run_live_program import ProbeClient, poll, require, save
+from run_host_cases import runtime_provenance
+from run_live_package import package_payload, revision_id
+from mpy_bytecode import validate_bytecode
+
+OUT = ROOT / '.work/main-mpy-capability-live-r2-20261026'
+OUT.mkdir(exist_ok=False)
+sha = lambda data: hashlib.sha256(data).hexdigest()
+compiler = ROOT / '.work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/mpy-cross/build/mpy-cross'
+compiler_sha = 'c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b'
+require(sha(compiler.read_bytes()) == compiler_sha, 'official compiler differs')
+runtime_sha = 'b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2'
+frozen_names = ('platform/tools/uiflow_runtime.py', 'platform/tools/uiflow_package_runtime.py',
+                'platform/tools/device_service.py', 'platform/tools/program_packages.py',
+                'platform/tools/mpy_bytecode.py', 'platform/tools/micropython_repl.py')
+frozen = {name: sha((ROOT / name).read_bytes()) for name in frozen_names}
+save(OUT / 'source-freeze-before.json', frozen)
+report = {'schema_version': 1, 'status': 'FAIL', 'category': 'virtual-device capability feasibility probe',
+          'hardware_validation': 'NOT RUN', 'started_at': datetime.now(timezone.utc).isoformat(),
+          'device_id': 'cores3', 'runtime': 'qemu', 'executions': [], 'observations': [],
+          'runner_sha256': sha(Path(__file__).read_bytes()), 'compiler_sha256': compiler_sha}
+nonce = '/m5-mpy-main-capability-' + uuid.uuid4().hex
+marker = 'MAIN_MPY_CAP_' + uuid.uuid4().hex[:12]
+plain_name, mpy_name = '_m5_cap_plain', '_m5_cap_bytecode'
+
+def module_source(name):
+    return f'''import sys
+GUARD_EXECUTED = False
+if __name__ == '__main__':
+ GUARD_EXECUTED = True
+_self = sys.modules.get({name!r})
+_main = __import__('__main__')
+RESULT = {{'name': __name__, 'file': __file__, 'guard_executed': GUARD_EXECUTED,
+ 'self_id': id(_self), 'import_main_id': id(_main),
+ 'sys_main_is_self': sys.modules.get('__main__') is _self, 'import_main_is_self': _main is _self}}
+'''
+
+mpy_source = module_source(mpy_name)
+(OUT / (mpy_name + '.py')).write_text(mpy_source)
+compile_command = [str(compiler), '-msmall-int-bits=31', '-s', mpy_name + '.py', '-o',
+                   str(OUT / (mpy_name + '.mpy')), str(OUT / (mpy_name + '.py'))]
+compiled = subprocess.run(compile_command, capture_output=True, check=True, timeout=30)
+mpy_bytes = (OUT / (mpy_name + '.mpy')).read_bytes()
+require(mpy_bytes[:4] == b'M\x06\x00\x1f', 'not pure bytecode v6/31bit')
+validate_bytecode(mpy_bytes)
+save(OUT / 'compiler.json', {'command': compile_command, 'source_sha256': sha(mpy_source.encode()),
+                           'mpy_sha256': sha(mpy_bytes), 'header': list(mpy_bytes[:4]),
+                           'compiler_built': False, 'compiler_reused': True})
+
+initial = f'''import sys, json
+sys.path.append({nonce!r})
+_owner = __import__('__main__')
+_cap = {{'mpy': getattr(sys.implementation, '_mpy', None), 'maxsize': sys.maxsize,
+ 'owner_id': id(_owner), 'owner_name': _owner.__name__, 'main_cache_present': '__main__' in sys.modules}}
+try:
+ _marshal = __import__('marshal')
+ _cap['marshal'] = 'available'
+except BaseException as _err:
+ _cap['marshal'] = type(_err).__name__ + ':' + str(_err)
+print({marker + ' INITIAL '!r} + json.dumps(_cap))
+print({marker + ' DONE initial'!r})
+'''
+main = f'''import sys, os, json
+assert {nonce!r} in sys.path, 'VM nonce missing'
+_rows = []
+for _name in ({plain_name!r}, {mpy_name!r}):
+ _present = '__main__' in sys.modules
+ _cached = sys.modules.get('__main__')
+ _owner = __import__('__main__')
+ _row = {{'module': _name, 'owner_id_before': id(_owner), 'main_cache_present_before': _present}}
+ try:
+  _mod = __import__(_name, None, None, False)
+  _row['result'] = _mod.RESULT
+  _row['status'] = 'imported'
+ except BaseException as _err:
+  _row['status'] = 'raised'
+  _row['exception'] = type(_err).__name__ + ':' + str(_err)
+ finally:
+  if _present:
+   sys.modules['__main__'] = _cached
+  else:
+   sys.modules.pop('__main__', None)
+ _row['owner_id_after'] = id(__import__('__main__'))
+ _row['main_cache_restored'] = ('__main__' in sys.modules) == _present and (not _present or sys.modules['__main__'] is _cached)
+ assert _row['main_cache_restored'] and _row['owner_id_after'] == _row['owner_id_before']
+ _rows.append(_row)
+_negative_level = None
+try:
+ __import__({plain_name!r}, None, None, None, -1)
+except BaseException as _err:
+ _negative_level = type(_err).__name__ + ':' + str(_err)
+print({marker + ' IMPORT_FALSE '!r} + json.dumps({{'modules': _rows, 'negative_level': _negative_level, 'cwd': os.getcwd(), 'mpy': getattr(sys.implementation, '_mpy', None)}}))
+print({marker + ' DONE package'!r})
+'''
+files = {'main.py': main.encode(), plain_name + '.py': module_source(plain_name).encode(), mpy_name + '.mpy': mpy_bytes}
+save(OUT / 'package-inventory.json', {name: {'size': len(data), 'sha256': sha(data)} for name, data in files.items()})
+(OUT / 'main.py').write_text(main)
+(OUT / (plain_name + '.py')).write_text(module_source(plain_name))
+client = ProbeClient('http://127.0.0.1:8787', OUT)
+session_id = None
+expected = None
+
+def phase(name, payload):
+    global expected
+    before = client.json(prefix + '/serial?offset=0&limit=1048576')
+    payload['expected_execution_id'] = expected
+    started = client.json(prefix + '/program', 'POST', payload)
+    expected = started['program']['execution_id']
+    def current():
+        value = client.json(prefix + '/program')['program']
+        require(value['execution_id'] == expected and value['pid'] == report['pid']
+                and value['firmware_sha256'] == report['firmware_sha256'], 'program identity changed')
+        return value
+    completed = poll(current, lambda row: row['state'] in {'completed', 'failed', 'unknown', 'cancelled'}, 60)
+    require(completed['state'] == 'completed', 'capability probe source failed: ' + str(completed))
+    serial = client.json(prefix + f"/serial?offset={before['next_offset']}&limit=1048576")
+    require(marker + ' DONE ' + name in serial['data'], 'fresh capability phase marker missing')
+    require('__M5_EXEC_' + expected + '__:START' in serial['data'] and '__M5_EXEC_' + expected + '__:DONE' in serial['data'], 'execution markers missing')
+    snapshot = client.json(prefix)
+    require(all(snapshot[key] == report[key] for key in ('pid', 'firmware_sha256', 'worker')), 'VM owner changed')
+    provenance = runtime_provenance(client, session_id, runtime_sha)
+    report['executions'].append(completed)
+    report['observations'].append({'phase': name, 'serial': serial, 'before_offset': before['next_offset'],
+                                   'before_prefix_sha256': sha(before['data'].encode()), 'runtime_provenance': provenance})
+    save(OUT / 'report.json', report)
+    return serial['data']
+
+def row(text, label):
+    prefix = marker + ' ' + label + ' '
+    found = [json.loads(line[len(prefix):]) for line in text.splitlines() if line.startswith(prefix)]
+    require(len(found) == 1, 'one capability record required: ' + label)
+    return found[0]
+
+try:
+    health = client.json('health')
+    require(health['capacity']['worker']['generation'] == 30, 'service generation changed')
+    report['health_before'] = health
+    created = client.json('sessions', 'POST', {'device_id': 'cores3', 'runtime': 'qemu', 'program_mode': 'uiflow-live',
+                                              'ttl_seconds': 300, 'ready_timeout_seconds': 40})
+    session_id = created['session_id']; prefix = 'sessions/' + session_id
+    save(OUT / 'created.json', created)
+    ready = poll(lambda: client.json(prefix), lambda r: r['state'] in {'running', 'failed', 'stopped'}, 90)
+    require(ready['state'] == 'running', 'guest did not boot')
+    report.update(session_id=session_id, pid=ready['pid'], firmware_sha256=ready['firmware_sha256'], worker=ready['worker'])
+    report['initial_runtime_provenance'] = runtime_provenance(client, session_id, runtime_sha)
+    boot_serial = client.json(prefix + '/serial?offset=0&limit=1048576')
+    report['rom_banners'] = boot_serial['data'].count('ESP-ROM:')
+    require(boot_serial['data'].count('M5EMU_UART_REPL_READY') == 1, 'bootstrap absent')
+    report['initial_capabilities'] = row(phase('initial', {'source': initial, 'timeout_seconds': 20}), 'INITIAL')
+    report['import_false_capabilities'] = row(phase('package', package_payload(files, expected)), 'IMPORT_FALSE')
+    initial_owner = report['initial_capabilities']['owner_id']
+    recovery = f'''import sys, json, M5
+assert {nonce!r} in sys.path, 'VM nonce missing'
+_owner = __import__('__main__')
+assert id(_owner) == {initial_owner}, 'REPL owner changed'
+M5.begin()
+M5.Display.setBrightness(255)
+M5.Display.fillScreen(0x123456)
+print({marker + ' RECOVERY '!r} + json.dumps({{'name': __name__, 'file': __file__, 'owner_id': id(_owner), 'mpy': getattr(sys.implementation, '_mpy', None), 'nonce_retained': {nonce!r} in sys.path}}))
+print({marker + ' DONE recovery'!r})
+'''
+    (OUT / 'initial.py').write_text(initial); (OUT / 'recovery.py').write_text(recovery)
+    report['recovery'] = row(phase('recovery', {'source': recovery, 'timeout_seconds': 20}), 'RECOVERY')
+    require(report['recovery']['nonce_retained'] and report['recovery']['owner_id'] == initial_owner, 'source recovery failed')
+    frame = client.raw(prefix + '/frame.png'); (OUT / 'frame.png').write_bytes(frame)
+    with Image.open(io.BytesIO(frame)) as image:
+        image.load()
+        colors = sum(all(abs(a-b) <= 8 for a,b in zip(pixel, (0x12,0x34,0x56))) for pixel in image.convert('RGB').getdata())
+        require(colors >= image.width * image.height * .9, 'recovery framebuffer missing')
+        report['frame'] = {'sha256': sha(frame), 'size': list(image.size), 'recovery_color_pixels': colors}
+    data = client.raw(prefix + '/evidence'); (OUT / 'evidence.zip').write_bytes(data)
+    with zipfile.ZipFile(io.BytesIO(data)) as archive:
+        names = archive.namelist(); require(len(names) == len(set(names)) and archive.testzip() is None, 'bad ZIP')
+        for name in names:
+            path = PurePosixPath(name)
+            require(path.as_posix() == name and not path.is_absolute() and '..' not in path.parts and '\\' not in name, 'unsafe ZIP member')
+        manifest = json.loads(archive.read('manifest.json'))
+        require(set(manifest['files']) == set(names) - {'manifest.json'}, 'ZIP index differs')
+        for name, entry in manifest['files'].items():
+            content = archive.read(name)
+            require(len(content) == entry['size'] and sha(content) == entry['sha256'], 'ZIP member differs')
+        require(all(manifest['session'][key] == report[key] for key in ('session_id', 'pid', 'firmware_sha256', 'worker')), 'ZIP identity differs')
+        serial_raw = archive.read('serial.log')
+        require(serial_raw.decode(errors='replace').count('ESP-ROM:') == report['rom_banners'] and serial_raw.decode(errors='replace').count('M5EMU_UART_REPL_READY') == 1, 'VM boot repeated')
+        for record, observation in zip(report['executions'], report['observations']):
+            saved = json.loads(archive.read('programs/' + record['execution_id'] + '.json'))
+            require(all(saved[key] == record[key] for key in ('execution_id', 'revision_id', 'pid', 'firmware_sha256', 'state')), 'saved execution differs')
+            window = observation['serial']; start = observation['before_offset']; end = window['next_offset']
+            require(window['offset'] == start and serial_raw[start:end].decode(errors='replace') == window['data'], 'serial byte window differs')
+            require(sha(serial_raw[:start].decode(errors='replace').encode()) == observation['before_prefix_sha256'], 'serial prefix differs')
+        package_revision = report['executions'][1]['revision_id']
+        require(package_revision == revision_id(files), 'canonical package revision differs')
+        for path, content in files.items():
+            require(archive.read('programs/' + package_revision + '/files/' + path) == content, 'retained package bytes differ')
+        require(archive.read('frames/current.png') == frame, 'ZIP frame differs')
+        report['evidence'] = {'members': len(names), 'sha256': sha(data), 'byte_windows_verified': True, 'package_bytes_verified': True}
+    report['status'] = 'PASS'
+except Exception as error:
+    report['error'] = str(error)
+finally:
+    if session_id:
+        try:
+            if not (OUT / 'evidence.zip').exists():
+                (OUT / 'failure-evidence.zip').write_bytes(client.raw(prefix + '/evidence'))
+        except Exception as error:
+            report.update(status='FAIL', evidence_error=str(error))
+        try:
+            client.json(prefix + '?purge=0', 'DELETE')
+            stopped = poll(lambda: client.json(prefix), lambda s: s['state'] in {'stopped', 'failed'}, 40)
+            require(stopped['state'] == 'stopped' and stopped['flash_retained'] is False and stopped['last_frame_available'] is True, 'history cleanup failed')
+            save(OUT / 'stopped.json', stopped)
+            report['cleanup'] = {'state': stopped['state'], 'flash_retained': stopped['flash_retained'], 'last_frame_available': stopped['last_frame_available']}
+        except Exception as error:
+            report.update(status='FAIL', cleanup_error=str(error))
+    after = {name: sha((ROOT / name).read_bytes()) for name in frozen_names}
+    save(OUT / 'source-freeze-after.json', after)
+    report['production_sources_unchanged'] = after == frozen
+    report['compiler_unchanged'] = sha(compiler.read_bytes()) == compiler_sha
+    report['finished_at'] = datetime.now(timezone.utc).isoformat()
+    save(OUT / 'report.json', report)
+print(json.dumps({'status': report['status'], 'session_id': session_id, 'import_false_capabilities': report.get('import_false_capabilities'), 'error': report.get('error')}))
+require(report['status'] == 'PASS', report.get('error') or report.get('cleanup_error') or 'probe failed')

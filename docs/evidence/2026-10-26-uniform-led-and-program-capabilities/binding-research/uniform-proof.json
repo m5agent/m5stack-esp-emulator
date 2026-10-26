@@ -1,0 +1,54 @@
+{
+  "category": "host-only-permutation-invariance-proof",
+  "status": "PASS",
+  "guest_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "proofs": [
+    {
+      "led_count": 2,
+      "permutations_checked": 2,
+      "uniform_vectors_per_permutation": 5,
+      "uniform_invariance": "PASS (mathematical, host-only)",
+      "nonuniform_counterexample": {
+        "identity_result": [
+          16711680,
+          65280
+        ],
+        "swap_first_two_result": [
+          65280,
+          16711680
+        ]
+      }
+    },
+    {
+      "led_count": 9,
+      "permutations_checked": 362880,
+      "uniform_vectors_per_permutation": 5,
+      "uniform_invariance": "PASS (mathematical, host-only)",
+      "nonuniform_counterexample": {
+        "identity_result": [
+          16711680,
+          65280,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "swap_first_two_result": [
+          65280,
+          16711680,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

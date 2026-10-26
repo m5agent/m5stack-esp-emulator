@@ -1,0 +1,9 @@
+import sys
+GUARD_EXECUTED = False
+if __name__ == '__main__':
+ GUARD_EXECUTED = True
+_self = sys.modules.get('_m5_cap_bytecode')
+_main = __import__('__main__')
+RESULT = {'name': __name__, 'file': __file__, 'guard_executed': GUARD_EXECUTED,
+ 'self_id': id(_self), 'import_main_id': id(_main),
+ 'sys_main_is_self': sys.modules.get('__main__') is _self, 'import_main_is_self': _main is _self}

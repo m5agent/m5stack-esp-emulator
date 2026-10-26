@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "category": "virtual-device capability feasibility probe",
+  "hardware_validation": "NOT RUN",
+  "started_at": "2026-10-26T14:09:07.850780+00:00",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "executions": [
+    {
+      "execution_id": "a04da844b95941629815e8d32004d983",
+      "revision_id": "eff7bb97ce9925a982b95b2371d9c9ceab57b5569517ed1317aa3625b05dc46e",
+      "source_sha256": "d71fd5fd056249431d0ef7c231420597201e3b7452c782cf40c90a757a22f487",
+      "source_bytes": 580,
+      "state": "completed",
+      "submitted_at": "2026-10-26T14:09:10.013769+00:00",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 70868,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 490,
+      "next_offset": 553,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T14:09:10.360991+00:00"
+    },
+    {
+      "execution_id": "8449ed4a88f5424894a36c45d77cd6d1",
+      "revision_id": "6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d",
+      "source_sha256": "8c40963a377f15ff0a4bc3183201c8f9426dc229d5dedf82e9dc73ba48189c17",
+      "source_bytes": 1419,
+      "state": "completed",
+      "submitted_at": "2026-10-26T14:09:10.376810+00:00",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 70868,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 2223,
+      "source_kind": "uiflow2-package",
+      "total_file_bytes": 2143,
+      "file_count": 3,
+      "deployment": {
+        "phase": "activated",
+        "staging_path": "/flash/.m5-live-packages/.stage-8e009f632cac4f7f943754e28950ffb7",
+        "package_path": "/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d",
+        "events": [
+          {
+            "phase": "preflight",
+            "staging_path": "/flash/.m5-live-packages/.stage-8e009f632cac4f7f943754e28950ffb7",
+            "package_path": "/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d",
+            "observed_at": "2026-10-26T14:09:10.488798+00:00"
+          },
+          {
+            "phase": "capabilities",
+            "capabilities": {
+              "existing": false,
+              "directory_count": 0,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4800512
+            },
+            "observed_at": "2026-10-26T14:09:10.776441+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "_m5_cap_bytecode.mpy",
+            "written_bytes": 338,
+            "observed_at": "2026-10-26T14:09:11.153854+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "_m5_cap_plain.py",
+            "written_bytes": 724,
+            "observed_at": "2026-10-26T14:09:11.346396+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "main.py",
+            "written_bytes": 2143,
+            "observed_at": "2026-10-26T14:09:11.781592+00:00"
+          },
+          {
+            "phase": "verified",
+            "inventory": {
+              "_m5_cap_plain.py": {
+                "size": 386,
+                "sha256": "d2918558a2afe5ccb2aa5557f321aac63094ca0ed44e80aa372c78e41cfa9e40"
+              },
+              "_m5_cap_bytecode.mpy": {
+                "size": 338,
+                "sha256": "d051ed641e0fae7911947f3fe1945347b8101c5e4a504f173a732682d0e6de1e"
+              },
+              "main.py": {
+                "size": 1419,
+                "sha256": "53f3ebeb6fe1d9d04bdc490137695da93fd0c75e8399e8f164ecc87b64a21042"
+              }
+            },
+            "observed_at": "2026-10-26T14:09:11.876721+00:00"
+          },
+          {
+            "phase": "published",
+            "inventory": {
+              "_m5_cap_plain.py": {
+                "size": 386,
+                "sha256": "d2918558a2afe5ccb2aa5557f321aac63094ca0ed44e80aa372c78e41cfa9e40"
+              },
+              "_m5_cap_bytecode.mpy": {
+                "size": 338,
+                "sha256": "d051ed641e0fae7911947f3fe1945347b8101c5e4a504f173a732682d0e6de1e"
+              },
+              "main.py": {
+                "size": 1419,
+                "sha256": "53f3ebeb6fe1d9d04bdc490137695da93fd0c75e8399e8f164ecc87b64a21042"
+              }
+            },
+            "reused": false,
+            "observed_at": "2026-10-26T14:09:11.915609+00:00"
+          },
+          {
+            "phase": "activated",
+            "package_path": "/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d",
+            "inventory": {
+              "_m5_cap_plain.py": {
+                "size": 386,
+                "sha256": "d2918558a2afe5ccb2aa5557f321aac63094ca0ed44e80aa372c78e41cfa9e40"
+              },
+              "_m5_cap_bytecode.mpy": {
+                "size": 338,
+                "sha256": "d051ed641e0fae7911947f3fe1945347b8101c5e4a504f173a732682d0e6de1e"
+              },
+              "main.py": {
+                "size": 1419,
+                "sha256": "53f3ebeb6fe1d9d04bdc490137695da93fd0c75e8399e8f164ecc87b64a21042"
+              }
+            },
+            "reused": false,
+            "capabilities": {
+              "existing": false,
+              "directory_count": 0,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4800512
+            },
+            "removed_modules": [],
+            "staging_path": "/flash/.m5-live-packages/.stage-8e009f632cac4f7f943754e28950ffb7",
+            "observed_at": "2026-10-26T14:09:12.208334+00:00"
+          }
+        ],
+        "capabilities": {
+          "existing": false,
+          "directory_count": 0,
+          "mpy": 11014,
+          "small_int_bits": 31,
+          "free_bytes": 4800512
+        },
+        "path": "main.py",
+        "written_bytes": 2143,
+        "inventory": {
+          "_m5_cap_plain.py": {
+            "size": 386,
+            "sha256": "d2918558a2afe5ccb2aa5557f321aac63094ca0ed44e80aa372c78e41cfa9e40"
+          },
+          "_m5_cap_bytecode.mpy": {
+            "size": 338,
+            "sha256": "d051ed641e0fae7911947f3fe1945347b8101c5e4a504f173a732682d0e6de1e"
+          },
+          "main.py": {
+            "size": 1419,
+            "sha256": "53f3ebeb6fe1d9d04bdc490137695da93fd0c75e8399e8f164ecc87b64a21042"
+          }
+        },
+        "reused": false,
+        "removed_modules": []
+      },
+      "next_offset": 2282,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T14:09:12.535920+00:00"
+    },
+    {
+      "execution_id": "8117135d14954300a5465d05c5abd8c8",
+      "revision_id": "96661707b93e13067d397f431e256a8c13e4ca737dd59a86a3e16f41d3c5e8f5",
+      "source_sha256": "0af63fdf0ef52510f04033cb1a08fe4603bfd30ef5d5ef2a7d43bd7b726dda68",
+      "source_bytes": 587,
+      "state": "completed",
+      "submitted_at": "2026-10-26T14:09:12.549951+00:00",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 70868,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 3550,
+      "next_offset": 3613,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T14:09:12.947590+00:00"
+    }
+  ],
+  "observations": [
+    {
+      "phase": "initial",
+      "serial": {
+        "session_id": "8218e02e1dfe43a494f2ed8e54d7f008",
+        "offset": 443,
+        "next_offset": 853,
+        "data": "\r\n>>> \r\n>>> \r\n>>> \r\nraw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_a04da844b95941629815e8d32004d983__:START\r\nMAIN_MPY_CAP_94cb83374d5f INITIAL {\"owner_id\": 1013359328, \"mpy\": 11014, \"owner_name\": \"__main__\", \"main_cache_present\": false, \"maxsize\": 2147483647, \"marshal\": \"ImportError:no module named 'marshal'\"}\r\nMAIN_MPY_CAP_94cb83374d5f DONE initial\r\n__M5_EXEC_a04da844b95941629815e8d32004d983__:DONE\r\n\u0004\u0004>",
+        "bytes": 410
+      },
+      "before_offset": 443,
+      "before_prefix_sha256": "098c3c6f5fc5a2a7d9ea3ba28f19c3752c1970e859c88fc9e70bec764745b98f",
+      "runtime_provenance": {
+        "schema_version": 1,
+        "status": "PASS",
+        "session_id": "8218e02e1dfe43a494f2ed8e54d7f008",
+        "pid": 70868,
+        "method": "macOS-proc_pidpath",
+        "captured_at": "2026-10-26T14:09:10.373912+00:00",
+        "expected_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+        "observed_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+        "executable_name": "qemu-system-xtensa",
+        "hardware_validation": false
+      }
+    },
+    {
+      "phase": "package",
+      "serial": {
+        "session_id": "8218e02e1dfe43a494f2ed8e54d7f008",
+        "offset": 853,
+        "next_offset": 3523,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_PKG_d3b6394dcab24bf4ad6c370820b434d4:{\"existing\": false, \"directory_count\": 0, \"mpy\": 11014, \"small_int_bits\": 31, \"free_bytes\": 4800512}\r\n\u0004\u0004>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_PKG_6f2278a50e2e4cbcb580ef9c409b6579:true\r\n\u0004\u0004>R\u0001�\u0000\u0001\u0001\u0004__M5_PKG_a081cd41b0e447e181b3c62251eb8df1:true\r\n\u0004\u0004>R\u0001�\u0000\u0001\u0001\u0004__M5_PKG_bdd5afa731e044a2923ff3860261cd50:true\r\n\u0004\u0004>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_PKG_055e449cf1c442c7ac823571b1ede35e:338\r\n\u0004\u0004>R\u0001�\u0000\u0001\u0001\u0004__M5_PKG_62847b6dd95547638aa133672642ee63:true\r\n\u0004\u0004>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_PKG_51c3bc6deb7745a28f1bb9f5f8b337dd:386\r\n\u0004\u0004>R\u0001�\u0000\u0001\u0001\u0004__M5_PKG_e62eb581fd93488b9db826c882559482:true\r\n\u0004\u0004>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_PKG_313b900e61f44651bff3affc06fb905d:1419\r\n\u0004\u0004>R\u0001�\u0000\u0001\u0001\u0004__M5_PKG_dbc29ec4d9df4e1d9de063fd9feccdf6:{\"files\": {\"_m5_cap_plain.py\": {\"size\": 386, \"sha256\": \"d2918558a2afe5ccb2aa5557f321aac63094ca0ed44e80aa372c78e41cfa9e40\"}, \"_m5_cap_bytecode.mpy\": {\"size\": 338, \"sha256\": \"d051ed641e0fae7911947f3fe1945347b8101c5e4a504f173a732682d0e6de1e\"}, \"main.py\": {\"size\": 1419, \"sha256\": \"53f3ebeb6fe1d9d04bdc490137695da93fd0c75e8399e8f164ecc87b64a21042\"}}, \"directories\": []}\r\n\u0004\u0004>R\u0001�\u0000\u0001\u0001\u0004__M5_PKG_230175e49f01468ca9c39489e3ea2eed:true\r\n\u0004\u0004>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_PKG_dc4c5a8b4f314ba6b56e1ad273470390:{\"removed_modules\": [], \"cwd\": \"/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d\"}\r\n\u0004\u0004>raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0004__M5_EXEC_8449ed4a88f5424894a36c45d77cd6d1__:START\r\nMAIN_MPY_CAP_94cb83374d5f IMPORT_FALSE {\"modules\": [{\"owner_id_before\": 1013359328, \"status\": \"imported\", \"module\": \"_m5_cap_plain\", \"result\": {\"name\": \"_m5_cap_plain\", \"import_main_id\": 1013359328, \"guard_executed\": false, \"self_id\": 1016541824, \"file\": \"/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d/_m5_cap_plain.py\", \"sys_main_is_self\": false, \"import_main_is_self\": false}, \"owner_id_after\": 1013359328, \"main_cache_restored\": true, \"main_cache_present_before\": false}, {\"owner_id_before\": 1013359328, \"status\": \"imported\", \"module\": \"_m5_cap_bytecode\", \"result\": {\"name\": \"_m5_cap_bytecode\", \"import_main_id\": 1013359328, \"guard_executed\": false, \"self_id\": 1016545376, \"file\": \"/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d/_m5_cap_bytecode.mpy\", \"sys_main_is_self\": false, \"import_main_is_self\": false}, \"owner_id_after\": 1013359328, \"main_cache_restored\": true, \"main_cache_present_before\": false}], \"cwd\": \"/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d\", \"mpy\": 11014, \"negative_level\": \"ValueError:\"}\r\nMAIN_MPY_CAP_94cb83374d5f DONE package\r\n__M5_EXEC_8449ed4a88f5424894a36c45d77cd6d1__:DONE\r\n\u0004\u0004>",
+        "bytes": 2670
+      },
+      "before_offset": 853,
+      "before_prefix_sha256": "538a8fb0c6b10fc89a980840a730561c48917bd4e851fc5bfbc1aff56df4d253",
+      "runtime_provenance": {
+        "schema_version": 1,
+        "status": "PASS",
+        "session_id": "8218e02e1dfe43a494f2ed8e54d7f008",
+        "pid": 70868,
+        "method": "macOS-proc_pidpath",
+        "captured_at": "2026-10-26T14:09:12.546955+00:00",
+        "expected_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+        "observed_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+        "executable_name": "qemu-system-xtensa",
+        "hardware_validation": false
+      }
+    },
+    {
+      "phase": "recovery",
+      "serial": {
+        "session_id": "8218e02e1dfe43a494f2ed8e54d7f008",
+        "offset": 3523,
+        "next_offset": 3848,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_8117135d14954300a5465d05c5abd8c8__:START\r\nMAIN_MPY_CAP_94cb83374d5f RECOVERY {\"mpy\": 11014, \"nonce_retained\": true, \"file\": \"main.py\", \"owner_id\": 1013359328, \"name\": \"__main__\"}\r\nMAIN_MPY_CAP_94cb83374d5f DONE recovery\r\n__M5_EXEC_8117135d14954300a5465d05c5abd8c8__:DONE\r\n\u0004\u0004>",
+        "bytes": 325
+      },
+      "before_offset": 3523,
+      "before_prefix_sha256": "24b43f8dd438fab8c3c103e143895abba1919e1a3079738b1ccdbb42d5299c07",
+      "runtime_provenance": {
+        "schema_version": 1,
+        "status": "PASS",
+        "session_id": "8218e02e1dfe43a494f2ed8e54d7f008",
+        "pid": 70868,
+        "method": "macOS-proc_pidpath",
+        "captured_at": "2026-10-26T14:09:12.959446+00:00",
+        "expected_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+        "observed_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+        "executable_name": "qemu-system-xtensa",
+        "hardware_validation": false
+      }
+    }
+  ],
+  "runner_sha256": "2ee96d042e4f29f617e9fdb73020357ad73953143360649912b9a0055d825c69",
+  "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+  "health_before": {
+    "ok": true,
+    "service": "m5stack-device-service",
+    "api_version": "v1",
+    "capacity": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "f56f51c8eecf4590bf23a0b448147ae2",
+        "generation": 30,
+        "state": "ready",
+        "pid": 67503,
+        "started_at": "2026-10-26T13:50:56.174288+00:00",
+        "heartbeat_at": "2026-10-26T14:09:03.019999+00:00",
+        "heartbeat_age_seconds": 4.851,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    }
+  },
+  "session_id": "8218e02e1dfe43a494f2ed8e54d7f008",
+  "pid": 70868,
+  "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 30,
+    "lease_active": true
+  },
+  "initial_runtime_provenance": {
+    "schema_version": 1,
+    "status": "PASS",
+    "session_id": "8218e02e1dfe43a494f2ed8e54d7f008",
+    "pid": 70868,
+    "method": "macOS-proc_pidpath",
+    "captured_at": "2026-10-26T14:09:10.009928+00:00",
+    "expected_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+    "observed_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+    "executable_name": "qemu-system-xtensa",
+    "hardware_validation": false
+  },
+  "rom_banners": 1,
+  "initial_capabilities": {
+    "owner_id": 1013359328,
+    "mpy": 11014,
+    "owner_name": "__main__",
+    "main_cache_present": false,
+    "maxsize": 2147483647,
+    "marshal": "ImportError:no module named 'marshal'"
+  },
+  "import_false_capabilities": {
+    "modules": [
+      {
+        "owner_id_before": 1013359328,
+        "status": "imported",
+        "module": "_m5_cap_plain",
+        "result": {
+          "name": "_m5_cap_plain",
+          "import_main_id": 1013359328,
+          "guard_executed": false,
+          "self_id": 1016541824,
+          "file": "/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d/_m5_cap_plain.py",
+          "sys_main_is_self": false,
+          "import_main_is_self": false
+        },
+        "owner_id_after": 1013359328,
+        "main_cache_restored": true,
+        "main_cache_present_before": false
+      },
+      {
+        "owner_id_before": 1013359328,
+        "status": "imported",
+        "module": "_m5_cap_bytecode",
+        "result": {
+          "name": "_m5_cap_bytecode",
+          "import_main_id": 1013359328,
+          "guard_executed": false,
+          "self_id": 1016545376,
+          "file": "/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d/_m5_cap_bytecode.mpy",
+          "sys_main_is_self": false,
+          "import_main_is_self": false
+        },
+        "owner_id_after": 1013359328,
+        "main_cache_restored": true,
+        "main_cache_present_before": false
+      }
+    ],
+    "cwd": "/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d",
+    "mpy": 11014,
+    "negative_level": "ValueError:"
+  },
+  "recovery": {
+    "mpy": 11014,
+    "nonce_retained": true,
+    "file": "main.py",
+    "owner_id": 1013359328,
+    "name": "__main__"
+  },
+  "frame": {
+    "sha256": "17b94fe5b266accb83447a20bf899f5e66f78273001fffeda1433cdde302a25f",
+    "size": [
+      320,
+      240
+    ],
+    "recovery_color_pixels": 76800
+  },
+  "evidence": {
+    "members": 20,
+    "sha256": "c4007591780d54d2602ca05b249bbc526ea75cd421163fa058b4a5d76e524e88",
+    "byte_windows_verified": true,
+    "package_bytes_verified": true
+  },
+  "cleanup": {
+    "state": "stopped",
+    "flash_retained": false,
+    "last_frame_available": true
+  },
+  "production_sources_unchanged": true,
+  "compiler_unchanged": true,
+  "finished_at": "2026-10-26T14:09:13.134788+00:00"
+}

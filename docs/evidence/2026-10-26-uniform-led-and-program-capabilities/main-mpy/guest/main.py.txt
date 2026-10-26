@@ -1,0 +1,31 @@
+import sys, os, json
+assert '/m5-mpy-main-capability-4901de7ff0044af483e0277d6951ce55' in sys.path, 'VM nonce missing'
+_rows = []
+for _name in ('_m5_cap_plain', '_m5_cap_bytecode'):
+ _present = '__main__' in sys.modules
+ _cached = sys.modules.get('__main__')
+ _owner = __import__('__main__')
+ _row = {'module': _name, 'owner_id_before': id(_owner), 'main_cache_present_before': _present}
+ try:
+  _mod = __import__(_name, None, None, False)
+  _row['result'] = _mod.RESULT
+  _row['status'] = 'imported'
+ except BaseException as _err:
+  _row['status'] = 'raised'
+  _row['exception'] = type(_err).__name__ + ':' + str(_err)
+ finally:
+  if _present:
+   sys.modules['__main__'] = _cached
+  else:
+   sys.modules.pop('__main__', None)
+ _row['owner_id_after'] = id(__import__('__main__'))
+ _row['main_cache_restored'] = ('__main__' in sys.modules) == _present and (not _present or sys.modules['__main__'] is _cached)
+ assert _row['main_cache_restored'] and _row['owner_id_after'] == _row['owner_id_before']
+ _rows.append(_row)
+_negative_level = None
+try:
+ __import__('_m5_cap_plain', None, None, None, -1)
+except BaseException as _err:
+ _negative_level = type(_err).__name__ + ':' + str(_err)
+print('MAIN_MPY_CAP_94cb83374d5f IMPORT_FALSE ' + json.dumps({'modules': _rows, 'negative_level': _negative_level, 'cwd': os.getcwd(), 'mpy': getattr(sys.implementation, '_mpy', None)}))
+print('MAIN_MPY_CAP_94cb83374d5f DONE package')

@@ -1,0 +1,53 @@
+# UNIT-HOST-29 Encoder / 8Encoder 绑定核查（第二轮）
+
+2026-10-26；工作树 HEAD `2f44cadaa12ee1576eca455c505ca5dbfd0c423a`。
+
+结论：**整体仍 OPEN**。已有资料不足以确定两灯/九灯非同色时的物理排列，或将编码计数换算成物理轴角。可以明确实现 **全同色/全灭的 LED 读回子集**，但仍需真实 mounted 组件验证。这一研究没有启动 guest、浏览器或物理硬件，也没有修改产品或 docs。
+
+## 新核查，避免重复旧猜测
+
+按 `m5stack-assistant` 的官方 MCP `knowledge_search` 查了 U135 / U153 两组问题；两次成功，原始结果及相关摘录分别保存在 `mcp-search.json` 与 `mcp-relevant-excerpts.json`。官方检索明确指出：Encoder 图纸未给每圈脉冲/机械相位；8Encoder 只给 U1-U9 电气链，未标 RGB 与 SW1-SW9 的物理对应。
+
+进一步冻结读取官方 GitHub：
+
+- `M5_Hardware` 当前 master 是 `e29c139cbc7c80b5ccc5557e5ab8025a7a19a109`。两个产品目录均仅有 `Structures`，其内分别只有一个 STL；此处没有 PCB、Gerber、BOM 或装配位号图。仅据这些已检查目录作结论，不声称所有渠道都没有。
+- 产品页的 `UNIT_ENCODER` 链接最终是同一个 `M5Unit-Encoder@8f450800...` 驱动树，并非新的 MCU 源码。
+- `M5UnitEncoder_Firmware@4b68d8bb...` 仍只有 hex 与文档；只保存公开树 metadata，没有下载固件二进制。
+- `M5Unit-8Encoder-Internal-FW@1b307407...` 确有 MCU C 源码，但其树内没有 PCB/Gerber/BOM。已固定下载相关 C、协议 PDF 和原理图；SHA 在各 `*-sources.json` 中。
+
+依据 PDF 技能渲染并目视检查了 8Encoder 原理图及 V2 协议，亦检查了 Encoder 原图。原理图上的符号排布不能当作 PCB 布局。V2 协议把 RGB 标为 LED0..LED8、计数/按钮标为另一组 0..7，并未给出二者的物理关联表。
+
+## 具体可实现的绑定子集
+
+前提：来自实际控制器读回；`available=true` 且没有 errors；`led-rgb` 是长度恰好 2（Encoder）或 9（8Encoder）的整数数组，每项在 `0..0xFFFFFF`，并且所有项相等为 `c`。
+
+| Unit | 实际模型 target | 输出 |
+| --- | --- | --- |
+| Encoder | `${mount}/led0`, `${mount}/led1` | 每个发 `{type: 'led', color: c, on: c !== 0}` |
+| 8Encoder | `${mount}/rgb-1` 到 `${mount}/rgb-9` | 每个发同样颜色/开关命令 |
+
+依据是**排列不变性**：未知的物理排列，无论是什么，都不会改变全同色向量。`prove-uniform-bindings.py` 在 host 上枚举了 2 个/362880 个排列，每种验证全灭、红、绿、蓝及 `0x123456` 五个向量；同时保存了非同色在交换两灯后改变的反例。结果是数学证明 PASS，不是虚拟设备或硬件 PASS。
+
+**不能**因此设置默认 identity `ledTargets`。切换到不均匀颜色时，应明确显示映射不可用，不选第一灯颜色，不沿用之前的 uniform glow 冒充当前输出。若用中性外观清除视觉残留，必须标明 unavailable，不能声称实际电气灯已灭。
+
+最小真实验证应覆盖红/绿/蓝/灭、uniform → asymmetric → uniform。断言真正 mounted `Led` 的颜色/亮度/材质，Encoder 还需断言 `encoderShellDiffusion.uniforms`。只验 QOM 数组、DOM 色块或表单不构成动画闭环 PASS。
+
+## 物理模型 target 与缺失的排列
+
+Encoder `led0` 位于面向前壳的左下方，`led1` 右下方，均靠 Grove；中心 XY 为 `[-6.8,-10.4]` / `[6.8,-10.4]`。模型自己的 metadata 明确写 LED1/LED2 顺序未确认。协议 index 0 同时设置两灯，1/2 区分逻辑灯；尚无资料把它们落到这两个模型位置。
+
+8Encoder `rgb-1..8` 是 CH1..8 旁边的光导，`rgb-9` 是开关旁。坐标约定 +Y 朝开关，CH1 靠 Grove。固定 C 源码证明 `0x70+3*i` → `neopixel_set_color(i)`，发链顺序为 i 递增；原理图证明 U1 → U2 → ... → U9。**缺少的是 U1-U9 → CH1-CH8/开关的对应，不能仅因编号相似认定 identity。**
+
+## 计数与转轴不能直接相乘
+
+- Encoder 官方产品写 30 pulses/圈；旧官方 UIFlow 例子是屏幕圆点使用 `returned_count/58*360`。该显示例子没有给物理标定、解码倍频或方向证据。两条信息不能合成确定的轴角公式。
+- Encoder 当前 API 把 signed16 `counter` 直接赋给控制器；没有独立 physical-source 字段或 A/B 注入。UIFlow `set_rotary_value/reset_rotary_value` 只改变 Python 实例偏移；当前 C 不接受 guest 写/reset 计数寄存器，不应把 8Encoder 的行为外推到 Encoder。
+- 8Encoder 图纸只写 EC11A，缺完整厂商/后缀和 PPR。固定 C 的 AB 模式对双方边沿计数。对通过滤波的理想相序 `(A,B): 00→10→11→01→00`，各步 +1，共 +4；反向相序各步 -1，共 -4。这只确定电气相序符号，不确定从正面看顺/逆时针与每圈计数。具体行号和分支在 `report.json`、`source-excerpts.txt`。
+- 8Encoder 的 `counters` 注入直接改逻辑计数；相同数组又可由 guest 写 `0x00..0x1F` 或 reset `0x40..0x47`。直接按它设置模型角度，会让程序归零触发假转轴运动。**补齐 PPR 仍不够，还要把物理源与逻辑计数分开。**
+
+## 最小还缺什么官方源
+
+1. **逐灯位置**：每产品/版本一张带 Grove 朝向的装配/贴片图，或位号、XY、正反面的 PnP 表，并说明光导/CH 对应。只需 LED1/LED2 或 U1-U9 的小表，不一定需要完整 PCB 工程。替代证据是同驱动、固定固件、清晰前壳朝向的逐灯 one-hot 实机记录；本轮未执行。
+2. **转轴**：装配使用的完整编码器料号/数据手册、PPR、解码模式/倍频与安装 A/B 到正面 CW 的对应。Encoder 还需要 MCU 解码源码或同固件一圈计数记录，以澄清 30 与 58。随后实现独立物理源、逻辑 reset 不改轴、显式初始参考姿态。
+
+原有按压已是另一个范围；uniform LED 子集、相序分析均不关闭整个 UNIT-HOST-29。所有本轮产物仅在本目录。

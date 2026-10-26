@@ -8868,6 +8868,12 @@ class DeviceService:
             "firmware_families": ["uiflow2", "generic-flash"],
             "program_modes": ["uiflow-live"] if spec.id in LIVE_PROGRAM_DEVICES else [],
             "program_source_kinds": ["uiflow2-python", "uiflow2-package"] if spec.id in LIVE_PROGRAM_DEVICES else [],
+            "program_features": {
+                "runtimes": ["qemu"], "entrypoints": ["main.py"],
+                "mpy_dependencies": "bytecode-only", "mpy_entrypoint": False,
+                "native_mpy": False, "main_namespace": "fresh-exec-globals",
+                "cleanup_mode": "interrupt-only",
+            } if spec.id in LIVE_PROGRAM_DEVICES else {},
             "coverage": {
                 "peripheral_status": spec.peripheral_status,
                 "complete": spec.peripheral_status == "simulated",

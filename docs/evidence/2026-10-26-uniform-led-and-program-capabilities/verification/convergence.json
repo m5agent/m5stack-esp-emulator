@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "captured_at": "2026-10-26T15:01:33.327428+00:00",
+  "platform_tests": {
+    "status": "PASS",
+    "count": 952,
+    "log": "verification/platform-tests-final-952.txt"
+  },
+  "node_programs": {
+    "status": "PASS",
+    "count": 7,
+    "report": "verification/node-final/report.json"
+  },
+  "generated_checks": "verification/generated-checks.json",
+  "structure_and_credentials": "verification/structure-and-credential-checks.json",
+  "live_r3_report_sha256": "416ad34a113a5e4ae69d051af4460df5d647146cc896c6f5095f960034fe1a20",
+  "main_mpy_probe_report_sha256": "c38126b92dfb20f71f897841cf137192b1655656a522d5797d3a38858e58d12f",
+  "production_sources_match_actual_r3": true,
+  "runtime_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+  "service_idle": {
+    "active_sessions": 0,
+    "pid": 75112,
+    "generation": 31
+  },
+  "full_matrix_this_block": "NOT RUN - no QEMU/controller/build changes",
+  "prior_full_matrix": "66/67 - Core2 IMU marker remains OPEN; no splicing singleton PASS",
+  "hardware": "NOT RUN",
+  "limitations": [
+    "UNIT-HOST-29 per-index mapping/rotation and Encoder optical closeup remain OPEN",
+    "UNIT-HOST-33 binary script entrypoint remains OPEN",
+    "Preview/SSE/AIFlow integration/native cleanup/revision GC remain OPEN"
+  ]
+}

@@ -1,0 +1,699 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-10-26T14:51:32.108217+00:00",
+  "root_report_sha256": "416ad34a113a5e4ae69d051af4460df5d647146cc896c6f5095f960034fe1a20",
+  "sources_match_recorded_sha256": {
+    "platform/tests/test_live_uniform_led_service_browser.mjs": true,
+    "platform/web/sessions.js": true,
+    "platform/web/sessions.html": true,
+    "platform/web/program-panel.js": true,
+    "platform/web/device-shell-factory.js": true,
+    "platform/web/unit-panel.js": true,
+    "platform/web/model-shell.js": true,
+    "platform/web/unit-visual-mappings.js": true,
+    "platform/units/catalog.json": true,
+    "platform/units/runtime-profiles.json": true,
+    "platform/web/vendor/m5stack-models/vendor-manifest.json": true,
+    "platform/web/vendor/m5stack-models/src/core/components/Led.js": true,
+    "platform/web/vendor/m5stack-models/src/units/encoder/assembly.js": true,
+    "platform/web/vendor/m5stack-models/src/units/8encoder/index.js": true,
+    "platform/web/vendor/m5stack-models/src/units/rgb/index.js": true,
+    "tests/units/run_live_unit_batch.py": true,
+    "tests/units/controls_probe/control_drivers/source-manifest.json": true,
+    "tests/units/io_probe/io_drivers/source-manifest.json": true,
+    "platform/tools/device_service.py": true,
+    "platform/tools/program_packages.py": true,
+    "platform/tools/uiflow_runtime.py": true
+  },
+  "service_health": {
+    "ok": true,
+    "service": "m5stack-device-service",
+    "api_version": "v1",
+    "capacity": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "c179d400f5f64e79af5716fef42d658e",
+        "generation": 31,
+        "state": "ready",
+        "pid": 75112,
+        "started_at": "2026-10-26T14:28:43.269853+00:00",
+        "heartbeat_at": "2026-10-26T14:51:30.413302+00:00",
+        "heartbeat_age_seconds": 1.694,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    }
+  },
+  "groups": [
+    {
+      "group": "i2c-hub",
+      "session_id": "2385a7553db04dc0b7aa495629ad3d87",
+      "pid": 81028,
+      "pid_gone": true,
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true,
+      "zip_sha256": "4cab9a1e11ad15256f2de6996571f486ea87ac56fc2ecbd50120f8247d76343b",
+      "zip_members": 23,
+      "manifest_member_sha256": "PASS",
+      "executions": 4,
+      "phase_D_leaf_state": "PASS",
+      "injected_browser_get_503": 12,
+      "report_sha256": "a5512b83221a4ea41d016e078a81a80ad5bccb0fa22a2e337464fd28dde2d11a"
+    },
+    {
+      "group": "rmt-rgb",
+      "session_id": "26db63775ee748a596161bf5b6872e03",
+      "pid": 81278,
+      "pid_gone": true,
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true,
+      "zip_sha256": "2bba357b7bfda9db44df539b1fceba9f545a08f548ebd50417afa87bf2453295",
+      "zip_members": 23,
+      "manifest_member_sha256": "PASS",
+      "executions": 4,
+      "phase_D_leaf_state": "PASS",
+      "injected_browser_get_503": 10,
+      "report_sha256": "c2b6ade5309f70b1b4c334518af046b33bac5cdb76344393396969d843db8f9d"
+    }
+  ],
+  "pngs": [
+    {
+      "path": "i2c-hub/A-8encoder-panel.png",
+      "size": [
+        1004,
+        1998
+      ],
+      "sha256": "fca261731ef17fd379ac66fe700d4a29f87accc7b2b932ecbb4eabdccce996de"
+    },
+    {
+      "path": "i2c-hub/A-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "67ca0c592cd2f49257f5acb2a43771dc43f6dec0cf85bd548abab0b5c00d5ee4"
+    },
+    {
+      "path": "i2c-hub/A-encoder-panel.png",
+      "size": [
+        1004,
+        1332
+      ],
+      "sha256": "fcdbcb502b3fafae58b0d1d8b443700e8c8724334429865367d65f64b67ff60c"
+    },
+    {
+      "path": "i2c-hub/A-frame.png",
+      "size": [
+        320,
+        240
+      ],
+      "sha256": "fd9cd145f80a0ee8ef35e0d6e51321a804936655a0df879635528e3bd04e423b"
+    },
+    {
+      "path": "i2c-hub/A-front-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "66def58c74acbedacde77d30a4aef0004a934ab218ae142db22bea8e11bdba61"
+    },
+    {
+      "path": "i2c-hub/A-full-page.png",
+      "size": [
+        2880,
+        21684
+      ],
+      "sha256": "41a3422dda4a8135999b5c68d2e3606a1ae4f4a049bb02f2aaa10fd8a05e5199"
+    },
+    {
+      "path": "i2c-hub/A-iso-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "b540378893640f0c9f532544393ad48e03852ddb924a6f13ac1d88c8bd885418"
+    },
+    {
+      "path": "i2c-hub/A-iso-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "339985de8f44575db9a8fc8b2afa1568f817199f5906594046e3f73d00cec8ca"
+    },
+    {
+      "path": "i2c-hub/B-8encoder-panel.png",
+      "size": [
+        1004,
+        2048
+      ],
+      "sha256": "94a176a85ffc1555d7a36a9521dabc593c9f52972c67edf7d0118c1ea37cc9be"
+    },
+    {
+      "path": "i2c-hub/B-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "b0461b8527311a54822a8fae035af5cf53a52eae7fbd22951f98ab79431d715d"
+    },
+    {
+      "path": "i2c-hub/B-encoder-panel.png",
+      "size": [
+        1004,
+        1382
+      ],
+      "sha256": "e907896313bddede0f0ce8986b2053a2cf25b987d2cf4a2bd0ce1f733f00ffaf"
+    },
+    {
+      "path": "i2c-hub/B-frame.png",
+      "size": [
+        320,
+        240
+      ],
+      "sha256": "14426ba9f5baf4e60ccb00e44ef88022563291dfe7fd8230250fe6c68b6fc638"
+    },
+    {
+      "path": "i2c-hub/B-front-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "96384ad606ff00960c6ccbe1650835cdcc02e4dcf56c82dee7586f7d2c55d3ff"
+    },
+    {
+      "path": "i2c-hub/B-full-page.png",
+      "size": [
+        2880,
+        21784
+      ],
+      "sha256": "61738beee6a64fa10d1898549e49a1c7dc131d3b06959b29b4b8af14b5508eae"
+    },
+    {
+      "path": "i2c-hub/B-iso-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "ad2ed8ec8204e0b6750b97aeae42a069fbe43e93e7b7c4beecfd891faa51d92e"
+    },
+    {
+      "path": "i2c-hub/B-iso-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "5d63b3bdc9f2548f40cd6d03b572e7198a59255474bf23c6f357c3dfdc350ca9"
+    },
+    {
+      "path": "i2c-hub/C-8encoder-panel.png",
+      "size": [
+        1004,
+        1998
+      ],
+      "sha256": "d544c6dce39b6e4b2368480e031f3248715a5f732ccc83d569cd905c6fa71414"
+    },
+    {
+      "path": "i2c-hub/C-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "e622298fd2f37149cec438b4f52c7d1c1fe9c612d3d7f863e84bba1ee5c3a006"
+    },
+    {
+      "path": "i2c-hub/C-encoder-panel.png",
+      "size": [
+        1004,
+        1332
+      ],
+      "sha256": "65fe48624fdeeb6a5e35973f5071c0f53ea1dcfe944afc390ea5a7c9fe4e53d8"
+    },
+    {
+      "path": "i2c-hub/C-frame.png",
+      "size": [
+        320,
+        240
+      ],
+      "sha256": "ddca6efb5f89e50f54f28cfcb0f9802e5f3fa89d671796182dbe02a98af2d582"
+    },
+    {
+      "path": "i2c-hub/C-front-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "dd1e71c57213f110d71b6be28cb3e429c6e0efb3f6aaef37c62a0264ef589d17"
+    },
+    {
+      "path": "i2c-hub/C-full-page.png",
+      "size": [
+        2880,
+        21684
+      ],
+      "sha256": "119ac52a49994834a972fa971dd6624ae9d1e7666af755e0da270046a52356ac"
+    },
+    {
+      "path": "i2c-hub/C-iso-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "f774eafe1d07b65d23bd1980e1bf5c22eed60762ae13e75333b3f81fdc3ca237"
+    },
+    {
+      "path": "i2c-hub/C-iso-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "eef330d50ab5e729baebb4ab4b4490a30a3a267f86d71a3729734f810e4eb0f2"
+    },
+    {
+      "path": "i2c-hub/C-transport-unknown-8encoder-panel.png",
+      "size": [
+        1004,
+        2048
+      ],
+      "sha256": "abb4b263f1cc91e8e4f995c01c20c2effb90eaf7234ccc61b75c05eea94cfde5"
+    },
+    {
+      "path": "i2c-hub/C-transport-unknown-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "3e9ec9686bcd7d1495c4ef18bab115fb4e4ff99305918829a2e901bc6d9e24f5"
+    },
+    {
+      "path": "i2c-hub/C-transport-unknown-encoder-panel.png",
+      "size": [
+        1004,
+        1382
+      ],
+      "sha256": "e4bc87d98ff5a35be8fce8b69c79694327a54e8540452a79f694e8dbbeee2df6"
+    },
+    {
+      "path": "i2c-hub/C-transport-unknown-front-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "35cb173d64194b164111587a22398c6029a51e237f6ff6eea567f81db1b92b70"
+    },
+    {
+      "path": "i2c-hub/C-transport-unknown-full-page.png",
+      "size": [
+        2880,
+        21784
+      ],
+      "sha256": "4ffbfc47f94294d6796710d781b3b419b5ecb80ec8f7030467dbd492de0a8f39"
+    },
+    {
+      "path": "i2c-hub/C-transport-unknown-iso-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "701ca46687a57237ba7f06ccdfe1f076ff5f267b1d2add4debd0895eeb057475"
+    },
+    {
+      "path": "i2c-hub/C-transport-unknown-iso-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "1d6277c8b0ec4e98cf38f7df64c591b2f3efa696f504bae1b80c55ae4bc5d0be"
+    },
+    {
+      "path": "i2c-hub/D-8encoder-panel.png",
+      "size": [
+        1004,
+        1998
+      ],
+      "sha256": "8da2c81c843f33581efbae553c5fe77b5a39ce95320f1f23c404c264bf58fcc4"
+    },
+    {
+      "path": "i2c-hub/D-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "cd7c1564755d09ae3fbd10f38992df620ffd61684a39fd28210a06c87edfff00"
+    },
+    {
+      "path": "i2c-hub/D-encoder-panel.png",
+      "size": [
+        1004,
+        1332
+      ],
+      "sha256": "894b862ca5b9fa6ca29ab9f6afd11ad5b6e1211e0d7a607d0796e414044fc170"
+    },
+    {
+      "path": "i2c-hub/D-frame.png",
+      "size": [
+        320,
+        240
+      ],
+      "sha256": "290f76b78e8e953ae7d5a17c10c67a1501f00a8b7a3a470de1589896cd25eb61"
+    },
+    {
+      "path": "i2c-hub/D-front-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "d29bf59592cec62c18d2c166eabffa8e04ffc17a6ae678ffa9f6a2ccae652bb3"
+    },
+    {
+      "path": "i2c-hub/D-full-page.png",
+      "size": [
+        2880,
+        21684
+      ],
+      "sha256": "b1a1babc3cefbc341ef406b52faa230d4a7c2fce2cf6a14b65a89233a4427d06"
+    },
+    {
+      "path": "i2c-hub/D-iso-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "293af5895e3346e3f4987fdad4e1b125927c668e6a83c1d3af5709175c7ca738"
+    },
+    {
+      "path": "i2c-hub/D-iso-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "137d8990d22f0bf6cca8c7b83be7ff2dc0c994bb098d6c4ac467eaa7d6173dc3"
+    },
+    {
+      "path": "i2c-hub/retained-frame.png",
+      "size": [
+        320,
+        240
+      ],
+      "sha256": "290f76b78e8e953ae7d5a17c10c67a1501f00a8b7a3a470de1589896cd25eb61"
+    },
+    {
+      "path": "rmt-rgb/A-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "4be95e8d0e766020b544b03588ed029bdaf135b08ab5d06685f08835ef26e5c3"
+    },
+    {
+      "path": "rmt-rgb/A-frame.png",
+      "size": [
+        320,
+        240
+      ],
+      "sha256": "5c51dccad92caf61603ed93165cc5f4b06e11ad8682323771fcd479415e2b300"
+    },
+    {
+      "path": "rmt-rgb/A-front-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "822c9eadc16867acc5d2b36b5aca799ec054b0e6786cb26771cb2d31a5cab1ce"
+    },
+    {
+      "path": "rmt-rgb/A-full-page.png",
+      "size": [
+        2880,
+        24690
+      ],
+      "sha256": "499e8bcbbf2c31475b15382d82571adf83a98818f02e927bed45dfa0c463f4e9"
+    },
+    {
+      "path": "rmt-rgb/A-iso-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "049e86e29c37961fa15bb08e374afa23ef99cc8e3d274675071c9f78da16fc77"
+    },
+    {
+      "path": "rmt-rgb/A-iso-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "19c58e5787dd97a66b5ad38e0a43d6a07c7642d4524f60fff111ba935dabaac0"
+    },
+    {
+      "path": "rmt-rgb/A-rgb-panel.png",
+      "size": [
+        1004,
+        988
+      ],
+      "sha256": "96d566cce58462a3125331b50306be92964b91bbba073fea9615ea65ab543f00"
+    },
+    {
+      "path": "rmt-rgb/B-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "51d73157a85a328b4117229b9da7c5c77cf72596767106b7642c1574c3736fb1"
+    },
+    {
+      "path": "rmt-rgb/B-frame.png",
+      "size": [
+        320,
+        240
+      ],
+      "sha256": "391128c8ff569f3893ee91a58ce635e5810f26a3730e43e1ad41f1a258e69498"
+    },
+    {
+      "path": "rmt-rgb/B-front-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "856db262773dc5218c263667363f0f288184c295de6413f116eae44b7358144a"
+    },
+    {
+      "path": "rmt-rgb/B-full-page.png",
+      "size": [
+        2880,
+        24732
+      ],
+      "sha256": "f531de0c8d71ef41139d4ec2acaa8850971ef1c93f5f32b1d3aafffa35b64112"
+    },
+    {
+      "path": "rmt-rgb/B-iso-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "c83a34d93a463713cbae8abadae57bb4ddad64a349c893ae8df95b51c1b88fb6"
+    },
+    {
+      "path": "rmt-rgb/B-iso-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "74332b462fd2cc6cbd2fc16fa27448c2e22d7335d6ded65ac9a75cf72690169d"
+    },
+    {
+      "path": "rmt-rgb/B-rgb-panel.png",
+      "size": [
+        1004,
+        1030
+      ],
+      "sha256": "e1c3ad7b6bb2c734b28c7a27a6f849887213f0f86fc1240d822b047a08147bbb"
+    },
+    {
+      "path": "rmt-rgb/C-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "6bc9ef1741fd327e1f2d457c9c41f9e0120b0695ce44eab26d33f7397605e7d1"
+    },
+    {
+      "path": "rmt-rgb/C-frame.png",
+      "size": [
+        320,
+        240
+      ],
+      "sha256": "a67d47990364552d3ead10a4ceca095ff6c90b9788e5d5b3ec4f567dc6a91f72"
+    },
+    {
+      "path": "rmt-rgb/C-front-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "5bcae0b23ed477a2db62100b9dc54f1b3ae7d551e8e2125948d1588e57268cfd"
+    },
+    {
+      "path": "rmt-rgb/C-full-page.png",
+      "size": [
+        2880,
+        24690
+      ],
+      "sha256": "d5a9513180432e2aef89eb4770e61c560397007bdebcf1bd31b03f1a8228a6cd"
+    },
+    {
+      "path": "rmt-rgb/C-iso-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "d9350a9147170a80ac3085c9e00659b2236d682c6ab43ea4a9454cb41852bbc7"
+    },
+    {
+      "path": "rmt-rgb/C-iso-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "929c7879b0064ad3bc9b5f6cbde3960c5ed04b4046b102bc9b84cda314fe3a8d"
+    },
+    {
+      "path": "rmt-rgb/C-rgb-panel.png",
+      "size": [
+        1004,
+        988
+      ],
+      "sha256": "6220c5c6f92e9b4e37fde52f32aa9b40a8a52d22899490c76895f9c969e4a7d1"
+    },
+    {
+      "path": "rmt-rgb/C-transport-unknown-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "c7a3bb068f470b94438a2bc46d3af883e8d6c8fdbd5763a0230864ac71f201a3"
+    },
+    {
+      "path": "rmt-rgb/C-transport-unknown-front-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "be0fda23605b15d2fc398b531a286bcd484e064fa4a0d41d9f7dd037c1506224"
+    },
+    {
+      "path": "rmt-rgb/C-transport-unknown-full-page.png",
+      "size": [
+        2880,
+        24732
+      ],
+      "sha256": "9edc9dc4577937979b1e666b8cb4d61468e6597bc7d5d9a29189c0035d5f9735"
+    },
+    {
+      "path": "rmt-rgb/C-transport-unknown-iso-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "1de01bee4c62ac82ebcc630b5614e0fc674eb48c8fe89e5e24022801df6d3705"
+    },
+    {
+      "path": "rmt-rgb/C-transport-unknown-iso-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "80fe109a2981b148e44eb1c167863393b5a12217aa7e05b9f8847d5f866c40b7"
+    },
+    {
+      "path": "rmt-rgb/C-transport-unknown-rgb-panel.png",
+      "size": [
+        1004,
+        1030
+      ],
+      "sha256": "057cdcfbc3dc33022fab9145af62e505745bf70c0bd5c556d2e0362ae5bbc1c6"
+    },
+    {
+      "path": "rmt-rgb/D-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "64a720c543a44dea30015197f54155dd8076baca7e4396a6fa93e7c206d90c08"
+    },
+    {
+      "path": "rmt-rgb/D-frame.png",
+      "size": [
+        320,
+        240
+      ],
+      "sha256": "a76e3f0d3a8e792058283e32a3be6c000d583e4b05673c84d4548073632e83d0"
+    },
+    {
+      "path": "rmt-rgb/D-front-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "99be64b2c0f73d2126fd4ed5dc82176155ab4dac5e58ff8d2d4fb8c119e219ca"
+    },
+    {
+      "path": "rmt-rgb/D-full-page.png",
+      "size": [
+        2880,
+        24690
+      ],
+      "sha256": "f7d890e259fe6af0de58bf890645f4944f30a15f5f7cc0685f283277ec4796e7"
+    },
+    {
+      "path": "rmt-rgb/D-iso-browser.png",
+      "size": [
+        878,
+        842
+      ],
+      "sha256": "c5b56941ffad6b9a7694b60f04a8d2bf9961ca63a8ec5a6c35e5aa9bf5d43933"
+    },
+    {
+      "path": "rmt-rgb/D-iso-render.png",
+      "size": [
+        878,
+        840
+      ],
+      "sha256": "ceb1c586c3a43f95377746fda6da8fcf6c85cb57d02d0c915fce528acdf8fadf"
+    },
+    {
+      "path": "rmt-rgb/D-rgb-panel.png",
+      "size": [
+        1004,
+        988
+      ],
+      "sha256": "46d14e9e4d5cc30908ab116d0d32319447abe05d4b6f41f87f017b3243cdf44f"
+    },
+    {
+      "path": "rmt-rgb/retained-frame.png",
+      "size": [
+        320,
+        240
+      ],
+      "sha256": "a76e3f0d3a8e792058283e32a3be6c000d583e4b05673c84d4548073632e83d0"
+    }
+  ]
+}

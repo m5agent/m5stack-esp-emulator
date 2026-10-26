@@ -1,0 +1,11 @@
+# Default uniform RGB feedback implementation
+
+The three permitted product files now drive all 3/2/9 LEDs from a legal uniform readback without assuming a physical index order. A valid explicit ledTargets/evidence permutation keeps priority. Nonuniform, illegal, missing, unavailable or HTTP-failed readback clears old emission and marks each Led runtimeKnown=false; UnitPanel displays an explicit unknown/mapping notice and retains the real numeric values. Uniform/explicit/off recovery marks known=true and hides the notice.
+
+ModelShell commits known only after validation and a successful handle. The final fixture rejects invalid color/brightness/on and a failing handle without promoting unknown. Panel-first and shell-first teardown withdraw output, and late GET responses cannot repaint or POST.
+
+Final host/browser checks PASS: actual mounted RGB(3), Encoder(2), 8Encoder(9), all material/emissive/brightness/glow states, Encoder diffuse shell uniforms, uniform-to-nonuniform-to-recovery/off, initial and mid-poll HTTP503, missing/error/illegal readback, explicit synthetic permutation priority, six delayed-GET teardown orders, no input echo or raw counter/reset shaft movement. The fixture uses synthetic HTTP data; guest/controller/hardware NOT RUN.
+
+The official-source research is a preceding block recorded in report.json/report.md. This later implementation does not close individual physical LED positions or physical shaft-angle conversion. Root owns real Device Service execution, cache versions, generated checks and authority docs.
+
+Artifacts: implementation-source-freeze.json, implementation-verification.json and uniform-r4-report.json; original full screenshots/report under /tmp/m5-uniform-led-r4. Final Scroll and model-shell browser regression reports are retained alongside them.

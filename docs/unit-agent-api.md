@@ -1,11 +1,19 @@
 # 外部 Agent：UIFlow 实时编程与 Unit 会话
 
-日期：`2026-10-26`。API 契约：`1.39.0`。
+日期：`2026-10-26`。API 契约：`1.40.0`。
 
 实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
 串口及 Unit 状态”的路径。每次改源码调用 `/sessions/{id}/program`，不重刷
 固件、不重启虚拟设备。下方原 composer 流程用于首次初始化、完整文件准备和
 兼容执行；连续编辑不再重复走这条路径。
+
+先读`GET /devices`的`program_features`：当前入口仅`main.py`，纯字节码`.mpy`
+可作依赖，二进制入口和native emitter为false，cleanup仍是interrupt-only。
+脚本以新globals执行、初始`__name__='__main__'`，不会替换REPL的
+`sys.modules['__main__']`。当前固件普通导入`.mpy`保留模块名，if-main守卫不执行，
+不能把“模块导入成功”当作完整UIFlow脚本入口已支持。
+
+默认网页对RGB/Encoder/8Encoder的全灯同色和全灭显示真实3D灯反馈；非对称颜色因物理灯位未确认而标unknown，仍可查看原始电气数组。读取失败会撤回旧颜色，恢复后重新显示。该范围不包含旋转角度，见[证据与限制](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
 
 ## 同一设备实时运行程序
 

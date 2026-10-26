@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "command": "runtime_coverage.py --check",
+      "status": "PASS",
+      "result": {
+        "chunk_id": "ce6300",
+        "wall_time_seconds": 0.000005083,
+        "exit_code": 0,
+        "original_token_count": 5,
+        "output": "RUNTIME_COVERAGE_OK\n"
+      }
+    },
+    {
+      "command": "peripheral_catalog.py --check",
+      "status": "PASS",
+      "result": {
+        "chunk_id": "95c30c",
+        "wall_time_seconds": 0.00000325,
+        "exit_code": 0,
+        "original_token_count": 6,
+        "output": "PERIPHERAL_CATALOG_OK\n"
+      }
+    },
+    {
+      "command": "qemu_profiles.py --check",
+      "status": "PASS",
+      "result": {
+        "chunk_id": "b32da1",
+        "wall_time_seconds": 0.000005959,
+        "exit_code": 0,
+        "original_token_count": 5,
+        "output": "QEMU_PROFILES_OK\n"
+      }
+    },
+    {
+      "command": "project_snapshot.py --check",
+      "status": "PASS",
+      "result": {
+        "chunk_id": "a02f83",
+        "wall_time_seconds": 1.5405703750000002,
+        "exit_code": 0,
+        "original_token_count": 5,
+        "output": "PROJECT_SNAPSHOT_OK\n"
+      }
+    },
+    {
+      "command": "generate_catalog.py --check",
+      "status": "PASS",
+      "result": {
+        "chunk_id": "7c98f8",
+        "wall_time_seconds": 0.000006458,
+        "exit_code": 0,
+        "original_token_count": 12,
+        "output": "generated 14 devices -> devices/catalog.json\n"
+      }
+    }
+  ]
+}

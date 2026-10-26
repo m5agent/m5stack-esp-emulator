@@ -1,0 +1,12 @@
+import sys, json
+sys.path.append('/m5-mpy-main-capability-4901de7ff0044af483e0277d6951ce55')
+_owner = __import__('__main__')
+_cap = {'mpy': getattr(sys.implementation, '_mpy', None), 'maxsize': sys.maxsize,
+ 'owner_id': id(_owner), 'owner_name': _owner.__name__, 'main_cache_present': '__main__' in sys.modules}
+try:
+ _marshal = __import__('marshal')
+ _cap['marshal'] = 'available'
+except BaseException as _err:
+ _cap['marshal'] = type(_err).__name__ + ':' + str(_err)
+print('MAIN_MPY_CAP_94cb83374d5f INITIAL ' + json.dumps(_cap))
+print('MAIN_MPY_CAP_94cb83374d5f DONE initial')

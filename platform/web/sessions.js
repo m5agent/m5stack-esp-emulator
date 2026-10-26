@@ -1,5 +1,5 @@
-import { createDeviceShell } from './device-shell-factory.js?v=20261026c';
-import { createUnitPanel, createUnitPicker } from './unit-panel.js?v=20261026f';
+import { createDeviceShell } from './device-shell-factory.js?v=20261026g';
+import { createUnitPanel, createUnitPicker } from './unit-panel.js?v=20261026g';
 import { createProgramPanel } from './program-panel.js';
 
 const ACTIVE_STATES = new Set(['provisioning', 'flashing', 'booting', 'running']);

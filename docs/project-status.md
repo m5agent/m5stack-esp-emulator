@@ -21,8 +21,8 @@ Encoder/8Encoder/Joystick v1.1 已验证同 guest 原驱动、独立leaf输入�
 QEMU 新增显式 `max_age_ms=1..1000` 的按需共享帧样本和 ETag/304；默认 GET、
 evidence、wait 与 stop 仍采集新帧。无后台采样或固定FPS保证，Tab5/network不继承。
 时间与程序身份冻结于真实采集，preview样本序号不代表guest重绘或与Unit状态的原子快照；真实CoreS3的条件请求、程序/重置失效、历史和导出边界已验收。
-独立有界帧请求与owner/decode隔离、CoreS3 PIR/Relay共享帧与双向控制已验；六leaf另有CoreS3真实网页输入/DOM读回，Encoder/8Encoder的3D灯与旋转仍缺确认binding（UNIT-HOST-29），不称完整动画PASS。
-`/program`新增完整文件/资源和纯字节码`.mpy`依赖，同guest校验发布与托管模块替换，范围见[文件包证据](evidence/2026-10-26-live-package-and-detent/README.md)。
+独立有界帧请求与owner/decode隔离、CoreS3 PIR/Relay共享帧与双向控制已验；六leaf另有CoreS3真实网页输入/DOM读回。RGB/Encoder/8Encoder默认全灯同色反馈按排列不变性实现，非对称/不可用时撤色并标unknown；逐灯与旋转binding仍为UNIT-HOST-29 OPEN，范围见[本块证据](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
+`/program`支持完整文件/资源和纯字节码`.mpy`依赖，同guest校验发布与托管模块替换；`program_features`明确main.py/fresh-globals/interrupt-only。当前固件普通导入不会运行if-main，独立main.mpy入口为UNIT-HOST-33 OPEN，见[入口研究](evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/README.md)与[文件包证据](evidence/2026-10-26-live-package-and-detent/README.md)。
 Scroll新增独立partial控制器：四主机同guest原驱动与CoreS3真实Web按键/RGB/屏幕已验；RGB队列、轴角、回绕、bootloader/持久化未完成，见[限定证据](evidence/2026-10-26-scroll-controller/README.md)。其它Unit、二进制入口、保存开机、Preview/Run、SSE与AIFlow目标仍开放，见[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。
 interrupt-only 不保证清空 native/定时器/IRQ/线程，断流/重连缺口保持 unknown。
 启动取消已有生命周期事务、pending自动收尾、停止意图版本、Network child收据和draining所有权门禁，见[取消回归](evidence/2026-10-26-session-cancellation-f309/README.md)。

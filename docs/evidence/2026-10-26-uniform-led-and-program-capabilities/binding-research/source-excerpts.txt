@@ -1,0 +1,302 @@
+Source: platform/web/vendor/m5stack-models/src/units/encoder/assembly.js
+Complete-source SHA256: 6120c4e66937d8ca86112550cc9d380e332fabaec2a9283aab54a83d4674999f
+8: // Collar centre is fitted to the unchanged official z=6 ring. Ø10 is from
+9: // U135's own drawing. Concealed package/board/press dimensions remain inferred.
+10: export const ENCODER_ASSEMBLY=Object.freeze({axis:Object.freeze([-.0130000268,7.9499998353,6]),capRadius:5,capBottom:6.45,capTop:19.38,pcbZ:-3.9,pcbThickness:.8,ledPositions:Object.freeze([Object.freeze([-6.8,-10.4,-3.1]),Object.freeze([6.8,-10.4,-3.1])])});
+
+82:  const cap=knob(host.body);
+83:  mesh(cap,new THREE.CylinderGeometry(2.25,2.25,10.3,48).rotateX(Math.PI/2),materials.metal(0x8c9189,{roughness:.5}),[0,0,4.35],'Encoder moving shaft');
+84:  const press=host.add(new Button({id:'press',label:'Encoder press',mesh:cap,position:[x,y,0],travel:.35,meta:{role:'visual-control',travelSource:'Photo-derived visual travel; no switch or pulse emulation'}}));
+85:  const rotation=host.add(new VisualJoint({id:'rotation',label:'Encoder knob rotation',position:[x,y,6],axis:[0,0,1],continuous:true,meta:{axisEvidence:'Official U135 native collar circle fit; cap Ø10 from own drawing',demoRpmMax:60}}));rotation.adopt(press.object3d);
+86:  const diffuse=shellDiffusion(host),leds=[];
+87:  for(const [i,position]of ENCODER_ASSEMBLY.ledPositions.entries()){
+88:   const [lx,ly,lz]=position;
+89:   slab(host.body,3.2,3.2,1.25,.18,[lx,ly,lz],materials.plastic(0xd8deca,{roughness:.68}),[],.04).name='Encoder internal SK6812 package '+i;
+90:   const lens=new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,.12,32).rotateX(Math.PI/2),materials.glossy(0xbec6b1,{roughness:.32}));
+91:   const led=host.add(new EncoderLed({id:'led'+i,label:'Encoder lower RGB '+i,position:[lx,ly,lz+1.31],mesh:lens,radius:1.05,glowSize:2,lensColor:0xbec6b1,meta:{role:'externally-driven-visual',physicalPlacement:'Inside the lower white shell beside Grove; official PCB photo and lit video',mapping:'left/right are visual addresses, schematic LED1/LED2 order unconfirmed'}}));
+92:   led.glow.visible=false;led.onDiffusion=(color,value)=>diffuse(i,color,value);leds.push(led);
+93:  }
+94:  host.encoderAssembly={press,rotation,cap,leds,dimensions:ENCODER_ASSEMBLY};
+
+Source: platform/web/vendor/m5stack-models/src/units/8encoder/index.js
+Complete-source SHA256: dbb970f29ebf9bb1e785460faa4655f9c9764558506da353185cd40bee17a642
+52:  slab(host.body,10.8,10.8,.55,.5,[0,y,3.02],metal,[],.04).name=`CH${number} fixed encoder metal cover`;
+53:  cylinder(host.body,3.15,1.18,[0,y,4.16],metal,`CH${number} fixed shaft bushing`);
+54:  cylinder(host.body,spec.knob.shaftRadius,5.8,[0,y,6.9],metal,`CH${number} fixed encoder shaft`);
+55:  const press=host.add(new Button({id:item.press,label:`CH${number} knob press`,mesh:capGeometry(number),position:[0,y,spec.knob.baseZ],travel:spec.knob.pressTravel,axis:[0,0,-1],meta:{role:'visual-control',channel:number,visualMotion:'linear',travelEvidence:'0.35 mm visual travel estimate; rated EC11A pretravel/overtravel unconfirmed',scope:'no-switch-state-or-encoder-count'}}));
+56:  // Register the child before the adopting parent so each mesh is disposed once.
+57:  const rotation=host.add(new VisualJoint({id:item.rotation,label:`CH${number} knob rotation`,position:[0,y,spec.knob.baseZ],axis:[0,0,1],continuous:true,meta:{channel:number,axisEvidence:'Official U153 EC11A rotary encoder; cap axis normal to front shell',demoRpmMax:60,scope:'no-quadrature-or-numeric-value'}}));
+58:  rotation.adopt(press.object3d);
+59:  return {press,rotation};
+60: }
+61: function light(host,{number,y}){
+62:  const pipe=new THREE.Mesh(new THREE.BoxGeometry(spec.led.w,spec.led.h,spec.led.depth),materials.plastic(0x8f9b91,{roughness:.62}));pipe.position.z=-spec.led.depth/2;pipe.name=`RGB${number} recessed physical light pipe`;
+63:  const led=host.add(new Led({id:'rgb-'+number,label:number<9?`CH${number} external RGB`:'Switch external RGB',mesh:pipe,position:[spec.led.x,y,spec.led.z],radius:.45,glowSize:3,lensColor:0x8f9b91,meta:{role:'externally-driven-visual',visualLocation:number<9?'CH'+number:'switch',mapping:'Physical location only; not the schematic U1-U9 chain order',scope:'no-automatic-key-or-power-response'}}));
+64:  return led;
+
+88:  const mechanisms=CHANNELS.map(item=>channel(host,item));
+89:  const leds=CHANNELS.map(item=>light(host,{number:item.number,y:item.y}));leds.push(light(host,{number:9,y:59}));
+90:  const stableSwitch=slide(host);screw(host.body,[0,spec.mountY,-4.98],'back',1.4);
+91:  host.add(new Component({id:'sensor',label:'8Encoder geometry anchor',meta:{role:'visual-anchor',scope:'no-counts-registers-firmware-or-bus'}}));
+92:  host.encoderMechanisms=mechanisms;host.rgbLights=leds;host.stableSwitch=stableSwitch;
+
+Source: platform/web/vendor/m5stack-models/src/units/8encoder/dimensions.js
+Complete-source SHA256: 074ee4673891d12ac06f56e0ef140ea9656e3b3f319820916138cfd1d81f77a7
+1: // U153 Unit 8Encoder. Official mechanical drawing; no product revision inferred
+2: // from the V1.01 schematic filename. Coordinates: +X right, +Y switch end, +Z front.
+3: export const spec={
+4:  id:'8encoder',name:'Unit 8Encoder',sku:'U153',size:[24,128,25],nominalMm:[24,128,25],
+5:  sourceTableMm:[128,24,25],cadEnvelopeMm:[24,128,10],visualEnvelopeMm:[24,128,25],
+6:  baseShellThicknessMm:8,raisedPlatformThicknessMm:10,mountY:-52,
+7:  mountingHoles:[[-8,-52],[8,-52]],grove:{position:[0,-63.65,.65],face:'bottom',w:10,h:5.2,depth:6.6},
+8:  knob:{diameter:10,pitch:13,firstY:-40.6,baseZ:5.4,height:14.6,pressTravel:.35,shaftRadius:1.5,shaftTopZ:9.8,boreRadius:1.7,boreDepth:6},
+9:  led:{x:-8.65,z:2.8,w:2.8,h:.65,depth:.55},
+10:  slide:{center:[0,59,5],travel:2.2},
+11: };
+12: export const CHANNELS=Array.from({length:8},(_,i)=>({number:i+1,y:spec.knob.firstY+i*spec.knob.pitch,press:'press-'+(i+1),rotation:'rotation-'+(i+1),rgb:'rgb-'+(i+1)}));
+
+Source: tests/units/controls_probe/control_drivers/encoder.py
+Complete-source SHA256: 703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255
+23: 
+24:     def get_rotary_status(self):
+25:         val = self._get_rotary_value()
+26:         if val != self._last_value:
+27:             return True
+28:         return False
+29: 
+30:     def get_rotary_value(self):
+31:         self._last_value = self._get_rotary_value()
+32:         return self._start_value + self._last_value - self._zero_value
+33: 
+34:     def get_rotary_increments(self):
+35:         tmp = self._last_value
+36:         self._last_value = self._get_rotary_value()
+37:         return self._last_value - tmp
+38: 
+39:     def _get_rotary_value(self):
+40:         buf = self._read_reg_bytes(self._ENCODER_COUNTER_VALUE_REG, 2)
+41:         return struct.unpack("<h", buf)[0]
+42: 
+43:     def set_rotary_value(self, value: int) -> None:
+44:         self._start_value = value
+45: 
+46:     def reset_rotary_value(self):
+47:         self._zero_value = self._get_rotary_value()
+48:         self._last_value = self._zero_value
+49:         self._start_value = 0
+50: 
+51:     def get_button_status(self) -> bool:
+52:         buf = self._read_reg_bytes(self._ENCODER_BUTTON_STATUS_REG, 2)
+53:         return not bool(buf[0])
+54: 
+55:     def set_color(self, index: int = 0, rgb: int = 0) -> None:
+56:         buf = self._buffer[1:5]
+57:         buf[0] = index
+58:         buf[1:] = rgb.to_bytes(3, "big")
+59:         self._write_reg_bytes(self._ENCODER_RGB_LED_REG, buf)
+60: 
+61:     def fill_color(self, rgb: int = 0) -> None:
+62:         self.set_color(0, rgb)
+
+Source: patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch
+Complete-source SHA256: 5b009b4644d505085ab759effe933abe8acadeaa1b680a70fb0c18ee4915926c
+383: +{
+384: +    M5UnitControl *s = opaque;
+385: +    int64_t value, lo = 0, hi = 255;
+386: +    if (!visit_type_int64(v, name, &value, errp)) { return; }
+387: +    if (!strcmp(name, "counter")) { lo = -32768; hi = 32767; }
+388: +    else if (!strcmp(name, "button-raw")) { hi = 1; }
+389: +    if (value < lo || value > hi) { error_setg(errp, "%s outside [%" PRId64 ",%" PRId64 "]", name, lo, hi); return; }
+390: +    if (!strcmp(name, "counter")) { s->counter[0] = value; }
+391: +    else if (!strcmp(name, "keycode")) {
+392: +        if (value && s->key_count == KEY_FIFO_SIZE) { error_setg(errp, "CardKB input FIFO full"); return; }
+393: +        if (!value) { s->key_head = s->key_count = 0; }
+394: +        else { key_push(s, value); }
+
+485: +    } else if (!strcmp(name, "pressed")) { memcpy(s->pressed, booleans, sizeof(s->pressed)); }
+486: +    else {
+487: +        for (i = 0; i < count; i++) {
+488: +            uint32_t delta = (uint32_t)numbers[i] - (uint32_t)s->counter[i];
+489: +            s->increments[i] = (uint32_t)s->increments[i] + delta;
+490: +            s->counter[i] = numbers[i];
+491: +        }
+492: +    }
+
+594: +    } else if (s->kind == CONTROL_ENCODER) {
+595: +        if (s->write_base == 0x30 && s->write_pos >= 2 && s->write_pos <= 5) {
+596: +            s->led_write[s->write_pos - 2] = value;
+597: +            if (s->write_pos == 5) {
+598: +                uint8_t index = s->led_write[0];
+599: +                if (index > 2) { return 1; }
+600: +                uint32_t color = (s->led_write[1] << 16) | (s->led_write[2] << 8) | s->led_write[3];
+601: +                bool changed = false;
+602: +                for (unsigned i = 0; i < 2; i++) {
+603: +                    if (!index || index == i + 1) {
+604: +                        changed |= s->leds[i] != color; s->leds[i] = color;
+605: +                    }
+606: +                }
+607: +                if (changed) { output_changed(s); }
+608: +            }
+609: +        } else if (reg == 0 && value <= 1) { s->regs[0] = value; }
+610: +        else { return 1; }
+611: +        s->pointer++;
+612: +    } else if (s->kind == CONTROL_ENCODER8) {
+613: +        if (reg <= 0x1f) {
+614: +            unsigned i = reg / 4, shift = (reg % 4) * 8;
+615: +            s->counter[i] = ((uint32_t)s->counter[i] & ~(0xffU << shift)) | ((uint32_t)value << shift);
+616: +        } else if (reg >= 0x40 && reg <= 0x47) {
+617: +            if (value == 1) { s->counter[reg - 0x40] = 0; s->increments[reg - 0x40] = 0; }
+618: +        } else if (reg >= 0x70 && reg <= 0x8a) {
+619: +            unsigned i = (reg - 0x70) / 3, shift = (2 - (reg - 0x70) % 3) * 8;
+620: +            uint32_t color = (s->leds[i] & ~(0xffU << shift)) | ((uint32_t)value << shift);
+621: +            if (s->leds[i] != color) { s->leds[i] = color; output_changed(s); }
+
+Source: .work/unit-host29-binding-20261026-r2/eight-main-source.c
+Complete-source SHA256: 3c5ee0a35f1a785a27751d0905657bd5b60566f6d3b4d7940cdb6c5488afb7f3
+58: uint16_t phase_a_pin_map[8] = {
+59:     EN_S1_A_Pin, EN_S2_A_Pin, EN_S3_A_Pin, EN_S4_A_Pin, EN_S5_A_Pin, EN_S6_A_Pin, EN_S7_A_Pin, EN_S8_A_Pin,
+60: };
+61: uint16_t phase_b_pin_map[8] = {
+62:     EN_S1_B_Pin, EN_S2_B_Pin, EN_S3_B_Pin, EN_S4_B_Pin, EN_S5_B_Pin, EN_S6_B_Pin, EN_S7_B_Pin, EN_S8_B_Pin,
+63: };
+64: uint8_t i2c_buff[4] = {0};
+65: uint32_t g_counter[8] = {0};
+66: uint32_t g_inc_counter[8] = {0};
+67: uint8_t g_phase_a_last_encoder_status[8] = {0};
+68: uint8_t g_phase_b_last_encoder_status[8] = {0};
+69: uint8_t i2c_address[1] = {0};
+70: volatile uint8_t fm_version = FIRMWARE_VERSION;
+71: volatile uint8_t g_mode_sel = 0;
+
+434:   if (len > 1 && (rx_data[0] <= 0x1F))
+435:   {
+436:     if ((len - 1) % 4 == 0) {
+437:       for(int i = 0; i < (len - 1) / 4; i++) {
+438:         g_counter[(rx_data[0]+i*4) / 4] = (rx_data[4+i*4] << 24) | (rx_data[3+i*4] << 16) | (rx_data[2+i*4] << 8) | (rx_data[1+i*4]);  
+439:       }
+440:     }
+441:   }
+442:   else if (len == 1 && (rx_data[0] <= 0x1F))
+443:   {
+444:     i2c2_set_send_data((uint8_t *)&g_counter[(rx_data[0])/4], 4);
+445:   }
+446:   else if (len == 1 && ((rx_data[0] >= 0x20) & (rx_data[0] <= 0x3F)))
+447:   {
+448:     i2c2_set_send_data((uint8_t *)&g_inc_counter[(rx_data[0]-0x20)/4], 4);
+449:     g_inc_counter[(rx_data[0]-0x20)/4] = 0;
+450:   }
+451:   else if (len > 1 && ((rx_data[0] >= 0x40) & (rx_data[0] <= 0x47)))
+452:   {
+453:     for(int i = 0; i < len - 1; i++) {
+454:       if (rx_data[1+i])
+455:         g_counter[(rx_data[0]+i - 0x40)] = 0;  
+
+514: 	else if (len > 1 && ((rx_data[0] >= 0x70) & (rx_data[0] <= 0x8A))) 
+515: 	{
+516:     if ((len-1) % 3 == 0) {
+517:       for (int i = 0; i < (len - 1) / 3; i++) {
+518:         neopixel_set_color(((rx_data[0]+i*3 - 0x70)/3), ((rx_data[1+i*3] << 16) | (rx_data[2+i*3] << 8) | (rx_data[3+i*3])));   
+519:       }
+520:       ws2812_show();
+521:     }
+522:   }
+523: 	else if (len == 1 && ((rx_data[0] >= 0x70) & (rx_data[0] <= 0x8A))) 
+524: 	{
+525:     i2c_buff[0] = (color_buf[((rx_data[0] - 0x70)/3)] >> 16) & 0xff;
+526:     i2c_buff[1] = (color_buf[((rx_data[0] - 0x70)/3)] >> 8) & 0xff;
+527:     i2c_buff[2] = (color_buf[((rx_data[0] - 0x70)/3)]) & 0xff;
+
+728:     switch (GPIO_Pin)
+729:     {
+730:     case EN_S1_A_Pin:
+731:       if (g_phase_a_last_encoder_status[index]) {
+732:         if (!(HAL_GPIO_ReadPin(GPIOA, EN_S1_B_Pin))) {
+733:           // if (g_counter[0] > -32768)
+734:           g_counter[0]--;
+735:           g_inc_counter[0]--;
+736:         }
+737:         else {
+738:           // if (g_counter[0] < 32767)
+739:           g_counter[0]++;
+740:           g_inc_counter[0]++;
+741:         }    
+742:       } else {
+743:         if (HAL_GPIO_ReadPin(GPIOA, EN_S1_B_Pin)) {
+744:           // if (g_counter[0] > -32768)
+745:           g_counter[0]--;
+746:           g_inc_counter[0]--;
+747:         }
+748:         else {
+749:           // if (g_counter[0] < 32767)
+750:           g_counter[0]++;
+751:           g_inc_counter[0]++;
+752:         }       
+753:       }
+754:       g_changed |= (1 << 0);
+755:       break;
+
+984:     switch (GPIO_Pin)
+985:     {
+986:     case EN_S1_B_Pin:
+987:       if (g_phase_b_last_encoder_status[index]) {
+988:         if (!(HAL_GPIO_ReadPin(GPIOA, EN_S1_A_Pin))) {
+989:           // if (g_counter[0] < 32767)
+990:           g_counter[0]++;
+991:           g_inc_counter[0]++;
+992:         }
+993:         else {
+994:           // if (g_counter[0] > -32768)
+995:           g_counter[0]--;
+996:           g_inc_counter[0]--;
+997:         }    
+998:       } else {
+999:         if (HAL_GPIO_ReadPin(GPIOA, EN_S1_A_Pin)) {
+1000:           // if (g_counter[0] < 32767)
+1001:           g_counter[0]++;
+1002:           g_inc_counter[0]++;
+1003:         }
+1004:         else {
+1005:           // if (g_counter[0] > -32768)
+1006:           g_counter[0]--;
+1007:           g_inc_counter[0]--;
+1008:         }       
+1009:       }
+1010:       g_changed |= (1 << 0); 
+1011:       break;
+
+1465:   /*Configure GPIO pins : EN_S8_A_Pin EN_S8_B_Pin EN_S7_A_Pin EN_S7_B_Pin
+1466:                            EN_S6_A_Pin EN_S6_B_Pin EN_S5_A_Pin EN_S5_B_Pin
+1467:                            EN_S2_A_Pin EN_S2_B_Pin EN_S1_A_Pin EN_S1_B_Pin */
+1468:   GPIO_InitStruct.Pin = EN_S8_A_Pin|EN_S8_B_Pin|EN_S7_A_Pin|EN_S7_B_Pin
+1469:                           |EN_S6_A_Pin|EN_S6_B_Pin|EN_S5_A_Pin|EN_S5_B_Pin
+1470:                           |EN_S2_A_Pin|EN_S2_B_Pin|EN_S1_A_Pin|EN_S1_B_Pin;
+1471:   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+1472:   GPIO_InitStruct.Pull = GPIO_NOPULL;
+1473:   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+Source: .work/unit-host29-binding-20261026-r2/eight-led-source.c
+Complete-source SHA256: b616daed25b609c44c0ddb6f2b73304e2c59431175ab2577cee7f790e5fc4a21
+58: void neopixel_set_color(uint8_t num, uint32_t color) {
+59:     rled[num]      = (color >> 16) & 0xff;
+60:     gled[num]      = (color >> 8) & 0xff;
+61:     bled[num]      = color & 0xff;
+62:     color_buf[num] = color;
+63: }
+64: 
+65: void ws2812_show(void) {
+66:     uint8_t i, j;
+67: 
+68:     for (i = 0; i < PIXEL_MAX; i++) {
+69:         for (j = 0; j < 8; j++) {  // G->R->B
+70:             frame.data[24 * i + j] =
+71:                 (gled[i] & (0x80 >> j)) ? BIT_1 : BIT_0;  // 将高低位扩展到16bit
+72:             frame.data[24 * i + j + 8] =
+73:                 (rled[i] & (0x80 >> j)) ? BIT_1 : BIT_0;
+74:             frame.data[24 * i + j + 16] =
+75:                 (bled[i] & (0x80 >> j)) ? BIT_1 : BIT_0;
+76:         }
+77:     }
+78: 
+79:     HAL_TIM_PWM_Start_DMA(&htim3, TIM_CHANNEL_3, (uint32_t *)&frame,
+80:                           3 + 24 * PIXEL_MAX + WS2812_RESET_SLOTS);
+

@@ -1,6 +1,6 @@
-import {CARDKB_KEY_IDS, physicalInput, visualCommands} from './unit-visual-mappings.js?v=20261026f';
+import {CARDKB_KEY_IDS, arrayLedFeedback, physicalInput, visualCommands} from './unit-visual-mappings.js?v=20261026g';
 import {UnitAudio} from './unit-audio.js';
-export {physicalInput, visualCommands} from './unit-visual-mappings.js?v=20261026f';
+export {physicalInput, visualCommands} from './unit-visual-mappings.js?v=20261026g';
 
 const ACTIVE = new Set(['booting', 'running']);
 const inputId = (id, field, index) => `unit-${id}-${field}${index === undefined ? '' : `-${index}`}`;
@@ -118,7 +118,10 @@ class UnitPanel {
       this.definitions = new Map(definitions.map(unit => [unit.id, unit]));
       this.render();
       if (payload) this.apply(payload, observedSessionId, sessionEpoch);
-      else for (const id of this.cards.keys()) this.note(id, `状态请求失败：${state.reason?.message || '模型状态不可用'}`);
+      else {
+        this.apply({source: 'unavailable', units: []}, observedSessionId, sessionEpoch);
+        for (const id of this.cards.keys()) this.note(id, `状态请求失败：${state.reason?.message || '模型状态不可用'}`);
+      }
       await this.setShell(this.shell);
       this.schedule();
     } catch (error) {
@@ -129,6 +132,11 @@ class UnitPanel {
 
   safeDetach({shell, port, id}) {
     this.audio.get(id)?.observe(null, null, {sessionId: this.session.session_id});
+    const unit = this.states.get(id) || this.session.units?.find(unit => unit.id === id);
+    if (arrayLedFeedback(unit)) {
+      try { shell.applyVisualState?.(visualCommands({...unit, available: false}, port)); }
+      catch { /* a disposed shell or port has already withdrawn its visuals */ }
+    }
     try { Promise.resolve(shell.detachUnit?.(port)).catch(() => {}); }
     catch { /* the renderer may already have disposed the port */ }
   }
@@ -274,6 +282,13 @@ class UnitPanel {
       status.dataset.unitNote = '';
       status.setAttribute('aria-live', 'polite');
       card.append(status);
+      if (arrayLedFeedback(attachment)) {
+        const mapping = element('p', 'unit-note');
+        mapping.dataset.unitLedMapping = '';
+        mapping.setAttribute('aria-live', 'polite');
+        mapping.hidden = true;
+        card.append(mapping);
+      }
       if (attachment.unit_id === 'fan') card.append(element('p', 'unit-note', '动画表示 PWM 驱动活动；转速与机电过程未建模。'));
       if (attachment.unit_id === 'buzzer') {
         const controls = element('div', 'unit-audio-controls');
@@ -528,6 +543,15 @@ class UnitPanel {
   }
 
   paint(unit) {
+    const feedback = arrayLedFeedback(unit, this.bindingsByUnit[unit.unit_id]);
+    const note = this.cards.get(unit.id)?.querySelector('[data-unit-led-mapping]');
+    if (note) {
+      note.hidden = feedback?.known !== false;
+      note.dataset.unitLedMapping = feedback?.known ? feedback.mapping : feedback?.reason || '';
+      note.textContent = feedback?.reason === 'unmapped' ? '灯位未确认，颜色分布请看读回' :
+        feedback?.reason === 'unavailable' ? '灯光状态未知，模型颜色已撤下' :
+        feedback?.reason === 'invalid' ? '灯光读回无效，模型颜色已撤下' : '';
+    }
     const mounted = this.mounted.get(unit.id);
     if (!mounted) return;
     try { mounted.shell.updateUnitAnnotation?.(unit, {port: mounted.port, definition: this.definitions.get(unit.unit_id), running: this.session.state === 'running', source: this.stateSource, frozenDefinitions: this.frozenDefinitions === true}); }
@@ -562,7 +586,14 @@ class UnitPanel {
       this.frozenDefinitions = true;
       this.render();
     }
-    for (const unit of payload.units || []) {
+    const units = [...(payload.units || [])];
+    for (const attachment of this.session.units || []) {
+      if (arrayLedFeedback(attachment) && !units.some(unit => unit.id === attachment.id)) {
+        const previous = this.states.get(attachment.id);
+        units.push({...previous, ...attachment, available: false, errors: {...previous?.errors, state: '本次读回缺少此 Unit'}});
+      }
+    }
+    for (const unit of units) {
       this.states.set(unit.id, unit);
       const card = this.cards.get(unit.id);
       if (!card) continue;

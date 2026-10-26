@@ -1,0 +1,5 @@
+{
+  "source": "import sys, json, M5\nassert '/m5-mpy-main-capability-4901de7ff0044af483e0277d6951ce55' in sys.path, 'VM nonce missing'\n_owner = __import__('__main__')\nassert id(_owner) == 1013359328, 'REPL owner changed'\nM5.begin()\nM5.Display.setBrightness(255)\nM5.Display.fillScreen(0x123456)\nprint('MAIN_MPY_CAP_94cb83374d5f RECOVERY ' + json.dumps({'name': __name__, 'file': __file__, 'owner_id': id(_owner), 'mpy': getattr(sys.implementation, '_mpy', None), 'nonce_retained': '/m5-mpy-main-capability-4901de7ff0044af483e0277d6951ce55' in sys.path}))\nprint('MAIN_MPY_CAP_94cb83374d5f DONE recovery')\n",
+  "timeout_seconds": 20,
+  "expected_execution_id": "8449ed4a88f5424894a36c45d77cd6d1"
+}

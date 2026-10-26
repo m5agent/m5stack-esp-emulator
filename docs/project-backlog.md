@@ -66,11 +66,12 @@ eFuse 或生产 key。
 控制leaf的原驱动执行及显式按需共享QEMU帧样本，范围见[本轮证据](evidence/2026-10-26-live-unit-preview/README.md)。
 完整文件包/资源与纯字节码`.mpy`依赖已实现，范围见[文件包证据](evidence/2026-10-26-live-package-and-detent/README.md)。
 Scroll限定原驱动与按键/RGB闭环已有前置；继续补剩余Unit原驱动、二进制入口/保存开机、Preview/Run、AIFlow checkpoint/虚拟目标、SSE及程序revision引用保留/有界回收。显式配额可配置不关闭长期回收。
-双向动画优先闭合 `UNIT-HOST-29`：Encoder/8Encoder已实际出现QOM/DOM有颜色而
-3D灯不变、旋转零值；补官方通道到模型位置、计数到角度依据及默认binding接线，
-再以真实mounted组件核验，不把表单或色块PASS替代完整动画。
+双向动画继续闭合 `UNIT-HOST-29`：默认全灯同色反馈取任意通道排列均相同的准确子集；
+非对称逐灯颜色仍需官方通道到模型位置依据，旋转需独立物理source和计数/方向标定，
+不能把逻辑counter写入/reset当轴运动。验收须核真实mounted组件。
 已有共享样本不关闭 Preview 执行资源或推送协议；Tab5原GDB帧与reset/stop的
 共同生命周期门禁按 `UNIT-HOST-28` 另做，不继承QEMU缓存准入。
+二进制入口须按`UNIT-HOST-33`先取得固件run-as-main/loader路径；普通`.mpy`导入不具备完整脚本入口语义。
 运行时不可中断、native/IRQ/thread 清理及重连缺口须保守处理，不承诺低秒级 SLA。验收见
 [AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
 checkpoint/artifact snapshot/virtual target也需衔接；Preview/SSE 尚未实现。

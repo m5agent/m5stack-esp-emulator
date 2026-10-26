@@ -1,0 +1,147 @@
+# main.mpy 入口语义研究
+
+结论：当前固定 UIFlow 固件没有经官方入口暴露、能够同时满足任意纯字节码
+`main.mpy` 的 `__name__ == '__main__'`、正确 `__file__`、真正 `__main__`
+模块身份及同 VM 重复运行的路径。实际 guest 已证实普通 `.py` 和 `.mpy`
+的 `__import__(name, None, None, False)` 均保持原模块名并跳过 if-main 守卫。
+应继续将 `main.py + .mpy 依赖` 作为当前最小支持契约，不能将普通模块导入
+标成完整脚本运行。
+
+本研究只写 `.work`。没有改生产文件、构建固件或重建模拟器；复用了既有
+官方 mpy-cross 编译一个有限能力探针，并按后续明确授权运行了一次可见
+CoreS3 Device Service 会话。
+
+## 固定来源
+
+- UIFlow: `3a86d8f611b3639cca755a933e01a5a829771ef1`。
+- 其 `micropython` gitlink:
+  `78ff170de9e32c79db6e64d3e33d2bd60002bdcd`。
+- GitHub 完整 tree 响应无截断；gitlink 已独立核验。
+- 94 份 UIFlow patch/config blob 已下载，逐份 Git blob SHA-1 校验；没有
+  builtinimport/persistentcode、override-main 或 marshal 的覆盖。
+- 14 份 MicroPython 关键源码拷贝逐字节匹配该 commit 的 `git show`。
+- 清单与原文分别见 `uiflow-source-manifest.json`、
+  `micropython-source-manifest.json`、`uiflow/`、`micropython/`。
+
+## 官方入口的实际语义
+
+| 问题 | 固定源码结论 | 官方位置 |
+| --- | --- | --- |
+| `level=-1` | 明确抛 ValueError，没有 run-as-main 含义 | [builtinimport.c:557–565](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/builtinimport.c#L557)；[官方负控测试:18–23](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/tests/import/builtin_import.py#L18) |
+| 官方 run-as-main | `fromlist=False`，同时必须编译启用 `MICROPY_MODULE_OVERRIDE_MAIN_IMPORT`；Unix `-m` 正是传该标志 | [builtinimport.c:609–617](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/builtinimport.c#L609)；[unix/main.c:607–613](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/ports/unix/main.c#L607) |
+| ESP32 当前配置 | `PERSISTENT_CODE_LOAD=1`，可导入 `.mpy`；override-main 默认 0，UIFlow 四目标板配置及 patch 无覆盖 | [esp32/mpconfigport.h:41](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/ports/esp32/mpconfigport.h#L41)；[mpconfig.h:1128–1132](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/mpconfig.h#L1128) |
+| `MP_IMPORT_STAT_AS_FILE` | 此 pin 完全没有这个符号。枚举只有 NO_EXIST、DIR、FILE，不存在可传入的 run-as-main file flag | [builtin.h:30–35](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/builtin.h#L30) |
+| `MP_OBJ_STOP_ITERATION` dummy fromlist | 此 pin 没有用它实现 run-as-main 的调用。C-only sentinel 不等于 `mp_const_false`。任意非 None fromlist 在该路径只影响返回 leaf/top 模块 | [builtinimport.c:633–640](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/builtinimport.c#L633)；[runtime.c:1519–1543](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/runtime.c#L1519) |
+| `.py` / `.mpy` 优先级 | 先找同名目录，再 `.py`，最后 `.mpy`；已经缓存的 module 直接返回，不会重新运行 | [builtinimport.c:78–111](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/builtinimport.c#L78)；[367–386](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/builtinimport.c#L367) |
+
+启用官方 override-main 时，loader 在模块执行前将 `__name__` 改成 `__main__`，
+并在 CPython compatibility 开启时令 `sys.modules['__main__']` 指向同一个
+应用 module，另保存真实名称用于相对导入。这里只改 module 文件，不改 package
+名称；package 的 `__main__` 子模块另有 Unix `-m` 处理。见
+[builtinimport.c:471–490](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/builtinimport.c#L471)。
+
+## `__main__.mpy` 字节相同 alias 方案不可用
+
+这个问题比 frozen 模块优先级更早：
+
+1. [runtime.c:62–67](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/runtime.c#L62)
+   将 `__main__` 注册为非 extensible 的 builtin，指向 REPL 的 `dict_main`。
+2. [builtinimport.c:394–400](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/builtinimport.c#L394)
+   在 filesystem 搜索前先匹配非 extensible builtin，匹配后直接返回。
+3. 因此删除 `sys.modules['__main__']` 再普通导入 `__main__`，只会得到原
+   builtin REPL owner。磁盘上的 `__main__.mpy` 根本不会被 loader 打开。
+
+保留 caller revision、增加 runtime-owned alias、拒绝根路径冲突和完整 inventory
+校验等措施无法改变这条导入优先级。不能据此发布二进制应用入口支持。
+
+## loader、执行身份及 marker 边界
+
+真正 `.mpy` 导入由
+[builtinimport.c:242–250](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/builtinimport.c#L242)
+执行 `mp_raw_code_load_file`，紧接着 `do_execute_proto_fun`。后者设置真实
+module globals/locals 与 `__file__`，在异常时用 NLR callback 恢复调用者上下文，
+见 [167–196](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/builtinimport.c#L167)。
+`__file__` 来自真实导入路径，不由 mpy-cross 的 `-s` 文件名决定。
+
+persistentcode loader 读取、校验格式/架构/整数位宽、分配 context、加载字节码，
+并在成功或异常时关闭 reader，见
+[persistentcode.c:463–547](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/persistentcode.c#L463)。
+这个 C API 未暴露为当前 ESP32 Python 可调用的 load-then-exec API。
+
+`marshal.loads` 的源码确实可以调用 `mp_raw_code_load_mem` 并返回 code object，
+但其模块在当前 ESP32 配置未开启，实际 guest 也 ImportError。见
+[modmarshal.c:53–69](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/extmod/modmarshal.c#L53)
+与 [mpconfig.h:1608–1610](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/mpconfig.h#L1608)。
+`execfile` 总是使用文本 lexer，不是二进制 `.mpy` 入口，见
+[builtinevex.c:163–170](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/builtinevex.c#L163)。
+
+现有 source wrapper 是 compile 成功后 START，再 exec。stock importer 将 load
+与 exec 合并在一次调用内，guest Python 没有“load 完成、应用尚未执行”的公开
+回调。将导入前 marker 命名为 START，并宣称应用已进入，会改变现有契约。
+未来如采用 importer 路径，应采用明确的 `IMPORT`/`import-dispatched` acknowledgement，
+DONE/ERROR 保留终态语义；它不能证明格式读取或应用首条指令已完成。
+若必须保留 compile-success START 含义，则需要新 firmware 暴露分离的 loader API。
+
+此外，当前 `.py` 的 `exec(code, {'__name__':'__main__', ...})` 只保证名字与守卫，
+没有令该字典成为 `sys.modules['__main__']` 的应用 module。这是现有 source
+路径的独立语义边界。新的 `.mpy` 若承诺真实模块身份，需要独立 fixture，不能
+继承旧 source PASS。
+
+## 实际 guest 能力探针
+
+- 端口 8787；service generation 30；CoreS3 `program_mode=uiflow-live`。
+- runtime b8de；session `8218e02e1dfe43a494f2ed8e54d7f008`；guest PID 70868。
+- firmware SHA256:
+  `0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8`。
+- 同一 VM 三次有限 execution：初始化能力 → 真实文件包导入 → 普通 source 恢复。
+- `.mpy` 用固定 gitlink 的既有官方 compiler 编译；未重建 compiler。
+  header `4d06001f`，通过现有纯字节码结构 parser，guest 能力 `_mpy=11014`、
+  `maxsize=2147483647`。
+- 所有步骤核对新鲜 UART byte window、execution/revision、同 PID/firmware/worker、
+  同 VM `sys.path` nonce 及同 REPL owner identity。
+
+| 导入对象 | `__name__` | if-main 守卫 | `import __main__` 是应用自身 | owner 恢复 |
+| --- | --- | --- | --- | --- |
+| 普通 `.py` + fromlist False | `_m5_cap_plain` | False | False | True |
+| 纯字节码 `.mpy` + fromlist False | `_m5_cap_bytecode` | False | False | True |
+
+`level=-1` 实际为 ValueError；`marshal` 实际为 ImportError。两种导入均成功，
+没有 TypeError；其成功仅证明普通模块导入路径。恢复 source 随后正常执行并
+绘制 320×240 的 `0x123456` 颜色帧，owner 与 nonce 保持不变。
+
+证据目录：`../main-mpy-capability-live-r2-20261026/`。ZIP 20 成员，逐成员
+SHA/size、包原字节、saved execution 与 serial byte window 均已核验，ZIP SHA256:
+`c4007591780d54d2602ca05b249bbc526ea75cd421163fa058b4a5d76e524e88`。
+先下载 ZIP，再 stop `purge=0`；Flash 已释放，历史和末帧保留。
+
+r1 只有错误 base URL 导致的 health 404，没有创建 session，作为基础设施失败
+保留在 `../main-mpy-capability-live-20261026/`。没有重复开 guest 试探。
+
+## 最小可行契约与后续 fixture
+
+当前：保留 `main.py` 入口、允许已验证纯字节码 `.mpy` 依赖；`main.mpy`
+脚本入口明确拒绝，不能忽略 if-main 守卫。
+
+真正完整的 `.mpy` script 支持，至少需要以下一种经过构建部署的新 firmware：
+
+1. 开启官方 override-main importer，再使用 `__import__('main', None, None,
+   False, 0)`；保证根目录只有 `main.mpy`，拒绝同名 `.py`/目录抢占。
+2. 暴露官方 persistentcode 的 load-then-execute API，显式创建并注册应用 module，
+   令代码实际在该 module globals 中执行。若选择 marshal，需要同时满足其 code
+   object 配置依赖，不能只假设开启一个宏即完成。
+
+这两条都超出“现有 guest、不新固件”的本块约束，当前不实施。未来一次兼容
+固件初始化后可以继续同 VM 运行，仍不需要每轮刷固件，但必须绑定新 firmware
+SHA 和各目标 profile 单独验证。
+
+执行前必须清理受管入口与依赖 cache，否则 import 直接返回旧对象；保存
+`sys.modules['__main__']` 是否存在及原 owner，所有正常、异常、KeyboardInterrupt
+路径都恢复。官方 importer 的异常回调只删除真实名称 key，不替调用者撤销
+`__main__` alias，见
+[builtinimport.c:348–357](https://github.com/micropython/micropython/blob/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/py/builtinimport.c#L348)。
+本机 reset、native callback/thread、不可中断 C 调用不属于这个 finally 保证。
+
+在 root 选定入口/acknowledgement 契约之后，新 fixture 至少应包含：
+if-main 可见副作用、真实 `__file__`、`import __main__` 身份、同 revision 再执行、
+换 revision 依赖更新、loader 错误、顶层异常、循环中 Ctrl-C、随后 source 恢复，
+以及同 VM/固件/PID/UART/ZIP 证据。不能仅测试普通模块导入就称完整脚本支持。

@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-26T14:11:25.752627+00:00",
+  "classification": "NO_SUPPORTED_RUN_AS_MAIN_ENTRYPOINT_IN_CURRENT_PINNED_FIRMWARE",
+  "micropython_commit": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+  "uiflow_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "static_sources_verified": 14,
+  "uiflow_patch_and_config_blobs": 94,
+  "live_probe": {
+    "report": ".work/main-mpy-capability-live-r2-20261026/report.json",
+    "report_sha256": "c38126b92dfb20f71f897841cf137192b1655656a522d5797d3a38858e58d12f",
+    "status": "PASS",
+    "session_id": "8218e02e1dfe43a494f2ed8e54d7f008",
+    "pid": 70868,
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "runtime_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+    "generation": 30,
+    "executions": 3,
+    "evidence": {
+      "members": 20,
+      "sha256": "c4007591780d54d2602ca05b249bbc526ea75cd421163fa058b4a5d76e524e88",
+      "byte_windows_verified": true,
+      "package_bytes_verified": true
+    },
+    "cleanup": {
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true
+    },
+    "actual_import_false": {
+      "modules": [
+        {
+          "owner_id_before": 1013359328,
+          "status": "imported",
+          "module": "_m5_cap_plain",
+          "result": {
+            "name": "_m5_cap_plain",
+            "import_main_id": 1013359328,
+            "guard_executed": false,
+            "self_id": 1016541824,
+            "file": "/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d/_m5_cap_plain.py",
+            "sys_main_is_self": false,
+            "import_main_is_self": false
+          },
+          "owner_id_after": 1013359328,
+          "main_cache_restored": true,
+          "main_cache_present_before": false
+        },
+        {
+          "owner_id_before": 1013359328,
+          "status": "imported",
+          "module": "_m5_cap_bytecode",
+          "result": {
+            "name": "_m5_cap_bytecode",
+            "import_main_id": 1013359328,
+            "guard_executed": false,
+            "self_id": 1016545376,
+            "file": "/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d/_m5_cap_bytecode.mpy",
+            "sys_main_is_self": false,
+            "import_main_is_self": false
+          },
+          "owner_id_after": 1013359328,
+          "main_cache_restored": true,
+          "main_cache_present_before": false
+        }
+      ],
+      "cwd": "/flash/.m5-live-packages/6cefa044b9bbd4dc97a805115c9b563eea232f90d26d42249b9b0eea02bc692d",
+      "mpy": 11014,
+      "negative_level": "ValueError:"
+    },
+    "capabilities": {
+      "owner_id": 1013359328,
+      "mpy": 11014,
+      "owner_name": "__main__",
+      "main_cache_present": false,
+      "maxsize": 2147483647,
+      "marshal": "ImportError:no module named 'marshal'"
+    },
+    "recovery": {
+      "mpy": 11014,
+      "nonce_retained": true,
+      "file": "main.py",
+      "owner_id": 1013359328,
+      "name": "__main__"
+    }
+  },
+  "production_sources_modified": false,
+  "firmware_or_runtime_built": false,
+  "ordinary_import_is_full_script_execution": false,
+  "root___main___mpy_alias_is_viable": false,
+  "current_minimum_supported_contract": "main.py entrypoint with admitted pure-bytecode .mpy dependencies",
+  "future_exact_script_contract_requires": "new firmware with official override-main importer or exposed load-then-execute bytecode API; independent build/deployment and per-profile Device Service validation",
+  "start_marker_boundary": "stock importer combines load and execute; dispatch acknowledgement may be IMPORT, not source compile-success START"
+}

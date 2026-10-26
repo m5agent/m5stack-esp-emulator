@@ -1,0 +1,27 @@
+[
+  {
+    "query": {
+      "query": "Unit Encoder U135 LED1 LED2 PCB placement rotary 30 pulses clockwise",
+      "filter_type": "product",
+      "is_chip": false
+    },
+    "result": "success",
+    "excerpt": [
+      "- `component.encoder-resolution-not-shown`：原理图只显示 J2 的 A/B/COM 和按键触点，没有打印每圈脉冲数、机械定位数或相位时序。（证据：图 49167f49ddc2 / 第 1 页 / 页 1 J2 符号仅标 Rotary encode 与 A/COM/B/b1/b2，无脉冲数文字）",
+      "- `review.encoder-resolution`：J2 编码器每圈脉冲数、机械定位数和 A/B 相时序是什么？；原因：原理图只给出通用 Rotary encode 符号与电气连接，没有器件型号或机械参数。"
+    ]
+  },
+  {
+    "query": {
+      "query": "Unit 8Encoder U153 PCB U1 U9 RGB CH1 EC11A pulses revolution direction",
+      "filter_type": "product",
+      "is_chip": false
+    },
+    "result": "success",
+    "excerpt": [
+      "- `gpio.sw9-state-map-undetermined`：SW_K9 连接 U10 PB1（19 脚）并由 R11（10K）上拉到 3V3；SW9 符号显示接地端，但本页没有给出各机械档位对应的 SW_K9 高低电平真值表。（证据：图 75d0558295a7 / 第 1 页 / 网格 D4，SW9、SW_K9、R11 10K、3V3 与 GND；网格 B2 U10 PB1）",
+      "- `component.rgb-control-association-undetermined`：原理图确认 U1-U9 的串行电气顺序，但未标注每颗 RGB 分别对应 SW1-SW8 中哪个编码器或 SW9 拨动开关。（证据：图 75d0558295a7 / 第 1 页 / 网格 A1-A4 的 U1-U9 仅显示串链；SW1-SW9 区域无 RGB 对应编号）",
+      "- `review.rgb-control-mapping`：U1-U9 在 PCB 上分别对应 SW1-SW8 和 SW9 中的哪个实体控件？；原因：原理图只给出 RGB 串行顺序，没有给出物理位置或控件对应表。"
+    ]
+  }
+]

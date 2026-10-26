@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-26`.
 
-Status: local MVP with unified-device runtime contract `1.39.0` and bounded
+Status: local MVP with unified-device runtime contract `1.40.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -35,6 +35,13 @@ identity checks. A late response never replaces the local source draft.
 entrypoint; each path maps to `{encoding: "utf8"|"base64", data: string}`. Both
 forms use `expected_execution_id`, the same console owner and the same guest.
 `GET /devices` advertises `program_source_kinds` for admitted devices.
+Its `program_features` also declares admitted runtimes, `main.py` entrypoint,
+bytecode-only `.mpy` dependencies, unsupported binary/native entrypoints,
+`fresh-exec-globals` namespace and interrupt-only cleanup. Unadmitted devices
+return an empty object. `__name__` starts as `__main__` for script execution;
+the application dictionary does not replace the REPL module in
+`sys.modules['__main__']`. Ordinary `.mpy` import is not a script entrypoint:
+the current firmware preserves its module name, so an if-main guard will not run.
 
 Package limits are 1 MiB decoded content, 64 files and 256 KiB per file. Paths
 are canonical relative UTF-8 POSIX paths, at most 192 bytes/eight components;

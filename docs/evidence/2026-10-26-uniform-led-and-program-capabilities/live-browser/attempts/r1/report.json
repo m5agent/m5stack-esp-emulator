@@ -1,0 +1,1105 @@
+{
+  "schema_version": 1,
+  "category": "actual-uniform-led-controller-to-default-browser-feedback",
+  "status": "FAIL",
+  "captured_at": "2026-10-26T14:29:46.671Z",
+  "hardware_validation": "NOT RUN",
+  "source_sha256": {
+    "platform/tests/test_live_uniform_led_service_browser.mjs": "f0be2885a43cd5fe5178d3478632651ffdbf2310a55d6c6bb68631d008aebf45",
+    "platform/web/sessions.js": "f2dc6a04b95bc68048d67e05ef4f7e0a41ef0ce43b0304b2176c3b3913e19645",
+    "platform/web/sessions.html": "21c6d0e8765f4cfb0acf17feed6afaa9472a25976133c320cd103562a5af7a7c",
+    "platform/web/program-panel.js": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+    "platform/web/device-shell-factory.js": "f9808124f8bff27dd7aae1019deda5b2eefc1aedb5b165b3cfb151ab857e0b2a",
+    "platform/web/unit-panel.js": "e0eb4c4cc7a36bbec5c28edcb9ed7722eaae2f77add5ba55f99d960503055de4",
+    "platform/web/model-shell.js": "1cfee042e184fc936da1b9eaef142cf08b7f82daa5fbcbbdd7c150718e5a1876",
+    "platform/web/unit-visual-mappings.js": "3170a5b02080b4600aa98f93776fa5fba79c7a49ad09de09e9255fd0e869e52a",
+    "platform/units/catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+    "platform/units/runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480",
+    "platform/web/vendor/m5stack-models/vendor-manifest.json": "a26ae90cd9f4eef4c1379cc513911650253ef226070629d8001185a38dd5386a",
+    "platform/web/vendor/m5stack-models/src/core/components/Led.js": "220f32c62ad83b41a86ba6f3d280697fe47008e81bde074c4c9542120f47a0cb",
+    "platform/web/vendor/m5stack-models/src/units/encoder/assembly.js": "6120c4e66937d8ca86112550cc9d380e332fabaec2a9283aab54a83d4674999f",
+    "platform/web/vendor/m5stack-models/src/units/8encoder/index.js": "dbb970f29ebf9bb1e785460faa4655f9c9764558506da353185cd40bee17a642",
+    "platform/web/vendor/m5stack-models/src/units/rgb/index.js": "9e2cf44386e3808214f005fb788993b683e8a422dccdf1cf19fd76a64aa24a74",
+    "tests/units/run_live_unit_batch.py": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+    "tests/units/controls_probe/control_drivers/source-manifest.json": "84e76fe1ece3bb026772d66c92f998c41f500b1b39f6be892ee10ff09f03b3ab",
+    "tests/units/io_probe/io_drivers/source-manifest.json": "9dec61dc22cdb00b7794731f38291021fa824aaabff74019a8c04cbc4aecfcf1",
+    "platform/tools/device_service.py": "0499731e1005f62420e756473ef3df2c2d5a6854fad56bc12c9a054caa3e5daa",
+    "platform/tools/program_packages.py": "b8180b3846ac23ef5a085e49d539d238c4bf42d114c02d4804a39420e07eddac",
+    "platform/tools/uiflow_runtime.py": "85dbca56564d08c9a50c36d0ea867993eb70964c0d51ef950663f441b28dc506"
+  },
+  "groups": [
+    {
+      "group": {
+        "id": "i2c-hub",
+        "units": [
+          "hub",
+          "encoder",
+          "8encoder"
+        ],
+        "leaves": [
+          "encoder",
+          "8encoder"
+        ]
+      },
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "output": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r1-20261026/i2c-hub",
+      "phases": [
+        {
+          "phase": "A",
+          "source": "import sys,time,json,M5\nsys.path.append(\"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\")\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(1325148)\nscreen.setTextSize(2)\nscreen.setTextColor(0xffffff,1325148)\nscreen.setCursor(12,12)\nscreen.print('LED i2c-hub A')\nfrom machine import I2C, Pin\nfrom unit import EncoderUnit, Encoder8Unit\nbus=I2C(0,scl=Pin(1),sda=Pin(2),freq=100000)\nscan=sorted(bus.scan())\nassert scan==[0x40,0x41], 'passive HUB must expose exactly the two independent I2C addresses'\nencoder=EncoderUnit(bus)\neight=Encoder8Unit(bus)\nfor _channel,_color in enumerate([2113632,2113632],1):\n encoder.set_color(_channel,_color)\nfor _channel,_color in enumerate([4235296,4235296,4235296,4235296,4235296,4235296,4235296,4235296],1):\n eight.set_led_rgb(_channel,_color)\n# Original helper writes the ninth RGB triplet; no electrical-to-location claim.\neight.write_reg_data(0x88,[64,160,32])\nsequence=0\nwhile True:\n assert \"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\" in sys.path, 'MicroPython VM reset'\n M5.update()\n print(\"UNIFORM_LED_3ddb0a92c22f \"+json.dumps({'kind':'sample','phase':\"A\",'nonce':\"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\",'sequence':sequence,'scan':scan,'written_colors':{\"encoder\":[2113632,2113632],\"8encoder\":[4235296,4235296,4235296,4235296,4235296,4235296,4235296,4235296,4235296]},'values':{'encoder':{'counter':encoder.get_rotary_value(),'pressed':bool(encoder.get_button_status())},'8encoder':{'counters':[eight.get_counter_value(i) for i in range(1,9)],'pressed':[bool(eight.get_button_status(i)) for i in range(1,9)],'switch-on':bool(eight.get_switch_status())}}}))\n sequence+=1\n time.sleep_ms(250)\n",
+          "source_sha256": "86267c336eff69a792e16472ac245c5d9eb8d4346126ce7235fae6fe4ba29902",
+          "program": {
+            "execution_id": "cafe02ab2858459a8f92d661f6b5668d",
+            "revision_id": "a24a60d4f47361c36b4b6e4ea8b1bc53f45a7fa4b95fe824722e2bf0b58a14e8",
+            "source_sha256": "c0326a2e5c979131a22ebd14002eb2cb3569c7bfd1ddc395d3c52f0607ae10d5",
+            "source_bytes": 1673,
+            "state": "running",
+            "submitted_at": "2026-10-26T14:29:58.048649+00:00",
+            "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+            "pid": 75658,
+            "execution_mode": "same-guest-uart-repl",
+            "cleanup_mode": "interrupt-only",
+            "serial_offset": 491,
+            "next_offset": 563,
+            "acknowledged": true,
+            "transfer_mode": "raw-paste",
+            "observed_at": "2026-10-26T14:29:58.550539+00:00"
+          },
+          "request": {
+            "source": "import sys,time,json,M5\nsys.path.append(\"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\")\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(1325148)\nscreen.setTextSize(2)\nscreen.setTextColor(0xffffff,1325148)\nscreen.setCursor(12,12)\nscreen.print('LED i2c-hub A')\nfrom machine import I2C, Pin\nfrom unit import EncoderUnit, Encoder8Unit\nbus=I2C(0,scl=Pin(1),sda=Pin(2),freq=100000)\nscan=sorted(bus.scan())\nassert scan==[0x40,0x41], 'passive HUB must expose exactly the two independent I2C addresses'\nencoder=EncoderUnit(bus)\neight=Encoder8Unit(bus)\nfor _channel,_color in enumerate([2113632,2113632],1):\n encoder.set_color(_channel,_color)\nfor _channel,_color in enumerate([4235296,4235296,4235296,4235296,4235296,4235296,4235296,4235296],1):\n eight.set_led_rgb(_channel,_color)\n# Original helper writes the ninth RGB triplet; no electrical-to-location claim.\neight.write_reg_data(0x88,[64,160,32])\nsequence=0\nwhile True:\n assert \"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\" in sys.path, 'MicroPython VM reset'\n M5.update()\n print(\"UNIFORM_LED_3ddb0a92c22f \"+json.dumps({'kind':'sample','phase':\"A\",'nonce':\"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\",'sequence':sequence,'scan':scan,'written_colors':{\"encoder\":[2113632,2113632],\"8encoder\":[4235296,4235296,4235296,4235296,4235296,4235296,4235296,4235296,4235296]},'values':{'encoder':{'counter':encoder.get_rotary_value(),'pressed':bool(encoder.get_button_status())},'8encoder':{'counters':[eight.get_counter_value(i) for i in range(1,9)],'pressed':[bool(eight.get_button_status(i)) for i in range(1,9)],'switch-on':bool(eight.get_switch_status())}}}))\n sequence+=1\n time.sleep_ms(250)\n",
+            "expected_execution_id": null
+          },
+          "observation": {
+            "offset": 444,
+            "prefix_sha256": "351be2f9ea90316b3397c26c092908cfb38e4ea59d43cb07af02a79d8ca85b33",
+            "window": {
+              "session_id": "351d1af799f94b3a96002607d329d5c1",
+              "offset": 444,
+              "next_offset": 1062,
+              "data": "\r\n>>> \r\n>>> \r\n>>> \r\nraw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_cafe02ab2858459a8f92d661f6b5668d__:START\r\nUNIFORM_LED_3ddb0a92c22f {\"sequence\": 0, \"scan\": [64, 65], \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\", \"written_colors\": {\"8encoder\": [4235296, 4235296, 4235296, 4235296, 4235296, 4235296, 4235296, 4235296, 4235296], \"encoder\": [2113632, 2113632]}, \"values\": {\"8encoder\": {\"counters\": [0, 0, 0, 0, 0, 0, 0, 0], \"pressed\": [false, false, false, false, false, false, false, false], \"switch-on\": false}, \"encoder\": {\"pressed\": false, \"counter\": 0}}, \"phase\": \"A\"}\r\n",
+              "bytes": 618
+            },
+            "sample": {
+              "sequence": 0,
+              "scan": [
+                64,
+                65
+              ],
+              "kind": "sample",
+              "nonce": "/m5-uniform-led-926e0c0582f1452883b0715cb806756f",
+              "written_colors": {
+                "8encoder": [
+                  4235296,
+                  4235296,
+                  4235296,
+                  4235296,
+                  4235296,
+                  4235296,
+                  4235296,
+                  4235296,
+                  4235296
+                ],
+                "encoder": [
+                  2113632,
+                  2113632
+                ]
+              },
+              "values": {
+                "8encoder": {
+                  "counters": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "pressed": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                  ],
+                  "switch-on": false
+                },
+                "encoder": {
+                  "pressed": false,
+                  "counter": 0
+                }
+              },
+              "phase": "A"
+            }
+          }
+        }
+      ],
+      "serial_observations": [
+        {
+          "offset": 444,
+          "prefix_sha256": "351be2f9ea90316b3397c26c092908cfb38e4ea59d43cb07af02a79d8ca85b33",
+          "window": {
+            "session_id": "351d1af799f94b3a96002607d329d5c1",
+            "offset": 444,
+            "next_offset": 1062,
+            "data": "\r\n>>> \r\n>>> \r\n>>> \r\nraw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_cafe02ab2858459a8f92d661f6b5668d__:START\r\nUNIFORM_LED_3ddb0a92c22f {\"sequence\": 0, \"scan\": [64, 65], \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\", \"written_colors\": {\"8encoder\": [4235296, 4235296, 4235296, 4235296, 4235296, 4235296, 4235296, 4235296, 4235296], \"encoder\": [2113632, 2113632]}, \"values\": {\"8encoder\": {\"counters\": [0, 0, 0, 0, 0, 0, 0, 0], \"pressed\": [false, false, false, false, false, false, false, false], \"switch-on\": false}, \"encoder\": {\"pressed\": false, \"counter\": 0}}, \"phase\": \"A\"}\r\n",
+            "bytes": 618
+          },
+          "sample": {
+            "sequence": 0,
+            "scan": [
+              64,
+              65
+            ],
+            "kind": "sample",
+            "nonce": "/m5-uniform-led-926e0c0582f1452883b0715cb806756f",
+            "written_colors": {
+              "8encoder": [
+                4235296,
+                4235296,
+                4235296,
+                4235296,
+                4235296,
+                4235296,
+                4235296,
+                4235296,
+                4235296
+              ],
+              "encoder": [
+                2113632,
+                2113632
+              ]
+            },
+            "values": {
+              "8encoder": {
+                "counters": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "pressed": [
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                "switch-on": false
+              },
+              "encoder": {
+                "pressed": false,
+                "counter": 0
+              }
+            },
+            "phase": "A"
+          }
+        }
+      ],
+      "zero_echo": [],
+      "creation_request": {
+        "device_id": "cores3",
+        "ttl_seconds": 600,
+        "program_mode": "uiflow-live",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "hub",
+            "port_id": "port-a"
+          },
+          {
+            "id": "external1-1",
+            "parent_id": "external1",
+            "unit_id": "encoder",
+            "port_id": "grove-1"
+          },
+          {
+            "id": "external1-2",
+            "parent_id": "external1",
+            "unit_id": "8encoder",
+            "port_id": "grove-2"
+          }
+        ]
+      },
+      "created": {
+        "session_id": "351d1af799f94b3a96002607d329d5c1",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_artifacts": [
+          "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+        ],
+        "program_transport": "uart-repl",
+        "program": null,
+        "firmware_provenance": {
+          "kind": "uiflow",
+          "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "metadata": {
+            "schema_version": 1,
+            "kind": "uiflow2-source-composition",
+            "status": "COMPOSED_NOT_EXECUTED",
+            "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+            "entrypoint": "main.py",
+            "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+            "base_size": 16121856,
+            "flash_size": 16777216,
+            "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+            "files": [
+              {
+                "path": "boot.py",
+                "size": 245,
+                "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+                "origin": "caller"
+              },
+              {
+                "path": "main.py",
+                "size": 5,
+                "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+                "origin": "caller"
+              }
+            ],
+            "caller_file_count": 2,
+            "caller_source_bytes": 250,
+            "generated_files": [],
+            "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+            "vfs": {
+              "label": "vfs",
+              "type": 1,
+              "subtype": 129,
+              "flags": 0,
+              "offset": 11141120,
+              "size": 4980736,
+              "partition_table_offset": 32768,
+              "source": "actual-base-partition-table",
+              "filesystem": "LittleFS",
+              "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+              "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+              "base_disk_version": 131072,
+              "derived_disk_version": 131073
+            },
+            "preservation": {
+              "base_file_count": 17,
+              "preserved_file_count": 15,
+              "overwritten_files": [
+                "boot.py",
+                "main.py"
+              ],
+              "outside_vfs_unchanged": true,
+              "existing_files_readback_verified": true,
+              "source_readback_verified": true
+            },
+            "toolchain": {
+              "builder": "uiflow_source/1",
+              "python": "3.12.8",
+              "python_abi": "cpython-312",
+              "littlefs_python": "0.19.0",
+              "littlefs_library": "(2, 11)",
+              "littlefs_disk": "(2, 1)",
+              "config": {
+                "block_size": 4096,
+                "read_size": 128,
+                "prog_size": 32,
+                "lookahead_size": 128,
+                "block_cycles": 100
+              }
+            }
+          }
+        },
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "hub",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          },
+          {
+            "id": "external1-1",
+            "unit_id": "encoder",
+            "port_id": "grove-1",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove/grove-1",
+            "initial": {},
+            "parent_id": "external1"
+          },
+          {
+            "id": "external1-2",
+            "unit_id": "8encoder",
+            "port_id": "grove-2",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove/grove-2",
+            "initial": {},
+            "parent_id": "external1"
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T14:29:53.589658+00:00",
+        "expires_at": "2026-10-26T14:39:53.589661+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 31,
+          "lease_active": true
+        },
+        "idempotent_replay": false
+      },
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "pid": 75658,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 31,
+        "lease_active": true
+      },
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "hub",
+          "port_id": "port-a",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {}
+        },
+        {
+          "id": "external1-1",
+          "unit_id": "encoder",
+          "port_id": "grove-1",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove/grove-1",
+          "initial": {},
+          "parent_id": "external1"
+        },
+        {
+          "id": "external1-2",
+          "unit_id": "8encoder",
+          "port_id": "grove-2",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove/grove-2",
+          "initial": {},
+          "parent_id": "external1"
+        }
+      ],
+      "runtime_identity": {
+        "pid": 75658,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+      },
+      "contract_hashes": {
+        "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+      },
+      "rom_banners": 1,
+      "framing": {
+        "width": 439,
+        "height": 420,
+        "points": [
+          {
+            "x": 144.35462412850777,
+            "y": 248.06605217948146,
+            "z": 0.9283322328079088
+          },
+          {
+            "x": 121.2412651773472,
+            "y": 259.77448157615635,
+            "z": 0.8977390505045131
+          },
+          {
+            "x": 144.35462412850777,
+            "y": 198.57713134284614,
+            "z": 0.9283322328079088
+          },
+          {
+            "x": 121.2412651773472,
+            "y": 195.06366347522558,
+            "z": 0.8977390505045131
+          },
+          {
+            "x": 229.66743422146155,
+            "y": 248.06605217948146,
+            "z": 0.9283322328079088
+          },
+          {
+            "x": 232.79475315556115,
+            "y": 259.77448157615635,
+            "z": 0.8977390505045131
+          },
+          {
+            "x": 229.66743422146155,
+            "y": 198.57713134284614,
+            "z": 0.9283322328079088
+          },
+          {
+            "x": 232.79475315556115,
+            "y": 195.06366347522558,
+            "z": 0.8977390505045131
+          }
+        ]
+      },
+      "nonce": "/m5-uniform-led-926e0c0582f1452883b0715cb806756f",
+      "marker": "UNIFORM_LED_3ddb0a92c22f",
+      "execution_id": "cafe02ab2858459a8f92d661f6b5668d",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "history_retained": true,
+        "last_frame_available": true,
+        "pid_gone": true
+      }
+    }
+  ],
+  "unit_posts": [],
+  "physical_events": [],
+  "shared_frames": [
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 200,
+      "headers": {
+        "x-frame-capture-seq": "1",
+        "x-request-id": "dccc75739de949c58b7440dcddce0e34",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:56 GMT",
+        "content-type": "image/png",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:56.277100+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "content-length": "302",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "2",
+        "x-request-id": "3a41bb8af2c44da494a8ad78551682a1",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:56 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:56.960950+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "2",
+        "x-request-id": "077a700c1e184ea1805554ecee64284a",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:57 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:56.960950+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "3",
+        "x-request-id": "18a8628c773542d59ab8500528302239",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:57 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:57.210689+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "4",
+        "x-request-id": "3577a0a17a8842338974892f6c5000dd",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:57 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:57.337865+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "5",
+        "x-request-id": "a19f67bd2fd74afea74fcbc482a286ca",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:57 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:57.464824+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "6",
+        "x-request-id": "acf4bc953b934071ac70683d238183d7",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:57 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:57.591225+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "6",
+        "x-request-id": "24e58f7454954f94a834092a50e10254",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:57 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:57.591225+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "7",
+        "x-request-id": "512938f325eb43beaecd7d3001811069",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:57 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:57.843886+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "8",
+        "x-request-id": "5aef810b349d4286845d83c17e817c56",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:57 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:57.970635+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "9",
+        "x-request-id": "1bf9fef9790d48a6aa32c3a7d02aa769",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:58 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "a24a60d4f47361c36b4b6e4ea8b1bc53f45a7fa4b95fe824722e2bf0b58a14e8",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:58.098861+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "cafe02ab2858459a8f92d661f6b5668d",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "submitting"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "10",
+        "x-request-id": "0643c6af7df0440d8a3da1137a6b7c68",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:58 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "a24a60d4f47361c36b4b6e4ea8b1bc53f45a7fa4b95fe824722e2bf0b58a14e8",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:58.225226+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "cafe02ab2858459a8f92d661f6b5668d",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "submitting"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "10",
+        "x-request-id": "bc1de1abfe71403c998e92fb1ca79761",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:58 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "a24a60d4f47361c36b4b6e4ea8b1bc53f45a7fa4b95fe824722e2bf0b58a14e8",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:58.225226+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "cafe02ab2858459a8f92d661f6b5668d",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "submitting"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "11",
+        "x-request-id": "d376fe31a7334a1db494f884d916796d",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:58 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "a24a60d4f47361c36b4b6e4ea8b1bc53f45a7fa4b95fe824722e2bf0b58a14e8",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:58.477682+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "cafe02ab2858459a8f92d661f6b5668d",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "submitting"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "11",
+        "x-request-id": "9920af89f12c42999ad17f6af006097f",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:58 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "a24a60d4f47361c36b4b6e4ea8b1bc53f45a7fa4b95fe824722e2bf0b58a14e8",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:58.477682+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "cafe02ab2858459a8f92d661f6b5668d",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "submitting"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 200,
+      "headers": {
+        "x-frame-capture-seq": "12",
+        "x-request-id": "393226db7c0f4fc19ace11df8f73b2a9",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"fd9cd145f80a0ee8ef35e0d6e51321a804936655a0df879635528e3bd04e423b\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:58 GMT",
+        "content-type": "image/png",
+        "x-frame-sha256": "fd9cd145f80a0ee8ef35e0d6e51321a804936655a0df879635528e3bd04e423b",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "a24a60d4f47361c36b4b6e4ea8b1bc53f45a7fa4b95fe824722e2bf0b58a14e8",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:58.727215+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "content-length": "1127",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "cafe02ab2858459a8f92d661f6b5668d",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "13",
+        "x-request-id": "420fa5726c0c42e8b46cf7fbc39d3882",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"fd9cd145f80a0ee8ef35e0d6e51321a804936655a0df879635528e3bd04e423b\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:58 GMT",
+        "x-frame-sha256": "fd9cd145f80a0ee8ef35e0d6e51321a804936655a0df879635528e3bd04e423b",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "a24a60d4f47361c36b4b6e4ea8b1bc53f45a7fa4b95fe824722e2bf0b58a14e8",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:58.854439+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "cafe02ab2858459a8f92d661f6b5668d",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "13",
+        "x-request-id": "1a8443bb2fde40a5b610dc93a29bb650",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"fd9cd145f80a0ee8ef35e0d6e51321a804936655a0df879635528e3bd04e423b\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:58 GMT",
+        "x-frame-sha256": "fd9cd145f80a0ee8ef35e0d6e51321a804936655a0df879635528e3bd04e423b",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "a24a60d4f47361c36b4b6e4ea8b1bc53f45a7fa4b95fe824722e2bf0b58a14e8",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:58.854439+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "cafe02ab2858459a8f92d661f6b5668d",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "14",
+        "x-request-id": "d67702bf879747b4b57bfda8d7ee25a7",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"fd9cd145f80a0ee8ef35e0d6e51321a804936655a0df879635528e3bd04e423b\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:59 GMT",
+        "x-frame-sha256": "fd9cd145f80a0ee8ef35e0d6e51321a804936655a0df879635528e3bd04e423b",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "a24a60d4f47361c36b4b6e4ea8b1bc53f45a7fa4b95fe824722e2bf0b58a14e8",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:59.131042+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "cafe02ab2858459a8f92d661f6b5668d",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "session_id": "351d1af799f94b3a96002607d329d5c1",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "14",
+        "x-request-id": "4b69fc474fa24a858c96457d439e37ae",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"fd9cd145f80a0ee8ef35e0d6e51321a804936655a0df879635528e3bd04e423b\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 14:29:59 GMT",
+        "x-frame-sha256": "fd9cd145f80a0ee8ef35e0d6e51321a804936655a0df879635528e3bd04e423b",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "a24a60d4f47361c36b4b6e4ea8b1bc53f45a7fa4b95fe824722e2bf0b58a14e8",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T14:29:59.131042+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "cafe02ab2858459a8f92d661f6b5668d",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    }
+  ],
+  "page_errors": [],
+  "resource_errors": [],
+  "transport_faults": [],
+  "instrumentation": "Append only window.__uniformLedProbe={state,SessionVisual}; inspect existing objects. Browser /units 503 is an explicit transport negative, never substitute property values.",
+  "limits": [
+    "No electrical LED index-to-physical-location binding",
+    "No angle, rotation or mechanical calibration",
+    "Stable program stages only; no slot/burst timing claim"
+  ],
+  "service_start": {
+    "ok": true,
+    "service": "m5stack-device-service",
+    "api_version": "v1",
+    "capacity": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "c179d400f5f64e79af5716fef42d658e",
+        "generation": 31,
+        "state": "ready",
+        "pid": 75112,
+        "started_at": "2026-10-26T14:28:43.269853+00:00",
+        "heartbeat_at": "2026-10-26T14:29:43.363554+00:00",
+        "heartbeat_age_seconds": 3.313,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    }
+  },
+  "device_features": {
+    "runtimes": [
+      "qemu"
+    ],
+    "entrypoints": [
+      "main.py"
+    ],
+    "mpy_dependencies": "bytecode-only",
+    "mpy_entrypoint": false,
+    "native_mpy": false,
+    "main_namespace": "fresh-exec-globals",
+    "cleanup_mode": "interrupt-only"
+  },
+  "negative_mpy": {
+    "path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/helper.mpy",
+    "sha256": "583a0028999b53b0ba576f0a2c79c6a7cb2b7243b91725215e3de284a18a41fd",
+    "header": [
+      77,
+      6,
+      0,
+      31
+    ],
+    "compiled_or_built_during_probe": false
+  },
+  "tooling": {
+    "node_version": "v22.22.2",
+    "node_sha256": "89546913a82aa855e1b1725909a4e4cf7177384b72765e2601d33514174f64a0",
+    "python_version": "Python 3.12.8",
+    "zip_validator_sha256": "b34ddc31bea41104542f2570573b01117f01e8f77fab9ca4812af93104e14e61"
+  },
+  "browser_version": "156.0.8078.48",
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ undefined\n- 'cafe02ab2858459a8f92d661f6b5668d'\n\n    at metrics (file:///Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_live_uniform_led_service_browser.mjs:340:14)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async eventually (file:///Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_live_uniform_led_service_browser.mjs:174:36)\n    at async capture (file:///Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_live_uniform_led_service_browser.mjs:338:21)\n    at async file:///Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_live_uniform_led_service_browser.mjs:451:82"
+}

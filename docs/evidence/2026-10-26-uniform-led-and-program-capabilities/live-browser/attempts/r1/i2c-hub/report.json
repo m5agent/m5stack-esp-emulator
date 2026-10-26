@@ -1,0 +1,499 @@
+{
+  "group": {
+    "id": "i2c-hub",
+    "units": [
+      "hub",
+      "encoder",
+      "8encoder"
+    ],
+    "leaves": [
+      "encoder",
+      "8encoder"
+    ]
+  },
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "output": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r1-20261026/i2c-hub",
+  "phases": [
+    {
+      "phase": "A",
+      "source": "import sys,time,json,M5\nsys.path.append(\"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\")\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(1325148)\nscreen.setTextSize(2)\nscreen.setTextColor(0xffffff,1325148)\nscreen.setCursor(12,12)\nscreen.print('LED i2c-hub A')\nfrom machine import I2C, Pin\nfrom unit import EncoderUnit, Encoder8Unit\nbus=I2C(0,scl=Pin(1),sda=Pin(2),freq=100000)\nscan=sorted(bus.scan())\nassert scan==[0x40,0x41], 'passive HUB must expose exactly the two independent I2C addresses'\nencoder=EncoderUnit(bus)\neight=Encoder8Unit(bus)\nfor _channel,_color in enumerate([2113632,2113632],1):\n encoder.set_color(_channel,_color)\nfor _channel,_color in enumerate([4235296,4235296,4235296,4235296,4235296,4235296,4235296,4235296],1):\n eight.set_led_rgb(_channel,_color)\n# Original helper writes the ninth RGB triplet; no electrical-to-location claim.\neight.write_reg_data(0x88,[64,160,32])\nsequence=0\nwhile True:\n assert \"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\" in sys.path, 'MicroPython VM reset'\n M5.update()\n print(\"UNIFORM_LED_3ddb0a92c22f \"+json.dumps({'kind':'sample','phase':\"A\",'nonce':\"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\",'sequence':sequence,'scan':scan,'written_colors':{\"encoder\":[2113632,2113632],\"8encoder\":[4235296,4235296,4235296,4235296,4235296,4235296,4235296,4235296,4235296]},'values':{'encoder':{'counter':encoder.get_rotary_value(),'pressed':bool(encoder.get_button_status())},'8encoder':{'counters':[eight.get_counter_value(i) for i in range(1,9)],'pressed':[bool(eight.get_button_status(i)) for i in range(1,9)],'switch-on':bool(eight.get_switch_status())}}}))\n sequence+=1\n time.sleep_ms(250)\n",
+      "source_sha256": "86267c336eff69a792e16472ac245c5d9eb8d4346126ce7235fae6fe4ba29902",
+      "program": {
+        "execution_id": "cafe02ab2858459a8f92d661f6b5668d",
+        "revision_id": "a24a60d4f47361c36b4b6e4ea8b1bc53f45a7fa4b95fe824722e2bf0b58a14e8",
+        "source_sha256": "c0326a2e5c979131a22ebd14002eb2cb3569c7bfd1ddc395d3c52f0607ae10d5",
+        "source_bytes": 1673,
+        "state": "running",
+        "submitted_at": "2026-10-26T14:29:58.048649+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 75658,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 491,
+        "next_offset": 563,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T14:29:58.550539+00:00"
+      },
+      "request": {
+        "source": "import sys,time,json,M5\nsys.path.append(\"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\")\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(1325148)\nscreen.setTextSize(2)\nscreen.setTextColor(0xffffff,1325148)\nscreen.setCursor(12,12)\nscreen.print('LED i2c-hub A')\nfrom machine import I2C, Pin\nfrom unit import EncoderUnit, Encoder8Unit\nbus=I2C(0,scl=Pin(1),sda=Pin(2),freq=100000)\nscan=sorted(bus.scan())\nassert scan==[0x40,0x41], 'passive HUB must expose exactly the two independent I2C addresses'\nencoder=EncoderUnit(bus)\neight=Encoder8Unit(bus)\nfor _channel,_color in enumerate([2113632,2113632],1):\n encoder.set_color(_channel,_color)\nfor _channel,_color in enumerate([4235296,4235296,4235296,4235296,4235296,4235296,4235296,4235296],1):\n eight.set_led_rgb(_channel,_color)\n# Original helper writes the ninth RGB triplet; no electrical-to-location claim.\neight.write_reg_data(0x88,[64,160,32])\nsequence=0\nwhile True:\n assert \"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\" in sys.path, 'MicroPython VM reset'\n M5.update()\n print(\"UNIFORM_LED_3ddb0a92c22f \"+json.dumps({'kind':'sample','phase':\"A\",'nonce':\"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\",'sequence':sequence,'scan':scan,'written_colors':{\"encoder\":[2113632,2113632],\"8encoder\":[4235296,4235296,4235296,4235296,4235296,4235296,4235296,4235296,4235296]},'values':{'encoder':{'counter':encoder.get_rotary_value(),'pressed':bool(encoder.get_button_status())},'8encoder':{'counters':[eight.get_counter_value(i) for i in range(1,9)],'pressed':[bool(eight.get_button_status(i)) for i in range(1,9)],'switch-on':bool(eight.get_switch_status())}}}))\n sequence+=1\n time.sleep_ms(250)\n",
+        "expected_execution_id": null
+      },
+      "observation": {
+        "offset": 444,
+        "prefix_sha256": "351be2f9ea90316b3397c26c092908cfb38e4ea59d43cb07af02a79d8ca85b33",
+        "window": {
+          "session_id": "351d1af799f94b3a96002607d329d5c1",
+          "offset": 444,
+          "next_offset": 1062,
+          "data": "\r\n>>> \r\n>>> \r\n>>> \r\nraw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_cafe02ab2858459a8f92d661f6b5668d__:START\r\nUNIFORM_LED_3ddb0a92c22f {\"sequence\": 0, \"scan\": [64, 65], \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\", \"written_colors\": {\"8encoder\": [4235296, 4235296, 4235296, 4235296, 4235296, 4235296, 4235296, 4235296, 4235296], \"encoder\": [2113632, 2113632]}, \"values\": {\"8encoder\": {\"counters\": [0, 0, 0, 0, 0, 0, 0, 0], \"pressed\": [false, false, false, false, false, false, false, false], \"switch-on\": false}, \"encoder\": {\"pressed\": false, \"counter\": 0}}, \"phase\": \"A\"}\r\n",
+          "bytes": 618
+        },
+        "sample": {
+          "sequence": 0,
+          "scan": [
+            64,
+            65
+          ],
+          "kind": "sample",
+          "nonce": "/m5-uniform-led-926e0c0582f1452883b0715cb806756f",
+          "written_colors": {
+            "8encoder": [
+              4235296,
+              4235296,
+              4235296,
+              4235296,
+              4235296,
+              4235296,
+              4235296,
+              4235296,
+              4235296
+            ],
+            "encoder": [
+              2113632,
+              2113632
+            ]
+          },
+          "values": {
+            "8encoder": {
+              "counters": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "pressed": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "switch-on": false
+            },
+            "encoder": {
+              "pressed": false,
+              "counter": 0
+            }
+          },
+          "phase": "A"
+        }
+      }
+    }
+  ],
+  "serial_observations": [
+    {
+      "offset": 444,
+      "prefix_sha256": "351be2f9ea90316b3397c26c092908cfb38e4ea59d43cb07af02a79d8ca85b33",
+      "window": {
+        "session_id": "351d1af799f94b3a96002607d329d5c1",
+        "offset": 444,
+        "next_offset": 1062,
+        "data": "\r\n>>> \r\n>>> \r\n>>> \r\nraw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_cafe02ab2858459a8f92d661f6b5668d__:START\r\nUNIFORM_LED_3ddb0a92c22f {\"sequence\": 0, \"scan\": [64, 65], \"kind\": \"sample\", \"nonce\": \"/m5-uniform-led-926e0c0582f1452883b0715cb806756f\", \"written_colors\": {\"8encoder\": [4235296, 4235296, 4235296, 4235296, 4235296, 4235296, 4235296, 4235296, 4235296], \"encoder\": [2113632, 2113632]}, \"values\": {\"8encoder\": {\"counters\": [0, 0, 0, 0, 0, 0, 0, 0], \"pressed\": [false, false, false, false, false, false, false, false], \"switch-on\": false}, \"encoder\": {\"pressed\": false, \"counter\": 0}}, \"phase\": \"A\"}\r\n",
+        "bytes": 618
+      },
+      "sample": {
+        "sequence": 0,
+        "scan": [
+          64,
+          65
+        ],
+        "kind": "sample",
+        "nonce": "/m5-uniform-led-926e0c0582f1452883b0715cb806756f",
+        "written_colors": {
+          "8encoder": [
+            4235296,
+            4235296,
+            4235296,
+            4235296,
+            4235296,
+            4235296,
+            4235296,
+            4235296,
+            4235296
+          ],
+          "encoder": [
+            2113632,
+            2113632
+          ]
+        },
+        "values": {
+          "8encoder": {
+            "counters": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "pressed": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "switch-on": false
+          },
+          "encoder": {
+            "pressed": false,
+            "counter": 0
+          }
+        },
+        "phase": "A"
+      }
+    }
+  ],
+  "zero_echo": [],
+  "creation_request": {
+    "device_id": "cores3",
+    "ttl_seconds": 600,
+    "program_mode": "uiflow-live",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "hub",
+        "port_id": "port-a"
+      },
+      {
+        "id": "external1-1",
+        "parent_id": "external1",
+        "unit_id": "encoder",
+        "port_id": "grove-1"
+      },
+      {
+        "id": "external1-2",
+        "parent_id": "external1",
+        "unit_id": "8encoder",
+        "port_id": "grove-2"
+      }
+    ]
+  },
+  "created": {
+    "session_id": "351d1af799f94b3a96002607d329d5c1",
+    "device_id": "cores3",
+    "state": "flashing",
+    "pid": null,
+    "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "firmware_source": "uploaded",
+    "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+    "source_artifacts": [
+      "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+    ],
+    "program_transport": "uart-repl",
+    "program": null,
+    "firmware_provenance": {
+      "kind": "uiflow",
+      "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+      "metadata": {
+        "schema_version": 1,
+        "kind": "uiflow2-source-composition",
+        "status": "COMPOSED_NOT_EXECUTED",
+        "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+        "entrypoint": "main.py",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "base_size": 16121856,
+        "flash_size": 16777216,
+        "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+        "files": [
+          {
+            "path": "boot.py",
+            "size": 245,
+            "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+            "origin": "caller"
+          },
+          {
+            "path": "main.py",
+            "size": 5,
+            "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+            "origin": "caller"
+          }
+        ],
+        "caller_file_count": 2,
+        "caller_source_bytes": 250,
+        "generated_files": [],
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "vfs": {
+          "label": "vfs",
+          "type": 1,
+          "subtype": 129,
+          "flags": 0,
+          "offset": 11141120,
+          "size": 4980736,
+          "partition_table_offset": 32768,
+          "source": "actual-base-partition-table",
+          "filesystem": "LittleFS",
+          "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+          "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+          "base_disk_version": 131072,
+          "derived_disk_version": 131073
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "toolchain": {
+          "builder": "uiflow_source/1",
+          "python": "3.12.8",
+          "python_abi": "cpython-312",
+          "littlefs_python": "0.19.0",
+          "littlefs_library": "(2, 11)",
+          "littlefs_disk": "(2, 1)",
+          "config": {
+            "block_size": 4096,
+            "read_size": 128,
+            "prog_size": 32,
+            "lookahead_size": 128,
+            "block_cycles": 100
+          }
+        }
+      }
+    },
+    "runtime_env": {},
+    "runtime": "qemu",
+    "runtime_memory": {
+      "requested_psram_mib": null,
+      "cli_requested_psram_mib": null,
+      "effective_psram_mib": null,
+      "effective_source": "qemu-cli-request",
+      "policy": "not-configured",
+      "claim": "qemu-memory-configuration-only",
+      "physical_cache_psram_timing": "NOT RUN"
+    },
+    "network": null,
+    "storage": null,
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "hub",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {}
+      },
+      {
+        "id": "external1-1",
+        "unit_id": "encoder",
+        "port_id": "grove-1",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove/grove-1",
+        "initial": {},
+        "parent_id": "external1"
+      },
+      {
+        "id": "external1-2",
+        "unit_id": "8encoder",
+        "port_id": "grove-2",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove/grove-2",
+        "initial": {},
+        "parent_id": "external1"
+      }
+    ],
+    "nvs": null,
+    "flash": null,
+    "flash_retained": false,
+    "serial_bytes": 0,
+    "created_at": "2026-10-26T14:29:53.589658+00:00",
+    "expires_at": "2026-10-26T14:39:53.589661+00:00",
+    "error": null,
+    "display": {
+      "driver": "ILI9342C / ILI9342E",
+      "width": 320,
+      "height": 240,
+      "shape": "rect",
+      "touch": true
+    },
+    "display_available": true,
+    "last_frame_available": false,
+    "last_frame_captured_at": null,
+    "device_state_supported": true,
+    "last_device_state_available": false,
+    "last_device_state_at": null,
+    "completed_at": null,
+    "event_count": 3,
+    "restored": false,
+    "interrupted": false,
+    "reattached_process": false,
+    "recovery_scope": null,
+    "companions": {
+      "http_fixture": {
+        "required": false
+      },
+      "ble_probe": {
+        "required": false
+      }
+    },
+    "worker": {
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 31,
+      "lease_active": true
+    },
+    "idempotent_replay": false
+  },
+  "session_id": "351d1af799f94b3a96002607d329d5c1",
+  "pid": 75658,
+  "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 31,
+    "lease_active": true
+  },
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "hub",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    },
+    {
+      "id": "external1-1",
+      "unit_id": "encoder",
+      "port_id": "grove-1",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove/grove-1",
+      "initial": {},
+      "parent_id": "external1"
+    },
+    {
+      "id": "external1-2",
+      "unit_id": "8encoder",
+      "port_id": "grove-2",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove/grove-2",
+      "initial": {},
+      "parent_id": "external1"
+    }
+  ],
+  "runtime_identity": {
+    "pid": 75658,
+    "executable_name": "qemu-system-xtensa",
+    "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+  },
+  "contract_hashes": {
+    "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+    "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+  },
+  "rom_banners": 1,
+  "framing": {
+    "width": 439,
+    "height": 420,
+    "points": [
+      {
+        "x": 144.35462412850777,
+        "y": 248.06605217948146,
+        "z": 0.9283322328079088
+      },
+      {
+        "x": 121.2412651773472,
+        "y": 259.77448157615635,
+        "z": 0.8977390505045131
+      },
+      {
+        "x": 144.35462412850777,
+        "y": 198.57713134284614,
+        "z": 0.9283322328079088
+      },
+      {
+        "x": 121.2412651773472,
+        "y": 195.06366347522558,
+        "z": 0.8977390505045131
+      },
+      {
+        "x": 229.66743422146155,
+        "y": 248.06605217948146,
+        "z": 0.9283322328079088
+      },
+      {
+        "x": 232.79475315556115,
+        "y": 259.77448157615635,
+        "z": 0.8977390505045131
+      },
+      {
+        "x": 229.66743422146155,
+        "y": 198.57713134284614,
+        "z": 0.9283322328079088
+      },
+      {
+        "x": 232.79475315556115,
+        "y": 195.06366347522558,
+        "z": 0.8977390505045131
+      }
+    ]
+  },
+  "nonce": "/m5-uniform-led-926e0c0582f1452883b0715cb806756f",
+  "marker": "UNIFORM_LED_3ddb0a92c22f",
+  "execution_id": "cafe02ab2858459a8f92d661f6b5668d",
+  "cleanup": {
+    "state": "stopped",
+    "flash_retained": false,
+    "history_retained": true,
+    "last_frame_available": true,
+    "pid_gone": true
+  }
+}

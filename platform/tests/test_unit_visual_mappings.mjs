@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {readFile, writeFile, mkdir} from 'node:fs/promises';
 import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {CARDKB_KEY_IDS, physicalInput, visualCommands, visualMappingCoverage} from '../web/unit-visual-mappings.js';
+import {CARDKB_KEY_IDS, arrayLedFeedback, physicalInput, visualCommands, visualMappingCoverage} from '../web/unit-visual-mappings.js';
 import {KEYS as visualKeys} from '../web/vendor/m5stack-models/src/units/cardkb/dimensions.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -60,14 +60,30 @@ assert.deepEqual(visualCommands({...cardState, errors: {keys: 'qmp failed'}}, 'g
 checks.push('observed-readback-only-strict-types-no-keycode-pose-guess');
 
 const eightState = snapshot('8encoder', {pressed: channels, counters: [1, 2, 3, 4, 5, 6, 7, 8], 'switch-on': true, 'led-rgb': Array(9).fill(0xABCDEF)});
-assert.equal(visualCommands(eightState, 'grove').length, 8, 'uncalibrated LEDs/rotations/switch must remain untouched');
+assert.equal(visualCommands(eightState, 'grove').length, 17, 'uniform colors need no index permutation; rotations/switch remain uncalibrated');
 for (const [id, properties] of [
-  ['angle', {'voltage-mv': 1250}], ['encoder', {counter: 100, 'led-rgb': [1, 2]}],
+  ['angle', {'voltage-mv': 1250}],
   ['joystick-v11', {'x-raw': 255, 'y-raw': 0, 'button-raw': 1}],
   ['relay', {'output-level': true}], ['buzzer', {'frequency-hz': 1000, 'duty-pct': 50}],
 ]) assert.deepEqual(visualCommands(snapshot(id, properties), 'grove'), [], `${id} must not invent a physical conversion`);
 assert.equal(input('joystick-v11', 'press', 'down'), null, 'raw pressed polarity requires evidence');
 checks.push('uncalibrated-angle-count-axis-led-switch-and-rpm-fail-closed');
+
+const unknownEncoder = ['led0', 'led1'].map(target => ({type: 'led', target: `grove/${target}`, known: false}));
+for (const [unit, targets] of [['rgb', ['led0', 'led1', 'led2']], ['encoder', ['led0', 'led1']], ['8encoder', Array.from({length: 9}, (_, i) => `rgb-${i + 1}`)]]) {
+  for (const color of [0, 0x123456, 0xFF0000]) {
+    const state = snapshot(unit, {'led-rgb': Array(targets.length).fill(color)});
+    assert.equal(arrayLedFeedback(state).mapping, 'uniform');
+    assert.deepEqual(visualCommands(state, 'grove'), targets.map(target => ({type: 'led', target: `grove/${target}`, color, on: color !== 0})));
+  }
+  for (const colors of [[], Array(targets.length - 1).fill(0), Array(targets.length).fill(-1), Array(targets.length).fill(true), new Array(targets.length), [1, ...Array(targets.length - 1).fill(2)]]) {
+    assert.deepEqual(visualCommands(snapshot(unit, {'led-rgb': colors}), 'grove'), targets.map(target => ({type: 'led', target: `grove/${target}`, known: false})));
+  }
+  for (const extra of [{available: false}, {errors: {read: 'failed'}}]) {
+    assert.deepEqual(visualCommands(snapshot(unit, {'led-rgb': Array(targets.length).fill(0xFF0000)}, extra), 'grove'), targets.map(target => ({type: 'led', target: `grove/${target}`, known: false})));
+  }
+}
+checks.push('uniform-arrays-permutation-invariant-and-unknown-withdraws-all-targets');
 
 // Synthetic calibration is ONLY a converter fixture, never hardware evidence.
 const bindings = {
@@ -80,9 +96,9 @@ assert.deepEqual(visualCommands(snapshot('encoder', {counter: 20, 'led-rgb': [0x
   {type: 'led', target: 'grove/led0', color: 0x040506, on: true},
   {type: 'joint', target: 'grove/rotation', angleDeg: 30},
 ]);
-assert.deepEqual(visualCommands(snapshot('encoder', {counter: 20, 'led-rgb': [1, 2]}), 'grove', {bindings: {...bindings, evidence: ''}}), []);
-assert.deepEqual(visualCommands(snapshot('encoder', {'led-rgb': [1, 2]}), 'grove', {bindings: {...bindings, ledTargets: ['led0', 'led0']}}), []);
-assert.deepEqual(visualCommands(snapshot('encoder', {counter: 20}), 'grove', {bindings: {...bindings, joints: [{field: 'counter', target: 'rotation', scale: 2, offset: 0, maximum: 10}]}}), []);
+assert.deepEqual(visualCommands(snapshot('encoder', {counter: 20, 'led-rgb': [1, 2]}), 'grove', {bindings: {...bindings, evidence: ''}}), unknownEncoder);
+assert.deepEqual(visualCommands(snapshot('encoder', {'led-rgb': [1, 2]}), 'grove', {bindings: {...bindings, ledTargets: ['led0', 'led0']}}), unknownEncoder);
+assert.deepEqual(visualCommands(snapshot('encoder', {counter: 20}), 'grove', {bindings: {...bindings, joints: [{field: 'counter', target: 'rotation', scale: 2, offset: 0, maximum: 10}]}}), unknownEncoder);
 const activeFan = [{type: 'drive-activity', target: 'grove/rotor', active: true}];
 assert.deepEqual(visualCommands(snapshot('fan', {'duty-pct': 100}), 'grove', {bindings: {...bindings, joints: [{field: 'duty-pct', target: 'rotor', scale: 50, offset: 0}]}}), activeFan, 'PWM only enables a qualitative activity command, never a scaled angle or RPM');
 for (const state of [snapshot('fan', {'duty-pct': 0}), snapshot('fan', {'duty-pct': Infinity}), snapshot('fan', {'duty-pct': 1}, {available: false})]) {
@@ -90,7 +106,7 @@ for (const state of [snapshot('fan', {'duty-pct': 0}), snapshot('fan', {'duty-pc
 }
 assert.deepEqual(visualCommands(snapshot('fan', {'duty-pct': 50}), 'grove', {running: false}), [{...activeFan[0], active: false}]);
 const switchBinding = {evidence: 'synthetic switch fixture', switchPositions: {on: 0, off: 1}};
-assert.equal(visualCommands(eightState, 'grove', {bindings: switchBinding}).at(-1).position, 0);
+assert.equal(visualCommands(eightState, 'grove', {bindings: switchBinding}).find(command => command.type === 'position').position, 0);
 assert.equal(input('8encoder', 'switch', 'up', {bindings: switchBinding}), null);
 assert.equal(input('8encoder', 'switch', 'down', {bindings: switchBinding}), null, 'switch needs an actual detent in its event');
 assert.deepEqual(physicalInput({kind: 'button', id: 'grove/switch', action: 'down', position: 0}, {unit_id: '8encoder'}, {port: 'grove', bindings: switchBinding}), {'switch-on': true});

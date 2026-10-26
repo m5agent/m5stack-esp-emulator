@@ -1,0 +1,38 @@
+"""Host-only permutation proof; no product import, HTTP or guest execution."""
+import itertools
+import json
+import math
+
+
+def proof(n):
+    colors = (0, 0xFF0000, 0x00FF00, 0x0000FF, 0x123456)
+    count = 0
+    for permutation in itertools.permutations(range(n)):
+        for color in colors:
+            logical = [color] * n
+            assert [logical[index] for index in permutation] == logical
+        count += 1
+    assert count == math.factorial(n)
+    asymmetric = [0xFF0000, 0x00FF00] + [0] * (n - 2)
+    swapped = [1, 0] + list(range(2, n))
+    assert [asymmetric[index] for index in swapped] != asymmetric
+    return {
+        "led_count": n,
+        "permutations_checked": count,
+        "uniform_vectors_per_permutation": len(colors),
+        "uniform_invariance": "PASS (mathematical, host-only)",
+        "nonuniform_counterexample": {
+            "identity_result": asymmetric,
+            "swap_first_two_result": [asymmetric[index] for index in swapped],
+        },
+    }
+
+
+if __name__ == "__main__":
+    print(json.dumps({
+        "category": "host-only-permutation-invariance-proof",
+        "status": "PASS",
+        "guest_execution": "NOT RUN",
+        "hardware_execution": "NOT RUN",
+        "proofs": [proof(2), proof(9)],
+    }, indent=2))

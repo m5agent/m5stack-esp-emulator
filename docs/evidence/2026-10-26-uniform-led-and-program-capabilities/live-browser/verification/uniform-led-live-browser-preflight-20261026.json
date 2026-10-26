@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "guest_execution": "NOT RUN",
+  "browser_execution": "NOT RUN",
+  "test_script": "platform/tests/test_live_uniform_led_service_browser.mjs",
+  "test_sha256": "f0be2885a43cd5fe5178d3478632651ffdbf2310a55d6c6bb68631d008aebf45",
+  "checks": [
+    "node --check",
+    "8 generated guest sources plus ZIP validator Python AST",
+    "offline topology and all A/B/C/D LED arrays valid",
+    "UTF-8 and trailing whitespace"
+  ],
+  "plan_sha256": "8513d47b20ceabf353d2a38ff4e9f73b64c81e419fa855e82dad58ea3961e4d9",
+  "factory_source_freeze_included": true
+}

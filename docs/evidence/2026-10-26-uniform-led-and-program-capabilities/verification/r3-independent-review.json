@@ -1,0 +1,549 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-26T14:54:41.777673+00:00",
+  "category": "independent-readonly-r3-actual-uniform-LED-evidence-review",
+  "status": "PASS",
+  "acceptance_scope": "Actual guest data plane, all 14 mounted LED materials/known states, complete front/iso canvas and nonblank direct renderer. No claim that all 14 LEDs are optically unoccluded simultaneously.",
+  "data_plane_and_material_assertions": "PASS",
+  "browser_screenshot_acceptance": "PASS within complete-canvas scope",
+  "original_report_status": "PASS",
+  "original_report_sha256": "416ad34a113a5e4ae69d051af4460df5d647146cc896c6f5095f960034fe1a20",
+  "original_report_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r3-20261026/report.json",
+  "executed_probe_sha256": "e1308a230b6aa0d335ba010f887994c12de5a202310ac038d7f35073d73e164c",
+  "executed_probe_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_live_uniform_led_service_browser.mjs",
+  "source_checks": [
+    {
+      "path": "platform/tests/test_live_uniform_led_service_browser.mjs",
+      "executed_sha256": "e1308a230b6aa0d335ba010f887994c12de5a202310ac038d7f35073d73e164c",
+      "current_sha256": "e1308a230b6aa0d335ba010f887994c12de5a202310ac038d7f35073d73e164c",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/sessions.js",
+      "executed_sha256": "f2dc6a04b95bc68048d67e05ef4f7e0a41ef0ce43b0304b2176c3b3913e19645",
+      "current_sha256": "f2dc6a04b95bc68048d67e05ef4f7e0a41ef0ce43b0304b2176c3b3913e19645",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/sessions.html",
+      "executed_sha256": "21c6d0e8765f4cfb0acf17feed6afaa9472a25976133c320cd103562a5af7a7c",
+      "current_sha256": "21c6d0e8765f4cfb0acf17feed6afaa9472a25976133c320cd103562a5af7a7c",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/program-panel.js",
+      "executed_sha256": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+      "current_sha256": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/device-shell-factory.js",
+      "executed_sha256": "f9808124f8bff27dd7aae1019deda5b2eefc1aedb5b165b3cfb151ab857e0b2a",
+      "current_sha256": "f9808124f8bff27dd7aae1019deda5b2eefc1aedb5b165b3cfb151ab857e0b2a",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/unit-panel.js",
+      "executed_sha256": "e0eb4c4cc7a36bbec5c28edcb9ed7722eaae2f77add5ba55f99d960503055de4",
+      "current_sha256": "e0eb4c4cc7a36bbec5c28edcb9ed7722eaae2f77add5ba55f99d960503055de4",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/model-shell.js",
+      "executed_sha256": "1cfee042e184fc936da1b9eaef142cf08b7f82daa5fbcbbdd7c150718e5a1876",
+      "current_sha256": "1cfee042e184fc936da1b9eaef142cf08b7f82daa5fbcbbdd7c150718e5a1876",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/unit-visual-mappings.js",
+      "executed_sha256": "3170a5b02080b4600aa98f93776fa5fba79c7a49ad09de09e9255fd0e869e52a",
+      "current_sha256": "3170a5b02080b4600aa98f93776fa5fba79c7a49ad09de09e9255fd0e869e52a",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/units/catalog.json",
+      "executed_sha256": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+      "current_sha256": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/units/runtime-profiles.json",
+      "executed_sha256": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480",
+      "current_sha256": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/vendor-manifest.json",
+      "executed_sha256": "a26ae90cd9f4eef4c1379cc513911650253ef226070629d8001185a38dd5386a",
+      "current_sha256": "a26ae90cd9f4eef4c1379cc513911650253ef226070629d8001185a38dd5386a",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/src/core/components/Led.js",
+      "executed_sha256": "220f32c62ad83b41a86ba6f3d280697fe47008e81bde074c4c9542120f47a0cb",
+      "current_sha256": "220f32c62ad83b41a86ba6f3d280697fe47008e81bde074c4c9542120f47a0cb",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/src/units/encoder/assembly.js",
+      "executed_sha256": "6120c4e66937d8ca86112550cc9d380e332fabaec2a9283aab54a83d4674999f",
+      "current_sha256": "6120c4e66937d8ca86112550cc9d380e332fabaec2a9283aab54a83d4674999f",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/src/units/8encoder/index.js",
+      "executed_sha256": "dbb970f29ebf9bb1e785460faa4655f9c9764558506da353185cd40bee17a642",
+      "current_sha256": "dbb970f29ebf9bb1e785460faa4655f9c9764558506da353185cd40bee17a642",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/src/units/rgb/index.js",
+      "executed_sha256": "9e2cf44386e3808214f005fb788993b683e8a422dccdf1cf19fd76a64aa24a74",
+      "current_sha256": "9e2cf44386e3808214f005fb788993b683e8a422dccdf1cf19fd76a64aa24a74",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "tests/units/run_live_unit_batch.py",
+      "executed_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "current_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "tests/units/controls_probe/control_drivers/source-manifest.json",
+      "executed_sha256": "84e76fe1ece3bb026772d66c92f998c41f500b1b39f6be892ee10ff09f03b3ab",
+      "current_sha256": "84e76fe1ece3bb026772d66c92f998c41f500b1b39f6be892ee10ff09f03b3ab",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "tests/units/io_probe/io_drivers/source-manifest.json",
+      "executed_sha256": "9dec61dc22cdb00b7794731f38291021fa824aaabff74019a8c04cbc4aecfcf1",
+      "current_sha256": "9dec61dc22cdb00b7794731f38291021fa824aaabff74019a8c04cbc4aecfcf1",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/tools/device_service.py",
+      "executed_sha256": "0499731e1005f62420e756473ef3df2c2d5a6854fad56bc12c9a054caa3e5daa",
+      "current_sha256": "0499731e1005f62420e756473ef3df2c2d5a6854fad56bc12c9a054caa3e5daa",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/tools/program_packages.py",
+      "executed_sha256": "b8180b3846ac23ef5a085e49d539d238c4bf42d114c02d4804a39420e07eddac",
+      "current_sha256": "b8180b3846ac23ef5a085e49d539d238c4bf42d114c02d4804a39420e07eddac",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/tools/uiflow_runtime.py",
+      "executed_sha256": "85dbca56564d08c9a50c36d0ea867993eb70964c0d51ef950663f441b28dc506",
+      "current_sha256": "85dbca56564d08c9a50c36d0ea867993eb70964c0d51ef950663f441b28dc506",
+      "matches": true,
+      "exception": null
+    }
+  ],
+  "before_after_sources_match": true,
+  "source_freeze_evidence": "Probe records all initial hashes and asserts the same hashes after execution before PASS. Independent review verified all current hashes before and after audit. No separate freeze-and-cleanup-check.json exists for r3.",
+  "all_original_raw_evidence_unchanged": true,
+  "r2_independence": "New r3 sessions and executions; r2 review remains PARTIAL. No r2/r4 image or runtime samples spliced into this review.",
+  "groups": [
+    {
+      "group": "i2c-hub",
+      "data_plane_and_materials": "PASS",
+      "session_id": "2385a7553db04dc0b7aa495629ad3d87",
+      "pid": 81028,
+      "pid_gone_independently": true,
+      "worker_generation": 31,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime_identity": {
+        "pid": 81028,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+      },
+      "executions": [
+        "1db4cb08831c429e8e7bfe76f904588e",
+        "21128e434eda4f7bb61153eda247a813",
+        "8a4a9792648847e3a37ed4d929db7709",
+        "ded799acdd8e48e8ade9cab1017a1ce0"
+      ],
+      "led_count": 11,
+      "ZIP_revalidation": {
+        "status": "PASS",
+        "members": 23,
+        "executions": 4,
+        "serial_windows": 6,
+        "identity_source_byte_windows_and_member_sha": true,
+        "final_leaf_unit_state_phase_D_verified": true,
+        "generic_qom_snapshot_truncated": true,
+        "generic_qom_used_as_complete_unit_raw_evidence": false,
+        "independent_unit_raw_qom_location": "report phases[].capture.qom.raw",
+        "zip_sha256": "4cab9a1e11ad15256f2de6996571f486ea87ac56fc2ecbd50120f8247d76343b"
+      },
+      "history_and_frame_readonly_GET": "PASS",
+      "transport_count_snapshot": {
+        "recorded_before_zero_echo": 12,
+        "total_browser_503": 14,
+        "note": "injected_gets was captured before the following zero-echo observation, so it is a prefix count"
+      },
+      "screenshot_acceptance": "PASS complete front/iso canvas and nonblank direct renderer; no all-LED optical-unoccluded claim"
+    },
+    {
+      "group": "rmt-rgb",
+      "data_plane_and_materials": "PASS",
+      "session_id": "26db63775ee748a596161bf5b6872e03",
+      "pid": 81278,
+      "pid_gone_independently": true,
+      "worker_generation": 31,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime_identity": {
+        "pid": 81278,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+      },
+      "executions": [
+        "001a9c9a359a45638ea3dd56432806de",
+        "0652fa2f1a484f0ba0da1ab6d9dd6407",
+        "605e40e2ab7c4adbbd52ba7080981382",
+        "daed54ad3ef04f13910c35641603d048"
+      ],
+      "led_count": 3,
+      "ZIP_revalidation": {
+        "status": "PASS",
+        "members": 23,
+        "executions": 4,
+        "serial_windows": 6,
+        "identity_source_byte_windows_and_member_sha": true,
+        "final_leaf_unit_state_phase_D_verified": true,
+        "generic_qom_snapshot_truncated": true,
+        "generic_qom_used_as_complete_unit_raw_evidence": false,
+        "independent_unit_raw_qom_location": "report phases[].capture.qom.raw",
+        "zip_sha256": "2bba357b7bfda9db44df539b1fceba9f545a08f548ebd50417afa87bf2453295"
+      },
+      "history_and_frame_readonly_GET": "PASS",
+      "transport_count_snapshot": {
+        "recorded_before_zero_echo": 10,
+        "total_browser_503": 12,
+        "note": "injected_gets was captured before the following zero-echo observation, so it is a prefix count"
+      },
+      "screenshot_acceptance": "PASS complete front/iso canvas and nonblank direct renderer; no all-LED optical-unoccluded claim"
+    }
+  ],
+  "screenshots": [
+    {
+      "group": "i2c-hub",
+      "phase_or_condition": "A",
+      "status": "PASS",
+      "browser_views": [
+        "front",
+        "iso"
+      ],
+      "browser_stage_size": [
+        878,
+        842
+      ],
+      "direct_renderer_size": [
+        878,
+        840
+      ],
+      "screenshot_perimeter_note": "Locator screenshot enclosing fractional CSS coordinates adds one CSS pixel vertically; direct canvas size independently exact.",
+      "direct_render_views": [
+        "front",
+        "iso"
+      ],
+      "bounds": "all eight corners of whole assembly and each attachment fit within canvas",
+      "LED_optical_unoccluded_claim": false
+    },
+    {
+      "group": "i2c-hub",
+      "phase_or_condition": "B",
+      "status": "PASS",
+      "browser_views": [
+        "front",
+        "iso"
+      ],
+      "browser_stage_size": [
+        878,
+        842
+      ],
+      "direct_renderer_size": [
+        878,
+        840
+      ],
+      "screenshot_perimeter_note": "Locator screenshot enclosing fractional CSS coordinates adds one CSS pixel vertically; direct canvas size independently exact.",
+      "direct_render_views": [
+        "front",
+        "iso"
+      ],
+      "bounds": "all eight corners of whole assembly and each attachment fit within canvas",
+      "LED_optical_unoccluded_claim": false
+    },
+    {
+      "group": "i2c-hub",
+      "phase_or_condition": "C",
+      "status": "PASS",
+      "browser_views": [
+        "front",
+        "iso"
+      ],
+      "browser_stage_size": [
+        878,
+        842
+      ],
+      "direct_renderer_size": [
+        878,
+        840
+      ],
+      "screenshot_perimeter_note": "Locator screenshot enclosing fractional CSS coordinates adds one CSS pixel vertically; direct canvas size independently exact.",
+      "direct_render_views": [
+        "front",
+        "iso"
+      ],
+      "bounds": "all eight corners of whole assembly and each attachment fit within canvas",
+      "LED_optical_unoccluded_claim": false
+    },
+    {
+      "group": "i2c-hub",
+      "phase_or_condition": "D",
+      "status": "PASS",
+      "browser_views": [
+        "front",
+        "iso"
+      ],
+      "browser_stage_size": [
+        878,
+        842
+      ],
+      "direct_renderer_size": [
+        878,
+        840
+      ],
+      "screenshot_perimeter_note": "Locator screenshot enclosing fractional CSS coordinates adds one CSS pixel vertically; direct canvas size independently exact.",
+      "direct_render_views": [
+        "front",
+        "iso"
+      ],
+      "bounds": "all eight corners of whole assembly and each attachment fit within canvas",
+      "LED_optical_unoccluded_claim": false
+    },
+    {
+      "group": "i2c-hub",
+      "phase_or_condition": "C-browser-HTTP503-unknown",
+      "status": "PASS",
+      "browser_views": [
+        "front",
+        "iso"
+      ],
+      "browser_stage_size": [
+        878,
+        842
+      ],
+      "direct_renderer_size": [
+        878,
+        840
+      ],
+      "screenshot_perimeter_note": "Locator screenshot enclosing fractional CSS coordinates adds one CSS pixel vertically; direct canvas size independently exact.",
+      "direct_render_views": [
+        "front",
+        "iso"
+      ],
+      "bounds": "all eight corners of whole assembly and each attachment fit within canvas",
+      "LED_optical_unoccluded_claim": false
+    },
+    {
+      "group": "rmt-rgb",
+      "phase_or_condition": "A",
+      "status": "PASS",
+      "browser_views": [
+        "front",
+        "iso"
+      ],
+      "browser_stage_size": [
+        878,
+        842
+      ],
+      "direct_renderer_size": [
+        878,
+        840
+      ],
+      "screenshot_perimeter_note": "Locator screenshot enclosing fractional CSS coordinates adds one CSS pixel vertically; direct canvas size independently exact.",
+      "direct_render_views": [
+        "front",
+        "iso"
+      ],
+      "bounds": "all eight corners of whole assembly and each attachment fit within canvas",
+      "LED_optical_unoccluded_claim": false
+    },
+    {
+      "group": "rmt-rgb",
+      "phase_or_condition": "B",
+      "status": "PASS",
+      "browser_views": [
+        "front",
+        "iso"
+      ],
+      "browser_stage_size": [
+        878,
+        842
+      ],
+      "direct_renderer_size": [
+        878,
+        840
+      ],
+      "screenshot_perimeter_note": "Locator screenshot enclosing fractional CSS coordinates adds one CSS pixel vertically; direct canvas size independently exact.",
+      "direct_render_views": [
+        "front",
+        "iso"
+      ],
+      "bounds": "all eight corners of whole assembly and each attachment fit within canvas",
+      "LED_optical_unoccluded_claim": false
+    },
+    {
+      "group": "rmt-rgb",
+      "phase_or_condition": "C",
+      "status": "PASS",
+      "browser_views": [
+        "front",
+        "iso"
+      ],
+      "browser_stage_size": [
+        878,
+        842
+      ],
+      "direct_renderer_size": [
+        878,
+        840
+      ],
+      "screenshot_perimeter_note": "Locator screenshot enclosing fractional CSS coordinates adds one CSS pixel vertically; direct canvas size independently exact.",
+      "direct_render_views": [
+        "front",
+        "iso"
+      ],
+      "bounds": "all eight corners of whole assembly and each attachment fit within canvas",
+      "LED_optical_unoccluded_claim": false
+    },
+    {
+      "group": "rmt-rgb",
+      "phase_or_condition": "D",
+      "status": "PASS",
+      "browser_views": [
+        "front",
+        "iso"
+      ],
+      "browser_stage_size": [
+        878,
+        842
+      ],
+      "direct_renderer_size": [
+        878,
+        840
+      ],
+      "screenshot_perimeter_note": "Locator screenshot enclosing fractional CSS coordinates adds one CSS pixel vertically; direct canvas size independently exact.",
+      "direct_render_views": [
+        "front",
+        "iso"
+      ],
+      "bounds": "all eight corners of whole assembly and each attachment fit within canvas",
+      "LED_optical_unoccluded_claim": false
+    },
+    {
+      "group": "rmt-rgb",
+      "phase_or_condition": "C-browser-HTTP503-unknown",
+      "status": "PASS",
+      "browser_views": [
+        "front",
+        "iso"
+      ],
+      "browser_stage_size": [
+        878,
+        842
+      ],
+      "direct_renderer_size": [
+        878,
+        840
+      ],
+      "screenshot_perimeter_note": "Locator screenshot enclosing fractional CSS coordinates adds one CSS pixel vertically; direct canvas size independently exact.",
+      "direct_render_views": [
+        "front",
+        "iso"
+      ],
+      "bounds": "all eight corners of whole assembly and each attachment fit within canvas",
+      "LED_optical_unoccluded_claim": false
+    }
+  ],
+  "manual_visual_review": {
+    "paths": [
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r3-20261026/i2c-hub/A-iso-browser.png",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r3-20261026/i2c-hub/C-iso-browser.png",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r3-20261026/i2c-hub/C-transport-unknown-iso-browser.png",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r3-20261026/rmt-rgb/A-iso-browser.png",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r3-20261026/rmt-rgb/C-iso-browser.png",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r3-20261026/rmt-rgb/C-transport-unknown-iso-browser.png",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r3-20261026/i2c-hub/A-browser.png",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r3-20261026/i2c-hub/C-front-render.png",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r3-20261026/i2c-hub/C-transport-unknown-front-render.png",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r3-20261026/i2c-hub/C-transport-unknown-encoder-panel.png"
+    ],
+    "observed": "Actual host, HUB/attached models and RGB visible within full canvas; known A/C emission and neutral unknown appearance confirmed in iso views. Front views show structural occlusion of Encoder by 8Encoder. HTTP503 panel explicitly labels unknown, with prior numeric readback retained.",
+    "all_14_LEDs_optically_unoccluded": false
+  },
+  "totals": {
+    "executions": 8,
+    "actual_LED_components": 14,
+    "per_phase_LED_material_checks": 56,
+    "ZIP_members": 46,
+    "fresh_UART_windows": 12,
+    "PNG_frames": 8,
+    "PNG_total": 75,
+    "screenshot_groups": 10,
+    "browser_canvas_views": 20,
+    "direct_renderer_views": 20,
+    "model_bounding_corner_projections": 480,
+    "zero_echo_windows": 10,
+    "zero_echo_ms_each": 1300,
+    "unit_input_POSTs": 0,
+    "physical_events": 0,
+    "browser_HTTP503": 26
+  },
+  "teardown_failclosed_host_negative": {
+    "status": "PASS",
+    "exact_frozen_functions": true,
+    "teardown_throw_rejected": true,
+    "later_PASS_cannot_hide_error": true,
+    "empty_null_errors_rejected": true,
+    "invalid_cleanup_rejected": true,
+    "guest": "NOT RUN",
+    "browser": "NOT RUN",
+    "network": "NOT USED"
+  },
+  "separate_frame_sampling_notes": [],
+  "limits": [
+    "Virtual-device category only; physical hardware NOT RUN.",
+    "Stable uniform/latest-value scope; no nonuniform physical permutation or shaft-angle calibration. UNIT-HOST-29 remains OPEN.",
+    "Complete canvas and in-bounds Box3 projections establish no image-boundary clipping, not lack of model-to-model optical occlusion. Encoder is partly occluded by 8Encoder in HUB views.",
+    "All 14 LED known/material states are independently asserted on mounted objects; screenshots do not establish simultaneous pixel-level visibility of every LED.",
+    "HTTP503 removes model emission to neutral unknown; this does not establish electrical off.",
+    "qom/snapshot.json is truncated; complete per-leaf raw QOM is recorded independently in capture.qom.raw, final D leaf states separately verified in ZIP units/state.json.",
+    "Frame/QOM/materials are separately sampled; no atomic same-frame claim.",
+    "Only two framebuffer sample coordinates were compared to mounted display; no full framebuffer equality claim.",
+    "transport_negative.injected_gets is an earlier captured prefix (HUB12/RGB10); top-level transport_faults is the full actual response set (HUB14/RGB12)."
+  ],
+  "mutations": "Only new independent r3 review and its .work host review script; original evidence/product sources unchanged, no guest/browser launch."
+}

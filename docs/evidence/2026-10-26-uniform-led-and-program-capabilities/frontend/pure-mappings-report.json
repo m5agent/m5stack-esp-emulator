@@ -1,0 +1,604 @@
+{
+  "schema_version": 1,
+  "category": "browser-visual-mapping-contract",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "units": [
+    {
+      "unit_id": "env-iii",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "temperature-c",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "humidity-pct",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "pressure-pa",
+          "input": "panel-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "pir",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "motion",
+          "input": "panel-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "ultrasonic-i2c",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "distance-mm",
+          "input": "panel-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "rgb",
+      "status": "requires-binding",
+      "fields": [
+        {
+          "field": "led-rgb",
+          "input": "read-only",
+          "readback": "requires-binding",
+          "blocker": "Uniform colors map by permutation invariance; distinct electrical LED colors require physical-location evidence."
+        }
+      ]
+    },
+    {
+      "unit_id": "angle",
+      "status": "requires-binding",
+      "fields": [
+        {
+          "field": "voltage-mv",
+          "input": "panel-only",
+          "readback": "requires-binding",
+          "blocker": "Potentiometer mechanical travel, zero, direction and voltage/angle calibration are unconfirmed."
+        }
+      ]
+    },
+    {
+      "unit_id": "color",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "clear-raw",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "red-raw",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "green-raw",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "blue-raw",
+          "input": "panel-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "tof",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "distance-mm",
+          "input": "panel-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "light",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "analog-mv",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "digital-level",
+          "input": "panel-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "relay",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "output-level",
+          "input": "read-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "joystick-v11",
+      "status": "requires-binding",
+      "fields": [
+        {
+          "field": "x-raw",
+          "input": "panel-only",
+          "readback": "requires-binding",
+          "blocker": "Raw axis to tilt joint orientation/range requires calibration."
+        },
+        {
+          "field": "y-raw",
+          "input": "panel-only",
+          "readback": "requires-binding",
+          "blocker": "Raw axis to tilt joint orientation/range requires calibration."
+        },
+        {
+          "field": "button-raw",
+          "input": "panel-only",
+          "readback": "requires-binding",
+          "blocker": "Catalog preserves raw button byte; pressed polarity is unconfirmed."
+        }
+      ]
+    },
+    {
+      "unit_id": "dual-button",
+      "status": "mapped",
+      "fields": [
+        {
+          "field": "red-pressed",
+          "input": "mapped",
+          "readback": "mapped"
+        },
+        {
+          "field": "blue-pressed",
+          "input": "mapped",
+          "readback": "mapped"
+        }
+      ]
+    },
+    {
+      "unit_id": "button",
+      "status": "mapped",
+      "fields": [
+        {
+          "field": "pressed",
+          "input": "mapped",
+          "readback": "mapped"
+        }
+      ]
+    },
+    {
+      "unit_id": "ncir",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "ambient-c",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "object-c",
+          "input": "panel-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "heart",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "ir-sample",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "red-sample",
+          "input": "panel-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "encoder",
+      "status": "requires-binding",
+      "fields": [
+        {
+          "field": "counter",
+          "input": "panel-only",
+          "readback": "requires-binding",
+          "blocker": "Counter units per physical revolution, zero and direction are unconfirmed."
+        },
+        {
+          "field": "pressed",
+          "input": "mapped",
+          "readback": "mapped"
+        },
+        {
+          "field": "led-rgb",
+          "input": "read-only",
+          "readback": "requires-binding",
+          "blocker": "Uniform colors map by permutation invariance; distinct LED index 1/2 colors require physical-location evidence."
+        }
+      ]
+    },
+    {
+      "unit_id": "thermal",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "eeprom-hex",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "frame0-hex",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "frame1-hex",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "control-word",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "raw-fixture-ready",
+          "input": "read-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "tvoc",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "eco2-ppm",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "tvoc-ppb",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "raw-h2",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "raw-ethanol",
+          "input": "panel-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "ir",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "rx-pulses-us",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "tx-pulses-us",
+          "input": "read-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "hub",
+      "status": "passive",
+      "fields": []
+    },
+    {
+      "unit_id": "rfid2",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "card-present",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "uid-hex",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "card-data-hex",
+          "input": "panel-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "rs485",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "rx-hex",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "tx-hex",
+          "input": "read-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "buzzer",
+      "status": "panel-only",
+      "fields": [
+        {
+          "field": "frequency-hz",
+          "input": "read-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "duty-pct",
+          "input": "read-only",
+          "readback": "panel-only"
+        }
+      ]
+    },
+    {
+      "unit_id": "fan",
+      "status": "activity-only",
+      "fields": [
+        {
+          "field": "duty-pct",
+          "input": "read-only",
+          "readback": "activity-only"
+        },
+        {
+          "field": "frequency-hz",
+          "input": "read-only",
+          "readback": "panel-only"
+        }
+      ],
+      "note": "Positive observed PWM enables a fixed graphical activity cadence; zero, unavailable or terminal state stops it. Shaft speed and electromechanical response remain unmodeled."
+    },
+    {
+      "unit_id": "limit",
+      "status": "mapped",
+      "fields": [
+        {
+          "field": "pressed",
+          "input": "mapped",
+          "readback": "mapped"
+        }
+      ]
+    },
+    {
+      "unit_id": "cardkb",
+      "status": "mapped",
+      "fields": [
+        {
+          "field": "keycode",
+          "input": "panel-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "keys",
+          "input": "mapped",
+          "readback": "mapped",
+          "note": "50 bool matrix in fixtures/cardkb-keymap.json order; requires current controller baseline."
+        },
+        {
+          "field": "led-rgb",
+          "input": "read-only",
+          "readback": "mapped",
+          "note": "Packed RGB emitted by the controller modifier-state machine."
+        }
+      ]
+    },
+    {
+      "unit_id": "key",
+      "status": "mapped",
+      "fields": [
+        {
+          "field": "pressed",
+          "input": "mapped",
+          "readback": "mapped"
+        },
+        {
+          "field": "led-rgb",
+          "input": "read-only",
+          "readback": "mapped"
+        }
+      ]
+    },
+    {
+      "unit_id": "8encoder",
+      "status": "requires-binding",
+      "fields": [
+        {
+          "field": "counters",
+          "input": "panel-only",
+          "readback": "requires-binding",
+          "blocker": "Each count/revolution, zero and direction requires calibration."
+        },
+        {
+          "field": "pressed",
+          "input": "mapped",
+          "readback": "mapped"
+        },
+        {
+          "field": "switch-on",
+          "input": "panel-only",
+          "readback": "requires-binding",
+          "blocker": "Electrical state to physical slide detent requires a confirmed truth table."
+        },
+        {
+          "field": "led-rgb",
+          "input": "read-only",
+          "readback": "requires-binding",
+          "blocker": "Uniform colors map by permutation invariance; distinct schematic LED colors to nine physical light pipes remain unconfirmed."
+        }
+      ]
+    },
+    {
+      "unit_id": "scroll",
+      "status": "requires-binding",
+      "fields": [
+        {
+          "field": "source-count",
+          "input": "panel-only",
+          "readback": "requires-binding",
+          "blocker": "EC10E pulse specification alone does not establish decoded count/revolution and physical direction. Logical counter writes/reset never imply shaft motion."
+        },
+        {
+          "field": "pressed",
+          "input": "mapped",
+          "readback": "mapped"
+        },
+        {
+          "field": "counter",
+          "input": "read-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "increments",
+          "input": "read-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "direction",
+          "input": "read-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "ab-direction",
+          "input": "read-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "led-rgb",
+          "input": "read-only",
+          "readback": "mapped"
+        },
+        {
+          "field": "source-step-limit",
+          "input": "read-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "timer-rollover-supported",
+          "input": "read-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "bootloader-supported",
+          "input": "read-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "zero-address-unicast-supported",
+          "input": "read-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "bootloader-requests",
+          "input": "read-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "command-errors",
+          "input": "read-only",
+          "readback": "panel-only"
+        },
+        {
+          "field": "rgb-word",
+          "input": "read-only",
+          "readback": "panel-only"
+        }
+      ]
+    }
+  ],
+  "registered_unit_ids": [
+    "env-iii",
+    "pir",
+    "ultrasonic-i2c",
+    "rgb",
+    "angle",
+    "color",
+    "tof",
+    "light",
+    "relay",
+    "joystick-v11",
+    "dual-button",
+    "button",
+    "ncir",
+    "heart",
+    "encoder",
+    "scroll",
+    "thermal",
+    "tvoc",
+    "ir",
+    "hub",
+    "rfid2",
+    "rs485",
+    "buzzer",
+    "fan",
+    "limit",
+    "cardkb",
+    "key",
+    "8encoder"
+  ],
+  "checks": [
+    "cardkb-official-fixture-and-visual-key-identity",
+    "momentary-down-up-cancel-port-and-feedback-isolation",
+    "array-key-and-channel-updates-preserve-authoritative-baseline",
+    "observed-readback-only-strict-types-no-keycode-pose-guess",
+    "uncalibrated-angle-count-axis-led-switch-and-rpm-fail-closed",
+    "uniform-arrays-permutation-invariant-and-unknown-withdraws-all-targets",
+    "evidence-required-calibration-permutation-range-and-detent-validation",
+    "all-28-products-and-every-catalog-field-audited"
+  ],
+  "status": "PASS",
+  "source_sha256": {
+    "platform/web/unit-visual-mappings.js": "3170a5b02080b4600aa98f93776fa5fba79c7a49ad09de09e9255fd0e869e52a",
+    "platform/tests/test_unit_visual_mappings.mjs": "e91146fe3cedcf3cead022008cee3f61709153064b4ad439d5968b17db5fc516",
+    "platform/units/catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+    "platform/units/fixtures/cardkb-keymap.json": "f6e33ce513487e557c3376bd8a165091a07aee0063798b07fe86d8be665af6c6",
+    "platform/web/vendor/m5stack-models/src/units/cardkb/dimensions.js": "4e7812359ec925a0b97f1aeec1ab8207acd97d94b077790c4d98fc72468fd1cb"
+  },
+  "summary": {
+    "mapped": 5,
+    "requires-binding": 6,
+    "activity-only": 1,
+    "panel-only": 15,
+    "passive": 1
+  }
+}

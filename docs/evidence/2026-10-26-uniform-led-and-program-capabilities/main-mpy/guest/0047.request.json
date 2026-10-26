@@ -1,0 +1,19 @@
+{
+  "files": {
+    "_m5_cap_bytecode.mpy": {
+      "encoding": "base64",
+      "data": "TQYAHxEFJl9tNV9jYXBfYnl0ZWNvZGUucHkADwZzeXMAKw5tb2R1bGVzAIEtCG5hbWUACGZpbGUADnNlbGZfaWQAHEdVQVJEX0VYRUNVVEVEAC8KX3NlbGYAFF9faW1wb3J0X18ACl9tYWluABBfX2ZpbGVfXwCBNwxSRVNVTFQABRBfbTVfY2FwX2J5dGVjb2RlAAUOZ3VhcmRfZXhlY3V0ZWQABQ5pbXBvcnRfbWFpbl9pZAAFEHN5c19tYWluX2lzX3NlbGYABRNpbXBvcnRfbWFpbl9pc19zZWxmAIcIGBIBJiMnIywoMTKAURsCFgJQFgkRChAD2URDUhYJEQITBBQFIwA2ARYLEQwQAzQBFg0sBxEKEAZiEQ4QB2IRCSMBYhEPEQs0ARAIYhEPEQ00ASMCYhECEwQUBRADNgERC94jA2IRDREL3iMEYhYQUWM="
+    },
+    "_m5_cap_plain.py": {
+      "encoding": "utf8",
+      "data": "import sys\nGUARD_EXECUTED = False\nif __name__ == '__main__':\n GUARD_EXECUTED = True\n_self = sys.modules.get('_m5_cap_plain')\n_main = __import__('__main__')\nRESULT = {'name': __name__, 'file': __file__, 'guard_executed': GUARD_EXECUTED,\n 'self_id': id(_self), 'import_main_id': id(_main),\n 'sys_main_is_self': sys.modules.get('__main__') is _self, 'import_main_is_self': _main is _self}\n"
+    },
+    "main.py": {
+      "encoding": "utf8",
+      "data": "import sys, os, json\nassert '/m5-mpy-main-capability-4901de7ff0044af483e0277d6951ce55' in sys.path, 'VM nonce missing'\n_rows = []\nfor _name in ('_m5_cap_plain', '_m5_cap_bytecode'):\n _present = '__main__' in sys.modules\n _cached = sys.modules.get('__main__')\n _owner = __import__('__main__')\n _row = {'module': _name, 'owner_id_before': id(_owner), 'main_cache_present_before': _present}\n try:\n  _mod = __import__(_name, None, None, False)\n  _row['result'] = _mod.RESULT\n  _row['status'] = 'imported'\n except BaseException as _err:\n  _row['status'] = 'raised'\n  _row['exception'] = type(_err).__name__ + ':' + str(_err)\n finally:\n  if _present:\n   sys.modules['__main__'] = _cached\n  else:\n   sys.modules.pop('__main__', None)\n _row['owner_id_after'] = id(__import__('__main__'))\n _row['main_cache_restored'] = ('__main__' in sys.modules) == _present and (not _present or sys.modules['__main__'] is _cached)\n assert _row['main_cache_restored'] and _row['owner_id_after'] == _row['owner_id_before']\n _rows.append(_row)\n_negative_level = None\ntry:\n __import__('_m5_cap_plain', None, None, None, -1)\nexcept BaseException as _err:\n _negative_level = type(_err).__name__ + ':' + str(_err)\nprint('MAIN_MPY_CAP_94cb83374d5f IMPORT_FALSE ' + json.dumps({'modules': _rows, 'negative_level': _negative_level, 'cwd': os.getcwd(), 'mpy': getattr(sys.implementation, '_mpy', None)}))\nprint('MAIN_MPY_CAP_94cb83374d5f DONE package')\n"
+    }
+  },
+  "entrypoint": "main.py",
+  "expected_execution_id": "a04da844b95941629815e8d32004d983",
+  "timeout_seconds": 120
+}

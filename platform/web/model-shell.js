@@ -325,6 +325,34 @@ export class ModelDeviceShell {
           else button.cancel('runtime-readback');
           return button.getState();
         }
+        if (command.type === 'led') {
+          if (command.known !== undefined && typeof command.known !== 'boolean') throw new TypeError('LED known must be boolean');
+          const led = this.model.find(command.target, 'led');
+          if (!led) throw new TypeError('LED component is unavailable');
+          if (command.known !== false) {
+            if (command.brightness !== undefined && !Number.isFinite(command.brightness)) throw new TypeError('LED brightness must be finite');
+            if (command.on !== undefined && typeof command.on !== 'boolean') throw new TypeError('LED on must be boolean');
+            if (command.color !== undefined) {
+              if (typeof command.color === 'number' && (!Number.isInteger(command.color) || command.color < 0 || command.color > 0xFFFFFF)) throw new TypeError('LED color must be packed RGB');
+              // Three.js may warn and retain the old color for invalid input.
+              // Parse on a detached value so that cannot promote unknown output.
+              const color = led.color.clone();
+              color.r = color.g = color.b = NaN;
+              color.set(command.color);
+              if (![color.r, color.g, color.b].every(Number.isFinite)) throw new TypeError('LED color is invalid');
+            }
+          }
+          // Zero emission is the neutral appearance of unknown output, not an
+          // electrical off observation. Keep that distinction on the component.
+          if (command.known === false) {
+            led.set({color: 0, brightness: 0});
+            led.runtimeKnown = led.object3d.userData.runtimeKnown = false;
+            return {known: false};
+          }
+          const result = this.model.handle(command);
+          led.runtimeKnown = led.object3d.userData.runtimeKnown = true;
+          return result;
+        }
         return this.model.handle(command);
       });
     } finally { this.feedbackDepth--; }
@@ -411,6 +439,8 @@ export class ModelDeviceShell {
     // Viewer cancellation emits matching releases before removing subscriptions.
     this.unitAnnotations?.dispose();
     this.viewer.dispose();
+    this.applyVisualState(this.model.list('led').filter(led => led.runtimeKnown !== undefined)
+      .map(led => ({type: 'led', target: led.path, known: false})));
     this.disposed = true;
     this.clearDriveActivities();
     this.offInput?.();

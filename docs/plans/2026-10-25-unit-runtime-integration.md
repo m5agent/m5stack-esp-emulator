@@ -238,3 +238,14 @@ STM32 bootloader、配置Flash持久化和QEMU地址0的unicast均保持具体�
 新增catalog/profile已准入implemented候选，model_completeness仍partial；implemented只说明可执行，不能替代逐主机证据。RGB当前是quiescent/latest-value子集，STM32多槽队列、burst/跨槽partial与LED调度未实现。只按本块证据关闭normal-operation范围，不以此关闭完整Scroll、其它Unit或整个goal。
 
 Scroll限定控制器块已提交`29c0dc85`；随后再次fetch/merge origin/main@f2061759897955e6017d4aa2a41bd5ba962c35b6，结果Already up to date、工作树干净。[同步收据](../evidence/2026-10-26-scroll-controller/integration.json)与本块证据保留。总UNIT-01仍进行中，执行顺序以Backlog为准。
+
+
+## 当前默认RGB反馈与程序能力工作块
+
+上一块Scroll是进展：独立控制器、四主机/真实Web证据与源码配额配置已提交并同步主线。当前继续推进默认多灯反馈，不将已有部分结果缩成总目标完成。
+
+Encoder/8Encoder逐灯映射与机械标定仍缺官方依据。本块先实现具有确证的通道置换不变场景：RGB/Encoder/8Encoder分别有3/2/9灯，全数组同色时任何电气索引排列均得到同一物理输出；非同色、非法数组或观测不可用必须明确unknown并撤回旧颜色，不能保留过时亮灯或冒称全灭。显式已有校准binding继续优先。数值/未知提示、真实mounted组件、零回声、失败恢复与真实guest输出分别取证，不能以fixture替代功能会话；逐灯非对称颜色、轴角和完整UNIT-HOST-29仍OPEN。
+
+直接main.mpy入口经固定官方源码与实际CoreS3固件调查，普通导入不满足if-main守卫与模块身份，不能据此实现假入口。本块在GET /devices公开program_features（准入runtime、main.py入口、bytecode依赖、binary/native限制、namespace与cleanup语义），保留现有执行行为；真正二进制脚本支持仍需官方override-main或明确loader的可构建固件、START/IMPORT语义与同VM逐主机验收。执行队列仍只在Backlog。
+
+本块的限定实现与独立新批次已完成：默认uniform/unknown/恢复和program_features，证据见[归档](../evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。实际组件/材质与完整canvas取景分层；HUB遮挡和Encoder closeup可读性不升级为通过，逐灯/旋转、main.mpy及整体UNIT-01继续OPEN。

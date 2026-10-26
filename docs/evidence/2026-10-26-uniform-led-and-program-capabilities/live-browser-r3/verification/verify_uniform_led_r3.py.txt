@@ -1,0 +1,61 @@
+import hashlib,json,os,re,urllib.request,zipfile
+from datetime import datetime,timezone
+from pathlib import Path
+from PIL import Image
+root=Path.cwd();out=root/'.work/uniform-led-live-browser-r3-20261026'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+load=lambda p:json.loads(p.read_text())
+report=load(out/'report.json')
+assert report['status']=='PASS' and report['hardware_validation']=='NOT RUN'
+assert all(not report[k] for k in ['unit_posts','physical_events','page_errors','resource_errors'])
+source_checks={k:sha((root/k).read_bytes())==v for k,v in report['source_sha256'].items()}
+assert all(source_checks.values()),source_checks
+get=lambda p:json.load(urllib.request.urlopen('http://127.0.0.1:8787/api/v1/'+p,timeout=10))
+health=get('health');worker=health['capacity']['worker']
+assert health['ok'] and health['capacity']['active_sessions']==0
+assert worker['pid']==75112 and worker['generation']==31 and worker['active_lease_count']==0
+receipt={'status':'PASS','checked_at':datetime.now(timezone.utc).isoformat(),'root_report_sha256':sha((out/'report.json').read_bytes()),'sources_match_recorded_sha256':source_checks,'service_health':health,'groups':[],'pngs':[]}
+for g in report['groups']:
+ name=g['group']['id'];base=out/name;stopped=get('sessions/'+g['session_id'])
+ assert stopped['state']=='stopped' and stopped['flash_retained'] is False and stopped['last_frame_available'] is True
+ gone=False
+ try:os.kill(g['pid'],0)
+ except ProcessLookupError:gone=True
+ assert gone
+ assert [p['phase'] for p in g['phases']]==list('ABCD')
+ assert len({p['program']['execution_id'] for p in g['phases']})==4
+ assert {p['program']['pid'] for p in g['phases']}=={g['pid']}
+ assert {p['program']['firmware_sha256'] for p in g['phases']}=={g['firmware_sha256']}
+ assert g['mpy_negative']['status']==409 and g['mpy_negative']['before_execution_id']==g['mpy_negative']['after_execution_id']
+ assert g['mpy_negative']['body']['error']['code']=='unsupported_program_entrypoint'
+ assert g['evidence']['status']=='PASS' and g['cleanup']['pid_gone']
+ zip_path=base/'evidence.zip';zip_sha=sha(zip_path.read_bytes());assert zip_sha==g['evidence']['zip_sha256']
+ with zipfile.ZipFile(zip_path) as z:
+  assert z.testzip() is None
+  m=json.loads(z.read('manifest.json'))
+  for k,v in m['files'].items():
+   b=z.read(k);assert len(b)==v['size'] and sha(b)==v['sha256']
+  executions=[n for n in z.namelist() if re.fullmatch(r'programs/[0-9a-f]{32}\.json',n)]
+  assert len(executions)==4
+  assert {n.split('/')[1][:-5] for n in executions}=={p['program']['execution_id'] for p in g['phases']}
+  states=json.loads(z.read('units/state.json'))['units'];leaf={u['unit_id']:u for u in states if u['unit_id'] in g['group']['leaves']}
+  assert set(leaf)==set(g['group']['leaves'])
+  for u in leaf.values():
+   assert u['source']=='guest-qom' and u['available'] is True and not u['errors']
+   assert u['properties']['led-rgb'] and set(u['properties']['led-rgb'])=={0}
+  assert sha(z.read('frames/current.png'))==g['phases'][-1]['capture']['frame']['sha256']
+ for p in g['phases']:
+  def image_refs(node):
+   if isinstance(node,dict):
+    if 'path' in node and 'sha256' in node:yield node
+    for v in node.values():yield from image_refs(v)
+   elif isinstance(node,list):
+    for v in node:yield from image_refs(v)
+  for x in image_refs(p['capture']['screenshot']):assert sha((base/x['path']).read_bytes())==x['sha256']
+ assert sha((base/'retained-frame.png').read_bytes())==g['phases'][-1]['capture']['frame']['sha256']
+ receipt['groups'].append({'group':name,'session_id':g['session_id'],'pid':g['pid'],'pid_gone':gone,'state':stopped['state'],'flash_retained':False,'last_frame_available':True,'zip_sha256':zip_sha,'zip_members':len(z.namelist()),'manifest_member_sha256':'PASS','executions':len(executions),'phase_D_leaf_state':'PASS','injected_browser_get_503':g['transport_negative']['injected_gets'],'report_sha256':sha((base/'report.json').read_bytes())})
+for path in sorted(out.rglob('*.png')):
+ with Image.open(path) as im:size=im.size;im.verify()
+ receipt['pngs'].append({'path':str(path.relative_to(out)),'size':size,'sha256':sha(path.read_bytes())})
+(out/'freeze-and-cleanup-check.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps({'status':receipt['status'],'sources':len(source_checks),'pngs':len(receipt['pngs']),'groups':receipt['groups'],'active_sessions':health['capacity']['active_sessions']},ensure_ascii=False,indent=2))

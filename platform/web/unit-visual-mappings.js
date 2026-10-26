@@ -36,6 +36,25 @@ const sourceValue = (state, field) => {
   return index === undefined ? state[name] : state[name]?.[Number(index)];
 };
 
+// Uniform colors are invariant under every unknown electrical-to-physical
+// permutation. Distinct colors still require an explicit, evidenced mapping.
+export function arrayLedFeedback(unit, bindings) {
+  const targets = ARRAY_LEDS[unit?.unit_id];
+  if (!targets) return null;
+  if (!observed(unit)) return {known: false, targets, reason: 'unavailable'};
+  const colors = unit.properties?.['led-rgb'];
+  if (!Array.isArray(colors) || colors.length !== targets.length || !targets.every((_, index) => rgb(colors[index]))) {
+    return {known: false, targets, reason: 'invalid'};
+  }
+  const mapped = bindings?.ledTargets;
+  if (hasEvidence(bindings) && Array.isArray(mapped) && mapped.length === targets.length &&
+      new Set(mapped).size === targets.length && targets.every((_, index) => targets.includes(mapped[index]))) {
+    return {known: true, targets: mapped, colors, mapping: 'explicit'};
+  }
+  if (colors.every(color => color === colors[0])) return {known: true, targets, colors, mapping: 'uniform'};
+  return {known: false, targets, reason: 'unmapped'};
+}
+
 function componentId(event, port) {
   const id = String(event?.id || '');
   if (port !== undefined) {
@@ -110,7 +129,10 @@ export function visualCommands(unit, port, {bindings, running = true} = {}) {
     const duty = unit.properties?.['duty-pct'];
     return [{type: 'drive-activity', target: path(port, 'rotor'), active: running && observed(unit) && Number.isFinite(duty) && duty > 0 && duty <= 100}];
   }
-  if (!observed(unit)) return [];
+  const leds = arrayLedFeedback(unit, bindings);
+  const ledCommands = leds ? leds.targets.map((target, index) => leds.known
+    ? ledCommand(port, target, leds.colors[index]) : {type: 'led', target: path(port, target), known: false}) : [];
+  if (!observed(unit)) return ledCommands;
   const state = unit.properties || {}, unitId = unit.unit_id, commands = [];
   for (const [component, field] of Object.entries(MOMENTARY[unitId] || {})) {
     if (typeof state[field] === 'boolean') commands.push(pressCommand(port, component, state[field]));
@@ -129,12 +151,7 @@ export function visualCommands(unit, port, {bindings, running = true} = {}) {
   if (unitId === 'joystick-v11' && hasEvidence(bindings) && [0, 1].includes(bindings.joystickPressedRaw) && [0, 1].includes(state['button-raw'])) {
     commands.push(pressCommand(port, 'press', state['button-raw'] === bindings.joystickPressedRaw));
   }
-  const ledTargets = bindings?.ledTargets, expected = ARRAY_LEDS[unitId], colors = state['led-rgb'];
-  if (expected && hasEvidence(bindings) && Array.isArray(ledTargets) && ledTargets.length === expected.length &&
-      new Set(ledTargets).size === expected.length && ledTargets.every(target => expected.includes(target)) &&
-      Array.isArray(colors) && colors.length === expected.length && colors.every(rgb)) {
-    ledTargets.forEach((target, index) => commands.push(ledCommand(port, target, colors[index])));
-  }
+  commands.push(...ledCommands);
   commands.push(...calibratedJoints(unitId, state, port, bindings));
   return commands;
 }
@@ -144,20 +161,20 @@ export function visualCommands(unit, port, {bindings, running = true} = {}) {
 // requires-binding stays open until a verified orientation/scaling is supplied.
 const AUDIT = {
   'env-iii': {}, pir: {}, 'ultrasonic-i2c': {},
-  rgb: {binding: {'led-rgb': 'Electrical LED chain order to visual led0/1/2 locations requires evidence.'}},
+  rgb: {binding: {'led-rgb': 'Uniform colors map by permutation invariance; distinct electrical LED colors require physical-location evidence.'}},
   angle: {binding: {'voltage-mv': 'Potentiometer mechanical travel, zero, direction and voltage/angle calibration are unconfirmed.'}},
   color: {}, tof: {}, light: {}, relay: {},
   'joystick-v11': {binding: {'x-raw': 'Raw axis to tilt joint orientation/range requires calibration.', 'y-raw': 'Raw axis to tilt joint orientation/range requires calibration.', 'button-raw': 'Catalog preserves raw button byte; pressed polarity is unconfirmed.'}},
   'dual-button': {input: ['red-pressed', 'blue-pressed'], readback: ['red-pressed', 'blue-pressed']},
   button: {input: ['pressed'], readback: ['pressed']}, ncir: {}, heart: {},
-  encoder: {input: ['pressed'], readback: ['pressed'], binding: {counter: 'Counter units per physical revolution, zero and direction are unconfirmed.', 'led-rgb': 'LED index 1/2 to the two physical locations requires evidence.'}},
+  encoder: {input: ['pressed'], readback: ['pressed'], binding: {counter: 'Counter units per physical revolution, zero and direction are unconfirmed.', 'led-rgb': 'Uniform colors map by permutation invariance; distinct LED index 1/2 colors require physical-location evidence.'}},
   scroll: {input: ['pressed'], readback: ['pressed', 'led-rgb'], binding: {'source-count': 'EC10E pulse specification alone does not establish decoded count/revolution and physical direction. Logical counter writes/reset never imply shaft motion.'}},
   thermal: {}, tvoc: {}, ir: {}, hub: {}, rfid2: {}, rs485: {}, buzzer: {},
   fan: {activity: ['duty-pct'], note: 'Positive observed PWM enables a fixed graphical activity cadence; zero, unavailable or terminal state stops it. Shaft speed and electromechanical response remain unmodeled.'},
   limit: {input: ['pressed'], readback: ['pressed']},
   cardkb: {input: ['keys'], readback: ['keys', 'led-rgb'], extra: {keys: '50 bool matrix in fixtures/cardkb-keymap.json order; requires current controller baseline.', 'led-rgb': 'Packed RGB emitted by the controller modifier-state machine.'}},
   key: {input: ['pressed'], readback: ['pressed', 'led-rgb']},
-  '8encoder': {input: ['pressed'], readback: ['pressed'], binding: {counters: 'Each count/revolution, zero and direction requires calibration.', 'switch-on': 'Electrical state to physical slide detent requires a confirmed truth table.', 'led-rgb': 'Schematic LED chain order to nine physical light pipes is unconfirmed.'}},
+  '8encoder': {input: ['pressed'], readback: ['pressed'], binding: {counters: 'Each count/revolution, zero and direction requires calibration.', 'switch-on': 'Electrical state to physical slide detent requires a confirmed truth table.', 'led-rgb': 'Uniform colors map by permutation invariance; distinct schematic LED colors to nine physical light pipes remain unconfirmed.'}},
 };
 
 export function visualMappingCoverage(catalog) {

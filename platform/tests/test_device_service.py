@@ -258,8 +258,17 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_program_modes_are_advertised_only_on_admitted_devices(self):
         for device_id in ("cores3", "atoms3r", "sticks3", "stopwatch"):
             self.assertEqual(self.service.get_device(device_id)["program_modes"], ["uiflow-live"])
+            features = self.service.get_device(device_id)["program_features"]
+            self.assertEqual(features["runtimes"], ["qemu"])
+            self.assertEqual(features["entrypoints"], ["main.py"])
+            self.assertEqual(features["mpy_dependencies"], "bytecode-only")
+            self.assertIs(features["mpy_entrypoint"], False)
+            self.assertIs(features["native_mpy"], False)
+            self.assertEqual(features["main_namespace"], "fresh-exec-globals")
+            self.assertEqual(features["cleanup_mode"], "interrupt-only")
         for device_id in ("core2", "tab5", "nanoc6"):
             self.assertEqual(self.service.get_device(device_id)["program_modes"], [])
+            self.assertEqual(self.service.get_device(device_id)["program_features"], {})
 
     def test_unit_creation_uses_one_catalog_snapshot_for_wiring_and_contract(self):
         registry = device_service_module.UnitRegistry()

@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "root_report_sha256": "416ad34a113a5e4ae69d051af4460df5d647146cc896c6f5095f960034fe1a20",
+  "count_source": "Final root report transport_faults array; group injected_gets is an earlier prefix snapshot",
+  "total": 26,
+  "groups": [
+    {
+      "group": "i2c-hub",
+      "session_id": "2385a7553db04dc0b7aa495629ad3d87",
+      "final_fault_count": 14,
+      "earlier_prefix_snapshot": 12
+    },
+    {
+      "group": "rmt-rgb",
+      "session_id": "26db63775ee748a596161bf5b6872e03",
+      "final_fault_count": 12,
+      "earlier_prefix_snapshot": 10
+    }
+  ],
+  "existing_freeze_receipt_counter_boundary": "injected_browser_get_503 copies group prefix snapshot, not final total"
+}

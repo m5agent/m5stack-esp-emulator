@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-26T14:46:51.556025+00:00",
+  "category": "independent-readonly-r2-actual-uniform-LED-evidence-review",
+  "status": "PARTIAL",
+  "data_plane_and_material_assertions": "PASS",
+  "browser_screenshot_acceptance": "INCOMPLETE; cropped A/B/C/D page clips are not a complete visual PASS",
+  "original_report_status": "PASS",
+  "original_report_sha256": "bf6f9f5a9375987cd52626c7486137644c1725f84fc69062d155ef13d5181207",
+  "original_report_path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uniform-led-live-browser-r2-20261026/report.json",
+  "executed_probe_sha256": "5794f0e6e5a383d18f4065dbf1ed53712fdc157c017141c35d97b91cbb5b4119",
+  "executed_probe_archive": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-26-uniform-led-and-program-capabilities/live-browser/sources/platform/tests/test_live_uniform_led_service_browser.mjs.txt",
+  "source_checks": [
+    {
+      "path": "platform/tests/test_live_uniform_led_service_browser.mjs",
+      "executed_sha256": "5794f0e6e5a383d18f4065dbf1ed53712fdc157c017141c35d97b91cbb5b4119",
+      "current_sha256": "e1308a230b6aa0d335ba010f887994c12de5a202310ac038d7f35073d73e164c",
+      "matches": false,
+      "exception": "only probe may advance for separate r3"
+    },
+    {
+      "path": "platform/web/sessions.js",
+      "executed_sha256": "f2dc6a04b95bc68048d67e05ef4f7e0a41ef0ce43b0304b2176c3b3913e19645",
+      "current_sha256": "f2dc6a04b95bc68048d67e05ef4f7e0a41ef0ce43b0304b2176c3b3913e19645",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/sessions.html",
+      "executed_sha256": "21c6d0e8765f4cfb0acf17feed6afaa9472a25976133c320cd103562a5af7a7c",
+      "current_sha256": "21c6d0e8765f4cfb0acf17feed6afaa9472a25976133c320cd103562a5af7a7c",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/program-panel.js",
+      "executed_sha256": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+      "current_sha256": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/device-shell-factory.js",
+      "executed_sha256": "f9808124f8bff27dd7aae1019deda5b2eefc1aedb5b165b3cfb151ab857e0b2a",
+      "current_sha256": "f9808124f8bff27dd7aae1019deda5b2eefc1aedb5b165b3cfb151ab857e0b2a",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/unit-panel.js",
+      "executed_sha256": "e0eb4c4cc7a36bbec5c28edcb9ed7722eaae2f77add5ba55f99d960503055de4",
+      "current_sha256": "e0eb4c4cc7a36bbec5c28edcb9ed7722eaae2f77add5ba55f99d960503055de4",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/model-shell.js",
+      "executed_sha256": "1cfee042e184fc936da1b9eaef142cf08b7f82daa5fbcbbdd7c150718e5a1876",
+      "current_sha256": "1cfee042e184fc936da1b9eaef142cf08b7f82daa5fbcbbdd7c150718e5a1876",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/unit-visual-mappings.js",
+      "executed_sha256": "3170a5b02080b4600aa98f93776fa5fba79c7a49ad09de09e9255fd0e869e52a",
+      "current_sha256": "3170a5b02080b4600aa98f93776fa5fba79c7a49ad09de09e9255fd0e869e52a",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/units/catalog.json",
+      "executed_sha256": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+      "current_sha256": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/units/runtime-profiles.json",
+      "executed_sha256": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480",
+      "current_sha256": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/vendor-manifest.json",
+      "executed_sha256": "a26ae90cd9f4eef4c1379cc513911650253ef226070629d8001185a38dd5386a",
+      "current_sha256": "a26ae90cd9f4eef4c1379cc513911650253ef226070629d8001185a38dd5386a",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/src/core/components/Led.js",
+      "executed_sha256": "220f32c62ad83b41a86ba6f3d280697fe47008e81bde074c4c9542120f47a0cb",
+      "current_sha256": "220f32c62ad83b41a86ba6f3d280697fe47008e81bde074c4c9542120f47a0cb",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/src/units/encoder/assembly.js",
+      "executed_sha256": "6120c4e66937d8ca86112550cc9d380e332fabaec2a9283aab54a83d4674999f",
+      "current_sha256": "6120c4e66937d8ca86112550cc9d380e332fabaec2a9283aab54a83d4674999f",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/src/units/8encoder/index.js",
+      "executed_sha256": "dbb970f29ebf9bb1e785460faa4655f9c9764558506da353185cd40bee17a642",
+      "current_sha256": "dbb970f29ebf9bb1e785460faa4655f9c9764558506da353185cd40bee17a642",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/src/units/rgb/index.js",
+      "executed_sha256": "9e2cf44386e3808214f005fb788993b683e8a422dccdf1cf19fd76a64aa24a74",
+      "current_sha256": "9e2cf44386e3808214f005fb788993b683e8a422dccdf1cf19fd76a64aa24a74",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "tests/units/run_live_unit_batch.py",
+      "executed_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "current_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "tests/units/controls_probe/control_drivers/source-manifest.json",
+      "executed_sha256": "84e76fe1ece3bb026772d66c92f998c41f500b1b39f6be892ee10ff09f03b3ab",
+      "current_sha256": "84e76fe1ece3bb026772d66c92f998c41f500b1b39f6be892ee10ff09f03b3ab",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "tests/units/io_probe/io_drivers/source-manifest.json",
+      "executed_sha256": "9dec61dc22cdb00b7794731f38291021fa824aaabff74019a8c04cbc4aecfcf1",
+      "current_sha256": "9dec61dc22cdb00b7794731f38291021fa824aaabff74019a8c04cbc4aecfcf1",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/tools/device_service.py",
+      "executed_sha256": "0499731e1005f62420e756473ef3df2c2d5a6854fad56bc12c9a054caa3e5daa",
+      "current_sha256": "0499731e1005f62420e756473ef3df2c2d5a6854fad56bc12c9a054caa3e5daa",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/tools/program_packages.py",
+      "executed_sha256": "b8180b3846ac23ef5a085e49d539d238c4bf42d114c02d4804a39420e07eddac",
+      "current_sha256": "b8180b3846ac23ef5a085e49d539d238c4bf42d114c02d4804a39420e07eddac",
+      "matches": true,
+      "exception": null
+    },
+    {
+      "path": "platform/tools/uiflow_runtime.py",
+      "executed_sha256": "85dbca56564d08c9a50c36d0ea867993eb70964c0d51ef950663f441b28dc506",
+      "current_sha256": "85dbca56564d08c9a50c36d0ea867993eb70964c0d51ef950663f441b28dc506",
+      "matches": true,
+      "exception": null
+    }
+  ],
+  "before_after_sources_match": true,
+  "current_product_g_sources_match": true,
+  "r4_f_boundary": "Separate r4 fixtures executed original f cache references. This r2 executed g; hashes and evidence are not mixed.",
+  "groups": [
+    {
+      "group": "i2c-hub",
+      "data_plane_and_materials": "PASS",
+      "session_id": "69756b14254e4bc1b9a045308e4af85e",
+      "pid": 78991,
+      "pid_gone_independently": true,
+      "worker_generation": 31,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime_identity": {
+        "pid": 78991,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+      },
+      "executions": [
+        "19ed95430576493194fc65536f429726",
+        "556f7a7c6fc64a768adc4a2e2381afbc",
+        "ca99fb6b3a6248e9aa3301a85d28d932",
+        "cb8195aceca94821baf623a055fa7e24"
+      ],
+      "led_count": 11,
+      "ZIP_revalidation": {
+        "status": "PASS",
+        "members": 23,
+        "executions": 4,
+        "serial_windows": 6,
+        "identity_source_byte_windows_and_member_sha": true,
+        "final_leaf_unit_state_phase_D_verified": true,
+        "generic_qom_snapshot_truncated": true,
+        "generic_qom_used_as_complete_unit_raw_evidence": false,
+        "independent_unit_raw_qom_location": "report phases[].capture.qom.raw",
+        "zip_sha256": "683b83ebef5de8757bb5d7ffdb10e3a5ca769055211bced9834ee80afe77b2e2"
+      },
+      "history_and_frame_readonly_GET": "PASS",
+      "transport_count_snapshot": {
+        "recorded_before_zero_echo": 4,
+        "total_browser_503": 7,
+        "note": "injected_gets was captured before the following zero-echo observation, so it is a prefix count"
+      },
+      "screenshot_acceptance": "INCOMPLETE; cropped page clip"
+    },
+    {
+      "group": "rmt-rgb",
+      "data_plane_and_materials": "PASS",
+      "session_id": "882bfee3fe1c4476ab0beeb7923ad805",
+      "pid": 79128,
+      "pid_gone_independently": true,
+      "worker_generation": 31,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime_identity": {
+        "pid": 79128,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+      },
+      "executions": [
+        "8cb7613e5c0c439aa10b006ca4a35226",
+        "aa057aa7705545489932951c94286fe1",
+        "c7fc8cede8ce4f24bd437d99f3633430",
+        "e36cd2b6f93842a9b6219f3ff17af875"
+      ],
+      "led_count": 3,
+      "ZIP_revalidation": {
+        "status": "PASS",
+        "members": 23,
+        "executions": 4,
+        "serial_windows": 6,
+        "identity_source_byte_windows_and_member_sha": true,
+        "final_leaf_unit_state_phase_D_verified": true,
+        "generic_qom_snapshot_truncated": true,
+        "generic_qom_used_as_complete_unit_raw_evidence": false,
+        "independent_unit_raw_qom_location": "report phases[].capture.qom.raw",
+        "zip_sha256": "1eafb805a3733c8c169f83fa5bbdceeae12a31e1cc83bcc00d2c0572a2239b3f"
+      },
+      "history_and_frame_readonly_GET": "PASS",
+      "transport_count_snapshot": {
+        "recorded_before_zero_echo": 4,
+        "total_browser_503": 6,
+        "note": "injected_gets was captured before the following zero-echo observation, so it is a prefix count"
+      },
+      "screenshot_acceptance": "INCOMPLETE; cropped page clip"
+    }
+  ],
+  "totals": {
+    "executions": 8,
+    "actual_LED_components": 14,
+    "per_phase_LED_material_checks": 56,
+    "ZIP_members": 46,
+    "fresh_UART_windows": 12,
+    "PNG_frames": 8,
+    "zero_echo_windows": 10,
+    "zero_echo_ms_each": 1300,
+    "unit_input_POSTs": 0,
+    "physical_events": 0,
+    "browser_HTTP503": 13
+  },
+  "teardown_failclosed_host_negative": {
+    "status": "PASS",
+    "exact_frozen_functions": true,
+    "teardown_throw_rejected": true,
+    "later_PASS_cannot_hide_error": true,
+    "empty_null_errors_rejected": true,
+    "invalid_cleanup_rejected": true,
+    "guest": "NOT RUN",
+    "browser": "NOT RUN",
+    "network": "NOT USED"
+  },
+  "separate_frame_sampling_notes": [
+    {
+      "group": "rmt-rgb",
+      "phase": "C",
+      "same_execution_revision": true,
+      "atomic_frame_claim": false
+    }
+  ],
+  "limits": [
+    "Virtual-device category only; physical hardware NOT RUN.",
+    "Stable uniform/latest-value scope; no nonuniform physical permutation or shaft-angle calibration.",
+    "qom/snapshot.json is truncated; complete per-leaf raw QOM is recorded independently in capture.qom.raw, finalD leaf states separately verified in ZIP units/state.json.",
+    "Frame/QOM/materials are separately sampled; no atomic same-frame claim.",
+    "Only two PNG sample coordinates were compared to mounted display; no full framebuffer equality claim.",
+    "R2 A/B/C/D browser clips are cropped. Future r3 must independently establish complete screenshots; do not splice its pixels into r2."
+  ],
+  "mutations": "Only independent review and its .work host review script; original data/code unchanged, no guest/browser launch."
+}

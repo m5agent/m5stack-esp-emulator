@@ -1,0 +1,221 @@
+M5Stack Unit 8Encoder I2C Protocol
+V2 (FW Version)
+2024/5/22
+REG MAP (Addr:0x41) 0 1 2 3 4 5 6 7 8 9 A B C D E F note
+Counter Value
+0x00
+R/W
+Cnt0-
+byte0
+Cnt0-
+byte1
+Cnt0-
+byte2
+Cnt0-
+byte3
+Cnt1-
+byte0
+Cnt1-
+byte1
+Cnt1-
+byte2
+Cnt1-
+byte3
+Cnt2-
+byte0
+Cnt2-
+byte1
+Cnt2-
+byte2
+Cnt2-
+byte3
+Cnt3-
+byte0
+Cnt3-
+byte1
+Cnt3-
+byte2
+Cnt3-
+byte3 Cnt: -2147483648-2147483647
+(will be reset after set reg 0x40)0x10
+R/W
+Cnt4-
+byte0
+Cnt4-
+byte1
+Cnt4-
+byte2
+Cnt4-
+byte3
+Cnt5-
+byte0
+Cnt5-
+byte1
+Cnt5-
+byte2
+Cnt5-
+byte3
+Cnt6-
+byte0
+Cnt6-
+byte1
+Cnt6-
+byte2
+Cnt6-
+byte3
+Cnt7-
+byte0
+Cnt7-
+byte1
+Cnt7-
+byte2
+Cnt7-
+byte3
+Increment Value
+0x20
+R
+Inc0-
+byte0
+Inc0-
+byte1
+Inc0-
+byte2
+Inc0-
+byte3
+Inc1-
+byte0
+Inc1-
+byte1
+Inc1-
+byte2
+Inc1-
+byte3
+Inc2-
+byte0
+Inc2-
+byte1
+Inc2-
+byte2
+Inc2-
+byte3
+Inc3-
+byte0
+Inc3-
+byte1
+Inc3-
+byte2
+Inc3-
+byte3 Inc: -2147483648-2147483647
+(will be reset after get)0x30
+R
+Inc4-
+byte0
+Inc4-
+byte1
+Inc4-
+byte2
+Inc4-
+byte3
+Inc5-
+byte0
+Inc5-
+byte1
+Inc5-
+byte2
+Inc5-
+byte3
+Inc6-
+byte0
+Inc6-
+byte1
+Inc6-
+byte2
+Inc6-
+byte3
+Inc7-
+byte0
+Inc7-
+byte1
+Inc7-
+byte2
+Inc7-
+byte3
+Counter Reset 0x40W Cnt0-RST Cnt1-RST Cnt2-RST Cnt3-RST Cnt4-RST Cnt5-RST Cnt6-RST Cnt7-RST RST: write 1 to reset counter
+Button Value 0x50R BNT0 BNT1 BNT2 BNT3 BNT4 BNT5 BNT6 BNT7 BNT: 0~1
+Button TOGGLE
+COUNT
+0x50
+R/W
+BNT0
+TOGGL
+E
+BNT1
+TOGGL
+E
+BNT2
+TOGGL
+E
+BNT3
+TOGGL
+E
+BNT4
+TOGGL
+E
+BNT5
+TOGGL
+E
+BNT6
+TOGGL
+E
+BNT7
+TOGGL
+E
+Button toggle counting, reset to 
+zero after reading
+Switch&
+Encoder change 
+flag&One Byte 
+Button register 
+0x60
+R
+SW 
+value
+Encode
+r 
+change 
+flag
+One 
+Byte 
+Button 
+register 
+SW Value: 0~1
+Encoder change flag(0:not 
+change, 1:changed): 
+bit0: channel 0
+bit1: channel 1
+bit2: channel 2
+bit3: channel 3
+bit4: channel 4
+bit5: channel 5
+bit6: channel 6
+bit7: channel 7
+reset to zero after reading
+One Button register(0:press, 
+1:no press): 
+bit0: button 0
+bit1: button 1
+bit2: button 2
+bit3: button 3
+bit4: button 4
+bit5: button 5
+bit6: button 6
+bit7: button 7
+RGB
+0x70
+R/W LED0-R LED0-G LED0-B LED1-R LED1-G LED1-B LED2-R LED2-G LED2-B LED3-R LED3-G LED3-B LED4-R LED4-G LED4-B LED5-R R/G/B: 0~2550x80
+R/W LED5-G LED5-B LED6-R LED6-G LED6-B LED7-R LED7-G LED7-B LED8-R LED8-G LED8-B
+Firmware 
+Version
+0xF0
+R Version Version: firmware version number
+I2C Address 0xF0R/W Address Address: 1~127

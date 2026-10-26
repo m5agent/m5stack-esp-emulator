@@ -51,6 +51,13 @@ session 路径保留为初始化、兼容运行及显式重建入口。
 
 `.py`在guest内实时编译执行；完整包的纯字节码`.mpy`模块也由真实guest importer加载。
 这两条路径都不会为每次编辑重刷固件；当前入口限定`main.py`，直接`main.mpy`仍待实现。
+`GET /devices`新增`program_features`，明确`main.py`、纯字节码依赖、fresh exec globals
+及interrupt-only边界，不授予任意上传固件UART兼容性。固定UIFlow/MicroPython源码与
+真实CoreS3 probe确认：当前固件未开启`MICROPY_MODULE_OVERRIDE_MAIN_IMPORT`，
+普通`.mpy`导入保留模块名，if-main不运行；`__main__.mpy`别名也被REPL内置module遮蔽。
+新入口需官方配置的新固件或受验loader路径，且定义加载失败与START边界；不以改`__name__`
+替代完整执行。源脚本的新globals也不替换`sys.modules['__main__']`，见
+[入口研究与能力契约](../evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
 Scroll补充四主机原驱动连续程序及CoreS3 Web按键/RGB/屏幕证据，见
 [限定控制器工作块](../evidence/2026-10-26-scroll-controller/README.md)。本块同时暴露全局
 source revision配额耗尽：现可显式配置1..4096、默认256并保持旧记录，长期的引用保留/

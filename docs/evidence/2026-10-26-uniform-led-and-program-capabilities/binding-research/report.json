@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-26T14:08:46.264530+00:00",
+  "task": "UNIT-HOST-29",
+  "category": "official-source-and-fixed-model-research",
+  "status": "OPEN; uniform LED subset specified, per-index LEDs and physical rotation remain unbound",
+  "worktree_head": "2f44cadaa12ee1576eca455c505ca5dbfd0c423a",
+  "execution": {
+    "browser": "NOT RUN",
+    "guest": "NOT RUN",
+    "hardware": "NOT RUN",
+    "production_code_modified": false,
+    "docs_modified": false,
+    "new_agents_spawned": false,
+    "external_people_or_tasks_contacted": false
+  },
+  "prior_evidence_reused": [
+    "docs/evidence/2026-10-26-live-unit-preview/encoder-binding-research/README.md",
+    "docs/unit-research/encoder-protocol-conflicts.md"
+  ],
+  "official_lookup": {
+    "skill": "/Users/yunyu/.codex/skills/m5stack-assistant/SKILL.md",
+    "mechanism": "official knowledge_search over skill MCP client; two successful product queries",
+    "raw_results": "mcp-search.json",
+    "relevant_excerpts": "mcp-relevant-excerpts.json",
+    "feedback": "No external issue/task was created in this read-only research scope."
+  },
+  "new_repository_verification": {
+    "M5_Hardware_current_master": "e29c139cbc7c80b5ccc5557e5ab8025a7a19a109",
+    "U135_product_directory": [
+      "Structures/Unit_Encoder.stl"
+    ],
+    "U153_product_directory": [
+      "Structures/Unit_8Encoder.stl"
+    ],
+    "scope": "Only inspected product directories: no PCB, Gerber, pick-and-place, BOM or assembly drawing there. This does not claim such files do not exist elsewhere.",
+    "UNIT_ENCODER_link": "redirect resolves to same tree as M5Unit-Encoder at 8f4508003ebe1f4f0ec3da0187a51c3feb56dd33; not a new internal firmware source",
+    "Encoder_public_firmware_tree": "4b68d8bb56f147d37d341cfd5916ab20909a2cfc contains hex + docs/readme, no C source; only tree metadata downloaded",
+    "8Encoder_internal_Firmware_tree": "1b3074078e07c46d144e328867996babe151cbbf source/protocol tree contains no PCB/Gerber/BOM path; no firmware binaries downloaded"
+  },
+  "fixed_model_targets": {
+    "encoder": {
+      "leds": [
+        {
+          "id": "led0",
+          "location": "front-left beside Grove",
+          "xyz_mm": [
+            -6.8,
+            -10.4,
+            -1.79
+          ]
+        },
+        {
+          "id": "led1",
+          "location": "front-right beside Grove",
+          "xyz_mm": [
+            6.8,
+            -10.4,
+            -1.79
+          ]
+        }
+      ],
+      "joint": {
+        "id": "rotation",
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "source": "model local +Z; positive degree is counterclockwise when viewing toward the front from +Z; this is geometric convention, not electrical source sign"
+      }
+    },
+    "8encoder": {
+      "leds": [
+        {
+          "id": "rgb-1",
+          "location": "CH1",
+          "xyz_mm": [
+            -8.65,
+            -40.6,
+            2.8
+          ]
+        },
+        {
+          "id": "rgb-2",
+          "location": "CH2",
+          "xyz_mm": [
+            -8.65,
+            -27.6,
+            2.8
+          ]
+        },
+        {
+          "id": "rgb-3",
+          "location": "CH3",
+          "xyz_mm": [
+            -8.65,
+            -14.6,
+            2.8
+          ]
+        },
+        {
+          "id": "rgb-4",
+          "location": "CH4",
+          "xyz_mm": [
+            -8.65,
+            -1.6,
+            2.8
+          ]
+        },
+        {
+          "id": "rgb-5",
+          "location": "CH5",
+          "xyz_mm": [
+            -8.65,
+            11.4,
+            2.8
+          ]
+        },
+        {
+          "id": "rgb-6",
+          "location": "CH6",
+          "xyz_mm": [
+            -8.65,
+            24.4,
+            2.8
+          ]
+        },
+        {
+          "id": "rgb-7",
+          "location": "CH7",
+          "xyz_mm": [
+            -8.65,
+            37.4,
+            2.8
+          ]
+        },
+        {
+          "id": "rgb-8",
+          "location": "CH8",
+          "xyz_mm": [
+            -8.65,
+            50.4,
+            2.8
+          ]
+        },
+        {
+          "id": "rgb-9",
+          "location": "switch",
+          "xyz_mm": [
+            -8.65,
+            59,
+            2.8
+          ]
+        }
+      ],
+      "joints": [
+        {
+          "id": "rotation-1",
+          "channel": 1,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-2",
+          "channel": 2,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-3",
+          "channel": 3,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-4",
+          "channel": 4,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-5",
+          "channel": 5,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-6",
+          "channel": 6,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-7",
+          "channel": 7,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "rotation-8",
+          "channel": 8,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "coordinates": "+X right, +Y switch end, +Z front; CH1 nearest Grove, CH8 nearest switch"
+    }
+  },
+  "electrical_order": {
+    "encoder": "Protocol index 0 broadcasts both; logical indices 1/2 address separate lamps. Current QEMU led-rgb[0]/[1] correspond to those logical selections. Diagram is PA0 -> LED1 -> LED2, but no inspected PCB/placement source ties these to model left/right. Public firmware C source is unavailable in inspected tree.",
+    "8encoder": "Pinned main.c register 0x70+3*i feeds neopixel_set_color(i); ws2812_show serializes ascending i. Schematic chain input is U1, then U2...U9. Circuit-symbol positions (drawn right to left on the schematic) are not PCB physical placement. No U1-U9 -> CH1-CH8/switch table was found."
+  },
+  "ready_subset": [
+    {
+      "unit_id": "encoder",
+      "scope": "uniform/all-off LED readback only; no logical-index to physical-target permutation is claimed",
+      "prerequisites": [
+        "unit.available is true",
+        "unit.errors is absent or empty",
+        "properties.led-rgb is exactly 2 integers, each 0..0xFFFFFF",
+        "all colors equal the same c",
+        "readback came from real guest controller output; do not synthesize source-side answers"
+      ],
+      "condition": "len(colors)==2 and all(type(x) is int and 0<=x<=0xFFFFFF for x in colors) and len(set(colors))==1",
+      "commands": [
+        {
+          "type": "led",
+          "target": "${mount}/led0",
+          "color": "c",
+          "on": "c != 0"
+        },
+        {
+          "type": "led",
+          "target": "${mount}/led1",
+          "color": "c",
+          "on": "c != 0"
+        }
+      ],
+      "nonuniform_policy": "Do not set an identity ledTargets binding or select the first color. Mark the visual mapping unavailable. A stale previous uniform glow must not be presented as current output; neutralize/hide it with explicit unavailable semantics, not a claim that electrical LEDs are off.",
+      "validation_required": "Visible Device Service session + original driver + real mounted Led material and Encoder shell-diffusion uniforms. Red/green/blue/all-off transitions and uniform -> asymmetric -> uniform; 3D or material assertions required. This research has not run that validation."
+    },
+    {
+      "unit_id": "8encoder",
+      "scope": "uniform/all-off LED readback only; no logical-index to physical-target permutation is claimed",
+      "prerequisites": [
+        "unit.available is true",
+        "unit.errors is absent or empty",
+        "properties.led-rgb is exactly 9 integers, each 0..0xFFFFFF",
+        "all colors equal the same c",
+        "readback came from real guest controller output; do not synthesize source-side answers"
+      ],
+      "condition": "len(colors)==9 and all(type(x) is int and 0<=x<=0xFFFFFF for x in colors) and len(set(colors))==1",
+      "commands": [
+        {
+          "type": "led",
+          "target": "${mount}/rgb-1",
+          "color": "c",
+          "on": "c != 0"
+        },
+        {
+          "type": "led",
+          "target": "${mount}/rgb-2",
+          "color": "c",
+          "on": "c != 0"
+        },
+        {
+          "type": "led",
+          "target": "${mount}/rgb-3",
+          "color": "c",
+          "on": "c != 0"
+        },
+        {
+          "type": "led",
+          "target": "${mount}/rgb-4",
+          "color": "c",
+          "on": "c != 0"
+        },
+        {
+          "type": "led",
+          "target": "${mount}/rgb-5",
+          "color": "c",
+          "on": "c != 0"
+        },
+        {
+          "type": "led",
+          "target": "${mount}/rgb-6",
+          "color": "c",
+          "on": "c != 0"
+        },
+        {
+          "type": "led",
+          "target": "${mount}/rgb-7",
+          "color": "c",
+          "on": "c != 0"
+        },
+        {
+          "type": "led",
+          "target": "${mount}/rgb-8",
+          "color": "c",
+          "on": "c != 0"
+        },
+        {
+          "type": "led",
+          "target": "${mount}/rgb-9",
+          "color": "c",
+          "on": "c != 0"
+        }
+      ],
+      "nonuniform_policy": "Do not set an identity ledTargets binding or select the first color. Mark the visual mapping unavailable. A stale previous uniform glow must not be presented as current output; neutralize/hide it with explicit unavailable semantics, not a claim that electrical LEDs are off.",
+      "validation_required": "Visible Device Service session + original driver + real mounted Led material and Encoder shell-diffusion uniforms. Red/green/blue/all-off transitions and uniform -> asymmetric -> uniform; 3D or material assertions required. This research has not run that validation."
+    }
+  ],
+  "mathematical_proof": {
+    "source": "prove-uniform-bindings.py",
+    "result": "uniform-proof.json",
+    "status": "PASS (host-only, not virtual-device or hardware PASS)",
+    "counts": [
+      2,
+      362880
+    ]
+  },
+  "rotation": {
+    "encoder": {
+      "official_product": "30-position knob / 30 pulses per full rotation",
+      "official_example": "bundled UIFlow angle=(get_rotary_value()/58)*360; visual screen circle example, not a physical calibration record",
+      "source_interface": "runtime profile injects counter directly; tracked C patch sets s->counter[0] within signed16 range. No independent shaft/source field or phase pins.",
+      "software_offsets": "UIFlow set_rotary_value/reset_rotary_value only change Python instance offsets. Current C accepts mode/RGB writes, not counter writes/reset. Do not attribute 8Encoder guest-reset behavior to Encoder.",
+      "unresolved": "actual physical PPR vs decoder multiplier, mode behavior, installed CW sign, rollover semantics and neutral reference"
+    },
+    "8encoder": {
+      "electrical_phase_semantics": {
+        "source": "eight-main-source.c @ 1b3074078e07c46d144e328867996babe151cbbf",
+        "precondition": "AB mode g_mode_sel=0; clean accepted single-bit edges passing firmware debounce; phases expressed as (A,B)",
+        "positive_cycle": [
+          "00",
+          "10",
+          "11",
+          "01",
+          "00"
+        ],
+        "positive_delta_each_edge": 1,
+        "positive_delta_cycle": 4,
+        "negative_cycle": [
+          "00",
+          "01",
+          "11",
+          "10",
+          "00"
+        ],
+        "negative_delta_each_edge": -1,
+        "negative_delta_cycle": -4,
+        "evidence": "A-branch uses prior g_phase_a_last_encoder_status at lines 730..753, toggled after switch at 942. B-branch uses prior B state at 986..1009, toggled at 1198. Both phases configured rising/falling at 1468..1473.",
+        "limit": "This is electrical phase-sequence sign in pinned source only. No installed-part PPR, physical front-view CW/CCW sign or physical timing follows."
+      },
+      "part_identity": "schematic labels only EC11A; exact manufacturer/variant, PPR/detents/phase relation to front-view CW remain unavailable",
+      "source_interface": "runtime injects counters array directly. C uses same counter array for guest writable 0x00..0x1F and reset 0x40..0x47, so guest reset changes the value frontend would currently use as angle. No independent immutable physical source.",
+      "required_behavior": "A guest set/reset must not rotate the visual shaft. Source movement must update electrical/controller count through a separately defined source contract. A scale/offset from mutable counters alone is insufficient."
+    }
+  },
+  "smallest_missing_official_sources": [
+    {
+      "for": "nonuniform LEDs",
+      "minimal": "One annotated assembly/placement view or pick-and-place CSV per product revision containing LED1/LED2 or U1..U9 XY/side, Grove orientation and optical aperture/channel correspondence. A complete PCB/Gerber project is unnecessary if that small table is authoritative.",
+      "alternative": "Reproducible original-driver physical one-hot LED capture with fixed firmware hash and front/Grove orientation: Encoder two single-lamp selections; 8Encoder nine single-index selections. No such physical test performed here."
+    },
+    {
+      "for": "physical rotation",
+      "minimal": "Exact installed encoder manufacturer and full part suffix/datasheet PPR, decoder mode/multiplication, and mounted A/B-to-front-CW direction. Encoder additionally needs the MCU decoder source or same-firmware measured count per revolution to reconcile 30 vs 58.",
+      "additional_engineering": "Define physical source separately from guest logical counters; preserve source orientation/shaft angle across guest logical reset and include an explicit initial visual reference."
+    }
+  ],
+  "not_accepted_as_closure": [
+    "schematic page layout as PCB placement",
+    "identity permutation justified only by matching numbers",
+    "a colored DOM/QOM form without actual mounted Led changes",
+    "counter*360/30 or /58 as physical calibration",
+    "nonzero demo RPM or wheel angle with no source binding",
+    "uniform LED subset closing all of UNIT-HOST-29"
+  ],
+  "source_hashes": "local-source-hashes.json",
+  "source_excerpts": "source-excerpts.txt",
+  "materials": "product-sources.json, new-sources.json, repository-discovery.json, detail-sources.json, supplemental-sources.json"
+}

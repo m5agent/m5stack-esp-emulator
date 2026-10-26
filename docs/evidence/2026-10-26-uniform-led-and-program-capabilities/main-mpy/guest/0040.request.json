@@ -1,0 +1,5 @@
+{
+  "source": "import sys, json\nsys.path.append('/m5-mpy-main-capability-4901de7ff0044af483e0277d6951ce55')\n_owner = __import__('__main__')\n_cap = {'mpy': getattr(sys.implementation, '_mpy', None), 'maxsize': sys.maxsize,\n 'owner_id': id(_owner), 'owner_name': _owner.__name__, 'main_cache_present': '__main__' in sys.modules}\ntry:\n _marshal = __import__('marshal')\n _cap['marshal'] = 'available'\nexcept BaseException as _err:\n _cap['marshal'] = type(_err).__name__ + ':' + str(_err)\nprint('MAIN_MPY_CAP_94cb83374d5f INITIAL ' + json.dumps(_cap))\nprint('MAIN_MPY_CAP_94cb83374d5f DONE initial')\n",
+  "timeout_seconds": 20,
+  "expected_execution_id": null
+}
