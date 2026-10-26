@@ -1,0 +1,95 @@
+{
+  "category": "HOST_ONLY_NOT_GUEST",
+  "source_mode": "current",
+  "source_sha256": "74b4defc7768d6f39542961b46dc2185655af8660f041af21ac4a5fec4707fff",
+  "serve_sha256": "8ab8a13d1103f36f7d470824de4743c8e98eb28486846a735929275752e7e4c7",
+  "device_service_sha256": "b928598becdb8d3ff465bd25f406e573c965b816f8e573d532f0817b1c1fd078",
+  "hash_scope": "on-disk source at invocation; not a loaded dependency attestation",
+  "probes": {
+    "close_release_failure": {
+      "preview_state": "closed",
+      "session_state": "stopped",
+      "stop_events": 1,
+      "step_errors": [],
+      "bug_observed": false
+    },
+    "invalid_input_poison": {
+      "input_error": {
+        "type": "ServiceError",
+        "code": "invalid_input",
+        "status": 400
+      },
+      "held_after_rejection": {},
+      "wire_commands": [],
+      "run_calls": 2,
+      "new_run_state": "running",
+      "blocked_reason": null,
+      "bug_observed": false
+    },
+    "uppercase_down": {
+      "input_accepted": true,
+      "held_after_down": {
+        "key:a": {
+          "payload": {
+            "action": "up",
+            "key": "a",
+            "kind": "key",
+            "settle_seconds": 0
+          },
+          "run_id": "def8fc61479f4d40b31d54b3f9801d8a",
+          "unit": false
+        }
+      },
+      "wire_commands": [
+        {
+          "execution_id": "e68c7e3a3e454059992a7960455776c8",
+          "spec": "keydown:a"
+        },
+        {
+          "execution_id": "e68c7e3a3e454059992a7960455776c8",
+          "spec": "keyup:a"
+        }
+      ],
+      "new_run_active": true,
+      "bug_observed": false
+    },
+    "pending_renew": {
+      "preview_remaining_seconds": 3599.99,
+      "actual_session_ttl_seconds": 3600,
+      "allocation_ttl_seconds": 30,
+      "bug_observed": false
+    },
+    "concurrent_renew": {
+      "short_completed_before_long_persist_return": false,
+      "long_error": null,
+      "short_error": null,
+      "preview_remaining_seconds": 30.0,
+      "actual_session_remaining_seconds": 30.0,
+      "bug_observed": false
+    },
+    "expired_input": {
+      "error": {
+        "type": "ServiceError",
+        "code": "preview_closing",
+        "status": 409
+      },
+      "actual_input_calls": 0,
+      "bug_observed": false
+    },
+    "shutdown_input": {
+      "error": {
+        "type": "ServiceError",
+        "code": "service_stopping",
+        "status": 503
+      },
+      "actual_input_calls": 0,
+      "bug_observed": false
+    },
+    "duplicate_idempotency_header": {
+      "status": 400,
+      "error_code": "invalid_idempotency_key",
+      "retained_previews": 0,
+      "bug_observed": false
+    }
+  }
+}

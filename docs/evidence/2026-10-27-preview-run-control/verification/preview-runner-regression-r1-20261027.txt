@@ -1,0 +1,16 @@
+...................E.........................
+======================================================================
+ERROR: test_live_program (unittest.loader._FailedTest.test_live_program)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_live_program
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.12/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'test_live_program'
+
+
+----------------------------------------------------------------------
+Ran 45 tests in 0.170s
+
+FAILED (errors=1)

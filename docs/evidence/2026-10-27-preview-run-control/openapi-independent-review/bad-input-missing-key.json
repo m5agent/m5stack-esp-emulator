@@ -1,0 +1,21 @@
+{
+  "name": "bad-input-missing-key",
+  "method": "POST",
+  "template": "/previews/{preview_id}/input",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_input",
+      "message": "key is required"
+    }
+  },
+  "body_sha256": "532a334a6c986b4dd18db5b146591252ec46e0002fe1ac49e83fa66352e4a7f8",
+  "request": {
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+    "expected_run_id": "c66a97fac71e405cb626cd7f37b148e1",
+    "input": {
+      "kind": "key",
+      "action": "DOWN"
+    }
+  }
+}

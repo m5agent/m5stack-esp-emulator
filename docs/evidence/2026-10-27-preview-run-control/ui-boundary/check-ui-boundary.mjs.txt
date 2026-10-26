@@ -1,0 +1,85 @@
+// HOST_DOM_STUB_ONLY: executes existing UI logic with a minimal DOM/API stub.
+// No browser, Device Service, guest or physical device is started.
+import assert from 'node:assert/strict';
+import {readFile, writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+
+const root = process.cwd();
+const output = resolve(root, '.work/preview-ui-boundary-20261027/ui-logic.json');
+const [programSource, unitSource, sessionsSource] = await Promise.all([
+  'program-panel.js', 'unit-panel.js', 'sessions.js',
+].map(name => readFile(resolve(root, 'platform/web', name), 'utf8')));
+
+class Element {
+  constructor() { this.children = []; this.dataset = {}; this.attributes = {}; this.value = ''; }
+  append(...children) { this.children.push(...children); }
+  replaceChildren(...children) { this.children = children; }
+  setAttribute(key, value) { this.attributes[key] = value; }
+  addEventListener() {}
+  remove() {}
+}
+
+globalThis.document = {createElement: () => new Element(), hidden: false};
+const actualSetTimeout = globalThis.setTimeout, actualClearTimeout = globalThis.clearTimeout;
+globalThis.setTimeout = () => 0;
+globalThis.clearTimeout = () => {};
+const session = {session_id: 'host-managed-session', created_at: '2026-10-27T00:00:00Z',
+  firmware_sha256: 'f'.repeat(64), pid: 42424242, device_id: 'cores3', state: 'running', program_transport: 'uart-repl',
+  management_binding: {preview_id: 'a'.repeat(32), owner_epoch: 'b'.repeat(32), expected_reference_sha256: 'c'.repeat(64)}};
+const calls = [];
+const api = async (path, options = {}) => {
+  calls.push({path, method: options.method || 'GET', body: options.body ? JSON.parse(options.body) : null});
+  if (options.method === 'POST') throw new Error('409: session is managed by Preview');
+  return {session_id: session.session_id, program_transport: 'uart-repl',
+    program: {execution_id: 'e'.repeat(32), state: 'running'}, history_error: null};
+};
+
+const {createProgramPanel} = await import('data:text/javascript;base64,' + Buffer.from(programSource).toString('base64'));
+const panel = createProgramPanel(new Element(), {session, api});
+await new Promise(setImmediate);
+const programEnabled = !panel.runButton.disabled && !panel.source.disabled;
+assert.equal(programEnabled, true, 'current code enables managed source controls after its readable GET');
+await panel.run();
+await new Promise(setImmediate);
+assert.equal(calls.find(call => call.method === 'POST')?.path, `/api/v1/sessions/${session.session_id}/program`);
+assert.match(panel.submissionError, /409/);
+const programEnabledAfter409 = !panel.runButton.disabled;
+panel.dispose();
+
+function method(source, start, end, globals = []) {
+  const text = source.slice(source.indexOf(start), source.indexOf(end, source.indexOf(start)));
+  return Function(...globals.map(([name]) => name), `return ({${text}});`)(...globals.map(([, value]) => value));
+}
+const unitEnable = method(unitSource, '  enableControls() {', '\n  makePress(').enableControls;
+const unitControl = {disabled: true};
+unitEnable.call({session, cards: new Map([['fixture-button', {querySelectorAll: () => [unitControl], querySelector: () => null}]]),
+  states: new Map([['fixture-button', {available: true}]]), audio: new Map()});
+assert.equal(unitControl.disabled, false, 'current Unit controls use running/available without a managed check');
+const unitSend = method(unitSource, '  send(id, values, releaseIntent = null) {', '\n  releaseValue(', [['copy', structuredClone]]).send;
+const unitCalls = [], notes = [];
+const unit = {session, disposed: false, revision: 0, sessionEpoch: 0, inputEpoch: 0, pending: new Map(), queues: new Map(),
+  releaseIntents: new Map(), currentSession: () => true, apply: () => true, note: (id, message) => notes.push({id, message}),
+  api: async (path, options) => { unitCalls.push({path, method: options.method, body: JSON.parse(options.body)}); throw new Error('409: session is managed by Preview'); }};
+await unitSend.call(unit, 'fixture-button', {pressed: true});
+assert.equal(unitCalls[0].path, `/api/v1/sessions/${session.session_id}/unit-input`);
+assert.match(notes[0].message, /输入未确认.*409/);
+
+const actionControls = new Map();
+const card = {querySelector(selector) { if (!actionControls.has(selector)) actionControls.set(selector, new Element()); return actionControls.get(selector); }};
+const updateStart = sessionsSource.indexOf('function updateSessionCard(');
+const updateEnd = sessionsSource.indexOf('\nfunction render()', updateStart);
+const updateSessionCard = Function('deviceFor', 'state', 'statusClass', 'formatTime', 'updateDeviceStateUi', 'ACTIVE_STATES',
+  sessionsSource.slice(updateStart, updateEnd) + '\nreturn updateSessionCard;')(
+    () => ({}), {visuals: new Map(), deviceStates: new Map()}, () => 'ok', String, () => {}, new Set(['provisioning', 'flashing', 'booting', 'running']));
+updateSessionCard(card, session);
+const managedActions = Object.fromEntries(['wait', 'renew', 'reset', 'stop'].map(name =>
+  [name, {enabled: !actionControls.get(`[data-action="${name}"]`).disabled}]));
+assert.ok(Object.values(managedActions).every(value => value.enabled));
+
+const result = {category: 'HOST_DOM_STUB_ONLY_NOT_BROWSER_NOT_GUEST',
+  program: {enabled_after_get: programEnabled, enabled_again_after_409: programEnabledAfter409, calls, error: panel.submissionError},
+  unit: {controls_enabled: !unitControl.disabled, calls: unitCalls, notes}, managed_session_actions: managedActions};
+await writeFile(output, JSON.stringify(result, null, 2) + '\n');
+globalThis.setTimeout = actualSetTimeout;
+globalThis.clearTimeout = actualClearTimeout;
+console.log(JSON.stringify({output, category: result.category, program_controls_enabled: programEnabled, unit_controls_enabled: !unitControl.disabled, managed_session_actions: managedActions}, null, 2));

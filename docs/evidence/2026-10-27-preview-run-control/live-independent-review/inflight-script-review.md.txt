@@ -1,0 +1,24 @@
+# Package-inflight probe static independent review — 2026-10-27
+
+Result: **PASS for root execution; NOT RUN by reviewer.** This is a script review, not guest validation.
+
+Reviewed file: `.work/preview-inflight-probe-20261027.py`
+
+Frozen SHA-256: `778327b4e40c9d3ae98854fbfd8f4819a1b91e5f906d87ca00fd5d499d616e6b`
+
+The reviewer read the complete probe, underlying per-file package progress implementation, cancellable RawREPL RPC, DeviceSession persistence and Preview independent interrupt path. The AST parses. No compiler, guest, network request or test run was started.
+
+One evidence overclaim was found and corrected before execution: a final progress event for `assets/pad.dat` does not prove that `tail.dat` is incomplete on the guest. Progress is published only after a whole file's RPC receipts complete; the guest may have written a final chunk before its acknowledgement is interrupted. The corrected claim records pad completion and absence of package verification/publication/activation, while explicitly leaving tail completion unestablished. It makes no individual-chunk or byte-interruption claim.
+
+Key false-PASS boundaries checked:
+
+- Uses an actual service-visible Preview, frozen public checkpoints and reserved execution ID; the detection requires session program state `submitting`, the same PID/firmware/revision, a genuine `writing` observation and `written_bytes=131072<total`.
+- After cancellation, evidence must still end at the pad event, have no verified/published/activated phase, no acknowledgement, no application START and no forbidden main marker. A missed transfer window fails without retry.
+- The independent interrupt receipt must name the exact inflight execution. Its raw serial interval begins no earlier than the cancel baseline and ends with a fresh raw REPL prompt.
+- A full C package subsequently imports its compiled dependency and runs the original PIR driver in the same PID/firmware and in-memory nonce. Fresh typed UART samples, Unit source/attachment identity, independent QOM values and blue image pixels must agree.
+- Exact three-execution history prevents a late replay from silently executing a second transfer; archive file inventories and each frozen original file are checked.
+- Evidence is requested before close. Failure to export diagnostic evidence does not suppress close. The final block checks retained stopped history, last frame, released Flash, absent guest PID, no active session and no worker lease. Any failed check leaves FAIL.
+
+Residual evidence limits: the main ZIP is validated within the probe; the automatic before-close ZIP is recorded by path/size/hash and remains subject to the subsequent independent artifact audit. Transport failure of a close request is reported as FAIL and requires root to resolve server state; no script can turn an unobserved cleanup into PASS. Request Idempotency-Key values are source-bound and are not preserved as raw request headers.
+
+The original PIR/Relay independent actual-session audit in this directory remains a separate result and supplies no guest PASS to this unexecuted probe.

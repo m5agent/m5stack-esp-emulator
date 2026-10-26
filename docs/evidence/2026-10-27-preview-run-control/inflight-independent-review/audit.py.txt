@@ -1,0 +1,370 @@
+"""Independent read-only audit of completed package-inflight Preview evidence.
+
+No product/producer validator imports, network requests, compiler executions,
+guest/process mutations or changes to the original artifacts are performed.
+"""
+import ast
+import base64
+from collections import Counter
+from datetime import datetime, timezone
+import hashlib
+import io
+import json
+import os
+from pathlib import Path, PurePosixPath
+import re
+import stat
+import zipfile
+from PIL import Image
+
+ROOT = Path(__file__).resolve().parents[2]
+OUTPUT = Path(__file__).resolve().parent
+FOLDER = ROOT / '.work/preview-live-cores3-pir-inflight-r1-20261027'
+RUNTIME = 'b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2'
+RUNNER = '778327b4e40c9d3ae98854fbfd8f4819a1b91e5f906d87ca00fd5d499d616e6b'
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode()
+
+
+def load(path):
+    return json.loads(path.read_bytes())
+
+
+def files_from(payload):
+    result = {}
+    for name, row in payload['files'].items():
+        assert row['encoding'] in ('utf8', 'base64')
+        result[name] = row['data'].encode() if row['encoding'] == 'utf8' else base64.b64decode(row['data'], validate=True)
+    return result
+
+
+def inventory(files):
+    return {n: {'size': len(b), 'sha256': sha(b)} for n, b in files.items()}
+
+
+def png(raw):
+    with Image.open(io.BytesIO(raw)) as image:
+        image.load()
+        assert image.format == 'PNG' and image.size == (320, 240)
+        assert set(image.convert('RGB').crop((148, 84, 172, 108)).getdata()) == {(0, 0, 255)}
+
+
+def unit_properties(row, sid):
+    assert row['session_id'] == sid and row['source'] == 'live' and len(row['units']) == 1
+    unit = row['units'][0]
+    assert unit['id'] == 'external1' and unit['unit_id'] == 'pir' and unit['port_id'] == 'port-a'
+    assert unit['pins'] == {'white': 1, 'yellow': 2}
+    assert unit['source'] == 'guest-qom' and unit['available'] is True and not unit['errors']
+    return unit['properties']
+
+
+def json_lines(raw, prefix):
+    return [json.loads(x) for x in re.findall(re.escape(prefix.encode()) + rb'(\{[^\r\n]*\})', raw)]
+
+
+def main():
+    producer = load(FOLDER / 'report.json')
+    freeze = load(ROOT / '.work/preview-service-reload-r1-20261027/start.json')
+    rows = load(FOLDER / 'http.json')
+    sid, pid, firmware = producer['session_id'], producer['pid'], producer['firmware_sha256']
+    preview_id = producer['preview_id']
+    prefix = 'previews/' + preview_id
+    runs = producer['runs']
+    assert producer['hardware'] == 'NOT RUN'
+    assert list(runs) == ['finite', 'inflight', 'pir-C']
+    assert [x['generation'] for x in runs.values()] == [1, 2, 3]
+    assert len({x['execution_id'] for x in runs.values()}) == 3
+    assert len({x['run_id'] for x in runs.values()}) == 3
+    assert producer['runner_sha256'] == sha((ROOT / '.work/preview-inflight-probe-20261027.py').read_bytes()) == RUNNER
+    assert freeze['source_stable_across_start'] is True
+    source_hashes = {n: sha((ROOT / n).read_bytes()) == digest for n, digest in freeze['source_sha256'].items()}
+    assert all(source_hashes.values()) and freeze['runtime_sha256'] == RUNTIME
+    provenance = producer['runtime_provenance']
+    assert provenance['session_id'] == sid and provenance['pid'] == pid
+    assert provenance['observed_binary_sha256'] == provenance['expected_binary_sha256'] == RUNTIME
+    assert provenance['method'] == 'macOS-proc_pidpath' and provenance['hardware_validation'] is False
+
+    bodies, headers = {}, {}
+    for i, row in enumerate(rows):
+        raw = (FOLDER / f'{i:04d}.response').read_bytes()
+        assert len(raw) == row['response_bytes'] and sha(raw) == row['response_sha256'], i
+        assert row['status'] in (200, 201, 202)
+        pairs = row['response_headers']
+        assert isinstance(pairs, list) and all(isinstance(x, list) and len(x) == 2 for x in pairs)
+        h = {}
+        for name, value in pairs:
+            h.setdefault(name.lower(), []).append(value)
+        assert h['content-length'] == [str(len(raw))]
+        assert len(h['x-request-id']) == 1 and 'date' in h and 'server' in h
+        bodies[i] = json.loads(raw) if 'application/json' in h.get('content-type', [''])[0] else raw
+        headers[i] = h
+        if row['method'] == 'POST':
+            assert (FOLDER / f'{i:04d}.request.json').is_file()
+        if row['path'] == 'sessions/' + sid:
+            assert bodies[i]['session_id'] == sid and bodies[i]['pid'] == pid and bodies[i]['firmware_sha256'] == firmware
+        if row['path'] == prefix:
+            assert bodies[i]['preview_id'] == preview_id and bodies[i]['owner_epoch'] == producer['owner_epoch']
+            if bodies[i].get('session_id'):
+                assert bodies[i]['session_id'] == sid
+    assert len(rows) == len(list(FOLDER.glob('*.response'))) == 1234
+
+    all_files, checkpoint_indices = {}, {}
+    save_calls = [i for i, row in enumerate(rows) if row['path'] == 'program-revisions' and row['method'] == 'POST']
+    assert len(save_calls) == 6
+    for name, (i, j) in zip(runs, zip(save_calls[::2], save_calls[1::2])):
+        assert rows[i]['status'] == rows[j]['status'] == 201 and bodies[i] == bodies[j]
+        payload = load(FOLDER / f'{i:04d}.request.json')
+        assert payload == load(FOLDER / f'{j:04d}.request.json')
+        files = files_from(payload)
+        metadata = bodies[i]['revision']
+        assert metadata == producer['checkpoints'][name]
+        hashes = {n: sha(b) for n, b in sorted(files.items())}
+        assert sha(canonical({'source_kind': 'uiflow2-package', 'entrypoint': 'main.py', 'files': hashes})) == metadata['revision_id'] == runs[name]['revision_id']
+        assert sha(canonical(hashes)) == metadata['source_sha256']
+        assert metadata['source_kind'] == 'uiflow2-package' and metadata['entrypoint'] == 'main.py'
+        assert datetime.fromisoformat(metadata['created_at']).tzinfo is not None
+        assert metadata['total_file_bytes'] == sum(map(len, files.values()))
+        assert {x['path']: {'size': x['size'], 'sha256': x['sha256']} for x in metadata['files']} == inventory(files) == producer['package_inventory'][name]
+        get_indices = [k for k, row in enumerate(rows) if row['path'] == 'program-revisions/' + metadata['revision_id'] and row['method'] == 'GET']
+        assert len(get_indices) == 1 and bodies[get_indices[0]] == bodies[i]
+        all_files[name], checkpoint_indices[name] = files, [i, j, get_indices[0]]
+    assert set(all_files['inflight']) == {'assets/pad.dat', 'assets/tail.dat', 'main.py'}
+    assert all_files['inflight']['assets/pad.dat'] == bytes(range(256)) * 512
+    assert len(all_files['inflight']['assets/tail.dat']) == 131072
+    assert sum(map(len, all_files['inflight'].values())) == 262303
+    finite_source = all_files['finite']['main.py'].decode()
+    pir_source = all_files['pir-C']['main.py'].decode()
+    inflight_source = all_files['inflight']['main.py'].decode()
+    for source in (finite_source, pir_source, inflight_source):
+        ast.parse(source)
+    nonce = re.search(r"'/m5-live-package-([0-9a-f]{32})'", finite_source).group(1)
+    assert 'sys.path.append' in finite_source and producer['nonce_marker'] in finite_source
+    assert '/m5-live-package-' + nonce in pir_source and '/m5-live-package-' + nonce in inflight_source
+    assert 'in sys.path' in pir_source and 'in sys.path' in inflight_source
+    assert producer['forbidden_marker'] in inflight_source
+    assert 'from unit import PIRUnit\nunit = PIRUnit((1, 2))' in pir_source and 'unit.get_status()' in pir_source
+    assert all_files['inflight']['assets/tail.dat'] == hashlib.sha256(nonce.encode()).digest() * 4096
+    helper = FOLDER / 'compiled/C/helper.mpy'
+    helper_source = FOLDER / 'compiled/C/helper.py'
+    compiler = producer['compiler']
+    assert helper.read_bytes() == all_files['pir-C']['helper.mpy'] and helper.read_bytes()[:4] == bytes([77, 6, 0, 31])
+    assert helper_source.read_text() == 'VALUE = 41\ndef transform(value):\n return value * 2 + VALUE\n'
+    assert sha(helper.read_bytes()) == compiler['helpers']['C']['binary_sha256']
+    assert sha(helper_source.read_bytes()) == compiler['helpers']['C']['source_sha256']
+    assert sha(Path(compiler['helpers']['C']['command'][0]).read_bytes()) == compiler['executable_sha256']
+    assert compiler['version'].startswith('MicroPython 78ff170de9')
+
+    create_calls = [i for i, row in enumerate(rows) if row['path'] == 'previews' and row['method'] == 'POST']
+    assert len(create_calls) == 2 and all(rows[i]['status'] == 202 for i in create_calls)
+    assert bodies[create_calls[0]] == bodies[create_calls[1]] == producer['created']
+    run_posts = [i for i, row in enumerate(rows) if row['path'] == prefix + '/runs' and row['method'] == 'POST']
+    assert len(run_posts) == 7
+    for name, run in runs.items():
+        group = [i for i in run_posts if load(FOLDER / f'{i:04d}.request.json')['client_generation'] == name]
+        assert len(group) == (3 if name == 'inflight' else 2)
+        assert all(rows[i]['status'] == 202 and bodies[i] == bodies[group[0]] for i in group)
+        assert all(load(FOLDER / f'{i:04d}.request.json') == run['request'] for i in group)
+        original = bodies[group[0]]
+        assert original['state'] == 'queued' and original['run_id'] == run['run_id'] and original['execution_id'] == run['execution_id']
+        assert original['generation'] == run['generation']
+
+    captured = load(FOLDER / 'captured-inflight-program.json')
+    assert captured == producer['captured_writing']
+    ci = captured['http_index']
+    program = captured['program']
+    assert rows[ci]['path'] == 'sessions/' + sid + '/program' and bodies[ci]['program'] == program
+    assert program['execution_id'] == runs['inflight']['execution_id'] and program['revision_id'] == runs['inflight']['revision_id']
+    assert program['state'] == 'submitting' and not program.get('acknowledged')
+    assert program['pid'] == pid and program['firmware_sha256'] == firmware
+    assert program['total_file_bytes'] == captured['total_package_bytes'] == 262303
+    deployment = program['deployment']
+    assert deployment['phase'] == 'writing' and deployment['path'] == 'assets/pad.dat' and deployment['written_bytes'] == 131072
+    assert captured['pad_file_completion_observed'] is True and captured['package_publication_observed'] is False and captured['tail_completion'] == 'not-established'
+    assert all(e['phase'] not in {'verified', 'published', 'activated'} for e in deployment['events'])
+    cancel_index = producer['cancel_http_index']
+    assert ci < cancel_index and rows[cancel_index]['method'] == 'POST' and rows[cancel_index]['status'] == 202
+    assert rows[cancel_index]['path'] == prefix + '/runs/' + runs['inflight']['run_id'] + '/cancel'
+    assert bodies[cancel_index]['state'] == 'cancelling' and bodies[cancel_index]['execution_id'] == runs['inflight']['execution_id']
+    baseline = producer['cancel_serial_baseline']
+    serial_before_cancel = [i for i, row in enumerate(rows) if ci < i < cancel_index and row['path'].startswith('sessions/' + sid + '/serial?')]
+    assert len(serial_before_cancel) == 1 and bodies[serial_before_cancel[0]]['next_offset'] == baseline == 7135
+    cancelled = producer['cancelled']
+    assert cancelled['state'] == runs['inflight']['state'] == 'cancelled'
+    assert cancelled['interrupt_ack'] == 'confirmed' and cancelled['interrupt_observed_execution_id'] == runs['inflight']['execution_id']
+    assert cancelled in bodies.values()
+    ack = cancelled['interrupt_receipt']
+    assert ack['interruption_confirmed'] is True and baseline <= ack['serial_offset'] < ack['prompt_end']
+    assert runs['finite']['state'] == 'completed' and runs['pir-C']['state'] == 'running'
+
+    unit_checks = []
+    input_calls = [i for i, row in enumerate(rows) if row['path'] == prefix + '/input']
+    assert len(input_calls) == 3
+    for (label, expected), i in zip((('pir-low-1', False), ('pir-high', True), ('pir-low-2', False)), input_calls):
+        payload = load(FOLDER / f'{i:04d}.request.json')
+        assert payload['expected_owner_epoch'] == producer['owner_epoch'] and payload['expected_run_id'] == runs['pir-C']['run_id']
+        assert payload['unit_input'] == {'id': 'external1', 'values': {'motion': expected}}
+        assert bodies[i]['execution_id'] == runs['pir-C']['execution_id'] and bodies[i]['revision_id'] == runs['pir-C']['revision_id']
+        state, qom = load(FOLDER / (label + '-units.json')), load(FOLDER / (label + '-qom.json'))
+        assert state in bodies.values() and qom in bodies.values()
+        assert unit_properties(state, sid)['input-level'] is expected
+        assert qom['session_id'] == sid and qom['path'] == '/machine/units/external1' and qom['depth'] == 0
+        assert qom['nodes']['input-level']['value'] is expected
+        unit_checks.append({'label': label, 'live_input_level': expected, 'raw_qom_input_level': expected})
+    frame_calls = [i for i, row in enumerate(rows) if row['path'] == prefix + '/runs/' + runs['pir-C']['run_id'] + '/frame.png']
+    assert len(frame_calls) == 1
+    frame_i = frame_calls[0]
+    assert bodies[frame_i] == (FOLDER / 'frame-pir-C.png').read_bytes()
+    png(bodies[frame_i])
+    for key, expected in [('x-preview-id', preview_id), ('x-run-id', runs['pir-C']['run_id']), ('x-frame-execution-id', runs['pir-C']['execution_id']), ('x-frame-revision-id', runs['pir-C']['revision_id']), ('x-frame-sha256', sha(bodies[frame_i]))]:
+        assert headers[frame_i][key] == [expected]
+
+    def check_zip(path):
+        data = path.read_bytes()
+        with zipfile.ZipFile(io.BytesIO(data)) as z:
+            names = z.namelist()
+            assert len(names) == len(set(names)) == 31 and z.testzip() is None
+            for name in names:
+                n = PurePosixPath(name)
+                assert not n.is_absolute() and '..' not in n.parts and '\\' not in name
+                assert not stat.S_ISLNK(z.getinfo(name).external_attr >> 16)
+            manifest = json.loads(z.read('manifest.json'))
+            assert set(manifest['files']) == set(names) - {'manifest.json'}
+            for name, record in manifest['files'].items():
+                content = z.read(name)
+                assert record['size'] == len(content) and record['sha256'] == sha(content)
+            session = manifest['session']
+            assert session['session_id'] == sid and session['pid'] == pid and session['firmware_sha256'] == firmware and session['state'] == 'running'
+            assert session['management_binding'] == producer['management_binding'] and session['program_transport'] == 'uart-repl'
+            assert session['program']['execution_id'] == runs['pir-C']['execution_id']
+            assert session['worker']['generation'] == 33 and session['worker']['worker_id'] == producer['health_before']['capacity']['worker']['worker_id']
+            assert json.loads(z.read('units/contract.json')) == producer['created']['session_request']['frozen_unit_contract']
+            assert json.loads(z.read('units/runtime.json'))['attachments'] == session['units']
+            assert unit_properties(json.loads(z.read('units/state.json')), sid) == unit_properties(manifest['units'], sid)
+            assert unit_properties(manifest['units'], sid)['input-level'] is False
+            png(z.read('frames/current.png'))
+            assert manifest['frame']['execution_id'] == runs['pir-C']['execution_id'] and manifest['frame']['revision_id'] == runs['pir-C']['revision_id']
+            assert json.loads(z.read('qom/snapshot.json'))['path'] == '/machine'
+            raw = z.read('serial.log')
+            assert raw.count(b'ESP-ROM:') == raw.count(b'M5EMU_UART_REPL_READY') == 1
+            assert raw.count(producer['nonce_marker'].encode()) == 1 and producer['forbidden_marker'].encode() not in raw
+            stored = {PurePosixPath(n).stem for n in names if n.startswith('programs/') and n.count('/') == 1 and n.endswith('.json')}
+            assert stored == {x['execution_id'] for x in runs.values()}
+            starts = re.findall(rb'__M5_EXEC_([0-9a-f]{32})__:START', raw)
+            assert len(starts) == 2 and {x.decode() for x in starts} == {runs[x]['execution_id'] for x in ('finite', 'pir-C')}
+            for name, run in runs.items():
+                history = json.loads(z.read('programs/' + run['execution_id'] + '.json'))
+                assert history['execution_id'] == run['execution_id'] and history['revision_id'] == run['revision_id'] and history['pid'] == pid and history['firmware_sha256'] == firmware
+                assert history['execution_mode'] == 'same-guest-uart-repl' and history['source_kind'] == 'uiflow2-package'
+                files = all_files[name]
+                assert json.loads(z.read('programs/' + run['revision_id'] + '/revision.json')) == producer['checkpoints'][name]
+                assert files_from(json.loads(z.read('programs/' + run['revision_id'] + '/source.json'))) == files
+                assert all(z.read('programs/' + run['revision_id'] + '/files/' + n) == b for n, b in files.items())
+                dep = history['deployment']
+                assert dep['package_path'] == '/flash/.m5-live-packages/' + run['revision_id']
+                if name == 'inflight':
+                    assert history['state'] == 'interrupted' and history['cancel_requested'] is True and history['interruption_confirmed'] is True
+                    assert history['interrupt_ack'] == ack and not history.get('acknowledged')
+                    assert dep == deployment
+                    assert dep['phase'] == 'writing' and dep['path'] == 'assets/pad.dat' and dep['written_bytes'] == 131072
+                    assert all(x['phase'] not in {'verified', 'published', 'activated'} for x in dep['events'])
+                    assert ('__M5_EXEC_' + run['execution_id'] + '__:START').encode() not in raw
+                else:
+                    assert history['state'] == ('completed' if name == 'finite' else 'running') and history['acknowledged'] is True
+                    assert dep['phase'] == 'activated' and dep['inventory'] == inventory(files)
+            prompt = raw[ack['serial_offset']:ack['prompt_end']]
+            assert prompt == (FOLDER / 'cancel-raw-window.raw.txt').read_bytes()
+            assert prompt.endswith(b'raw REPL; CTRL-B to exit\r\n>') and b'KeyboardInterrupt:' in prompt
+            assert ack['serial_offset'] == 7137 and ack['prompt_end'] == 7190 and len(prompt) == 53
+            transfer_raw = raw[program['serial_offset']:ack['serial_offset']]
+            # Independent raw guest receipts show 64 acknowledged 2048-byte writes.
+            counts = [int(x) for x in re.findall(rb'__M5_PKG_[a-f0-9]{32}:(\d+)\r\n', transfer_raw)]
+            assert counts == [2048] * 64 and sum(counts) == 131072
+            assert not json_lines(transfer_raw, 'LIVE_PACKAGE_READY ')
+            guest = [json.loads(x) for x in re.findall(rb'__M5_PKG_[a-f0-9]{32}:(\{[^\r\n]*\})', raw)]
+            guest_inventories = [x['files'] for x in guest if 'files' in x]
+            assert guest_inventories == [inventory(all_files[n]) for n in ('finite', 'pir-C')]
+            capabilities = [x for x in guest if 'mpy' in x]
+            assert len(capabilities) == 3 and all(x['mpy'] == 11014 and x['small_int_bits'] == 31 for x in capabilities)
+            ready = json_lines(raw, 'LIVE_PACKAGE_READY ')
+            assert len(ready) == 1
+            ready = ready[0]
+            cwd = '/flash/.m5-live-packages/' + runs['pir-C']['revision_id']
+            assert ready['version'] == 'C' and ready['helper'] == 41 and ready['init'] == 303 and ready['logic'] == 7
+            assert ready['old_absent'] is True and ready['cwd'] == cwd and ready['managed_paths'] == [cwd]
+            assert ready['helper_file'] == cwd + '/helper.mpy' and ready['logic_file'] == cwd + '/lib/logic.py'
+            assert raw.index(('__M5_EXEC_' + runs['pir-C']['execution_id'] + '__:START').encode()) >= ack['prompt_end']
+            expected_values = [('pir-low-1', 0), ('pir-high', 1), ('pir-low-2', 0)]
+            assert len(producer['observations']) == 3
+            for row, (label, value) in zip(producer['observations'], expected_values):
+                assert row['label'] == label and row['execution_id'] == runs['pir-C']['execution_id'] and row['run_id'] == runs['pir-C']['run_id']
+                window = row['window']
+                start, end = row['offset'], window['next_offset']
+                execution_marker = ('__M5_EXEC_' + row['execution_id'] + '__:START').encode()
+                assert start >= raw.index(execution_marker) + len(execution_marker)
+                assert 0 <= start < end <= len(raw) and window['offset'] == start and window['bytes'] == end - start
+                assert raw[start:end].decode('utf-8', errors='replace') == window['data'] and window in bodies.values()
+                expected = {'version': 'C', 'unit': 'pir', 'value': value, 'helper': 41, 'init': 303, 'logic': 7, 'computed': 2 * value + 48}
+                assert row['expected'] == expected
+                samples = json_lines(raw[start:end], 'LIVE_PACKAGE_SAMPLE ')
+                assert any(x == expected and all(type(x[k]) is type(v) for k, v in expected.items()) for x in samples)
+            return {'path': str(path.relative_to(ROOT)), 'sha256': sha(data), 'size': len(data), 'members': len(names),
+                    'execution_count': len(stored), 'actual_application_starts': len(starts), 'raw_serial_bytes': len(raw),
+                    'guest_hash_inventories': len(guest_inventories), 'pad_acknowledged_chunk_count': len(counts),
+                    'pad_acknowledged_bytes': sum(counts), 'raw_prompt_sha256': sha(prompt), 'raw_prompt_bytes': len(prompt)}
+
+    main_zip = check_zip(FOLDER / 'evidence.zip')
+    ec = [i for i, row in enumerate(rows) if row['path'] == 'sessions/' + sid + '/evidence']
+    cc = [i for i, row in enumerate(rows) if row['path'] == prefix + '/close']
+    assert len(ec) == len(cc) == 1 and ec[0] < cc[0]
+    assert bodies[ec[0]] == (FOLDER / 'evidence.zip').read_bytes() and rows[cc[0]]['status'] == 202
+    closed, history = load(FOLDER / 'closed.json'), load(FOLDER / 'history.json')
+    assert closed in bodies.values() and closed['state'] == 'closed' and closed['generation'] == 3 and closed['active_run_id'] is None
+    auto = closed['close_evidence']
+    assert auto['status'] == 'captured' and auto == producer['cleanup']['automatic_before_close_zip']
+    state_dir = Path(freeze['command'][freeze['command'].index('--state-dir') + 1])
+    auto_path = state_dir / auto['path']
+    assert auto_path.stat().st_size == auto['size'] and sha(auto_path.read_bytes()) == auto['sha256']
+    automatic_zip = check_zip(auto_path)
+    assert history in bodies.values() and history['state'] == 'stopped' and history['flash_retained'] is False and history['last_frame_available'] is True
+    assert history['session_id'] == sid and history['pid'] == pid and history['firmware_sha256'] == firmware
+    hf = [i for i, row in enumerate(rows) if i > cc[0] and row['path'] == 'sessions/' + sid + '/frame.png']
+    assert len(hf) == 1 and bodies[hf[0]] == (FOLDER / 'history-frame.png').read_bytes()
+    png(bodies[hf[0]])
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        pass
+    else:
+        raise AssertionError('guest PID still exists at independent review')
+    for health in (bodies[0], bodies[len(rows) - 1]):
+        assert health['ok'] is True and health['capacity']['active_sessions'] == 0
+        worker = health['capacity']['worker']
+        assert worker['pid'] == freeze['pid'] == 26551 and worker['generation'] == 33 and worker['state'] == 'ready'
+        assert worker['active_lease_count'] == 0
+
+    result = {'status': 'PASS', 'classification': 'VIRTUAL_DEVICE_ONLY', 'hardware': 'NOT RUN',
+              'reviewed_at': datetime.now(timezone.utc).isoformat(), 'review_script_sha256': sha(Path(__file__).read_bytes()),
+              'source_artifact': str(FOLDER.relative_to(ROOT)), 'session_id': sid, 'pid': pid, 'firmware_sha256': firmware,
+              'runtime_sha256': RUNTIME, 'runner_sha256': RUNNER, 'compiler_sha256': compiler['executable_sha256'],
+              'frozen_source_checks': source_hashes, 'http_responses_verified': len(rows), 'http_status_counts': dict(Counter(x['status'] for x in rows)),
+              'checkpoint_http_indices': checkpoint_indices, 'captured_writing_http_index': ci, 'cancel_http_index': cancel_index,
+              'captured_written_bytes': 131072, 'package_total_bytes': 262303, 'cancel_baseline': baseline, 'interrupt_receipt': ack,
+              'unit_qom_checks': unit_checks, 'main_zip': main_zip, 'automatic_zip': automatic_zip,
+              'cleanup': {'closed': True, 'retained_history': True, 'last_frame': True, 'flash_released': True,
+                          'pid_absent_at_review': True, 'active_sessions': 0, 'worker_active_leases': 0},
+              'scope': 'Package deployment was cancelled after pad completion was observed and before verification/publication/activation or application START. Same-VM C package recovery runs the original PIRUnit driver and .mpy dependency.',
+              'limits': ['Tail file completion and interruption of any particular chunk or byte are not established.',
+                         'No physical hardware, live browser, other-board or other-Unit acceptance is added.',
+                         'Request Idempotency-Key use is source-bound; request headers are not stored by the recorder.']}
+    (OUTPUT / 'report.json').write_text(json.dumps(result, indent=2, ensure_ascii=False) + '\n')
+    print(json.dumps({k: result[k] for k in ('status', 'pid', 'http_responses_verified', 'captured_written_bytes', 'package_total_bytes')}, indent=2))
+
+
+if __name__ == '__main__':
+    main()

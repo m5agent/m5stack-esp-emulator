@@ -1,0 +1,2418 @@
+{
+  "status": "PASS",
+  "validation": "virtual-device validation",
+  "hardware": "NOT RUN",
+  "unit": "relay",
+  "runs": {
+    "finite": {
+      "application_ready": "unknown",
+      "cancel_intent": false,
+      "cleanup_mode": "interrupt-only",
+      "client_generation": "finite",
+      "created_at": "2026-10-26T17:07:21.926780+00:00",
+      "error": null,
+      "execution_id": "f6bdd599395441bfbd71c76e2f560ad3",
+      "execution_mode": "same-guest-uart-repl",
+      "generation": 1,
+      "interrupt_ack": "unknown",
+      "last_observation": {
+        "acknowledged": true,
+        "cleanup_mode": "interrupt-only",
+        "deployment": {
+          "capabilities": {
+            "directory_count": 0,
+            "existing": false,
+            "free_bytes": 4800512,
+            "mpy": 11014,
+            "small_int_bits": 31
+          },
+          "events": [
+            {
+              "observed_at": "2026-10-26T17:07:22.050993+00:00",
+              "package_path": "/flash/.m5-live-packages/b6f9f152b372da37fb5059af466cc7c47e8104e4231b8108d15650fef53dc811",
+              "phase": "preflight",
+              "staging_path": "/flash/.m5-live-packages/.stage-5cf8f539bdde4208b4ec1d695e1d6277"
+            },
+            {
+              "capabilities": {
+                "directory_count": 0,
+                "existing": false,
+                "free_bytes": 4800512,
+                "mpy": 11014,
+                "small_int_bits": 31
+              },
+              "observed_at": "2026-10-26T17:07:22.323022+00:00",
+              "phase": "capabilities"
+            },
+            {
+              "observed_at": "2026-10-26T17:07:22.647607+00:00",
+              "path": "main.py",
+              "phase": "writing",
+              "written_bytes": 108
+            },
+            {
+              "inventory": {
+                "main.py": {
+                  "sha256": "fcfcadbde96762acf56101828b223f4cf05d91cc2b5f504e1e5e432e04f9a3b4",
+                  "size": 108
+                }
+              },
+              "observed_at": "2026-10-26T17:07:22.700535+00:00",
+              "phase": "verified"
+            },
+            {
+              "inventory": {
+                "main.py": {
+                  "sha256": "fcfcadbde96762acf56101828b223f4cf05d91cc2b5f504e1e5e432e04f9a3b4",
+                  "size": 108
+                }
+              },
+              "observed_at": "2026-10-26T17:07:22.742739+00:00",
+              "phase": "published",
+              "reused": false
+            },
+            {
+              "capabilities": {
+                "directory_count": 0,
+                "existing": false,
+                "free_bytes": 4800512,
+                "mpy": 11014,
+                "small_int_bits": 31
+              },
+              "inventory": {
+                "main.py": {
+                  "sha256": "fcfcadbde96762acf56101828b223f4cf05d91cc2b5f504e1e5e432e04f9a3b4",
+                  "size": 108
+                }
+              },
+              "observed_at": "2026-10-26T17:07:23.037576+00:00",
+              "package_path": "/flash/.m5-live-packages/b6f9f152b372da37fb5059af466cc7c47e8104e4231b8108d15650fef53dc811",
+              "phase": "activated",
+              "removed_modules": [],
+              "reused": false,
+              "staging_path": "/flash/.m5-live-packages/.stage-5cf8f539bdde4208b4ec1d695e1d6277"
+            }
+          ],
+          "inventory": {
+            "main.py": {
+              "sha256": "fcfcadbde96762acf56101828b223f4cf05d91cc2b5f504e1e5e432e04f9a3b4",
+              "size": 108
+            }
+          },
+          "package_path": "/flash/.m5-live-packages/b6f9f152b372da37fb5059af466cc7c47e8104e4231b8108d15650fef53dc811",
+          "path": "main.py",
+          "phase": "activated",
+          "removed_modules": [],
+          "reused": false,
+          "staging_path": "/flash/.m5-live-packages/.stage-5cf8f539bdde4208b4ec1d695e1d6277",
+          "written_bytes": 108
+        },
+        "execution_id": "f6bdd599395441bfbd71c76e2f560ad3",
+        "execution_mode": "same-guest-uart-repl",
+        "file_count": 1,
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "next_offset": 1408,
+        "observed_at": "2026-10-26T17:07:23.240246+00:00",
+        "pid": 26853,
+        "revision_id": "b6f9f152b372da37fb5059af466cc7c47e8104e4231b8108d15650fef53dc811",
+        "serial_offset": 1349,
+        "source_bytes": 108,
+        "source_kind": "uiflow2-package",
+        "source_sha256": "93c22752bdabee80081a5e90252384f8935a59debd9ba170f77dac5c831a4027",
+        "state": "completed",
+        "submitted_at": "2026-10-26T17:07:21.931438+00:00",
+        "total_file_bytes": 108,
+        "transfer_mode": "raw-paste"
+      },
+      "observed_at": "2026-10-26T17:07:23.241267+00:00",
+      "preview_id": "37ed60596fe747ffb648d86c05d4d0ce",
+      "request": {
+        "client_generation": "finite",
+        "expected_generation": 0,
+        "expected_owner_epoch": "22ecccc394fe466e822e3505649507ee",
+        "revision_id": "b6f9f152b372da37fb5059af466cc7c47e8104e4231b8108d15650fef53dc811",
+        "timeout_seconds": 120
+      },
+      "revision_id": "b6f9f152b372da37fb5059af466cc7c47e8104e4231b8108d15650fef53dc811",
+      "run_id": "17a796cbd9f349068659957552be6857",
+      "source_kind": "uiflow2-package",
+      "state": "completed",
+      "synchronized_at": "2026-10-26T17:07:22.050317+00:00",
+      "timeout_seconds": 120,
+      "updated_at": "2026-10-26T17:07:23.241380+00:00"
+    },
+    "A": {
+      "application_ready": "unknown",
+      "cancel_intent": true,
+      "cleanup_mode": "interrupt-only",
+      "client_generation": "A",
+      "created_at": "2026-10-26T17:07:23.305213+00:00",
+      "error": null,
+      "execution_id": "9298168684cc426982525fd9165bd27b",
+      "execution_mode": "same-guest-uart-repl",
+      "generation": 2,
+      "interrupt_ack": "confirmed",
+      "interrupt_observed_execution_id": "9298168684cc426982525fd9165bd27b",
+      "interrupt_receipt": {
+        "cleanup_mode": "interrupt-only",
+        "interruption_confirmed": true,
+        "prompt_end": 5340,
+        "serial_offset": 5092
+      },
+      "interrupted_at": "2026-10-26T17:07:27.522295+00:00",
+      "last_observation": {
+        "acknowledged": true,
+        "cancel_requested": true,
+        "cleanup_mode": "interrupt-only",
+        "deployment": {
+          "capabilities": {
+            "directory_count": 1,
+            "existing": false,
+            "free_bytes": 4784128,
+            "mpy": 11014,
+            "small_int_bits": 31
+          },
+          "events": [
+            {
+              "observed_at": "2026-10-26T17:07:23.421668+00:00",
+              "package_path": "/flash/.m5-live-packages/4f7393c6ead8e91f35f2e8b221193b8ef9f8373aacef725b296b38f8192dc3d2",
+              "phase": "preflight",
+              "staging_path": "/flash/.m5-live-packages/.stage-b7bb196c70b64cc5a7aa287f199471fa"
+            },
+            {
+              "capabilities": {
+                "directory_count": 1,
+                "existing": false,
+                "free_bytes": 4784128,
+                "mpy": 11014,
+                "small_int_bits": 31
+              },
+              "observed_at": "2026-10-26T17:07:23.738259+00:00",
+              "phase": "capabilities"
+            },
+            {
+              "observed_at": "2026-10-26T17:07:24.166261+00:00",
+              "path": "assets/pixel.png",
+              "phase": "writing",
+              "written_bytes": 97
+            },
+            {
+              "observed_at": "2026-10-26T17:07:24.282426+00:00",
+              "path": "config.json",
+              "phase": "writing",
+              "written_bytes": 197
+            },
+            {
+              "observed_at": "2026-10-26T17:07:24.384985+00:00",
+              "path": "helper.mpy",
+              "phase": "writing",
+              "written_bytes": 263
+            },
+            {
+              "observed_at": "2026-10-26T17:07:24.489296+00:00",
+              "path": "lib/__init__.py",
+              "phase": "writing",
+              "written_bytes": 275
+            },
+            {
+              "observed_at": "2026-10-26T17:07:24.595075+00:00",
+              "path": "lib/logic.py",
+              "phase": "writing",
+              "written_bytes": 361
+            },
+            {
+              "observed_at": "2026-10-26T17:07:25.389403+00:00",
+              "path": "main.py",
+              "phase": "writing",
+              "written_bytes": 2910
+            },
+            {
+              "observed_at": "2026-10-26T17:07:25.491355+00:00",
+              "path": "namespace_lib/state.py",
+              "phase": "writing",
+              "written_bytes": 2922
+            },
+            {
+              "observed_at": "2026-10-26T17:07:25.589037+00:00",
+              "path": "old_only.py",
+              "phase": "writing",
+              "written_bytes": 2939
+            },
+            {
+              "inventory": {
+                "assets/pixel.png": {
+                  "sha256": "77557fdbe0cf343aa10c373ee3a51e21df0a41a8dd56b4d9eb220b5bb8527d18",
+                  "size": 97
+                },
+                "config.json": {
+                  "sha256": "35fe07ed536af8804691d3b6c0cdabef9feec7a33e00da07a573017bfabcc121",
+                  "size": 100
+                },
+                "helper.mpy": {
+                  "sha256": "3ed9e2e38e69781157b5ad5da3296c2936dda16070bd0187a82de2253ecd0b33",
+                  "size": 66
+                },
+                "lib/__init__.py": {
+                  "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+                  "size": 12
+                },
+                "lib/logic.py": {
+                  "sha256": "a78c7c699f85d9086120fd0213d3f61ca98308785377f47aa59be7d03a400630",
+                  "size": 86
+                },
+                "main.py": {
+                  "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+                  "size": 2549
+                },
+                "namespace_lib/state.py": {
+                  "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+                  "size": 12
+                },
+                "old_only.py": {
+                  "sha256": "38f31b621fc6c66ba16fd6516ffa6b9bfde669ffbfda253185315afaf49606a3",
+                  "size": 17
+                }
+              },
+              "observed_at": "2026-10-26T17:07:26.007631+00:00",
+              "phase": "verified"
+            },
+            {
+              "inventory": {
+                "assets/pixel.png": {
+                  "sha256": "77557fdbe0cf343aa10c373ee3a51e21df0a41a8dd56b4d9eb220b5bb8527d18",
+                  "size": 97
+                },
+                "config.json": {
+                  "sha256": "35fe07ed536af8804691d3b6c0cdabef9feec7a33e00da07a573017bfabcc121",
+                  "size": 100
+                },
+                "helper.mpy": {
+                  "sha256": "3ed9e2e38e69781157b5ad5da3296c2936dda16070bd0187a82de2253ecd0b33",
+                  "size": 66
+                },
+                "lib/__init__.py": {
+                  "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+                  "size": 12
+                },
+                "lib/logic.py": {
+                  "sha256": "a78c7c699f85d9086120fd0213d3f61ca98308785377f47aa59be7d03a400630",
+                  "size": 86
+                },
+                "main.py": {
+                  "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+                  "size": 2549
+                },
+                "namespace_lib/state.py": {
+                  "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+                  "size": 12
+                },
+                "old_only.py": {
+                  "sha256": "38f31b621fc6c66ba16fd6516ffa6b9bfde669ffbfda253185315afaf49606a3",
+                  "size": 17
+                }
+              },
+              "observed_at": "2026-10-26T17:07:26.053100+00:00",
+              "phase": "published",
+              "reused": false
+            },
+            {
+              "capabilities": {
+                "directory_count": 1,
+                "existing": false,
+                "free_bytes": 4784128,
+                "mpy": 11014,
+                "small_int_bits": 31
+              },
+              "inventory": {
+                "assets/pixel.png": {
+                  "sha256": "77557fdbe0cf343aa10c373ee3a51e21df0a41a8dd56b4d9eb220b5bb8527d18",
+                  "size": 97
+                },
+                "config.json": {
+                  "sha256": "35fe07ed536af8804691d3b6c0cdabef9feec7a33e00da07a573017bfabcc121",
+                  "size": 100
+                },
+                "helper.mpy": {
+                  "sha256": "3ed9e2e38e69781157b5ad5da3296c2936dda16070bd0187a82de2253ecd0b33",
+                  "size": 66
+                },
+                "lib/__init__.py": {
+                  "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+                  "size": 12
+                },
+                "lib/logic.py": {
+                  "sha256": "a78c7c699f85d9086120fd0213d3f61ca98308785377f47aa59be7d03a400630",
+                  "size": 86
+                },
+                "main.py": {
+                  "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+                  "size": 2549
+                },
+                "namespace_lib/state.py": {
+                  "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+                  "size": 12
+                },
+                "old_only.py": {
+                  "sha256": "38f31b621fc6c66ba16fd6516ffa6b9bfde669ffbfda253185315afaf49606a3",
+                  "size": 17
+                }
+              },
+              "observed_at": "2026-10-26T17:07:26.343319+00:00",
+              "package_path": "/flash/.m5-live-packages/4f7393c6ead8e91f35f2e8b221193b8ef9f8373aacef725b296b38f8192dc3d2",
+              "phase": "activated",
+              "removed_modules": [],
+              "reused": false,
+              "staging_path": "/flash/.m5-live-packages/.stage-b7bb196c70b64cc5a7aa287f199471fa"
+            }
+          ],
+          "inventory": {
+            "assets/pixel.png": {
+              "sha256": "77557fdbe0cf343aa10c373ee3a51e21df0a41a8dd56b4d9eb220b5bb8527d18",
+              "size": 97
+            },
+            "config.json": {
+              "sha256": "35fe07ed536af8804691d3b6c0cdabef9feec7a33e00da07a573017bfabcc121",
+              "size": 100
+            },
+            "helper.mpy": {
+              "sha256": "3ed9e2e38e69781157b5ad5da3296c2936dda16070bd0187a82de2253ecd0b33",
+              "size": 66
+            },
+            "lib/__init__.py": {
+              "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+              "size": 12
+            },
+            "lib/logic.py": {
+              "sha256": "a78c7c699f85d9086120fd0213d3f61ca98308785377f47aa59be7d03a400630",
+              "size": 86
+            },
+            "main.py": {
+              "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+              "size": 2549
+            },
+            "namespace_lib/state.py": {
+              "sha256": "9f1a2c9318d0d467ad68e5f88b2f371753a4f2eec83e5d49f269e17dd4b204e5",
+              "size": 12
+            },
+            "old_only.py": {
+              "sha256": "38f31b621fc6c66ba16fd6516ffa6b9bfde669ffbfda253185315afaf49606a3",
+              "size": 17
+            }
+          },
+          "package_path": "/flash/.m5-live-packages/4f7393c6ead8e91f35f2e8b221193b8ef9f8373aacef725b296b38f8192dc3d2",
+          "path": "old_only.py",
+          "phase": "activated",
+          "removed_modules": [],
+          "reused": false,
+          "staging_path": "/flash/.m5-live-packages/.stage-b7bb196c70b64cc5a7aa287f199471fa",
+          "written_bytes": 2939
+        },
+        "execution_id": "9298168684cc426982525fd9165bd27b",
+        "execution_mode": "same-guest-uart-repl",
+        "file_count": 8,
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "interrupt_ack": {
+          "cleanup_mode": "interrupt-only",
+          "interruption_confirmed": true,
+          "prompt_end": 5340,
+          "serial_offset": 5092
+        },
+        "interrupted_at": "2026-10-26T17:07:27.520625+00:00",
+        "interruption_confirmed": true,
+        "next_offset": 4298,
+        "observed_at": "2026-10-26T17:07:26.552190+00:00",
+        "pid": 26853,
+        "replaces_execution_id": "f6bdd599395441bfbd71c76e2f560ad3",
+        "revision_id": "4f7393c6ead8e91f35f2e8b221193b8ef9f8373aacef725b296b38f8192dc3d2",
+        "serial_offset": 4239,
+        "source_bytes": 2549,
+        "source_kind": "uiflow2-package",
+        "source_sha256": "9a5bba9505827dce63da8f0ea29e4fdae7588e0eba6a44d34ddca0dfded0fb09",
+        "state": "interrupted",
+        "submitted_at": "2026-10-26T17:07:23.312545+00:00",
+        "total_file_bytes": 2939,
+        "transfer_mode": "raw-paste"
+      },
+      "observed_at": "2026-10-26T17:07:27.385089+00:00",
+      "preview_id": "37ed60596fe747ffb648d86c05d4d0ce",
+      "request": {
+        "client_generation": "A",
+        "expected_generation": 1,
+        "expected_owner_epoch": "22ecccc394fe466e822e3505649507ee",
+        "revision_id": "4f7393c6ead8e91f35f2e8b221193b8ef9f8373aacef725b296b38f8192dc3d2",
+        "timeout_seconds": 120
+      },
+      "revision_id": "4f7393c6ead8e91f35f2e8b221193b8ef9f8373aacef725b296b38f8192dc3d2",
+      "run_id": "e770e95700dc4eb5a8d5ebf89ce52f2f",
+      "source_kind": "uiflow2-package",
+      "state": "cancelled",
+      "synchronized_at": "2026-10-26T17:07:23.420781+00:00",
+      "timeout_seconds": 120,
+      "updated_at": "2026-10-26T17:07:27.525346+00:00"
+    },
+    "burst-B": {
+      "application_ready": "unknown",
+      "cancel_intent": true,
+      "cleanup_mode": "interrupt-only",
+      "client_generation": "burst-B",
+      "created_at": "2026-10-26T17:07:27.400787+00:00",
+      "error": null,
+      "execution_id": "3b80ae351dfa4a0c87cc1f6aa88792e3",
+      "execution_mode": "same-guest-uart-repl",
+      "generation": 3,
+      "interrupt_ack": "not-required",
+      "preview_id": "37ed60596fe747ffb648d86c05d4d0ce",
+      "request": {
+        "client_generation": "burst-B",
+        "expected_generation": 2,
+        "expected_owner_epoch": "22ecccc394fe466e822e3505649507ee",
+        "revision_id": "1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+        "timeout_seconds": 120
+      },
+      "revision_id": "1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+      "run_id": "283fb6de4a3546788b7224a184daa016",
+      "source_kind": "uiflow2-package",
+      "state": "superseded",
+      "timeout_seconds": 120,
+      "updated_at": "2026-10-26T17:07:27.414957+00:00"
+    },
+    "burst-C": {
+      "application_ready": "unknown",
+      "cancel_intent": true,
+      "cleanup_mode": "interrupt-only",
+      "client_generation": "burst-C",
+      "created_at": "2026-10-26T17:07:27.414957+00:00",
+      "error": null,
+      "execution_id": "e438ae5be9984b108c20ba501c330c95",
+      "execution_mode": "same-guest-uart-repl",
+      "generation": 4,
+      "interrupt_ack": "not-required",
+      "preview_id": "37ed60596fe747ffb648d86c05d4d0ce",
+      "request": {
+        "client_generation": "burst-C",
+        "expected_generation": 3,
+        "expected_owner_epoch": "22ecccc394fe466e822e3505649507ee",
+        "revision_id": "1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a",
+        "timeout_seconds": 120
+      },
+      "revision_id": "1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a",
+      "run_id": "3619ad60952b4c409738021360d0adb3",
+      "source_kind": "uiflow2-package",
+      "state": "superseded",
+      "timeout_seconds": 120,
+      "updated_at": "2026-10-26T17:07:27.429002+00:00"
+    },
+    "burst-D": {
+      "application_ready": "unknown",
+      "cancel_intent": true,
+      "cleanup_mode": "interrupt-only",
+      "client_generation": "burst-D",
+      "created_at": "2026-10-26T17:07:27.429002+00:00",
+      "error": null,
+      "execution_id": "8ba36870291e40ae883960676b6ceb96",
+      "execution_mode": "same-guest-uart-repl",
+      "generation": 5,
+      "interrupt_ack": "confirmed",
+      "interrupt_observed_execution_id": "8ba36870291e40ae883960676b6ceb96",
+      "interrupt_receipt": {
+        "cleanup_mode": "interrupt-only",
+        "interruption_confirmed": true,
+        "prompt_end": 8931,
+        "serial_offset": 8683
+      },
+      "interrupted_at": "2026-10-26T17:07:31.351096+00:00",
+      "last_observation": {
+        "acknowledged": true,
+        "cancel_requested": true,
+        "cleanup_mode": "interrupt-only",
+        "deployment": {
+          "capabilities": {
+            "directory_count": 2,
+            "existing": false,
+            "free_bytes": 4714496,
+            "mpy": 11014,
+            "small_int_bits": 31
+          },
+          "events": [
+            {
+              "observed_at": "2026-10-26T17:07:27.640174+00:00",
+              "package_path": "/flash/.m5-live-packages/1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+              "phase": "preflight",
+              "staging_path": "/flash/.m5-live-packages/.stage-a916b53201bd4520b0faf445faa01131"
+            },
+            {
+              "capabilities": {
+                "directory_count": 2,
+                "existing": false,
+                "free_bytes": 4714496,
+                "mpy": 11014,
+                "small_int_bits": 31
+              },
+              "observed_at": "2026-10-26T17:07:28.021827+00:00",
+              "phase": "capabilities"
+            },
+            {
+              "observed_at": "2026-10-26T17:07:28.457850+00:00",
+              "path": "assets/pixel.png",
+              "phase": "writing",
+              "written_bytes": 98
+            },
+            {
+              "observed_at": "2026-10-26T17:07:28.577817+00:00",
+              "path": "config.json",
+              "phase": "writing",
+              "written_bytes": 198
+            },
+            {
+              "observed_at": "2026-10-26T17:07:28.676356+00:00",
+              "path": "helper.mpy",
+              "phase": "writing",
+              "written_bytes": 264
+            },
+            {
+              "observed_at": "2026-10-26T17:07:28.776758+00:00",
+              "path": "lib/__init__.py",
+              "phase": "writing",
+              "written_bytes": 276
+            },
+            {
+              "observed_at": "2026-10-26T17:07:28.886617+00:00",
+              "path": "lib/logic.py",
+              "phase": "writing",
+              "written_bytes": 362
+            },
+            {
+              "observed_at": "2026-10-26T17:07:29.686629+00:00",
+              "path": "main.py",
+              "phase": "writing",
+              "written_bytes": 2911
+            },
+            {
+              "observed_at": "2026-10-26T17:07:29.792415+00:00",
+              "path": "namespace_lib/state.py",
+              "phase": "writing",
+              "written_bytes": 2923
+            },
+            {
+              "inventory": {
+                "assets/pixel.png": {
+                  "sha256": "8bc66d7b68c2f0733e8bae1734e7e7a2e12b25052691f121c1587e552b2d3236",
+                  "size": 98
+                },
+                "config.json": {
+                  "sha256": "7d54c7bcb6bf1cedc6782efd90371b8a3f90ff55baad0fd0aa233a084c2ebc29",
+                  "size": 100
+                },
+                "helper.mpy": {
+                  "sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8",
+                  "size": 66
+                },
+                "lib/__init__.py": {
+                  "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+                  "size": 12
+                },
+                "lib/logic.py": {
+                  "sha256": "6477fc7057f5b4f89ed464848d606c145b16347f69303efbf654182e3039957f",
+                  "size": 86
+                },
+                "main.py": {
+                  "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+                  "size": 2549
+                },
+                "namespace_lib/state.py": {
+                  "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+                  "size": 12
+                }
+              },
+              "observed_at": "2026-10-26T17:07:30.158374+00:00",
+              "phase": "verified"
+            },
+            {
+              "inventory": {
+                "assets/pixel.png": {
+                  "sha256": "8bc66d7b68c2f0733e8bae1734e7e7a2e12b25052691f121c1587e552b2d3236",
+                  "size": 98
+                },
+                "config.json": {
+                  "sha256": "7d54c7bcb6bf1cedc6782efd90371b8a3f90ff55baad0fd0aa233a084c2ebc29",
+                  "size": 100
+                },
+                "helper.mpy": {
+                  "sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8",
+                  "size": 66
+                },
+                "lib/__init__.py": {
+                  "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+                  "size": 12
+                },
+                "lib/logic.py": {
+                  "sha256": "6477fc7057f5b4f89ed464848d606c145b16347f69303efbf654182e3039957f",
+                  "size": 86
+                },
+                "main.py": {
+                  "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+                  "size": 2549
+                },
+                "namespace_lib/state.py": {
+                  "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+                  "size": 12
+                }
+              },
+              "observed_at": "2026-10-26T17:07:30.206902+00:00",
+              "phase": "published",
+              "reused": false
+            },
+            {
+              "capabilities": {
+                "directory_count": 2,
+                "existing": false,
+                "free_bytes": 4714496,
+                "mpy": 11014,
+                "small_int_bits": 31
+              },
+              "inventory": {
+                "assets/pixel.png": {
+                  "sha256": "8bc66d7b68c2f0733e8bae1734e7e7a2e12b25052691f121c1587e552b2d3236",
+                  "size": 98
+                },
+                "config.json": {
+                  "sha256": "7d54c7bcb6bf1cedc6782efd90371b8a3f90ff55baad0fd0aa233a084c2ebc29",
+                  "size": 100
+                },
+                "helper.mpy": {
+                  "sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8",
+                  "size": 66
+                },
+                "lib/__init__.py": {
+                  "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+                  "size": 12
+                },
+                "lib/logic.py": {
+                  "sha256": "6477fc7057f5b4f89ed464848d606c145b16347f69303efbf654182e3039957f",
+                  "size": 86
+                },
+                "main.py": {
+                  "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+                  "size": 2549
+                },
+                "namespace_lib/state.py": {
+                  "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+                  "size": 12
+                }
+              },
+              "observed_at": "2026-10-26T17:07:30.501771+00:00",
+              "package_path": "/flash/.m5-live-packages/1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+              "phase": "activated",
+              "removed_modules": [
+                "lib.logic",
+                "namespace_lib.state",
+                "lib",
+                "old_only",
+                "namespace_lib",
+                "helper"
+              ],
+              "reused": false,
+              "staging_path": "/flash/.m5-live-packages/.stage-a916b53201bd4520b0faf445faa01131"
+            }
+          ],
+          "inventory": {
+            "assets/pixel.png": {
+              "sha256": "8bc66d7b68c2f0733e8bae1734e7e7a2e12b25052691f121c1587e552b2d3236",
+              "size": 98
+            },
+            "config.json": {
+              "sha256": "7d54c7bcb6bf1cedc6782efd90371b8a3f90ff55baad0fd0aa233a084c2ebc29",
+              "size": 100
+            },
+            "helper.mpy": {
+              "sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8",
+              "size": 66
+            },
+            "lib/__init__.py": {
+              "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+              "size": 12
+            },
+            "lib/logic.py": {
+              "sha256": "6477fc7057f5b4f89ed464848d606c145b16347f69303efbf654182e3039957f",
+              "size": 86
+            },
+            "main.py": {
+              "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+              "size": 2549
+            },
+            "namespace_lib/state.py": {
+              "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+              "size": 12
+            }
+          },
+          "package_path": "/flash/.m5-live-packages/1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+          "path": "namespace_lib/state.py",
+          "phase": "activated",
+          "removed_modules": [
+            "lib.logic",
+            "namespace_lib.state",
+            "lib",
+            "old_only",
+            "namespace_lib",
+            "helper"
+          ],
+          "reused": false,
+          "staging_path": "/flash/.m5-live-packages/.stage-a916b53201bd4520b0faf445faa01131",
+          "written_bytes": 2923
+        },
+        "execution_id": "8ba36870291e40ae883960676b6ceb96",
+        "execution_mode": "same-guest-uart-repl",
+        "file_count": 7,
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "interrupt_ack": {
+          "cleanup_mode": "interrupt-only",
+          "interruption_confirmed": true,
+          "prompt_end": 8931,
+          "serial_offset": 8683
+        },
+        "interrupted_at": "2026-10-26T17:07:31.349163+00:00",
+        "interruption_confirmed": true,
+        "next_offset": 8012,
+        "observed_at": "2026-10-26T17:07:30.710542+00:00",
+        "pid": 26853,
+        "replaces_execution_id": "9298168684cc426982525fd9165bd27b",
+        "revision_id": "1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+        "serial_offset": 7953,
+        "source_bytes": 2549,
+        "source_kind": "uiflow2-package",
+        "source_sha256": "99ae3579e3c0421d56cdd63eb832eaa2c351e946e49bf432bfe4b180a1f2e2fd",
+        "state": "interrupted",
+        "submitted_at": "2026-10-26T17:07:27.531016+00:00",
+        "total_file_bytes": 2923,
+        "transfer_mode": "raw-paste"
+      },
+      "observed_at": "2026-10-26T17:07:31.154245+00:00",
+      "preview_id": "37ed60596fe747ffb648d86c05d4d0ce",
+      "request": {
+        "client_generation": "burst-D",
+        "expected_generation": 4,
+        "expected_owner_epoch": "22ecccc394fe466e822e3505649507ee",
+        "revision_id": "1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+        "timeout_seconds": 120
+      },
+      "revision_id": "1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+      "run_id": "04da2d56356e4e518ac9dad86372240d",
+      "source_kind": "uiflow2-package",
+      "state": "cancelled",
+      "synchronized_at": "2026-10-26T17:07:27.639446+00:00",
+      "timeout_seconds": 120,
+      "updated_at": "2026-10-26T17:07:31.404290+00:00"
+    },
+    "after-cancel-C": {
+      "application_ready": "unknown",
+      "cancel_intent": false,
+      "cleanup_mode": "interrupt-only",
+      "client_generation": "after-cancel-C",
+      "created_at": "2026-10-26T17:07:31.401937+00:00",
+      "error": null,
+      "execution_id": "c4ea248e36944396bba7b5bb33a7a849",
+      "execution_mode": "same-guest-uart-repl",
+      "generation": 6,
+      "interrupt_ack": "unknown",
+      "last_observation": {
+        "acknowledged": true,
+        "cleanup_mode": "interrupt-only",
+        "deployment": {
+          "capabilities": {
+            "directory_count": 3,
+            "existing": false,
+            "free_bytes": 4644864,
+            "mpy": 11014,
+            "small_int_bits": 31
+          },
+          "events": [
+            {
+              "observed_at": "2026-10-26T17:07:31.517354+00:00",
+              "package_path": "/flash/.m5-live-packages/1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a",
+              "phase": "preflight",
+              "staging_path": "/flash/.m5-live-packages/.stage-511532e6e36a42d481548e10cb7d4aa2"
+            },
+            {
+              "capabilities": {
+                "directory_count": 3,
+                "existing": false,
+                "free_bytes": 4644864,
+                "mpy": 11014,
+                "small_int_bits": 31
+              },
+              "observed_at": "2026-10-26T17:07:31.934711+00:00",
+              "phase": "capabilities"
+            },
+            {
+              "observed_at": "2026-10-26T17:07:32.377776+00:00",
+              "path": "assets/pixel.png",
+              "phase": "writing",
+              "written_bytes": 99
+            },
+            {
+              "observed_at": "2026-10-26T17:07:32.499948+00:00",
+              "path": "config.json",
+              "phase": "writing",
+              "written_bytes": 200
+            },
+            {
+              "observed_at": "2026-10-26T17:07:32.601107+00:00",
+              "path": "helper.mpy",
+              "phase": "writing",
+              "written_bytes": 266
+            },
+            {
+              "observed_at": "2026-10-26T17:07:32.707353+00:00",
+              "path": "lib/__init__.py",
+              "phase": "writing",
+              "written_bytes": 278
+            },
+            {
+              "observed_at": "2026-10-26T17:07:32.815627+00:00",
+              "path": "lib/logic.py",
+              "phase": "writing",
+              "written_bytes": 364
+            },
+            {
+              "observed_at": "2026-10-26T17:07:33.628139+00:00",
+              "path": "main.py",
+              "phase": "writing",
+              "written_bytes": 2913
+            },
+            {
+              "observed_at": "2026-10-26T17:07:33.732448+00:00",
+              "path": "namespace_lib/state.py",
+              "phase": "writing",
+              "written_bytes": 2925
+            },
+            {
+              "inventory": {
+                "assets/pixel.png": {
+                  "sha256": "9488edded333f3f4af607602662f5af43fb00eb213a68191e9726cfdb4fab672",
+                  "size": 99
+                },
+                "config.json": {
+                  "sha256": "9325925a192c8604d972d97fc127078f1c288e07402b910742f777f5e254a913",
+                  "size": 101
+                },
+                "helper.mpy": {
+                  "sha256": "021edd161bcc79e972301efbf384b07b4d92b326d67e6d61e80cc1d4266ea26a",
+                  "size": 66
+                },
+                "lib/__init__.py": {
+                  "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780",
+                  "size": 12
+                },
+                "lib/logic.py": {
+                  "sha256": "11aff7b9d29aeb59b4982aec000f2a74a812c53fc3bd62944235a14670762a8b",
+                  "size": 86
+                },
+                "main.py": {
+                  "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+                  "size": 2549
+                },
+                "namespace_lib/state.py": {
+                  "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780",
+                  "size": 12
+                }
+              },
+              "observed_at": "2026-10-26T17:07:34.116871+00:00",
+              "phase": "verified"
+            },
+            {
+              "inventory": {
+                "assets/pixel.png": {
+                  "sha256": "9488edded333f3f4af607602662f5af43fb00eb213a68191e9726cfdb4fab672",
+                  "size": 99
+                },
+                "config.json": {
+                  "sha256": "9325925a192c8604d972d97fc127078f1c288e07402b910742f777f5e254a913",
+                  "size": 101
+                },
+                "helper.mpy": {
+                  "sha256": "021edd161bcc79e972301efbf384b07b4d92b326d67e6d61e80cc1d4266ea26a",
+                  "size": 66
+                },
+                "lib/__init__.py": {
+                  "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780",
+                  "size": 12
+                },
+                "lib/logic.py": {
+                  "sha256": "11aff7b9d29aeb59b4982aec000f2a74a812c53fc3bd62944235a14670762a8b",
+                  "size": 86
+                },
+                "main.py": {
+                  "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+                  "size": 2549
+                },
+                "namespace_lib/state.py": {
+                  "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780",
+                  "size": 12
+                }
+              },
+              "observed_at": "2026-10-26T17:07:34.167951+00:00",
+              "phase": "published",
+              "reused": false
+            },
+            {
+              "capabilities": {
+                "directory_count": 3,
+                "existing": false,
+                "free_bytes": 4644864,
+                "mpy": 11014,
+                "small_int_bits": 31
+              },
+              "inventory": {
+                "assets/pixel.png": {
+                  "sha256": "9488edded333f3f4af607602662f5af43fb00eb213a68191e9726cfdb4fab672",
+                  "size": 99
+                },
+                "config.json": {
+                  "sha256": "9325925a192c8604d972d97fc127078f1c288e07402b910742f777f5e254a913",
+                  "size": 101
+                },
+                "helper.mpy": {
+                  "sha256": "021edd161bcc79e972301efbf384b07b4d92b326d67e6d61e80cc1d4266ea26a",
+                  "size": 66
+                },
+                "lib/__init__.py": {
+                  "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780",
+                  "size": 12
+                },
+                "lib/logic.py": {
+                  "sha256": "11aff7b9d29aeb59b4982aec000f2a74a812c53fc3bd62944235a14670762a8b",
+                  "size": 86
+                },
+                "main.py": {
+                  "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+                  "size": 2549
+                },
+                "namespace_lib/state.py": {
+                  "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780",
+                  "size": 12
+                }
+              },
+              "observed_at": "2026-10-26T17:07:34.464080+00:00",
+              "package_path": "/flash/.m5-live-packages/1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a",
+              "phase": "activated",
+              "removed_modules": [
+                "lib.logic",
+                "namespace_lib.state",
+                "lib",
+                "namespace_lib",
+                "helper"
+              ],
+              "reused": false,
+              "staging_path": "/flash/.m5-live-packages/.stage-511532e6e36a42d481548e10cb7d4aa2"
+            }
+          ],
+          "inventory": {
+            "assets/pixel.png": {
+              "sha256": "9488edded333f3f4af607602662f5af43fb00eb213a68191e9726cfdb4fab672",
+              "size": 99
+            },
+            "config.json": {
+              "sha256": "9325925a192c8604d972d97fc127078f1c288e07402b910742f777f5e254a913",
+              "size": 101
+            },
+            "helper.mpy": {
+              "sha256": "021edd161bcc79e972301efbf384b07b4d92b326d67e6d61e80cc1d4266ea26a",
+              "size": 66
+            },
+            "lib/__init__.py": {
+              "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780",
+              "size": 12
+            },
+            "lib/logic.py": {
+              "sha256": "11aff7b9d29aeb59b4982aec000f2a74a812c53fc3bd62944235a14670762a8b",
+              "size": 86
+            },
+            "main.py": {
+              "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+              "size": 2549
+            },
+            "namespace_lib/state.py": {
+              "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780",
+              "size": 12
+            }
+          },
+          "package_path": "/flash/.m5-live-packages/1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a",
+          "path": "namespace_lib/state.py",
+          "phase": "activated",
+          "removed_modules": [
+            "lib.logic",
+            "namespace_lib.state",
+            "lib",
+            "namespace_lib",
+            "helper"
+          ],
+          "reused": false,
+          "staging_path": "/flash/.m5-live-packages/.stage-511532e6e36a42d481548e10cb7d4aa2",
+          "written_bytes": 2925
+        },
+        "execution_id": "c4ea248e36944396bba7b5bb33a7a849",
+        "execution_mode": "same-guest-uart-repl",
+        "file_count": 7,
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "next_offset": 11591,
+        "observed_at": "2026-10-26T17:07:34.672342+00:00",
+        "pid": 26853,
+        "replaces_execution_id": "8ba36870291e40ae883960676b6ceb96",
+        "revision_id": "1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a",
+        "serial_offset": 11532,
+        "source_bytes": 2549,
+        "source_kind": "uiflow2-package",
+        "source_sha256": "231c82bc08969c80615dfcea83cb2a5539aea82e27f7063d47e5f36e76a62c7f",
+        "state": "running",
+        "submitted_at": "2026-10-26T17:07:31.411891+00:00",
+        "total_file_bytes": 2925,
+        "transfer_mode": "raw-paste"
+      },
+      "observed_at": "2026-10-26T17:07:35.218556+00:00",
+      "preview_id": "37ed60596fe747ffb648d86c05d4d0ce",
+      "request": {
+        "client_generation": "after-cancel-C",
+        "expected_generation": 5,
+        "expected_owner_epoch": "22ecccc394fe466e822e3505649507ee",
+        "revision_id": "1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a",
+        "timeout_seconds": 120
+      },
+      "revision_id": "1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a",
+      "run_id": "f01ed59b3c504d4b8dea5458b7ce62ec",
+      "source_kind": "uiflow2-package",
+      "state": "running",
+      "synchronized_at": "2026-10-26T17:07:31.516447+00:00",
+      "timeout_seconds": 120,
+      "updated_at": "2026-10-26T17:07:35.219098+00:00"
+    }
+  },
+  "checks": {
+    "same_pid_firmware_vm_nonce": true,
+    "public_checkpoint_and_mpy_dependency": true,
+    "latest_burst_wins": true,
+    "late_replay_does_not_execute": true,
+    "cancel_actual_fresh_prompt_then_run": true,
+    "unit_original_driver_uart_qom": true,
+    "frame_identity_resource_pixels": true,
+    "managed_legacy_rejection": true,
+    "bad_input_does_not_poison": true
+  },
+  "runner_sha256": "61dfb1931f9d507f56a987cca24566df411aeb460dda4289b32487246cde09e0",
+  "health_before": {
+    "ok": true,
+    "service": "m5stack-device-service",
+    "api_version": "v1",
+    "capacity": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "198a890ebcda48ea94ae3d0d36938b45",
+        "generation": 33,
+        "state": "ready",
+        "pid": 26551,
+        "started_at": "2026-10-26T17:05:01.154635+00:00",
+        "heartbeat_at": "2026-10-26T17:07:16.392931+00:00",
+        "heartbeat_age_seconds": 3.318,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    }
+  },
+  "compiler": {
+    "executable_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+    "executable_bytes": 481256,
+    "version": "MicroPython 78ff170de9 on 2026-10-26; mpy-cross emitting mpy v6.3",
+    "executable_name": "mpy-cross",
+    "helpers": {
+      "A": {
+        "command": [
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/mpy-cross/build/mpy-cross",
+          "-msmall-int-bits=31",
+          "-s",
+          "helper.py",
+          "-o",
+          ".work/preview-live-cores3-relay-r1-20261027/compiled/A/helper.mpy",
+          ".work/preview-live-cores3-relay-r1-20261027/compiled/A/helper.py"
+        ],
+        "source_sha256": "599721e2b5c4700fd60ab5e6588e956d4c0354c6456e5ced936d38b37a8d6a40",
+        "source_bytes": 59,
+        "binary_sha256": "3ed9e2e38e69781157b5ad5da3296c2936dda16070bd0187a82de2253ecd0b33",
+        "binary_bytes": 66,
+        "header": [
+          77,
+          6,
+          0,
+          31
+        ],
+        "stdout": "",
+        "stderr": ""
+      },
+      "B": {
+        "command": [
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/mpy-cross/build/mpy-cross",
+          "-msmall-int-bits=31",
+          "-s",
+          "helper.py",
+          "-o",
+          ".work/preview-live-cores3-relay-r1-20261027/compiled/B/helper.mpy",
+          ".work/preview-live-cores3-relay-r1-20261027/compiled/B/helper.py"
+        ],
+        "source_sha256": "e2c4ecc30664eb19526d3c7d425d949414c6aa327b49f78f8f491f96260c7101",
+        "source_bytes": 59,
+        "binary_sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8",
+        "binary_bytes": 66,
+        "header": [
+          77,
+          6,
+          0,
+          31
+        ],
+        "stdout": "",
+        "stderr": ""
+      },
+      "C": {
+        "command": [
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/mpy-cross/build/mpy-cross",
+          "-msmall-int-bits=31",
+          "-s",
+          "helper.py",
+          "-o",
+          ".work/preview-live-cores3-relay-r1-20261027/compiled/C/helper.mpy",
+          ".work/preview-live-cores3-relay-r1-20261027/compiled/C/helper.py"
+        ],
+        "source_sha256": "48e7d1f3d9b87514b4f43f2c39e3db29a1879fbfc8dd023b10a87cb231207c49",
+        "source_bytes": 59,
+        "binary_sha256": "021edd161bcc79e972301efbf384b07b4d92b326d67e6d61e80cc1d4266ea26a",
+        "binary_bytes": 66,
+        "header": [
+          77,
+          6,
+          0,
+          31
+        ],
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  },
+  "checkpoints": {
+    "A": "4f7393c6ead8e91f35f2e8b221193b8ef9f8373aacef725b296b38f8192dc3d2",
+    "B": "1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+    "C": "1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a",
+    "finite": "b6f9f152b372da37fb5059af466cc7c47e8104e4231b8108d15650fef53dc811"
+  },
+  "preview_id": "37ed60596fe747ffb648d86c05d4d0ce",
+  "owner_epoch": "22ecccc394fe466e822e3505649507ee",
+  "session_id": "a4424d29f08d46ec818c15dadfab1488",
+  "pid": 26853,
+  "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "created": {
+    "preview_id": "37ed60596fe747ffb648d86c05d4d0ce",
+    "owner": "local-control",
+    "owner_epoch": "22ecccc394fe466e822e3505649507ee",
+    "generation": 0,
+    "state": "preparing",
+    "request": {
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "ttl_seconds": 900,
+      "units": [
+        {
+          "id": "external1",
+          "port_id": "port-a",
+          "unit_id": "relay"
+        }
+      ]
+    },
+    "session_request": {
+      "device_id": "cores3",
+      "frozen_unit_contract": {
+        "fixtures": {},
+        "profiles": {
+          "relay": {
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "guest_validation": {
+              "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+              "device_id": "cores3",
+              "evidence_sha256": "185cb5989db63a65c3f84b7c0c1587a94a3e3fad806d761244951a98ef43440d",
+              "firmware_flavor": "reference-app-with-original-unit-drivers",
+              "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+              "hardware": "NOT RUN",
+              "live_browser": "PASS",
+              "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/relay/report.json",
+              "report_sha256": "cfef4b7fc8523949218c82f8fc019855502334f8d91cc835b8e6f2557416b9e2",
+              "runtime": "qemu",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "status": "PASS",
+              "worker_generation": 7
+            },
+            "host_validation": {
+              "atoms3r": {
+                "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/atoms3r/selection.json",
+                "batch_selection_sha256": "2c0e03a4c92e4ea06abbeedc3583b96b21388638d66766942afa0d94ac6de8a2",
+                "browser_framing": "PASS",
+                "device_id": "atoms3r",
+                "evidence_sha256": "2b104c1370bf2da469ef5bc1b95195583c5291cd2a8f17a9c52f619b40d5b425",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "firmware_sha256": "8e57c552d8d599bb448082f095721cee86ad5a98a04a5c9d582b2076e5b8b72f",
+                "guest_controller": "PASS",
+                "hardware": "NOT RUN",
+                "live_browser": "PASS",
+                "native_frame": "PASS",
+                "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/atoms3r/relay/report.json",
+                "report_sha256": "e2e543660051e4dcf7de5cc4c80b0fe307263ee99789cdc423708284e167b3b5",
+                "runtime": "qemu",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited.",
+                "session_id": "18007f73e66b4603a049fa0517b903db",
+                "status": "PASS",
+                "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                "validation": "virtual-device validation",
+                "worker_generation": 9
+              },
+              "sticks3": {
+                "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/sticks3/selection.json",
+                "batch_selection_sha256": "eb4845dc43c208fb3bf8c176ea8d63dec9e2839327f61c8a476120e7f4c34fae",
+                "browser_framing": "PASS",
+                "device_id": "sticks3",
+                "evidence_sha256": "547eaf17379f76eb98cf4791e99ae84879b6a11ddd5841d42310d4ce3162fd7f",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "firmware_sha256": "6c590bd88e36d0eb9ccca6fb9c4cb097123babc395ce9fcc42ea63c2a821800f",
+                "guest_controller": "PASS",
+                "hardware": "NOT RUN",
+                "live_browser": "PASS",
+                "native_frame": "PASS",
+                "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/relay/report.json",
+                "report_sha256": "987bdb8e9c53f46e9580f2a3e4bce53c7bdd6c6c5665d681f86604dc1fecd754",
+                "runtime": "qemu",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited.",
+                "session_id": "61ab0ac1b0aa42e9b83bd481698e725b",
+                "status": "PASS",
+                "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                "validation": "virtual-device validation",
+                "worker_generation": 9
+              },
+              "stopwatch": {
+                "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/stopwatch/selection.json",
+                "batch_selection_sha256": "9f5361faf2b643ab3af76d6163fef371452a021add731d4507add2e244aa3d86",
+                "browser_framing": "PASS",
+                "device_id": "stopwatch",
+                "evidence_sha256": "ecc5482efae761b01e7c0027a8e89395f25d33e698bc78544d4238fd79917335",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "firmware_sha256": "3296947b7e495ef63f6e62bd7066c13afbfcd44a357ee99bb9c5fce65663ec81",
+                "guest_controller": "PASS",
+                "hardware": "NOT RUN",
+                "live_browser": "PASS",
+                "native_frame": "PASS",
+                "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/relay/report.json",
+                "report_sha256": "f1d8266277721dfd7c2c622de6e754274ed8de217a1470c888032cf13a872191",
+                "runtime": "qemu",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited.",
+                "session_id": "823b7f0ab2774f5c83ee3b41d61c1f0f",
+                "status": "PASS",
+                "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                "validation": "virtual-device validation",
+                "worker_generation": 9
+              }
+            },
+            "hosts": [
+              "cores3",
+              "atoms3r",
+              "sticks3",
+              "stopwatch"
+            ],
+            "inputs": {},
+            "state": {
+              "input-events": {
+                "property": "input-events"
+              },
+              "output-level": {
+                "property": "output-level"
+              },
+              "output-transitions": {
+                "property": "output-transitions"
+              },
+              "read-bytes": {
+                "property": "read-bytes"
+              },
+              "transactions": {
+                "property": "transactions"
+              },
+              "written-bytes": {
+                "property": "written-bytes"
+              }
+            },
+            "status": "implemented"
+          }
+        },
+        "schema_version": 1,
+        "source_hashes": {
+          "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+        },
+        "units": {
+          "relay": {
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Electrical contact timing, load switching and physical isolation require separate hardware evidence.",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "HK4100F-DC5V-SHG",
+                "status": "officially-documented"
+              }
+            ],
+            "evidence": [
+              {
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ],
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/relay"
+              },
+              {
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "kind": "official-driver",
+                "sha256": "a3100b40bc7c77827b0fc6190964d54241e6be6c1fdd62d59b4192db3410118e",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/relay.py"
+              },
+              {
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ],
+                "kind": "official-linked-datasheet-or-schematic",
+                "retrieval_status": "linked-by-verified-product-page",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/4relay/Datasheet-Realy-HK4100F-DC5V-SHG(1).pdf"
+              }
+            ],
+            "id": "relay",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "inputs": {},
+            "interface": {
+              "address_7bit": [],
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "pins": {
+                "black": {
+                  "direction": "ground",
+                  "signal": "GND"
+                },
+                "red": {
+                  "direction": "power",
+                  "signal": "5V"
+                },
+                "white": {
+                  "direction": "none",
+                  "signal": "NC"
+                },
+                "yellow": {
+                  "active_level": 1,
+                  "direction": "host-to-unit",
+                  "signal": "DIN"
+                }
+              },
+              "power": {
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label",
+                "nominal_v": 5,
+                "source": "official-product-PinMap"
+              }
+            },
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "model_status": "planned",
+            "name": "Relay",
+            "official_docs": "https://docs.m5stack.com/en/unit/relay",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "outputs": {
+              "output-level": {
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "label": "继电器驱动电平",
+                "readOnly": true,
+                "type": "boolean"
+              }
+            },
+            "protocol": {
+              "gaps": [
+                "Electrical contact timing, load switching and physical isolation require separate hardware evidence."
+              ],
+              "registers": [],
+              "status": "documented",
+              "summary": "GPIO high energizes relay; GPIO low releases it. DIN is the yellow wire. The unit has no protocol address; relay contact state is derived from the guest-driven GPIO."
+            },
+            "research_status": "confirmed-contract",
+            "runtime": {
+              "properties": {
+                "output-level": {
+                  "access": "read-only",
+                  "property": "output-level",
+                  "type": "boolean"
+                }
+              },
+              "qom_path_template": "/machine/units/{attachment_id}",
+              "required_data_plane": "GPIO matrix/pad input or output observation",
+              "status": "unsupported"
+            },
+            "sku": "U023",
+            "visual_asset": {
+              "entry": "src/units/relay/index.js",
+              "export": "GroveModule"
+            }
+          }
+        }
+      },
+      "frozen_units": [
+        {
+          "id": "external1",
+          "initial": {},
+          "pins": {
+            "white": 1,
+            "yellow": 2
+          },
+          "port_id": "port-a",
+          "unit_id": "relay",
+          "visual_port": "grove"
+        }
+      ],
+      "preview_capabilities": {
+        "application_ready": "unknown",
+        "cleanup_mode": "interrupt-only",
+        "events": "polling",
+        "execution_mode": "same-guest-uart-repl",
+        "frame": "on-demand",
+        "gc_enabled": false,
+        "hotplug": false,
+        "input": true,
+        "latest_wins": true,
+        "main_mpy": false,
+        "principal_mode": "shared-control-bearer-local-control",
+        "run_cancellation": true
+      },
+      "program_mode": "uiflow-live",
+      "ready_timeout_seconds": 40,
+      "reference_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime": "qemu",
+      "ttl_seconds": 900,
+      "units": [
+        {
+          "id": "external1",
+          "port_id": "port-a",
+          "unit_id": "relay"
+        }
+      ]
+    },
+    "session_id": null,
+    "allocation_state": "pending",
+    "allocation_key": "preview:37ed60596fe747ffb648d86c05d4d0ce:allocation:1",
+    "expires_at": "2026-10-26T17:22:19.750386+00:00",
+    "desired_run_id": null,
+    "transition_run_id": null,
+    "active_run_id": null,
+    "created_at": "2026-10-26T17:07:19.750692+00:00",
+    "updated_at": "2026-10-26T17:07:19.750692+00:00",
+    "error": null,
+    "limits": {
+      "max_previews": 128,
+      "max_runs_per_preview": 256,
+      "retention_mode": "retention-only",
+      "gc_enabled": false
+    },
+    "capabilities": {
+      "application_ready": "unknown",
+      "cleanup_mode": "interrupt-only",
+      "events": "polling",
+      "execution_mode": "same-guest-uart-repl",
+      "frame": "on-demand",
+      "gc_enabled": false,
+      "hotplug": false,
+      "input": true,
+      "latest_wins": true,
+      "main_mpy": false,
+      "principal_mode": "shared-control-bearer-local-control",
+      "run_cancellation": true
+    }
+  },
+  "ready": {
+    "active_run_id": null,
+    "allocation_key": "preview:37ed60596fe747ffb648d86c05d4d0ce:allocation:1",
+    "allocation_state": "bound",
+    "blocked_reason": null,
+    "capabilities": {
+      "application_ready": "unknown",
+      "cleanup_mode": "interrupt-only",
+      "events": "polling",
+      "execution_mode": "same-guest-uart-repl",
+      "frame": "on-demand",
+      "gc_enabled": false,
+      "hotplug": false,
+      "input": true,
+      "latest_wins": true,
+      "main_mpy": false,
+      "principal_mode": "shared-control-bearer-local-control",
+      "run_cancellation": true
+    },
+    "created_at": "2026-10-26T17:07:19.750692+00:00",
+    "desired_run_id": null,
+    "error": null,
+    "expires_at": "2026-10-26T17:22:19.750386+00:00",
+    "generation": 0,
+    "limits": {
+      "gc_enabled": false,
+      "max_previews": 128,
+      "max_runs_per_preview": 256,
+      "retention_mode": "retention-only"
+    },
+    "owner": "local-control",
+    "owner_epoch": "22ecccc394fe466e822e3505649507ee",
+    "preview_id": "37ed60596fe747ffb648d86c05d4d0ce",
+    "request": {
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "ttl_seconds": 900,
+      "units": [
+        {
+          "id": "external1",
+          "port_id": "port-a",
+          "unit_id": "relay"
+        }
+      ]
+    },
+    "session_id": "a4424d29f08d46ec818c15dadfab1488",
+    "session_identity": {
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "session_id": "a4424d29f08d46ec818c15dadfab1488"
+    },
+    "session_request": {
+      "device_id": "cores3",
+      "frozen_unit_contract": {
+        "fixtures": {},
+        "profiles": {
+          "relay": {
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "guest_validation": {
+              "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+              "device_id": "cores3",
+              "evidence_sha256": "185cb5989db63a65c3f84b7c0c1587a94a3e3fad806d761244951a98ef43440d",
+              "firmware_flavor": "reference-app-with-original-unit-drivers",
+              "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+              "hardware": "NOT RUN",
+              "live_browser": "PASS",
+              "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/relay/report.json",
+              "report_sha256": "cfef4b7fc8523949218c82f8fc019855502334f8d91cc835b8e6f2557416b9e2",
+              "runtime": "qemu",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "status": "PASS",
+              "worker_generation": 7
+            },
+            "host_validation": {
+              "atoms3r": {
+                "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/atoms3r/selection.json",
+                "batch_selection_sha256": "2c0e03a4c92e4ea06abbeedc3583b96b21388638d66766942afa0d94ac6de8a2",
+                "browser_framing": "PASS",
+                "device_id": "atoms3r",
+                "evidence_sha256": "2b104c1370bf2da469ef5bc1b95195583c5291cd2a8f17a9c52f619b40d5b425",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "firmware_sha256": "8e57c552d8d599bb448082f095721cee86ad5a98a04a5c9d582b2076e5b8b72f",
+                "guest_controller": "PASS",
+                "hardware": "NOT RUN",
+                "live_browser": "PASS",
+                "native_frame": "PASS",
+                "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/atoms3r/relay/report.json",
+                "report_sha256": "e2e543660051e4dcf7de5cc4c80b0fe307263ee99789cdc423708284e167b3b5",
+                "runtime": "qemu",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited.",
+                "session_id": "18007f73e66b4603a049fa0517b903db",
+                "status": "PASS",
+                "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                "validation": "virtual-device validation",
+                "worker_generation": 9
+              },
+              "sticks3": {
+                "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/sticks3/selection.json",
+                "batch_selection_sha256": "eb4845dc43c208fb3bf8c176ea8d63dec9e2839327f61c8a476120e7f4c34fae",
+                "browser_framing": "PASS",
+                "device_id": "sticks3",
+                "evidence_sha256": "547eaf17379f76eb98cf4791e99ae84879b6a11ddd5841d42310d4ce3162fd7f",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "firmware_sha256": "6c590bd88e36d0eb9ccca6fb9c4cb097123babc395ce9fcc42ea63c2a821800f",
+                "guest_controller": "PASS",
+                "hardware": "NOT RUN",
+                "live_browser": "PASS",
+                "native_frame": "PASS",
+                "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/relay/report.json",
+                "report_sha256": "987bdb8e9c53f46e9580f2a3e4bce53c7bdd6c6c5665d681f86604dc1fecd754",
+                "runtime": "qemu",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited.",
+                "session_id": "61ab0ac1b0aa42e9b83bd481698e725b",
+                "status": "PASS",
+                "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                "validation": "virtual-device validation",
+                "worker_generation": 9
+              },
+              "stopwatch": {
+                "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/stopwatch/selection.json",
+                "batch_selection_sha256": "9f5361faf2b643ab3af76d6163fef371452a021add731d4507add2e244aa3d86",
+                "browser_framing": "PASS",
+                "device_id": "stopwatch",
+                "evidence_sha256": "ecc5482efae761b01e7c0027a8e89395f25d33e698bc78544d4238fd79917335",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "firmware_sha256": "3296947b7e495ef63f6e62bd7066c13afbfcd44a357ee99bb9c5fce65663ec81",
+                "guest_controller": "PASS",
+                "hardware": "NOT RUN",
+                "live_browser": "PASS",
+                "native_frame": "PASS",
+                "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/relay/report.json",
+                "report_sha256": "f1d8266277721dfd7c2c622de6e754274ed8de217a1470c888032cf13a872191",
+                "runtime": "qemu",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited.",
+                "session_id": "823b7f0ab2774f5c83ee3b41d61c1f0f",
+                "status": "PASS",
+                "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                "validation": "virtual-device validation",
+                "worker_generation": 9
+              }
+            },
+            "hosts": [
+              "cores3",
+              "atoms3r",
+              "sticks3",
+              "stopwatch"
+            ],
+            "inputs": {},
+            "state": {
+              "input-events": {
+                "property": "input-events"
+              },
+              "output-level": {
+                "property": "output-level"
+              },
+              "output-transitions": {
+                "property": "output-transitions"
+              },
+              "read-bytes": {
+                "property": "read-bytes"
+              },
+              "transactions": {
+                "property": "transactions"
+              },
+              "written-bytes": {
+                "property": "written-bytes"
+              }
+            },
+            "status": "implemented"
+          }
+        },
+        "schema_version": 1,
+        "source_hashes": {
+          "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+        },
+        "units": {
+          "relay": {
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Electrical contact timing, load switching and physical isolation require separate hardware evidence.",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "HK4100F-DC5V-SHG",
+                "status": "officially-documented"
+              }
+            ],
+            "evidence": [
+              {
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ],
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/relay"
+              },
+              {
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "kind": "official-driver",
+                "sha256": "a3100b40bc7c77827b0fc6190964d54241e6be6c1fdd62d59b4192db3410118e",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/relay.py"
+              },
+              {
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ],
+                "kind": "official-linked-datasheet-or-schematic",
+                "retrieval_status": "linked-by-verified-product-page",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/4relay/Datasheet-Realy-HK4100F-DC5V-SHG(1).pdf"
+              }
+            ],
+            "id": "relay",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "inputs": {},
+            "interface": {
+              "address_7bit": [],
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "pins": {
+                "black": {
+                  "direction": "ground",
+                  "signal": "GND"
+                },
+                "red": {
+                  "direction": "power",
+                  "signal": "5V"
+                },
+                "white": {
+                  "direction": "none",
+                  "signal": "NC"
+                },
+                "yellow": {
+                  "active_level": 1,
+                  "direction": "host-to-unit",
+                  "signal": "DIN"
+                }
+              },
+              "power": {
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label",
+                "nominal_v": 5,
+                "source": "official-product-PinMap"
+              }
+            },
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "model_status": "planned",
+            "name": "Relay",
+            "official_docs": "https://docs.m5stack.com/en/unit/relay",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "outputs": {
+              "output-level": {
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "label": "继电器驱动电平",
+                "readOnly": true,
+                "type": "boolean"
+              }
+            },
+            "protocol": {
+              "gaps": [
+                "Electrical contact timing, load switching and physical isolation require separate hardware evidence."
+              ],
+              "registers": [],
+              "status": "documented",
+              "summary": "GPIO high energizes relay; GPIO low releases it. DIN is the yellow wire. The unit has no protocol address; relay contact state is derived from the guest-driven GPIO."
+            },
+            "research_status": "confirmed-contract",
+            "runtime": {
+              "properties": {
+                "output-level": {
+                  "access": "read-only",
+                  "property": "output-level",
+                  "type": "boolean"
+                }
+              },
+              "qom_path_template": "/machine/units/{attachment_id}",
+              "required_data_plane": "GPIO matrix/pad input or output observation",
+              "status": "unsupported"
+            },
+            "sku": "U023",
+            "visual_asset": {
+              "entry": "src/units/relay/index.js",
+              "export": "GroveModule"
+            }
+          }
+        }
+      },
+      "frozen_units": [
+        {
+          "id": "external1",
+          "initial": {},
+          "pins": {
+            "white": 1,
+            "yellow": 2
+          },
+          "port_id": "port-a",
+          "unit_id": "relay",
+          "visual_port": "grove"
+        }
+      ],
+      "preview_capabilities": {
+        "application_ready": "unknown",
+        "cleanup_mode": "interrupt-only",
+        "events": "polling",
+        "execution_mode": "same-guest-uart-repl",
+        "frame": "on-demand",
+        "gc_enabled": false,
+        "hotplug": false,
+        "input": true,
+        "latest_wins": true,
+        "main_mpy": false,
+        "principal_mode": "shared-control-bearer-local-control",
+        "run_cancellation": true
+      },
+      "program_mode": "uiflow-live",
+      "ready_timeout_seconds": 40,
+      "reference_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "runtime": "qemu",
+      "ttl_seconds": 900,
+      "units": [
+        {
+          "id": "external1",
+          "port_id": "port-a",
+          "unit_id": "relay"
+        }
+      ]
+    },
+    "state": "ready",
+    "transition_run_id": null,
+    "updated_at": "2026-10-26T17:07:21.866934+00:00"
+  },
+  "runtime_provenance": {
+    "schema_version": 1,
+    "status": "PASS",
+    "session_id": "a4424d29f08d46ec818c15dadfab1488",
+    "pid": 26853,
+    "method": "macOS-proc_pidpath",
+    "captured_at": "2026-10-26T17:07:21.907345+00:00",
+    "expected_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+    "observed_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+    "executable_name": "qemu-system-xtensa",
+    "hardware_validation": false
+  },
+  "boot_rom_count": 1,
+  "management_rejections": {
+    "program": {
+      "status": 409,
+      "error": {
+        "code": "session_managed_by_preview",
+        "message": "session mutations are managed by its Preview"
+      },
+      "http_index": 53
+    },
+    "input": {
+      "status": 409,
+      "error": {
+        "code": "session_managed_by_preview",
+        "message": "session mutations are managed by its Preview"
+      },
+      "http_index": 54
+    },
+    "renew": {
+      "status": 409,
+      "error": {
+        "code": "session_managed_by_preview",
+        "message": "session mutations are managed by its Preview"
+      },
+      "http_index": 55
+    },
+    "reset": {
+      "status": 409,
+      "error": {
+        "code": "session_managed_by_preview",
+        "message": "session mutations are managed by its Preview"
+      },
+      "http_index": 56
+    },
+    "delete": {
+      "status": 409,
+      "error": {
+        "code": "session_managed_by_preview",
+        "message": "session mutations are managed by its Preview"
+      },
+      "http_index": 57
+    }
+  },
+  "bad_input": {
+    "status": 400,
+    "error": {
+      "code": "invalid_input",
+      "message": "key is required"
+    },
+    "http_index": 157
+  },
+  "stale_input": {
+    "status": 410,
+    "error": {
+      "code": "run_frame_unavailable",
+      "message": "Run has no current verified sample"
+    },
+    "http_index": 265
+  },
+  "old_frame": {
+    "status": 410,
+    "error": {
+      "code": "run_frame_unavailable",
+      "message": "Run has no current verified sample"
+    },
+    "http_index": 266
+  },
+  "stale_generation": {
+    "status": 409,
+    "error": {
+      "code": "preview_generation_conflict",
+      "message": "preview generation differs"
+    },
+    "http_index": 267
+  },
+  "wrong_epoch": {
+    "status": 409,
+    "error": {
+      "code": "preview_owner_conflict",
+      "message": "Preview owner epoch differs"
+    },
+    "http_index": 268
+  },
+  "cancelled": {
+    "application_ready": "unknown",
+    "cancel_intent": true,
+    "cleanup_mode": "interrupt-only",
+    "client_generation": "burst-D",
+    "created_at": "2026-10-26T17:07:27.429002+00:00",
+    "error": null,
+    "execution_id": "8ba36870291e40ae883960676b6ceb96",
+    "execution_mode": "same-guest-uart-repl",
+    "generation": 5,
+    "interrupt_ack": "confirmed",
+    "interrupt_observed_execution_id": "8ba36870291e40ae883960676b6ceb96",
+    "interrupt_receipt": {
+      "cleanup_mode": "interrupt-only",
+      "interruption_confirmed": true,
+      "prompt_end": 8931,
+      "serial_offset": 8683
+    },
+    "interrupted_at": "2026-10-26T17:07:31.351096+00:00",
+    "last_observation": {
+      "acknowledged": true,
+      "cleanup_mode": "interrupt-only",
+      "deployment": {
+        "capabilities": {
+          "directory_count": 2,
+          "existing": false,
+          "free_bytes": 4714496,
+          "mpy": 11014,
+          "small_int_bits": 31
+        },
+        "events": [
+          {
+            "observed_at": "2026-10-26T17:07:27.640174+00:00",
+            "package_path": "/flash/.m5-live-packages/1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+            "phase": "preflight",
+            "staging_path": "/flash/.m5-live-packages/.stage-a916b53201bd4520b0faf445faa01131"
+          },
+          {
+            "capabilities": {
+              "directory_count": 2,
+              "existing": false,
+              "free_bytes": 4714496,
+              "mpy": 11014,
+              "small_int_bits": 31
+            },
+            "observed_at": "2026-10-26T17:07:28.021827+00:00",
+            "phase": "capabilities"
+          },
+          {
+            "observed_at": "2026-10-26T17:07:28.457850+00:00",
+            "path": "assets/pixel.png",
+            "phase": "writing",
+            "written_bytes": 98
+          },
+          {
+            "observed_at": "2026-10-26T17:07:28.577817+00:00",
+            "path": "config.json",
+            "phase": "writing",
+            "written_bytes": 198
+          },
+          {
+            "observed_at": "2026-10-26T17:07:28.676356+00:00",
+            "path": "helper.mpy",
+            "phase": "writing",
+            "written_bytes": 264
+          },
+          {
+            "observed_at": "2026-10-26T17:07:28.776758+00:00",
+            "path": "lib/__init__.py",
+            "phase": "writing",
+            "written_bytes": 276
+          },
+          {
+            "observed_at": "2026-10-26T17:07:28.886617+00:00",
+            "path": "lib/logic.py",
+            "phase": "writing",
+            "written_bytes": 362
+          },
+          {
+            "observed_at": "2026-10-26T17:07:29.686629+00:00",
+            "path": "main.py",
+            "phase": "writing",
+            "written_bytes": 2911
+          },
+          {
+            "observed_at": "2026-10-26T17:07:29.792415+00:00",
+            "path": "namespace_lib/state.py",
+            "phase": "writing",
+            "written_bytes": 2923
+          },
+          {
+            "inventory": {
+              "assets/pixel.png": {
+                "sha256": "8bc66d7b68c2f0733e8bae1734e7e7a2e12b25052691f121c1587e552b2d3236",
+                "size": 98
+              },
+              "config.json": {
+                "sha256": "7d54c7bcb6bf1cedc6782efd90371b8a3f90ff55baad0fd0aa233a084c2ebc29",
+                "size": 100
+              },
+              "helper.mpy": {
+                "sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8",
+                "size": 66
+              },
+              "lib/__init__.py": {
+                "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+                "size": 12
+              },
+              "lib/logic.py": {
+                "sha256": "6477fc7057f5b4f89ed464848d606c145b16347f69303efbf654182e3039957f",
+                "size": 86
+              },
+              "main.py": {
+                "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+                "size": 2549
+              },
+              "namespace_lib/state.py": {
+                "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+                "size": 12
+              }
+            },
+            "observed_at": "2026-10-26T17:07:30.158374+00:00",
+            "phase": "verified"
+          },
+          {
+            "inventory": {
+              "assets/pixel.png": {
+                "sha256": "8bc66d7b68c2f0733e8bae1734e7e7a2e12b25052691f121c1587e552b2d3236",
+                "size": 98
+              },
+              "config.json": {
+                "sha256": "7d54c7bcb6bf1cedc6782efd90371b8a3f90ff55baad0fd0aa233a084c2ebc29",
+                "size": 100
+              },
+              "helper.mpy": {
+                "sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8",
+                "size": 66
+              },
+              "lib/__init__.py": {
+                "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+                "size": 12
+              },
+              "lib/logic.py": {
+                "sha256": "6477fc7057f5b4f89ed464848d606c145b16347f69303efbf654182e3039957f",
+                "size": 86
+              },
+              "main.py": {
+                "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+                "size": 2549
+              },
+              "namespace_lib/state.py": {
+                "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+                "size": 12
+              }
+            },
+            "observed_at": "2026-10-26T17:07:30.206902+00:00",
+            "phase": "published",
+            "reused": false
+          },
+          {
+            "capabilities": {
+              "directory_count": 2,
+              "existing": false,
+              "free_bytes": 4714496,
+              "mpy": 11014,
+              "small_int_bits": 31
+            },
+            "inventory": {
+              "assets/pixel.png": {
+                "sha256": "8bc66d7b68c2f0733e8bae1734e7e7a2e12b25052691f121c1587e552b2d3236",
+                "size": 98
+              },
+              "config.json": {
+                "sha256": "7d54c7bcb6bf1cedc6782efd90371b8a3f90ff55baad0fd0aa233a084c2ebc29",
+                "size": 100
+              },
+              "helper.mpy": {
+                "sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8",
+                "size": 66
+              },
+              "lib/__init__.py": {
+                "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+                "size": 12
+              },
+              "lib/logic.py": {
+                "sha256": "6477fc7057f5b4f89ed464848d606c145b16347f69303efbf654182e3039957f",
+                "size": 86
+              },
+              "main.py": {
+                "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+                "size": 2549
+              },
+              "namespace_lib/state.py": {
+                "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+                "size": 12
+              }
+            },
+            "observed_at": "2026-10-26T17:07:30.501771+00:00",
+            "package_path": "/flash/.m5-live-packages/1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+            "phase": "activated",
+            "removed_modules": [
+              "lib.logic",
+              "namespace_lib.state",
+              "lib",
+              "old_only",
+              "namespace_lib",
+              "helper"
+            ],
+            "reused": false,
+            "staging_path": "/flash/.m5-live-packages/.stage-a916b53201bd4520b0faf445faa01131"
+          }
+        ],
+        "inventory": {
+          "assets/pixel.png": {
+            "sha256": "8bc66d7b68c2f0733e8bae1734e7e7a2e12b25052691f121c1587e552b2d3236",
+            "size": 98
+          },
+          "config.json": {
+            "sha256": "7d54c7bcb6bf1cedc6782efd90371b8a3f90ff55baad0fd0aa233a084c2ebc29",
+            "size": 100
+          },
+          "helper.mpy": {
+            "sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8",
+            "size": 66
+          },
+          "lib/__init__.py": {
+            "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+            "size": 12
+          },
+          "lib/logic.py": {
+            "sha256": "6477fc7057f5b4f89ed464848d606c145b16347f69303efbf654182e3039957f",
+            "size": 86
+          },
+          "main.py": {
+            "sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+            "size": 2549
+          },
+          "namespace_lib/state.py": {
+            "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2",
+            "size": 12
+          }
+        },
+        "package_path": "/flash/.m5-live-packages/1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+        "path": "namespace_lib/state.py",
+        "phase": "activated",
+        "removed_modules": [
+          "lib.logic",
+          "namespace_lib.state",
+          "lib",
+          "old_only",
+          "namespace_lib",
+          "helper"
+        ],
+        "reused": false,
+        "staging_path": "/flash/.m5-live-packages/.stage-a916b53201bd4520b0faf445faa01131",
+        "written_bytes": 2923
+      },
+      "execution_id": "8ba36870291e40ae883960676b6ceb96",
+      "execution_mode": "same-guest-uart-repl",
+      "file_count": 7,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "next_offset": 8012,
+      "observed_at": "2026-10-26T17:07:30.710542+00:00",
+      "pid": 26853,
+      "replaces_execution_id": "9298168684cc426982525fd9165bd27b",
+      "revision_id": "1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+      "serial_offset": 7953,
+      "source_bytes": 2549,
+      "source_kind": "uiflow2-package",
+      "source_sha256": "99ae3579e3c0421d56cdd63eb832eaa2c351e946e49bf432bfe4b180a1f2e2fd",
+      "state": "running",
+      "submitted_at": "2026-10-26T17:07:27.531016+00:00",
+      "total_file_bytes": 2923,
+      "transfer_mode": "raw-paste"
+    },
+    "observed_at": "2026-10-26T17:07:31.154245+00:00",
+    "preview_id": "37ed60596fe747ffb648d86c05d4d0ce",
+    "request": {
+      "client_generation": "burst-D",
+      "expected_generation": 4,
+      "expected_owner_epoch": "22ecccc394fe466e822e3505649507ee",
+      "revision_id": "1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+      "timeout_seconds": 120
+    },
+    "revision_id": "1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e",
+    "run_id": "04da2d56356e4e518ac9dad86372240d",
+    "source_kind": "uiflow2-package",
+    "state": "cancelled",
+    "synchronized_at": "2026-10-26T17:07:27.639446+00:00",
+    "timeout_seconds": 120,
+    "updated_at": "2026-10-26T17:07:31.351295+00:00"
+  },
+  "zip_validation": {
+    "members": 46,
+    "sha256": "da29f954856f887aacc65010e03822580d15c1520c079e94f5d07b528965d5b2",
+    "execution_count": 4,
+    "member_hashes_original_files_serial_identity_checked": true
+  },
+  "serial_observations": [
+    {
+      "offset": 4970,
+      "window": {
+        "session_id": "a4424d29f08d46ec818c15dadfab1488",
+        "offset": 4970,
+        "next_offset": 5092,
+        "data": "LIVE_PACKAGE_SAMPLE {\"value\": 0, \"computed\": 20, \"init\": 101, \"unit\": \"relay\", \"logic\": 3, \"helper\": 17, \"version\": \"A\"}\r\n",
+        "bytes": 122
+      },
+      "expected": {
+        "version": "A",
+        "unit": "relay",
+        "value": 0,
+        "helper": 17,
+        "init": 101,
+        "logic": 3,
+        "computed": 20
+      },
+      "run_id": "e770e95700dc4eb5a8d5ebf89ce52f2f",
+      "execution_id": "9298168684cc426982525fd9165bd27b"
+    },
+    {
+      "offset": 8014,
+      "window": {
+        "session_id": "a4424d29f08d46ec818c15dadfab1488",
+        "offset": 8014,
+        "next_offset": 8683,
+        "data": "LIVE_PACKAGE_READY {\"version\": \"B\", \"helper_file\": \"/flash/.m5-live-packages/1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e/helper.mpy\", \"cwd\": \"/flash/.m5-live-packages/1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e\", \"managed_paths\": [\"/flash/.m5-live-packages/1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e\"], \"helper\": 29, \"init\": 202, \"old_absent\": true, \"logic\": 5, \"logic_file\": \"/flash/.m5-live-packages/1809dc493e7af032bc7ba5864eb8e849dff659cf7a92f4d5b10ee660a9f0fb0e/lib/logic.py\"}\r\nLIVE_PACKAGE_SAMPLE {\"value\": 1, \"computed\": 36, \"init\": 202, \"unit\": \"relay\", \"logic\": 5, \"helper\": 29, \"version\": \"B\"}\r\n",
+        "bytes": 669
+      },
+      "expected": {
+        "version": "B",
+        "unit": "relay",
+        "value": 1,
+        "helper": 29,
+        "init": 202,
+        "logic": 5,
+        "computed": 36
+      },
+      "run_id": "04da2d56356e4e518ac9dad86372240d",
+      "execution_id": "8ba36870291e40ae883960676b6ceb96"
+    },
+    {
+      "offset": 11593,
+      "window": {
+        "session_id": "a4424d29f08d46ec818c15dadfab1488",
+        "offset": 11593,
+        "next_offset": 12262,
+        "data": "LIVE_PACKAGE_READY {\"version\": \"C\", \"helper_file\": \"/flash/.m5-live-packages/1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a/helper.mpy\", \"cwd\": \"/flash/.m5-live-packages/1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a\", \"managed_paths\": [\"/flash/.m5-live-packages/1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a\"], \"helper\": 41, \"init\": 303, \"old_absent\": true, \"logic\": 7, \"logic_file\": \"/flash/.m5-live-packages/1c0e5b22a2ee4e6a7b5c2e7916706d105cb06ceb49a3d3fec1d4ba12f6cc962a/lib/logic.py\"}\r\nLIVE_PACKAGE_SAMPLE {\"value\": 0, \"computed\": 48, \"init\": 303, \"unit\": \"relay\", \"logic\": 7, \"helper\": 41, \"version\": \"C\"}\r\n",
+        "bytes": 669
+      },
+      "expected": {
+        "version": "C",
+        "unit": "relay",
+        "value": 0,
+        "helper": 41,
+        "init": 303,
+        "logic": 7,
+        "computed": 48
+      },
+      "run_id": "f01ed59b3c504d4b8dea5458b7ce62ec",
+      "execution_id": "c4ea248e36944396bba7b5bb33a7a849"
+    }
+  ],
+  "cleanup": {
+    "closed": true,
+    "history": true,
+    "last_frame": true,
+    "flash_released": true,
+    "pid_gone": true,
+    "before_close_zip": {
+      "captured_at": "2026-10-26T17:07:35.552804+00:00",
+      "path": "previews/37ed60596fe747ffb648d86c05d4d0ce/before-close.zip",
+      "sha256": "1eeba092cc9d26be13200f396dfbc31de3257985c9fb59081985b6d7ffea7e34",
+      "size": 56067,
+      "status": "captured"
+    }
+  },
+  "health_after": {
+    "ok": true,
+    "service": "m5stack-device-service",
+    "api_version": "v1",
+    "capacity": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "198a890ebcda48ea94ae3d0d36938b45",
+        "generation": 33,
+        "state": "ready",
+        "pid": 26551,
+        "started_at": "2026-10-26T17:05:01.154635+00:00",
+        "heartbeat_at": "2026-10-26T17:07:35.572833+00:00",
+        "heartbeat_age_seconds": 0.089,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    }
+  }
+}

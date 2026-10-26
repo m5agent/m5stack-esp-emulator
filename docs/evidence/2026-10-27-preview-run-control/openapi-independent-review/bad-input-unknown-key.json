@@ -1,0 +1,21 @@
+{
+  "name": "bad-input-unknown-key",
+  "method": "POST",
+  "template": "/previews/{preview_id}/input",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_input",
+      "message": "key must be a supported QEMU qcode"
+    }
+  },
+  "body_sha256": "39968888f3b60d721ebdbe86e10e40d8176685f5318d7d5fb230061a9afc07b5",
+  "request": {
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+    "expected_run_id": "c66a97fac71e405cb626cd7f37b148e1",
+    "input": {
+      "kind": "key",
+      "key": "unknown-qcode"
+    }
+  }
+}

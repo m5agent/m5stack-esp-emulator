@@ -1,0 +1,360 @@
+#!/usr/bin/env python3
+"""Explicit visible Preview package-inflight cancellation; root executes only.
+
+The per-file progress event confirms pad.dat completion during the package UART
+transaction. It does not establish whether the tail's last chunk reached the
+guest before an interrupted RPC acknowledgement. This never claims a particular
+file chunk or byte was interrupted. No automatic retry or direct QEMU launch.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import io
+import json
+import os
+from pathlib import Path, PurePosixPath
+import re
+import sys
+import time
+import uuid
+import zipfile
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path[:0] = [str(ROOT / "tests/units"), str(ROOT / "platform/tools")]
+from run_live_program import poll, require, save
+from run_live_package import (
+    NONCE_PREFIX, RevisionProbeClient, build_packages, checkpoint_payload,
+    expected_sample, file_inventory, frame_observation, live_unit,
+    matching_json_line, revision_id, sha, validate_checkpoint,
+)
+from run_host_cases import runtime_provenance
+
+RAW_PROMPT = b"raw REPL; CTRL-B to exit\r\n>"
+PAD_BYTES = 128 * 1024
+TAIL_BYTES = 128 * 1024
+
+
+class Client(RevisionProbeClient):
+    def __init__(self, output, token_file):
+        # Request recorder persists payloads and response header pairs, never
+        # Authorization or the raw control token.
+        self._token = token_file.read_text(encoding="utf-8").strip()
+        require(bool(self._token), "control token file is empty")
+        super().__init__("http://127.0.0.1:8787", output)
+
+    def raw(self, *args, **kwargs):
+        headers = dict(kwargs.pop("headers", {}) or {})
+        headers["Authorization"] = "Bearer " + self._token
+        return super().raw(*args, headers=headers, **kwargs)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--execute", action="store_true", required=True)
+    parser.add_argument("--token-file", type=Path, default=ROOT / ".work/preview-control-token")
+    parser.add_argument("--out-dir", type=Path, required=True, help="new fixed output directory; existing paths are rejected")
+    parser.add_argument("--mpy-cross", type=Path, required=True)
+    parser.add_argument("--expected-runtime-sha256", required=True)
+    args = parser.parse_args()
+    require(re.fullmatch(r"[0-9a-f]{64}", args.expected_runtime_sha256) is not None, "runtime SHA256 must be lowercase hex")
+    args.out_dir.mkdir(parents=True, exist_ok=False)
+    client = Client(args.out_dir, args.token_file)
+    report = {"status": "FAIL", "validation": "virtual-device validation", "hardware": "NOT RUN",
+              "claim": "same-VM cancellation during package UART transfer; pad completion observed; package not verified/published/activated; tail completion not established",
+              "runner_sha256": sha(Path(__file__).read_bytes()), "runs": {}, "checks": {}, "observations": []}
+    preview_id = epoch = prefix = sid = pid = None
+    files_by_name, metadata, receipts = {}, {}, {}
+    observations = report["observations"]
+    captured_writing = cancel_baseline = cancelled = None
+
+    def call(path, method="GET", payload=None, key=None):
+        result = client.raw(path, method, payload, headers={"Idempotency-Key": key} if key else {})
+        return json.loads(result)
+
+    def preview():
+        return call(prefix)
+
+    def read_run(run):
+        return call(prefix + "/runs/" + run["run_id"])
+
+    def serial_offset():
+        return call(f"sessions/{sid}/serial?offset=0&limit=1048576")["next_offset"]
+
+    def identity():
+        row = call("sessions/" + sid)
+        require(row["state"] == "running" and row["session_id"] == sid and row["pid"] == pid
+                and row["firmware_sha256"] == report["firmware_sha256"], "same-guest session identity changed")
+        require(row["management_binding"] == report["management_binding"], "managed ownership changed")
+        return row
+
+    def submit(name, wait=True):
+        current = preview()
+        payload = {"revision_id": metadata[name]["revision_id"], "expected_generation": current["generation"],
+                   "expected_owner_epoch": epoch, "client_generation": name, "timeout_seconds": 120}
+        key = uuid.uuid4().hex
+        receipt = call(prefix + "/runs", "POST", payload, key)
+        require(client.requests[-1]["status"] == 202 and receipt["state"] == "queued", "Run was not durably accepted")
+        require(call(prefix + "/runs", "POST", payload, key) == receipt, "Run replay changed original receipt")
+        receipts[name] = (payload, key, receipt)
+        report["runs"][name] = receipt
+        if wait:
+            result = poll(lambda: read_run(receipt), lambda row: row["state"] in {"running", "completed", "failed", "unknown", "cancelled"}, 130)
+            require(result["state"] in {"running", "completed"}, "Run failed to start: " + str(result))
+            report["runs"][name] = result
+        return receipt
+
+    def frame(run, label):
+        data = client.raw(prefix + "/runs/" + run["run_id"] + "/frame.png")
+        headers = {key.lower(): value for key, value in client.requests[-1]["response_headers"]}
+        for field, expected in (("x-preview-id", preview_id), ("x-run-id", run["run_id"]),
+                                ("x-frame-execution-id", run["execution_id"]), ("x-frame-revision-id", run["revision_id"]),
+                                ("x-frame-sha256", sha(data))):
+            require(headers.get(field) == expected, "frame identity differs: " + field)
+        result = frame_observation(data, (320, 240), "C")
+        (args.out_dir / (label + ".png")).write_bytes(data)
+        save(args.out_dir / (label + "-headers.json"), headers)
+        return result
+
+    def observe_pir(run, value, label):
+        identity()
+        program = call("sessions/" + sid + "/program")["program"]
+        require(program["execution_id"] == run["execution_id"] and program["revision_id"] == run["revision_id"], "UART owner differs")
+        before = serial_offset()
+        response = call(prefix + "/input", "POST", {"expected_owner_epoch": epoch, "expected_run_id": run["run_id"],
+                        "unit_input": {"id": "external1", "values": {"motion": value}}})
+        require(response["execution_id"] == run["execution_id"] and response["revision_id"] == run["revision_id"], "input receipt owner differs")
+        expected = expected_sample("C", "pir", int(value))
+        window = poll(lambda: call(f"sessions/{sid}/serial?offset={before}&limit=1048576"),
+                      lambda row: matching_json_line(row["data"], "LIVE_PACKAGE_SAMPLE ", expected) is not None, 40)
+        require(preview()["active_run_id"] == run["run_id"], "UART Run changed during observation")
+        state = call("sessions/" + sid + "/units")
+        props = live_unit(state, sid, "pir")
+        require(type(props["input-level"]) in (bool, int) and int(props["input-level"]) == int(value), "PIR state differs")
+        qom = call("sessions/" + sid + "/qom-snapshot", "POST", {"path": "/machine/units/external1", "depth": 0})
+        raw = qom["nodes"]["input-level"]["value"]
+        require(type(raw) in (bool, int) and int(raw) == int(value), "raw PIR QOM differs")
+        row = {"label": label, "offset": before, "window": window, "expected": expected,
+               "run_id": run["run_id"], "execution_id": run["execution_id"]}
+        observations.append(row)
+        save(args.out_dir / (label + "-units.json"), state)
+        save(args.out_dir / (label + "-qom.json"), qom)
+        return row
+
+    def verify_zip(data):
+        with zipfile.ZipFile(io.BytesIO(data)) as archive:
+            names = archive.namelist()
+            require(len(names) == len(set(names)) and archive.testzip() is None, "duplicate/corrupt ZIP")
+            for name in names:
+                path = PurePosixPath(name)
+                require(not path.is_absolute() and ".." not in path.parts and "\\" not in name, "unsafe ZIP path")
+                require((archive.getinfo(name).external_attr >> 16) & 0xf000 != 0xa000, "ZIP symlink")
+            manifest = json.loads(archive.read("manifest.json"))
+            require(set(manifest["files"]) == set(names) - {"manifest.json"}, "ZIP manifest member set differs")
+            for name, record in manifest["files"].items():
+                content = archive.read(name)
+                require(record["sha256"] == sha(content) and record["size"] == len(content), "ZIP member digest differs")
+            require({"serial.log", "frames/current.png", "qom/snapshot.json", "units/contract.json", "units/state.json", "units/runtime.json"} <= set(names), "ZIP lacks data-plane members")
+            session = manifest["session"]
+            require(session["state"] == "running" and session["session_id"] == sid and session["pid"] == pid
+                    and session["firmware_sha256"] == report["firmware_sha256"], "ZIP session identity differs")
+            frame_observation(archive.read("frames/current.png"), (320, 240), "C")
+            require(int(live_unit(manifest["units"], sid, "pir")["input-level"]) == 0, "ZIP final PIR differs")
+            require(live_unit(json.loads(archive.read("units/state.json")), sid, "pir") == live_unit(manifest["units"], sid, "pir"), "ZIP Unit states differ")
+            raw = archive.read("serial.log")
+            serial_text = raw.decode("utf-8", errors="replace")
+            require(serial_text.count("ESP-ROM:") == report["boot_rom_count"] and serial_text.count("M5EMU_UART_REPL_READY") == 1, "guest reset/rebootstrap occurred")
+            require(report["nonce_marker"] in serial_text, "finite nonce initialization is absent")
+            expected = {run["execution_id"]: (name, run) for name, run in report["runs"].items()}
+            stored = {PurePosixPath(name).stem for name in names if name.startswith("programs/") and name.count("/") == 1 and name.endswith(".json")}
+            require(stored == set(expected) and len(stored) == 3, "ZIP execution set differs or replay executed twice")
+            for execution, (name, run) in expected.items():
+                history = json.loads(archive.read("programs/" + execution + ".json"))
+                require(history["execution_id"] == execution and history["revision_id"] == run["revision_id"]
+                        and history["pid"] == pid and history["firmware_sha256"] == report["firmware_sha256"], "ZIP execution identity differs")
+                files = files_by_name[name]
+                revision = json.loads(archive.read("programs/" + run["revision_id"] + "/revision.json"))
+                require(revision == metadata[name] and revision_id(files) == run["revision_id"], "ZIP original checkpoint differs")
+                require({row["path"]: {"size": row["size"], "sha256": row["sha256"]} for row in revision["files"]} == file_inventory(files), "ZIP source inventory differs")
+                for path, content in files.items():
+                    require(archive.read("programs/" + run["revision_id"] + "/files/" + path) == content, "ZIP frozen source bytes differ")
+                deployment = history.get("deployment", {})
+                if name == "inflight":
+                    require(history["state"] == "interrupted" and history.get("interruption_confirmed") is True, "inflight execution lacks independent interrupt")
+                    require(not history.get("acknowledged") and ("__M5_EXEC_" + execution + "__:START").encode() not in raw, "cancelled package reached START")
+                    require(report["forbidden_marker"].encode() not in raw, "cancelled main.py ran")
+                    require(deployment.get("phase") == "writing" and deployment.get("path") == "assets/pad.dat"
+                            and deployment.get("written_bytes") == PAD_BYTES, "progress advanced beyond the selected pad boundary; this is not the required cancellation lane")
+                    require(not any(row.get("phase") in {"verified", "published", "activated"} for row in deployment.get("events", [])), "cancelled package was published/activated")
+                else:
+                    require(deployment.get("phase") == "activated" and deployment.get("inventory") == file_inventory(files), "completed package deployment differs")
+            ack = cancelled["interrupt_receipt"]
+            start, end = ack["serial_offset"], ack["prompt_end"]
+            require(type(start) is int and type(end) is int and cancel_baseline <= start < end <= len(raw), "raw prompt is not fresh after cancellation")
+            prompt_window = raw[start:end]
+            require(prompt_window.endswith(RAW_PROMPT), "fresh raw prompt bytes differ")
+            (args.out_dir / "cancel-raw-window.raw.txt").write_bytes(prompt_window)
+            for row in observations:
+                marker = ("__M5_EXEC_" + row["execution_id"] + "__:START").encode()
+                where = raw.find(marker)
+                require(where >= 0 and where + len(marker) <= row["offset"], "fresh UART window precedes START")
+                window = raw[row["offset"]:row["window"]["next_offset"]].decode("utf-8", errors="replace")
+                require(window == row["window"]["data"] and matching_json_line(window, "LIVE_PACKAGE_SAMPLE ", row["expected"]) is not None, "ZIP UART window differs")
+            return {"members": len(names), "sha256": sha(data), "execution_count": len(stored),
+                    "fresh_prompt": {"serial_offset": start, "prompt_end": end, "sha256": sha(prompt_window), "size": len(prompt_window)},
+                    "all_member_hashes_frozen_files_execution_uart_unit_frame_checked": True}
+
+    try:
+        report["health_before"] = call("health")
+        require(report["health_before"]["capacity"]["active_sessions"] == 0, "service is not idle; do not share this validation lease")
+        inventory = call("units?device_id=cores3")
+        host = next(row for row in inventory["hosts"] if row["device_id"] == "cores3")
+        port = next(row for row in host["ports"] if row.get("visual_port") == "grove"
+                    and row.get("physical_presence") == "main-device" and row.get("wiring_status") == "confirmed")
+        nonce = uuid.uuid4().hex
+        packages, compiler = build_packages(args.mpy_cross, args.out_dir / "compiled", nonce, port["pins"], "pir")
+        report["compiler"] = compiler
+        report["nonce_marker"] = "PREVIEW_INFLIGHT_NONCE_INIT " + nonce
+        report["forbidden_marker"] = "PREVIEW_INFLIGHT_MAIN_MUST_NOT_RUN " + nonce
+        files_by_name = {
+            "finite": {"main.py": (f"import sys\nsys.path.append({NONCE_PREFIX + nonce!r})\nprint({report['nonce_marker']!r})\n").encode()},
+            "inflight": {"assets/pad.dat": bytes(range(256)) * (PAD_BYTES // 256),
+                         "assets/tail.dat": hashlib.sha256(nonce.encode()).digest() * (TAIL_BYTES // 32),
+                         "main.py": (f"import sys\nassert {NONCE_PREFIX + nonce!r} in sys.path\nprint({report['forbidden_marker']!r})\n").encode()},
+            "pir-C": packages["C"],
+        }
+        report["package_inventory"] = {name: file_inventory(files) for name, files in files_by_name.items()}
+        for name, files in files_by_name.items():
+            payload = checkpoint_payload(files)
+            response = call("program-revisions", "POST", payload)
+            require(client.requests[-1]["status"] == 201, "checkpoint save did not return 201")
+            metadata[name] = validate_checkpoint(response, files)
+            require(call("program-revisions", "POST", payload) == response and client.requests[-1]["status"] == 201, "checkpoint duplicate changed")
+            require(call("program-revisions/" + metadata[name]["revision_id"]) == response, "checkpoint GET changed")
+        report["checkpoints"] = metadata
+        create_payload = {"device_id": "cores3", "runtime": "qemu", "ttl_seconds": 900,
+                          "units": [{"id": "external1", "unit_id": "pir", "port_id": port["id"]}]}
+        key = uuid.uuid4().hex
+        created = call("previews", "POST", create_payload, key)
+        preview_id, epoch = created["preview_id"], created["owner_epoch"]
+        prefix = "previews/" + preview_id
+        require(call("previews", "POST", create_payload, key) == created, "Preview replay changed")
+        ready = poll(preview, lambda row: row["state"] in {"ready", "failed", "unknown"}, 110)
+        require(ready["state"] == "ready", "Preview did not become ready")
+        sid = ready["session_id"]
+        initial = call("sessions/" + sid)
+        pid = initial["pid"]
+        report.update(preview_id=preview_id, owner_epoch=epoch, session_id=sid, pid=pid,
+                      firmware_sha256=initial["firmware_sha256"], management_binding=initial["management_binding"], created=created, ready=ready)
+        require(type(pid) is int and pid > 0, "invalid guest PID")
+        report["runtime_provenance"] = runtime_provenance(client, sid, args.expected_runtime_sha256)
+        boot = call(f"sessions/{sid}/serial?offset=0&limit=1048576")
+        report["boot_rom_count"] = boot["data"].count("ESP-ROM:")
+        require(boot["data"].count("M5EMU_UART_REPL_READY") == 1, "bootstrap is absent or duplicated")
+        offset = serial_offset()
+        finite = submit("finite")
+        poll(lambda: call(f"sessions/{sid}/serial?offset={offset}&limit=1048576"), lambda row: report["nonce_marker"] in row["data"], 35)
+        completed = poll(lambda: read_run(finite), lambda row: row["state"] in {"completed", "failed", "unknown"}, 35)
+        require(completed["state"] == "completed", "finite nonce initializer is not completed")
+        inflight = submit("inflight", wait=False)
+        total = sum(len(data) for data in files_by_name["inflight"].values())
+        deadline = time.monotonic() + 125
+        while time.monotonic() < deadline:
+            envelope = call("sessions/" + sid + "/program")
+            program = envelope.get("program") or {}
+            if program.get("execution_id") == inflight["execution_id"]:
+                require(program.get("revision_id") == inflight["revision_id"] and program.get("pid") == pid
+                        and program.get("firmware_sha256") == report["firmware_sha256"], "inflight owner identity differs")
+                deployment = program.get("deployment", {})
+                written = deployment.get("written_bytes")
+                if deployment.get("phase") == "writing" and deployment.get("path") == "assets/pad.dat" and type(written) is int and 0 < written < total:
+                    require(written == PAD_BYTES and program.get("state") == "submitting" and not program.get("acknowledged"), "pad writing observation is not the expected live incomplete package")
+                    captured_writing = {"program": program, "http_index": len(client.requests) - 1, "total_package_bytes": total,
+                                        "pad_file_completion_observed": True, "package_publication_observed": False,
+                                        "tail_completion": "not-established"}
+                    break
+                require(deployment.get("phase") not in {"verified", "published", "activated"} and program.get("state") not in {"running", "completed", "failed"},
+                        "missed the package-inflight window; no inflight PASS and no automatic retry")
+            time.sleep(.02)
+        require(captured_writing is not None, "no real pad-writing observation; no inflight PASS")
+        save(args.out_dir / "captured-inflight-program.json", captured_writing)
+        identity()
+        cancel_baseline = serial_offset()
+        cancellation = call(prefix + "/runs/" + inflight["run_id"] + "/cancel", "POST", {"expected_owner_epoch": epoch})
+        require(client.requests[-1]["status"] == 202 and cancellation["state"] == "cancelling", "cancel was not admitted for a live transfer")
+        report["cancel_http_index"] = len(client.requests) - 1
+        cancelled = poll(lambda: read_run(inflight), lambda row: row["state"] in {"cancelled", "completed", "failed"}, 45)
+        require(cancelled["state"] == "cancelled" and cancelled["interrupt_ack"] == "confirmed"
+                and cancelled["interrupt_receipt"]["interruption_confirmed"] is True, "independent fresh prompt was not confirmed")
+        require(cancelled["interrupt_observed_execution_id"] == inflight["execution_id"], "interrupt acknowledged another execution")
+        report["runs"]["inflight"] = cancelled
+        report["cancelled"] = cancelled
+        report["cancel_serial_baseline"] = cancel_baseline
+        identity()
+        recovered = submit("pir-C")
+        require(read_run(recovered)["state"] == "running", "post-cancel PIR package is not running")
+        for value, label in ((False, "pir-low-1"), (True, "pir-high"), (False, "pir-low-2")):
+            observe_pir(recovered, value, label)
+        report["frame"] = frame(recovered, "frame-pir-C")
+        payload, key, original = receipts["inflight"]
+        require(call(prefix + "/runs", "POST", payload, key) == original, "late retry changed inflight receipt")
+        require(preview()["active_run_id"] == recovered["run_id"], "late retry changed active execution")
+        identity()
+        for name in tuple(report["runs"]):
+            report["runs"][name] = read_run(report["runs"][name])
+        final_program = call("sessions/" + sid + "/program")["program"]
+        require(final_program["execution_id"] == recovered["execution_id"] and final_program["revision_id"] == recovered["revision_id"], "final owner changed")
+        save(args.out_dir / "program-final.json", final_program)
+        evidence = client.raw("sessions/" + sid + "/evidence")
+        (args.out_dir / "evidence.zip").write_bytes(evidence)
+        report["zip_validation"] = verify_zip(evidence)
+        report["captured_writing"] = captured_writing
+        report["checks"] = {"real_package_uart_inflight_not_single_file_chunk": True, "partial_total_bytes_and_no_activation_or_start": True,
+                            "fresh_raw_prompt_after_cancel": True, "same_pid_firmware_vm_nonce": True,
+                            "public_frozen_package_and_mpy_dependency": True, "typed_original_pir_uart_qom_png": True,
+                            "late_replay_does_not_execute": True, "evidence_before_close": True}
+        report["status"] = "PASS"
+    except Exception as error:
+        report["error"] = str(error).replace(client._token, "[redacted]")
+    finally:
+        if preview_id:
+            try:
+                if sid and not (args.out_dir / "evidence.zip").exists():
+                    try:
+                        (args.out_dir / "failure-evidence.zip").write_bytes(client.raw("sessions/" + sid + "/evidence"))
+                    except Exception as error:
+                        # A failed diagnostic export must not suppress close.
+                        report.update(status="FAIL", failure_evidence_error=str(error).replace(client._token, "[redacted]"))
+                call(prefix + "/close", "POST", {"expected_owner_epoch": epoch})
+                closed = poll(preview, lambda row: row["state"] == "closed", 75)
+                save(args.out_dir / "closed.json", closed)
+                require(closed.get("close_evidence", {}).get("status") == "captured", "automatic before-close ZIP unavailable")
+                require(sid is not None, "Preview closed without an allocated test session")
+                history = call("sessions/" + sid)
+                save(args.out_dir / "history.json", history)
+                require(history["state"] == "stopped" and history["flash_retained"] is False
+                        and history["last_frame_available"] is True, "retained history/frame/Flash cleanup differs")
+                (args.out_dir / "history-frame.png").write_bytes(client.raw("sessions/" + sid + "/frame.png"))
+                try:
+                    os.kill(pid, 0)
+                except ProcessLookupError:
+                    pass
+                else:
+                    raise RuntimeError("guest PID remains after close")
+                report["cleanup"] = {"closed": True, "history": True, "last_frame": True, "flash_released": True,
+                                     "pid_gone": True, "automatic_before_close_zip": closed["close_evidence"]}
+            except Exception as error:
+                report.update(status="FAIL", cleanup_error=str(error).replace(client._token, "[redacted]"))
+        try:
+            report["health_after"] = call("health")
+            capacity = report["health_after"]["capacity"]
+            require(capacity["active_sessions"] == 0 and capacity["worker"]["active_lease_count"] == 0, "active session/worker lease remains")
+        except Exception as error:
+            report.update(status="FAIL", health_error=str(error).replace(client._token, "[redacted]"))
+        save(args.out_dir / "report.json", report)
+    print(json.dumps({"status": report["status"], "session_id": sid, "error": report.get("error"), "cleanup_error": report.get("cleanup_error")}))
+    return 0 if report["status"] == "PASS" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,20 @@
+{
+  "name": "corrupt-package",
+  "method": "POST",
+  "template": "/previews/{preview_id}/runs",
+  "status": 500,
+  "response": {
+    "error": {
+      "code": "program_package_corrupt",
+      "message": "package failed integrity validation"
+    }
+  },
+  "body_sha256": "9732fdc1cb6d95057e0d84734f8fb3a2853ae37afcf6cb2cf461fa020a8a7a51",
+  "request": {
+    "revision_id": "5b3fa3db2e311f237a7bffee9859bd8961b1053b1656ffff9aec078bb5eb751e",
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+    "expected_generation": 1,
+    "client_generation": "contract-A",
+    "timeout_seconds": 120
+  }
+}

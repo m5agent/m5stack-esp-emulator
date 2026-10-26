@@ -1,0 +1,81 @@
+{
+  "name": "valid-null-units",
+  "method": "POST",
+  "template": "/previews",
+  "status": 202,
+  "response": {
+    "preview_id": "2c49cda467db4326a3bfd92a8906b965",
+    "owner": "local-control",
+    "owner_epoch": "3f0b23bcf1e34c53bc795476c02cc75f",
+    "generation": 0,
+    "state": "preparing",
+    "request": {
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "ttl_seconds": 300,
+      "units": null
+    },
+    "session_request": {
+      "device_id": "cores3",
+      "frozen_unit_contract": null,
+      "frozen_units": [],
+      "preview_capabilities": {
+        "application_ready": "unknown",
+        "cleanup_mode": "interrupt-only",
+        "events": "polling",
+        "execution_mode": "same-guest-uart-repl",
+        "frame": "on-demand",
+        "gc_enabled": false,
+        "hotplug": false,
+        "input": true,
+        "latest_wins": true,
+        "main_mpy": false,
+        "principal_mode": "shared-control-bearer-local-control",
+        "run_cancellation": true
+      },
+      "program_mode": "uiflow-live",
+      "ready_timeout_seconds": 40,
+      "reference_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "runtime": "qemu",
+      "ttl_seconds": 300,
+      "units": null
+    },
+    "session_id": null,
+    "allocation_state": "pending",
+    "allocation_key": "preview:2c49cda467db4326a3bfd92a8906b965:allocation:1",
+    "expires_at": "2026-10-26T17:09:01.288847+00:00",
+    "desired_run_id": null,
+    "transition_run_id": null,
+    "active_run_id": null,
+    "created_at": "2026-10-26T17:04:01.292132+00:00",
+    "updated_at": "2026-10-26T17:04:01.292132+00:00",
+    "error": null,
+    "limits": {
+      "max_previews": 128,
+      "max_runs_per_preview": 256,
+      "retention_mode": "retention-only",
+      "gc_enabled": false
+    },
+    "capabilities": {
+      "application_ready": "unknown",
+      "cleanup_mode": "interrupt-only",
+      "events": "polling",
+      "execution_mode": "same-guest-uart-repl",
+      "frame": "on-demand",
+      "gc_enabled": false,
+      "hotplug": false,
+      "input": true,
+      "latest_wins": true,
+      "main_mpy": false,
+      "principal_mode": "shared-control-bearer-local-control",
+      "run_cancellation": true
+    }
+  },
+  "body_sha256": "dfd0538fce969c484850219f6cc75492dfb8e80405073150789b533f039fce97",
+  "request": {
+    "device_id": "cores3",
+    "runtime": "qemu",
+    "ttl_seconds": 300,
+    "units": null
+  }
+}

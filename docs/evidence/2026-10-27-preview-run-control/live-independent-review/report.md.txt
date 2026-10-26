@@ -1,0 +1,59 @@
+# Preview actual-session independent review — 2026-10-27
+
+Result: **PASS, virtual-device validation only. Hardware NOT RUN.**
+
+Read-only review of the two already-closed sessions. The reviewer did not start a guest, invoke a network API, execute a compiler, alter product code or modify the original runner/artifacts. `audit.py` imports no product or original-runner validation helper.
+
+| Unit | HTTP responses independently verified | Guest PID | Main / automatic ZIP members | Actual executions | Result |
+| --- | ---: | ---: | ---: | ---: | --- |
+| PIR | 419 | 26717 | 46 / 46 | 4 | PASS |
+| RELAY | 368 | 26853 | 46 / 46 | 4 | PASS |
+
+## Independently checked
+
+- All 787 HTTP responses: actual status, stored complete response bytes, byte length, SHA-256 and ordered response-header pairs; all POST request bodies linked by the recorded index.
+- Four public immutable package checkpoints per Unit; duplicate POST metadata including `created_at`, full file bytes, canonical revision ID and source digest match.
+- Preview create retries and six Run admissions return identical original receipts; late replay of A retains its original receipt and does not create a seventh Run or fifth execution.
+- Every package runs under the original session PID and firmware SHA with one ESP-ROM boot and one UART bootstrap. The finite Run adds a random in-memory `sys.path` nonce; identical A/B/C `main.py` asserts that nonce.
+- Compiled `helper.mpy` bytes and compiler binary hashes match recorded provenance; A/B/C dependency values differ. Ready records bind `.mpy` import path, cwd, namespace/lib imports, managed paths and removed-file absence to each immutable package.
+- Four raw guest hash-inventory receipts per ZIP match the original public checkpoint file bytes exactly. Host deployment records agree with the raw guest-reported inventory and activation path.
+- Main and automatic before-close ZIPs have unique safe non-symlink paths, exact manifest member indexes and correct size/SHA for every member. Session, Unit contract/runtime attachments, program histories and final frame identities agree.
+- UART sample JSON values/types/computation match independent expectations; every reported byte window matches the raw serial file, starts after its execution START marker and ends before the next execution marker.
+- PIR observes 0 → 1 → 0 from the original PIRUnit driver and independent input-level QOM reads. Relay observes original RelayUnit output 0 → 1 → 0 and independent output-level QOM reads.
+- A and D are cancelled only after real execution-specific KeyboardInterrupt output and a fresh raw REPL prompt. A following package executes successfully in the same guest.
+- Managed legacy mutations reject with 409; malformed input rejects with 400; stale Run input/frame reject with 410; generation/owner conflicts reject with 409. A held key is recorded, then released before D becomes active.
+- Preview frame HTTP identity/SHA headers agree with A/C Run and revision identities; A has a red and C a blue 24×24 resource, checked over the whole resource. Four PNGs were also viewed: PKG A/C, PIR/RELAY 0, 320×240.
+- Evidence GET occurs before close. Automatic before-close ZIP size/hash matches `closed.json`; history and last frame remain after close, Flash is released, and both guest PIDs are independently absent at review time. Worker PID 26551/generation 33 is stable before/after.
+- All 17 service-source hashes match the recorded service reload freeze; runner hash matches both reports.
+
+## Scope and limitations
+
+- In both real runs, burst-B and burst-C were superseded while pending, before UART synchronization. They have no actual UART execution/history. These sessions validate latest-pending-wins and active A/D cancellation; they do not validate cancellation midway through a resource transfer.
+- The recorder preserves raw response bytes and ordered response headers, but not request headers. Request-key use is bound to the frozen runner source; this is not an independent wire capture of Idempotency-Key.
+- This review establishes the explicit CoreS3/PIR and CoreS3/Relay HTTP, guest, UART, framebuffer and QOM paths for the exact recorded firmware/runtime. It does not add live-browser, other-board, other-Unit or physical-hardware acceptance.
+- Cleanup mode is interrupt-only. Application-level peripheral effects may require an explicit subsequent action; a fresh REPL prompt is not a transactional rollback.
+
+## Exact provenance
+
+Firmware SHA-256: `0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8`
+
+Runtime SHA-256: `b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2`
+
+Runner SHA-256: `61dfb1931f9d507f56a987cca24566df411aeb460dda4289b32487246cde09e0`
+
+Compiler SHA-256: `c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b`
+
+- PIR session `ea8bd19210ed4d759b1b469f6188f70d`:
+  - main ZIP SHA-256 `7d0f44c1907380cd0b7d1c3974bd5c95f304f08107ed078881ef016d37707eb4`
+  - automatic before-close ZIP SHA-256 `78eb4c7a10f6e33d042b5a5477ec5c703739850845e25fa94caac045c64af63d`
+- RELAY session `a4424d29f08d46ec818c15dadfab1488`:
+  - main ZIP SHA-256 `da29f954856f887aacc65010e03822580d15c1520c079e94f5d07b528965d5b2`
+  - automatic before-close ZIP SHA-256 `1eeba092cc9d26be13200f396dfbc31de3257985c9fb59081985b6d7ffea7e34`
+
+Reproduce the read-only audit:
+
+```bash
+/opt/miniconda3/bin/python3.12 .work/preview-live-independent-review-20261027/audit.py
+```
+
+Machine-readable result: `report.json` in this folder. The script SHA is recorded in that report.

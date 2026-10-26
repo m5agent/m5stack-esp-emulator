@@ -1,6 +1,6 @@
 # 验证证据台账
 
-日期：`2026-10-26`
+日期：`2026-10-27`
 
 本文只记录带日期的验证结果和证据入口。它用于回答“这项结论是什么时候、
 用什么路径验证的”，不定义当前能力，也不定义待办。当前能力以
@@ -15,6 +15,7 @@
 
 | 工作流 | 结果 | 证据 |
 | --- | --- | --- |
+| `UNIT-01` / 同VM Preview/Run | API1.42增加稳定Preview、持久化幂等/预分配身份/latest-wins、独立raw prompt取消、输入drain/帧fence、managed session与保留保护。gen33/b8de CoreS3 PIR/Relay各6Run意图/4execution、同PID/固件/VM nonce、公共完整包/真实MPY依赖、typed UART/rawQOM/PNG、epoch/gen/key拒绝、运行中取消后再跑及ZIP-before-close/自动ZIP/历史/Flash/PID清理通过；B/C均pending superseded；另1234HTTP的PIR样本在真实包writing确认pad131072B后取消、独立53B新prompt、未publish/START，同VM C/MPY/PIR恢复及31成员ZIP/清理通过；不声称单chunk中断。冻结平台1107、runner44、五validators及独立契约/并发/retention审查通过；8边界旧失败、两个momentary旧算法负控和语义损坏漏根复现保留。SSE/GC/main.mpy/AIFlow及Web新消费者仍OPEN，完整矩阵/硬件NOT RUN | [原始证据与范围](evidence/2026-10-27-preview-run-control/README.md)、[API](device-service-api.md#stable-preview-and-asynchronous-runs) |
 | `UNIT-01` / checkpoint块提交与主线同步 | 实现提交19f2bdeb后重新fetch/merge origin/main@f2061759，Already up to date；clean worktree、8份验证源码SHA保持。跨日索引日期不一致的原文档失败保留，修正后独立48项文档检查通过。整体Unit/AIFlow工作继续，不将本块或视觉新增数量当全部协议完成 | [同步收据](evidence/2026-10-26-visual-refresh-and-checkpoints/integration.json)、[本块范围](evidence/2026-10-26-visual-refresh-and-checkpoints/README.md) |
 
 ## 2026-10-26

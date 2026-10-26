@@ -75,7 +75,7 @@ Ctrl-C 中断并通过 raw REPL 执行，不保证清空 native 模块、定时�
 
 Unit 仍在创建 session 时接线；运行期间通过现有 `unit-input`、`units`、
 `serial`、`frame.png` 观察同一 guest 的控制器与应用效果。当前尚无运行中热插拔、
-Preview 编排或 SSE，也没有 AIFlow 前后端接入的验收结论。QEMU 画面已增加显式
+SSE；新增Preview编排已有1.42 CoreS3 PIR/Relay限定验收，也没有 AIFlow 前后端接入的验收结论。QEMU 画面已增加显式
 `frame.png?max_age_ms=125` 的按需共享采样与 ETag/304；默认无参数仍直接采新帧。
 采集时间/程序身份是该帧的观察上下文，不等于应用 READY 或与 Unit 原子采样。
 可复现的四款主机同 guest/PIR、Relay/屏幕/程序异常恢复探针见
@@ -112,7 +112,7 @@ CoreS3 另有真实网页创建、输入、程序替换、画面进入模型屏�
 未知或旧python-only ID返回404，stale为409，混用/坏ID为400；格式已知不合法/native MPY在分配execution前拒绝。
 实际guest的版本/容量/文件完整性仍在原部署路径检查，运行时拒绝可能已经中断旧程序，应查询执行收据。
 
-这为后续Preview/Run提供不可变输入；当前仍为同步开始确认，没有latest-wins/保VM的Run取消或多租户控制权。
+这为Preview/Run提供不可变输入；旧/program仍同步确认开始。新增协调器契约见[Preview/Run](device-service-api.md#stable-preview-and-asynchronous-runs)，2026-10-27已另行完成CoreS3 PIR/Relay限定验收，不能把旧接口或此子集转授其它guest PASS；它也不提供多租户控制权。
 配额仍有界且不自动回收，不能把复用ID当作长期生命周期已经完成。完整包内容和guest边界见下一节。
 
 ## 同一 VM 的完整文件包

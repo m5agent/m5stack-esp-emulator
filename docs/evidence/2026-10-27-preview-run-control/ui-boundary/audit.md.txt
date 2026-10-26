@@ -1,0 +1,72 @@
+# Live sessions / managed Preview boundary — 2026-10-27
+
+结论：Live sessions 目前可以观察外部 agent 创建的 managed session，但没有接入
+Preview 控制协议。API 基础能力通过，不表示 AIFlow 或现有 Web 新消费者已接好。
+本轮只读审查及宿主 DOM stub，不启动浏览器、8787、guest 或硬件。
+
+## 精确现状
+
+非 vendor 的 Web JavaScript/HTML 中没有 `management_binding`、
+`session_managed_by_preview`、`preview_id` 或 `/api/v1/previews` 识别/路由。
+机器检索结果见 `managed-routing-search.json`；源码 hash/副本已冻结。
+
+| 表面 | 当前实现 | managed session 的用户结果 |
+| --- | --- | --- |
+| 会话创建 | `sessions.js:850` POST `/sessions`，`program_mode=uiflow-live` 仍是普通 session | 可用的旧同步编程路径；不会创建 Preview/Run |
+| 会话列表、串口 | `sessions.js:623` / `:660`，GET `/sessions` / `/{id}/serial` | 配置正确 Bearer 后仍可读，managed session 会出现在 Live sessions |
+| 屏幕 | `sessions.js:681–740` GET `/{id}/frame.png` | 可显示当前/历史 session 帧，仍走旧帧接口 |
+| 设备状态 / Unit 读回 | `sessions.js:765–769`、`unit-panel.js:108/:645` | 仍可读并更新真实模型观测；独立采样，不是同一原子帧 |
+| 程序状态 / 源码运行 | `program-panel.js:162/:193`，GET/POST `/{id}/program` | GET 可读；running+uart-repl 同步后编辑器及运行按钮仍启用，POST 被 409 拒绝 |
+| Unit 输入 | `unit-panel.js:229–234/:385–415/:465` | running+available 即启用；旧 `/{id}/unit-input` 及补偿松开请求被 409 拒绝，显示“输入未确认” |
+| 主机按键、触摸、外壳 reset | `sessions.js:247/:252/:373` | 旧 mutation 被 409 拒绝，错误仅 console.warn，页面没有明确托管说明 |
+| 续期 / 复位 / 停止 | `sessions.js:493–496/:864–880` | active/running 按原规则启用；旧 renew/reset/DELETE 被 409 拒绝，顶部错误 banner |
+| 等待运行 | `sessions.js:886` POST `/{id}/wait` | 服务 read-action 白名单允许；不应与被拒绝的 mutation 一并误禁用 |
+| 清理历史 | `sessions.js:917–927` | 服务保留 managed history；页面只显示 cleared 数，不显示 protected/skipped 原因 |
+
+服务的统一保护在 `platform/tools/serve.py:390–395`：managed session 的旧
+POST/DELETE mutation 都被拦截。`wait`、`qom-snapshot`、`flash-snapshot` 是
+明确的读操作例外；GET frame/state/program/serial 不受 mutation gate 影响。
+
+## Run 身份展示边界
+
+`sessions.js:164–167` 的 frameOwner 仅含 session_id、created_at、device_id、
+firmware_sha256、PID。相同 VM 内切换 Run 时，这个 owner 不变。
+`sessions.js:727–737` 仅保存 `x-frame-*` metadata，并明确把 execution context
+当 informational。它没有比较 Preview/Run/owner epoch，也没有以新 active Run
+隔离图像解码、3D texture 提交、Unit GET 或本地输入队列。
+
+因此只能称“观察该 session 的实时画面/状态”，不能称“Web 已接入 Preview/Run
+一致性协议”。API 的 Run frame fence 不会自动升级仍使用旧帧 URL 的消费者。
+
+## 宿主逻辑核验
+
+`check-ui-boundary.mjs` 以最小 DOM/API stub 执行当前真实 ProgramPanel 和选定
+UnitPanel/session-card 方法，不改它们的控制流。`ui-logic.json` 确认：
+
+- 带完整 management_binding 的 running session 在 GET 同步后允许源码编辑与运行。
+- 点击后仍发旧 `/sessions/{id}/program`，收到 409；随后的合法 GET 又重新启用按钮。
+- 相同 managed session 的 available Unit 控件仍启用，发送旧 unit-input，显示
+  “输入未确认：409…”；未转为 Preview input。
+- Wait、renew、reset、stop 按原 active/running 规则均显示 enabled。
+
+这是 HOST_DOM_STUB_ONLY，未声称完成真实浏览器或设备功能验收。
+
+## 最小接入建议
+
+1. 先识别 management_binding，展示托管/只读说明及 Preview 链接；禁用尚未适配的
+   mutation，保留 frame/serial/state/GET program/wait。清理历史显示保护/跳过数。
+2. 再增加明确的 Preview consumer adapter：读取 Preview 当前 epoch/generation/
+   active_run_id；完整 checkpoint → Run 提交；使用请求幂等键；输入附 expected_run_id
+   与 expected_owner_epoch；续期/停止分别走 Preview renew/close 并轮询结果。当前没有
+   Preview reset API，保持禁用，不能悄悄走旧 reset。
+3. frame 切到 Run URL，校验五项身份/哈希，在 decode/texture commit 后再次比较当前
+   Run；Run 切换同时隔离 Unit 请求、旧输入队列和本地 held 状态。保留未知/取消中/
+   effect_possible，不自动重放可能已生效的输入。
+4. UI 编辑器若只有 main.py，必须明确完整包替换语义，不能悄悄丢掉外部 agent 的
+   .mpy、模块和资源。AIFlow 自己的 checkpoint 事件与虚拟目标仍要单独接入。
+
+关闭条件应使用真实 Web + 同 guest：托管标识、禁用/正确路由、A→B→C Run 切换、
+晚到响应/解码、按住松开、取消确认、续租/关闭与历史保护，以及旧路由 409 负控。
+API 脚本 PASS、宿主 DOM stub 和既有普通 session Web PASS 均不能替代这一验收。
+
+可直接并入 authority docs 的最小条目见 `proposed-backlog-and-issue.md`。原文件未修改。

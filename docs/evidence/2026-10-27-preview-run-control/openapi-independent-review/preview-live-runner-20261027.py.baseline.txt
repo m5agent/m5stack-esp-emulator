@@ -1,0 +1,209 @@
+"""Explicit visible /api/v1 Preview validation; never launches QEMU directly."""
+import argparse, base64, hashlib, io, json, os, sys, time, uuid, zipfile
+from pathlib import Path, PurePosixPath
+sys.path[:0]=['tests/units','platform/tools']
+from run_live_program import poll, require, save
+from run_live_package import (RevisionProbeClient, build_packages, checkpoint_payload, validate_checkpoint,
+                              NONCE_PREFIX, matching_json_line, expected_sample, VERSIONS, sha, live_unit, revision_id, file_inventory)
+from run_host_cases import runtime_provenance
+from PIL import Image
+parser=argparse.ArgumentParser();parser.add_argument('--execute',action='store_true',required=True)
+parser.add_argument('--unit',choices=['pir','relay'],required=True);parser.add_argument('--token-file',type=Path,required=True)
+parser.add_argument('--out-dir',type=Path,required=True);parser.add_argument('--mpy-cross',type=Path,required=True)
+parser.add_argument('--expected-runtime-sha256',required=True);args=parser.parse_args()
+args.out_dir.mkdir(exist_ok=False,parents=True)
+class Client(RevisionProbeClient):
+ def raw(self,*pos,**kw):
+  headers=dict(kw.pop('headers',{}) or {});headers['Authorization']='Bearer '+args.token_file.read_text().strip()
+  try:return super().raw(*pos,headers=headers,**kw)
+  except RuntimeError:
+   if self.requests[-1].get('status')==304:return b''
+   raise
+client=Client('http://127.0.0.1:8787',args.out_dir)
+report={'status':'FAIL','validation':'virtual-device validation','hardware':'NOT RUN','unit':args.unit,'runs':{},'checks':{},'runner_sha256':sha(Path(__file__).read_bytes())}
+pid=sid=preview_id=epoch=None
+prefix=None
+run_payloads={}
+observations=[]
+checkpoint_metadata={}
+def call(path,method='GET',payload=None,key=None):
+ data=client.raw(path,method,payload,headers={'Idempotency-Key':key} if key else {})
+ return json.loads(data)
+def bad(path,payload,code,method='POST',key=None):
+ try:call(path,method,payload,key)
+ except RuntimeError:
+  row=client.requests[-1];body=json.loads((args.out_dir/f'{len(client.requests)-1:04d}.response').read_bytes())
+  require(body['error']['code']==code, f'wrong rejection {body}')
+  require(row['status'] in [400,404,409],f'wrong status {row}')
+  return {'status':row['status'],'error':body['error'],'http_index':len(client.requests)-1}
+ raise RuntimeError('expected rejection was accepted')
+def preview():return call(prefix)
+def readrun(run):return call(prefix+'/runs/'+run['run_id'])
+def submit(name,revision,wait=True):
+ p=preview();payload={'revision_id':revision,'expected_generation':p['generation'],'expected_owner_epoch':epoch,'client_generation':name,'timeout_seconds':120}
+ key=uuid.uuid4().hex;receipt=call(prefix+'/runs','POST',payload,key)
+ require(receipt['state']=='queued','admission not queued')
+ require(call(prefix+'/runs','POST',payload,key)==receipt,'replay receipt changed')
+ run_payloads[name]=(payload,key,receipt)
+ report['runs'][name]=receipt
+ if wait:
+  current=poll(lambda:readrun(receipt),lambda r:r['state'] in {'running','completed','failed','unknown','cancelled'},120)
+  require(current['state'] in {'running','completed'}, 'run did not start: '+str(current))
+  report['runs'][name]=current
+ return receipt
+def serial_offset():return call('sessions/'+sid+'/serial?offset=0&limit=1048576')['next_offset']
+def serial(marker,offset):
+ return poll(lambda:call(f'sessions/{sid}/serial?offset={offset}&limit=1048576'),lambda r:marker in r['data'],45)
+def observe(version,value,offset):
+ expected=expected_sample(version,args.unit,int(value))
+ row=poll(lambda:call(f'sessions/{sid}/serial?offset={offset}&limit=1048576'),lambda r:matching_json_line(r['data'],'LIVE_PACKAGE_SAMPLE ',expected) is not None,40)
+ observations.append({'offset':offset,'window':row,'expected':expected})
+ return row
+def check_unit(value,label):
+ state=call('sessions/'+sid+'/units');props=live_unit(state,sid,args.unit)
+ prop='input-level' if args.unit=='pir' else 'output-level'
+ require(type(props[prop]) in (bool,int) and int(props[prop])==int(value),label+' Unit value differs')
+ qom=call('sessions/'+sid+'/qom-snapshot','POST',{'path':'/machine/units/external1','depth':0})
+ raw=qom['nodes'][prop]['value'];require(type(raw) in (bool,int) and int(raw)==int(value),label+' raw QOM value differs')
+ save(args.out_dir/(label+'-units.json'),state);save(args.out_dir/(label+'-qom.json'),qom)
+def verify_zip(data):
+ with zipfile.ZipFile(io.BytesIO(data)) as archive:
+  names=archive.namelist();require(len(names)==len(set(names)) and archive.testzip() is None,'corrupt/duplicate ZIP')
+  for name in names:
+   path=PurePosixPath(name);require(not path.is_absolute() and '..' not in path.parts and chr(92) not in name,'unsafe ZIP path')
+   require((archive.getinfo(name).external_attr>>16)&0xf000!=0xa000,'ZIP symlink')
+  manifest=json.loads(archive.read('manifest.json'))
+  require(set(manifest['files'])==set(names)-{'manifest.json'},'ZIP index differs')
+  for name,meta in manifest['files'].items():
+   content=archive.read(name);require(meta['sha256']==sha(content) and meta['size']==len(content),'ZIP hash/size differs')
+  ident=manifest['session'];require(ident['state']=='running' and ident['session_id']==sid and ident['pid']==pid and ident['firmware_sha256']==report['firmware_sha256'],'ZIP session identity differs')
+  require({'serial.log','frames/current.png','qom/snapshot.json','units/contract.json','units/state.json','units/runtime.json'}<=set(names),'ZIP required data plane missing')
+  props=live_unit(manifest['units'],sid,args.unit);require(int(props['input-level' if args.unit=='pir' else 'output-level'])==0,'ZIP final Unit differs')
+  raw=archive.read('serial.log');serial_text=raw.decode('utf-8',errors='replace')
+  require(serial_text.count('ESP-ROM:')==report['boot_rom_count'] and serial_text.count('M5EMU_UART_REPL_READY')==1,'ZIP reboot marker differs')
+  for row in observations:
+   part=raw[row['offset']:row['window']['next_offset']].decode('utf-8',errors='replace')
+   require(part==row['window']['data'] and matching_json_line(part,'LIVE_PACKAGE_SAMPLE ',row['expected']) is not None,'ZIP fresh UART binding differs')
+  stored={PurePosixPath(n).stem for n in names if n.startswith('programs/') and n.count('/')==1 and n.endswith('.json')}
+  expected={run['execution_id']:run for run in report['runs'].values()}
+  require(stored<=set(expected),'ZIP unexpected execution: retry may have executed again')
+  require({report['runs'][key]['execution_id'] for key in ('finite','A','burst-D','after-cancel-C')}<=stored,'ZIP missing required execution')
+  for execution in stored:
+   run=expected[execution];history=json.loads(archive.read('programs/'+execution+'.json'))
+   require(history['execution_id']==execution and history['revision_id']==run['revision_id'] and history['pid']==pid and history['firmware_sha256']==report['firmware_sha256'],'ZIP execution identity differs')
+   if execution==report['cancelled']['execution_id']:require(history['state']=='interrupted' and history['interruption_confirmed'] is True,'ZIP cancelled execution not confirmed')
+   version=next(k for k,v in checkpoints.items() if v==run['revision_id']);files=packages[version]
+   meta=json.loads(archive.read('programs/'+run['revision_id']+'/revision.json'))
+   require(meta==checkpoint_metadata[version],'ZIP checkpoint original metadata differs')
+   require({r['path']:{'size':r['size'],'sha256':r['sha256']} for r in meta['files']}==file_inventory(files),'ZIP inventory differs')
+   for name,content in files.items():require(archive.read('programs/'+run['revision_id']+'/files/'+name)==content,'ZIP original file differs')
+   require(revision_id(files)==run['revision_id'],'ZIP full package ID differs')
+  return {'members':len(names),'sha256':sha(data),'execution_count':len(stored),'member_hashes_original_files_serial_identity_checked':True}
+def snapshot():
+ s=call('sessions/'+sid)
+ require(s['state']=='running' and s['pid']==pid and s['firmware_sha256']==report['firmware_sha256'],'guest identity changed')
+ return s
+try:
+ report['health_before']=call('health');require(report['health_before']['capacity']['active_sessions']==0,'service not idle')
+ inventory=call('units?device_id=cores3');host=next(h for h in inventory['hosts'] if h['device_id']=='cores3')
+ port=next(p for p in host['ports'] if p.get('visual_port')=='grove' and p.get('physical_presence')=='main-device' and p.get('wiring_status')=='confirmed')
+ nonce=uuid.uuid4().hex;packages,compiler=build_packages(args.mpy_cross,args.out_dir/'compiled',nonce,port['pins'],args.unit)
+ report['compiler']=compiler
+ packages['finite']={'main.py':f"import sys\nsys.path.append({NONCE_PREFIX+nonce!r})\nprint('PREVIEW_NONCE_INIT')\n".encode()}
+ checkpoints={}
+ for name,files in packages.items():
+  body=checkpoint_payload(files);first=call('program-revisions','POST',body);validate_checkpoint(first,files)
+  require(call('program-revisions','POST',body)==first,'checkpoint duplicate changed')
+  checkpoints[name]=first['revision']['revision_id'];checkpoint_metadata[name]=first['revision']
+ report['checkpoints']=checkpoints
+ create_body={'device_id':'cores3','runtime':'qemu','ttl_seconds':900,'units':[{'id':'external1','unit_id':args.unit,'port_id':port['id']}]}
+ create_key=uuid.uuid4().hex;created=call('previews','POST',create_body,create_key)
+ preview_id,epoch=created['preview_id'],created['owner_epoch'];prefix='previews/'+preview_id
+ require(call('previews','POST',create_body,create_key)==created,'create retry changed receipt')
+ ready=poll(preview,lambda p:p['state'] in {'ready','failed','unknown'},100)
+ require(ready['state']=='ready','preview allocation failed: '+str(ready))
+ sid=ready['session_id'];s=call('sessions/'+sid);pid=s['pid']
+ report.update(preview_id=preview_id,owner_epoch=epoch,session_id=sid,pid=pid,firmware_sha256=s['firmware_sha256'],created=created,ready=ready)
+ report['runtime_provenance']=runtime_provenance(client,sid,args.expected_runtime_sha256)
+ save(args.out_dir/'firmware.json',call('firmware/'+s['firmware_id']))
+ boot=call('sessions/'+sid+'/serial?offset=0&limit=1048576');report['boot_rom_count']=boot['data'].count('ESP-ROM:')
+ require(boot['data'].count('M5EMU_UART_REPL_READY')==1,'bootstrap marker missing/repeated')
+ report['management_rejections']={}
+ for name,path,body,method in [('program','/program',{'source':'pass','expected_execution_id':None},'POST'),('input','/input',{'kind':'key','key':'a','action':'down'},'POST'),('renew','/renew',{'ttl_seconds':900},'POST'),('reset','/reset',{},'POST'),('delete','?purge=0',None,'DELETE')]:
+  report['management_rejections'][name]=bad('sessions/'+sid+path,body,'session_managed_by_preview',method)
+ offset=serial_offset();submit('finite',checkpoints['finite']);serial('PREVIEW_NONCE_INIT',offset)
+ offset=serial_offset();a=submit('A',checkpoints['A']);serial('LIVE_PACKAGE_READY ',offset);snapshot()
+ report['bad_input']=bad(prefix+'/input',{'expected_owner_epoch':epoch,'expected_run_id':a['run_id'],'input':{'kind':'key','action':'DOWN'}},'invalid_input')
+ require(not preview().get('held_inputs'),'bad input left held intent')
+ for value in ([False,True,False] if args.unit=='pir' else [False]):
+  offset=serial_offset()
+  if args.unit=='pir':
+   call(prefix+'/input','POST',{'expected_owner_epoch':epoch,'expected_run_id':a['run_id'],'unit_input':{'id':'external1','values':{'motion':value}}})
+  sample=observe('A',value,offset)
+  check_unit(value,'a-'+str(int(value)))
+  save(args.out_dir/f'a-sample-{int(value)}.json',sample)
+ check_unit(False,'a-final')
+ framepath=prefix+'/runs/'+a['run_id']+'/frame.png?max_age_ms=100'
+ frame=client.raw(framepath);(args.out_dir/'frame-a.png').write_bytes(frame)
+ with Image.open(io.BytesIO(frame)) as image:
+  require(image.size==(320,240),'frame size differs');require(image.convert('RGB').getpixel((160,96))==(255,0,0),'A resource pixels differ')
+ frame_headers={k.lower():v for k,v in client.requests[-1]['response_headers']};require(frame_headers['x-run-id']==a['run_id'],'frame owner differs')
+ # Polling conditional frame request is verified by its returned HTTP status.
+ client.raw(framepath,headers={'If-None-Match':frame_headers['etag']});require(client.requests[-1]['status'] in (200,304),'conditional frame failed')
+ # A held host key is drained/released before a new Run, including uppercase normalization.
+ call(prefix+'/input','POST',{'expected_owner_epoch':epoch,'expected_run_id':a['run_id'],'input':{'kind':'key','key':'a','action':'DOWN','settle_seconds':0}})
+ require(preview().get('held_inputs'),'valid down not tracked')
+ offset=serial_offset();b=submit('burst-B',checkpoints['B'],False);c=submit('burst-C',checkpoints['C'],False);d=submit('burst-D',checkpoints['B'],False)
+ latest=poll(lambda:readrun(d),lambda r:r['state'] in {'running','failed','unknown'},120);require(latest['state']=='running','latest burst failed: '+str(latest))
+ report['runs']['burst-D']=latest;observe('B',False if args.unit=='pir' else True,offset);check_unit(False if args.unit=='pir' else True,'burst-d');snapshot()
+ require(not preview().get('held_inputs'),'held input not released')
+ for name,run in [('A',a),('burst-B',b),('burst-C',c)]:
+  current=poll(lambda:readrun(run),lambda r:r['state'] in {'cancelled','superseded','completed'},30);report['runs'][name]=current
+ require(readrun(d)['run_id']==preview()['active_run_id'],'late work regained active')
+ report['stale_input']=bad(prefix+'/input',{'expected_owner_epoch':epoch,'expected_run_id':a['run_id'],'input':{'kind':'key','key':'a'}},'run_frame_unavailable')
+ report['old_frame']=bad(prefix+'/runs/'+a['run_id']+'/frame.png',None,'run_frame_unavailable','GET')
+ report['stale_generation']=bad(prefix+'/runs',{'expected_owner_epoch':epoch,'expected_generation':0,'revision_id':checkpoints['C']},'preview_generation_conflict',key=uuid.uuid4().hex)
+ report['wrong_epoch']=bad(prefix+'/renew',{'expected_owner_epoch':'0'*32,'ttl_seconds':900},'preview_owner_conflict')
+ # Cancel an executing application without stopping guest, then run another full package.
+ cancellation=call(prefix+'/runs/'+d['run_id']+'/cancel','POST',{'expected_owner_epoch':epoch})
+ cancelled=poll(lambda:readrun(d),lambda r:r['state']=='cancelled',30)
+ require(cancelled['interrupt_ack']=='confirmed' and cancelled['interrupt_receipt']['interruption_confirmed'] is True,'fresh prompt not proven')
+ report['cancelled']=cancelled;snapshot()
+ offset=serial_offset();last=submit('after-cancel-C',checkpoints['C']);observe('C',False,offset);check_unit(False,'c-final');snapshot()
+ payload,key,receipt=run_payloads['A'];require(call(prefix+'/runs','POST',payload,key)==receipt,'late replay changed receipt')
+ require(preview()['active_run_id']==last['run_id'],'replay replaced active')
+ finalserial=call('sessions/'+sid+'/serial?offset=0&limit=1048576');save(args.out_dir/'serial-final.json',finalserial)
+ require(finalserial['data'].count('ESP-ROM:')==report['boot_rom_count'],'guest rebooted')
+ require(finalserial['data'].count('M5EMU_UART_REPL_READY')==1,'bootstrap repeated')
+ for name,run in report['runs'].items():
+  current=readrun(run);report['runs'][name]=current
+ session_program=call('sessions/'+sid+'/program')['program'];require(session_program['execution_id']==last['execution_id'],'final execution mismatch')
+ save(args.out_dir/'program-final.json',session_program)
+ frame=client.raw(prefix+'/runs/'+last['run_id']+'/frame.png');(args.out_dir/'frame-c.png').write_bytes(frame)
+ with Image.open(io.BytesIO(frame)) as image:require(image.convert('RGB').getpixel((160,96))==(0,0,255),'C resource pixels differ')
+ save(args.out_dir/'unit-state-c.json',call('sessions/'+sid+'/units'))
+ evidence=client.raw('sessions/'+sid+'/evidence');(args.out_dir/'evidence.zip').write_bytes(evidence)
+ report['zip_validation']=verify_zip(evidence)
+ report['serial_observations']=observations
+ report['checks']={'same_pid_firmware_vm_nonce':True,'public_checkpoint_and_mpy_dependency':True,'latest_burst_wins':True,'late_replay_does_not_execute':True,'cancel_actual_fresh_prompt_then_run':True,'unit_original_driver_uart_qom':True,'frame_identity_resource_pixels':True,'managed_legacy_rejection':True,'bad_input_does_not_poison':True}
+ report['status']='PASS'
+except Exception as error:report['error']=str(error)
+finally:
+ if preview_id:
+  try:
+   if sid and not (args.out_dir/'evidence.zip').exists():
+    (args.out_dir/'failure-evidence.zip').write_bytes(client.raw('sessions/'+sid+'/evidence'))
+   call(prefix+'/close','POST',{'expected_owner_epoch':epoch})
+   closed=poll(preview,lambda p:p['state']=='closed',60);save(args.out_dir/'closed.json',closed)
+   require(closed.get('close_evidence',{}).get('status')=='captured','automatic before-close ZIP absent')
+   history=call('sessions/'+sid);save(args.out_dir/'history.json',history)
+   require(history['state']=='stopped' and history['flash_retained'] is False and history['last_frame_available'] is True,'history/Flash cleanup failed')
+   (args.out_dir/'history-frame.png').write_bytes(client.raw('sessions/'+sid+'/frame.png'))
+   try:os.kill(pid,0)
+   except ProcessLookupError:pass
+   else:raise RuntimeError('guest PID remains')
+   report['cleanup']={'closed':True,'history':True,'last_frame':True,'flash_released':True,'pid_gone':True,'before_close_zip':closed['close_evidence']}
+  except Exception as error:report.update(status='FAIL',cleanup_error=str(error))
+ report['health_after']=call('health');save(args.out_dir/'report.json',report)
+print(json.dumps({'status':report['status'],'unit':args.unit,'session_id':sid,'error':report.get('error'),'cleanup_error':report.get('cleanup_error')}))
+raise SystemExit(0 if report['status']=='PASS' else 1)

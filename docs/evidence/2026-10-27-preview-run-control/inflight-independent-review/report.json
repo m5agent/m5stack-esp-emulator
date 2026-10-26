@@ -1,0 +1,127 @@
+{
+  "status": "PASS",
+  "classification": "VIRTUAL_DEVICE_ONLY",
+  "hardware": "NOT RUN",
+  "reviewed_at": "2026-10-26T17:24:46.345903+00:00",
+  "review_script_sha256": "3b3155b289dbfc69eb16dda8f1caaf51a4e6c73108ee769a5afb16e52f162dd0",
+  "source_artifact": ".work/preview-live-cores3-pir-inflight-r1-20261027",
+  "session_id": "82e5419d51ad44c2b8adad36603dd578",
+  "pid": 29803,
+  "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "runtime_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+  "runner_sha256": "778327b4e40c9d3ae98854fbfd8f4819a1b91e5f906d87ca00fd5d499d616e6b",
+  "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+  "frozen_source_checks": {
+    "platform/tools/device_service.py": true,
+    "platform/tools/serve.py": true,
+    "platform/tools/frame_cache.py": true,
+    "platform/tools/guest_console.py": true,
+    "platform/tools/uiflow_runtime.py": true,
+    "platform/tools/program_revisions.py": true,
+    "platform/tools/program_packages.py": true,
+    "platform/tools/micropython_repl.py": true,
+    "platform/tools/uiflow_package_runtime.py": true,
+    "platform/tools/mpy_bytecode.py": true,
+    "platform/tools/unit_runtime.py": true,
+    "platform/units/catalog.json": true,
+    "platform/units/host-ports.json": true,
+    "platform/units/runtime-profiles.json": true,
+    "platform/tools/preview_service.py": true,
+    "platform/tools/preview_store.py": true,
+    "platform/tools/preview_retention.py": true
+  },
+  "http_responses_verified": 1234,
+  "http_status_counts": {
+    "200": 1217,
+    "201": 6,
+    "202": 11
+  },
+  "checkpoint_http_indices": {
+    "finite": [
+      2,
+      3,
+      4
+    ],
+    "inflight": [
+      5,
+      6,
+      7
+    ],
+    "pir-C": [
+      8,
+      9,
+      10
+    ]
+  },
+  "captured_writing_http_index": 1111,
+  "cancel_http_index": 1114,
+  "captured_written_bytes": 131072,
+  "package_total_bytes": 262303,
+  "cancel_baseline": 7135,
+  "interrupt_receipt": {
+    "cleanup_mode": "interrupt-only",
+    "interruption_confirmed": true,
+    "prompt_end": 7190,
+    "serial_offset": 7137
+  },
+  "unit_qom_checks": [
+    {
+      "label": "pir-low-1",
+      "live_input_level": false,
+      "raw_qom_input_level": false
+    },
+    {
+      "label": "pir-high",
+      "live_input_level": true,
+      "raw_qom_input_level": true
+    },
+    {
+      "label": "pir-low-2",
+      "live_input_level": false,
+      "raw_qom_input_level": false
+    }
+  ],
+  "main_zip": {
+    "path": ".work/preview-live-cores3-pir-inflight-r1-20261027/evidence.zip",
+    "sha256": "733dc812f2b9e122c347c73611943084c16166d4494e8d14a10ac32cce3e7d4d",
+    "size": 42136,
+    "members": 31,
+    "execution_count": 3,
+    "actual_application_starts": 2,
+    "raw_serial_bytes": 11650,
+    "guest_hash_inventories": 2,
+    "pad_acknowledged_chunk_count": 64,
+    "pad_acknowledged_bytes": 131072,
+    "raw_prompt_sha256": "db43b062a9b75a7b5561230e6c5f4bf0868a7865ea9ad9dd111fcabb99b901fb",
+    "raw_prompt_bytes": 53
+  },
+  "automatic_zip": {
+    "path": ".work/unit-device-service/previews/b3fb6e5633d0418daccbbc58e03e6860/before-close.zip",
+    "sha256": "70faf3e6f2796e3a657b4b214a05248e123016ad10c304eb0f27c135a6e2d5ab",
+    "size": 42207,
+    "members": 31,
+    "execution_count": 3,
+    "actual_application_starts": 2,
+    "raw_serial_bytes": 11770,
+    "guest_hash_inventories": 2,
+    "pad_acknowledged_chunk_count": 64,
+    "pad_acknowledged_bytes": 131072,
+    "raw_prompt_sha256": "db43b062a9b75a7b5561230e6c5f4bf0868a7865ea9ad9dd111fcabb99b901fb",
+    "raw_prompt_bytes": 53
+  },
+  "cleanup": {
+    "closed": true,
+    "retained_history": true,
+    "last_frame": true,
+    "flash_released": true,
+    "pid_absent_at_review": true,
+    "active_sessions": 0,
+    "worker_active_leases": 0
+  },
+  "scope": "Package deployment was cancelled after pad completion was observed and before verification/publication/activation or application START. Same-VM C package recovery runs the original PIRUnit driver and .mpy dependency.",
+  "limits": [
+    "Tail file completion and interruption of any particular chunk or byte are not established.",
+    "No physical hardware, live browser, other-board or other-Unit acceptance is added.",
+    "Request Idempotency-Key use is source-bound; request headers are not stored by the recorder."
+  ]
+}

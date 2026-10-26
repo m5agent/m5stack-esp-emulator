@@ -1,0 +1,115 @@
+"""Independent HOST_ONLY_NOT_GUEST checks of coordinator behavior."""
+from datetime import datetime, timezone
+import importlib.machinery
+import importlib.util
+from pathlib import Path
+import sys
+import time
+import unittest
+from unittest import mock
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path[:0] = [str(ROOT / "platform/tools"), str(ROOT / "platform/tests")]
+import test_preview_service as fixture
+from device_service import ServiceError
+from preview_store import LOCAL_OWNER
+
+if "--baseline" in sys.argv:
+    sys.argv.remove("--baseline")
+    path = Path(__file__).with_name("preview_service.py.before.txt")
+    loader = importlib.machinery.SourceFileLoader("independent_preview_baseline", str(path))
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    module = importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+    fixture.PreviewService = module.PreviewService
+
+
+class AdditionalBoundaries(unittest.TestCase):
+    def setUp(self):
+        self.fixture = fixture.PreviewServiceTests("test_default_worker_dispatches_one_reserved_run_and_shutdown_stops_its_loop")
+        self.fixture.setUp()
+        self.addCleanup(self.fixture.doCleanups)
+
+    def test_renew_during_transfer_updates_cancel_deadline(self):
+        h = self.fixture
+        preview, session, _ = h.active()
+        pid = preview["preview_id"]
+        timestamp = [time.time()]
+        old_expiry = timestamp[0] + 1
+        h.control._mutate(pid, lambda state: state["preview"].update(
+            expires_at=datetime.fromtimestamp(old_expiry, timezone.utc).isoformat()))
+        newer = h.submit(pid, key="renew-boundary-B")
+        h.step(pid)  # A interrupt confirmation; B has not started.
+        block = h.block()
+        cancellation = []
+        def transfer(call):
+            block.wait()
+            cancellation.append(call["cancelled"]())
+            return {"state": "running", "acknowledged": True}
+        session.run_hook = transfer
+        with mock.patch.object(time, "time", side_effect=lambda: timestamp[0]):
+            thread, result = h.background(lambda: h.step(pid))
+            self.assertTrue(block.entered.wait(1))
+            timestamp[0] += 0.2
+            receipt = h.control.renew(pid, {"expected_owner_epoch": preview["owner_epoch"], "ttl_seconds": 300}, owner=LOCAL_OWNER)
+            self.assertGreater(datetime.fromisoformat(receipt["expires_at"]).timestamp(), old_expiry)
+            timestamp[0] = old_expiry + 1
+            block.release.set()
+            thread.join(2)
+        self.assertNotIn("error", result)
+        self.assertEqual(cancellation, [False], "successful renewal must replace the cached cancellation deadline")
+        self.assertEqual(h.preview(pid)["desired_run_id"], newer["run_id"])
+
+    def test_known_input_validation_failure_does_not_poison_future_release(self):
+        h = self.fixture
+        preview, session, active = h.active()
+        pid = preview["preview_id"]
+        original = session.inject
+        def validate(command):
+            if command.get("kind") == "key" and not command.get("key"):
+                raise ServiceError("invalid_input", "key is required", 400)
+            return original(command)
+        session.inject = validate
+        command = {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": active["run_id"],
+                   "input": {"kind": "key", "action": "down"}}
+        with self.assertRaises(ServiceError) as caught:
+            h.control.input(pid, command, owner=LOCAL_OWNER)
+        self.assertEqual(caught.exception.code, "invalid_input")
+        newer = h.submit(pid, key="after-invalid-input-B")
+        for _ in range(4):
+            h.step(pid)
+        self.assertEqual(h.preview(pid)["active_run_id"], newer["run_id"],
+                         "a pre-effect validation rejection must not leave an unreleasable held-input intent")
+
+    def test_shutdown_rejects_new_input_and_renewal(self):
+        h = self.fixture
+        preview, session, active = h.active()
+        pid = preview["preview_id"]
+        h.control.shutdown()
+        with self.assertRaises(ServiceError) as caught:
+            h.control.input(pid, {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": active["run_id"],
+                                 "input": {"kind": "key", "key": "a", "action": "down"}}, owner=LOCAL_OWNER)
+        self.assertEqual(caught.exception.code, "service_stopping")
+        self.assertFalse(session.inputs)
+        with self.assertRaises(ServiceError) as caught:
+            h.control.renew(pid, {"expected_owner_epoch": preview["owner_epoch"], "ttl_seconds": 300}, owner=LOCAL_OWNER)
+        self.assertEqual(caught.exception.code, "service_stopping")
+
+    def test_close_release_failure_still_stops_owned_session(self):
+        h = self.fixture
+        preview, session, active = h.active()
+        pid = preview["preview_id"]
+        h.control.input(pid, {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": active["run_id"],
+                             "input": {"kind": "key", "key": "a", "action": "down"}}, owner=LOCAL_OWNER)
+        def unknown_release():
+            raise ServiceError("qmp_unconfirmed", "HOST_ONLY_NOT_GUEST release unconfirmed", 504)
+        session.input_hook = unknown_release
+        h.control.close(pid, {"expected_owner_epoch": preview["owner_epoch"]}, owner=LOCAL_OWNER)
+        for _ in range(3):
+            h.step(pid)
+        self.assertEqual(session.state, "stopped")
+        self.assertEqual(h.preview(pid)["state"], "closed")
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

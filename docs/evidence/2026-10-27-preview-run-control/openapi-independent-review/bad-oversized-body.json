@@ -1,0 +1,13 @@
+{
+  "name": "bad-oversized-body",
+  "method": "POST",
+  "template": "/previews",
+  "status": 413,
+  "response": {
+    "error": {
+      "code": "body_too_large",
+      "message": "request body exceeds 1048576 bytes"
+    }
+  },
+  "body_sha256": "27ec5fba8d44353d76c1a1baf8e8d84a3568e0d4f717bf4137aef4e6890556bc"
+}

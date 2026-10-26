@@ -1,0 +1,26 @@
+{
+  "name": "bad-create-owner",
+  "method": "POST",
+  "template": "/previews",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_preview_request",
+      "message": "device_id, runtime, units and ttl_seconds are accepted"
+    }
+  },
+  "body_sha256": "d1bcc1fd54fb32134eca5c4f3dfad61df1aa21e070f1e91e4acd85f070f7a779",
+  "request": {
+    "device_id": "cores3",
+    "runtime": "qemu",
+    "ttl_seconds": 300,
+    "units": [
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      }
+    ],
+    "owner": "untrusted"
+  }
+}

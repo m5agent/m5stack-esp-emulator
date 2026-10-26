@@ -1,0 +1,47 @@
+{
+  "name": "cancel-active",
+  "method": "POST",
+  "template": "/previews/{preview_id}/runs/{run_id}/cancel",
+  "status": 202,
+  "response": {
+    "application_ready": "unknown",
+    "cancel_intent": true,
+    "cleanup_mode": "interrupt-only",
+    "client_generation": "contract-A",
+    "created_at": "2026-10-26T17:04:01.236679+00:00",
+    "error": null,
+    "execution_id": "2fbbf918c6b14c219a76c4bd71583d63",
+    "execution_mode": "same-guest-uart-repl",
+    "generation": 1,
+    "interrupt_ack": "unknown",
+    "last_observation": {
+      "acknowledged": true,
+      "execution_id": "2fbbf918c6b14c219a76c4bd71583d63",
+      "firmware_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "pid": 42424242,
+      "revision_id": "5b3fa3db2e311f237a7bffee9859bd8961b1053b1656ffff9aec078bb5eb751e",
+      "serial_offset": 0,
+      "state": "running"
+    },
+    "observed_at": "2026-10-26T17:04:01.244690+00:00",
+    "preview_id": "cc481acc1157480e8a99f87a7cf0fc0b",
+    "request": {
+      "client_generation": "contract-A",
+      "expected_generation": 0,
+      "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+      "revision_id": "5b3fa3db2e311f237a7bffee9859bd8961b1053b1656ffff9aec078bb5eb751e",
+      "timeout_seconds": 120
+    },
+    "revision_id": "5b3fa3db2e311f237a7bffee9859bd8961b1053b1656ffff9aec078bb5eb751e",
+    "run_id": "c66a97fac71e405cb626cd7f37b148e1",
+    "source_kind": "uiflow2-package",
+    "state": "cancelling",
+    "synchronized_at": "2026-10-26T17:04:01.243936+00:00",
+    "timeout_seconds": 120,
+    "updated_at": "2026-10-26T17:04:01.297533+00:00"
+  },
+  "body_sha256": "77bd45600261591ca71ca4a7814f0c6cbf73fcd1fce5ea9b32f540e597a83442",
+  "request": {
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34"
+  }
+}

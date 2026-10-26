@@ -21,6 +21,7 @@ from guest_console import GuestConsoleError, MAX_RESPONSE_BYTES
 import uiflow_runtime
 from uiflow_runtime import (
     ExecutionStateScanner, UIFlowRuntimeError, execution_markers, execution_state, run_source,
+    synchronize_raw_repl,
 )
 
 
@@ -412,6 +413,33 @@ class UIFlowRuntimeTests(unittest.TestCase):
         console = self.console()
         self.assert_error("program_cancelled", lambda: self.execute(console, cancelled=lambda: True))
         self.assertEqual(console.writes, [])
+
+    def test_independent_sync_confirms_fresh_prompt_without_source_or_empty_ctrl_d(self):
+        console = self.console(history=PROMPT + b"old application output")
+        offset = console.offset()
+        receipt = synchronize_raw_repl(console, timeout=1, cancelled=lambda: False)
+        self.assertEqual(receipt, {"serial_offset": offset, "prompt_end": console.offset(),
+                                   "interruption_confirmed": True, "cleanup_mode": "interrupt-only"})
+        self.assertGreater(receipt["prompt_end"], offset)
+        self.assertEqual([row[1] for row in console.writes], [b"\r\x03", b"\r\x01"])
+        self.assertFalse(console.negotiated)
+        self.assertFalse(console.source)
+        self.assertEqual(console.submissions, 0)
+
+    def test_independent_sync_does_not_confirm_historical_prompt_or_lock_release(self):
+        console = self.console(history=PROMPT, prompt=False)
+        self.assert_error("console_timeout", lambda: synchronize_raw_repl(
+            console, timeout=.3, cancelled=lambda: False), GuestConsoleError)
+        self.assertFalse(console.negotiated)
+        self.assertEqual(console.submissions, 0)
+
+    def test_independent_sync_cancellation_before_prompt_never_claims_confirmation(self):
+        console = self.console(prompt=False)
+        start = self.clock.monotonic()
+        self.assert_error("console_cancelled", lambda: synchronize_raw_repl(
+            console, timeout=1, cancelled=lambda: self.clock.monotonic() - start > .15), GuestConsoleError)
+        self.assertEqual([row[1] for row in console.writes], [b"\r\x03", b"\r\x01"])
+        self.assertEqual(console.submissions, 0)
 
     def test_cancel_during_interrupt_separation_does_not_enter_raw_or_submit(self):
         console = self.console()

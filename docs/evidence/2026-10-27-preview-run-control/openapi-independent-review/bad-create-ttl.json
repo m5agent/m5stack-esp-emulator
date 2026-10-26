@@ -1,0 +1,25 @@
+{
+  "name": "bad-create-ttl",
+  "method": "POST",
+  "template": "/previews",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_preview_request",
+      "message": "ttl_seconds must be an integer between 30 and 3600"
+    }
+  },
+  "body_sha256": "be35aa6277568d5926d4a863bdf360ccdb35ac4ba24b0e2077473a9bd37bab23",
+  "request": {
+    "device_id": "cores3",
+    "runtime": "qemu",
+    "ttl_seconds": 29,
+    "units": [
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      }
+    ]
+  }
+}

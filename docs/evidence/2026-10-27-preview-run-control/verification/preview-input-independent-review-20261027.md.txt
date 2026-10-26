@@ -1,0 +1,18 @@
+# Host input admission 独立复核
+
+2026-10-27。只读产品；测试使用明确 fake backend，不启动 guest。
+
+审查 validate_input/inject/validate_unit_input/unit_input 及其 Preview 接入，未发现新的明确阻断问题。
+
+- 纯验证在 held intent 与实际 backend 前运行；坐标、qcode、完整 Unit batch 和 duration
+  错误不会产生确定性的部分按下。调用返回 detached normalized dict。
+- Unit 准入使用冻结 UnitRegistry，输入值规范化与原 QOM/readback 实现复用。
+- key DOWN 大小写规范化后再识别 momentary；Preview 单独约束 hold/settle <=5 秒。
+- 独立 ast.literal_eval 解析缓存的 Espressif 固定 40edccac QAPI QKeyCode 数据，162 项与
+  产品集合精确相等。源 SHA256 为 0b25e722122221301f0cee76b775a5fda569e45ec9bc73676fb8aad55df903eb。
+- Preview fake session 直接调用真实 DeviceSession 两个 validator 与 frozen registry 方法，
+  按钮用真实 CoreS3/port-a/button attachment。未把未知 Unit 凭空当作合法对象。
+- 13 个纯输入测试与 33 个 Preview 协调器测试联合通过；含非法输入不污染 held、规范化
+  key、inflight drain、True/False 顺序、部分 backend 效果后异常的 release 义务等负控。
+
+这些是宿主协议与调度证据，不是 guest、控制器或真机验证。

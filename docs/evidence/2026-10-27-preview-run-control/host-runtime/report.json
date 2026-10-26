@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "validation": "host protocol/concurrency/compatibility only",
+  "guest_validation": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "unittest": {
+    "count": 184,
+    "result": "PASS",
+    "modules": [
+      "test_device_program_runtime",
+      "test_uiflow_runtime",
+      "test_device_program_packages",
+      "test_uiflow_package_runtime",
+      "test_program_packages",
+      "test_program_revisions",
+      "test_program_revision_api",
+      "test_program_revision_config"
+    ],
+    "selected_legacy_service_tests": 3
+  },
+  "validators": {
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "STALE - root will regenerate after concurrent changes"
+  },
+  "diff_check": "PASS",
+  "AST_compatibility": {
+    "live_bootstrap_files": true,
+    "execution_markers": true,
+    "execution_state": true,
+    "ExecutionStateScanner": true,
+    "run_source_wrapper_markers_flowcontrol_after_synchronization_unchanged": true
+  },
+  "frozen_files": {
+    "platform/tools/device_service.py": {
+      "sha256": "17a12af8b8675ee1614d31536637fdb018f93febdd808e91fca893acffc2328a",
+      "bytes": 435014
+    },
+    "platform/tools/uiflow_runtime.py": {
+      "sha256": "7abbec2b2a183b820581b79874d9e370fd887909e26a4e50b1c802b4ea18a764",
+      "bytes": 9852
+    },
+    "platform/tests/test_device_program_runtime.py": {
+      "sha256": "a92f13b76e9f9bd80eb8b232d00cf5d2ea9af1ee2f255ce152df3cb2895a194f",
+      "bytes": 58074
+    },
+    "platform/tests/test_uiflow_runtime.py": {
+      "sha256": "2fad8df7dbb53b07e86e0a539696f9c2cb807262980d0e8974b329b6208aa33d",
+      "bytes": 25209
+    }
+  }
+}

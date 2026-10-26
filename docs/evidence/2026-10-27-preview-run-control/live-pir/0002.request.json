@@ -1,0 +1,38 @@
+{
+  "source_kind": "uiflow2-package",
+  "entrypoint": "main.py",
+  "files": {
+    "assets/pixel.png": {
+      "encoding": "base64",
+      "data": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAKElEQVR4nGP8z0AdwEQlcxhGDSIMRg0iDEYNIgxGDSIMRg0iDAafQQB7qgEvsm2eqgAAAABJRU5ErkJggg=="
+    },
+    "config.json": {
+      "encoding": "utf8",
+      "data": "{\"color\":[255,0,0],\"helper\":17,\"init\":101,\"logic\":3,\"old_present\":true,\"relay\":false,\"version\":\"A\"}\n"
+    },
+    "helper.mpy": {
+      "encoding": "base64",
+      "data": "TQYAHwUAEmhlbHBlci5weQAPEnRyYW5zZm9ybQAKVkFMVUUAgkVsAAQBI5EWAzIAFgJRYwFgEQYCBECwgvQSA/Jj"
+    },
+    "lib/__init__.py": {
+      "encoding": "utf8",
+      "data": "VALUE = 101\n"
+    },
+    "lib/logic.py": {
+      "encoding": "utf8",
+      "data": "import helper\nVALUE = 3\ndef calculate(value):\n return helper.transform(value) + VALUE\n"
+    },
+    "main.py": {
+      "encoding": "utf8",
+      "data": "import os, sys, json, time\nimport M5\nassert '/m5-live-package-8a7551c738664a3caac25bd4b5633ee3' in sys.path, \"MicroPython VM was reset\"\nwith open('config.json') as stream:\n config = json.load(stream)\nimport helper\nimport lib\nfrom lib import logic\nimport namespace_lib.state as namespace_state\nassert helper.VALUE == config['helper']\nassert lib.VALUE == config['init']\nassert logic.VALUE == config['logic']\nassert namespace_state.VALUE == config['init']\nassert logic.calculate(5) == 10 + config['helper'] + config['logic']\ncwd = os.getcwd()\nmanaged_paths = [path for path in sys.path if isinstance(path, str) and path.startswith('/flash/.m5-live-packages/')]\nassert managed_paths == [cwd], 'stale managed import path'\nfor module in (helper, lib, logic, namespace_state):\n assert module.__file__.startswith(cwd + '/'), 'stale module cache'\nif config['old_present']:\n import old_only\n assert old_only.VALUE == 'A-only'\n old_absent = False\nelse:\n assert 'old_only' not in sys.modules, 'removed module stayed cached'\n try:\n  import old_only\n except ImportError:\n  old_absent = True\n else:\n  raise AssertionError('removed file is still importable')\nM5.begin()\nscreen = M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0)\nwith open('assets/pixel.png', 'rb') as stream:\n screen.drawImage(stream.read(), (screen.width() - 24) // 2, (screen.height() - 24) // 2 - 24)\nscreen.setTextSize(2)\nscreen.setTextColor(0xFFFFFF, 0)\nscreen.setCursor(screen.width() // 2 - 24, screen.height() // 2 + 4)\nscreen.print('PKG ' + config['version'])\nfrom unit import PIRUnit\nunit = PIRUnit((1, 2))\nprint('LIVE_PACKAGE_READY ' + json.dumps({'version': config['version'], 'helper': helper.VALUE, 'init': lib.VALUE, 'logic': logic.VALUE, 'cwd': cwd, 'managed_paths': managed_paths, 'old_absent': old_absent, 'helper_file': helper.__file__, 'logic_file': logic.__file__}))\nprevious = None\nlast_sample = time.ticks_ms()\nwhile True:\n M5.update()\n value = int(unit.get_status())\n now = time.ticks_ms()\n if value != previous:\n  screen.fillRect(0, screen.height() // 2 + 24, screen.width(), 28, 0)\n  screen.setCursor(screen.width() // 2 - 36, screen.height() // 2 + 24)\n  screen.print('PIR ' + str(value))\n if value != previous or time.ticks_diff(now, last_sample) >= 250:\n  print('LIVE_PACKAGE_SAMPLE ' + json.dumps({'version': config['version'], 'unit': 'pir', 'value': value, 'helper': helper.VALUE, 'init': lib.VALUE, 'logic': logic.VALUE, 'computed': logic.calculate(value)}))\n  last_sample = now\n previous = value\n time.sleep_ms(25)\n"
+    },
+    "namespace_lib/state.py": {
+      "encoding": "utf8",
+      "data": "VALUE = 101\n"
+    },
+    "old_only.py": {
+      "encoding": "utf8",
+      "data": "VALUE = 'A-only'\n"
+    }
+  }
+}

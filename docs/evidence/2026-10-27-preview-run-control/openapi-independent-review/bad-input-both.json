@@ -1,0 +1,22 @@
+{
+  "name": "bad-input-both",
+  "method": "POST",
+  "template": "/previews/{preview_id}/input",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_preview_request",
+      "message": "owner epoch, expected_run_id and one input payload are required"
+    }
+  },
+  "body_sha256": "9dc8b4fd6f1a76a696081c3d6d1ffc2cdfbbe59113dc415761b8e07a2c4c5129",
+  "request": {
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+    "expected_run_id": "c66a97fac71e405cb626cd7f37b148e1",
+    "input": {},
+    "unit_input": {
+      "id": "fixture-button",
+      "values": {}
+    }
+  }
+}

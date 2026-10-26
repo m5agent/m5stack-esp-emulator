@@ -1,0 +1,96 @@
+# Preview OpenAPI / live-runner independent review — 2026-10-27
+
+Current result: no outstanding blocking finding in the reviewed OpenAPI or
+runner gate. This is a host contract check and static runner review, not a guest
+execution result or physical-device validation. No guest, port 8787, browser,
+physical device, production endpoint or real credential was used by this audit.
+
+## Actual host protocol verification
+
+`check_contract.py` binds the real HTTP Handler to a real PreviewService and
+SQLite PreviewStore through the repository's explicitly inert session fixture.
+It uses an ephemeral loopback port and blocks subprocess launches. It validates
+actual request/response bytes with JSON Schema Draft 2020-12 and a date-time
+format checker. It does not substitute mock coordinator return values.
+
+`current-contract.json`:
+
+- 24 request-schema checks, 34 actual JSON-response-schema checks.
+- Zero response-schema failures, request-shape disagreements, or undeclared
+  observed HTTP statuses in this set.
+- Includes original 202 receipts/replays, queued/running/cancelling/cancelled
+  Run responses, ready/closing/closed Preview responses, lists, board and frozen
+  Unit inputs, valid renewal, missing auth, corrupt checkpoint, oversized-body
+  rejection, 304 conditional frame and 410 historical frame.
+- Frame checks additionally bind Preview ID, Run ID, execution ID, revision ID
+  and the actual returned body SHA256. The fixture image is explicitly synthetic
+  host data; no display or guest behavior is inferred from it.
+- Negative bodies include extra owner, too many Units, invalid TTL, missing
+  epoch, oversized client_generation, both input kinds, missing kind/key,
+  unknown qcode, hold duration above five seconds, invalid Unit values shape,
+  missing renewal TTL and extra close owner. Nullable units is accepted by both
+  runtime and the final schema.
+
+The final schema explicitly describes canonical input shapes; legacy numeric
+coercions can accept additional inputs. Dynamic wiring, attached Unit identity,
+Unit schema/type/range and byte-count limits remain server checks. In particular,
+`x-max-utf8-bytes` documents the UTF-8 contract; ordinary JSON Schema validators
+do not enforce that extension. This audit does not claim that schema validation
+alone authorizes a context-dependent request.
+
+## Baseline findings resolved by root
+
+`baseline-contract.json` preserved seven request-shape mismatches and two
+missing observed status declarations. The final schema corrects Units/null/
+maxItems, client-generation character bound, complete canonical board-input
+shape/qcodes/action/durations, 413 and corrupt-checkpoint 500; historical input
+410 is also documented. All actual response objects passed the initial and
+final schemas.
+
+## Current runner gate review
+
+Reviewed the final runner source rather than executing its top level. Confirmed:
+
+- Explicit execution flag and Device Service APIs; no direct QEMU launch.
+- Runtime PID executable SHA provenance, one firmware/session/PID, a nonce in
+  the same MicroPython VM, original checkpoint bytes and immutable receipts.
+- Every negative case uses its exact expected HTTP status, including 410 for
+  stale historical input/frame.
+- UART observations obtain the active Run and its execution owner, explicitly
+  require the intended D/C identity, move to a fresh serial offset, require an
+  exact typed sample, and recheck the active Run after the sample.
+- PIR transitions and relay A=false/B=true/C=false use original guest driver
+  UART values plus typed live Unit state and a depth-zero raw QOM leaf.
+- A/C frames check Preview/Run/execution/revision/SHA headers and resource
+  pixels. Conditional capture accepts 200 or 304 after the service fence.
+- ZIP validation checks safe unique members, complete manifest index, member
+  sizes/hashes, session/PID/firmware identity, all required evidence members,
+  live Unit state agreement, actual PNG geometry/resource color, reboot count,
+  fresh UART windows after each execution START, execution inventory,
+  cancellation acknowledgement, guest deployment inventory/path, checkpoint
+  metadata and every original package file byte. Unexpected executions fail.
+- The runner starts FAIL, reaches PASS only after the substantive gates, and
+  overwrites it with FAIL if close/history/Flash/PID cleanup fails. It requests
+  evidence before close and preserves stopped history and its last frame.
+
+Earlier weak Unit/ZIP assertions, generic ready-line matching, missing frame
+identity checks and rejection of correct 410 responses were reported to root
+and are resolved in this frozen source. The application-readiness claim remains
+separate from a transport START acknowledgement.
+
+Remaining scope: a real run still has to pass against its exact current guest,
+runtime binary and firmware and produce all retained evidence. A passing host
+fixture or this static review does not grant that execution PASS. Neither
+category establishes physical-device behavior.
+
+## Frozen sources
+
+- OpenAPI: `e1ee2e44ccd4d156e06160fd6502a8698f4d6808d4040611fbff37f924ff751a`
+- serve.py: `8ab8a13d1103f36f7d470824de4743c8e98eb28486846a735929275752e7e4c7`
+- preview_service.py: `74b4defc7768d6f39542961b46dc2185655af8660f041af21ac4a5fec4707fff`
+- preview_store.py: `4765415dde87382308dbc76a87415922f2dca8e5019d388d66fd08992177f2fb`
+- runner: `61dfb1931f9d507f56a987cca24566df411aeb460dda4289b32487246cde09e0`
+
+Exact source copies and hashes are in `*.final.txt` and
+`final-source-sha256.json`. Runner and checker `py_compile` passed. This reviewer
+did not modify the product, documentation or runner during this audit.

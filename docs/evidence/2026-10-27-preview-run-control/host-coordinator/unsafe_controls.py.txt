@@ -1,0 +1,68 @@
+"""Diagnostic replay of the two observed pre-fix host input algorithms.
+
+Only in-process test patches; no repository implementation is edited.
+"""
+import io
+from pathlib import Path
+import unittest
+from unittest import mock
+from preview_service import PreviewService, plain, now
+from device_service import ServiceError
+from test_preview_service import PreviewServiceTests
+
+
+def stale_release(self, preview, session):
+    for key, command in preview.get('held_inputs', {}).items():
+        if command['unit']:
+            session.unit_input(command['payload'])
+        else:
+            session.inject(command['payload'])
+        self._mutate(preview['preview_id'], lambda state, key=key: state['preview'].setdefault('held_inputs', {}).pop(key, None))
+
+
+def unordered_input(self, preview_id, payload, *, owner):
+    payload = plain(payload)
+    unit = 'unit_input' in payload
+    command = payload['unit_input' if unit else 'input']
+    self._get(preview_id, owner)
+    context = self._context(preview_id)
+    run_id = payload['expected_run_id']
+    momentary = self._momentary(command, unit)
+    with context.condition:
+        preview, run = self._active(preview_id, run_id, owner)
+        self._epoch(preview, payload['expected_owner_epoch'])
+        if not context.admission or run['state'] != 'running' or preview['transition_run_id'] is not None:
+            raise ServiceError('preview_run_changed', 'Run is not accepting input', 409)
+        session, handle = self._session(preview, context)
+        session.require_management_handle(handle)
+        if momentary and momentary[2]:
+            def remember(state):
+                state['preview'].setdefault('held_inputs', {})[momentary[0]] = {'unit': unit, 'payload': momentary[1], 'run_id': run_id}
+            self._mutate(preview_id, remember)
+        context.inputs += 1
+    try:
+        result = session.unit_input(command) if unit else session.inject(command)
+        with context.condition:
+            if momentary and not momentary[2]:
+                self._mutate(preview_id, lambda state: state['preview'].setdefault('held_inputs', {}).pop(momentary[0], None))
+            latest, latest_run = self._active(preview_id, run_id, owner)
+            if latest_run['state'] != 'running' or latest['transition_run_id'] is not None:
+                raise ServiceError('preview_run_changed', 'Run changed while input was in flight', 409)
+        return {'preview_id': preview_id, 'run_id': run_id, 'execution_id': run['execution_id'], 'revision_id': run['revision_id'], 'captured_at': now(), 'result': result}
+    finally:
+        with context.condition:
+            context.inputs -= 1
+            context.condition.notify_all()
+            context.wake.set()
+
+
+output = io.StringIO()
+for method, replacement, test in (
+    ('_release_held', stale_release, 'test_held_release_reloads_ledger_after_drain_instead_of_using_stale_step_snapshot'),
+    ('input', unordered_input, 'test_concurrent_true_false_button_backend_order_cannot_lose_final_release'),
+):
+    with mock.patch.object(PreviewService, method, replacement):
+        result = unittest.TextTestRunner(stream=output, verbosity=2).run(unittest.TestSuite([PreviewServiceTests(test)]))
+    assert len(result.failures) == 1 and not result.errors, 'unsafe control failed for an unrelated reason'
+Path(__file__).with_name('unsafe-controls.log').write_text(output.getvalue())
+print('EXPECTED_UNSAFE_FAILURES_CONFIRMED: 2')

@@ -1,0 +1,59 @@
+import os, sys, json, time
+import M5
+assert '/m5-live-package-8a7551c738664a3caac25bd4b5633ee3' in sys.path, "MicroPython VM was reset"
+with open('config.json') as stream:
+ config = json.load(stream)
+import helper
+import lib
+from lib import logic
+import namespace_lib.state as namespace_state
+assert helper.VALUE == config['helper']
+assert lib.VALUE == config['init']
+assert logic.VALUE == config['logic']
+assert namespace_state.VALUE == config['init']
+assert logic.calculate(5) == 10 + config['helper'] + config['logic']
+cwd = os.getcwd()
+managed_paths = [path for path in sys.path if isinstance(path, str) and path.startswith('/flash/.m5-live-packages/')]
+assert managed_paths == [cwd], 'stale managed import path'
+for module in (helper, lib, logic, namespace_state):
+ assert module.__file__.startswith(cwd + '/'), 'stale module cache'
+if config['old_present']:
+ import old_only
+ assert old_only.VALUE == 'A-only'
+ old_absent = False
+else:
+ assert 'old_only' not in sys.modules, 'removed module stayed cached'
+ try:
+  import old_only
+ except ImportError:
+  old_absent = True
+ else:
+  raise AssertionError('removed file is still importable')
+M5.begin()
+screen = M5.Display
+screen.setBrightness(255)
+screen.fillScreen(0)
+with open('assets/pixel.png', 'rb') as stream:
+ screen.drawImage(stream.read(), (screen.width() - 24) // 2, (screen.height() - 24) // 2 - 24)
+screen.setTextSize(2)
+screen.setTextColor(0xFFFFFF, 0)
+screen.setCursor(screen.width() // 2 - 24, screen.height() // 2 + 4)
+screen.print('PKG ' + config['version'])
+from unit import PIRUnit
+unit = PIRUnit((1, 2))
+print('LIVE_PACKAGE_READY ' + json.dumps({'version': config['version'], 'helper': helper.VALUE, 'init': lib.VALUE, 'logic': logic.VALUE, 'cwd': cwd, 'managed_paths': managed_paths, 'old_absent': old_absent, 'helper_file': helper.__file__, 'logic_file': logic.__file__}))
+previous = None
+last_sample = time.ticks_ms()
+while True:
+ M5.update()
+ value = int(unit.get_status())
+ now = time.ticks_ms()
+ if value != previous:
+  screen.fillRect(0, screen.height() // 2 + 24, screen.width(), 28, 0)
+  screen.setCursor(screen.width() // 2 - 36, screen.height() // 2 + 24)
+  screen.print('PIR ' + str(value))
+ if value != previous or time.ticks_diff(now, last_sample) >= 250:
+  print('LIVE_PACKAGE_SAMPLE ' + json.dumps({'version': config['version'], 'unit': 'pir', 'value': value, 'helper': helper.VALUE, 'init': lib.VALUE, 'logic': logic.VALUE, 'computed': logic.calculate(value)}))
+  last_sample = now
+ previous = value
+ time.sleep_ms(25)

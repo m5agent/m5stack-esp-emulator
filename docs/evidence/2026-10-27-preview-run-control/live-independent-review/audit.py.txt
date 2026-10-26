@@ -1,0 +1,430 @@
+"""Read-only independent verification of the two already-closed Preview runs.
+
+No product or original runner validators are imported. No network, guest,
+process mutation, compiler invocation, git staging or product edits occur.
+"""
+import ast
+import base64
+import hashlib
+import io
+import json
+import os
+from pathlib import Path, PurePosixPath
+import re
+import stat
+from datetime import datetime, timezone
+import zipfile
+
+from PIL import Image
+
+ROOT = Path(__file__).resolve().parents[2]
+OUTPUT = Path(__file__).resolve().parent
+VERSION = {
+    'A': {'helper': 17, 'init': 101, 'logic': 3, 'relay': False},
+    'B': {'helper': 29, 'init': 202, 'logic': 5, 'relay': True},
+    'C': {'helper': 41, 'init': 303, 'logic': 7, 'relay': False},
+}
+EXPECTED_EXECUTED = ('finite', 'A', 'burst-D', 'after-cancel-C')
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, ensure_ascii=False,
+                      separators=(',', ':')).encode('utf-8')
+
+
+def load(path):
+    return json.loads(path.read_bytes())
+
+
+def files_from(payload):
+    result = {}
+    for name, row in payload['files'].items():
+        assert row['encoding'] in ('utf8', 'base64'), name
+        result[name] = (row['data'].encode('utf-8') if row['encoding'] == 'utf8'
+                        else base64.b64decode(row['data'], validate=True))
+    return result
+
+
+def inventory(files):
+    return {n: {'size': len(b), 'sha256': digest(b)} for n, b in files.items()}
+
+
+def parsed_lines(raw, prefix):
+    return [json.loads(x) for x in re.findall(re.escape(prefix.encode()) +
+            rb'(\{[^\r\n]*\})', raw)]
+
+
+def unit_properties(row, sid, unit):
+    assert row['session_id'] == sid and row['source'] == 'live'
+    units = [x for x in row['units'] if x['id'] == 'external1']
+    assert len(units) == 1
+    attached = units[0]
+    assert attached['unit_id'] == unit and attached['port_id'] == 'port-a'
+    assert attached['pins'] == {'white': 1, 'yellow': 2}
+    assert attached['source'] == 'guest-qom' and attached['available'] is True
+    assert not attached['errors']
+    return attached['properties']
+
+
+def png(data, color):
+    with Image.open(io.BytesIO(data)) as image:
+        image.load()
+        assert image.format == 'PNG' and image.size == (320, 240)
+        image = image.convert('RGB')
+        assert image.getpixel((160, 96)) == color
+        # Check the complete 24x24 resource, not only one sample pixel.
+        assert set(image.crop((148, 84, 172, 108)).getdata()) == {color}
+
+
+def audit(unit, freeze):
+    folder = ROOT / f'.work/preview-live-cores3-{unit}-r1-20261027'
+    report = load(folder / 'report.json')
+    http = load(folder / 'http.json')
+    sid, pid = report['session_id'], report['pid']
+    preview_id = report['preview_id']
+    prefix = 'previews/' + preview_id
+    firmware = report['firmware_sha256']
+    runs = report['runs']
+    assert report['hardware'] == 'NOT RUN'
+    assert list(runs) == ['finite', 'A', 'burst-B', 'burst-C', 'burst-D', 'after-cancel-C']
+    assert [x['generation'] for x in runs.values()] == [1, 2, 3, 4, 5, 6]
+    assert len({x['run_id'] for x in runs.values()}) == 6
+    assert len({x['execution_id'] for x in runs.values()}) == 6
+    bodies, headers = {}, {}
+    statuses = {}
+    # Every recorded response must have complete bytes and ordered headers.
+    for i, row in enumerate(http):
+        raw = (folder / f'{i:04d}.response').read_bytes()
+        assert len(raw) == row['response_bytes'] and digest(raw) == row['response_sha256'], i
+        pairs = row['response_headers']
+        assert isinstance(pairs, list) and all(isinstance(p, list) and len(p) == 2 for p in pairs)
+        lower = {}
+        for key, value in pairs:
+            lower.setdefault(key.lower(), []).append(value)
+        assert len(lower.get('x-request-id', [])) == 1
+        assert 'server' in lower and 'date' in lower
+        if row['status'] != 304:
+            assert lower['content-length'] == [str(len(raw))], i
+        if row['status'] == 304:
+            assert raw == b''
+        bodies[i] = json.loads(raw) if 'application/json' in lower.get('content-type', [''])[0] else raw
+        headers[i] = lower
+        statuses[str(row['status'])] = statuses.get(str(row['status']), 0) + 1
+        if row['method'] == 'POST':
+            assert (folder / f'{i:04d}.request.json').is_file(), i
+        if row['path'] == 'sessions/' + sid and row['status'] == 200:
+            assert bodies[i]['session_id'] == sid and bodies[i]['pid'] == pid
+            assert bodies[i]['firmware_sha256'] == firmware
+        if row['path'] == prefix and row['status'] == 200:
+            assert bodies[i]['preview_id'] == preview_id and bodies[i]['owner_epoch'] == report['owner_epoch']
+            if bodies[i].get('session_id'):
+                assert bodies[i]['session_id'] == sid
+    assert len(list(folder.glob('*.response'))) == len(http)
+
+    checkpoints = {}
+    package_files = {}
+    revision_indices = [i for i, x in enumerate(http) if x['path'] == 'program-revisions' and x['method'] == 'POST']
+    assert len(revision_indices) == 8
+    for version, (i, j) in zip(('A', 'B', 'C', 'finite'), zip(revision_indices[::2], revision_indices[1::2])):
+        payload = load(folder / f'{i:04d}.request.json')
+        assert payload == load(folder / f'{j:04d}.request.json')
+        assert http[i]['status'] == http[j]['status'] == 201
+        assert bodies[i] == bodies[j]
+        files = files_from(payload)
+        metadata = bodies[i]['revision']
+        expected_id = digest(canonical({'source_kind': 'uiflow2-package', 'entrypoint': 'main.py',
+                                       'files': {n: digest(b) for n, b in sorted(files.items())}}))
+        assert expected_id == metadata['revision_id'] == report['checkpoints'][version]
+        assert metadata['source_kind'] == 'uiflow2-package' and metadata['entrypoint'] == 'main.py'
+        assert datetime.fromisoformat(metadata['created_at']).tzinfo is not None
+        assert metadata['total_file_bytes'] == sum(map(len, files.values()))
+        assert metadata['source_sha256'] == digest(canonical({n: digest(b) for n, b in sorted(files.items())}))
+        assert {f['path']: {'size': f['size'], 'sha256': f['sha256']} for f in metadata['files']} == inventory(files)
+        package_files[version], checkpoints[version] = files, metadata
+    assert package_files['A']['main.py'] == package_files['B']['main.py'] == package_files['C']['main.py']
+    main = package_files['A']['main.py'].decode('utf-8')
+    ast.parse(main)
+    nonce = re.search(r"'/m5-live-package-([a-f0-9]{32})'", main).group(1)
+    assert 'sys.path.append' in package_files['finite']['main.py'].decode()
+    assert ('/m5-live-package-' + nonce) in package_files['finite']['main.py'].decode()
+    assert "in sys.path, \"MicroPython VM was reset\"" in main
+    assert ('from unit import PIRUnit\nunit = PIRUnit((1, 2))' if unit == 'pir'
+            else 'from unit import RelayUnit\nunit = RelayUnit((1, 2))') in main
+    assert 'unit.get_status()' in main
+    if unit == 'relay':
+        assert "unit.set_status(config['relay'])" in main
+    for version in ('A', 'B', 'C'):
+        meta = report['compiler']['helpers'][version]
+        helper = folder / 'compiled' / version / 'helper.mpy'
+        source = folder / 'compiled' / version / 'helper.py'
+        assert helper.read_bytes() == package_files[version]['helper.mpy']
+        assert helper.read_bytes()[:4] == bytes([77, 6, 0, 31])
+        assert digest(helper.read_bytes()) == meta['binary_sha256']
+        assert digest(source.read_bytes()) == meta['source_sha256']
+        assert source.read_text() == f"VALUE = {VERSION[version]['helper']}\ndef transform(value):\n return value * 2 + VALUE\n"
+        executable = Path(meta['command'][0])
+        assert digest(executable.read_bytes()) == report['compiler']['executable_sha256']
+    assert report['compiler']['version'].startswith('MicroPython 78ff170de9')
+    assert digest((ROOT / '.work/preview-live-runner-20261027.py').read_bytes()) == report['runner_sha256']
+
+    create_indices = [i for i, x in enumerate(http) if x['path'] == 'previews' and x['method'] == 'POST']
+    assert len(create_indices) == 2
+    assert all(http[i]['status'] == 202 for i in create_indices)
+    assert bodies[create_indices[0]] == bodies[create_indices[1]] == report['created']
+    run_posts = [i for i, x in enumerate(http) if x['path'] == prefix + '/runs' and x['method'] == 'POST' and x['status'] == 202]
+    assert len(run_posts) == 13
+    for name, run in runs.items():
+        group = [i for i in run_posts if load(folder / f'{i:04d}.request.json')['client_generation'] == name]
+        assert len(group) == (3 if name == 'A' else 2)
+        assert all(bodies[i] == bodies[group[0]] for i in group)
+        assert all(load(folder / f'{i:04d}.request.json') == run['request'] for i in group)
+        receipt = bodies[group[0]]
+        assert receipt['state'] == 'queued' and receipt['execution_id'] == run['execution_id']
+        assert receipt['generation'] == run['generation'] and receipt['run_id'] == run['run_id']
+    for name in ('burst-B', 'burst-C'):
+        assert runs[name]['state'] == 'superseded' and runs[name]['interrupt_ack'] == 'not-required'
+        assert not runs[name].get('synchronized_at') and not runs[name].get('last_observation')
+    assert runs['finite']['state'] == 'completed'
+    assert runs['after-cancel-C']['state'] == 'running'
+
+    for error in [*report['management_rejections'].values(), report['bad_input'], report['stale_input'],
+                  report['old_frame'], report['stale_generation'], report['wrong_epoch']]:
+        i = error['http_index']
+        assert http[i]['status'] == error['status'] and bodies[i]['error'] == error['error']
+    assert [x['status'] for x in report['management_rejections'].values()] == [409] * 5
+    assert report['bad_input']['status'] == 400
+    assert report['stale_input']['status'] == report['old_frame']['status'] == 410
+    assert report['stale_generation']['status'] == report['wrong_epoch']['status'] == 409
+    held_rows = [bodies[i] for i, x in enumerate(http) if x['path'] == prefix and x['status'] == 200]
+    assert any(x.get('held_inputs') for x in held_rows)
+    assert any(x['generation'] == 5 and x.get('active_run_id') == runs['burst-D']['run_id'] and not x.get('held_inputs') for x in held_rows)
+    assert any(x['generation'] == 6 and x.get('active_run_id') == runs['after-cancel-C']['run_id'] for x in held_rows)
+    frame_indices = [i for i, x in enumerate(http) if x['path'].startswith(prefix + '/runs/') and '/frame.png' in x['path'] and x['status'] == 200]
+    assert len(frame_indices) == 2
+    for i, name, color, filename in zip(frame_indices, ('A', 'after-cancel-C'), ((255, 0, 0), (0, 0, 255)), ('frame-a.png', 'frame-c.png')):
+        raw = bodies[i]
+        run = runs[name]
+        assert raw == (folder / filename).read_bytes()
+        png(raw, color)
+        for key, value in [('x-preview-id', preview_id), ('x-run-id', run['run_id']),
+                           ('x-frame-execution-id', run['execution_id']), ('x-frame-revision-id', run['revision_id']),
+                           ('x-frame-sha256', digest(raw))]:
+            assert headers[i][key] == [value]
+    assert sum(x['status'] == 304 for x in http) == 1
+
+    prop = 'input-level' if unit == 'pir' else 'output-level'
+    unit_checks = []
+    for label, expected in [('a-0', False)] + ([('a-1', True)] if unit == 'pir' else []) + [('a-final', False), ('burst-d', unit == 'relay'), ('c-final', False)]:
+        state, qom = load(folder / (label + '-units.json')), load(folder / (label + '-qom.json'))
+        value = unit_properties(state, sid, unit)[prop]
+        raw_value = qom['nodes'][prop]['value']
+        assert type(value) in (bool, int) and int(value) == int(expected)
+        assert qom['session_id'] == sid and qom['path'] == '/machine/units/external1' and qom['depth'] == 0
+        assert type(raw_value) in (bool, int) and int(raw_value) == int(expected)
+        assert state in bodies.values() and qom in bodies.values()
+        unit_checks.append({'label': label, 'property': prop, 'value': value, 'raw_qom': raw_value})
+
+    def check_zip(path, before_close):
+        data = path.read_bytes()
+        with zipfile.ZipFile(io.BytesIO(data)) as z:
+            names = z.namelist()
+            assert z.testzip() is None and len(names) == len(set(names)) == 46
+            for name in names:
+                p = PurePosixPath(name)
+                assert not p.is_absolute() and '..' not in p.parts and '\\' not in name
+                assert not stat.S_ISLNK(z.getinfo(name).external_attr >> 16)
+            manifest = json.loads(z.read('manifest.json'))
+            assert set(manifest['files']) == set(names) - {'manifest.json'}
+            for name, meta in manifest['files'].items():
+                content = z.read(name)
+                assert meta['size'] == len(content) and meta['sha256'] == digest(content)
+            session = manifest['session']
+            assert session['session_id'] == sid and session['pid'] == pid and session['firmware_sha256'] == firmware
+            assert session['state'] == 'running' and session['program_transport'] == 'uart-repl'
+            assert session['worker']['worker_id'] == bodies[0]['capacity']['worker']['worker_id']
+            assert session['worker']['generation'] == 33 and session['worker']['lease_active'] is True
+            assert session['program']['execution_id'] == runs['after-cancel-C']['execution_id']
+            assert session['management_binding']['preview_id'] == preview_id
+            assert json.loads(z.read('units/contract.json')) == report['created']['session_request']['frozen_unit_contract']
+            assert json.loads(z.read('units/runtime.json'))['attachments'] == session['units']
+            state = json.loads(z.read('units/state.json'))
+            props = unit_properties(state, sid, unit)
+            assert unit_properties(manifest['units'], sid, unit) == props
+            assert props[prop] is False
+            png(z.read('frames/current.png'), (0, 0, 255))
+            assert manifest['frame']['execution_id'] == runs['after-cancel-C']['execution_id']
+            assert manifest['frame']['revision_id'] == runs['after-cancel-C']['revision_id']
+            assert json.loads(z.read('qom/snapshot.json'))['path'] == '/machine'
+            raw = z.read('serial.log')
+            assert raw.count(b'ESP-ROM:') == 1 and raw.count(b'M5EMU_UART_REPL_READY') == 1
+            assert raw.count(b'PREVIEW_NONCE_INIT') == 1
+            final_serial = load(folder / 'serial-final.json')
+            assert final_serial in bodies.values() and final_serial['offset'] == 0
+            assert final_serial['bytes'] == final_serial['next_offset'] <= len(raw)
+            assert raw[:final_serial['next_offset']].decode('utf-8', errors='replace') == final_serial['data']
+            guest_receipts = [json.loads(x) for x in re.findall(
+                rb'__M5_PKG_[a-f0-9]{32}:(\{[^\r\n]*\})', raw)]
+            guest_inventories = [x['files'] for x in guest_receipts if 'files' in x]
+            assert guest_inventories == [inventory(package_files[v]) for v in ('finite', 'A', 'B', 'C')]
+            guest_capabilities = [x for x in guest_receipts if 'mpy' in x]
+            assert len(guest_capabilities) == 4
+            assert all(x['mpy'] == 11014 and x['small_int_bits'] == 31 for x in guest_capabilities)
+            expected_executions = {runs[name]['execution_id'] for name in EXPECTED_EXECUTED}
+            stored = {PurePosixPath(n).stem for n in names if n.startswith('programs/') and n.count('/') == 1 and n.endswith('.json')}
+            assert stored == expected_executions
+            start_markers = re.findall(rb'__M5_EXEC_([0-9a-f]{32})__:START', raw)
+            assert len(start_markers) == 4 and {x.decode() for x in start_markers} == expected_executions
+            for name in ('burst-B', 'burst-C'):
+                assert runs[name]['execution_id'].encode() not in raw
+            for name in EXPECTED_EXECUTED:
+                run = runs[name]
+                execution, revision = run['execution_id'], run['revision_id']
+                history = json.loads(z.read('programs/' + execution + '.json'))
+                assert history['execution_id'] == execution and history['revision_id'] == revision
+                assert history['pid'] == pid and history['firmware_sha256'] == firmware
+                assert history['execution_mode'] == 'same-guest-uart-repl' and history['acknowledged'] is True
+                version = next(k for k, v in report['checkpoints'].items() if v == revision)
+                files, metadata = package_files[version], checkpoints[version]
+                assert history['deployment']['phase'] == 'activated'
+                assert history['deployment']['inventory'] == inventory(files)
+                assert history['deployment']['package_path'] == '/flash/.m5-live-packages/' + revision
+                assert json.loads(z.read('programs/' + revision + '/revision.json')) == metadata
+                assert files_from(json.loads(z.read('programs/' + revision + '/source.json'))) == files
+                for filename, content in files.items():
+                    assert z.read('programs/' + revision + '/files/' + filename) == content
+                marker = ('__M5_EXEC_' + execution + '__:START').encode()
+                start = raw.index(marker)
+                next_start = raw.find(b'__:START', start + len(marker))
+                end = raw.rfind(b'__M5_EXEC_', start + len(marker), next_start) if next_start >= 0 else len(raw)
+                section = raw[start:end]
+                assert history['serial_offset'] <= start
+                if name == 'finite':
+                    assert b'PREVIEW_NONCE_INIT' in section and (b'__M5_EXEC_' + execution.encode() + b'__:DONE') in section
+                else:
+                    ready = parsed_lines(section, 'LIVE_PACKAGE_READY ')
+                    assert len(ready) == 1
+                    ready = ready[0]
+                    assert ready['version'] == version
+                    assert all(ready[k] == v for k, v in VERSION[version].items() if k != 'relay')
+                    cwd = '/flash/.m5-live-packages/' + revision
+                    assert ready['cwd'] == cwd and ready['managed_paths'] == [cwd]
+                    assert ready['helper_file'] == cwd + '/helper.mpy'
+                    assert ready['logic_file'] == cwd + '/lib/logic.py'
+                    assert ready['old_absent'] is (version != 'A')
+                if name in ('A', 'burst-D'):
+                    assert run['state'] == 'cancelled' and run['interrupt_ack'] == 'confirmed'
+                    assert history['state'] == 'interrupted' and history['interruption_confirmed'] is True
+                    receipt = run['interrupt_receipt']
+                    window = raw[receipt['serial_offset']:receipt['prompt_end']]
+                    assert receipt['interruption_confirmed'] is True
+                    assert b'KeyboardInterrupt:' in window and execution.encode() in window
+                    assert window.endswith(b'raw REPL; CTRL-B to exit\r\n>')
+                    assert receipt['prompt_end'] <= len(raw)
+            observation_details = []
+            for observation in report['serial_observations']:
+                run = next(x for x in runs.values() if x['run_id'] == observation['run_id'])
+                assert observation['execution_id'] == run['execution_id']
+                marker = ('__M5_EXEC_' + run['execution_id'] + '__:START').encode()
+                offset, end = observation['offset'], observation['window']['next_offset']
+                assert raw.index(marker) + len(marker) <= offset < end <= len(raw)
+                next_start = raw.find(b'__:START', raw.index(marker) + len(marker))
+                next_marker = raw.rfind(b'__M5_EXEC_', raw.index(marker) + len(marker), next_start) if next_start >= 0 else -1
+                assert next_marker < 0 or end <= next_marker
+                fragment = raw[offset:end]
+                row = observation['window']
+                assert row['session_id'] == sid and row['offset'] == offset and row['bytes'] == len(fragment)
+                assert fragment.decode('utf-8', errors='replace') == row['data']
+                assert row in bodies.values()
+                actual = parsed_lines(fragment, 'LIVE_PACKAGE_SAMPLE ')
+                expected = observation['expected']
+                v = VERSION[expected['version']]
+                assert expected['unit'] == unit and type(expected['value']) is int and expected['value'] in (0, 1)
+                assert all(type(expected[k]) is int and expected[k] == v[k] for k in ('helper', 'init', 'logic'))
+                assert type(expected['computed']) is int and expected['computed'] == 2 * expected['value'] + v['helper'] + v['logic']
+                assert any(x == expected and all(type(x[k]) is type(v) for k, v in expected.items()) for x in actual)
+                observation_details.append({'run_id': run['run_id'], 'execution_id': run['execution_id'],
+                                            'offset': offset, 'next_offset': end, 'expected': expected})
+            assert [(x['expected']['version'], x['expected']['value']) for x in report['serial_observations']] == (
+                [('A', 0), ('A', 1), ('A', 0), ('B', 0), ('C', 0)] if unit == 'pir'
+                else [('A', 0), ('B', 1), ('C', 0)])
+            return {'path': str(path.relative_to(ROOT)), 'sha256': digest(data), 'size': len(data),
+                    'members': len(names), 'execution_count': len(stored),
+                    'serial_bytes': len(raw), 'serial_observations': observation_details,
+                    'raw_guest_hash_inventories': len(guest_inventories),
+                    'before_close': before_close}
+
+    main_zip = check_zip(folder / 'evidence.zip', False)
+    evidence_calls = [i for i, x in enumerate(http) if x['path'] == 'sessions/' + sid + '/evidence']
+    close_calls = [i for i, x in enumerate(http) if x['path'] == prefix + '/close']
+    assert len(evidence_calls) == len(close_calls) == 1 and evidence_calls[0] < close_calls[0]
+    assert bodies[evidence_calls[0]] == (folder / 'evidence.zip').read_bytes()
+    assert http[close_calls[0]]['status'] == 202
+    closed = load(folder / 'closed.json')
+    assert closed in bodies.values() and closed['state'] == 'closed' and closed['generation'] == 6
+    assert closed['active_run_id'] is None and not closed.get('held_inputs')
+    close_evidence = closed['close_evidence']
+    assert close_evidence['status'] == 'captured'
+    state_dir = Path(freeze['command'][freeze['command'].index('--state-dir') + 1])
+    auto_path = state_dir / close_evidence['path']
+    assert digest(auto_path.read_bytes()) == close_evidence['sha256'] and auto_path.stat().st_size == close_evidence['size']
+    automatic_zip = check_zip(auto_path, True)
+    history = load(folder / 'history.json')
+    assert history in bodies.values() and history['state'] == 'stopped'
+    assert history['flash_retained'] is False and history['last_frame_available'] is True
+    assert history['session_id'] == sid and history['pid'] == pid and history['firmware_sha256'] == firmware
+    history_call = next(i for i, x in enumerate(http) if i > close_calls[0] and x['path'] == 'sessions/' + sid)
+    assert bodies[history_call] == history
+    frame_call = next(i for i, x in enumerate(http) if i > close_calls[0] and x['path'] == 'sessions/' + sid + '/frame.png')
+    assert bodies[frame_call] == (folder / 'history-frame.png').read_bytes()
+    png(bodies[frame_call], (0, 0, 255))
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        pass
+    else:
+        raise AssertionError('guest PID is still present')
+    before, after = bodies[0], bodies[len(http) - 1]
+    for health in (before, after):
+        worker = health['capacity']['worker']
+        assert health['ok'] is True and health['capacity']['active_sessions'] == 0
+        assert worker['pid'] == freeze['pid'] and worker['generation'] == 33 and worker['state'] == 'ready'
+    provenance = report['runtime_provenance']
+    assert provenance['session_id'] == sid and provenance['pid'] == pid
+    assert provenance['expected_binary_sha256'] == provenance['observed_binary_sha256'] == freeze['runtime_sha256']
+    assert provenance['method'] == 'macOS-proc_pidpath' and provenance['hardware_validation'] is False
+    return {'status': 'PASS', 'classification': 'VIRTUAL_DEVICE_ONLY', 'hardware': 'NOT RUN',
+            'unit': unit, 'session_id': sid, 'pid': pid, 'firmware_sha256': firmware,
+            'http_responses_verified': len(http), 'http_statuses': statuses,
+            'worker_pid': freeze['pid'], 'worker_generation': 33, 'unit_qom_checks': unit_checks,
+            'same_vm_nonce': nonce, 'main_sha256': digest(package_files['A']['main.py']),
+            'compiler_sha256': report['compiler']['executable_sha256'],
+            'runner_sha256': report['runner_sha256'], 'main_zip': main_zip, 'automatic_zip': automatic_zip,
+            'cleanup': {'closed': True, 'retained_history': True, 'last_frame': True,
+                        'flash_released': True, 'pid_absent_now': True},
+            'limits': ['B/C were superseded before UART synchronization, not mid-transfer cancellation.',
+                       'Request header keys are source-bound by the recorded runner; the recorder retains response headers only.',
+                       'This is HTTP/guest/frame/QOM evidence, not a live browser or physical hardware acceptance.']}
+
+
+def main():
+    freeze = load(ROOT / '.work/preview-service-reload-r1-20261027/start.json')
+    assert freeze['source_stable_across_start'] is True
+    assert freeze['runtime_sha256'] == 'b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2'
+    source_checks = {name: digest((ROOT / name).read_bytes()) == expected
+                     for name, expected in freeze['source_sha256'].items()}
+    assert all(source_checks.values()), source_checks
+    result = {'status': 'PASS', 'reviewed_at': datetime.now(timezone.utc).isoformat(),
+              'review_script_sha256': digest(Path(__file__).read_bytes()),
+              'frozen_source_checks': source_checks,
+              'cases': {unit: audit(unit, freeze) for unit in ('pir', 'relay')}}
+    (OUTPUT / 'report.json').write_text(json.dumps(result, indent=2, ensure_ascii=False) + '\n')
+    print(json.dumps({unit: {key: case[key] for key in ('status', 'pid', 'http_responses_verified')}
+                      for unit, case in result['cases'].items()}, indent=2))
+
+
+if __name__ == '__main__':
+    main()

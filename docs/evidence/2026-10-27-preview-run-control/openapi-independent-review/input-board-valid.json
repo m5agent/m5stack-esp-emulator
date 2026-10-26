@@ -1,0 +1,28 @@
+{
+  "name": "input-board-valid",
+  "method": "POST",
+  "template": "/previews/{preview_id}/input",
+  "status": 200,
+  "response": {
+    "preview_id": "cc481acc1157480e8a99f87a7cf0fc0b",
+    "run_id": "c66a97fac71e405cb626cd7f37b148e1",
+    "execution_id": "2fbbf918c6b14c219a76c4bd71583d63",
+    "revision_id": "5b3fa3db2e311f237a7bffee9859bd8961b1053b1656ffff9aec078bb5eb751e",
+    "captured_at": "2026-10-26T17:04:01.252280+00:00",
+    "result": {
+      "session_id": "06c707302aa9439aa9aefbb09531a429",
+      "accepted": true
+    }
+  },
+  "body_sha256": "58f358729cfc0b6afa040e4e11ea87469976c4fa128a6734bcb7937df6dd814e",
+  "request": {
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+    "expected_run_id": "c66a97fac71e405cb626cd7f37b148e1",
+    "input": {
+      "kind": "key",
+      "key": "a",
+      "action": "DOWN",
+      "settle_seconds": 0
+    }
+  }
+}

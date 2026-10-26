@@ -1,0 +1,13 @@
+{
+  "name": "missing-auth",
+  "method": "GET",
+  "template": "/previews/{preview_id}",
+  "status": 401,
+  "response": {
+    "error": {
+      "code": "unauthorized",
+      "message": "valid Bearer token required"
+    }
+  },
+  "body_sha256": "9683fa67bd1938142b6a7d9f5c89c49a0cfa424fa95813fb28a8e296aee64d55"
+}

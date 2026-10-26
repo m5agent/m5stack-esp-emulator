@@ -1,0 +1,26 @@
+{
+  "source_sha256": {
+    "platform/tools/preview_service.py": "74b4defc7768d6f39542961b46dc2185655af8660f041af21ac4a5fec4707fff",
+    "platform/tools/preview_store.py": "4765415dde87382308dbc76a87415922f2dca8e5019d388d66fd08992177f2fb",
+    "platform/tools/preview_retention.py": "17f07fe17f25feb850f89c5a0caba5bfbad8f8821e582cac7aa544423ce3a14d",
+    "platform/tools/device_service.py": "b928598becdb8d3ff465bd25f406e573c965b816f8e573d532f0817b1c1fd078",
+    "platform/tools/serve.py": "8ab8a13d1103f36f7d470824de4743c8e98eb28486846a735929275752e7e4c7",
+    "platform/tools/uiflow_runtime.py": "7abbec2b2a183b820581b79874d9e370fd887909e26a4e50b1c802b4ea18a764",
+    "docs/device-service.openapi.yaml": "e1ee2e44ccd4d156e06160fd6502a8698f4d6808d4040611fbff37f924ff751a",
+    ".work/preview-live-runner-20261027.py": "61dfb1931f9d507f56a987cca24566df411aeb460dda4289b32487246cde09e0"
+  },
+  "checks": {
+    "platform_tests": 1107,
+    "runner_tests": 44,
+    "catalog_checks": [
+      "runtime_coverage",
+      "peripheral_catalog",
+      "qemu_profiles",
+      "project_snapshot",
+      "unit_runtime"
+    ],
+    "ruff": "NOT RUN: module unavailable",
+    "full_peripheral_matrix": "NOT RUN: no C/QEMU/controller change",
+    "hardware": "NOT RUN"
+  }
+}

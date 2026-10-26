@@ -1,0 +1,22 @@
+# 待并入 authority docs 的最小文字
+
+已核 `docs/unit-integration-host-issues.md` 当前编号连续为 UNIT-HOST-01–33；
+2026-10-27 核对时 UNIT-HOST-34 空闲。本文件只是供 root 合并的提案，不新增第二队列。
+
+## project-backlog.md / UNIT-01 当前执行顺序
+
+下一大块优先接入 `UNIT-HOST-34`：Live sessions / AIFlow 的 Preview 消费者。
+1.42 已具备限定 Preview/Run API 基础，现有 Web 仍只观察 managed session；
+程序、Unit/主机输入、续期/复位/停止误启用且旧路由返回409，客户端 frame owner
+不含 Run，不能宣称 Web/AIFlow 已完成实时编程预览闭环。先明确托管/只读与未支持
+操作，再接完整 checkpoint→Run、epoch/generation/幂等、输入/renew/close 与 Run 帧
+身份 fence；复位无 Preview API 时保持禁用。以真实 Web 同 guest 的正反控和晚到
+响应/图像解码/按住松开/取消/关闭证据验收，SSE 和 AIFlow checkpoint/虚拟目标
+另行闭合。
+
+同时将当前“Preview/SSE 尚未实现”“服务端 run 身份仍待实现”更新为：
+“Preview/Run API 基础已实现；现有 Web/AIFlow 消费者、SSE 与后续恢复/回收仍待闭合。”
+
+## unit-integration-host-issues.md 新行
+
+| UNIT-HOST-34 | OPEN（Preview托管会话Web消费者） | Live sessions 未识别 management_binding；running 的程序、Unit/主机输入、续期/复位/停止仍启用且走旧 sessions mutation，被409拒绝；frameOwner 仅 session/PID/firmware，Run切换没有客户端fence。宿主DOM stub确认误启用及旧请求；未做真实Web新协议验收 | 先标识托管并禁用未适配mutation；再接公共完整checkpoint→Preview Run/CAS/epoch/幂等、输入/renew/close及Run帧身份，decode/commit后重检。复位无Preview API保持禁用。真实Web同guest正反控、晚到响应/解码与按住松开/取消/关闭通过后关闭；API脚本PASS不外推AIFlow/Web已接入 |

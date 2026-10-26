@@ -1,0 +1,489 @@
+{
+  "category": "HOST_ONLY_NOT_GUEST",
+  "schema_sha256": "4d6916a9ee22dfd38217a76bfe21e4d8bc83c21d0b42158e08f45e13a8f4e7be",
+  "request_checks": [
+    {
+      "name": "create",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "create-original-replay",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "submit-queued",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "submit-original-replay",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "input-board-valid",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "input-unit-valid",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "renew-valid",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-create-owner",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [],
+          "message": "Additional properties are not allowed ('owner' was unexpected)"
+        }
+      ]
+    },
+    {
+      "name": "bad-create-unit-count",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-create-ttl",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "ttl_seconds"
+          ],
+          "message": "29 is less than the minimum of 30"
+        }
+      ]
+    },
+    {
+      "name": "bad-run-missing-epoch",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [],
+          "message": "'expected_owner_epoch' is a required property"
+        }
+      ]
+    },
+    {
+      "name": "bad-run-client-generation-bytes",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-input-both",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [],
+          "message": "{'expected_owner_epoch': '8aed532e4f4b402e8d47dbce1e1c4dde', 'expected_run_id': '8354374fe95844c4a8a9426e25e3c290', 'input': {}, 'unit_input': {'id': 'fixture-button', 'values': {}}} is not valid under any of the given schemas"
+        }
+      ]
+    },
+    {
+      "name": "bad-input-missing-kind",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-input-missing-key",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-input-unknown-key",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-input-duration-limit",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-unit-values-shape",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "unit_input",
+            "values"
+          ],
+          "message": "[] is not of type 'object'"
+        }
+      ]
+    },
+    {
+      "name": "bad-renew-missing-ttl",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [],
+          "message": "'ttl_seconds' is a required property"
+        }
+      ]
+    },
+    {
+      "name": "bad-close-extra-owner",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [],
+          "message": "Additional properties are not allowed ('owner' was unexpected)"
+        }
+      ]
+    },
+    {
+      "name": "valid-null-units",
+      "schema_valid": false,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "units"
+          ],
+          "message": "None is not of type 'array'"
+        }
+      ]
+    },
+    {
+      "name": "corrupt-package",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": true,
+      "errors": []
+    },
+    {
+      "name": "cancel-active",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "close-admission",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    }
+  ],
+  "response_checks": [
+    {
+      "name": "create",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "create-original-replay",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "list-ready",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "get-ready",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "submit-queued",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "get-queued",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "get-running",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "submit-original-replay",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "input-board-valid",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "input-unit-valid",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "renew-valid",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "bad-create-owner",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-create-unit-count",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-create-ttl",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-run-missing-epoch",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-run-client-generation-bytes",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-input-both",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-input-missing-kind",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-input-missing-key",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-input-unknown-key",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-input-duration-limit",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-unit-values-shape",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-renew-missing-ttl",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-close-extra-owner",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "valid-null-units",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "missing-auth",
+      "status": 401,
+      "errors": []
+    },
+    {
+      "name": "cancel-active",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "get-cancelled",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "frame-410",
+      "status": 410,
+      "errors": []
+    },
+    {
+      "name": "close-admission",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "get-closed",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "list-closed",
+      "status": 200,
+      "errors": []
+    }
+  ],
+  "shape_mismatches": [
+    {
+      "name": "bad-create-unit-count",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-run-client-generation-bytes",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-input-missing-kind",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-input-missing-key",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-input-unknown-key",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-input-duration-limit",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "valid-null-units",
+      "schema_valid": false,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "units"
+          ],
+          "message": "None is not of type 'array'"
+        }
+      ]
+    }
+  ],
+  "undocumented_statuses": [
+    {
+      "name": "bad-oversized-body",
+      "template": "/previews",
+      "method": "POST",
+      "status": 413
+    },
+    {
+      "name": "corrupt-package",
+      "template": "/previews/{preview_id}/runs",
+      "method": "POST",
+      "status": 500
+    }
+  ],
+  "frame_headers": [
+    {
+      "field": "x-preview-id",
+      "present": true
+    },
+    {
+      "field": "x-run-id",
+      "present": true
+    },
+    {
+      "field": "x-frame-execution-id",
+      "present": true
+    },
+    {
+      "field": "x-frame-revision-id",
+      "present": true
+    },
+    {
+      "field": "x-frame-sha256",
+      "present": true
+    },
+    {
+      "field": "etag",
+      "present": true
+    }
+  ],
+  "response_schema_failures": [],
+  "summary": {
+    "request_checks": 24,
+    "response_checks": 32,
+    "response_schema_failures": 0,
+    "shape_mismatches": 7,
+    "undocumented_statuses": 2
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "bad-run-missing-epoch",
+  "method": "POST",
+  "template": "/previews/{preview_id}/runs",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_preview_request",
+      "message": "run requires revision_id, expected_generation and expected_owner_epoch"
+    }
+  },
+  "body_sha256": "b282ac31f061abbb13801ff573f7dfbae0661546f3394f8e86c1dcd1e5955993",
+  "request": {
+    "revision_id": "5b3fa3db2e311f237a7bffee9859bd8961b1053b1656ffff9aec078bb5eb751e",
+    "expected_generation": 1
+  }
+}

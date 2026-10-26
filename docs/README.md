@@ -132,13 +132,15 @@
 | [StickS3 三渲染器](sticks3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [多设备模拟器设计](plans/2026-10-20-multi-device-emulator-design.md) | 历史设计 | `2026-10-20` | 早期后端和能力分层，不代表当前设备状态 |
 | [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md) | 实现设计 | `2026-10-27` | 同guest程序、限定Unit原驱动与QEMU按需共享采样；完整文件包/纯字节码依赖已接入；其余Unit、AIFlow/Preview/SSE及保存开机仍开放；视觉与功能协议分别验收 |
-| [Unit 接入问题](unit-integration-host-issues.md) | 参考记录 | `2026-10-26` | 接入期间发现的主机问题与处理边界 |
+| [Unit 接入问题](unit-integration-host-issues.md) | 参考记录 | `2026-10-27` | 接入期间发现的主机问题与处理边界 |
 | [Unit 源码 API 首批验收](evidence/2026-10-26-unit-source-api-29d8/README.md) | 历史证据 | `2026-10-26` | 五例源码 API 与逐字 Button/HUB+ENV/NCIR 示例；同 guest/Web/QOM/sourcepin/ZIP 和清理，限 CoreS3，硬件 NOT RUN |
 | [Unit 源码 API 扩展验收](evidence/2026-10-26-unit-source-api-expanded-29d8/README.md) | 历史证据 | `2026-10-26` | 传感器、IO、控制类及显式 custom；原 IR 待审、原 Buzzer 自然归零失败、Thermal 负控与功能例分开，公开研究和可重放原始证据，限 CoreS3 |
 | [三主机 Unit 源码 API](evidence/2026-10-26-unit-source-hosts-29d8/README.md) | 历史证据 | `2026-10-26` | 提交并同步主线后全新准备；AtomS3R、StickS3、StopWatch 各 Button/Relay/ENV III，同 guest 原 host probe、内部总线隔离、真实 Web/源码 pin/取证与清理，其它 Unit 不继承 |
 | [PWM 初始化路由与完整回归](evidence/2026-10-26-unit-pwm-route-d1ba/README.md) | 历史证据 | `2026-10-26` | 同固件无后续setter的八窗A/B、独立冷构建/八patch重放；新单次完整矩阵67/67、274/274与652平台测试通过，不外推60秒soak/完整PWM/硬件，取证限制单列 |
 | [三主机八种 Unit 源码IO](evidence/2026-10-26-unit-source-host-io-d1ba/README.md) | 历史证据 | `2026-10-26` | 新增24源码组合，Fan3在同步前、其余21在同步后；GPIO/RMT/LEDC/UART/HUB多leaf及原host oracle、真实Web/source/PID/取证清理，两准确HEAD与精确源码omission分列，不转授其它组合/硬件 |
-| [AIFlow实时预览API评估计划](plans/2026-10-26-aiflow-live-preview-api.md) | 实现/设计 | `2026-10-27` | UIFlow同guest程序和显式QEMU按需共享帧已实现；Preview/Run、SSE与AIFlow完整接入仍待做，继承Unit/服务Backlog |
+| [AIFlow实时预览API评估计划](plans/2026-10-26-aiflow-live-preview-api.md) | 实现/设计 | `2026-10-27` | UIFlow同guest程序、QEMU按需共享帧和1.42 Preview/Run基础已实现；Web托管消费者、SSE与AIFlow完整接入仍待做，继承Unit/服务Backlog |
+| [同VM Preview/Run控制面](plans/2026-10-27-preview-run-control.md) | 实施计划 | `2026-10-27` | 持久化身份/幂等/latest-wins、真实prompt取消、managed session与输入/帧fence；CoreS3 PIR/Relay限定实际会话与宿主负控已验，PIR部署事务取消已验，AIFlow/Web/GC仍开放 |
+| [同VM Preview/Run验收](evidence/2026-10-27-preview-run-control/README.md) | 历史证据 | `2026-10-27` | CoreS3 PIR/Relay同VM公共包/字节码、pending覆盖、真实prompt运行取消、帧/输入fence、ZIP及清理；宿主并发/恢复/保留独审与失败负控分别归档 |
 | [UIFlow同guest实时程序验证](evidence/2026-10-26-uiflow-live-program/README.md) | 历史证据 | `2026-10-26` | AtomS3R同固件/VM程序替换、PIR原驱动、应用帧与语法错误恢复；其它主机、AIFlow接入和硬件不继承 |
 | [UIFlow实时Web与四主机](evidence/2026-10-26-live-program-web-and-hosts/README.md) | 历史证据 | `2026-10-26` | 四主机×PIR/Relay八会话/40次预期提交；真实CoreS3两例Web像素、输入输出、同PID/固件替换与语法恢复；picker失败负控及13项fixture，非AIFlow/SSE/硬件结论 |
 | [同guest Unit与共享预览](evidence/2026-10-26-live-unit-preview/README.md) | 历史证据 | `2026-10-26` | 四主机限定HUB传感器/控制leaf原驱动、同guest程序替换与QEMU共享样本/ETag/304、默认fresh兼容；独立browser故障回归与真实CoreS3 PIR/Relay网页链路，非AIFlow/SSE/其它后端或硬件结论 |

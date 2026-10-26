@@ -14,6 +14,7 @@ import hmac
 import io
 import ipaddress
 import json
+import math
 import os
 import re
 import shlex
@@ -50,6 +51,7 @@ from ble_runtime_limits import (  # noqa: E402
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
 from uiflow_source import UIFlowSourceError, build_uiflow_source_image  # noqa: E402
 from program_revisions import MAX_REVISIONS, ProgramRevisionStore, RevisionError  # noqa: E402
+from preview_retention import PreviewRetention, RetentionRoots, add_session_roots  # noqa: E402
 from program_packages import (  # noqa: E402
     MAX_FILE_BYTES as MAX_PROGRAM_FILE_BYTES,
     MAX_PACKAGE_BYTES, MAX_PACKAGE_FILES,
@@ -60,7 +62,7 @@ from uiflow_package_runtime import deploy_package  # noqa: E402
 from frame_cache import CaptureResult, FrameCache, FrameGenerationChanged  # noqa: E402
 from uiflow_runtime import (  # noqa: E402
     ExecutionStateScanner, LIVE_PROGRAM_DEVICES, LIVE_READY_MARKER,
-    UIFlowRuntimeError, live_bootstrap_files, run_source,
+    UIFlowRuntimeError, live_bootstrap_files, run_source, synchronize_raw_repl,
 )
 from firmware_analysis import (  # noqa: E402
     analyze_esp_image,
@@ -157,6 +159,23 @@ TAB5_I2C_DEVICES = (
 QMP_COMMAND_TIMEOUT = 2
 QMP_START_TIMEOUT = 60
 SESSION_STOP_WAIT_SECONDS = 1.0
+# QAPI QKeyCode from the pinned Espressif QEMU base, qapi/ui.json:
+# https://github.com/espressif/qemu/blob/40edccac415693c5130f91c01d84176ae6008566/qapi/ui.json
+# send_key_event otherwise leaves unknown qcodes to a late QMP rejection.
+QEMU_INPUT_QCODES = frozenset("""
+unmapped shift shift_r alt alt_r ctrl ctrl_r menu esc 1 2 3 4 5 6 7 8 9 0
+minus equal backspace tab q w e r t y u i o p bracket_left bracket_right ret
+a s d f g h j k l semicolon apostrophe grave_accent backslash z x c v b n m
+comma dot slash asterisk spc caps_lock f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 num_lock
+scroll_lock kp_divide kp_multiply kp_subtract kp_add kp_enter kp_decimal sysrq
+kp_0 kp_1 kp_2 kp_3 kp_4 kp_5 kp_6 kp_7 kp_8 kp_9 less f11 f12 print home pgup
+pgdn end left up down right insert delete stop again props undo front copy open
+paste find cut lf help meta_l meta_r compose pause ro hiragana henkan yen
+muhenkan katakanahiragana kp_comma kp_equals power sleep wake audionext
+audioprev audiostop audioplay audiomute volumeup volumedown mediaselect mail
+calculator computer ac_home ac_back ac_forward ac_refresh ac_bookmarks lang1
+lang2 f13 f14 f15 f16 f17 f18 f19 f20 f21 f22 f23 f24
+""".split())
 EXCLUDED_DEVICES = {
     "cardputer-zero": "CardputerZero uses a separate Linux backend",
 }
@@ -1711,6 +1730,17 @@ class ServiceError(Exception):
         return {"error": {"code": self.code, "message": self.message, **self.extra}}
 
 
+def _normalize_management_binding(value: dict) -> dict:
+    if not isinstance(value, dict) or set(value) != {"preview_id", "owner_epoch", "expected_reference_sha256"}:
+        raise ServiceError("invalid_preview_binding", "a complete internal Preview binding is required", 400)
+    if any(not isinstance(value[key], str) or not 1 <= len(value[key]) <= 128
+           or any(ord(char) < 32 for char in value[key]) for key in ("preview_id", "owner_epoch")):
+        raise ServiceError("invalid_preview_binding", "invalid internal Preview identity", 400)
+    if not isinstance(value["expected_reference_sha256"], str) or re.fullmatch(r"[0-9a-f]{64}", value["expected_reference_sha256"]) is None:
+        raise ServiceError("invalid_preview_binding", "a lowercase reference SHA256 pin is required", 400)
+    return dict(value)
+
+
 def _validate_checkpoint_bytecode(files: dict[str, bytes]) -> None:
     """Reject known-invalid/native containers without touching the guest.
 
@@ -2974,6 +3004,7 @@ class DeviceSession:
         persist: bool = True,
         firmware_provenance: dict | None = None,
         program_transport: str | None = None,
+        management_binding: dict | None = None,
     ):
         self.service = service
         self.id = session_id
@@ -2995,6 +3026,8 @@ class DeviceSession:
         )
         self.runtime = runtime
         self.program_transport = program_transport
+        self.management_binding = _normalize_management_binding(management_binding) if management_binding is not None else None
+        self._management_handle = object() if self.management_binding is not None else None
         self._console = None
         self._program_lock = threading.Lock()
         self._program = None
@@ -3191,6 +3224,7 @@ class DeviceSession:
             "firmware_source": self.firmware_source,
             "source_artifacts": list(self.source_artifacts),
             **({"program_transport": self.program_transport} if self.program_transport else {}),
+            **({"management_binding": dict(self.management_binding)} if self.management_binding is not None else {}),
             **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
             "runtime_env": dict(self.runtime_env),
             "units": self.units,
@@ -3708,6 +3742,7 @@ class DeviceSession:
                 "source_artifacts": list(self.source_artifacts),
                 **({"program_transport": self.program_transport,
                     "program": self._program} if self.program_transport else {}),
+                **({"management_binding": dict(self.management_binding)} if self.management_binding is not None else {}),
                 **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
                 "runtime_env": dict(self.runtime_env),
                 "runtime": self.runtime,
@@ -6217,7 +6252,7 @@ class DeviceSession:
 
         with self._lock:
             program = getattr(self, "_program", None)
-            if program is not None and program["state"] in {"running", "submitting", "unknown"}:
+            if program is not None and not program.get("cancel_requested") and program["state"] in {"running", "submitting", "unknown"}:
                 console = getattr(self, "_console", None)
                 if self.state != "running" or console is None:
                     program.update(state="unknown", error={"code": "program_runtime_unverified"})
@@ -6248,7 +6283,38 @@ class DeviceSession:
 
     def run_program(self, payload: dict) -> dict:
         """Run one source checkpoint in the existing MicroPython VM over UART."""
+        self.require_management_handle()
+        return self._run_program(payload)
+
+    def require_management_handle(self, handle=None) -> None:
+        """Trusted internal capability; HTTP must never deserialize a handle."""
+        if getattr(self, "management_binding", None) is not None and handle is not self._management_handle:
+            raise ServiceError("session_managed_by_preview", "session mutations are managed by its Preview", 409)
+
+    def run_revision(self, revision_id: str, *, execution_id: str, expected_execution_id: str | None,
+                     timeout_seconds: float = 120, cancelled=None, on_synchronized=None,
+                     management_handle=None) -> dict:
+        """Run an existing immutable package using a caller-reserved execution ID."""
+        self.require_management_handle(management_handle)
+        if not isinstance(execution_id, str) or re.fullmatch(r"[0-9a-f]{32}", execution_id) is None:
+            raise ServiceError("invalid_program", "execution_id must be a reserved lowercase UUID hex", 400)
+        return self._run_program({"revision_id": revision_id, "expected_execution_id": expected_execution_id,
+                                  "timeout_seconds": timeout_seconds}, reserved_execution_id=execution_id,
+                                 cancelled=cancelled, on_synchronized=on_synchronized)
+
+    def _run_program(self, payload: dict, *, reserved_execution_id=None, cancelled=None, on_synchronized=None) -> dict:
         from guest_console import GuestConsoleError
+
+        cancellation_seen = False
+
+        def run_cancelled():
+            nonlocal cancellation_seen
+            if cancelled is not None and cancelled():
+                cancellation_seen = True
+            return cancellation_seen
+
+        def transport_cancelled():
+            return self._stop_event.is_set() or run_cancelled()
 
         if not isinstance(payload, dict) or sum(key in payload for key in ("source", "files", "revision_id")) != 1:
             raise ServiceError("invalid_program", "exactly one of source, files or revision_id is required", 400)
@@ -6278,7 +6344,7 @@ class DeviceSession:
         if not self._program_lock.acquire(blocking=False):
             raise ServiceError("program_busy", "a program transfer already owns this console", 409)
         try:
-            if self._stop_event.is_set():
+            if transport_cancelled():
                 raise ServiceError("program_cancelled", "session is stopping or stopped", 409)
             if self.state != "running" or self.program_transport != "uart-repl" or self._console is None:
                 raise ServiceError("program_transport_unavailable", "a running uart-repl session is required", 409)
@@ -6287,6 +6353,9 @@ class DeviceSession:
             current_id = self._program["execution_id"] if self._program else None
             if payload["expected_execution_id"] != current_id:
                 raise ServiceError("program_generation_conflict", "expected_execution_id is stale", 409)
+            if reserved_execution_id is not None and (self.dir / "programs" / f"{reserved_execution_id}.json").exists():
+                raise ServiceError("program_execution_conflict", "reserved execution_id already exists; observe it instead of resubmitting", 409,
+                                   execution_id=reserved_execution_id)
             try:
                 if reference:
                     revision = self.service.program_packages.get(payload["revision_id"])
@@ -6301,11 +6370,11 @@ class DeviceSession:
                 raise ServiceError(error.code, error.message, error.status) from error
             if len(list((self.dir / "programs").glob("*.json"))) >= 256:
                 raise ServiceError("program_quota_exceeded", "this session retains at most 256 executions", 429)
-            execution_id = uuid.uuid4().hex
+            execution_id = reserved_execution_id or uuid.uuid4().hex
             with self._lock:
                 # Revision storage may block while stop closes the transport.
                 # Re-admit after that work and retain the exact console owner.
-                if self._stop_event.is_set():
+                if transport_cancelled():
                     raise ServiceError("program_cancelled", "session is stopping or stopped", 409)
                 console = self._console
                 if self.state != "running" or console is None:
@@ -6325,19 +6394,27 @@ class DeviceSession:
                 if package:
                     self._program.update(source_kind="uiflow2-package", source_bytes=len(package_files["main.py"]),
                                          total_file_bytes=revision["total_file_bytes"], file_count=len(package_files))
+                if reserved_execution_id is not None and previous is not None:
+                    self._program["replaces_execution_id"] = previous["execution_id"]
                 self._preview_frames.invalidate()
                 self._persist_program()
                 self._record_event("program_submitted", **self._program)
 
+            synchronization_notified = False
+
             def synchronized():
-                if self._stop_event.is_set():
+                nonlocal synchronization_notified
+                if transport_cancelled():
                     raise UIFlowRuntimeError("program_cancelled", "session is stopping")
                 if previous and previous["state"] == "interrupt-requested":
                     with self._lock:
-                        if self._stop_event.is_set():
+                        if transport_cancelled():
                             raise UIFlowRuntimeError("program_cancelled", "session is stopping")
                         previous.update(state="interrupted", interruption_confirmed=True, interrupted_at=iso_now())
                         atomic_write_json(self.dir / "programs" / f"{previous['execution_id']}.json", previous)
+                if not synchronization_notified and on_synchronized is not None:
+                    synchronization_notified = True
+                    on_synchronized()
 
             def package_progress(values):
                 with self._lock:
@@ -6347,7 +6424,7 @@ class DeviceSession:
                     deployment.update(values)
                     deployment.setdefault("events", []).append({**values, "observed_at": iso_now()})
                     self._persist_program()
-                    if self._stop_event.is_set():
+                    if transport_cancelled():
                         raise UIFlowRuntimeError("program_cancelled", "session is stopping")
 
             try:
@@ -6355,13 +6432,13 @@ class DeviceSession:
                 if package:
                     package_started = time.monotonic()
                     deploy_package(console, package_files, revision, timeout=execution_timeout,
-                                   cancelled=self._stop_event.is_set, on_synchronized=synchronized,
+                                   cancelled=transport_cancelled, on_synchronized=synchronized,
                                    on_progress=package_progress)
                     execution_timeout -= time.monotonic() - package_started
                     if execution_timeout <= 0:
                         raise UIFlowRuntimeError("program_timeout", "package deployment used its execution acknowledgement budget")
                 result = run_source(console, source, execution_id,
-                                    timeout=execution_timeout, cancelled=self._stop_event.is_set,
+                                    timeout=execution_timeout, cancelled=transport_cancelled,
                                     on_synchronized=synchronized,
                                     **({"source_path": "main.py"} if package else {}))
             except (GuestConsoleError, UIFlowRuntimeError) as error:
@@ -6377,11 +6454,15 @@ class DeviceSession:
                         "program_mpy_capability_unknown", "program_package_integrity", "program_package_guest_quota",
                         "program_package_no_space", "program_package_short_write", "program_rpc_failed",
                     }
-                    self._program.update(state="cancelled" if self._stop_event.is_set() else "failed" if known_package_failure else "unknown",
+                    token_cancelled = run_cancelled()
+                    self._program.update(state="cancelled" if self._stop_event.is_set() else "interrupt-requested" if token_cancelled else "failed" if known_package_failure else "unknown",
                                          error={"code": error.code, "message": error.message})
+                    if token_cancelled:
+                        self._program.update(cancel_requested=True, interruption_confirmed=False)
                     self._persist_program()
                     self._record_event("program_unconfirmed", execution_id=execution_id, code=error.code)
-                raise ServiceError(error.code, error.message, 409 if self._stop_event.is_set() or known_package_failure else 504,
+                raise ServiceError("program_cancelled" if token_cancelled else error.code, error.message,
+                                   409 if self._stop_event.is_set() or token_cancelled or known_package_failure else 504,
                                    execution_id=execution_id) from error
             with self._lock:
                 if self._stop_purge:
@@ -6389,10 +6470,78 @@ class DeviceSession:
                                        execution_id=execution_id)
                 if self._stop_event.is_set():
                     result["state"] = "cancelled"
+                elif run_cancelled():
+                    self._program.update(state="interrupt-requested", cancel_requested=True, interruption_confirmed=False,
+                                         error={"code": "program_cancelled", "message": "Run cancellation requested; guest interruption is unconfirmed"})
+                    self._persist_program()
+                    self._record_event("program_unconfirmed", execution_id=execution_id, code="program_cancelled")
+                    raise ServiceError("program_cancelled", "Run cancellation requested; guest interruption is unconfirmed", 409,
+                                       execution_id=execution_id)
                 self._program.update(result, observed_at=iso_now())
                 self._persist_program()
                 self._record_event("program_observed", execution_id=execution_id, program_state=result["state"])
             return self.program_status()
+        finally:
+            self._program_lock.release()
+
+    def interrupt_program(self, *, expected_execution_id: str | None, timeout_seconds: float = 10,
+                          management_handle=None) -> dict:
+        """Independently confirm raw REPL after a cancelled/unknown transaction."""
+        from guest_console import GuestConsoleError
+
+        self.require_management_handle(management_handle)
+        if type(timeout_seconds) not in {int, float} or not 1 <= timeout_seconds <= 120:
+            raise ServiceError("invalid_program", "timeout_seconds must be between 1 and 120", 400)
+        if not self._program_lock.acquire(blocking=False):
+            raise ServiceError("program_busy", "a program transfer already owns this console", 409)
+        try:
+            with self._lock:
+                if self._stop_event.is_set():
+                    raise ServiceError("program_cancelled", "session is stopping or stopped", 409)
+                current_id = self._program["execution_id"] if self._program else None
+                if current_id != expected_execution_id:
+                    raise ServiceError("program_generation_conflict", "expected_execution_id is stale", 409)
+                console = self._console
+                if self.state != "running" or self.program_transport != "uart-repl" or console is None:
+                    raise ServiceError("program_transport_unavailable", "a running uart-repl session is required", 409)
+                self._preview_frames.invalidate()
+                if self._program:
+                    self._program.update(state="interrupt-requested", cancel_requested=True, interruption_confirmed=False)
+                    self._persist_program()
+            try:
+                receipt = synchronize_raw_repl(console, timeout=float(timeout_seconds), cancelled=self._stop_event.is_set)
+            except (GuestConsoleError, UIFlowRuntimeError) as error:
+                with self._lock:
+                    if not self._stop_purge and self._program:
+                        self._program.update(state="cancelled" if self._stop_event.is_set() else "unknown", interruption_confirmed=False,
+                                             error={"code": error.code, "message": error.message})
+                        self._persist_program()
+                raise ServiceError(error.code, error.message, 409 if self._stop_event.is_set() else 504,
+                                   execution_id=expected_execution_id) from error
+            with self._lock:
+                if self._stop_purge or self._stop_event.is_set():
+                    raise ServiceError("program_cancelled", "session is stopping or stopped", 409, execution_id=expected_execution_id)
+                if self._program:
+                    self._program.update(state="interrupted", interruption_confirmed=True, interrupted_at=iso_now(), interrupt_ack=receipt)
+                    self._program.pop("error", None)
+                    self._persist_program()
+                previous_id = self._program.get("replaces_execution_id") if self._program else None
+                if previous_id:
+                    try:
+                        if not isinstance(previous_id, str) or re.fullmatch(r"[0-9a-f]{32}", previous_id) is None:
+                            raise ValueError("invalid prior execution identity")
+                        previous_path = self.dir / "programs" / f"{previous_id}.json"
+                        previous = json.loads(previous_path.read_text())
+                        if not isinstance(previous, dict) or previous.get("execution_id") != previous_id:
+                            raise ValueError("invalid prior execution record")
+                    except (OSError, UnicodeError, ValueError):
+                        self._record_event("program_previous_history_unavailable", execution_id=expected_execution_id)
+                    else:
+                        if previous.get("state") in {"running", "submitting", "unknown", "interrupt-requested"}:
+                            previous.update(state="interrupted", interruption_confirmed=True, interrupted_at=iso_now())
+                            atomic_write_json(previous_path, previous)
+                self._record_event("program_interrupted", execution_id=expected_execution_id)
+            return {**self.program_status(), "interrupt_ack": receipt}
         finally:
             self._program_lock.release()
 
@@ -6610,10 +6759,8 @@ class DeviceSession:
             atomic_write_json(self.unit_state_path, result)
         return result
 
-    def unit_input(self, payload: dict) -> dict:
-        self._check_cancelled()
-        if self.state != "running":
-            raise ServiceError("session_not_running", f"session state is {self.state}", 409)
+    def validate_unit_input(self, payload: dict) -> dict:
+        """Validate all frozen Unit intent before any QMP write or held receipt."""
         if not isinstance(payload, dict) or set(payload) != {"id", "values"}:
             raise ServiceError("invalid_unit_input", "id and values are required", 400)
         attachment = next((unit for unit in self.units if unit["id"] == payload["id"]), None)
@@ -6627,6 +6774,23 @@ class DeviceSession:
         except UnitError as error:
             raise ServiceError(error.code, error.message, error.status) from error
         profile = registry.profiles[attachment["unit_id"]]
+        for field in values:
+            descriptor = profile["inputs"][field]
+            if (not isinstance(descriptor, dict)
+                    or not isinstance(descriptor.get("property"), str) or not descriptor["property"]
+                    or not isinstance(descriptor.get("path", ""), str)):
+                raise ServiceError("unit_contract_unavailable", "Unit input descriptor is invalid; writes are disabled", 409)
+        return {"id": attachment["id"], "values": values}
+
+    def unit_input(self, payload: dict) -> dict:
+        self._check_cancelled()
+        if self.state != "running":
+            raise ServiceError("session_not_running", f"session state is {self.state}", 409)
+        command = self.validate_unit_input(payload)
+        attachment = next(unit for unit in self.units if unit["id"] == command["id"])
+        registry, _ = self._unit_registry()
+        profile = registry.profiles[attachment["unit_id"]]
+        values = command["values"]
         with self._lock:
             # Validate the complete payload before changing any physical input.
             for field, value in values.items():
@@ -6719,49 +6883,85 @@ class DeviceSession:
             )
         return response
 
-    def inject(self, payload: dict) -> dict:
-        self._check_cancelled()
-        if self.state != "running":
-            raise ServiceError(
-                "session_not_running", f"session state is {self.state}", 409
-            )
-        settle = float(payload.get("settle_seconds", 0.3))
+    def validate_input(self, payload: dict) -> dict:
+        """Normalize a board command without QMP, sleeps, events or file writes."""
+        if not isinstance(payload, dict):
+            raise ServiceError("invalid_input", "input must be an object", 400)
+        def duration(field, default):
+            value = payload.get(field, default)
+            try:
+                if isinstance(value, bool):
+                    raise ValueError("boolean duration")
+                value = float(value)
+                if not math.isfinite(value) or not 0 <= value < threading.TIMEOUT_MAX:
+                    raise ValueError("duration outside supported range")
+            except (ValueError, TypeError, OverflowError) as error:
+                raise ServiceError("invalid_input", f"{field} must be finite, nonnegative and supported by the host clock", 400) from error
+            return value
+        def coordinate(field):
+            value = payload.get(field, 0)
+            try:
+                if isinstance(value, bool) or not math.isfinite(float(value)):
+                    raise ValueError("invalid coordinate")
+                value = int(value)
+                # Coordinates are expressed in the frame passed to send_input.
+                axis = 0 if field.startswith("x") else 1
+                size = (self.spec.expected_size or (1, 1))[axis]
+                if not 0 <= value < size:
+                    raise ValueError("coordinate outside frame")
+            except (ValueError, TypeError, OverflowError) as error:
+                raise ServiceError("invalid_input", f"{field} must be a finite coordinate within the frame", 400) from error
+            return value
         kind = payload.get("kind")
         action = str(payload.get("action", "tap")).lower()
+        command = {"kind": kind, "action": action}
+        settle_default = 0.3
         if kind == "key":
             key = str(payload.get("key", ""))
             if not key:
                 raise ServiceError("invalid_input", "key is required", 400)
-            if action == "tap":
-                spec = f"key:{key}"
-            elif action in {"down", "up"}:
-                spec = f"key{action}:{key}"
-                if "settle_seconds" not in payload:
-                    settle = 0.02
-            else:
+            if self.spec.id != "nanoc6" and key not in QEMU_INPUT_QCODES:
+                raise ServiceError("invalid_input", "key must be a supported QEMU qcode", 400)
+            if action not in {"tap", "down", "up"}:
                 raise ServiceError(
                     "invalid_input",
                     "key action must be tap, down or up",
                     400,
                 )
+            command["key"] = key
+            if action in {"down", "up"}:
+                settle_default = 0.02
         elif kind == "touch":
-            spec = f"touch:{int(payload.get('x', 0))},{int(payload.get('y', 0))}"
+            command.update(x=coordinate("x"), y=coordinate("y"))
         elif kind == "longpress":
-            spec = (
-                f"longpress:{int(payload.get('x', 0))},"
-                f"{int(payload.get('y', 0))},{float(payload.get('hold_seconds', 0.5))}"
-            )
+            command.update(x=coordinate("x"), y=coordinate("y"), hold_seconds=duration("hold_seconds", 0.5))
         elif kind == "drag":
-            spec = (
-                f"drag:{int(payload.get('x1', 0))},{int(payload.get('y1', 0))},"
-                f"{int(payload.get('x2', 0))},{int(payload.get('y2', 0))}"
-            )
+            command.update({field: coordinate(field) for field in ("x1", "y1", "x2", "y2")})
         else:
             raise ServiceError(
                 "invalid_input",
                 "kind must be key, touch, longpress or drag",
                 400,
             )
+        command["settle_seconds"] = duration("settle_seconds", settle_default)
+        return command
+
+    def inject(self, payload: dict) -> dict:
+        self._check_cancelled()
+        if self.state != "running":
+            raise ServiceError(
+                "session_not_running", f"session state is {self.state}", 409
+            )
+        command = self.validate_input(payload)
+        kind, action, settle = command["kind"], command["action"], command["settle_seconds"]
+        if kind == "key":
+            spec = f"{'key' if action == 'tap' else 'key' + action}:{command['key']}"
+        elif kind == "touch":
+            spec = f"touch:{command['x']},{command['y']}"
+        elif kind == "longpress":
+            spec = f"longpress:{command['x']},{command['y']},{command['hold_seconds']}"
+        else:
+            spec = f"drag:{command['x1']},{command['y1']},{command['x2']},{command['y2']}"
         frame_size = self.spec.expected_size or (1, 1)
         with self._lock:
             if self.spec.id == "nanoc6" and kind == "key":
@@ -8403,6 +8603,9 @@ class DeviceService:
         self.flash_preparer = flash_preparer or default_flash_preparer
         self._sessions: dict[str, DeviceSession] = {}
         self._lock = threading.RLock()
+        self._preview_retention = PreviewRetention(self.state_dir, live_roots=self._preview_live_roots)
+        self._preview_control_lock = threading.Lock()
+        self._preview_control = None
         self._session_idempotency_path = (
             self.state_dir / "session-idempotency.json"
         )
@@ -8779,6 +8982,7 @@ class DeviceService:
                 firmware_sha=str(record.get("firmware_sha256") or ""),
                 firmware_source=str(record.get("firmware_source") or "unknown"),
                 program_transport=record.get("program_transport"),
+                management_binding=record.get("management_binding"),
                 source_artifacts=[
                     artifact
                     for artifact in source_artifacts
@@ -9317,7 +9521,45 @@ class DeviceService:
             raise ServiceError(error.code, error.message, error.status) from error
         return self._program_revision_response(revision)
 
-    def create_session(self, payload: dict) -> dict:
+    def preview_control(self):
+        """Initialize the optional Preview coordinator without importing it early."""
+        with self._preview_control_lock:
+            if self._stop.is_set():
+                raise ServiceError("service_stopping", "device service is shutting down", 503)
+            if self._preview_control is None:
+                from preview_service import PreviewService
+                self._preview_control = PreviewService(self)
+            return self._preview_control
+
+    def create_managed_session(self, payload: dict, *, preview_id: str, owner_epoch: str,
+                               expected_reference_sha256: str) -> tuple[dict, object]:
+        binding = _normalize_management_binding({"preview_id": preview_id, "owner_epoch": owner_epoch,
+                                                 "expected_reference_sha256": expected_reference_sha256})
+        if payload.get("program_mode") != "uiflow-live":
+            raise ServiceError("unsupported_program_mode", "managed sessions require uiflow-live", 409)
+        snapshot = self.create_session(payload, _management_binding=binding)
+        handle = self.recover_management_handle(snapshot["session_id"], **binding)
+        return snapshot, handle
+
+    def recover_management_handle(self, session_id: str, *, preview_id: str, owner_epoch: str,
+                                  expected_reference_sha256: str):
+        binding = _normalize_management_binding({"preview_id": preview_id, "owner_epoch": owner_epoch,
+                                                 "expected_reference_sha256": expected_reference_sha256})
+        session = self.get_session(session_id)
+        if session.management_binding != binding:
+            raise ServiceError("session_managed_by_preview", "session does not match this Preview binding", 409)
+        return session._management_handle
+
+    @staticmethod
+    def _require_session_binding(session, binding):
+        if getattr(session, "management_binding", None) != binding:
+            raise ServiceError("session_managed_by_preview", "idempotent session binding differs", 409)
+
+    def create_session(self, payload: dict, *, _management_binding: dict | None = None) -> dict:
+        if any(key in payload for key in ("management_binding", "management_handle", "_management_binding", "preview_id", "owner_epoch", "expected_reference_sha256")):
+            raise ServiceError("invalid_request", "Preview management fields are internal and cannot be supplied in a session body", 400)
+        if _management_binding is not None:
+            _management_binding = _normalize_management_binding(_management_binding)
         if self._stop.is_set():
             raise ServiceError("service_stopping", "device service is shutting down", 503)
         program_transport = payload.get("program_transport")
@@ -9374,6 +9616,7 @@ class DeviceService:
                 idempotency_request_hash,
             )
             if replayed is not None:
+                self._require_session_binding(replayed, _management_binding)
                 snapshot = replayed.snapshot()
                 snapshot["idempotent_replay"] = True
                 return snapshot
@@ -9393,7 +9636,8 @@ class DeviceService:
             # Keep idempotency bound to the original caller request above.
             # Initialization uses the established immutable source/Flash path
             # once; subsequent /program requests only use the live guest UART.
-            bootstrap = self.create_uiflow_firmware({"device_id": device_id, "files": live_bootstrap_files()})
+            bootstrap = self.create_uiflow_firmware({"device_id": device_id, "files": live_bootstrap_files(),
+                **({"expected_base_sha256": _management_binding["expected_reference_sha256"]} if _management_binding is not None else {})})
             payload = {**payload, "firmware_id": bootstrap["firmware_id"],
                        "uiflow_source_sha256": bootstrap["source"]["metadata"]["source_sha256"],
                        "ready_marker": LIVE_READY_MARKER}
@@ -9624,6 +9868,7 @@ class DeviceService:
                 idempotency_request_hash,
             )
             if replayed is not None:
+                self._require_session_binding(replayed, _management_binding)
                 snapshot = replayed.snapshot()
                 snapshot["idempotent_replay"] = True
                 return snapshot
@@ -9734,6 +9979,7 @@ class DeviceService:
                     firmware_sha=firmware_sha,
                     firmware_source=source,
                     program_transport=program_transport,
+                    management_binding=_management_binding,
                     source_artifacts=source_artifacts,
                     firmware_provenance=(firmware_source if firmware_source.get("kind") == "uiflow" else None)
                     if source == "uploaded" else None,
@@ -9818,6 +10064,15 @@ class DeviceService:
         retain_flash: bool | None = None,
     ) -> dict:
         session = self.get_session(session_id)
+        if purge:
+            with self._retention().session_deletion(
+                session.id, managed=getattr(session, "management_binding", None) is not None,
+            ) as decision:
+                if decision.protected:
+                    raise ServiceError(
+                        "retained_preview_history", "retained Preview history cannot be purged", 409,
+                        retention_reason=decision.reason,
+                    )
         result = session.stop(purge=purge, retain_flash=retain_flash)
         if purge and result["state"] in {"stopped", "failed"}:
             with self._lock:
@@ -9837,7 +10092,18 @@ class DeviceService:
                 if session.state in {"stopped", "failed"}
             ]
             known_ids = set(self._sessions)
+        protected_sessions = []
+        skipped_sessions = []
+        cleared_sessions = []
         for session in sessions:
+            if purge:
+                with self._retention().session_deletion(
+                    session.id, managed=getattr(session, "management_binding", None) is not None,
+                ) as decision:
+                    if decision.protected:
+                        target = protected_sessions if decision.reason == "retained_managed_history" else skipped_sessions
+                        target.append(session.id)
+                        continue
             session.stop(
                 purge=purge,
                 retain_flash=(
@@ -9849,22 +10115,82 @@ class DeviceService:
             if purge:
                 with self._lock:
                     self._sessions.pop(session.id, None)
+            cleared_sessions.append(session.id)
         orphaned = []
+        orphaned_protected = []
+        orphaned_skipped = []
         if purge:
             sessions_root = self.state_dir / "sessions"
-            if sessions_root.is_dir():
-                orphaned = [
-                    path
-                    for path in sessions_root.iterdir()
-                    if path.is_dir() and path.name not in known_ids
-                ]
-                for path in orphaned:
-                    shutil.rmtree(path, ignore_errors=True)
+            try:
+                candidates = list(sessions_root.iterdir()) if sessions_root.is_dir() else []
+            except OSError:
+                candidates = []
+                orphaned_skipped.append("sessions_scan_unavailable")
+            for path in candidates:
+                if path.name in known_ids or not path.is_dir():
+                    continue
+                with self._lock:
+                    if path.name in self._sessions:
+                        continue
+                with self._retention().session_deletion(path.name, orphan=True) as decision:
+                    if decision.protected or path.is_symlink():
+                        target = orphaned_protected if decision.reason == "retained_managed_history" else orphaned_skipped
+                        target.append(path.name)
+                        continue
+                    try:
+                        shutil.rmtree(path)
+                    except OSError:
+                        orphaned_skipped.append(path.name)
+                    else:
+                        orphaned.append(path.name)
         return {
-            "cleared": len(sessions),
+            "cleared": len(cleared_sessions),
             "orphaned_cleared": len(orphaned),
             "purged": purge,
+            "protected_sessions": protected_sessions,
+            "skipped_sessions": skipped_sessions,
+            "orphaned_protected": orphaned_protected,
+            "orphaned_skipped": orphaned_skipped,
         }
+
+    def _preview_live_roots(self) -> RetentionRoots:
+        with self._lock:
+            sessions = tuple(self._sessions.values())
+        roots = RetentionRoots()
+        for session in sessions:
+            managed = getattr(session, "management_binding", None)
+            add_session_roots(roots, {
+                **({"session_id": session.id} if managed is not None else {}),
+                "firmware_id": getattr(session, "firmware_id", None),
+                "firmware_sha256": getattr(session, "firmware_sha", None),
+                "source_artifacts": list(getattr(session, "source_artifacts", [])),
+                "management_binding": managed,
+                "firmware_provenance": getattr(session, "firmware_provenance", None),
+            })
+        return roots
+
+    def _retention(self) -> PreviewRetention:
+        # Some internal adapters construct a lightweight service without __init__.
+        # Initialization does not perform disk/DB I/O or initialize Preview workers.
+        with self._lock:
+            retention = getattr(self, "_preview_retention", None)
+            if retention is None:
+                retention = self._preview_retention = PreviewRetention(
+                    self.state_dir, live_roots=self._preview_live_roots,
+                )
+        return retention
+
+    def preview_allocation_guard(self):
+        return self._retention().allocation()
+
+    def delete_artifact(self, artifact_id: str) -> dict:
+        with self._retention().cache_deletion("artifact", artifact_id) as decision:
+            if decision.protected:
+                raise ServiceError(
+                    "retained_preview_artifact", "artifact is protected by retained Preview state", 409,
+                    retention_reason=decision.reason,
+                )
+            return self.artifacts.delete(artifact_id)
 
     def _ensure_storage_capacity(self, additional_bytes: int = 0) -> None:
         reserve = max(0, self.storage_policy.min_free_bytes)
@@ -9970,7 +10296,18 @@ class DeviceService:
                 if session.state in {"stopped", "failed"}
             ]
         rows = []
+        protected_sessions = []
+        skipped_sessions = []
+        protected_bytes = 0
         for session in history:
+            with self._retention().session_deletion(
+                session.id, managed=getattr(session, "management_binding", None) is not None,
+            ) as decision:
+                if decision.protected:
+                    target = protected_sessions if decision.reason == "retained_managed_history" else skipped_sessions
+                    target.append(session.id)
+                    protected_bytes += directory_size_bytes(session.dir)
+                    continue
             rows.append(
                 {
                     "session": session,
@@ -10002,12 +10339,13 @@ class DeviceService:
         remaining = [row for row in rows if row["session"].id not in selected_ids]
         if (
             policy.max_history_sessions > 0
-            and len(remaining) > policy.max_history_sessions
+            and len(remaining) + len(protected_sessions) + len(skipped_sessions) > policy.max_history_sessions
         ):
-            for row in remaining[: len(remaining) - policy.max_history_sessions]:
+            excess = len(remaining) + len(protected_sessions) + len(skipped_sessions) - policy.max_history_sessions
+            for row in remaining[:excess]:
                 select(row)
         remaining = [row for row in rows if row["session"].id not in selected_ids]
-        retained_bytes = sum(row["bytes"] for row in remaining)
+        retained_bytes = protected_bytes + sum(row["bytes"] for row in remaining)
         if policy.max_history_bytes > 0:
             for row in remaining:
                 if retained_bytes <= policy.max_history_bytes:
@@ -10022,7 +10360,14 @@ class DeviceService:
             if session.state not in {"stopped", "failed"}:
                 continue
             bytes_before = directory_size_bytes(session.dir)
-            self.delete_session(session.id, purge=True)
+            try:
+                self.delete_session(session.id, purge=True)
+            except ServiceError as error:
+                if error.code != "retained_preview_history":
+                    raise
+                target = protected_sessions if error.extra.get("retention_reason") == "retained_managed_history" else skipped_sessions
+                target.append(session.id)
+                continue
             removed_sessions.append(session.id)
             freed_session_bytes += bytes_before
 
@@ -10039,6 +10384,8 @@ class DeviceService:
         result = {
             "pruned_sessions": len(removed_sessions),
             "session_ids": removed_sessions,
+            "protected_sessions": protected_sessions,
+            "skipped_sessions": skipped_sessions,
             "freed_session_bytes": freed_session_bytes,
             "cache": cache_result,
             "freed_bytes": freed_session_bytes + cache_result["freed_bytes"],
@@ -10051,6 +10398,20 @@ class DeviceService:
     def _prune_firmware_caches(self, *, now: float) -> dict:
         policy = self.storage_policy
         grace = max(0, policy.cache_grace_seconds)
+        retention = self._retention()
+        retention_protected = {"firmware": set(), "artifact": set(), "flash": set(), "upload": set()}
+        retention_barrier = False
+
+        def delete_cache(kind, identity, delete):
+            nonlocal retention_barrier
+            with retention.cache_deletion(kind, identity) as decision:
+                if decision.protected:
+                    retention_protected[kind].add(identity)
+                    retention_barrier |= decision.reason == "retention_barrier"
+                    return False
+                delete()
+                return True
+
         with self._lock:
             sessions = list(self._sessions.values())
         session_firmware_ids = {
@@ -10072,10 +10433,10 @@ class DeviceService:
         cache_bytes_before = sum(
             directory_size_bytes(root) for root in cache_roots
         )
-        upload_prune = self.artifacts.prune_uploads(
-            now=now,
-            grace_seconds=grace,
-        )
+        upload_prune = {"files_removed": 0, "bytes_removed": 0}
+        def prune_uploads():
+            upload_prune.update(self.artifacts.prune_uploads(now=now, grace_seconds=grace))
+        delete_cache("upload", "staging", prune_uploads)
 
         firmware_records = self.firmware.list()
         kept_firmware = []
@@ -10089,8 +10450,10 @@ class DeviceService:
                 and age is not None
                 and age >= grace
             ):
-                self.firmware.delete(firmware_id)
-                removed_firmware_ids.append(firmware_id)
+                if delete_cache("firmware", firmware_id, lambda: self.firmware.delete(firmware_id)):
+                    removed_firmware_ids.append(firmware_id)
+                else:
+                    kept_firmware.append(record)
             else:
                 kept_firmware.append(record)
 
@@ -10124,8 +10487,8 @@ class DeviceService:
                 and age is not None
                 and age >= grace
             ):
-                self.artifacts.delete(artifact_id)
-                removed_artifacts.append(artifact_id)
+                if delete_cache("artifact", artifact_id, lambda: self.artifacts.delete(artifact_id)):
+                    removed_artifacts.append(artifact_id)
 
         flash_cache_root = self.state_dir / "flash-cache"
         protected_hashes = session_firmware_shas | kept_firmware_ids
@@ -10136,15 +10499,15 @@ class DeviceService:
                     continue
                 age = max(0.0, now - path.stat().st_mtime)
                 if age >= grace:
-                    path.unlink(missing_ok=True)
-                    removed_flash_cache.append(path)
+                    if delete_cache("flash", path.stem, lambda: path.unlink(missing_ok=True)):
+                        removed_flash_cache.append(path)
             for directory in sorted(
                 [path for path in flash_cache_root.rglob("*") if path.is_dir()],
                 key=lambda path: len(path.parts),
                 reverse=True,
             ):
                 try:
-                    directory.rmdir()
+                    delete_cache("upload", "empty-directory", directory.rmdir)
                 except OSError:
                     pass
 
@@ -10167,11 +10530,12 @@ class DeviceService:
                     or (age is not None and age < eviction_grace)
                 ):
                     continue
-                self.firmware.delete(firmware_id)
+                if not delete_cache("firmware", firmware_id, lambda: self.firmware.delete(firmware_id)):
+                    continue
                 removed_firmware_ids.append(firmware_id)
                 for cached in flash_cache_root.rglob(f"{firmware_id}.bin"):
-                    cached.unlink(missing_ok=True)
-                    removed_flash_cache.append(cached)
+                    if delete_cache("flash", cached.stem, lambda: cached.unlink(missing_ok=True)):
+                        removed_flash_cache.append(cached)
                 cache_bytes_after = sum(
                     directory_size_bytes(root) for root in cache_roots
                 )
@@ -10203,7 +10567,8 @@ class DeviceService:
                     or (age is not None and age < eviction_grace)
                 ):
                     continue
-                self.artifacts.delete(artifact_id)
+                if not delete_cache("artifact", artifact_id, lambda: self.artifacts.delete(artifact_id)):
+                    continue
                 removed_artifacts.append(artifact_id)
                 cache_bytes_after = sum(
                     directory_size_bytes(root) for root in cache_roots
@@ -10224,7 +10589,8 @@ class DeviceService:
                 age = max(0.0, now - path.stat().st_mtime)
                 if age < eviction_grace:
                     continue
-                path.unlink(missing_ok=True)
+                if not delete_cache("flash", path.stem, lambda: path.unlink(missing_ok=True)):
+                    continue
                 removed_flash_cache.append(path)
                 cache_bytes_after = sum(
                     directory_size_bytes(root) for root in cache_roots
@@ -10239,6 +10605,8 @@ class DeviceService:
             "flash_cache_removed": len(removed_flash_cache),
             "uploads_removed": upload_prune["files_removed"],
             "freed_bytes": max(0, cache_bytes_before - cache_bytes_after),
+            "retention_barrier": retention_barrier,
+            "protected": {kind: sorted(values) for kind, values in retention_protected.items()},
         }
 
     def session_events(self, session_id: str) -> dict:
@@ -10717,6 +11085,12 @@ class DeviceService:
 
     def close_all(self) -> dict:
         self._stop.set()
+        control_lock = getattr(self, "_preview_control_lock", None)
+        if control_lock is not None:
+            with control_lock:
+                control = self._preview_control
+            if control is not None:
+                control.shutdown()
         if not self.worker.started:
             # A crash/restart handoff may already have released this registry
             # lock. Do not mutate resources or records adopted by its successor.

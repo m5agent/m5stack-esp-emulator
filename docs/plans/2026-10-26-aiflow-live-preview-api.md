@@ -154,7 +154,7 @@ native、timer、IRQ、其它thread和外设状态仍可能存在。单源码引
 完整包也不保证native资源原子切换。无法中断或路由失效时应保留明确失败/
 未确认状态，由调用方显式选择兼容的新 session 路径，不能暗中切换执行实例。
 
-## 后续 Preview 资源与调用关系（未实现）
+## 早期 Preview 资源与调用关系（由1.42实施契约接替）
 
 `Preview`是AIFlow项目的稳定逻辑资源；`ProgramRevision`是完整不可变文件/资源
 快照；`Run`绑定一次确定的源码、装配与实际 Device Service 执行实例。这是后续
@@ -336,4 +336,4 @@ AIFlow补完整多文件/asset checkpoint事件和不可变artifact snapshot，�
 
 验收包括真实HTTP/宿主故障负控、现有source/files兼容、引用不重创revision，以及8787可见session中同VM运行A/B多文件/纯字节码依赖和资源、实际Unit输入输出/帧/串口、旧请求拒绝与停止前取证。root另修serial_read按offset seek只读请求窗口，16MiB稀疏日志负控原版全量read失败，新版边界/历史/缺失行为通过；该优化不改变任意byte切片的replace解码，不冒称UTF8分片策略已解决。
 
-该前置已通过CoreS3 PIR/Relay各自的新实际同VM引用运行和旧路径负控，见[checkpoint与复测证据](../evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)。公共checkpoint/save-get和同步引用可按1.41契约调用；本页Preview/Run/取消/SSE/CAS设计仍是未来接口，不与已实现端点混写。
+该前置已通过CoreS3 PIR/Relay各自的新实际同VM引用运行和旧路径负控，见[checkpoint与复测证据](../evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)。公共checkpoint/save-get和同步引用可按1.41契约调用。本页早期Preview/Run设计由[2026-10-27实施计划](2026-10-27-preview-run-control.md)和[1.42契约](../device-service-api.md#stable-preview-and-asynchronous-runs)接替，CoreS3 PIR/Relay限定独立验收已通过；Web托管消费者、SSE与AIFlow端接入仍开放。

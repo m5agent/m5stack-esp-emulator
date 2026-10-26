@@ -1,0 +1,20 @@
+{
+  "name": "bad-run-client-generation-bytes",
+  "method": "POST",
+  "template": "/previews/{preview_id}/runs",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_preview_request",
+      "message": "client_generation must be a nonempty string of at most 256 UTF-8 bytes"
+    }
+  },
+  "body_sha256": "e0a93b27323cd4ac1192c1d559ddc4bdb315b409a89936041675bfc4f811cf06",
+  "request": {
+    "revision_id": "5b3fa3db2e311f237a7bffee9859bd8961b1053b1656ffff9aec078bb5eb751e",
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+    "expected_generation": 1,
+    "client_generation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "timeout_seconds": 120
+  }
+}

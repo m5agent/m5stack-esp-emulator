@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.41.0
+  version: 1.42.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -43,6 +43,431 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /previews:
+    post:
+      summary: Allocate a stable same-guest UIFlow Preview
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Persists allocation intent before creating a visible managed session. TTL 30–3600 seconds. Creation retries do not allocate a second guest.
+      responses:
+        '202':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preview'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewCreateRequest'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[!-~]+$
+        description: One header only. Same scoped key and request returns the original receipt, even after state changes; different content returns 409.
+    get:
+      summary: List retained Previews
+      description: 'Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. '
+      responses:
+        '200':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - previews
+                - limits
+                properties:
+                  previews:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Preview'
+                  limits:
+                    $ref: '#/components/schemas/PreviewLimits'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+  /previews/{preview_id}:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    get:
+      summary: Poll a Preview
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. The current generation is required for the next Run submission.
+      responses:
+        '200':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preview'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+  /previews/{preview_id}/runs:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    post:
+      summary: Queue an immutable checkpoint Run
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Persists reserved execution identity before UART transfer. One UART owner and latest pending intent per Preview. Queued runs may be superseded; cancellation during transmission cannot guarantee no transient START. Known host package errors do not interrupt the old Run.
+      responses:
+        '202':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewRun'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewRunRequest'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[!-~]+$
+        description: One header only. Same scoped key and request returns the original receipt, even after state changes; different content returns 409.
+  /previews/{preview_id}/runs/{run_id}:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    - name: run_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    get:
+      summary: Poll a Run
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. START is not application readiness. Cancelling remains unconfirmed until a fresh raw prompt is observed; no automatic replay of unknown execution.
+      responses:
+        '200':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewRun'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+  /previews/{preview_id}/runs/{run_id}/cancel:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    - name: run_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    post:
+      summary: Request cancellation without stopping the VM
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Untouched queued work needs no interrupt. Otherwise wait for interrupt_ack=confirmed. Explicit retry may request a fresh prompt; native modules, IRQ, timers and threads are not fully reset.
+      responses:
+        '202':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewRun'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewEpochRequest'
+  /previews/{preview_id}/renew:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    post:
+      summary: Renew Preview and managed session lease
+      description: 'Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. '
+      responses:
+        '200':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preview'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewRenewRequest'
+  /previews/{preview_id}/close:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    post:
+      summary: Capture evidence and stop the managed guest
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Drains input and captures before-close.zip before stop(purge=0). Evidence/release failures remain explicit; cleanup still stops the VM, releases mutable Flash and preserves history. Poll for closed.
+      responses:
+        '202':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preview'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewEpochRequest'
+  /previews/{preview_id}/input:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    post:
+      summary: Apply host or Unit input to the expected running Run
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. A permit drains before switching programs; momentary inputs are released before replacement. If a transition begins while the operation is in flight, 409 may indicate effect_possible=true. Input and framebuffer are separate samples.
+      responses:
+        '200':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewInputReceipt'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+        '410':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewInputRequest'
+  /previews/{preview_id}/runs/{run_id}/frame.png:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    - name: run_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    get:
+      summary: Capture a frame fenced to Run identity
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Checks execution/revision before and after capture. A switch during capture returns 409; a historical Run without a retained sample returns 410. ETag includes Preview, Run, revision and PNG hash.
+      responses:
+        '200':
+          description: PNG with X-Preview-ID, X-Run-ID, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-SHA256 and ETag.
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+        '304':
+          description: Matching ETag after the same current-Run fence.
+        '410':
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: max_age_ms
+        in: query
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 1000
+          default: 0
   /program-revisions:
     post:
       summary: Store an immutable complete UIFlow package checkpoint without executing it
@@ -1770,6 +2195,521 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   schemas:
+    PreviewLimits:
+      type: object
+      additionalProperties: false
+      required:
+      - max_previews
+      - max_runs_per_preview
+      - retention_mode
+      - gc_enabled
+      properties:
+        max_previews:
+          const: 128
+        max_runs_per_preview:
+          const: 256
+        retention_mode:
+          const: retention-only
+        gc_enabled:
+          const: false
+    PreviewCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - device_id
+      properties:
+        device_id:
+          type: string
+          enum:
+          - cores3
+          - atoms3r
+          - sticks3
+          - stopwatch
+        runtime:
+          type: string
+          enum:
+          - qemu
+          default: qemu
+        units:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/UnitAttachment'
+          maxItems: 16
+        ttl_seconds:
+          type: integer
+          minimum: 30
+          maximum: 3600
+          default: 300
+    PreviewEpochRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_owner_epoch
+      properties:
+        expected_owner_epoch:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+    PreviewRenewRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_owner_epoch
+      - ttl_seconds
+      properties:
+        expected_owner_epoch:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        ttl_seconds:
+          type: integer
+          minimum: 30
+          maximum: 3600
+    PreviewRunRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - revision_id
+      - expected_generation
+      - expected_owner_epoch
+      properties:
+        expected_owner_epoch:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        expected_generation:
+          type: integer
+          minimum: 0
+        revision_id:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        client_generation:
+          type: string
+          minLength: 1
+          maxLength: 256
+          x-max-utf8-bytes: 256
+          description: At most 256 UTF-8 bytes; maxLength is only the character upper bound.
+        timeout_seconds:
+          type: number
+          minimum: 1
+          maximum: 120
+          default: 120
+    PreviewInputRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_owner_epoch
+      - expected_run_id
+      properties:
+        expected_owner_epoch:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        expected_run_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        input:
+          $ref: '#/components/schemas/PreviewHostInput'
+        unit_input:
+          type: object
+          additionalProperties: false
+          required:
+          - id
+          - values
+          properties:
+            id:
+              type: string
+            values:
+              type: object
+      oneOf:
+      - required:
+        - input
+        not:
+          required:
+          - unit_input
+      - required:
+        - unit_input
+        not:
+          required:
+          - input
+    Preview:
+      type: object
+      required:
+      - preview_id
+      - owner_epoch
+      - generation
+      - state
+      - session_id
+      - expires_at
+      - allocation_state
+      - active_run_id
+      - desired_run_id
+      - transition_run_id
+      - capabilities
+      - limits
+      properties:
+        preview_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        owner:
+          const: local-control
+        owner_epoch:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        generation:
+          type: integer
+          minimum: 0
+        state:
+          enum:
+          - preparing
+          - ready
+          - closing
+          - closed
+          - failed
+          - unknown
+        allocation_state:
+          enum:
+          - pending
+          - creating
+          - bound
+          - unknown
+          - failed
+        session_id:
+          type:
+          - string
+          - 'null'
+        expires_at:
+          type: string
+          format: date-time
+        active_run_id:
+          type:
+          - string
+          - 'null'
+        desired_run_id:
+          type:
+          - string
+          - 'null'
+        transition_run_id:
+          type:
+          - string
+          - 'null'
+        capabilities:
+          type: object
+        limits:
+          $ref: '#/components/schemas/PreviewLimits'
+        error:
+          type:
+          - object
+          - 'null'
+        close_evidence:
+          type: object
+          description: Before-close evidence ZIP receipt under the service state directory, or an explicit unavailable error.
+    PreviewRun:
+      type: object
+      required:
+      - preview_id
+      - run_id
+      - execution_id
+      - revision_id
+      - generation
+      - state
+      - cancel_intent
+      - interrupt_ack
+      - application_ready
+      - cleanup_mode
+      properties:
+        preview_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        run_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        execution_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        revision_id:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        generation:
+          type: integer
+          minimum: 1
+        state:
+          enum:
+          - queued
+          - preparing
+          - starting
+          - running
+          - completed
+          - failed
+          - cancelling
+          - cancelled
+          - superseded
+          - interrupted
+          - unknown
+        cancel_intent:
+          type: boolean
+        interrupt_ack:
+          enum:
+          - unknown
+          - confirmed
+          - not-required
+        application_ready:
+          const: unknown
+        execution_mode:
+          const: same-guest-uart-repl
+        cleanup_mode:
+          const: interrupt-only
+        error:
+          type:
+          - object
+          - 'null'
+    PreviewInputReceipt:
+      type: object
+      required:
+      - preview_id
+      - run_id
+      - execution_id
+      - revision_id
+      - captured_at
+      - result
+      properties:
+        preview_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        run_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        execution_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        revision_id:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        captured_at:
+          type: string
+          format: date-time
+        result:
+          type: object
+    PreviewHostInput:
+      type: object
+      description: Canonical host command. Legacy-compatible coercions may also be accepted by the implementation; use the declared JSON types. Omitted coordinates default to zero.
+      required:
+      - kind
+      properties:
+        kind:
+          enum:
+          - key
+          - touch
+          - longpress
+          - drag
+        action:
+          type: string
+          pattern: ^(?:[tT][aA][pP]|[dD][oO][wW][nN]|[uU][pP])$
+          default: tap
+        key:
+          type: string
+          enum:
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          - a
+          - ac_back
+          - ac_bookmarks
+          - ac_forward
+          - ac_home
+          - ac_refresh
+          - again
+          - alt
+          - alt_r
+          - apostrophe
+          - asterisk
+          - audiomute
+          - audionext
+          - audioplay
+          - audioprev
+          - audiostop
+          - b
+          - backslash
+          - backspace
+          - bracket_left
+          - bracket_right
+          - c
+          - calculator
+          - caps_lock
+          - comma
+          - compose
+          - computer
+          - copy
+          - ctrl
+          - ctrl_r
+          - cut
+          - d
+          - delete
+          - dot
+          - down
+          - e
+          - end
+          - equal
+          - esc
+          - f
+          - f1
+          - f10
+          - f11
+          - f12
+          - f13
+          - f14
+          - f15
+          - f16
+          - f17
+          - f18
+          - f19
+          - f2
+          - f20
+          - f21
+          - f22
+          - f23
+          - f24
+          - f3
+          - f4
+          - f5
+          - f6
+          - f7
+          - f8
+          - f9
+          - find
+          - front
+          - g
+          - grave_accent
+          - h
+          - help
+          - henkan
+          - hiragana
+          - home
+          - i
+          - insert
+          - j
+          - k
+          - katakanahiragana
+          - kp_0
+          - kp_1
+          - kp_2
+          - kp_3
+          - kp_4
+          - kp_5
+          - kp_6
+          - kp_7
+          - kp_8
+          - kp_9
+          - kp_add
+          - kp_comma
+          - kp_decimal
+          - kp_divide
+          - kp_enter
+          - kp_equals
+          - kp_multiply
+          - kp_subtract
+          - l
+          - lang1
+          - lang2
+          - left
+          - less
+          - lf
+          - m
+          - mail
+          - mediaselect
+          - menu
+          - meta_l
+          - meta_r
+          - minus
+          - muhenkan
+          - n
+          - num_lock
+          - o
+          - open
+          - p
+          - paste
+          - pause
+          - pgdn
+          - pgup
+          - power
+          - print
+          - props
+          - q
+          - r
+          - ret
+          - right
+          - ro
+          - s
+          - scroll_lock
+          - semicolon
+          - shift
+          - shift_r
+          - slash
+          - sleep
+          - spc
+          - stop
+          - sysrq
+          - t
+          - tab
+          - u
+          - undo
+          - unmapped
+          - up
+          - v
+          - volumedown
+          - volumeup
+          - w
+          - wake
+          - x
+          - y
+          - yen
+          - z
+        settle_seconds:
+          type: number
+          minimum: 0
+          maximum: 5
+        hold_seconds:
+          type: number
+          minimum: 0
+          maximum: 5
+          default: 0.5
+        x:
+          type: integer
+          minimum: 0
+          description: Must lie within the selected device framebuffer.
+        y:
+          type: integer
+          minimum: 0
+          description: Must lie within the selected device framebuffer.
+        x1:
+          type: integer
+          minimum: 0
+          description: Must lie within the selected device framebuffer.
+        y1:
+          type: integer
+          minimum: 0
+          description: Must lie within the selected device framebuffer.
+        x2:
+          type: integer
+          minimum: 0
+          description: Must lie within the selected device framebuffer.
+        y2:
+          type: integer
+          minimum: 0
+          description: Must lie within the selected device framebuffer.
+      allOf:
+      - if:
+          properties:
+            kind:
+              const: key
+        then:
+          required:
+          - key
     Error:
       type: object
       required: [error]

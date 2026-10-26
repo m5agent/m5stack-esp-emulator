@@ -1,0 +1,13 @@
+{
+  "name": "frame-410",
+  "method": "GET",
+  "template": "/previews/{preview_id}/runs/{run_id}/frame.png",
+  "status": 410,
+  "response": {
+    "error": {
+      "code": "run_frame_unavailable",
+      "message": "Run has no current verified sample"
+    }
+  },
+  "body_sha256": "df46eb7ad2607ddeebc122413d35fd0310c9d6f93b60238c03c761907ff894e7"
+}

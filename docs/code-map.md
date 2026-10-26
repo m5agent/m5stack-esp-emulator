@@ -1,6 +1,6 @@
 # 代码与验证入口地图
 
-日期：`2026-10-26`
+日期：`2026-10-27`
 
 本文说明代码从哪里进入、运行时如何组织、证据由哪条测试产生，以及修改时应
 同时更新哪些文档。当前能力结论只看
@@ -82,6 +82,9 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
 | `platform/tools/program_revisions.py` | 完整 Python 文件快照的不可变身份、完整性校验与有界存储 | program 执行记录与 evidence |
 | `platform/tools/program_packages.py` | 完整源码、字节码依赖与资源的不可变文件包；规范路径、内容哈希和有界磁盘存储 | `files`/`revision_id` program请求、公共checkpoint、包证据 |
+| `platform/tools/preview_service.py` | 稳定Preview/同guest Run协调、串行UART、latest-wins、实际prompt取消与输入/帧身份门禁 | authenticated Preview HTTP、宿主并发负控 |
+| `platform/tools/preview_store.py` | SQLite WAL/FULL短事务ledger、幂等原收据、generation和不可复活状态转换、revision pins | Preview协调器、retention |
+| `platform/tools/preview_retention.py` | ledger/managed磁盘历史/运行中引用扫描与删除代际门禁；未知分配及损坏元数据fail closed | Device Service cache/history/manual/bulk清理 |
 | `platform/tools/micropython_repl.py` | 单 owner 的有限 raw REPL RPC、raw-paste credit、双 EOF 与错误恢复门禁；不 soft reset | guest 文件传输与读回 |
 | `platform/tools/uiflow_package_runtime.py` | guest 文件暂存、逐文件 SHA/size 读回、发布与工作目录/托管模块切换 | 同 guest 文件包部署 |
 | `platform/tools/mpy_bytecode.py` | 固定官方 v6 容器与指令边界的有界静态检查，递归拒绝 native；非 VM 类型验证或沙箱 | `.mpy` 依赖准入、负控测试 |

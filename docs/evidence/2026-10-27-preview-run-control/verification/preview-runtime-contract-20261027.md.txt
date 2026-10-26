@@ -1,0 +1,14 @@
+# 同 VM Preview/Run 内部传输契约
+
+2026-10-27。经 root 确认；本块仅宿主协议/并发验证，不启动 guest。
+
+- `synchronize_raw_repl(console, *, timeout, cancelled) -> dict`：真实 Ctrl-C、间隔、Ctrl-A、raw prompt；返回 `serial_offset`、`prompt_end`、`interruption_confirmed:true`、`cleanup_mode:interrupt-only`。不发空 Ctrl-D。`run_source` 复用该路径及原总 deadline、markers、flow control。
+- `DeviceSession.run_revision(revision_id, *, execution_id, expected_execution_id, timeout_seconds=120, cancelled=None, on_synchronized=None, management_handle=None) -> dict`：预分配 32 位 execution ID，只读完整 package，不 create revision。复用同步公共 API 的执行与错误路径。取消 token 与 session stop 组合；token 不设置 session stop。token 取消后的迟到成功不能写成 running/completed，保留 interrupt-requested/unknown 与未确认状态，随后由调用方发起独立恢复。
+- `DeviceSession.interrupt_program(*, expected_execution_id: str|None, timeout_seconds=10, management_handle=None) -> dict`：重新取得 `_program_lock`；忙则 `program_busy`。当前 owner 必须严格匹配（含 idle 的 None）；恢复只受 session stop 与自身 deadline 约束，不受取消 Run token 约束。每次调用都取得真实新 raw prompt，才 `interrupted` / `interruption_confirmed:true`；超时仍 unknown / false，不能把 host 锁释放当确认。返回 program_status envelope 加 `interrupt_ack`；idle 时 program=None，不新增execution。
+- `DeviceSession.require_management_handle(handle=None)`：managed session 只接受自身 object identity，不序列化 handle。普通 session 的既有行为不变。`run_program` 自身 guard；HTTP 所有旧 mutation 由 root 的 serve facade 统一 guard。底层 stop/reset/renew/input/QOM 不加 guard，以保留 janitor/内部清理。
+- `DeviceService.create_managed_session(payload, *, preview_id, owner_epoch, expected_reference_sha256) -> (snapshot, handle)`：binding 在 session 持久化、`_sessions` 发布/start 前安装。idempotent replay 必须严格匹配三字段 binding，不能收养老 session。公开 `create_session` body 拒绝 management 字段。参考固件 pin 作为 `expected_base_sha256` 直接传入 bootstrap composer，不做 check-then-compose。
+- `DeviceService.recover_management_handle(session_id, *, preview_id, owner_epoch, expected_reference_sha256) -> handle`：仅匹配既有持久化 binding，绝不创建 session；每次 session 实例恢复生成自身新 object。
+- `management_binding={preview_id,owner_epoch,expected_reference_sha256}` 存 session record，并通过 snapshot 暴露；它不是 secret，也不代表认证。
+- `DeviceService.preview_control()`：用独立惰性初始化锁、局部 import `PreviewService(service)`，总返回同一 instance。`close_all` 开始处于 service lock 外调用已有对象的非阻塞 `shutdown()`，底层仍走原 stop 收尾。
+
+独占修改 device_service.py、uiflow_runtime.py 及现有对应两 test 文件；不改 serve/coordinator/ledger，不 stage/commit。旧 source/files/ref 准入、quota、legacy hash 和停止 fences 必须兼容。

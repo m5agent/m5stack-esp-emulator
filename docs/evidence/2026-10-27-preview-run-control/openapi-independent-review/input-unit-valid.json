@@ -1,0 +1,28 @@
+{
+  "name": "input-unit-valid",
+  "method": "POST",
+  "template": "/previews/{preview_id}/input",
+  "status": 200,
+  "response": {
+    "preview_id": "cc481acc1157480e8a99f87a7cf0fc0b",
+    "run_id": "c66a97fac71e405cb626cd7f37b148e1",
+    "execution_id": "2fbbf918c6b14c219a76c4bd71583d63",
+    "revision_id": "5b3fa3db2e311f237a7bffee9859bd8961b1053b1656ffff9aec078bb5eb751e",
+    "captured_at": "2026-10-26T17:04:01.257013+00:00",
+    "result": {
+      "session_id": "06c707302aa9439aa9aefbb09531a429",
+      "accepted": true
+    }
+  },
+  "body_sha256": "7271e439676c33e84946e31e01221421739b5d57a0ea45c12ab0c513d785ee82",
+  "request": {
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+    "expected_run_id": "c66a97fac71e405cb626cd7f37b148e1",
+    "unit_input": {
+      "id": "fixture-button",
+      "values": {
+        "pressed": true
+      }
+    }
+  }
+}

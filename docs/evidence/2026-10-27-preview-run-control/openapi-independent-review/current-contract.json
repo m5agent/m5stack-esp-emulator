@@ -1,0 +1,484 @@
+{
+  "category": "HOST_ONLY_NOT_GUEST",
+  "schema_sha256": "e1ee2e44ccd4d156e06160fd6502a8698f4d6808d4040611fbff37f924ff751a",
+  "request_checks": [
+    {
+      "name": "create",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "create-original-replay",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "submit-queued",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "submit-original-replay",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "input-board-valid",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "input-unit-valid",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "renew-valid",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "bad-create-owner",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [],
+          "message": "Additional properties are not allowed ('owner' was unexpected)"
+        }
+      ]
+    },
+    {
+      "name": "bad-create-unit-count",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "units"
+          ],
+          "message": "[{'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}, {'id': 'fixture-button', 'unit_id': 'button', 'port_id': 'port-a'}] is too long"
+        }
+      ]
+    },
+    {
+      "name": "bad-create-ttl",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "ttl_seconds"
+          ],
+          "message": "29 is less than the minimum of 30"
+        }
+      ]
+    },
+    {
+      "name": "bad-run-missing-epoch",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [],
+          "message": "'expected_owner_epoch' is a required property"
+        }
+      ]
+    },
+    {
+      "name": "bad-run-client-generation-bytes",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "client_generation"
+          ],
+          "message": "'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' is too long"
+        }
+      ]
+    },
+    {
+      "name": "bad-input-both",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "input"
+          ],
+          "message": "'kind' is a required property"
+        },
+        {
+          "path": [
+            "input"
+          ],
+          "message": "'key' is a required property"
+        },
+        {
+          "path": [],
+          "message": "{'expected_owner_epoch': '8a9baeb426154af2ae8e49a432d4fd34', 'expected_run_id': 'c66a97fac71e405cb626cd7f37b148e1', 'input': {}, 'unit_input': {'id': 'fixture-button', 'values': {}}} is not valid under any of the given schemas"
+        }
+      ]
+    },
+    {
+      "name": "bad-input-missing-kind",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "input"
+          ],
+          "message": "'kind' is a required property"
+        },
+        {
+          "path": [
+            "input"
+          ],
+          "message": "'key' is a required property"
+        }
+      ]
+    },
+    {
+      "name": "bad-input-missing-key",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "input"
+          ],
+          "message": "'key' is a required property"
+        }
+      ]
+    },
+    {
+      "name": "bad-input-unknown-key",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "input",
+            "key"
+          ],
+          "message": "'unknown-qcode' is not one of ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'ac_back', 'ac_bookmarks', 'ac_forward', 'ac_home', 'ac_refresh', 'again', 'alt', 'alt_r', 'apostrophe', 'asterisk', 'audiomute', 'audionext', 'audioplay', 'audioprev', 'audiostop', 'b', 'backslash', 'backspace', 'bracket_left', 'bracket_right', 'c', 'calculator', 'caps_lock', 'comma', 'compose', 'computer', 'copy', 'ctrl', 'ctrl_r', 'cut', 'd', 'delete', 'dot', 'down', 'e', 'end', 'equal', 'esc', 'f', 'f1', 'f10', 'f11', 'f12', 'f13', 'f14', 'f15', 'f16', 'f17', 'f18', 'f19', 'f2', 'f20', 'f21', 'f22', 'f23', 'f24', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'find', 'front', 'g', 'grave_accent', 'h', 'help', 'henkan', 'hiragana', 'home', 'i', 'insert', 'j', 'k', 'katakanahiragana', 'kp_0', 'kp_1', 'kp_2', 'kp_3', 'kp_4', 'kp_5', 'kp_6', 'kp_7', 'kp_8', 'kp_9', 'kp_add', 'kp_comma', 'kp_decimal', 'kp_divide', 'kp_enter', 'kp_equals', 'kp_multiply', 'kp_subtract', 'l', 'lang1', 'lang2', 'left', 'less', 'lf', 'm', 'mail', 'mediaselect', 'menu', 'meta_l', 'meta_r', 'minus', 'muhenkan', 'n', 'num_lock', 'o', 'open', 'p', 'paste', 'pause', 'pgdn', 'pgup', 'power', 'print', 'props', 'q', 'r', 'ret', 'right', 'ro', 's', 'scroll_lock', 'semicolon', 'shift', 'shift_r', 'slash', 'sleep', 'spc', 'stop', 'sysrq', 't', 'tab', 'u', 'undo', 'unmapped', 'up', 'v', 'volumedown', 'volumeup', 'w', 'wake', 'x', 'y', 'yen', 'z']"
+        }
+      ]
+    },
+    {
+      "name": "bad-input-duration-limit",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "input",
+            "hold_seconds"
+          ],
+          "message": "6 is greater than the maximum of 5"
+        }
+      ]
+    },
+    {
+      "name": "bad-unit-values-shape",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [
+            "unit_input",
+            "values"
+          ],
+          "message": "[] is not of type 'object'"
+        }
+      ]
+    },
+    {
+      "name": "bad-renew-missing-ttl",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [],
+          "message": "'ttl_seconds' is a required property"
+        }
+      ]
+    },
+    {
+      "name": "bad-close-extra-owner",
+      "schema_valid": false,
+      "http_accepted": false,
+      "contextual_rejection": false,
+      "errors": [
+        {
+          "path": [],
+          "message": "Additional properties are not allowed ('owner' was unexpected)"
+        }
+      ]
+    },
+    {
+      "name": "valid-null-units",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "corrupt-package",
+      "schema_valid": true,
+      "http_accepted": false,
+      "contextual_rejection": true,
+      "errors": []
+    },
+    {
+      "name": "cancel-active",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    },
+    {
+      "name": "close-admission",
+      "schema_valid": true,
+      "http_accepted": true,
+      "contextual_rejection": false,
+      "errors": []
+    }
+  ],
+  "response_checks": [
+    {
+      "name": "create",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "create-original-replay",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "list-ready",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "get-ready",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "submit-queued",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "get-queued",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "get-running",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "submit-original-replay",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "input-board-valid",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "input-unit-valid",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "renew-valid",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "bad-create-owner",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-create-unit-count",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-create-ttl",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-run-missing-epoch",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-run-client-generation-bytes",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-input-both",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-input-missing-kind",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-input-missing-key",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-input-unknown-key",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-input-duration-limit",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-unit-values-shape",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-renew-missing-ttl",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "bad-close-extra-owner",
+      "status": 400,
+      "errors": []
+    },
+    {
+      "name": "valid-null-units",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "bad-oversized-body",
+      "status": 413,
+      "errors": []
+    },
+    {
+      "name": "missing-auth",
+      "status": 401,
+      "errors": []
+    },
+    {
+      "name": "corrupt-package",
+      "status": 500,
+      "errors": []
+    },
+    {
+      "name": "cancel-active",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "get-cancelled",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "frame-410",
+      "status": 410,
+      "errors": []
+    },
+    {
+      "name": "close-admission",
+      "status": 202,
+      "errors": []
+    },
+    {
+      "name": "get-closed",
+      "status": 200,
+      "errors": []
+    },
+    {
+      "name": "list-closed",
+      "status": 200,
+      "errors": []
+    }
+  ],
+  "shape_mismatches": [],
+  "undocumented_statuses": [],
+  "frame_headers": [
+    {
+      "field": "x-preview-id",
+      "present": true
+    },
+    {
+      "field": "x-run-id",
+      "present": true
+    },
+    {
+      "field": "x-frame-execution-id",
+      "present": true
+    },
+    {
+      "field": "x-frame-revision-id",
+      "present": true
+    },
+    {
+      "field": "x-frame-sha256",
+      "present": true
+    },
+    {
+      "field": "etag",
+      "present": true
+    }
+  ],
+  "response_schema_failures": [],
+  "summary": {
+    "request_checks": 24,
+    "response_checks": 34,
+    "response_schema_failures": 0,
+    "shape_mismatches": 0,
+    "undocumented_statuses": 0
+  }
+}

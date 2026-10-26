@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "scope": "HOST_ONLY_NOT_GUEST independent review",
+  "P2_status": "CLOSED after independent reproduction and positive controls",
+  "independent_cases": [
+    {
+      "case": "missing-type",
+      "cache_barrier": true,
+      "history_barrier": true,
+      "actual_firmware_protected": true
+    },
+    {
+      "case": "valid-SHA-inconsistent-ID",
+      "cache_barrier": true,
+      "history_barrier": true,
+      "actual_firmware_protected": true
+    },
+    {
+      "case": "invalid-SHA",
+      "cache_barrier": true,
+      "history_barrier": true,
+      "actual_firmware_protected": true
+    },
+    {
+      "case": "valid exact-root and SHA-to-source closure",
+      "cache_barrier": false,
+      "derived_base_and_source_retained": true,
+      "unrelated_deletion_allowed": true
+    }
+  ],
+  "combined_host_tests": {
+    "count": 80,
+    "result": "PASS",
+    "seconds": 0.96
+  },
+  "source_files": {
+    "platform/tools/preview_retention.py": "17f07fe17f25feb850f89c5a0caba5bfbad8f8821e582cac7aa544423ce3a14d",
+    "platform/tests/test_preview_retention.py": "fb9cb70402a069dabce8632abf4ddfda1e7e06f69afb8ad461cdf5118fada35d",
+    "platform/tools/preview_service.py": "74b4defc7768d6f39542961b46dc2185655af8660f041af21ac4a5fec4707fff",
+    "platform/tests/test_preview_service.py": "eba3df9b7d5e8c708e9d3c3c8fafab6b5d8503cee707b4848b87a9dc9f84ed95"
+  }
+}

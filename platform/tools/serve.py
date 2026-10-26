@@ -218,14 +218,15 @@ class Handler(SimpleHTTPRequestHandler):
             "Access-Control-Allow-Headers",
             (
                 "Authorization, Content-Type, If-None-Match, X-Artifact-Name, "
-                "X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256"
+                "X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256, Idempotency-Key"
             ),
         )
         self.send_header(
             "Access-Control-Expose-Headers",
             "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, "
             "X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, "
-            "X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+            "X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State, "
+            "X-Preview-ID, X-Run-ID",
         )
         super().end_headers()
 
@@ -383,6 +384,15 @@ class Handler(SimpleHTTPRequestHandler):
             status = 200
             headers = {"X-Request-ID": request_id}
             verified_worker: dict[str, Any] | None = None
+            if parts and parts[0] == "previews":
+                self._handle_preview(method, parts, query, request_id)
+                return
+            if method in {"POST", "DELETE"} and len(parts) >= 2 and parts[0] == "sessions":
+                read_actions = {"wait", "qom-snapshot", "flash-snapshot"}
+                if method == "DELETE" or len(parts) < 3 or parts[2] not in read_actions:
+                    target_session = service.get_session(parts[1])
+                    if getattr(target_session, "management_binding", None) is not None:
+                        target_session.require_management_handle()
             if (
                 self.api_token or self.previous_api_token
             ) and is_worker_auth_path(method, path):
@@ -936,7 +946,7 @@ class Handler(SimpleHTTPRequestHandler):
             ):
                 response = service.abort_artifact_upload(parts[1])
             elif method == "DELETE" and len(parts) == 2 and parts[0] == "artifacts":
-                response = service.artifacts.delete(parts[1])
+                response = service.delete_artifact(parts[1])
             elif method == "DELETE" and parts == ["sessions"]:
                 state = query.get("state", [""])[0]
                 if state not in {"stopped", "failed", ""}:
@@ -993,6 +1003,60 @@ class Handler(SimpleHTTPRequestHandler):
                 500,
                 extra_headers={"X-Request-ID": request_id},
             )
+
+    def _handle_preview(self, method, parts, query, request_id):
+        """Authenticated local-control facade; the coordinator owns execution."""
+        if not (type(self).api_token or type(self).previous_api_token):
+            raise ServiceError("preview_auth_unavailable", "Preview requires a configured control Bearer token", 503)
+        control = self._get_service().preview_control()
+        owner = "local-control"
+        headers = {"X-Request-ID": request_id}
+        keys = self.headers.get_all("Idempotency-Key", [])
+        if len(keys) > 1:
+            raise ServiceError("invalid_idempotency_key", "only one Idempotency-Key header is accepted", 400)
+        key = keys[0] if keys else ""
+        status = 200
+        def body():
+            return self._read_json(max_bytes=1024 * 1024, reject_duplicate_keys=True)
+        if parts == ["previews"] and method == "POST":
+            response = control.create(body(), owner=owner, idempotency_key=key)
+            status = 202
+            headers["Location"] = f"/api/v1/previews/{response['preview_id']}"
+        elif parts == ["previews"] and method == "GET":
+            response = control.list(owner=owner)
+        elif len(parts) == 2 and method == "GET":
+            response = control.get(parts[1], owner=owner)
+        elif len(parts) == 3 and parts[2] == "runs" and method == "POST":
+            response = control.submit(parts[1], body(), owner=owner, idempotency_key=key)
+            status = 202
+            headers["Location"] = f"/api/v1/previews/{parts[1]}/runs/{response['run_id']}"
+        elif len(parts) == 4 and parts[2] == "runs" and method == "GET":
+            response = control.run(parts[1], parts[3], owner=owner)
+        elif len(parts) == 5 and parts[2] == "runs" and parts[4] == "cancel" and method == "POST":
+            response = control.cancel(parts[1], parts[3], body(), owner=owner)
+            status = 202
+        elif len(parts) == 3 and parts[2] in {"renew", "close", "input"} and method == "POST":
+            response = getattr(control, parts[2])(parts[1], body(), owner=owner)
+            if parts[2] == "close":
+                status = 202
+        elif len(parts) == 5 and parts[2] == "runs" and parts[4] == "frame.png" and method == "GET":
+            values = query.get("max_age_ms", ["0"])
+            if set(query) - {"max_age_ms"} or len(values) != 1 or not values[0].isascii() or not values[0].isdigit() or not 0 <= int(values[0]) <= 1000:
+                raise ServiceError("invalid_frame_age", "max_age_ms must be an integer between 0 and 1000", 400)
+            frame = control.frame(parts[1], parts[3], owner=owner, max_age_ms=int(values[0]))
+            headers.update(frame["headers"])
+            candidates = [value.strip().removeprefix("W/") for value in self.headers.get("If-None-Match", "").split(",")]
+            if headers["ETag"] in candidates or "*" in candidates:
+                self.send_response(304)
+                for name, value in headers.items():
+                    self.send_header(name, str(value))
+                self.end_headers()
+            else:
+                self._send_bytes(frame["png"], "image/png", extra_headers=headers)
+            return
+        else:
+            raise ServiceError("not_found", "unknown Preview action", 404)
+        self._json(response, status, extra_headers=headers)
 
     def _read_body(self, max_bytes: int) -> bytes:
         cached = getattr(self, "_cached_body", None)

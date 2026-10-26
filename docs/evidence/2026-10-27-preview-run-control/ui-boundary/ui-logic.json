@@ -1,0 +1,63 @@
+{
+  "category": "HOST_DOM_STUB_ONLY_NOT_BROWSER_NOT_GUEST",
+  "program": {
+    "enabled_after_get": true,
+    "enabled_again_after_409": true,
+    "calls": [
+      {
+        "path": "/api/v1/sessions/host-managed-session/program",
+        "method": "GET",
+        "body": null
+      },
+      {
+        "path": "/api/v1/sessions/host-managed-session/program",
+        "method": "POST",
+        "body": {
+          "source": "print(\"Hello from UIFlow\")\n",
+          "expected_execution_id": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        }
+      },
+      {
+        "path": "/api/v1/sessions/host-managed-session/program",
+        "method": "GET",
+        "body": null
+      }
+    ],
+    "error": "运行失败：409: session is managed by Preview"
+  },
+  "unit": {
+    "controls_enabled": true,
+    "calls": [
+      {
+        "path": "/api/v1/sessions/host-managed-session/unit-input",
+        "method": "POST",
+        "body": {
+          "id": "fixture-button",
+          "values": {
+            "pressed": true
+          }
+        }
+      }
+    ],
+    "notes": [
+      {
+        "id": "fixture-button",
+        "message": "输入未确认：409: session is managed by Preview"
+      }
+    ]
+  },
+  "managed_session_actions": {
+    "wait": {
+      "enabled": true
+    },
+    "renew": {
+      "enabled": true
+    },
+    "reset": {
+      "enabled": true
+    },
+    "stop": {
+      "enabled": true
+    }
+  }
+}

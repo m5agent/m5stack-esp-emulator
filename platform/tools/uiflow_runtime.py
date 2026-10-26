@@ -86,14 +86,8 @@ class ExecutionStateScanner:
         return self.state
 
 
-def run_source(console, source: str, execution_id: str, *, timeout: float, cancelled,
-               on_synchronized=None, source_path: str | None = None) -> dict:
-    """Interrupt, synchronize raw REPL, then compile and execute source in guest.
-
-    MicroPython raw REPL uses Ctrl-A to enter, Ctrl-D to submit and an OK
-    acknowledgement. This intentionally does not issue Ctrl-D at an empty
-    prompt (a VM soft reset); console routing must remain installed.
-    """
+def synchronize_raw_repl(console, *, timeout: float, cancelled) -> dict:
+    """Confirm an actual raw prompt without submitting source or resetting VM."""
     deadline = time.monotonic() + timeout
 
     def remaining():
@@ -116,6 +110,30 @@ def run_source(console, source: str, execution_id: str, *, timeout: float, cance
     _, prompt_end = console.wait_for(
         b"raw REPL; CTRL-B to exit\r\n>", offset, remaining(), cancelled,
     )
+    remaining()
+    return {"serial_offset": offset, "prompt_end": prompt_end,
+            "interruption_confirmed": True, "cleanup_mode": "interrupt-only"}
+
+
+def run_source(console, source: str, execution_id: str, *, timeout: float, cancelled,
+               on_synchronized=None, source_path: str | None = None) -> dict:
+    """Interrupt, synchronize raw REPL, then compile and execute source in guest.
+
+    MicroPython raw REPL uses Ctrl-A to enter, Ctrl-D to submit and an OK
+    acknowledgement. This intentionally does not issue Ctrl-D at an empty
+    prompt (a VM soft reset); console routing must remain installed.
+    """
+    deadline = time.monotonic() + timeout
+
+    def remaining():
+        if cancelled():
+            raise UIFlowRuntimeError("program_cancelled", "session is stopping")
+        left = deadline - time.monotonic()
+        if left <= 0:
+            raise UIFlowRuntimeError("program_timeout", "guest execution acknowledgement timed out")
+        return left
+
+    prompt_end = synchronize_raw_repl(console, timeout=remaining(), cancelled=cancelled)["prompt_end"]
     if on_synchronized is not None:
         on_synchronized()
     markers = execution_markers(execution_id)

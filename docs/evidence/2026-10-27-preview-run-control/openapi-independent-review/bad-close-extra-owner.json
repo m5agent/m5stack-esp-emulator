@@ -1,0 +1,17 @@
+{
+  "name": "bad-close-extra-owner",
+  "method": "POST",
+  "template": "/previews/{preview_id}/close",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_preview_request",
+      "message": "expected_owner_epoch is required"
+    }
+  },
+  "body_sha256": "8c98c2ff91561c69e430d1d791f1dcba0c285c251621f771ddaf34315d5b3a01",
+  "request": {
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+    "owner": "untrusted"
+  }
+}

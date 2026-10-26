@@ -1,0 +1,77 @@
+import hashlib,json,shutil,zipfile
+from datetime import datetime,timezone
+from pathlib import Path
+from PIL import Image
+root=Path.cwd();dest=root/'docs/evidence/2026-10-27-preview-run-control';dest.mkdir(parents=True,exist_ok=True)
+manifest=dest/'file-manifest.json'
+index={r['archived']:r for r in json.loads(manifest.read_text())['files']} if manifest.exists() else {}
+def copy(source,relative):
+ assert source.is_file() and not source.is_symlink(),source
+ assert source.name!='preview-control-token'
+ assert source.suffix.lower() not in {'.bin','.rom','.elf','.pyc','.dylib','.so'}
+ if source.suffix in {'.py','.md','.mjs','.js'} and not str(relative).endswith('.txt'):relative=Path(str(relative)+'.txt')
+ data=source.read_bytes();target=dest/relative;target.parent.mkdir(parents=True,exist_ok=True)
+ if target.exists():assert target.read_bytes()==data,('archive source changed',relative)
+ else:target.write_bytes(data)
+ index[str(relative)]={'original':str(source.relative_to(root)),'archived':str(relative),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+def tree(source,relative):
+ for p in sorted(source.rglob('*')):
+  if p.is_file() and '__pycache__' not in p.parts:copy(p,Path(relative)/p.relative_to(source))
+for source,rel in {
+ 'preview-live-cores3-pir-r1-20261027':'live-pir',
+ 'preview-live-cores3-relay-r1-20261027':'live-relay',
+ 'preview-service-host-validation-r1-20261027':'host-coordinator',
+ 'preview-runtime-host-validation-r1-20261027':'host-runtime',
+ 'preview-input-validation-20261027':'host-input',
+ 'preview-retention-20261027':'host-retention-initial',
+ 'preview-coordinator-independent-review-20261027':'coordinator-independent-review',
+ 'preview-retention-independent-review-20261027':'retention-independent-review',
+ 'preview-openapi-independent-20261027':'openapi-independent-review',
+ 'preview-nonowner-audit-20261027':'coordinator-additional-boundaries',
+ 'preview-live-independent-review-20261027':'live-independent-review',
+ 'preview-ui-boundary-20261027':'ui-boundary',
+ 'preview-live-cores3-pir-inflight-r1-20261027':'live-inflight',
+ 'preview-inflight-independent-review-20261027':'inflight-independent-review',
+}.items():tree(root/'.work'/source,rel)
+closed=json.loads((root/'.work/preview-live-cores3-pir-inflight-r1-20261027/closed.json').read_text())
+copy(root/'.work/unit-device-service'/closed['close_evidence']['path'],Path('live-inflight')/'automatic-before-close.zip')
+for unit in ('pir','relay'):
+ closed=json.loads((root/f'.work/preview-live-cores3-{unit}-r1-20261027/closed.json').read_text())
+ copy(root/'.work/unit-device-service'/closed['close_evidence']['path'],Path('live-'+unit)/'automatic-before-close.zip')
+for name in ['preview-live-runner-20261027.py','preview-owned-reload-20261027.py','preview-runtime-contract-20261027.md','preview-store-contract-20261027.md','preview-input-independent-review-20261027.md','preview-platform-full-r1-20261027.txt','preview-platform-full-r2-20261027.txt','preview-runner-regression-r1-20261027.txt','preview-runner-regression-r2-20261027.txt','preview-control-host-r3-20261027.txt','preview-control-host-r4-20261027.txt','preview-inflight-probe-20261027.py','preview-inflight-r1-20261027.txt','preview-docs-final-r1-20261027.txt','preview-docs-final-r2-20261027.txt']:
+ copy(root/'.work'/name,Path('verification')/name)
+copy(root/'.work/preview-verification-20261027/verification.json',Path('verification/verification.json'))
+copy(root/'.work/preview-service-reload-r1-20261027/start.json',Path('verification/service-reload.json'))
+for path in [
+ 'platform/tools/preview_service.py','platform/tools/preview_store.py','platform/tools/preview_retention.py',
+ 'platform/tools/device_service.py','platform/tools/serve.py','platform/tools/uiflow_runtime.py',
+ 'platform/tools/uiflow_package_runtime.py','platform/tools/program_packages.py','platform/tools/unit_runtime.py',
+ 'platform/tests/test_preview_service.py','platform/tests/test_preview_store.py','platform/tests/test_preview_retention.py','platform/tests/test_preview_http.py','platform/tests/test_device_input_validation.py','platform/tests/test_device_program_runtime.py','platform/tests/test_uiflow_runtime.py',
+ 'tests/units/run_live_package.py','tests/units/run_live_program.py','tests/units/run_host_cases.py','tests/units/run_service_cases.py',
+ 'platform/units/catalog.json','platform/units/runtime-profiles.json','platform/units/host-ports.json']:
+ copy(root/path,Path('source-freeze')/path)
+ui=json.loads((root/'.work/preview-ui-boundary-20261027/summary.json').read_text())
+for path,expected in ui['source_hashes'].items():
+ if path.startswith('docs/'):
+  continue  # Authority prose was updated to record this audit after it ran.
+ assert hashlib.sha256((root/path).read_bytes()).hexdigest()==expected
+ copy(root/path,Path('source-freeze')/path)
+reload=json.loads((dest/'verification/service-reload.json').read_text())
+assert all(hashlib.sha256((root/p).read_bytes()).hexdigest()==h for p,h in reload['source_sha256'].items()),'service source changed'
+for u in ['pir','relay']:
+ r=json.loads((dest/f'live-{u}/report.json').read_text());assert r['status']=='PASS'
+ assert r['runner_sha256']==hashlib.sha256((root/'.work/preview-live-runner-20261027.py').read_bytes()).hexdigest()
+for name in ['archive.py','scan_archive.py','sensitive-scan.json']:
+ copy(root/'.work/preview-verification-20261027'/name,Path('verification')/name)
+rows=sorted(index.values(),key=lambda x:x['archived'])
+(dest/'file-manifest.json').write_text(json.dumps({'schema_version':1,'captured_at':datetime.now(timezone.utc).isoformat(),'original_bytes_preserved':True,'source_code_suffix':'append .txt without changing bytes','files':rows},ensure_ascii=False,indent=2)+'\n')
+png=zips=0
+for row in rows:
+ p=dest/row['archived'];assert hashlib.sha256(p.read_bytes()).hexdigest()==row['sha256']
+ if p.suffix=='.png':
+  with Image.open(p) as im:im.load()
+  png+=1
+ if p.suffix=='.zip':
+  with zipfile.ZipFile(p) as z:assert z.testzip() is None
+  zips+=1
+print(json.dumps({'status':'PASS','files':len(rows),'pngs':png,'zips':zips,'bytes':sum(x['bytes'] for x in rows)}))

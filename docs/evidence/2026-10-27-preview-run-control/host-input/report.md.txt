@@ -1,0 +1,68 @@
+# Host input admission — 2026-10-27
+
+Host-only implementation; no guest, physical device or external device mutation.
+
+## Changed scope
+
+`platform/tools/device_service.py`: import `math`, fixed QEMU QKeyCode protocol
+constant, and only `DeviceSession.validate_input`, `inject`,
+`validate_unit_input`, `unit_input`. This pass did not edit retention, Preview
+coordination, HTTP facade, Run execution, managed allocation or shutdown.
+New tests: `platform/tests/test_device_input_validation.py`.
+
+## Pure validation interfaces
+
+`session.validate_input(payload) -> normalized_command`
+
+- Reads `spec.id` for the GPIO-only NanoC6 exception, and `spec.expected_size`
+  for coordinates. Does not access QMP, session lifecycle events, files or sleeps.
+- Returns a detached dict accepted by `inject`: kind, normalized lowercase
+  action, finite nonnegative settle_seconds, plus normalized key or integer
+  coordinates and finite nonnegative longpress hold_seconds.
+- QMP keys must be members of the complete pinned QAPI QKeyCode enum. NanoC6
+  preserves its previous nonempty key aliases because that branch changes
+  button-gpio9 directly and never passes a qcode to QMP.
+- String numeric values and legacy integer conversion continue to normalize;
+  coordinates must lie inside the supplied frame. Invalid/missing keys, unknown
+  qcodes/actions, nonfinite/negative/host-overflow durations and out-of-frame
+  coordinates fail with invalid_input before a press can occur.
+
+`session.validate_unit_input(payload) -> {id, values}`
+
+- Reads the attached Units and frozen registry only, without a QMP write/read.
+- Reuses real UnitRegistry.input_values(..., live=True), preserving its exact
+  id/field/type/range and live field-count behavior.
+- Checks each selected descriptor before any batch write. Invalid contracts
+  remain disabled rather than producing a partial input batch.
+
+`inject` and `unit_input` reuse the validation methods. Unit input still performs
+its real QOM writes and then requests live controller readback.
+
+## Authoritative qcode source
+
+The existing `send_key_event` has no host-side qcode validation. The QAPI enum
+was fetched from the same public Espressif base pinned by this repository:
+
+https://github.com/espressif/qemu/blob/40edccac415693c5130f91c01d84176ae6008566/qapi/ui.json
+
+`qapi-ui.json` SHA256: `0b25e722122221301f0cee76b775a5fda569e45ec9bc73676fb8aad55df903eb`.
+`qcode-source-check.json` parses that fixed enum and verifies exact equality
+with all 162 values in the implementation. No runtime network fetch is needed.
+
+## Verification
+
+- `input-validation-tests.log`: 13/13 PASS. Includes no-QMP purity, detached
+  normalization, case folding, unknown qcode, missing key, duration and complete
+  drag validation, NanoC6 aliases, frozen Unit schema/range, descriptor failure,
+  real QMP helper call arguments and requested Unit readback.
+- `legacy-input-storage-tests.log`: 6/6 PASS, including the existing distinct
+  down/up QMP-event test and five historical storage cases.
+- `py_compile` and `git diff --check`: PASS. Python 3.12 used.
+
+## Freeze hashes
+
+- device_service.py: `b928598becdb8d3ff465bd25f406e573c965b816f8e573d532f0817b1c1fd078`
+- test_device_input_validation.py: `e8a775bc8fae72bd805745905613adf6d1f51ab7babdd803a19498070077c3ae`
+
+This is an implementation handoff, not independent acceptance. Another agent
+must review these methods and the coordinator integration.

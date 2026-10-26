@@ -1,0 +1,16 @@
+{
+  "name": "bad-renew-missing-ttl",
+  "method": "POST",
+  "template": "/previews/{preview_id}/renew",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_preview_request",
+      "message": "owner epoch and ttl_seconds are required"
+    }
+  },
+  "body_sha256": "fefed1a5e36aacce99a0ab0eb0853267f7552b208608e740bbcc41ac9d1818a4",
+  "request": {
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34"
+  }
+}

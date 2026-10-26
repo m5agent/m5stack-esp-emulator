@@ -1,0 +1,18 @@
+{
+  "name": "bad-input-missing-kind",
+  "method": "POST",
+  "template": "/previews/{preview_id}/input",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_input",
+      "message": "kind must be key, touch, longpress or drag"
+    }
+  },
+  "body_sha256": "370f025b7580ecd00d7244a1c967fb730c44d240946bf25b35a23429b41dbc00",
+  "request": {
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+    "expected_run_id": "c66a97fac71e405cb626cd7f37b148e1",
+    "input": {}
+  }
+}

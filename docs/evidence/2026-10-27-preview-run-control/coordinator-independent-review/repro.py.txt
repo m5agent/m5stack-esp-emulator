@@ -1,0 +1,251 @@
+"""Independent host-only review probes, never a guest or port 8787.
+
+Use --source snapshot for the frozen pre-fix coordinator/facade, or current to
+retest root fixes. Root's frozen fixture supplies inert sessions; the key-input
+and renewal probes additionally exercise the real DeviceSession host methods.
+"""
+from __future__ import annotations
+
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import http.client
+from http.server import ThreadingHTTPServer
+import importlib.util
+import json
+from pathlib import Path
+import sys
+import threading
+import time
+from types import MethodType
+from unittest import mock
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
+sys.path.insert(0, str(ROOT / "platform/tools"))
+sys.path.insert(0, str(ROOT / "platform/tests"))
+from device_service import DeviceSession, ServiceError
+from preview_store import LOCAL_OWNER
+
+
+def load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def failure(error):
+    return {"type": type(error).__name__, "code": getattr(error, "code", None), "status": getattr(error, "status", None)}
+
+
+def input_payload(preview, run, command):
+    return {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": run["run_id"], "input": command}
+
+
+def real_inject(session, calls):
+    session.spec.expected_size = (320, 240)
+    session._check_cancelled = lambda: None
+    session._lock = threading.RLock()
+    session._qmp = object()
+    session._record_event = lambda *args, **kwargs: None
+    session.inject = MethodType(DeviceSession.inject, session)
+    return mock.patch("device_service.send_input", side_effect=lambda qmp, spec, size, settle: calls.append({"execution_id": session._owner(), "spec": spec}))
+
+
+def close_release_failure(case):
+    preview, session, run = case.active()
+    pid = preview["preview_id"]
+    case.control.input(pid, input_payload(preview, run, {"kind": "key", "key": "a", "action": "down"}), owner=LOCAL_OWNER)
+    session.input_hook = lambda: (_ for _ in ()).throw(ServiceError("qmp_unavailable", "HOST_ONLY release failed", 503))
+    case.control.close(pid, {"expected_owner_epoch": preview["owner_epoch"]}, owner=LOCAL_OWNER)
+    errors = []
+    for _ in range(3):
+        try:
+            case.step(pid)
+        except Exception as error:
+            errors.append(failure(error))
+    row = case.preview(pid)
+    return {"preview_state": row["state"], "session_state": session.state,
+            "stop_events": sum(event[0] == "stop" for event in session.events), "step_errors": errors,
+            "bug_observed": row["state"] == "closing" and session.state == "running" and not any(event[0] == "stop" for event in session.events)}
+
+
+def invalid_input_poison(case):
+    preview, session, run = case.active()
+    pid, calls = preview["preview_id"], []
+    with real_inject(session, calls):
+        try:
+            case.control.input(pid, input_payload(preview, run, {"kind": "key", "action": "down"}), owner=LOCAL_OWNER)
+            error = None
+        except Exception as caught:
+            error = failure(caught)
+        held_after_rejection = case.preview(pid).get("held_inputs", {})
+        newer = case.submit(pid, key="new-after-invalid")
+        for _ in range(3):
+            case.step(pid)
+        row = case.preview(pid)
+    return {"input_error": error, "held_after_rejection": held_after_rejection,
+            "wire_commands": calls, "run_calls": len(session.run_calls), "new_run_state": case.get_run(pid, newer["run_id"])["state"],
+            "blocked_reason": row.get("blocked_reason"),
+            "bug_observed": bool(held_after_rejection) and len(session.run_calls) == 1 and row.get("blocked_reason") == "interrupt_unconfirmed"}
+
+
+def uppercase_down(case):
+    preview, session, run = case.active()
+    pid, calls = preview["preview_id"], []
+    with real_inject(session, calls):
+        result = case.control.input(pid, input_payload(preview, run, {"kind": "key", "key": "a", "action": "DOWN"}), owner=LOCAL_OWNER)
+        held = case.preview(pid).get("held_inputs", {})
+        newer = case.submit(pid, key="new-after-uppercase")
+        case.drive(pid, lambda row: row["active_run_id"] == newer["run_id"])
+    return {"input_accepted": result["result"]["accepted"], "held_after_down": held,
+            "wire_commands": calls, "new_run_active": case.preview(pid)["active_run_id"] == newer["run_id"],
+            "bug_observed": any(call["spec"] == "keydown:a" for call in calls) and not any(call["spec"] == "keyup:a" for call in calls)}
+
+
+def pending_renew(case):
+    preview = case.create(ttl_seconds=30)
+    pid = preview["preview_id"]
+    case.control.renew(pid, {"expected_owner_epoch": preview["owner_epoch"], "ttl_seconds": 3600}, owner=LOCAL_OWNER)
+    case.drive(pid, lambda row: row["state"] == "ready")
+    row = case.preview(pid)
+    session = case.service.get_session(row["session_id"])
+    remaining = datetime.fromisoformat(row["expires_at"]).timestamp() - time.time()
+    return {"preview_remaining_seconds": round(remaining, 2), "actual_session_ttl_seconds": session.ttl_seconds,
+            "allocation_ttl_seconds": case.service.allocations[0][0]["ttl_seconds"],
+            "bug_observed": remaining > 3500 and session.ttl_seconds <= 30}
+
+
+def concurrent_renew(case):
+    preview, session = case.ready()
+    pid = preview["preview_id"]
+    persisted = threading.Event()
+    release = threading.Event()
+
+    def persist():
+        if session.ttl_seconds == 3600 and not persisted.is_set():
+            persisted.set()
+            if not release.wait(2):
+                raise AssertionError("review renewal pause was not released")
+
+    session._persist_session = persist
+    session.renew = MethodType(DeviceSession.renew, session)
+    long, first = case.background(lambda: case.control.renew(pid, {"expected_owner_epoch": preview["owner_epoch"], "ttl_seconds": 3600}, owner=LOCAL_OWNER))
+    if not persisted.wait(1):
+        raise AssertionError("real DeviceSession.renew did not reach persistence pause")
+    short, second = case.background(lambda: case.control.renew(pid, {"expected_owner_epoch": preview["owner_epoch"], "ttl_seconds": 30}, owner=LOCAL_OWNER))
+    short.join(timeout=.1)
+    completed_before_release = not short.is_alive()
+    release.set()
+    long.join(timeout=2)
+    short.join(timeout=2)
+    if long.is_alive() or short.is_alive():
+        raise AssertionError("review renewal thread leaked")
+    row = case.preview(pid)
+    remaining = datetime.fromisoformat(row["expires_at"]).timestamp() - time.time()
+    actual_remaining = session.expires_at - time.time()
+    return {"short_completed_before_long_persist_return": completed_before_release,
+            "long_error": failure(first["error"]) if "error" in first else None,
+            "short_error": failure(second["error"]) if "error" in second else None,
+            "preview_remaining_seconds": round(remaining, 2), "actual_session_remaining_seconds": round(actual_remaining, 2),
+            "bug_observed": remaining - actual_remaining > 3000}
+
+
+def late_input(case, *, shutdown=False):
+    preview, session, run = case.active()
+    pid = preview["preview_id"]
+    if shutdown:
+        case.control.shutdown()
+    else:
+        case.control.store.mutate(pid, lambda state: state["preview"].update(expires_at="2000-01-01T00:00:00+00:00"))
+    try:
+        case.control.input(pid, input_payload(preview, run, {"kind": "key", "key": "a", "action": "tap"}), owner=LOCAL_OWNER)
+        error = None
+    except Exception as caught:
+        error = failure(caught)
+    return {"error": error, "actual_input_calls": len(session.inputs), "bug_observed": bool(session.inputs)}
+
+
+def duplicate_header(case, serve_module):
+    service = case.service
+    service.preview_control = lambda: case.control
+    class ReviewHandler(serve_module.Handler):
+        api_token = "synthetic-independent-review"
+        previous_api_token = None
+        def log_message(self, *args):
+            pass
+    ReviewHandler.service = service
+    server = ThreadingHTTPServer(("127.0.0.1", 0), ReviewHandler)
+    server.daemon_threads = True
+    thread = threading.Thread(target=lambda: server.serve_forever(poll_interval=.01), daemon=True)
+    thread.start()
+    connection = http.client.HTTPConnection("127.0.0.1", server.server_port, timeout=3)
+    raw = json.dumps({"device_id": "cores3", "ttl_seconds": 300}).encode()
+    try:
+        connection.putrequest("POST", "/api/v1/previews")
+        connection.putheader("Authorization", "Bearer synthetic-independent-review")
+        connection.putheader("Content-Type", "application/json")
+        connection.putheader("Idempotency-Key", "synthetic-first")
+        connection.putheader("Idempotency-Key", "synthetic-second")
+        connection.putheader("Content-Length", str(len(raw)))
+        connection.endheaders(raw)
+        response = connection.getresponse()
+        body = json.loads(response.read())
+        return {"status": response.status, "error_code": (body.get("error") or {}).get("code"),
+                "retained_previews": len(case.control.store.list_previews()), "bug_observed": response.status == 202}
+    finally:
+        connection.close()
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source", choices=("snapshot", "current"), default="current")
+    args = parser.parse_args()
+    source = HERE / "sources" / "preview_service.py" if args.source == "snapshot" else ROOT / "platform/tools/preview_service.py"
+    facade = HERE / "sources" / "serve.py" if args.source == "snapshot" else ROOT / "platform/tools/serve.py"
+    coordinator = load("review_preview_service", source)
+    serve_module = load("review_serve", facade)
+    fixture = load("review_fixture", HERE / "sources/test_preview_service.py")
+    fixture.PreviewService = coordinator.PreviewService
+    # The product added pure validators after the snapshot. Bind the actual
+    # methods, rather than treating a missing fake interface as a passing fence.
+    if hasattr(DeviceSession, "validate_input"):
+        fixture._Session.validate_input = DeviceSession.validate_input
+    if hasattr(DeviceSession, "validate_unit_input"):
+        fixture._Session.validate_unit_input = DeviceSession.validate_unit_input
+    result = {"category": "HOST_ONLY_NOT_GUEST", "source_mode": args.source,
+              "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+              "serve_sha256": hashlib.sha256(facade.read_bytes()).hexdigest(),
+              "device_service_sha256": hashlib.sha256((ROOT / "platform/tools/device_service.py").read_bytes()).hexdigest(),
+              "hash_scope": "on-disk source at invocation; not a loaded dependency attestation", "probes": {}}
+    probes = {
+        "close_release_failure": close_release_failure,
+        "invalid_input_poison": invalid_input_poison,
+        "uppercase_down": uppercase_down,
+        "pending_renew": pending_renew,
+        "concurrent_renew": concurrent_renew,
+        "expired_input": lambda case: late_input(case),
+        "shutdown_input": lambda case: late_input(case, shutdown=True),
+        "duplicate_idempotency_header": lambda case: duplicate_header(case, serve_module),
+    }
+    for name, callback in probes.items():
+        case = fixture.PreviewServiceTests(methodName="runTest")
+        case.setUp()
+        case.service.specs["cores3"].expected_size = (320, 240)
+        try:
+            result["probes"][name] = callback(case)
+        except Exception as error:
+            result["probes"][name] = {"probe_error": failure(error), "message": str(error)}
+        finally:
+            case.doCleanups()
+    target = HERE / f"review-probes-{args.source}.json"
+    target.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

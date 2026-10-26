@@ -1,0 +1,185 @@
+"""HOST_ONLY_NOT_GUEST: real Handler + PreviewService + SQLite, inert session.
+
+No process launch, port 8787, guest, browser or physical device is used. A
+loopback ephemeral port checks the real HTTP facade and real ledger responses.
+"""
+import argparse
+import copy
+import hashlib
+import http.client
+from http.server import ThreadingHTTPServer
+import json
+from pathlib import Path
+import sys
+import threading
+
+import jsonschema
+import yaml
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path[:0] = [str(ROOT / "platform/tools"), str(ROOT / "platform/tests")]
+from serve import Handler
+from test_preview_service import PreviewServiceTests
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--current", action="store_true")
+args = parser.parse_args()
+OUT = Path(__file__).parent
+source = ROOT / "docs/device-service.openapi.yaml" if args.current else OUT / "device-service.openapi.yaml.baseline.txt"
+document = yaml.safe_load(source.read_text())
+report = {"category": "HOST_ONLY_NOT_GUEST", "schema_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+          "request_checks": [], "response_checks": [], "shape_mismatches": [], "undocumented_statuses": [], "frame_headers": []}
+
+
+def errors(schema, value):
+    wrapped = {"$schema": "https://json-schema.org/draft/2020-12/schema",
+               "components": document["components"], "allOf": [schema]}
+    jsonschema.Draft202012Validator.check_schema(wrapped)
+    validator = jsonschema.Draft202012Validator(wrapped, format_checker=jsonschema.FormatChecker())
+    return [{"path": list(error.path), "message": error.message} for error in validator.iter_errors(value)]
+
+
+h = PreviewServiceTests("test_default_worker_dispatches_one_reserved_run_and_shutdown_stops_its_loop")
+h.setUp()
+h.service.preview_control = lambda: h.control
+
+
+class AuditHandler(Handler):
+    api_token = "synthetic-host-contract-control"
+    previous_api_token = None
+    service = h.service
+    def log_message(self, *args):
+        pass
+
+
+server = ThreadingHTTPServer(("127.0.0.1", 0), AuditHandler)
+server.daemon_threads = True
+thread = threading.Thread(target=lambda: server.serve_forever(poll_interval=.01), daemon=True)
+thread.start()
+
+
+def request(name, method, template, path, payload=None, *, key=None, headers=None, token=True, raw=None, contextual=False):
+    operation = document["paths"][template][method.lower()]
+    request_headers = {"Content-Type": "application/json", **(headers or {})}
+    if token:
+        request_headers["Authorization"] = "Bearer synthetic-host-contract-control"
+    if key is not None:
+        request_headers["Idempotency-Key"] = key
+    encoded = json.dumps(payload).encode() if payload is not None else raw
+    connection = http.client.HTTPConnection("127.0.0.1", server.server_port, timeout=3)
+    try:
+        connection.request(method, "/api/v1" + path, body=encoded, headers=request_headers)
+        response = connection.getresponse()
+        body = response.read()
+        status, received_headers = response.status, dict(response.getheaders())
+        result = json.loads(body) if "json" in received_headers.get("Content-Type", "") else None
+    finally:
+        connection.close()
+    record = {"name": name, "method": method, "template": template, "status": status,
+              "response": result, "body_sha256": hashlib.sha256(body).hexdigest()}
+    if payload is not None:
+        request_schema = operation["requestBody"]["content"]["application/json"]["schema"]
+        failures = errors(request_schema, payload)
+        row = {"name": name, "schema_valid": not failures, "http_accepted": 200 <= status < 300,
+               "contextual_rejection": contextual, "errors": failures}
+        if len(encoded) < 10000:
+            record["request"] = payload
+        report["request_checks"].append(row)
+        if not contextual and row["schema_valid"] != row["http_accepted"]:
+            report["shape_mismatches"].append(row)
+    if str(status) not in operation["responses"]:
+        report["undocumented_statuses"].append({"name": name, "template": template, "method": method, "status": status})
+    declared = operation["responses"].get(str(status), {})
+    if "$ref" in declared:
+        declared = document["components"]["responses"][declared["$ref"].rsplit("/", 1)[1]]
+    schema = declared.get("content", {}).get("application/json", {}).get("schema")
+    if schema is not None:
+        report["response_checks"].append({"name": name, "status": status, "errors": errors(schema, result)})
+    (OUT / (name + ".json")).write_text(json.dumps(record, indent=2) + "\n")
+    return status, result, received_headers, body
+
+
+try:
+    create = {"device_id": "cores3", "runtime": "qemu", "ttl_seconds": 300,
+              "units": [{"id": "fixture-button", "unit_id": "button", "port_id": "port-a"}]}
+    _, receipt, _, _ = request("create", "POST", "/previews", "/previews", create, key="audit-create")
+    pid, epoch = receipt["preview_id"], receipt["owner_epoch"]
+    prefix = "/previews/" + pid
+    h.drive(pid, lambda row: row["state"] == "ready")
+    request("create-original-replay", "POST", "/previews", "/previews", create, key="audit-create")
+    request("list-ready", "GET", "/previews", "/previews")
+    request("get-ready", "GET", "/previews/{preview_id}", prefix)
+    revision = h.package("contract-A")
+    submit = {"revision_id": revision, "expected_owner_epoch": epoch, "expected_generation": 0,
+              "client_generation": "contract-A", "timeout_seconds": 120}
+    _, run, _, _ = request("submit-queued", "POST", "/previews/{preview_id}/runs", prefix + "/runs", submit, key="audit-run")
+    rid = run["run_id"]
+    runpath = prefix + "/runs/" + rid
+    request("get-queued", "GET", "/previews/{preview_id}/runs/{run_id}", runpath)
+    h.drive(pid, lambda row: row["active_run_id"] == rid)
+    request("get-running", "GET", "/previews/{preview_id}/runs/{run_id}", runpath)
+    request("submit-original-replay", "POST", "/previews/{preview_id}/runs", prefix + "/runs", submit, key="audit-run")
+    expected = {"expected_owner_epoch": epoch, "expected_run_id": rid}
+    request("input-board-valid", "POST", "/previews/{preview_id}/input", prefix + "/input",
+            {**expected, "input": {"kind": "key", "key": "a", "action": "DOWN", "settle_seconds": 0}})
+    request("input-unit-valid", "POST", "/previews/{preview_id}/input", prefix + "/input",
+            {**expected, "unit_input": {"id": "fixture-button", "values": {"pressed": True}}})
+    _, _, frame_headers, body = request("frame-200", "GET", "/previews/{preview_id}/runs/{run_id}/frame.png", runpath + "/frame.png?max_age_ms=100")
+    lower = {name.lower(): value for name, value in frame_headers.items()}
+    report["frame_headers"] = [{"field": name, "present": name in lower} for name in
+        ("x-preview-id", "x-run-id", "x-frame-execution-id", "x-frame-revision-id", "x-frame-sha256", "etag")]
+    assert lower["x-preview-id"] == pid and lower["x-run-id"] == rid
+    assert lower["x-frame-execution-id"] == run["execution_id"] and lower["x-frame-revision-id"] == revision
+    assert lower["x-frame-sha256"] == hashlib.sha256(body).hexdigest()
+    request("frame-304", "GET", "/previews/{preview_id}/runs/{run_id}/frame.png", runpath + "/frame.png", headers={"If-None-Match": lower["etag"]})
+    request("renew-valid", "POST", "/previews/{preview_id}/renew", prefix + "/renew", {"expected_owner_epoch": epoch, "ttl_seconds": 300})
+    cases = [
+        ("bad-create-owner", "/previews", "/previews", {**create, "owner": "untrusted"}),
+        ("bad-create-unit-count", "/previews", "/previews", {**create, "units": create["units"] * 17}),
+        ("bad-create-ttl", "/previews", "/previews", {**create, "ttl_seconds": 29}),
+        ("bad-run-missing-epoch", "/previews/{preview_id}/runs", prefix + "/runs", {"revision_id": revision, "expected_generation": 1}),
+        ("bad-run-client-generation-bytes", "/previews/{preview_id}/runs", prefix + "/runs", {**submit, "expected_generation": 1, "client_generation": "a" * 257}),
+        ("bad-input-both", "/previews/{preview_id}/input", prefix + "/input", {**expected, "input": {}, "unit_input": {"id": "fixture-button", "values": {}}}),
+        ("bad-input-missing-kind", "/previews/{preview_id}/input", prefix + "/input", {**expected, "input": {}}),
+        ("bad-input-missing-key", "/previews/{preview_id}/input", prefix + "/input", {**expected, "input": {"kind": "key", "action": "DOWN"}}),
+        ("bad-input-unknown-key", "/previews/{preview_id}/input", prefix + "/input", {**expected, "input": {"kind": "key", "key": "unknown-qcode"}}),
+        ("bad-input-duration-limit", "/previews/{preview_id}/input", prefix + "/input", {**expected, "input": {"kind": "longpress", "x": 1, "y": 1, "hold_seconds": 6}}),
+        ("bad-unit-values-shape", "/previews/{preview_id}/input", prefix + "/input", {**expected, "unit_input": {"id": "fixture-button", "values": []}}),
+        ("bad-renew-missing-ttl", "/previews/{preview_id}/renew", prefix + "/renew", {"expected_owner_epoch": epoch}),
+        ("bad-close-extra-owner", "/previews/{preview_id}/close", prefix + "/close", {"expected_owner_epoch": epoch, "owner": "untrusted"}),
+    ]
+    for index, (name, template, path, command) in enumerate(cases):
+        request(name, "POST", template, path, command, key="bad-" + str(index))
+    request("valid-null-units", "POST", "/previews", "/previews", {**create, "units": None}, key="null-units")
+    request("bad-oversized-body", "POST", "/previews", "/previews", raw=b"{}", headers={"Content-Length": "1048577"}, key="oversize")
+    request("missing-auth", "GET", "/previews/{preview_id}", prefix, token=False)
+    package_path = h.service.program_packages._path(revision)
+    saved_package = package_path.read_bytes()
+    try:
+        package_path.write_text("{", encoding="utf-8")
+        request("corrupt-package", "POST", "/previews/{preview_id}/runs", prefix + "/runs",
+                {**submit, "expected_generation": 1}, key="corrupt", contextual=True)
+    finally:
+        package_path.write_bytes(saved_package)
+    request("cancel-active", "POST", "/previews/{preview_id}/runs/{run_id}/cancel", runpath + "/cancel", {"expected_owner_epoch": epoch})
+    h.drive(pid, lambda row: row["active_run_id"] is None)
+    request("get-cancelled", "GET", "/previews/{preview_id}/runs/{run_id}", runpath)
+    request("frame-410", "GET", "/previews/{preview_id}/runs/{run_id}/frame.png", runpath + "/frame.png")
+    request("close-admission", "POST", "/previews/{preview_id}/close", prefix + "/close", {"expected_owner_epoch": epoch})
+    h.drive(pid, lambda row: row["state"] == "closed")
+    request("get-closed", "GET", "/previews/{preview_id}", prefix)
+    request("list-closed", "GET", "/previews", "/previews")
+finally:
+    server.shutdown()
+    server.server_close()
+    thread.join(2)
+    h.doCleanups()
+
+report["response_schema_failures"] = [row for row in report["response_checks"] if row["errors"]]
+report["summary"] = {"request_checks": len(report["request_checks"]), "response_checks": len(report["response_checks"]),
+                     "response_schema_failures": len(report["response_schema_failures"]),
+                     "shape_mismatches": len(report["shape_mismatches"]),
+                     "undocumented_statuses": len(report["undocumented_statuses"])}
+target = OUT / ("current-contract.json" if args.current else "baseline-contract.json")
+target.write_text(json.dumps(report, indent=2) + "\n")
+print(json.dumps({"report": target.name, **report["summary"]}, indent=2))

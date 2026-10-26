@@ -1,0 +1,136 @@
+# PreviewStore 精确内部接口建议
+
+日期：2026-10-27。仅协调器内部接口，不定义公共 URL。基线 `3af10724`。
+只新增 `platform/tools/preview_store.py` 和对应宿主测试；不迁移现有 JSON。
+
+## 初始化与通用返回
+
+```python
+store = PreviewStore(path: Path)  # path 是 SQLite 文件绝对/相对路径
+store.limits() -> dict
+# {"max_previews": 128, "max_runs_per_preview": 256,
+#  "retention_mode": "retention-only", "gc_enabled": False}
+```
+
+固定上限，不接受请求提高配额；保留的 closed/failed previews 和终态 runs 也计入。
+所有外部传入 dict 进入前复制；所有返回 dict 深拷贝。
+统一异常 `PreviewStoreError(code, message, status=400)`。SQLite/OSError/存储内容
+不可解析统一 `preview_storage_unavailable` / 503，不在错误中返回 DB 路径或 SQL。
+owner 仅接受服务端验证后的 `local-control`，其他 principal 统一资源不存在404。
+store 不执行认证，不接收 token，不允许 request/payload 带 owner 字段。
+
+## durable create
+
+```python
+create(owner, key, request, session_request, expires_at) -> (receipt, replayed)
+```
+
+`key` 是1..128可打印ASCII字符串，不接受空白或控制字符，只存 SHA256。
+`request` 是协调器已规范化的原创建请求；`session_request` 是冻结的实际 session
+分配请求；`expires_at` 是有时区 ISO8601 文本。store 不重新解释设备/Unit schema。
+创建幂等指纹只哈希 `request`，派生的 session_request/expires_at 不参与，以便重放
+经过时间推移仍返回最初收据；协调器应传入 TTL 等原始意图字段。
+
+一次事务分配 UUID32 preview_id/owner_epoch，generation=0，state=preparing，
+session_id=null，allocation_state=pending，allocation_key=`preview:{preview_id}:allocation:1`，
+desired/transition/active_run_id=null，error=null，timestamps。
+receipt 为最初完整 preview（不含 runs），重放返回最初 receipt，replayed=True。
+状态字段另含 `request`, `session_request`, `limits`, `capabilities`；capabilities
+初始空 dict，协调器可以用 mutate 补充。
+
+## queries
+
+```python
+get_preview(owner, preview_id) -> preview
+get_run(owner, preview_id, run_id) -> run
+list_previews(owner=None) -> list[preview]  # None 仅协调器内部恢复扫描
+```
+
+get_preview 不内嵌 runs，get_run 不包装；不存在/owner 不符统一404。
+query 是同一个读取事务快照，返回深拷贝。preview 按 created_at/preview_id 排序。
+
+## run admission
+
+```python
+lookup_replay(owner, scope, key, request) -> receipt | None
+```
+
+scope精确采用 `create-preview` 和 `preview:{preview_id}:runs`。协调器先调用此方法，
+命中立即返回原receipt，不读取可能缺失/损坏的旧package，更不再次执行UART；同key
+不同指纹仍409。未命中后在事务外执行package.get/read_files及native/format准入，
+失败不改变旧Run；create/admit内部还会原子重复查重消除竞态。
+
+```python
+admit_run(owner, preview_id, key, payload) -> (original_receipt, replayed)
+```
+
+仅接受字段：`revision_id`, `expected_generation`, `expected_owner_epoch`,
+可选 `client_generation`, `timeout_seconds`。revision_id 为64位小写hex，
+source_kind 固定 `uiflow2-package`；timeout_seconds 默认120，严格1..120且有限；
+client_generation 可选非空字符串<=256字节。协调器在事务外验证 revision 实际
+存在与兼容性，不在 callback/事务内读文件/hash/UART/QMP。
+
+先校验 owner/preview存在，再在 `(owner, "preview:"+preview_id+":runs", keyhash)` 查幂等记录：
+指纹相同重放原 receipt（即使 expected_generation/epoch 已过期、preview 已关闭、
+配额已满）；不同指纹409 idempotency_conflict。没有记录才校验 epoch、generation、
+preview state（preparing/ready可排队，其余包括恢复unknown均拒绝）和配额。
+
+一次事务写新 UUID32 run_id/execution_id，递增 generation，desired 指向新 run，
+写 revision pin 和原 receipt。receipt 为初始完整 run，包含：preview_id/run_id/
+execution_id/revision_id/source_kind/generation/state=queued/request/payload字段，
+cancel_intent=false/interrupt_ack=unknown/application_ready=unknown/
+execution_mode=same-guest-uart-repl/cleanup_mode=interrupt-only/error=null/timestamps。
+
+被新意图替换的非终态旧 runs：尚为 queued 且不是 transition/active 的立即
+superseded + cancel_intent=true；其余 preparing/starting/running/unknown 或被
+transition/active 指针持有的置 cancelling + cancel_intent=true。所有非终态旧 run
+均受覆盖，保持至多一个未取得传输的 queued desired；不会移动 active/transition。
+
+## cancel
+
+```python
+cancel_run(owner, preview_id, run_id, epoch) -> run
+```
+
+始终先验证 owner 和 epoch。终态 run 原样返回；已 cancelling 原样返回，不改时间。
+untouched queued（非 active/transition）立即 cancelled，cancel_intent=true；其余
+非终态变 cancelling，只写意图，不伪造 interrupt_ack。若 cancelled 的 run 是
+desired，则 desired 置 null；不会触碰后来的 desired。重复请求幂等。
+
+## coordinator mutation
+
+```python
+mutate(preview_id, callback) -> result
+# callback(state) -> JSON-compatible result
+# state == {"preview": preview_dict, "runs": {run_id: run_dict}}
+```
+
+仅内部 worker 可调用；短 BEGIN IMMEDIATE 中读取 bounded snapshot，纯内存 callback
+修改 state；验证后一次落库。返回 callback 返回值的深拷贝（None原样返回）。不自动
+返回 snapshot，worker可显式 `return state`。callback抛异常全部rollback并原样传播；
+SQLite/OSError仍统一503。不得调用UART/QMP/文件读取或hash；不得重入store。
+
+不可变：preview身份/owner/epoch/request/session_request/created_at/limits，run身份/
+revision/generation/request/created_at及原admission字段；run key集合不能增删。
+generation只允许admit_run增长；callback不能变generation。cancel_intent只能false→true。
+terminal completed/failed/cancelled/superseded/interrupted 不可改状态；cancelling只能
+继续cancelling或转cancelled/interrupted，不能被迟到START复活。
+cancelled必须有interrupt_ack=confirmed（queued直接取消用not-required）；run变
+running及active指针只能指向未cancel的running/completed；若原active已进入cancelling，
+允许暂留原active直到真实中断确认。transition只能指向非终态run；desired可以为null
+或run（允许终态最新执行保留用于展示）。closed必须已清空active/transition，store不
+替协调器宣称进程已退出。状态/指针非法409 preview_transition_conflict，整笔rollback。
+allocation_state只允许pending→creating→bound或unknown/failed；creating恢复时不得重放
+无session收据的分配。allocation_key不可变；实际创建session时由worker把key添加到
+冻结的session_request副本。
+
+## durability / pins
+
+WAL / synchronous=FULL / foreign_keys=ON，每次调用独立connection，busy timeout
+有界；BEGIN IMMEDIATE仅用于mutation。schema为preview/runs/idempotency/revision_pins，
+带owner、preview/run FK；pin在同admission事务写入，历史/终态不释放。
+查询pins的内部接口建议 `revision_pins() -> list[dict]`，仅给保留根验收使用。
+不实现delete/prune/GC；不扫描或重写旧revision/session JSON。
+
+测试将覆盖多实例并发同key、过期generation重放、owner/epoch、A/B/C替代、cancel
+幂等、late START guard、callback异常及SQL失败rollback/reopen、pins和retained quotas。

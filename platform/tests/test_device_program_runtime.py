@@ -28,6 +28,7 @@ import device_service as service_module
 from device_service import DeviceService, DeviceSession, ServiceError
 from guest_console import GuestConsoleError
 from program_revisions import ProgramRevisionStore, RevisionError
+from program_packages import ProgramPackageStore
 from serve import Handler
 from uiflow_runtime import UIFlowRuntimeError, execution_markers
 
@@ -128,7 +129,7 @@ class _ProgramFixture(unittest.TestCase):
         self.stack.close()
         self.temporary.cleanup()
 
-    def session(self, *, transport="uart-repl", state="running", sid=None, restored=False):
+    def session(self, *, transport="uart-repl", state="running", sid=None, restored=False, management_binding=None):
         session = DeviceSession(
             self.service, session_id=sid or uuid.uuid4().hex, spec=self.spec,
             firmware_id="a" * 64, firmware_path=self.prepared,
@@ -136,6 +137,7 @@ class _ProgramFixture(unittest.TestCase):
             firmware_source="reference", source_artifacts=[], ttl_seconds=60,
             ready_marker=None, ready_timeout=1, ready_conditions=None,
             initial_state=state, program_transport=transport, restored=restored,
+            management_binding=management_binding,
         )
         session.qmp_path = session.dir / "qmp.sock"
         session.console_path = session.dir / "console.sock"
@@ -575,6 +577,408 @@ class DeviceProgramRuntimeTests(_ProgramFixture):
             restored = self.session(sid=session.id, state="running", restored=True)
             self.assertIsNone(restored._program)
             self.assertIsNotNone(restored._program_restore_error)
+
+
+class DeviceRunRevisionTests(_ProgramFixture):
+    def setUp(self):
+        super().setUp()
+        self.service.program_packages = ProgramPackageStore(self.root / "packages")
+        self.revision = self.service.program_packages.create({"files": {"main.py": {"encoding": "utf8", "data": "print('reserved run')\n"}}})
+        self.deploy = self.stack.enter_context(mock.patch.object(service_module, "deploy_package", side_effect=self.deployed))
+        self.execute = self.run_stub("running")
+
+    @staticmethod
+    def deployed(*args, on_synchronized, on_progress, **kwargs):
+        on_synchronized()
+        on_progress({"phase": "activated"})
+
+    def target(self, **kwargs):
+        session = self.session(**kwargs)
+        self.console(session)
+        return session
+
+    def run_reserved(self, session, *, execution_id=None, expected=None, **kwargs):
+        return session.run_revision(self.revision["revision_id"], execution_id=execution_id or uuid.uuid4().hex,
+                                    expected_execution_id=expected, **kwargs)
+
+    def test_reserved_identity_reads_existing_package_without_creating_revision(self):
+        session = self.target()
+        execution_id = uuid.uuid4().hex
+        synchronized = mock.Mock(side_effect=lambda: self.assertFalse(session._lock._is_owned(), "coordinator callback must run outside session lock"))
+        def execute(*args, on_synchronized, **kwargs):
+            on_synchronized()
+            return {"state": "running", "acknowledged": True}
+        self.execute.side_effect = execute
+        with mock.patch.object(self.service.program_packages, "create", side_effect=AssertionError("new package")), \
+             mock.patch.object(self.service.program_revisions, "create", side_effect=AssertionError("new Python revision")):
+            result = self.run_reserved(session, execution_id=execution_id, on_synchronized=synchronized)["program"]
+        self.assertEqual(result["execution_id"], execution_id)
+        self.assertEqual(result["revision_id"], self.revision["revision_id"])
+        self.assertEqual(self.execute.call_args.args[2], execution_id)
+        self.assertEqual(self.execute.call_args.kwargs["source_path"], "main.py")
+        synchronized.assert_called_once_with()
+        self.assertEqual(self.record(session, execution_id), result)
+        self.assert_service_error(lambda: self.run_reserved(session, execution_id=execution_id, expected=execution_id),
+                                  code="program_execution_conflict", status=409)
+        self.assertEqual(self.execute.call_count, 1)
+        self.popen.assert_not_called()
+
+    def test_reserved_identity_stale_generation_and_quota_still_fail_before_transport(self):
+        session = self.target()
+        for value in (None, True, "bad", "A" * 32, "a" * 31):
+            self.assert_service_error(lambda: session.run_revision(self.revision["revision_id"], execution_id=value,
+                                      expected_execution_id=None), code="invalid_program", status=400)
+        self.assert_service_error(lambda: self.run_reserved(session, expected="f" * 32), code="program_generation_conflict", status=409)
+        directory = session.dir / "programs"
+        directory.mkdir()
+        for index in range(256):
+            (directory / f"{index:032x}.json").write_text("{}")
+        self.assert_service_error(lambda: self.run_reserved(session), code="program_quota_exceeded", status=429)
+        self.deploy.assert_not_called()
+        self.execute.assert_not_called()
+
+    def test_cancel_during_package_read_never_publishes_or_writes_console(self):
+        session = self.target()
+        entered, release, cancel = threading.Event(), threading.Event(), threading.Event()
+        read = self.service.program_packages.read_files
+        def delayed(*args):
+            entered.set()
+            self.assertTrue(release.wait(2))
+            return read(*args)
+        with mock.patch.object(self.service.program_packages, "read_files", side_effect=delayed):
+            thread, result = self.background(lambda: self.run_reserved(session, cancelled=cancel.is_set))
+            try:
+                self.assertTrue(entered.wait(1))
+                cancel.set()
+            finally:
+                release.set()
+            thread.join(timeout=1)
+        self.assertEqual(result["error"].code, "program_cancelled")
+        self.assertFalse(session._stop_event.is_set())
+        self.assertFalse(session.program_path.exists())
+        self.deploy.assert_not_called()
+        self.execute.assert_not_called()
+
+    def test_cancel_at_deployment_writing_and_publish_keeps_unconfirmed_execution(self):
+        for phase in ("writing", "published"):
+            with self.subTest(phase=phase):
+                session = self.target()
+                entered, release, cancel = threading.Event(), threading.Event(), threading.Event()
+                def deploy(*args, on_synchronized, on_progress, cancelled, **kwargs):
+                    on_synchronized()
+                    on_progress({"phase": phase})
+                    entered.set()
+                    self.assertTrue(release.wait(2))
+                    self.assertTrue(cancelled())
+                    raise UIFlowRuntimeError("program_cancelled", "fixture token cancelled")
+                self.deploy.side_effect = deploy
+                thread, result = self.background(lambda: self.run_reserved(session, cancelled=cancel.is_set))
+                try:
+                    self.assertTrue(entered.wait(1))
+                    self.assertTrue(session._program_lock.locked())
+                    cancel.set()
+                finally:
+                    release.set()
+                thread.join(timeout=1)
+                self.assertEqual(result["error"].code, "program_cancelled")
+                record = self.record(session)
+                self.assertEqual(record["state"], "interrupt-requested")
+                self.assertFalse(record["interruption_confirmed"])
+                self.assertEqual(record["deployment"]["phase"], phase)
+                self.assertFalse(session._stop_event.is_set())
+                self.assertFalse(session._program_lock.locked())
+        self.execute.assert_not_called()
+
+    def test_cancel_before_and_after_start_fences_late_success_and_error(self):
+        for marker in (False, True):
+            for late_error in (False, True):
+                with self.subTest(marker=marker, late_error=late_error):
+                    session = self.target()
+                    entered, release, cancel = threading.Event(), threading.Event(), threading.Event()
+                    def execute(console, source, execution_id, *, on_synchronized, **kwargs):
+                        on_synchronized()
+                        if marker:
+                            console.append(execution_markers(execution_id)["START"])
+                        entered.set()
+                        self.assertTrue(release.wait(2))
+                        if late_error:
+                            raise UIFlowRuntimeError("program_timeout", "late fixture error")
+                        return {"state": "completed", "acknowledged": True}
+                    self.execute.side_effect = execute
+                    thread, result = self.background(lambda: self.run_reserved(session, cancelled=cancel.is_set))
+                    try:
+                        self.assertTrue(entered.wait(1))
+                        cancel.set()
+                    finally:
+                        release.set()
+                    thread.join(timeout=1)
+                    self.assertEqual(result["error"].code, "program_cancelled")
+                    record = self.record(session)
+                    session._console.append(execution_markers(record["execution_id"])["DONE"])
+                    self.assertEqual(session.program_status()["program"]["state"], "interrupt-requested")
+                    self.assertFalse(record["interruption_confirmed"])
+                    self.assertTrue(record["cancel_requested"])
+                    self.assertFalse(session._stop_event.is_set())
+
+    def test_independent_interrupt_reacquires_lock_and_requires_prompt_before_confirmation(self):
+        session = self.target()
+        cancel = threading.Event()
+        def cancelled_success(*args, **kwargs):
+            cancel.set()
+            return {"state": "running", "acknowledged": True}
+        self.execute.side_effect = cancelled_success
+        self.assert_service_error(lambda: self.run_reserved(session, cancelled=cancel.is_set), code="program_cancelled", status=409)
+        execution_id = session._program["execution_id"]
+        self.assertFalse(session._program_lock.locked(), "lock release is not interruption confirmation")
+        self.assertFalse(self.record(session)["interruption_confirmed"])
+        entered, release = threading.Event(), threading.Event()
+        def no_prompt(console, *, cancelled, **kwargs):
+            self.assertFalse(cancelled(), "recovery must ignore the cancelled Run token")
+            entered.set()
+            self.assertTrue(release.wait(2))
+            raise GuestConsoleError("console_timeout", "fixture no prompt")
+        with mock.patch.object(service_module, "synchronize_raw_repl", side_effect=no_prompt):
+            thread, result = self.background(lambda: session.interrupt_program(expected_execution_id=execution_id))
+            try:
+                self.assertTrue(entered.wait(1))
+                self.assertEqual(self.record(session)["state"], "interrupt-requested")
+                self.assertFalse(self.record(session)["interruption_confirmed"])
+                self.assert_service_error(lambda: self.run_reserved(session, expected=execution_id), code="program_busy", status=409)
+            finally:
+                release.set()
+            thread.join(timeout=1)
+        self.assertEqual(result["error"].status, 504)
+        self.assertEqual(self.record(session)["state"], "unknown")
+        session._console.append(execution_markers(execution_id)["START"])
+        self.assertEqual(session.program_status()["program"]["state"], "unknown")
+        ack = {"serial_offset": 1, "prompt_end": 30, "interruption_confirmed": True, "cleanup_mode": "interrupt-only"}
+        with mock.patch.object(service_module, "synchronize_raw_repl", return_value=ack) as sync:
+            confirmed = session.interrupt_program(expected_execution_id=execution_id)["program"]
+            self.assertTrue(sync.call_args.kwargs["cancelled"].__self__ is session._stop_event)
+            repeated = session.interrupt_program(expected_execution_id=execution_id)["program"]
+            self.assertEqual(sync.call_count, 2, "each recovery call requires a fresh actual prompt")
+        self.assertEqual(confirmed["interrupt_ack"], repeated["interrupt_ack"])
+        self.assertEqual(confirmed["state"], "interrupted")
+        self.assertTrue(confirmed["interruption_confirmed"])
+        self.execute.side_effect = None
+        self.execute.return_value = {"state": "running", "acknowledged": True}
+        next_run = self.run_reserved(session, expected=execution_id)["program"]
+        self.assertEqual(next_run["state"], "running")
+        self.assertFalse(session._stop_event.is_set())
+
+    def test_interrupt_stale_handle_and_timeout_validation_write_nothing(self):
+        session = self.target()
+        with mock.patch.object(service_module, "synchronize_raw_repl") as sync:
+            self.assert_service_error(lambda: session.interrupt_program(expected_execution_id="stale"), code="program_generation_conflict", status=409)
+            for timeout in (True, 0, 121, float("nan")):
+                self.assert_service_error(lambda: session.interrupt_program(expected_execution_id="stale", timeout_seconds=timeout), code="invalid_program", status=400)
+            sync.assert_not_called()
+        self.assertFalse(session.program_path.exists())
+
+    def test_recovery_confirms_prior_replacement_only_after_real_sync_receipt(self):
+        session = self.target()
+        old = self.run_reserved(session)["program"]
+        cancel = threading.Event()
+        def interrupted_before_prompt(*args, **kwargs):
+            cancel.set()
+            raise UIFlowRuntimeError("program_cancelled", "fixture no prompt")
+        self.deploy.side_effect = interrupted_before_prompt
+        self.assert_service_error(lambda: self.run_reserved(session, expected=old["execution_id"], cancelled=cancel.is_set),
+                                  code="program_cancelled")
+        replacement_id = session._program["execution_id"]
+        self.assertEqual(self.record(session, old["execution_id"])["state"], "unknown")
+        def confirm(*args, **kwargs):
+            self.assertFalse(self.record(session, old["execution_id"])["interruption_confirmed"])
+            return {"interruption_confirmed": True, "prompt_end": 30, "serial_offset": 0}
+        with mock.patch.object(service_module, "synchronize_raw_repl", side_effect=confirm):
+            session.interrupt_program(expected_execution_id=replacement_id)
+        self.assertTrue(self.record(session, old["execution_id"])["interruption_confirmed"])
+        self.assertEqual(self.record(session, old["execution_id"])["state"], "interrupted")
+
+    def test_idle_interrupt_confirms_prompt_with_exact_none_owner_and_no_execution(self):
+        session = self.target()
+        ack = {"serial_offset": 0, "prompt_end": 30, "interruption_confirmed": True, "cleanup_mode": "interrupt-only"}
+        with mock.patch.object(service_module, "synchronize_raw_repl", return_value=ack) as sync:
+            result = session.interrupt_program(expected_execution_id=None)
+            self.assertIsNone(result["program"])
+            self.assertEqual(result["interrupt_ack"], ack)
+            self.assertFalse(session.program_path.exists())
+            self.run_reserved(session)
+            self.assert_service_error(lambda: session.interrupt_program(expected_execution_id=None), code="program_generation_conflict", status=409)
+            self.assertEqual(sync.call_count, 1)
+
+    def test_purge_fences_independent_interrupt_late_success_and_error(self):
+        for late_error in (False, True):
+            session = self.target()
+            program = self.run_reserved(session)["program"]
+            entered, release = threading.Event(), threading.Event()
+            def sync(*args, **kwargs):
+                entered.set()
+                self.assertTrue(release.wait(2))
+                if late_error:
+                    raise GuestConsoleError("console_closed", "fixture purged")
+                return {"interruption_confirmed": True}
+            with mock.patch.object(service_module, "synchronize_raw_repl", side_effect=sync):
+                thread, result = self.background(lambda: session.interrupt_program(expected_execution_id=program["execution_id"]))
+                try:
+                    self.assertTrue(entered.wait(1))
+                    session.stop(purge=True)
+                finally:
+                    release.set()
+                thread.join(timeout=1)
+            self.assertIsInstance(result["error"], ServiceError)
+            self.assertFalse(session.dir.exists(), "late prompt must not resurrect purged history")
+
+    def test_managed_handle_is_session_local_persisted_binding_is_not_a_capability(self):
+        binding = {"preview_id": "preview-fixture", "owner_epoch": "epoch-fixture", "expected_reference_sha256": "c" * 64}
+        session = self.target(management_binding=binding)
+        other = self.target(management_binding=binding)
+        handle = session._management_handle
+        self.assertEqual(session.snapshot()["management_binding"], binding)
+        record = json.loads(session.session_record_path.read_text())
+        self.assertEqual(record["management_binding"], binding)
+        self.assertNotIn("management_handle", record)
+        for wrong in (None, {}, binding, object(), other._management_handle):
+            self.assert_service_error(lambda: session.require_management_handle(wrong), code="session_managed_by_preview", status=409)
+            self.assert_service_error(lambda: self.run_reserved(session, management_handle=wrong), code="session_managed_by_preview", status=409)
+        self.assert_service_error(lambda: session.run_program({"source": "print(1)", "expected_execution_id": None}),
+                                  code="session_managed_by_preview", status=409)
+        program = self.run_reserved(session, management_handle=handle)["program"]
+        self.assertEqual(program["state"], "running")
+        self.assert_service_error(lambda: session.interrupt_program(expected_execution_id=program["execution_id"]),
+                                  code="session_managed_by_preview", status=409)
+
+    def test_history_restore_preserves_binding_and_issues_a_new_local_handle(self):
+        binding = {"preview_id": "preview-fixture", "owner_epoch": "epoch-fixture", "expected_reference_sha256": "c" * 64}
+        session = self.target(management_binding=binding)
+        session.stop()
+        restored = object.__new__(DeviceService)
+        restored.__dict__.update(self.service.__dict__)
+        restored.specs = {self.spec.id: self.spec}
+        restored._sessions = {}
+        restored._lock = threading.RLock()
+        restored._restore_history()
+        self.sessions.extend(restored._sessions.values())
+        recovered = restored.get_session(session.id)
+        self.assertEqual(recovered.management_binding, binding)
+        handle = restored.recover_management_handle(session.id, **binding)
+        self.assertIsNot(handle, session._management_handle)
+        recovered.require_management_handle(handle)
+        self.assert_service_error(lambda: recovered.require_management_handle(session._management_handle), code="session_managed_by_preview")
+        for field in binding:
+            wrong = {**binding, field: "d" * 64 if field == "expected_reference_sha256" else "different"}
+            self.assert_service_error(lambda: restored.recover_management_handle(session.id, **wrong), code="session_managed_by_preview", status=409)
+        legacy = self.target()
+        restored._sessions[legacy.id] = legacy
+        self.assert_service_error(lambda: restored.recover_management_handle(legacy.id, **binding), code="session_managed_by_preview", status=409)
+
+
+class DevicePreviewManagementTests(unittest.TestCase):
+    """Real service construction/registration with inert files and no start."""
+
+    def setUp(self):
+        import test_device_service
+        test_device_service.DeviceServiceUnitTests.setUp(self)
+        self.addCleanup(self.tmp.cleanup)
+        self.addCleanup(self.service.close_all)
+        self.binding = {"preview_id": "preview-fixture", "owner_epoch": "epoch-fixture", "expected_reference_sha256": "c" * 64}
+        self.firmware = {"firmware_id": "b" * 64, "sha256": "b" * 64, "device_id": "cores3",
+                         "source": {"kind": "uiflow", "artifact_id": "a" * 64, "metadata": {"source_sha256": "a" * 64}}}
+        self.stack = ExitStack()
+        self.addCleanup(self.stack.close)
+        self.compose = self.stack.enter_context(mock.patch.object(self.service, "create_uiflow_firmware", return_value=self.firmware))
+        self.stack.enter_context(mock.patch.object(self.service.firmware, "get", return_value=self.firmware))
+        self.stack.enter_context(mock.patch.object(self.service.firmware, "path", return_value=self.service.specs["cores3"].reference_path))
+        self.start = self.stack.enter_context(mock.patch.object(DeviceSession, "start", autospec=True))
+        self.stack.enter_context(mock.patch.object(service_module.subprocess, "Popen", side_effect=AssertionError("real process forbidden")))
+        self.request = {"device_id": "cores3", "program_mode": "uiflow-live", "idempotency_key": "managed-allocation-fixture"}
+
+    def test_binding_persisted_before_publication_start_and_replay_keeps_same_capability(self):
+        persisted = []
+        original = DeviceSession._persist_session
+        def persist(session):
+            original(session)
+            persisted.append((session.id in self.service._sessions, json.loads(session.session_record_path.read_text())))
+        with mock.patch.object(DeviceSession, "_persist_session", autospec=True, side_effect=persist):
+            snapshot, handle = self.service.create_managed_session(self.request, **self.binding)
+            replay, repeated_handle = self.service.create_managed_session(dict(self.request), **self.binding)
+        self.assertEqual(snapshot["session_id"], replay["session_id"])
+        self.assertIs(handle, repeated_handle)
+        self.assertFalse(persisted[0][0], "binding must persist before _sessions publication")
+        self.assertEqual(persisted[0][1]["management_binding"], self.binding)
+        self.assertEqual(snapshot["management_binding"], self.binding)
+        self.assertEqual(self.compose.call_args.args[0]["expected_base_sha256"], self.binding["expected_reference_sha256"])
+        self.assertEqual(self.compose.call_count, 1)
+        self.assertEqual(self.start.call_count, 1)
+        for field in self.binding:
+            wrong = {**self.binding, field: "d" * 64 if field == "expected_reference_sha256" else "different"}
+            with self.subTest(field=field), self.assertRaises(ServiceError) as caught:
+                self.service.create_managed_session(self.request, **wrong)
+            self.assertEqual(caught.exception.code, "session_managed_by_preview")
+        with self.assertRaises(ServiceError) as caught:
+            self.service.create_session(self.request)
+        self.assertEqual(caught.exception.code, "session_managed_by_preview")
+
+    def test_managed_creation_cannot_adopt_a_legacy_idempotent_session(self):
+        legacy = self.service.create_session(self.request)
+        with self.assertRaises(ServiceError) as caught:
+            self.service.create_managed_session(self.request, **self.binding)
+        self.assertEqual(caught.exception.code, "session_managed_by_preview")
+        self.assertNotIn("management_binding", legacy)
+        self.assertEqual(len(self.service._sessions), 1)
+        self.assertEqual(self.start.call_count, 1)
+        self.assertNotIn("expected_base_sha256", self.compose.call_args.args[0])
+
+    def test_managed_source_pin_is_passed_into_composer_and_failure_allocates_nothing(self):
+        self.compose.side_effect = ServiceError("uiflow_base_sha256_mismatch", "fixture reference changed", 409)
+        with self.assertRaises(ServiceError) as caught:
+            self.service.create_managed_session(self.request, **self.binding)
+        self.assertEqual(caught.exception.code, "uiflow_base_sha256_mismatch")
+        self.assertEqual(self.compose.call_args.args[0]["expected_base_sha256"], "c" * 64)
+        self.assertFalse(self.service._sessions)
+        self.assertEqual(self.service.worker.snapshot()["active_lease_count"], 0)
+        self.start.assert_not_called()
+
+    def test_public_session_body_cannot_supply_any_management_fields(self):
+        for field in ("management_binding", "management_handle", "_management_binding", "preview_id", "owner_epoch", "expected_reference_sha256"):
+            with self.subTest(field=field), self.assertRaises(ServiceError) as caught:
+                self.service.create_session({**self.request, field: "forged"})
+            self.assertEqual(caught.exception.code, "invalid_request")
+        self.compose.assert_not_called()
+        self.start.assert_not_called()
+
+    def test_preview_control_is_one_lazy_instance_and_shutdown_runs_outside_service_lock(self):
+        entered, release = threading.Event(), threading.Event()
+        control = SimpleNamespace(shutdown=mock.Mock())
+        def construct(service):
+            self.assertIs(service, self.service)
+            self.assertFalse(service._lock._is_owned())
+            entered.set()
+            self.assertTrue(release.wait(2))
+            return control
+        factory = mock.Mock(side_effect=construct)
+        results = []
+        def get():
+            results.append(self.service.preview_control())
+        with mock.patch.dict(sys.modules, {"preview_service": SimpleNamespace(PreviewService=factory)}):
+            threads = [threading.Thread(target=get) for _ in range(4)]
+            for thread in threads:
+                thread.start()
+            try:
+                self.assertTrue(entered.wait(1))
+            finally:
+                release.set()
+            for thread in threads:
+                thread.join(timeout=2)
+                self.assertFalse(thread.is_alive())
+        self.assertEqual(results, [control] * 4)
+        factory.assert_called_once_with(self.service)
+        control.shutdown.side_effect = lambda: self.assertFalse(self.service._lock._is_owned())
+        self.service.close_all()
+        control.shutdown.assert_called_once_with()
+        with self.assertRaises(ServiceError) as caught:
+            self.service.preview_control()
+        self.assertEqual(caught.exception.code, "service_stopping")
 
 
 class DeviceProgramHttpTests(_ProgramFixture):

@@ -1,8 +1,8 @@
 # Device Service API v1
 
-Last reviewed: `2026-10-26`.
+Last reviewed: `2026-10-27`.
 
-Status: local MVP with unified-device runtime contract `1.41.0` and bounded
+Status: local MVP with unified-device runtime contract `1.42.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -18,7 +18,7 @@ source revision identities. Source is limited to 64 KiB UTF-8; submissions requi
 `expected_execution_id` (null initially). Cleanup is interrupt-only: native module,
 timer, callback and thread state is not guaranteed to reset. See the
 [Unit Agent API](unit-agent-api.md) for initialization and exact boundaries;
-Preview orchestration and SSE remain future work. QEMU readers can explicitly
+The Preview/Run coordinator below is under validation; SSE remains future work. QEMU readers can explicitly
 share demand-driven frame samples with `max_age_ms` and conditional GET; this
 does not create a background stream or an AIFlow consumer integration.
 The mode rejects uploaded firmware/source-pin parameters and incompatible
@@ -74,6 +74,99 @@ transfer and can fail after the old program has been interrupted.
 inherit a larger configured Python-source capacity. No Preview/Run resource,
 latest-wins queue, per-Run cancellation or tenant ownership is established by
 these checkpoint routes. Existing service authorization remains in effect.
+
+### Stable Preview and asynchronous Runs
+
+Validation on `2026-10-27`: frozen host regression and independent contract review
+passed. CoreS3 PIR/Relay have bounded same-VM/pending replacement/active-cancel
+evidence in the [acceptance record](evidence/2026-10-27-preview-run-control/README.md).
+A separate CoreS3 PIR sample verifies cancellation after confirmed per-file
+writing progress and before package publication/START, followed by same-VM
+recovery. Other targets, individual byte/chunk boundaries and restart recovery
+do not inherit those results.
+The existing synchronous `/sessions/{id}/program` remains available for unmanaged
+sessions. Preview uses a visible managed UIFlow QEMU session on CoreS3, AtomS3R,
+StickS3 or StopWatch, initialized once. Subsequent Runs reference complete public
+checkpoints and use the same UART REPL/VM rather than reflashing firmware.
+
+Every Preview route requires a configured and verified control Bearer token;
+without configuration it returns `503 preview_auth_unavailable`. Active and
+rotation tokens share the server principal `local-control`. A body cannot
+declare owner; this is a shared local control scope, without tenant isolation.
+`POST /previews` accepts `device_id`, optional `runtime="qemu"`, `units` and
+`ttl_seconds` (30–3600, default 300). It requires one `Idempotency-Key` header
+(1–128 printable ASCII characters without whitespace) and returns 202 plus
+Location. Poll GET until `state=ready`. Assembly and reference SHA are frozen
+before allocation; a managed binding is persisted before session publication.
+
+Save the complete package with `/program-revisions`, then submit:
+
+```json
+{"revision_id":"<64 lowercase hex>","expected_owner_epoch":"<issued epoch>",
+ "expected_generation":0,"client_generation":"editor-1","timeout_seconds":120}
+```
+
+`POST /previews/{preview_id}/runs` requires its own scoped Idempotency-Key and
+returns 202 plus Location. `expected_generation` is the current Preview
+generation; admission increments it atomically with reserved Run/execution IDs,
+desired intent, original receipt and package pin. Same key/request replays the
+original receipt even after cancellation or close; it does not replay UART.
+Different content under the same key returns 409. GET the current Preview/Run
+to learn current state. Host package/bytecode errors precede old-Run cancellation.
+
+One worker owns the UART. A newer intent supersedes untouched queued work;
+started/transmitting work receives monotonic cancellation intent. Transmission
+may already have caused a transient START. A late result cannot regain active
+ownership. Poll Run state; START means script execution began, while
+`application_ready` remains `unknown`. `timeout_seconds` covers package transfer
+and start acknowledgement, not program lifetime.
+
+`POST /previews/{id}/runs/{run_id}/cancel` accepts exactly
+`{"expected_owner_epoch":"<issued epoch>"}` and returns 202. For touched work,
+`cancelling` becomes `cancelled` only after a fresh actual raw prompt is
+confirmed (`interrupt_ack=confirmed`). Queued untouched work uses
+`interrupt_ack=not-required`. Missing prompt remains unconfirmed and blocks
+replacement; explicit cancel retry may attempt synchronization again. Unknown
+execution/allocation after restart is observed, never blindly replayed.
+This is interrupt-only cleanup, without full native/IRQ/timer/thread reset.
+
+`POST /previews/{id}/input` requires expected_owner_epoch, expected_run_id and
+exactly one `input` (existing host payload) or `unit_input` (`id`, `values`).
+Deterministic validation precedes held intent. An in-flight permit remains held
+through backend application; a switch closes admission, drains permits and
+releases momentary controls before new UART work. A switch during application
+can return 409 with `effect_possible=true`; it does not imply no physical effect.
+Preview host input hold/settle durations are capped at five seconds each so
+lease cleanup cannot be held indefinitely by a queued input.
+
+`GET /previews/{id}/runs/{run_id}/frame.png?max_age_ms=0..1000` checks Run,
+execution and revision on both sides of capture. It returns 409 for a switch
+during capture, or 410 when historical work has no matching retained sample.
+X-Preview-ID, X-Run-ID and existing frame identity/hash headers identify the
+sample. ETag includes Preview/Run/revision/PNG hash; 304 still passes the current
+Run fence. Frame and Unit/serial state are separate samples, not atomic state.
+
+`POST /previews/{id}/renew` accepts expected_owner_epoch and ttl_seconds. It
+aligns the managed session lease, including renewal during allocation. Expired
+or closing Preview rejects new Runs, input and renewal. `POST .../close`
+accepts only expected_owner_epoch and returns 202. The worker drains inputs,
+attempts release, records a before-close evidence ZIP receipt, then stops with
+purge=0 and releases mutable Flash. Release/evidence failure remains explicit
+and does not prevent teardown. Poll until closed; logs and last frame remain
+in session history. Direct legacy session mutation routes return
+`409 session_managed_by_preview` for a managed guest.
+
+The SQLite ledger uses short transactions, WAL and FULL synchronization.
+Retained terminal records count toward fixed limits of 128 Previews and 256
+Runs per Preview. Preview/package GC is disabled. Ledger reference/package pins,
+managed history and allocation barriers protect cache/history roots, including
+bulk/manual/TTL/pressure deletion. Unresolved allocation or corrupt retention
+metadata fails closed. This does not implement SSE, background sampling, an
+AIFlow editor target, main.mpy, save-to-boot or hotplug. The current Live sessions
+UI reads a managed session but has not adapted its mutation controls or Run
+frame fence; use Preview endpoints directly until UNIT-HOST-34 is closed.
+Manual artifact deletion also protects recorded legacy session source artifacts
+with 409 instead of deleting an evidence dependency.
 
 The service owns immutable package bytes separately from uploaded artifacts.
 Files go through the actual UART raw REPL into a unique guest staging directory
@@ -1987,6 +2080,15 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
+| GET/POST | `/api/v1/previews` | List retained Previews or allocate a stable managed UIFlow guest |
+| GET | `/api/v1/previews/{preview_id}` | Poll Preview/generation/lease |
+| POST | `/api/v1/previews/{preview_id}/runs` | Queue a checkpoint Run with scoped idempotency |
+| GET | `/api/v1/previews/{preview_id}/runs/{run_id}` | Poll execution/cancellation evidence |
+| POST | `/api/v1/previews/{preview_id}/runs/{run_id}/cancel` | Request cancellation while keeping the VM |
+| POST | `/api/v1/previews/{preview_id}/renew` | Renew Preview and managed session |
+| POST | `/api/v1/previews/{preview_id}/close` | Capture ZIP then close/release Flash while retaining history |
+| POST | `/api/v1/previews/{preview_id}/input` | Host/Unit input fenced to the expected Run |
+| GET | `/api/v1/previews/{preview_id}/runs/{run_id}/frame.png` | Run-bound frame with conditional GET |
 | GET | `/api/v1/health` | Service health and capacity |
 | GET | `/api/v1/devices` | Device catalog; add `?include_unsupported=0` to hide disabled rows |
 | GET | `/api/v1/devices/{device_id}` | One device profile |

@@ -1,0 +1,21 @@
+{
+  "name": "bad-unit-values-shape",
+  "method": "POST",
+  "template": "/previews/{preview_id}/input",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_unit_input",
+      "message": "Unit input must be an object"
+    }
+  },
+  "body_sha256": "390f76c65ec015e63b22d9a2e278951ac3994d437c36fd9a30c4c75db5eb0ba3",
+  "request": {
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+    "expected_run_id": "c66a97fac71e405cb626cd7f37b148e1",
+    "unit_input": {
+      "id": "fixture-button",
+      "values": []
+    }
+  }
+}

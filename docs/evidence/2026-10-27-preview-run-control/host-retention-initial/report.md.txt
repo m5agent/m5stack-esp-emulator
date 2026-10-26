@@ -1,0 +1,65 @@
+# Preview retention integration — 2026-10-27
+
+Host-only implementation and verification; no guest, browser or hardware started.
+
+## Scope
+
+- New `platform/tools/preview_retention.py`: read-only SQLite retention roots,
+  managed disk-session markers, live cache roots, allocation tokens, generation
+  retry, short check/delete fences. Does not initialize a Preview coordinator.
+- New `platform/tests/test_preview_retention.py`: 24 deterministic host tests.
+- `platform/tools/device_service.py`: import/init plus `delete_session`,
+  `clear_stopped`, `_preview_live_roots`, `_retention`,
+  `preview_allocation_guard`, `delete_artifact`, `prune_storage`, and all TTL /
+  pressure branches of `_prune_firmware_caches` only. The Run, managed creation,
+  session close and shutdown implementations were not changed by this work.
+
+## Coordinator / HTTP integration contract
+
+`service.preview_allocation_guard()` returns an allocation context manager.
+Its entry publishes an in-flight token under the deletion fence; its exit
+removes that token and increments the generation. Entry must precede reference
+inspection/composition; exit must follow a durable pending/bound/known-failed/
+unknown ledger outcome. Composition performs no work under the retention lock.
+The helper also exposes `begin_allocation()` / `end_allocation(token)`.
+
+The helper reads `preview-state.sqlite` itself, read-only, so the janitor cannot
+delete resources before lazy coordinator initialization. Unbound pending,
+creating and unknown allocations retain cache/orphan barriers across restart.
+Bound and closed previews protect exact session, reference/base SHA, derived
+firmware SHA/ID, and source/segment artifact roots. Managed session records
+protect history even without an instantiated coordinator or ledger binding.
+Unreadable/corrupt records and scan failures preserve affected history/cache.
+
+`service.delete_artifact(artifact_id)` is the guarded manual deletion facade;
+root owns the `serve.py` call-site update. Every TTL/pressure firmware, artifact,
+and flash-cache unlink uses the same short atomic guard. Root provider I/O runs
+outside the guard lock; generation changes force a refreshed snapshot.
+
+Bulk/history APIs retain old response fields and add `protected_sessions` and
+`skipped_sessions`. Bulk also adds `orphaned_protected` and `orphaned_skipped`.
+Cache reports `retention_barrier` and per-kind `protected` identities. Space
+pressure does not override retention: usage may remain above policy and new
+allocations remain subject to the existing storage-exhausted reserve gate.
+
+## Verification
+
+- `retention-tests.log`: 24/24 PASS, Python 3.12.
+- `legacy-storage-tests.log`: 5/5 PASS for cache limits, historical source roots,
+  history count eviction, stopped-history clearing and storage reserve.
+- `git diff --check` and `py_compile` PASS.
+- HTTP agent independently reported 14/14 PASS, including real loopback bulk
+  DELETE -> real `clear_stopped`, managed history retained and legacy cleared.
+  Its fixtures use inert sessions and do not start a guest.
+- System `python3` is Xcode Python 3.9 and cannot import the existing
+  `typing.TypeAlias` dependency; supported local interpreter used instead:
+  `/opt/miniconda3/bin/python3.12`.
+
+## Freeze hashes
+
+- preview_retention.py: `561e1cb0d2e1b64b88ec2f4d8d10bf05ca0d0fbfb44eff371b8b7cb30c77cd2b`
+- test_preview_retention.py: `6450f39e3b25b7f00f706bcec35d348851bf0376ce34fb37f4fcba71cac05824`
+- device_service.py: `888cd6528db5f09cc3300c73dbdc8b6f37fca11ef6c05c7d44ca5770680f9527`
+
+These hashes identify this handoff, not an independent review acceptance. An
+independent agent reviews retention; this author does not self-accept it.

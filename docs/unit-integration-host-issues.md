@@ -1,6 +1,6 @@
 # Unit 接入期间发现的主机问题
 
-最近核对：2026-10-26。归属 `UNIT-01`，待办仍以 `project-backlog.md` 为准。
+最近核对：2026-10-27。归属 `UNIT-01`，待办仍以 `project-backlog.md` 为准。
 本页保留现象、证据和影响，不把外设接入调查扩展成主机全量整改。
 
 | ID | 状态 | 现象与证据 | 对接入的影响 / 处理 |
@@ -35,9 +35,11 @@
 | UNIT-HOST-28 | OPEN（Tab5 GDB frame生命周期并发） | 静态代码确认 `Tab5DeviceSession.frame_metrics` 直接调用GDB capture，未与reset的生命周期事务、stop的Session锁形成共同采集门禁；本轮未现场复现，不据此断言已出现错帧或进程故障 | 本块共享预览仅准入QEMU；Tab5/network显式 `max_age_ms>0` 拒绝，旧fresh路径保留。后续需冻结GDB/runtime归属，协调capture/reset/stop，补确定性竞态与实际Tab5会话证据后才能关闭；不继承QMP锁与QEMU缓存结论。见[本块范围](evidence/2026-10-26-live-unit-preview/README.md) |
 | UNIT-HOST-29 | OPEN（逐灯位置/旋转binding）；默认uniform子集已实现 | 原CoreS3两组同guest/Web中QOM/DOM的2+9灯正确而3D不变。现默认RGB/Encoder/8Encoder仅在全N同色时按排列不变性映射，无需猜通道；非对称、非法或不可用时撤回旧色并标unknown。固定官方电气链仍缺RGB到物理光孔标注；8Encoder counter与guest写/reset共用逻辑存储，不是独立物理source | 全灯同色/全灭是准确子集；逐灯仍需固定来源mapping及默认接线，旋转另需物理source/计数方向/角度标定。真实mounted材质与同guest链路分别验收，不能把表单/色块或逻辑counter当完整动画。detent事件修复不建立电气极性。[本块证据](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)；[历史边界](evidence/2026-10-26-live-unit-preview/unit-web/web-boundary-audit.json) |
 | UNIT-HOST-30 | OPEN（UIFlow图片路径兼容） | CoreS3同guest六格实验中，97B RGB PNG的drawImage/drawPng bytes各576红像素，而106字符绝对路径与16字符相对路径四格均黑。固定官方源码有boxed长度阈值错误和相对路径CWD遗漏；当前dirty binary未做符号级跟踪，串口也无VFS open日志 | 资源实际open后交官方bytes显示接口可用，不改写M5 API、不称路径缺陷已修；与既有palette/tRNS问题分开。其它API/图片仍另验。[六格与固定源码](evidence/2026-10-26-live-package-and-detent/image-path-research/audit.md) |
-| UNIT-HOST-31 | PARTIAL（显式容量已配置；revision回收OPEN） | 实时程序累积到全局256份source版本后，新revision返回429，Scroll第二主机批次因此中断；预期配额拒绝不是guest故障。新增显式1..4096配置，默认256不变；本地1024启动保留旧record全部字节，独立新四主机通过 | 不删旧历史、不绕过包/guest配额；自动引用保留与有界回收仍未实现，长期AIFlow连续编程须闭合生命周期。[配额失败与新批次](evidence/2026-10-26-scroll-controller/README.md) |
+| UNIT-HOST-31 | PARTIAL（显式容量已配置；revision回收OPEN） | 实时程序累积到全局256份source版本后，新revision返回429，Scroll第二主机批次因此中断；预期配额拒绝不是guest故障。新增显式1..4096配置，默认256不变；本地1024启动保留旧record全部字节，独立新四主机通过 | 不删旧历史、不绕过包/guest配额；Preview包引用保留已补；source/包长期有界回收仍OPEN，AIFlow连续编程须闭合生命周期。[配额失败与新批次](evidence/2026-10-26-scroll-controller/README.md) |
 | UNIT-HOST-32 | FIXED（Scroll混合输入提前拒绝） | 审查发现live输入逐字段qom-set，按钮先写、计数后因overflow拒绝可留下部分状态。Scroll profile现限定每次live请求1字段，initial仍可同时配置；两种字段顺序宿主零QOM写，真实guest在INT32_MAX下混合400且pressed/source等不变 | 不声明一般QMP多字段事务或回滚；调用方分开提交按钮/计数，readonly输入仍拒绝。[原始断言与真实负控](evidence/2026-10-26-scroll-controller/README.md) |
 | UNIT-HOST-33 | OPEN（独立main.mpy脚本入口） | 固定UIFlow/MicroPython源码与CoreS3同VM探针确认当前固件未开启override-main；普通.py/.mpy导入保留模块名、if-main不执行，__main__.mpy别名仍被REPL内置module遮蔽。source新globals也不替换sys.modules主模块 | 当前明确支持main.py入口+纯字节码依赖，通过program_features声明；新固件官方run-as-main或受验loader须另建/逐主机验证，定义加载/START及异常owner恢复，不把普通import成功称完整入口。[固定源码与实际guest](evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/README.md) |
+
+| UNIT-HOST-34 | OPEN（Preview托管会话Web消费者） | Live sessions未识别management_binding；running的程序、Unit/主机输入、续期/复位/停止仍启用且走旧sessions路由，被409拒绝。frameOwner仅session/PID/firmware，Run切换不形成客户端fence；只读帧/串口/状态仍可用 | 先标识托管并禁用未适配mutation，再接公共checkpoint→Preview Run/generation/epoch、input/renew/close与Run帧；无Preview reset API时保持禁用。须真实Web同guest正反控关闭，API/脚本PASS不外推AIFlow/Web。[本块边界](evidence/2026-10-27-preview-run-control/README.md) |
 
 QEMU/esp-emu 的模型缺口继续维护在 `runtime-model-gap-register.md`；既有
 Core2 legacy WDT、C6 Zigbee、ATECC608 等问题不在本页重复创建新任务。

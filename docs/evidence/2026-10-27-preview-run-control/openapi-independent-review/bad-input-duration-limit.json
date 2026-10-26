@@ -1,0 +1,23 @@
+{
+  "name": "bad-input-duration-limit",
+  "method": "POST",
+  "template": "/previews/{preview_id}/input",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_input",
+      "message": "Preview input durations must not exceed 5 seconds"
+    }
+  },
+  "body_sha256": "a6bb594f2fb6316feb86812ea5dd379d0c2f7b7384fa4d0d97b2d599797d2995",
+  "request": {
+    "expected_owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+    "expected_run_id": "c66a97fac71e405cb626cd7f37b148e1",
+    "input": {
+      "kind": "longpress",
+      "x": 1,
+      "y": 1,
+      "hold_seconds": 6
+    }
+  }
+}

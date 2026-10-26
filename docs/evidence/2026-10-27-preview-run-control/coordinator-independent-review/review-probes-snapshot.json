@@ -1,0 +1,98 @@
+{
+  "category": "HOST_ONLY_NOT_GUEST",
+  "source_mode": "snapshot",
+  "source_sha256": "db4ac712845c73bd5813c31c8e51358513d277ce6c1304d4cd6899ed082b93d1",
+  "serve_sha256": "a7fffb516ff0c7690e0af5bc596c2ddec8e1281a83ee3eaea58309abaf094845",
+  "device_service_sha256": "b928598becdb8d3ff465bd25f406e573c965b816f8e573d532f0817b1c1fd078",
+  "hash_scope": "on-disk source at invocation; not a loaded dependency attestation",
+  "probes": {
+    "close_release_failure": {
+      "preview_state": "closing",
+      "session_state": "running",
+      "stop_events": 0,
+      "step_errors": [
+        {
+          "type": "ServiceError",
+          "code": "qmp_unavailable",
+          "status": 503
+        },
+        {
+          "type": "ServiceError",
+          "code": "qmp_unavailable",
+          "status": 503
+        },
+        {
+          "type": "ServiceError",
+          "code": "qmp_unavailable",
+          "status": 503
+        }
+      ],
+      "bug_observed": true
+    },
+    "invalid_input_poison": {
+      "input_error": {
+        "type": "ServiceError",
+        "code": "invalid_input",
+        "status": 400
+      },
+      "held_after_rejection": {
+        "key:None": {
+          "payload": {
+            "action": "up",
+            "kind": "key",
+            "settle_seconds": 0
+          },
+          "run_id": "7e4f195bee954e73b69d572548359ae5",
+          "unit": false
+        }
+      },
+      "wire_commands": [],
+      "run_calls": 1,
+      "new_run_state": "queued",
+      "blocked_reason": "interrupt_unconfirmed",
+      "bug_observed": true
+    },
+    "uppercase_down": {
+      "input_accepted": true,
+      "held_after_down": {},
+      "wire_commands": [
+        {
+          "execution_id": "6ea1102e6ca84f6db84ed81cc337508d",
+          "spec": "keydown:a"
+        }
+      ],
+      "new_run_active": true,
+      "bug_observed": true
+    },
+    "pending_renew": {
+      "preview_remaining_seconds": 3599.99,
+      "actual_session_ttl_seconds": 30,
+      "allocation_ttl_seconds": 30,
+      "bug_observed": true
+    },
+    "concurrent_renew": {
+      "short_completed_before_long_persist_return": true,
+      "long_error": null,
+      "short_error": null,
+      "preview_remaining_seconds": 3600.0,
+      "actual_session_remaining_seconds": 30.0,
+      "bug_observed": true
+    },
+    "expired_input": {
+      "error": null,
+      "actual_input_calls": 1,
+      "bug_observed": true
+    },
+    "shutdown_input": {
+      "error": null,
+      "actual_input_calls": 1,
+      "bug_observed": true
+    },
+    "duplicate_idempotency_header": {
+      "status": 202,
+      "error_code": null,
+      "retained_previews": 1,
+      "bug_observed": true
+    }
+  }
+}

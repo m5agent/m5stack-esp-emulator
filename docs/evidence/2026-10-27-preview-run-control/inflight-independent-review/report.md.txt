@@ -1,0 +1,45 @@
+# Preview package-inflight cancellation independent review — 2026-10-27
+
+Result: **PASS, virtual-device validation only. Hardware NOT RUN.**
+
+The independent reviewer read the completed original artifacts and wrote a separate audit. No product/producer validation helper is imported, no original artifact or prior r1 audit was changed, and no guest, compiler or network request was started.
+
+## Actual evidence
+
+- **1,234 HTTP responses** independently verified against stored raw bytes, lengths, SHA-256 and ordered response-header pairs: 1,217 HTTP 200, six 201 and eleven 202 responses. Each POST body is associated with its exact response index.
+- All three immutable public package checkpoints: duplicate save and GET return identical metadata, including `created_at`. Canonical revision/source IDs, complete inventories and original file bytes agree with both ZIPs. Run receipt replay remains immutable; late inflight replay does not create a fourth execution.
+- **HTTP 1111** captures the exact reserved inflight execution with state `submitting`, same guest PID and firmware, phase `writing`, path `assets/pad.dat`, and **131,072 of 262,303 package bytes** reported. The subsequent serial baseline and **HTTP 1114** bind cancellation to that same execution.
+- The cancelled program history remains at exactly that pad event in both ZIPs. It is `interrupted` with independent confirmation, without acknowledged execution, verification, publication, activation or application START. The forbidden cancelled application's main marker is absent.
+- Raw UART independently contains **64 acknowledged 2,048-byte guest writes**, totaling 131,072 bytes, during this package's transfer interval. This supports the observed pad completion; it does not establish the remaining tail file's final contents.
+- Cancel baseline is byte **7135**. Independent interrupt acknowledgement spans **7137..7190**, exactly **53 raw bytes**. It contains `KeyboardInterrupt` and ends in a newly received raw REPL prompt. The interval matches `cancel-raw-window.raw.txt` byte for byte and is present in both ZIPs.
+- Finite initializer → inflight cancellation → C package recovery all use **PID 29803**, the same firmware SHA, one ROM boot, one UART bootstrap and a random in-memory `sys.path` nonce. Only finite/C have application START markers; there are three stored program records because the cancelled transfer has its own record.
+- Recovery uses the original **PIRUnit((1, 2))** driver and a real compiled `helper.mpy`. The recorded compiler/binary and `.mpy` bytes match. Raw guest hash-inventory receipts for finite and C agree exactly with their public checkpoint files; C's ready record binds its `.mpy` import, cwd, namespace/lib imports and managed path to the C package.
+- Fresh typed UART windows prove **PIR 0 → 1 → 0**, computed values **48 → 50 → 48**, helper 41, init 303 and logic 7. Each window matches its exact raw serial byte interval after C's START. Live Unit values and separately requested raw QOM input-level values agree.
+- The frame has C's exact Run/revision/execution/SHA HTTP identity. Its complete 24×24 resource is blue on a 320×240 PNG. Both live and retained-history PNGs were also viewed: `PKG C`, `PIR 0`.
+- Main and automatic before-close ZIPs each contain **31 safe, unique, nonsymlink members**, with exact manifest member indexes and correct individual size/hash. Session identity, frozen Unit contract/runtime attachment, final C frame and three histories agree.
+- The main evidence GET precedes close. Automatic evidence size/hash matches `closed.json`. Closed Preview, stopped retained history, last frame, released Flash, absent guest PID, zero active sessions and zero worker leases are verified. Service PID 26551/generation 33 remained stable.
+- All 17 recorded service-source hashes still match the service reload freeze. The actual producer source matches its pre-reviewed frozen SHA.
+
+## Scope
+
+This closes the explicit virtual CoreS3/PIR **package-deployment cancellation before verification/publication/activation** case and proves same-VM recovery. Tail completion, interruption of a specific chunk/byte, transactional rollback of peripheral effects, physical hardware, live-browser acceptance, other Units and other boards remain separate questions. Request Idempotency-Key use is bound to frozen producer source; the recorder does not retain raw request headers.
+
+## Exact provenance
+
+- Session: `82e5419d51ad44c2b8adad36603dd578`
+- Firmware SHA-256: `0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8`
+- Runtime SHA-256: `b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2`
+- Producer SHA-256: `778327b4e40c9d3ae98854fbfd8f4819a1b91e5f906d87ca00fd5d499d616e6b`
+- Compiler SHA-256: `c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b`
+- Main ZIP SHA-256: `733dc812f2b9e122c347c73611943084c16166d4494e8d14a10ac32cce3e7d4d`
+- Automatic before-close ZIP SHA-256: `70faf3e6f2796e3a657b4b214a05248e123016ad10c304eb0f27c135a6e2d5ab`
+- Raw prompt SHA-256: `db43b062a9b75a7b5561230e6c5f4bf0868a7865ea9ad9dd111fcabb99b901fb`
+- Independent audit script SHA-256: `3b3155b289dbfc69eb16dda8f1caaf51a4e6c73108ee769a5afb16e52f162dd0`
+
+Reproduce the read-only audit from the worktree root:
+
+```bash
+/opt/miniconda3/bin/python3.12 .work/preview-inflight-independent-review-20261027/audit.py
+```
+
+Machine-readable result: `report.json` in this folder.

@@ -12,8 +12,7 @@
 
 ## 一页结论
 
-UIFlow 的 `program_mode=uiflow-live` 与 `/program` 在原 MicroPython VM 传输、
-编译、运行和替换源码，首次准备 UART REPL 后不重复刷固件。四款准入主机的
+UIFlow 的 `program_mode=uiflow-live` 与 `/program` 在原 MicroPython VM 传输、编译、运行和替换源码，首次准备 UART REPL 后不重复刷固件。四款准入主机的
 PIR/Relay 已验证同 PID/固件/VM、原驱动、应用帧、循环替换与 SyntaxError 恢复。
 真实 CoreS3 Web 编辑器另验证双向输入/输出和实际帧像素送达屏幕，见[既有程序证据](evidence/2026-10-26-live-program-web-and-hosts/README.md)。
 CoreS3/AtomS3R/StickS3/StopWatch 的 HUB 下 ENV III/NCIR/TVOC 与
@@ -23,7 +22,8 @@ evidence、wait 与 stop 仍采集新帧。无后台采样或固定FPS保证，T
 时间与程序身份冻结于真实采集，preview样本序号不代表guest重绘或与Unit状态的原子快照；真实CoreS3的条件请求、程序/重置失效、历史和导出边界已验收。
 独立有界帧请求与owner/decode隔离、CoreS3 PIR/Relay共享帧与双向控制已验；六leaf另有CoreS3真实网页输入/DOM读回。RGB/Encoder/8Encoder默认全灯同色反馈按排列不变性实现，非对称/不可用时撤色并标unknown；逐灯与旋转binding仍为UNIT-HOST-29 OPEN，范围见[本块证据](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
 `/program`支持完整文件/资源和纯字节码`.mpy`依赖，同guest校验发布与托管模块替换；公共完整checkpoint保存/查询及同步revision引用已实现，串口按offset只读有界窗口。program_features明确main.py/fresh-globals/interrupt-only；普通导入不运行if-main，独立main.mpy入口为UNIT-HOST-33 OPEN，见[入口研究](evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/README.md)、[文件包证据](evidence/2026-10-26-live-package-and-detent/README.md)和[当前块](evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)。
-Scroll新增独立partial控制器：四主机同guest原驱动与CoreS3真实Web按键/RGB/屏幕已验；RGB队列、轴角、回绕、bootloader/持久化未完成，见[限定证据](evidence/2026-10-26-scroll-controller/README.md)。其它Unit、二进制入口、保存开机、Preview/Run、SSE与AIFlow目标仍开放，见[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。
+Scroll新增独立partial控制器：四主机同guest原驱动与CoreS3真实Web按键/RGB/屏幕已验；RGB队列、轴角、回绕、bootloader/持久化未完成，见[限定证据](evidence/2026-10-26-scroll-controller/README.md)。其它Unit、二进制入口、保存开机、Preview后续恢复/GC、SSE与AIFlow目标仍开放，见[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。
+1.42新增稳定Preview/异步Run、持久化幂等与latest-wins、真实prompt独立取消、输入drain/帧身份门禁和managed session/保留保护；CoreS3 PIR/Relay同VM完整包/MPY依赖、pending覆盖、运行中取消再跑、原驱动UART/QOM/PNG、ZIP与清理已验，见[限定验收](evidence/2026-10-27-preview-run-control/README.md)。CoreS3 PIR另验真实包writing中取消、fresh prompt后同VM恢复；重启恢复/并发仅有宿主负控，不继承为任意guest PASS。
 interrupt-only 不保证清空 native/定时器/IRQ/线程，断流/重连缺口保持 unknown。
 启动取消已有生命周期事务、pending自动收尾、停止意图版本、Network child收据和draining所有权门禁，见[取消回归](evidence/2026-10-26-session-cancellation-f309/README.md)。
 Unit客户端旧请求/队列和装配污染已有[响应隔离](evidence/2026-10-26-preview-client-fencing/README.md)；

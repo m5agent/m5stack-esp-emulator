@@ -1,0 +1,446 @@
+{
+  "status": "PASS",
+  "reviewed_at": "2026-10-26T17:16:59.748830+00:00",
+  "review_script_sha256": "24ba43f2e6541e108455d3e74c1ef3850a8c97a99a41406631a53cf2470bfa91",
+  "frozen_source_checks": {
+    "platform/tools/device_service.py": true,
+    "platform/tools/serve.py": true,
+    "platform/tools/frame_cache.py": true,
+    "platform/tools/guest_console.py": true,
+    "platform/tools/uiflow_runtime.py": true,
+    "platform/tools/program_revisions.py": true,
+    "platform/tools/program_packages.py": true,
+    "platform/tools/micropython_repl.py": true,
+    "platform/tools/uiflow_package_runtime.py": true,
+    "platform/tools/mpy_bytecode.py": true,
+    "platform/tools/unit_runtime.py": true,
+    "platform/units/catalog.json": true,
+    "platform/units/host-ports.json": true,
+    "platform/units/runtime-profiles.json": true,
+    "platform/tools/preview_service.py": true,
+    "platform/tools/preview_store.py": true,
+    "platform/tools/preview_retention.py": true
+  },
+  "cases": {
+    "pir": {
+      "status": "PASS",
+      "classification": "VIRTUAL_DEVICE_ONLY",
+      "hardware": "NOT RUN",
+      "unit": "pir",
+      "session_id": "ea8bd19210ed4d759b1b469f6188f70d",
+      "pid": 26717,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "http_responses_verified": 419,
+      "http_statuses": {
+        "200": 383,
+        "201": 8,
+        "202": 17,
+        "409": 7,
+        "400": 1,
+        "304": 1,
+        "410": 2
+      },
+      "worker_pid": 26551,
+      "worker_generation": 33,
+      "unit_qom_checks": [
+        {
+          "label": "a-0",
+          "property": "input-level",
+          "value": false,
+          "raw_qom": false
+        },
+        {
+          "label": "a-1",
+          "property": "input-level",
+          "value": true,
+          "raw_qom": true
+        },
+        {
+          "label": "a-final",
+          "property": "input-level",
+          "value": false,
+          "raw_qom": false
+        },
+        {
+          "label": "burst-d",
+          "property": "input-level",
+          "value": false,
+          "raw_qom": false
+        },
+        {
+          "label": "c-final",
+          "property": "input-level",
+          "value": false,
+          "raw_qom": false
+        }
+      ],
+      "same_vm_nonce": "8a7551c738664a3caac25bd4b5633ee3",
+      "main_sha256": "777c3f8d1fdfe2248cecb6fde4c4e23a28077a2b7b39c13f498d989d392e90fb",
+      "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+      "runner_sha256": "61dfb1931f9d507f56a987cca24566df411aeb460dda4289b32487246cde09e0",
+      "main_zip": {
+        "path": ".work/preview-live-cores3-pir-r1-20261027/evidence.zip",
+        "sha256": "7d0f44c1907380cd0b7d1c3974bd5c95f304f08107ed078881ef016d37707eb4",
+        "size": 53376,
+        "members": 46,
+        "execution_count": 4,
+        "serial_bytes": 13331,
+        "serial_observations": [
+          {
+            "run_id": "ccf7819d3bf14072b72450d8d9ec5806",
+            "execution_id": "14577817f81545c798531d1ae4e0c492",
+            "offset": 4967,
+            "next_offset": 5087,
+            "expected": {
+              "version": "A",
+              "unit": "pir",
+              "value": 0,
+              "helper": 17,
+              "init": 101,
+              "logic": 3,
+              "computed": 20
+            }
+          },
+          {
+            "run_id": "ccf7819d3bf14072b72450d8d9ec5806",
+            "execution_id": "14577817f81545c798531d1ae4e0c492",
+            "offset": 5087,
+            "next_offset": 5207,
+            "expected": {
+              "version": "A",
+              "unit": "pir",
+              "value": 1,
+              "helper": 17,
+              "init": 101,
+              "logic": 3,
+              "computed": 22
+            }
+          },
+          {
+            "run_id": "ccf7819d3bf14072b72450d8d9ec5806",
+            "execution_id": "14577817f81545c798531d1ae4e0c492",
+            "offset": 5207,
+            "next_offset": 6167,
+            "expected": {
+              "version": "A",
+              "unit": "pir",
+              "value": 0,
+              "helper": 17,
+              "init": 101,
+              "logic": 3,
+              "computed": 20
+            }
+          },
+          {
+            "run_id": "6c62a8e08c7e428f90880ccc78eda8dc",
+            "execution_id": "a2f1ad279cf246f4a989689f46a94a7b",
+            "offset": 9088,
+            "next_offset": 9755,
+            "expected": {
+              "version": "B",
+              "unit": "pir",
+              "value": 0,
+              "helper": 29,
+              "init": 202,
+              "logic": 5,
+              "computed": 34
+            }
+          },
+          {
+            "run_id": "6f6d7c9ab05c472b9936f1bc223745bf",
+            "execution_id": "ceb26382b0fd4095b81b5af30c960260",
+            "offset": 12664,
+            "next_offset": 13331,
+            "expected": {
+              "version": "C",
+              "unit": "pir",
+              "value": 0,
+              "helper": 41,
+              "init": 303,
+              "logic": 7,
+              "computed": 48
+            }
+          }
+        ],
+        "raw_guest_hash_inventories": 4,
+        "before_close": false
+      },
+      "automatic_zip": {
+        "path": ".work/unit-device-service/previews/eba02871eb564ba1a504efd587a7cad1/before-close.zip",
+        "sha256": "78eb4c7a10f6e33d042b5a5477ec5c703739850845e25fa94caac045c64af63d",
+        "size": 53458,
+        "members": 46,
+        "execution_count": 4,
+        "serial_bytes": 13451,
+        "serial_observations": [
+          {
+            "run_id": "ccf7819d3bf14072b72450d8d9ec5806",
+            "execution_id": "14577817f81545c798531d1ae4e0c492",
+            "offset": 4967,
+            "next_offset": 5087,
+            "expected": {
+              "version": "A",
+              "unit": "pir",
+              "value": 0,
+              "helper": 17,
+              "init": 101,
+              "logic": 3,
+              "computed": 20
+            }
+          },
+          {
+            "run_id": "ccf7819d3bf14072b72450d8d9ec5806",
+            "execution_id": "14577817f81545c798531d1ae4e0c492",
+            "offset": 5087,
+            "next_offset": 5207,
+            "expected": {
+              "version": "A",
+              "unit": "pir",
+              "value": 1,
+              "helper": 17,
+              "init": 101,
+              "logic": 3,
+              "computed": 22
+            }
+          },
+          {
+            "run_id": "ccf7819d3bf14072b72450d8d9ec5806",
+            "execution_id": "14577817f81545c798531d1ae4e0c492",
+            "offset": 5207,
+            "next_offset": 6167,
+            "expected": {
+              "version": "A",
+              "unit": "pir",
+              "value": 0,
+              "helper": 17,
+              "init": 101,
+              "logic": 3,
+              "computed": 20
+            }
+          },
+          {
+            "run_id": "6c62a8e08c7e428f90880ccc78eda8dc",
+            "execution_id": "a2f1ad279cf246f4a989689f46a94a7b",
+            "offset": 9088,
+            "next_offset": 9755,
+            "expected": {
+              "version": "B",
+              "unit": "pir",
+              "value": 0,
+              "helper": 29,
+              "init": 202,
+              "logic": 5,
+              "computed": 34
+            }
+          },
+          {
+            "run_id": "6f6d7c9ab05c472b9936f1bc223745bf",
+            "execution_id": "ceb26382b0fd4095b81b5af30c960260",
+            "offset": 12664,
+            "next_offset": 13331,
+            "expected": {
+              "version": "C",
+              "unit": "pir",
+              "value": 0,
+              "helper": 41,
+              "init": 303,
+              "logic": 7,
+              "computed": 48
+            }
+          }
+        ],
+        "raw_guest_hash_inventories": 4,
+        "before_close": true
+      },
+      "cleanup": {
+        "closed": true,
+        "retained_history": true,
+        "last_frame": true,
+        "flash_released": true,
+        "pid_absent_now": true
+      },
+      "limits": [
+        "B/C were superseded before UART synchronization, not mid-transfer cancellation.",
+        "Request header keys are source-bound by the recorded runner; the recorder retains response headers only.",
+        "This is HTTP/guest/frame/QOM evidence, not a live browser or physical hardware acceptance."
+      ]
+    },
+    "relay": {
+      "status": "PASS",
+      "classification": "VIRTUAL_DEVICE_ONLY",
+      "hardware": "NOT RUN",
+      "unit": "relay",
+      "session_id": "a4424d29f08d46ec818c15dadfab1488",
+      "pid": 26853,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "http_responses_verified": 368,
+      "http_statuses": {
+        "200": 332,
+        "201": 8,
+        "202": 17,
+        "409": 7,
+        "400": 1,
+        "304": 1,
+        "410": 2
+      },
+      "worker_pid": 26551,
+      "worker_generation": 33,
+      "unit_qom_checks": [
+        {
+          "label": "a-0",
+          "property": "output-level",
+          "value": false,
+          "raw_qom": false
+        },
+        {
+          "label": "a-final",
+          "property": "output-level",
+          "value": false,
+          "raw_qom": false
+        },
+        {
+          "label": "burst-d",
+          "property": "output-level",
+          "value": true,
+          "raw_qom": true
+        },
+        {
+          "label": "c-final",
+          "property": "output-level",
+          "value": false,
+          "raw_qom": false
+        }
+      ],
+      "same_vm_nonce": "49c9ba16f2c0451b9842244e49e701c5",
+      "main_sha256": "3ca53cf4d0241e1267f6866ea767377ebd339e696f6c7063c3d240a76ed3bef4",
+      "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+      "runner_sha256": "61dfb1931f9d507f56a987cca24566df411aeb460dda4289b32487246cde09e0",
+      "main_zip": {
+        "path": ".work/preview-live-cores3-relay-r1-20261027/evidence.zip",
+        "sha256": "da29f954856f887aacc65010e03822580d15c1520c079e94f5d07b528965d5b2",
+        "size": 55966,
+        "members": 46,
+        "execution_count": 4,
+        "serial_bytes": 12262,
+        "serial_observations": [
+          {
+            "run_id": "e770e95700dc4eb5a8d5ebf89ce52f2f",
+            "execution_id": "9298168684cc426982525fd9165bd27b",
+            "offset": 4970,
+            "next_offset": 5092,
+            "expected": {
+              "version": "A",
+              "unit": "relay",
+              "value": 0,
+              "helper": 17,
+              "init": 101,
+              "logic": 3,
+              "computed": 20
+            }
+          },
+          {
+            "run_id": "04da2d56356e4e518ac9dad86372240d",
+            "execution_id": "8ba36870291e40ae883960676b6ceb96",
+            "offset": 8014,
+            "next_offset": 8683,
+            "expected": {
+              "version": "B",
+              "unit": "relay",
+              "value": 1,
+              "helper": 29,
+              "init": 202,
+              "logic": 5,
+              "computed": 36
+            }
+          },
+          {
+            "run_id": "f01ed59b3c504d4b8dea5458b7ce62ec",
+            "execution_id": "c4ea248e36944396bba7b5bb33a7a849",
+            "offset": 11593,
+            "next_offset": 12262,
+            "expected": {
+              "version": "C",
+              "unit": "relay",
+              "value": 0,
+              "helper": 41,
+              "init": 303,
+              "logic": 7,
+              "computed": 48
+            }
+          }
+        ],
+        "raw_guest_hash_inventories": 4,
+        "before_close": false
+      },
+      "automatic_zip": {
+        "path": ".work/unit-device-service/previews/37ed60596fe747ffb648d86c05d4d0ce/before-close.zip",
+        "sha256": "1eeba092cc9d26be13200f396dfbc31de3257985c9fb59081985b6d7ffea7e34",
+        "size": 56067,
+        "members": 46,
+        "execution_count": 4,
+        "serial_bytes": 12384,
+        "serial_observations": [
+          {
+            "run_id": "e770e95700dc4eb5a8d5ebf89ce52f2f",
+            "execution_id": "9298168684cc426982525fd9165bd27b",
+            "offset": 4970,
+            "next_offset": 5092,
+            "expected": {
+              "version": "A",
+              "unit": "relay",
+              "value": 0,
+              "helper": 17,
+              "init": 101,
+              "logic": 3,
+              "computed": 20
+            }
+          },
+          {
+            "run_id": "04da2d56356e4e518ac9dad86372240d",
+            "execution_id": "8ba36870291e40ae883960676b6ceb96",
+            "offset": 8014,
+            "next_offset": 8683,
+            "expected": {
+              "version": "B",
+              "unit": "relay",
+              "value": 1,
+              "helper": 29,
+              "init": 202,
+              "logic": 5,
+              "computed": 36
+            }
+          },
+          {
+            "run_id": "f01ed59b3c504d4b8dea5458b7ce62ec",
+            "execution_id": "c4ea248e36944396bba7b5bb33a7a849",
+            "offset": 11593,
+            "next_offset": 12262,
+            "expected": {
+              "version": "C",
+              "unit": "relay",
+              "value": 0,
+              "helper": 41,
+              "init": 303,
+              "logic": 7,
+              "computed": 48
+            }
+          }
+        ],
+        "raw_guest_hash_inventories": 4,
+        "before_close": true
+      },
+      "cleanup": {
+        "closed": true,
+        "retained_history": true,
+        "last_frame": true,
+        "flash_released": true,
+        "pid_absent_now": true
+      },
+      "limits": [
+        "B/C were superseded before UART synchronization, not mid-transfer cancellation.",
+        "Request header keys are source-bound by the recorded runner; the recorder retains response headers only.",
+        "This is HTTP/guest/frame/QOM evidence, not a live browser or physical hardware acceptance."
+      ]
+    }
+  }
+}

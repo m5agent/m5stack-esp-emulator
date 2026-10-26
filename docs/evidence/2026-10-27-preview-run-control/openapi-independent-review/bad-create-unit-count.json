@@ -1,0 +1,105 @@
+{
+  "name": "bad-create-unit-count",
+  "method": "POST",
+  "template": "/previews",
+  "status": 400,
+  "response": {
+    "error": {
+      "code": "invalid_units",
+      "message": "units must be a list of at most 16"
+    }
+  },
+  "body_sha256": "bb64117471beaa536e6b6c248d64a3706c4eaa5e0d8dbf5a6836604c89f5ff2f",
+  "request": {
+    "device_id": "cores3",
+    "runtime": "qemu",
+    "ttl_seconds": 300,
+    "units": [
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      },
+      {
+        "id": "fixture-button",
+        "unit_id": "button",
+        "port_id": "port-a"
+      }
+    ]
+  }
+}

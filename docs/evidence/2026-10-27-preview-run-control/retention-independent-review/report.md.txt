@@ -1,0 +1,47 @@
+# Preview retention 独立审查
+
+2026-10-27。仅宿主代码审查/临时文件复现，不启动 guest，不修改产品，不 stage/commit。
+
+审查基线：`preview_retention.py` SHA `561e1cb0d2e1b64b88ec2f4d8d10bf05ca0d0fbfb44eff371b8b7cb30c77cd2b`。
+
+## P2：合法 JSON 中的损坏根被静默当成无引用
+
+`add_session_roots` 用 `_add` 接收 firmware_id/firmware_sha256；错误类型或缺字段被跳过。
+`_disk_session_roots` 只验证顶层 dict 与 session_id。bound/closed ledger 的 session_identity
+只含 session_id/firmware_sha256，不足以恢复缺失的 derived firmware ID。
+
+临时目录实测：建立真实 PreviewStore，状态 creating → bound/closed；对应 managed
+session.json 中 firmware_id=None、firmware_sha256 为有效 SHA、source_artifacts=[]、
+binding 三字段完整。`snapshot()` 返回 cache_barrier=false/history_barrier=false、
+firmware_ids=[]，`cache_deletion('firmware', 原ID)` 返回 protected=false。
+对照把 source_artifacts 改成 [123] 则能触发 barrier。ledger reference_sha256 的空/坏 SHA
+也仅通过 str 类型检查，属于同类语义校验缺口。
+
+建议：对 retained/managed session 的必要身份和所有已声明根做严格格式/一致性校验，
+语义损坏与读取失败一样 fail closed；补合法 JSON 损坏根测试。root 已转交另一 agent 修复。
+
+## 已审查且未发现另一明确阻断问题
+
+- 缓存 TTL 与空间压力两轮的 firmware/artifact/flash 删除均走删除 fence。
+- manual artifact、bulk history、orphan 清理接入同一根检查。
+- allocation token 在 entry/exit 增 generation；snapshot I/O 不持删除锁，generation
+  改变重读，覆盖读取旧快照时完成 allocation/binding 的窗口。
+- pending/creating/unknown 的重启屏障、managed disk marker 和 closed exact roots。
+- 源 metadata/segments 的递归 artifact 根、派生固件 SHA 与 flash-cache SHA。
+
+独立复跑 `test_preview_retention`：24 tests PASS。
+
+兼容性说明：manual delete_artifact 新 facade 也保护普通 legacy session 的 source_artifacts，
+比原 HTTP 直接 ArtifactStore.delete 更严格。建议交付文档明确这个行为；不能笼统声称未使用
+Preview 的所有旧删除行为均不变。
+
+## 修复复核
+
+P2 已关闭。独立临时目录复测 None ID、格式合法但 ID/SHA 不一致、非法 SHA 三种损坏，
+均得到 cache/history 双 barrier，实际固件不可删除。有效元数据正控不产生全局 barrier，
+派生固件、base SHA 对应固件和 source artifact 均保留，另一个无引用对象仍可删除。
+SHA 对应元数据被递归跟进；循环由 visited 集合限制。
+
+`test_preview_retention` 34 项、`test_device_input_validation` 13 项和
+`test_preview_service` 33 项联合独立复跑：80 tests PASS（0.960s）。
+精确源码哈希与复测结果见同目录 `fixed-verification.json`。

@@ -1,0 +1,90 @@
+..................................................................................................................................................................127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/artifacts HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/firmware HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "GET /api/v1/firmware/1a90cd56bfcceb773020032623c28eb30eecdcb2f8053a39341efe2e4a293d03 HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:09] "GET /api/v1/sessions/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/device-state HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:09] "GET /api/v1/openapi.yaml HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/workers HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/jobs HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/jobs/claim HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/jobs/claim HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/jobs/job-9da953807c6047b2a5e2/result HTTP/1.1" 409 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/jobs/job-9da953807c6047b2a5e2/result HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/workers/fence-68551d901a0a/stop HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/workers HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "GET /api/v1/workers HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/jobs HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/jobs HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/jobs/claim HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/jobs/job-2de164714068410ca33e/heartbeat HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/jobs/job-2de164714068410ca33e/result HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "GET /api/v1/jobs?status=completed&limit=10 HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/jobs HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/jobs/job-be0df7cb438f420793d0/cancel HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/workers/remote-8b9dafb80443/heartbeat HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/workers/remote-8b9dafb80443/results HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/workers/remote-8b9dafb80443/drain HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/workers/remote-8b9dafb80443/stop HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/workers/remote-8b9dafb80443/heartbeat HTTP/1.1" 409 -
+.127.0.0.1 - - [27/Oct/2026 01:01:09] "GET /api/v1/storage HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/storage/prune?include_cache=0 HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/artifact-uploads HTTP/1.1" 202 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/artifact-uploads/ae53b9e0a04e45b486dba0528a11f9a7/chunks HTTP/1.1" 202 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "GET /api/v1/artifact-uploads/ae53b9e0a04e45b486dba0528a11f9a7 HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/artifact-uploads/ae53b9e0a04e45b486dba0528a11f9a7/chunks HTTP/1.1" 202 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/artifact-uploads/ae53b9e0a04e45b486dba0528a11f9a7/complete HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "GET /api/v1/artifacts/446e0eba25b871b7836d4ead0932b972024758b5fcaf8c1d9c60eadd2ec3cb57 HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/artifact-uploads HTTP/1.1" 202 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "DELETE /api/v1/artifact-uploads/1e16d5dae21546f6aba8bb53a6cb5960 HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:09] "GET /api/v1/devices HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "GET /api/v1/capacity HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/worker/drain HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/worker/resume HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:09] "POST /api/v1/artifacts HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:10] "POST /api/v1/firmware/import HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:10] "POST /api/v1/firmware/import HTTP/1.1" 409 -
+127.0.0.1 - - [27/Oct/2026 01:01:10] "POST /api/v1/firmware/import HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:10] "POST /api/v1/firmware/import HTTP/1.1" 400 -
+.....................................................................................................127.0.0.1 - - [27/Oct/2026 01:01:15] "GET /api/devices HTTP/1.1" 401 -
+127.0.0.1 - - [27/Oct/2026 01:01:15] "GET /api/devices HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:15] "GET /api/v1/workers HTTP/1.1" 401 -
+127.0.0.1 - - [27/Oct/2026 01:01:15] "POST /api/v1/workers HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:01:15] "POST /api/v1/workers/auth-worker/heartbeat HTTP/1.1" 401 -
+127.0.0.1 - - [27/Oct/2026 01:01:15] "POST /api/v1/workers/auth-worker/heartbeat HTTP/1.1" 200 -
+.........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................127.0.0.1 - - [27/Oct/2026 01:01:58] "GET /api/peripherals HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:58] "GET /api/v1/units?device_id=cores3 HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:58] "GET /api/peripheral-interfaces HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:58] "GET /api/peripheral-interfaces/bmi270 HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:58] "GET /api/peripherals/stackchan HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:58] "GET /api/peripherals/tab5 HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:01:58] "GET /api/v1/units/env-iii HTTP/1.1" 200 -
+................127.0.0.1 - - [27/Oct/2026 01:02:01] "GET /api/health HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:02:01] "GET /api/health HTTP/1.1" 200 -
+.generated 14 devices -> devices/catalog.json
+security configuration drain started
+security configuration reload canceled: request drain timed out
+.security configuration drain started
+security configuration reloaded
+.........................................................................127.0.0.1 - - [27/Oct/2026 01:02:04] "POST /api/v1/firmware/uiflow HTTP/1.1" 400 -
+.127.0.0.1 - - [27/Oct/2026 01:02:04] "POST /api/v1/firmware/uiflow HTTP/1.1" 413 -
+.127.0.0.1 - - [27/Oct/2026 01:02:04] "POST /api/v1/firmware/uiflow HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:02:04] "POST /api/v1/firmware HTTP/1.1" 201 -
+127.0.0.1 - - [27/Oct/2026 01:02:04] "GET /api/v1/firmware/0f6a64d82ce7aba6dac9a4a3b479e10e13232992bed4763147418530bbead18b HTTP/1.1" 200 -
+.127.0.0.1 - - [27/Oct/2026 01:02:04] "POST /api/v1/firmware/uiflow HTTP/1.1" 401 -
+.................................................................................................................worker credentials reloaded fingerprint=b450bd811e5dc22c68ab4df2e5431f892065552d24e92c0dd044e0289612049f
+worker credential reload failed: invalid staged token
+.worker credentials reloaded fingerprint=d2f66bcffd45e0234d711de306a2a1ee34005b3da3f83ea36ca805208b581f5e
+....worker runtime service unavailable; retrying
+worker runtime service reconnected
+worker runtime service unavailable; retrying
+worker runtime service reconnected
+worker runtime service unavailable; retrying
+worker runtime service reconnected
+...worker control plane unavailable; retrying
+worker control plane reconnected
+...........................127.0.0.1 - - [27/Oct/2026 01:02:44] "GET /worker-discovery/v1/beacon HTTP/1.1" 200 -
+127.0.0.1 - - [27/Oct/2026 01:02:44] "GET /worker-discovery/v1/beacon HTTP/1.1" 200 -
+.................
+----------------------------------------------------------------------
+Ran 1107 tests in 101.213s
+
+OK

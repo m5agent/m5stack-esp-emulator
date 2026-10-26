@@ -1,0 +1,763 @@
+{
+  "name": "list-closed",
+  "method": "GET",
+  "template": "/previews",
+  "status": 200,
+  "response": {
+    "previews": [
+      {
+        "active_run_id": null,
+        "allocation_key": "preview:cc481acc1157480e8a99f87a7cf0fc0b:allocation:1",
+        "allocation_state": "bound",
+        "blocked_reason": null,
+        "capabilities": {
+          "application_ready": "unknown",
+          "cleanup_mode": "interrupt-only",
+          "events": "polling",
+          "execution_mode": "same-guest-uart-repl",
+          "frame": "on-demand",
+          "gc_enabled": false,
+          "hotplug": false,
+          "input": true,
+          "latest_wins": true,
+          "main_mpy": false,
+          "principal_mode": "shared-control-bearer-local-control",
+          "run_cancellation": true
+        },
+        "cleanup": {
+          "device_id": "cores3",
+          "firmware_id": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "firmware_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "flash_retained": false,
+          "last_frame_available": true,
+          "management_binding": {
+            "expected_reference_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+            "preview_id": "cc481acc1157480e8a99f87a7cf0fc0b"
+          },
+          "pid": 42424242,
+          "program": {
+            "acknowledged": true,
+            "execution_id": "2fbbf918c6b14c219a76c4bd71583d63",
+            "firmware_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "interrupt_ack": {
+              "interruption_confirmed": true,
+              "prompt_end": 30,
+              "serial_offset": 0
+            },
+            "interruption_confirmed": true,
+            "pid": 42424242,
+            "revision_id": "5b3fa3db2e311f237a7bffee9859bd8961b1053b1656ffff9aec078bb5eb751e",
+            "serial_offset": 0,
+            "state": "interrupted"
+          },
+          "program_transport": "uart-repl",
+          "runtime": "qemu",
+          "session_id": "06c707302aa9439aa9aefbb09531a429",
+          "state": "stopped",
+          "unit_contract": {
+            "fixtures": {},
+            "profiles": {
+              "button": {
+                "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+                "guest_validation": {
+                  "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                  "device_id": "cores3",
+                  "evidence_sha256": "798d3876cc2915f5efdee477652c4e32eaf6c739cff4fe28d26bfe6711cfc3b7",
+                  "firmware_flavor": "reference-app-with-original-unit-drivers",
+                  "firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+                  "hardware": "NOT RUN",
+                  "live_browser": "PASS",
+                  "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/button/report.json",
+                  "report_sha256": "9e531c2341bc8fcb579f694eeeeefd416cfe4903c54f71e9802fd260969c74c0",
+                  "runtime": "qemu",
+                  "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                  "runtime_proof_kind": "direct-pid",
+                  "status": "PASS",
+                  "worker_generation": 7
+                },
+                "host_validation": {
+                  "atoms3r": {
+                    "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/atoms3r/selection.json",
+                    "batch_selection_sha256": "2c0e03a4c92e4ea06abbeedc3583b96b21388638d66766942afa0d94ac6de8a2",
+                    "browser_framing": "PASS",
+                    "device_id": "atoms3r",
+                    "evidence_sha256": "b46dd38f6856710bbaf264e9b20ad932045577e125b1217a87df721d0e854426",
+                    "firmware_flavor": "reference-app-with-original-unit-drivers",
+                    "firmware_sha256": "e59a6b09535e28d3a0224e4d7d9adcc3b17cc380d425c3cb31dd156954216090",
+                    "guest_controller": "PASS",
+                    "hardware": "NOT RUN",
+                    "live_browser": "PASS",
+                    "native_frame": "PASS",
+                    "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/atoms3r/button/report.json",
+                    "report_sha256": "604c4fcf1b1c1e95402141de15ca05c582a49df6083a520c2ae84f7b55a36c26",
+                    "runtime": "qemu",
+                    "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                    "runtime_proof_kind": "direct-pid",
+                    "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited.",
+                    "session_id": "1e0e6202d6f945099a758dac387bb24c",
+                    "status": "PASS",
+                    "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                    "validation": "virtual-device validation",
+                    "worker_generation": 9
+                  },
+                  "sticks3": {
+                    "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/sticks3/selection.json",
+                    "batch_selection_sha256": "eb4845dc43c208fb3bf8c176ea8d63dec9e2839327f61c8a476120e7f4c34fae",
+                    "browser_framing": "PASS",
+                    "device_id": "sticks3",
+                    "evidence_sha256": "8c70a5638ee86af47109ec9665f9659f4445ccb0f7c1519a2124a43fcc307a6e",
+                    "firmware_flavor": "reference-app-with-original-unit-drivers",
+                    "firmware_sha256": "ed4935e565e30c43c8f4d07e99d807d7b140146c62f77c395446784b7b9acbb3",
+                    "guest_controller": "PASS",
+                    "hardware": "NOT RUN",
+                    "live_browser": "PASS",
+                    "native_frame": "PASS",
+                    "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/button/report.json",
+                    "report_sha256": "a86107aae966f4c06a6789553887928b69bd5ca1f22ce960d43c0f6e14e786ea",
+                    "runtime": "qemu",
+                    "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                    "runtime_proof_kind": "direct-pid",
+                    "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited.",
+                    "session_id": "07deec40cec54109a00201b11efdc73e",
+                    "status": "PASS",
+                    "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                    "validation": "virtual-device validation",
+                    "worker_generation": 9
+                  },
+                  "stopwatch": {
+                    "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/stopwatch/selection.json",
+                    "batch_selection_sha256": "9f5361faf2b643ab3af76d6163fef371452a021add731d4507add2e244aa3d86",
+                    "browser_framing": "PASS",
+                    "device_id": "stopwatch",
+                    "evidence_sha256": "69b8fa2f43ddd0bc6d95493b9caee28fd223bf180716b4f87675803725263c4b",
+                    "firmware_flavor": "reference-app-with-original-unit-drivers",
+                    "firmware_sha256": "c9175fe667649cf28997a9caacdc903d3ca415bc14a72654987c21049f0a28d7",
+                    "guest_controller": "PASS",
+                    "hardware": "NOT RUN",
+                    "live_browser": "PASS",
+                    "native_frame": "PASS",
+                    "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/button/report.json",
+                    "report_sha256": "0a1955ff168c97f3f3edee8e0710c1f890b56f6efe41bcfdb1d1fc1b9a5b31f7",
+                    "runtime": "qemu",
+                    "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                    "runtime_proof_kind": "direct-pid",
+                    "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited.",
+                    "session_id": "b9732a338aae475f9a24d6010e9618f5",
+                    "status": "PASS",
+                    "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                    "validation": "virtual-device validation",
+                    "worker_generation": 9
+                  }
+                },
+                "hosts": [
+                  "cores3",
+                  "atoms3r",
+                  "sticks3",
+                  "stopwatch"
+                ],
+                "inputs": {
+                  "pressed": {
+                    "property": "pressed"
+                  }
+                },
+                "state": {
+                  "input-events": {
+                    "property": "input-events"
+                  },
+                  "input-level": {
+                    "property": "input-level"
+                  },
+                  "output-transitions": {
+                    "property": "output-transitions"
+                  },
+                  "pressed": {
+                    "property": "pressed"
+                  },
+                  "read-bytes": {
+                    "property": "read-bytes"
+                  },
+                  "transactions": {
+                    "property": "transactions"
+                  },
+                  "written-bytes": {
+                    "property": "written-bytes"
+                  }
+                },
+                "status": "implemented"
+              }
+            },
+            "schema_version": 1,
+            "source_hashes": {
+              "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+              "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+              "runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+            },
+            "units": {
+              "button": {
+                "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+                "checked_at": "2026-10-26",
+                "chips": [
+                  {
+                    "part": "momentary switch and resistor divider",
+                    "status": "officially-documented"
+                  }
+                ],
+                "evidence": [
+                  {
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "SKU and chip identity",
+                      "PinMap wire colors",
+                      "documented electrical and functional limits"
+                    ],
+                    "kind": "official-product",
+                    "url": "https://docs.m5stack.com/en/unit/button"
+                  },
+                  {
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "guest driver transaction path and encoding"
+                    ],
+                    "kind": "official-driver",
+                    "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+                    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/button.py"
+                  },
+                  {
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "guest driver transaction path and encoding"
+                    ],
+                    "kind": "official-driver",
+                    "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+                    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py"
+                  },
+                  {
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                    ],
+                    "kind": "official-linked-datasheet-or-schematic",
+                    "retrieval_status": "linked-by-verified-product-page",
+                    "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/804/U027_UNIT_BUTTON_SCHE.pdf"
+                  }
+                ],
+                "id": "button",
+                "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+                "inputs": {
+                  "pressed": {
+                    "default": false,
+                    "default_source": "synthetic-test-fixture",
+                    "label": "\u6309\u4e0b",
+                    "readOnly": false,
+                    "type": "boolean"
+                  }
+                },
+                "interface": {
+                  "address_7bit": [],
+                  "bus": "gpio",
+                  "connector": "HY2.0-4P",
+                  "pins": {
+                    "black": {
+                      "direction": "ground",
+                      "signal": "GND"
+                    },
+                    "red": {
+                      "direction": "power",
+                      "signal": "5V"
+                    },
+                    "white": {
+                      "active_level": 0,
+                      "direction": "unit-to-host",
+                      "signal": "button"
+                    },
+                    "yellow": {
+                      "direction": "none",
+                      "signal": "NC"
+                    }
+                  },
+                  "power": {
+                    "logic_v": null,
+                    "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label",
+                    "nominal_v": 5,
+                    "source": "official-product-PinMap"
+                  }
+                },
+                "limitations": [
+                  "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+                  "This catalog alone does not authorize a simulated or functional-PASS claim."
+                ],
+                "model_status": "planned",
+                "name": "Button",
+                "official_docs": "https://docs.m5stack.com/en/unit/button",
+                "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+                "outputs": {},
+                "protocol": {
+                  "gaps": [],
+                  "registers": [],
+                  "status": "documented",
+                  "summary": "Active-low button output on the white wire; released high and pressed low. UIFlow ButtonUnit aliases LIMITUnit and configures port[0] with pull-up and active_low=True."
+                },
+                "research_status": "confirmed-contract",
+                "runtime": {
+                  "properties": {
+                    "pressed": {
+                      "access": "read-write",
+                      "property": "pressed",
+                      "type": "boolean"
+                    }
+                  },
+                  "qom_path_template": "/machine/units/{attachment_id}",
+                  "required_data_plane": "GPIO matrix/pad input or output observation",
+                  "status": "unsupported"
+                },
+                "sku": "U027",
+                "visual_asset": {
+                  "entry": "src/units/button/index.js",
+                  "export": "GroveModule"
+                }
+              }
+            }
+          },
+          "units": [
+            {
+              "id": "fixture-button",
+              "initial": {},
+              "pins": {
+                "white": 1,
+                "yellow": 2
+              },
+              "port_id": "port-a",
+              "unit_id": "button",
+              "visual_port": "grove"
+            }
+          ]
+        },
+        "close_evidence": {
+          "captured_at": "2026-10-26T17:04:01.312367+00:00",
+          "path": "previews/cc481acc1157480e8a99f87a7cf0fc0b/before-close.zip",
+          "sha256": "8a4f2965173b9a28f22849735443920a04105ecc79470ee7e02f40d048abab81",
+          "size": 10510,
+          "status": "captured"
+        },
+        "completed_at": "2026-10-26T17:04:01.313523+00:00",
+        "created_at": "2026-10-26T17:04:01.218310+00:00",
+        "desired_run_id": null,
+        "error": null,
+        "expires_at": "2026-10-26T17:09:01.263803+00:00",
+        "generation": 1,
+        "held_inputs": {},
+        "limits": {
+          "gc_enabled": false,
+          "max_previews": 128,
+          "max_runs_per_preview": 256,
+          "retention_mode": "retention-only"
+        },
+        "owner": "local-control",
+        "owner_epoch": "8a9baeb426154af2ae8e49a432d4fd34",
+        "preview_id": "cc481acc1157480e8a99f87a7cf0fc0b",
+        "request": {
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "ttl_seconds": 300,
+          "units": [
+            {
+              "id": "fixture-button",
+              "port_id": "port-a",
+              "unit_id": "button"
+            }
+          ]
+        },
+        "session_id": "06c707302aa9439aa9aefbb09531a429",
+        "session_identity": {
+          "firmware_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "session_id": "06c707302aa9439aa9aefbb09531a429"
+        },
+        "session_request": {
+          "device_id": "cores3",
+          "frozen_unit_contract": {
+            "fixtures": {},
+            "profiles": {
+              "button": {
+                "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+                "guest_validation": {
+                  "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                  "device_id": "cores3",
+                  "evidence_sha256": "798d3876cc2915f5efdee477652c4e32eaf6c739cff4fe28d26bfe6711cfc3b7",
+                  "firmware_flavor": "reference-app-with-original-unit-drivers",
+                  "firmware_sha256": "8f2614cc852f5eaca4f72b824d499d27cbe5914edc6ef5b8b1b3c239b6fdbdf1",
+                  "hardware": "NOT RUN",
+                  "live_browser": "PASS",
+                  "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/button/report.json",
+                  "report_sha256": "9e531c2341bc8fcb579f694eeeeefd416cfe4903c54f71e9802fd260969c74c0",
+                  "runtime": "qemu",
+                  "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                  "runtime_proof_kind": "direct-pid",
+                  "status": "PASS",
+                  "worker_generation": 7
+                },
+                "host_validation": {
+                  "atoms3r": {
+                    "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/atoms3r/selection.json",
+                    "batch_selection_sha256": "2c0e03a4c92e4ea06abbeedc3583b96b21388638d66766942afa0d94ac6de8a2",
+                    "browser_framing": "PASS",
+                    "device_id": "atoms3r",
+                    "evidence_sha256": "b46dd38f6856710bbaf264e9b20ad932045577e125b1217a87df721d0e854426",
+                    "firmware_flavor": "reference-app-with-original-unit-drivers",
+                    "firmware_sha256": "e59a6b09535e28d3a0224e4d7d9adcc3b17cc380d425c3cb31dd156954216090",
+                    "guest_controller": "PASS",
+                    "hardware": "NOT RUN",
+                    "live_browser": "PASS",
+                    "native_frame": "PASS",
+                    "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/atoms3r/button/report.json",
+                    "report_sha256": "604c4fcf1b1c1e95402141de15ca05c582a49df6083a520c2ae84f7b55a36c26",
+                    "runtime": "qemu",
+                    "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                    "runtime_proof_kind": "direct-pid",
+                    "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited.",
+                    "session_id": "1e0e6202d6f945099a758dac387bb24c",
+                    "status": "PASS",
+                    "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                    "validation": "virtual-device validation",
+                    "worker_generation": 9
+                  },
+                  "sticks3": {
+                    "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/sticks3/selection.json",
+                    "batch_selection_sha256": "eb4845dc43c208fb3bf8c176ea8d63dec9e2839327f61c8a476120e7f4c34fae",
+                    "browser_framing": "PASS",
+                    "device_id": "sticks3",
+                    "evidence_sha256": "8c70a5638ee86af47109ec9665f9659f4445ccb0f7c1519a2124a43fcc307a6e",
+                    "firmware_flavor": "reference-app-with-original-unit-drivers",
+                    "firmware_sha256": "ed4935e565e30c43c8f4d07e99d807d7b140146c62f77c395446784b7b9acbb3",
+                    "guest_controller": "PASS",
+                    "hardware": "NOT RUN",
+                    "live_browser": "PASS",
+                    "native_frame": "PASS",
+                    "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/button/report.json",
+                    "report_sha256": "a86107aae966f4c06a6789553887928b69bd5ca1f22ce960d43c0f6e14e786ea",
+                    "runtime": "qemu",
+                    "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                    "runtime_proof_kind": "direct-pid",
+                    "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited.",
+                    "session_id": "07deec40cec54109a00201b11efdc73e",
+                    "status": "PASS",
+                    "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                    "validation": "virtual-device validation",
+                    "worker_generation": 9
+                  },
+                  "stopwatch": {
+                    "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/stopwatch/selection.json",
+                    "batch_selection_sha256": "9f5361faf2b643ab3af76d6163fef371452a021add731d4507add2e244aa3d86",
+                    "browser_framing": "PASS",
+                    "device_id": "stopwatch",
+                    "evidence_sha256": "69b8fa2f43ddd0bc6d95493b9caee28fd223bf180716b4f87675803725263c4b",
+                    "firmware_flavor": "reference-app-with-original-unit-drivers",
+                    "firmware_sha256": "c9175fe667649cf28997a9caacdc903d3ca415bc14a72654987c21049f0a28d7",
+                    "guest_controller": "PASS",
+                    "hardware": "NOT RUN",
+                    "live_browser": "PASS",
+                    "native_frame": "PASS",
+                    "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/button/report.json",
+                    "report_sha256": "0a1955ff168c97f3f3edee8e0710c1f890b56f6efe41bcfdb1d1fc1b9a5b31f7",
+                    "runtime": "qemu",
+                    "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                    "runtime_proof_kind": "direct-pid",
+                    "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited.",
+                    "session_id": "b9732a338aae475f9a24d6010e9618f5",
+                    "status": "PASS",
+                    "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                    "validation": "virtual-device validation",
+                    "worker_generation": 9
+                  }
+                },
+                "hosts": [
+                  "cores3",
+                  "atoms3r",
+                  "sticks3",
+                  "stopwatch"
+                ],
+                "inputs": {
+                  "pressed": {
+                    "property": "pressed"
+                  }
+                },
+                "state": {
+                  "input-events": {
+                    "property": "input-events"
+                  },
+                  "input-level": {
+                    "property": "input-level"
+                  },
+                  "output-transitions": {
+                    "property": "output-transitions"
+                  },
+                  "pressed": {
+                    "property": "pressed"
+                  },
+                  "read-bytes": {
+                    "property": "read-bytes"
+                  },
+                  "transactions": {
+                    "property": "transactions"
+                  },
+                  "written-bytes": {
+                    "property": "written-bytes"
+                  }
+                },
+                "status": "implemented"
+              }
+            },
+            "schema_version": 1,
+            "source_hashes": {
+              "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+              "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+              "runtime-profiles.json": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480"
+            },
+            "units": {
+              "button": {
+                "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact.",
+                "checked_at": "2026-10-26",
+                "chips": [
+                  {
+                    "part": "momentary switch and resistor divider",
+                    "status": "officially-documented"
+                  }
+                ],
+                "evidence": [
+                  {
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "SKU and chip identity",
+                      "PinMap wire colors",
+                      "documented electrical and functional limits"
+                    ],
+                    "kind": "official-product",
+                    "url": "https://docs.m5stack.com/en/unit/button"
+                  },
+                  {
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "guest driver transaction path and encoding"
+                    ],
+                    "kind": "official-driver",
+                    "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+                    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/button.py"
+                  },
+                  {
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "guest driver transaction path and encoding"
+                    ],
+                    "kind": "official-driver",
+                    "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+                    "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/limit.py"
+                  },
+                  {
+                    "checked_at": "2026-10-26",
+                    "claims": [
+                      "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                    ],
+                    "kind": "official-linked-datasheet-or-schematic",
+                    "retrieval_status": "linked-by-verified-product-page",
+                    "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/804/U027_UNIT_BUTTON_SCHE.pdf"
+                  }
+                ],
+                "id": "button",
+                "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+                "inputs": {
+                  "pressed": {
+                    "default": false,
+                    "default_source": "synthetic-test-fixture",
+                    "label": "\u6309\u4e0b",
+                    "readOnly": false,
+                    "type": "boolean"
+                  }
+                },
+                "interface": {
+                  "address_7bit": [],
+                  "bus": "gpio",
+                  "connector": "HY2.0-4P",
+                  "pins": {
+                    "black": {
+                      "direction": "ground",
+                      "signal": "GND"
+                    },
+                    "red": {
+                      "direction": "power",
+                      "signal": "5V"
+                    },
+                    "white": {
+                      "active_level": 0,
+                      "direction": "unit-to-host",
+                      "signal": "button"
+                    },
+                    "yellow": {
+                      "direction": "none",
+                      "signal": "NC"
+                    }
+                  },
+                  "power": {
+                    "logic_v": null,
+                    "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label",
+                    "nominal_v": 5,
+                    "source": "official-product-PinMap"
+                  }
+                },
+                "limitations": [
+                  "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+                  "This catalog alone does not authorize a simulated or functional-PASS claim."
+                ],
+                "model_status": "planned",
+                "name": "Button",
+                "official_docs": "https://docs.m5stack.com/en/unit/button",
+                "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+                "outputs": {},
+                "protocol": {
+                  "gaps": [],
+                  "registers": [],
+                  "status": "documented",
+                  "summary": "Active-low button output on the white wire; released high and pressed low. UIFlow ButtonUnit aliases LIMITUnit and configures port[0] with pull-up and active_low=True."
+                },
+                "research_status": "confirmed-contract",
+                "runtime": {
+                  "properties": {
+                    "pressed": {
+                      "access": "read-write",
+                      "property": "pressed",
+                      "type": "boolean"
+                    }
+                  },
+                  "qom_path_template": "/machine/units/{attachment_id}",
+                  "required_data_plane": "GPIO matrix/pad input or output observation",
+                  "status": "unsupported"
+                },
+                "sku": "U027",
+                "visual_asset": {
+                  "entry": "src/units/button/index.js",
+                  "export": "GroveModule"
+                }
+              }
+            }
+          },
+          "frozen_units": [
+            {
+              "id": "fixture-button",
+              "initial": {},
+              "pins": {
+                "white": 1,
+                "yellow": 2
+              },
+              "port_id": "port-a",
+              "unit_id": "button",
+              "visual_port": "grove"
+            }
+          ],
+          "preview_capabilities": {
+            "application_ready": "unknown",
+            "cleanup_mode": "interrupt-only",
+            "events": "polling",
+            "execution_mode": "same-guest-uart-repl",
+            "frame": "on-demand",
+            "gc_enabled": false,
+            "hotplug": false,
+            "input": true,
+            "latest_wins": true,
+            "main_mpy": false,
+            "principal_mode": "shared-control-bearer-local-control",
+            "run_cancellation": true
+          },
+          "program_mode": "uiflow-live",
+          "ready_timeout_seconds": 40,
+          "reference_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "runtime": "qemu",
+          "ttl_seconds": 300,
+          "units": [
+            {
+              "id": "fixture-button",
+              "port_id": "port-a",
+              "unit_id": "button"
+            }
+          ]
+        },
+        "state": "closed",
+        "transition_run_id": null,
+        "updated_at": "2026-10-26T17:04:01.313680+00:00"
+      },
+      {
+        "active_run_id": null,
+        "allocation_key": "preview:2c49cda467db4326a3bfd92a8906b965:allocation:1",
+        "allocation_state": "pending",
+        "capabilities": {
+          "application_ready": "unknown",
+          "cleanup_mode": "interrupt-only",
+          "events": "polling",
+          "execution_mode": "same-guest-uart-repl",
+          "frame": "on-demand",
+          "gc_enabled": false,
+          "hotplug": false,
+          "input": true,
+          "latest_wins": true,
+          "main_mpy": false,
+          "principal_mode": "shared-control-bearer-local-control",
+          "run_cancellation": true
+        },
+        "created_at": "2026-10-26T17:04:01.292132+00:00",
+        "desired_run_id": null,
+        "error": null,
+        "expires_at": "2026-10-26T17:09:01.288847+00:00",
+        "generation": 0,
+        "limits": {
+          "gc_enabled": false,
+          "max_previews": 128,
+          "max_runs_per_preview": 256,
+          "retention_mode": "retention-only"
+        },
+        "owner": "local-control",
+        "owner_epoch": "3f0b23bcf1e34c53bc795476c02cc75f",
+        "preview_id": "2c49cda467db4326a3bfd92a8906b965",
+        "request": {
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "ttl_seconds": 300,
+          "units": null
+        },
+        "session_id": null,
+        "session_request": {
+          "device_id": "cores3",
+          "frozen_unit_contract": null,
+          "frozen_units": [],
+          "preview_capabilities": {
+            "application_ready": "unknown",
+            "cleanup_mode": "interrupt-only",
+            "events": "polling",
+            "execution_mode": "same-guest-uart-repl",
+            "frame": "on-demand",
+            "gc_enabled": false,
+            "hotplug": false,
+            "input": true,
+            "latest_wins": true,
+            "main_mpy": false,
+            "principal_mode": "shared-control-bearer-local-control",
+            "run_cancellation": true
+          },
+          "program_mode": "uiflow-live",
+          "ready_timeout_seconds": 40,
+          "reference_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "runtime": "qemu",
+          "ttl_seconds": 300,
+          "units": null
+        },
+        "state": "preparing",
+        "transition_run_id": null,
+        "updated_at": "2026-10-26T17:04:01.292132+00:00"
+      }
+    ],
+    "limits": {
+      "max_previews": 128,
+      "max_runs_per_preview": 256,
+      "retention_mode": "retention-only",
+      "gc_enabled": false
+    }
+  },
+  "body_sha256": "120a73aeda8cb465f26b92aa12f11dcf14739dcb6a7ac0f5ff929994c893eed7"
+}

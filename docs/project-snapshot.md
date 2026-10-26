@@ -88,33 +88,33 @@
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
-| `UNIT-01` | 进行中 | 同guest程序的剩余Unit、二进制入口与保存开机程序；AIFlow checkpoint/虚拟目标、Preview/Run及SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它三款准入主机剩余Unit的实际源码API执行、ADC app calibration/ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、矩阵命令记录、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 |
+| `UNIT-01` | 进行中 | 同guest程序的剩余Unit、二进制入口与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它三款准入主机剩余Unit的实际源码API执行、ADC app calibration/ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、矩阵命令记录、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
 ## 代码与文档规模
 
-- `platform/tools`：`52` 个 Python 模块，`40113` 行；规模最大的模块如下。
+- `platform/tools`：`55` 个 Python 模块，`42128` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 10910 |
+| `device_service.py` | 11284 |
 | `firmware_manifest.py` | 3612 |
 | `user_firmware_matrix.py` | 2069 |
 | `network_sandbox.py` | 1681 |
-| `serve.py` | 1476 |
+| `serve.py` | 1540 |
 | `firmware_filesystems.py` | 1469 |
 
 - `tests/`：`103` 个可执行 Python 测试文件，分布在 `55` 个目录；`221` 个 evidence JSON。
 - `patches/`：`13` 个补丁组，`82` 个 patch 文件。
-- 文档：`403` 个 Markdown 页面；除本生成页外共 `35022` 行。
+- 文档：`405` 个 Markdown 页面；除本生成页外共 `35248` 行。
 
 ## 文档与测试
 
-- 平台测试：`972` 项。
-- Docs 新鲜度登记：`106` 行；其中非历史页 `36` 行，历史固定页 `70` 行。
-- 文档职责分布：待办 `3`，契约 `6`，历史固定 `70`，实现/设计 `8`，参考 `15`，工作流/导航 `4`。
-- 全量文档盘点：`403` 个 Markdown 页面；职责分布：权威/专题页 `106`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `14`，平台说明 `4`，仓内历史记录 `5`，测试/用例说明 `147`，未登记 docs 页面 `2`，第三方来源说明 `102`。
-- 复核日期早于当前事实日期的非历史页：[engineering-handoff.md](engineering-handoff.md) `2026-10-26`，[workstreams.md](workstreams.md) `2026-10-26`，[project-snapshot.md](project-snapshot.md) `2026-10-26`，[unified-device-runtime.md](unified-device-runtime.md) `2026-10-26`，[core2-native-hci-backend.md](core2-native-hci-backend.md) `2026-10-26`，[firmware-manifest.md](firmware-manifest.md) `2026-10-26`，[runtime-model-gap-register.md](runtime-model-gap-register.md) `2026-10-26`，[network-simulation-plan.md](network-simulation-plan.md) `2026-10-26`，[network-lane.md](network-lane.md) `2026-10-26`，[qemu-device-adaptation-matrix.md](qemu-device-adaptation-matrix.md) `2026-10-26`，[uiflow2-peripheral-test-matrix.md](uiflow2-peripheral-test-matrix.md) `2026-10-26`，[tab5-deferred-backlog.md](tab5-deferred-backlog.md) `2026-10-26`，[device-visual-fidelity-backlog.md](device-visual-fidelity-backlog.md) `2026-10-26`，[deployment.md](deployment.md) `2026-10-26`，[device-center-adapter.md](device-center-adapter.md) `2026-10-26`，[device-functional-test-workflow.md](device-functional-test-workflow.md) `2026-10-26`，[firmware-review-and-simulation-workflow.md](firmware-review-and-simulation-workflow.md) `2026-10-26`，[peripheral-simulation-architecture.md](peripheral-simulation-architecture.md) `2026-10-26`，[p4-peripheral-backend-requirements.md](p4-peripheral-backend-requirements.md) `2026-10-26`，[simulator-service-architecture.md](simulator-service-architecture.md) `2026-10-26`，[user-firmware-simulation-matrix.md](user-firmware-simulation-matrix.md) `2026-10-26`，[cores3-image-rendering-boundary.md](cores3-image-rendering-boundary.md) `2026-10-26`，[unit-integration-host-issues.md](unit-integration-host-issues.md) `2026-10-26`，[unit-research/official-protocols.md](unit-research/official-protocols.md) `2026-10-26`，[unit-research/scroll-roller485.md](unit-research/scroll-roller485.md) `2026-10-26`，[unit-research/encoder-protocol-conflicts.md](unit-research/encoder-protocol-conflicts.md) `2026-10-26`，[unit-research/esp32s3-adc-calibration.md](unit-research/esp32s3-adc-calibration.md) `2026-10-26`，[unit-research/visual-bindings-and-component-gaps.md](unit-research/visual-bindings-and-component-gaps.md) `2026-10-26`，[unit-research/host-runtime-compatibility.md](unit-research/host-runtime-compatibility.md) `2026-10-26`。这不自动表示内容错误；状态页变更时应优先复核。
+- 平台测试：`1107` 项。
+- Docs 新鲜度登记：`108` 行；其中非历史页 `37` 行，历史固定页 `71` 行。
+- 文档职责分布：待办 `3`，契约 `6`，历史固定 `71`，实现/设计 `8`，参考 `16`，工作流/导航 `4`。
+- 全量文档盘点：`405` 个 Markdown 页面；职责分布：权威/专题页 `108`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `14`，平台说明 `4`，仓内历史记录 `5`，测试/用例说明 `147`，未登记 docs 页面 `2`，第三方来源说明 `102`。
+- 复核日期早于当前事实日期的非历史页：[engineering-handoff.md](engineering-handoff.md) `2026-10-26`，[workstreams.md](workstreams.md) `2026-10-26`，[project-snapshot.md](project-snapshot.md) `2026-10-26`，[unified-device-runtime.md](unified-device-runtime.md) `2026-10-26`，[core2-native-hci-backend.md](core2-native-hci-backend.md) `2026-10-26`，[firmware-manifest.md](firmware-manifest.md) `2026-10-26`，[runtime-model-gap-register.md](runtime-model-gap-register.md) `2026-10-26`，[network-simulation-plan.md](network-simulation-plan.md) `2026-10-26`，[network-lane.md](network-lane.md) `2026-10-26`，[qemu-device-adaptation-matrix.md](qemu-device-adaptation-matrix.md) `2026-10-26`，[uiflow2-peripheral-test-matrix.md](uiflow2-peripheral-test-matrix.md) `2026-10-26`，[tab5-deferred-backlog.md](tab5-deferred-backlog.md) `2026-10-26`，[device-visual-fidelity-backlog.md](device-visual-fidelity-backlog.md) `2026-10-26`，[deployment.md](deployment.md) `2026-10-26`，[device-center-adapter.md](device-center-adapter.md) `2026-10-26`，[device-functional-test-workflow.md](device-functional-test-workflow.md) `2026-10-26`，[firmware-review-and-simulation-workflow.md](firmware-review-and-simulation-workflow.md) `2026-10-26`，[peripheral-simulation-architecture.md](peripheral-simulation-architecture.md) `2026-10-26`，[p4-peripheral-backend-requirements.md](p4-peripheral-backend-requirements.md) `2026-10-26`，[simulator-service-architecture.md](simulator-service-architecture.md) `2026-10-26`，[user-firmware-simulation-matrix.md](user-firmware-simulation-matrix.md) `2026-10-26`，[cores3-image-rendering-boundary.md](cores3-image-rendering-boundary.md) `2026-10-26`，[unit-research/official-protocols.md](unit-research/official-protocols.md) `2026-10-26`，[unit-research/scroll-roller485.md](unit-research/scroll-roller485.md) `2026-10-26`，[unit-research/encoder-protocol-conflicts.md](unit-research/encoder-protocol-conflicts.md) `2026-10-26`，[unit-research/esp32s3-adc-calibration.md](unit-research/esp32s3-adc-calibration.md) `2026-10-26`，[unit-research/visual-bindings-and-component-gaps.md](unit-research/visual-bindings-and-component-gaps.md) `2026-10-26`，[unit-research/host-runtime-compatibility.md](unit-research/host-runtime-compatibility.md) `2026-10-26`。这不自动表示内容错误；状态页变更时应优先复核。
 - 带显式旧复核日期的委派文档（需按相邻索引和权威页复核）：
   - [platform/web/vendor/m5stack-models/docs/INTEGRATION.md](../platform/web/vendor/m5stack-models/docs/INTEGRATION.md) `2026-10-25`
   - [docs/evidence/2026-10-26-unit-ledc-audio-29d8/replay/README.md](evidence/2026-10-26-unit-ledc-audio-29d8/replay/README.md) `2026-10-26`

@@ -65,7 +65,7 @@ eFuse 或生产 key。
 已满足前置为取消事务、同 guest UART raw REPL、Web 程序面板、限定HUB传感器/
 控制leaf的原驱动执行及显式按需共享QEMU帧样本，范围见[本轮证据](evidence/2026-10-26-live-unit-preview/README.md)。
 完整文件包/资源与纯字节码`.mpy`依赖已实现，范围见[文件包证据](evidence/2026-10-26-live-package-and-detent/README.md)。
-Scroll限定原驱动与按键/RGB闭环、公共完整checkpoint及同步revision引用已有前置；继续补剩余Unit原驱动、二进制入口/保存开机、Preview/Run、AIFlow checkpoint事件/虚拟目标、SSE及程序revision引用保留/有界回收。显式配额可配置不关闭长期回收。
+Scroll限定原驱动与按键/RGB闭环、公共完整checkpoint及同步revision引用已有前置；1.42 Preview/Run协调已完成CoreS3 PIR/Relay同VM、pending覆盖、运行中prompt取消再跑与ZIP清理的[限定验收](evidence/2026-10-27-preview-run-control/README.md)。CoreS3 PIR另完成真实包部署事务中取消及同VM恢复（不声称单chunk中断）；继续补其它Unit/主机、guest重启恢复、二进制入口/保存开机、AIFlow checkpoint事件/虚拟目标、SSE及程序revision引用保留/有界回收。显式配额可配置不关闭长期回收。
 双向动画继续闭合 `UNIT-HOST-29`：默认全灯同色反馈取任意通道排列均相同的准确子集；
 非对称逐灯颜色仍需官方通道到模型位置依据，旋转需独立物理source和计数/方向标定，
 不能把逻辑counter写入/reset当轴运动。验收须核真实mounted组件。
@@ -74,8 +74,8 @@ Scroll限定原驱动与按键/RGB闭环、公共完整checkpoint及同步revisi
 二进制入口须按`UNIT-HOST-33`先取得固件run-as-main/loader路径；普通`.mpy`导入不具备完整脚本入口语义。
 运行时不可中断、native/IRQ/thread 清理及重连缺口须保守处理，不承诺低秒级 SLA。验收见
 [AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
-checkpoint/artifact snapshot/virtual target也需衔接；Preview/SSE 尚未实现。
-本客户端旧请求/队列与装配隔离已补齐，服务端run身份与多客户端控制权仍待实现。
+checkpoint/artifact snapshot/virtual target也需衔接；Preview服务端基础已实现，SSE与消费者未接。
+本客户端旧请求/队列与装配隔离已补齐；Preview服务端Run身份已实现，共享Bearer不等于多租户控制权。下一块优先按UNIT-HOST-34接Live sessions托管消费者：当前旧mutation会409，Run帧客户端fence也未接，不能将API PASS转授Web交互完成。
 初始picker的跨主机竞态已修复并保留失败负控；范围见[新实时程序证据](evidence/2026-10-26-live-program-web-and-hosts/README.md)。
 三主机HUB数字token换行按`UNIT-HOST-23`单独改善，保留既有controller PASS。
 
@@ -132,7 +132,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
-| `UNIT-01` | 进行中 | 同guest程序的剩余Unit、二进制入口与保存开机程序；AIFlow checkpoint/虚拟目标、Preview/Run及SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它三款准入主机剩余Unit的实际源码API执行、ADC app calibration/ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、矩阵命令记录、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论；真机同路径另验 |
+| `UNIT-01` | 进行中 | 同guest程序的剩余Unit、二进制入口与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它三款准入主机剩余Unit的实际源码API执行、ADC app calibration/ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、矩阵命令记录、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论；真机同路径另验 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
 ## P0：Core2 legacy UIFlow 运行时
