@@ -143,6 +143,8 @@ git apply /path/to/0037-esp32-handoff-trace.patch
 git apply /path/to/0038-esp32-handoff-pause.patch
 git apply /path/to/0039-esp32-handoff-state-dump.patch
 git apply /path/to/0040-xtensa-handoff-pc-trace.patch
+git apply /path/to/0041-esp32-handoff-register-stack-dump.patch
+git apply /path/to/0042-esp32-spi-trans-done-irq-diagnostic.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -306,6 +308,17 @@ is read through each vCPU's address space. WDT-off 45/120-second snapshots
 placed CPU0 in `waiti` idle and CPU1 in the same `0x40100049` flag/object loop
 after Flash activity ended around 44 seconds. This is diagnostic only; the
 late object has no matching ELF symbol.
+
+`0042-esp32-spi-trans-done-irq-diagnostic.patch` adds the missing
+`SPI_SLAVE.TRANS_DONE`/`TRANS_INTEN` state and drives the SPI interrupt line
+as their logical AND. It also adds optional bounded object-word output to the
+exact-time handoff dump. BIN-bound analysis identifies the former late loop as
+LVGL `lv_refr_vdb_flush`: the VDB is double-buffered with `flushing=1`,
+`wait_cb` is null, and the display flush callback is invoked at about 44-48 s.
+The completion callback and `lv_disp_flush_ready` were still not observed
+within 50 seconds after enabling the transaction-done IRQ model, and normal
+WDT still reset at TG0 stage-1. This is a partial controller-model diagnostic,
+not a `RUNTIME-03` fix.
 
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC

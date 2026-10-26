@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "kind": "core2-lvgl-spi-flush-wait",
+  "date": "2026-10-26",
+  "status": "PARTIAL",
+  "validation": "virtual-device validation with BIN-bound static analysis",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "normalized_flash_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc",
+    "bytes": 16777216
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "qemu_binary_sha256": "59ee022723974aa4ff7d2305f4e46ac049d3eb59632f292d5de8600bf9ede052",
+    "patch": "0042-esp32-spi-trans-done-irq-diagnostic.patch",
+    "patch_sha256": "bc520f7983ea1061d065201d4960b633daf4c0c189258fc96ef397c3c9104c5a"
+  },
+  "bin_bound_functions": {
+    "0x40100010": "lv_refr_vdb_flush",
+    "0x401002b2": "lv_refr_area_part",
+    "0x40174758": "display driver flush_cb",
+    "0x40174884": "display flush completion callback",
+    "0x402605ec": "lv_disp_flush_ready"
+  },
+  "late_state_object": {
+    "lv_disp_buf_t": {
+      "address": "0x3f953a40",
+      "buf1": "0x3ffe436c",
+      "buf2": "0x3ffe8e70",
+      "buf_act": "0x3ffe8e70",
+      "size_pixels": 9600,
+      "flushing": 1,
+      "flushing_last": 0
+    },
+    "display_driver": {
+      "address": "0x3f953c60",
+      "horizontal_resolution": 320,
+      "vertical_resolution": 240,
+      "buffer": "0x3f953a40",
+      "flush_cb": "0x40174758",
+      "wait_cb": "0x00000000"
+    }
+  },
+  "pc_trace": {
+    "pre_spi_irq_model": {
+      "wdt_disabled": true,
+      "observe_seconds": 50,
+      "flush_cb_calls": 1,
+      "flush_cb_first_ns": 44198632000,
+      "completion_callback_calls": 0,
+      "flush_ready_calls": 0,
+      "frame_bytes": 302,
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+    },
+    "spi_trans_done_irq_model": {
+      "wdt_disabled": true,
+      "observe_seconds": 50,
+      "flush_cb_calls": 1,
+      "flush_cb_first_ns": 47893660000,
+      "completion_callback_calls": 0,
+      "flush_ready_calls": 0,
+      "irq_trace_saw_trans_done_and_inten": true,
+      "frame_bytes": 302,
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43"
+    },
+    "normal_wdt_spi_irq_model": {
+      "observe_seconds": 60,
+      "stage0_timeout_ns": 5914197000,
+      "stage1_timeout_ns": 15915653000,
+      "first_reset_ns": 15915713000,
+      "tg1_feed_count_before_reset": 7248,
+      "tg1_last_feed_gap_to_reset_ns": 1928000,
+      "tg1_timeout_count_before_reset": 0,
+      "serial_has_repl_prompt": false,
+      "frame_bytes": 302,
+      "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "classification": "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE"
+    }
+  },
+  "classification": {
+    "late_loop": "LVGL_V7_DOUBLE_BUFFER_FLUSH_WAIT",
+    "flush_callback": "INVOKED",
+    "completion_callback": "NOT_OBSERVED",
+    "spi_trans_done_irq_model": "PARTIAL",
+    "runtime_03": "OPEN",
+    "legacy_boot": "FAIL"
+  },
+  "boundaries": [
+    "Only virtual-device validation and BIN-bound static analysis.",
+    "No matching UIFlow_Core2 v1.15.4 ELF or MAP was available.",
+    "The SPI transaction-done IRQ model did not make the completion callback observable.",
+    "No physical cache, PSRAM, RF, electrical or hardware behavior is claimed."
+  ]
+}

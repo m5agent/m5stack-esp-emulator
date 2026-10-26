@@ -200,9 +200,22 @@ only as a diagnostic control, 45-second and 120-second snapshots show:
 - cross-core counters continue increasing while the serial remains the same
   507-byte banner-only hash.
 
-The late object is not symbol-bound. Evidence is in
-`evidence-2026-10-26-core2-wdt-off-late-state.json`. WDT-disabled is not a
-product fix.
+BIN-bound disassembly identifies:
+
+- `0x40100010` as LVGL `lv_refr_vdb_flush`;
+- `A2` as `lv_disp_buf_t`, where offset 24 is `flushing`;
+- `A10` as the display driver, where offset 28 is the optional `wait_cb`;
+- `0x40174758` as the display `flush_cb`;
+- `0x40174884` as the completion callback that should call
+  `lv_disp_flush_ready`.
+
+Both display buffers are valid, `flushing` remains 1, and `wait_cb` is null.
+The flush callback runs, but the completion callback is not observed.
+`0042` adds a partial SPI transaction-done IRQ model and bounded object-word
+dump; it does not close the normal-WDT reset. Evidence is in
+`evidence-2026-10-26-core2-wdt-off-late-state.json` and
+`evidence-2026-10-26-core2-lvgl-spi-wait.json`. WDT-disabled is not a product
+fix.
 
 ```bash
 python3 tests/firmware/core2_handoff_trace/run_pause_sweep.py \

@@ -37,8 +37,9 @@ MicroPython 和其他完整 Flash 固件。
   firmware 仍会由 TG0 stage-1 watchdog reset，且没有同 SHA 非空应用帧。
   WDT liveness 显示 TG1 在 reset 前仍持续 feed，历史 `800 ms` gap 为
   `NOT_REPRODUCED`；WDT-off 对照随后停在 CPU1 `0x40100049` 的
-  flash-cache/IPC/DPORT late-loop。当前门禁是绑定该 late object 并取得
-  matching ELF/MAP；`RUNTIME-03` 的完整证据与边界只在
+  LVGL 双缓冲 flush wait。BIN-bound 分析确认 display flush callback 已执行，
+  但 SPI completion 与 `lv_disp_flush_ready` 未出现；当前门禁是补齐该
+  interrupt/queue completion 链。`RUNTIME-03` 的完整证据与边界只在
   [项目当前状态](docs/project-status.md)和
   [验证证据台账](docs/validation-ledger.md)维护。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、

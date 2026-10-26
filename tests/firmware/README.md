@@ -318,9 +318,13 @@ WDT-off 45/120-second pauses now bracket the later failure. Flash and SSI
 counters stop changing at about 44 seconds; CPU0 remains in `waiti` idle at
 `0x4026306e`, while CPU1 spins at `0x40100049`. CPU1 holds `A2+24=1` and
 `A10+28=0`. `0041` dumps A0-A15, PS, selected object pointers and an optional
-bounded stack window so this late-boot wait can be analyzed without naming
-symbols from the mismatched local ELF. The current boundary is to identify that
-late flag/object and reconcile it with the normal-WDT TG0 stage-1 reset.
+bounded stack window. BIN-bound analysis identifies the loop as LVGL
+`lv_refr_vdb_flush`: a valid double-buffered `lv_disp_buf_t` has
+`flushing=1`, and the display driver has `wait_cb=null`. `0042` adds the
+optional object-word dump and a partial SPI `TRANS_DONE/TRANS_INTEN` IRQ
+model. Display `flush_cb` executes, but the completion callback and
+`lv_disp_flush_ready` are not observed. The current boundary is the SPI
+interrupt/queue completion chain, not an unknown flag/object.
 WDT-disabled `sample=1024` and trace-off produced the same banner-only serial
 hash. The reusable summarizer and evidence are in
 [`core2_handoff_trace/`](core2_handoff_trace/). The unbound local-ELF PC

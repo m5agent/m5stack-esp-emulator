@@ -21,7 +21,7 @@
 | 工作流 | 已经形成可执行路径 | 仍在推进 | 当前判定 |
 | --- | --- | --- | --- |
 | 网络、隔离与 worker | same-guest controlled DNS/CNAME、exact/domain/CNAME answer binding、严格 Host authority、有界 IPv4/IPv6 egress、pcap、WPA2 正误密码、radio/AP 恢复、DHCP renewal、双 guest fabric、worker-local QEMU、持久队列、TLS/mTLS、discovery、restart/reattach 和 process/companion fence | `NET-04` 的物理跨主机 executor/reattach、跨主机幂等、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | `PILOT`；单机和同 Docker daemon 的结果不能写成物理多机 PASS |
-| Core2 | native-HCI、WiFi/公网、外部 GATT、重连、active-BLE 长稳、active-stop、QOM `8 MiB` PSRAM、upper-bank MMU 和当前服务容量内并发 | `RUNTIME-03` legacy UIFlow normal-WDT reset 与约 44 秒后的 CPU1 late-loop；`CORE2-02` 物理 PSRAM/cache、bit-exact controller、更大规模、持续吞吐和其他 teardown | 功能级 `PILOT`；legacy UIFlow `PARTIAL`；不能从虚拟容量外推物理等价 |
+| Core2 | native-HCI、WiFi/公网、外部 GATT、重连、active-BLE 长稳、active-stop、QOM `8 MiB` PSRAM、upper-bank MMU 和当前服务容量内并发 | `RUNTIME-03` legacy UIFlow normal-WDT reset 与约 44 秒后的 LVGL double-buffer flush wait；`CORE2-02` 物理 PSRAM/cache、bit-exact controller、更大规模、持续吞吐和其他 teardown | 功能级 `PILOT`；legacy UIFlow `PARTIAL`；不能从虚拟容量外推物理等价 |
 | FirmwareManifest 与固件审查 | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级、多 build SoC 选择、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学和 security-evidence understatement fail closed | `FW-01/02/03` 的运行态 ACL、完整许可与法律审批、live eFuse/trust root、生产 key、真实云端业务和更多固件族 | `PILOT`；静态镜像与包内自报安全证据不能写成设备 trust root PASS |
 | Device Service 与服务池 | lease、虚拟 Flash、串口、frame/input/QOM、网络故障、pcap、evidence、历史恢复、本地/远程 worker 生命周期 | `SVC-01` 跨主机接管，`SVC-02` warm pool/配额/对象存储/审计，`SVC-03` 从 `device_service.py` 编排热区分步拆分 | `PILOT`；当前是可信主机服务，不是恶意多租户 VM 沙箱 |
 | 专项设备与表现层 | Tab5、CardputerZero 和逐设备外壳均有可用子集；StopWatch 是当前参考外壳 | `TAB5-01` 后端决策、`CZ-01` 长期回归、`UI-01` 视觉保真 | 均为独立边界，不能继承 S3/C6/Core2 的功能结论 |
@@ -62,9 +62,10 @@
   TG0 watchdog reset 循环。`0036` 的 stateful SSI 批量路径与原逐字节
   路径匹配，并通过 UIFlow2 Core2 外设组，但 normal-WDT legacy 仍失败；
   WDT 关闭后的 45/120 秒对照显示 Flash/SSI 工作约在 44 秒结束，随后 CPU1
-  稳定停在 `0x40100049` 的同一 flag/object 等待，仍无 setup/REPL 或应用帧。
-  当前未闭合物是 normal-WDT 下 TG0 stage-1 的首 reset、该 late-loop object
-  和 matching 符号；不再沿用“TG1 feed 停止”“永久 handoff deadlock”或
+  稳定停在 LVGL `lv_refr_vdb_flush` 的双缓冲 `flushing` wait，仍无
+  setup/REPL 或应用帧。display `flush_cb` 已执行，但 SPI completion 与
+  `lv_disp_flush_ready` 未完成；当前未闭合物是该 completion 链和
+  normal-WDT TG0 stage-1 reset。不再沿用“TG1 feed 停止”“永久 handoff deadlock”或
   “Flash 扫描没有终点”作为当前结论。运行比例和 evidence 只查验证台账；
 - 通用固件审查已有结构/静态/运行分层，但运行态 ACL、完整许可、真机
   secure boot/Flash Encryption/key 流程和更多厂商固件仍未闭环；
@@ -91,10 +92,11 @@
   的修复或验证控制；它们都没有让 legacy 固件完成启动；
 - state sweep、setter trace、三次 WDT liveness 和 WDT-off late-state 已逐项
   排除当前配置下的 UART storm、永久 handoff deadlock、TG1 feed 停止和
-  “Flash 扫描永不结束”；
-- 当前最窄的下一步是取得 matching ELF/MAP，或用 BIN-bound 证据解析
-  `0x40100049` 附近的 late-loop object，并说明最后 SSI 活动到该等待之间
-  缺少了什么；
+  “Flash 扫描永不结束”；late state 的 CPU1 `0x40100049` 已由 BIN-bound
+  反汇编绑定到 LVGL `lv_refr_vdb_flush`；
+- 当前最窄的下一步是修正 SPI `TRANS_DONE` 到 guest interrupt/queue
+  completion 的剩余缺口，使 display completion callback 调用
+  `lv_disp_flush_ready`；matching ELF/MAP 可并行提高符号置信度；
 - 当前事实只在[项目当前状态](project-status.md)，详细证据只在
   [验证证据台账](validation-ledger.md)；本页不再复制逐次运行时间线。
 
@@ -237,7 +239,7 @@ namespace-managed/Tab5/cross-host companion 和生产多机调度。
 
 | Task | 下一步 | 为什么还不能关闭 |
 | --- | --- | --- |
-| `RUNTIME-03` | 绑定 WDT-off 45/120 秒 late state 的 `0x40100049`、`A2+24`、`A3`、`A10+28` 对象；同版本 ELF/MAP 可并行取得 | Flash 工作约 44 秒结束，但 CPU1 late-loop 到 120 秒仍未释放；仍无同 SHA 非空应用帧 |
+| `RUNTIME-03` | 修 SPI completion/interrupt delivery，使 `0x40174884` 调用 `lv_disp_flush_ready`；同版本 ELF/MAP 可并行取得 | LVGL double-buffer `flushing` 到 120 秒仍为 1；仍无同 SHA 非空应用帧 |
 | `NET-04` | 物理跨主机 executor/reattach、无 reachable seed 的任意 NAT traversal、跨主机幂等、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | 409 与 network partition 已 fence worker-owned OS/QEMU process 和 `qemu-unified` companions；跨容器和同机 subnet/NAT 仍不能替代物理主机 |
 | `CORE2-02` | 补大于当前服务容量；同时补 bit-exact controller/baseband、物理 PSRAM/cache timing、持续吞吐和 active-stop 之外 teardown | 当前容量、旧失败 control 和 `shift=auto` trace 只证明各自窗口，不能外推到更大规模或物理 controller |
 | `FW-01` | 运行态 ACL/权限、完整源码/依赖许可和法律审批 | 镜像属性或声明扫描不是运行态权限 PASS |

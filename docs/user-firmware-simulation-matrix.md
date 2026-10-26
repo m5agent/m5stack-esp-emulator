@@ -275,7 +275,7 @@ zero `FAIL`.
 
 | Firmware | SHA-256 | Result | Observed boundary |
 | --- | --- | --- | --- |
-| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The original RTC `0x51` failure is superseded by the shared-bus fix. Patches `0034-0041` validate the equal-deadline timer, WDT mask, stateful SSI, unified timeline, exact-time state capture and late register dump. Normal-WDT legacy still resets from TG0 stage-1 with reset PC `0`; three liveness runs keep TG1 live until that reset and retire the earlier `800 ms` gap as `NOT_REPRODUCED`. With WDT disabled only as a diagnostic control, Flash/SSI activity ends around 44 seconds and both 45/120-second snapshots stop at CPU0 `waiti` `0x4026306e` plus CPU1 spin `0x40100049` (`A2+24=1`, `A10+28=0`). The late object has no matching symbol. Permanent handoff deadlock, UART storm, TG1 feed stop and never-ending Flash scan are not supported. No setup/REPL or non-empty application frame |
+| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The original RTC `0x51` failure is superseded by the shared-bus fix. Patches `0034-0042` validate the equal-deadline timer, WDT mask, stateful SSI, unified timeline, exact-time state capture, late register dump and partial SPI `TRANS_DONE` IRQ model. Normal-WDT legacy still resets from TG0 stage-1 with reset PC `0`; three liveness runs keep TG1 live until that reset and retire the earlier `800 ms` gap as `NOT_REPRODUCED`. WDT-off 45/120-second snapshots stop at CPU0 `waiti` `0x4026306e` plus CPU1 `0x40100049`. BIN-bound analysis identifies that loop as LVGL `lv_refr_vdb_flush`: `A2` is `lv_disp_buf_t` with `flushing=1`, and `A10` is the display driver with `wait_cb=null`. Display `flush_cb=0x40174758` runs, but completion `0x40174884`/`lv_disp_flush_ready` is not observed. Permanent handoff deadlock, UART storm, TG1 feed stop and never-ending Flash scan are not supported. No setup/REPL or non-empty application frame |
 | `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | The 2026-10-24 snapshot stopped during PMIC/RTC initialization and had no frame; a post-fix rerun is `NOT RUN`, so its current first blocker cannot be inherited from the old result |
 | `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | ATECC608 secure element is not modeled; firmware aborts |
 
@@ -330,13 +330,13 @@ normal-WDT configuration placed stage-0 timeout exactly 800 ms after the last
 TG1 feed; a later three-run liveness control kept TG1 alive until a TG0
 stage-1 reset and marked that gap `NOT_REPRODUCED`.
 
-`0041` and two WDT-off snapshots then separated the later failure phase:
+`0041/0042` and two WDT-off snapshots then separated the later failure phase:
 Flash/SSI counters stop changing around 44 seconds, CPU0 enters `waiti`, and
-CPU1 remains in the same `0x40100049` flag/object loop through 120 seconds.
-The BIN/ELF byte audit rejected the different-version UART/VM symbol names, so
-the late object remains unnamed. The next acceptance requires a matching
-v1.15.4 ELF/MAP or direct BIN-bound evidence that explains this late loop and
-produces a non-empty application frame under the normal WDT.
+CPU1 remains in LVGL `lv_refr_vdb_flush` waiting for a double-buffer flush to
+complete. The display flush callback runs once, but the completion callback
+that should call `lv_disp_flush_ready` is not observed. The next acceptance
+requires the SPI interrupt/queue completion chain to run and a non-empty
+application frame under the normal WDT.
 
 These are tracked as `RUNTIME-03` for the remaining Core2 legacy UIFlow
 post-initialization WDT/non-empty-frame gate and `RUNTIME-04` for the Core2 for
@@ -349,7 +349,8 @@ Evidence:
 [`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json),
 [`core2-flash-ipc-wdt.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-wdt.json),
 [`core2-wdt-liveness-3x.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-wdt-liveness-3x.json),
-[`core2-wdt-off-late-state.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-wdt-off-late-state.json).
+[`core2-wdt-off-late-state.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-wdt-off-late-state.json),
+[`core2-lvgl-spi-wait.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-lvgl-spi-wait.json).
 
 The 90-second run also exposed and fixed a matrix-client timeout: the HTTP
 `/wait` request used 90 seconds while the server was allowed to wait 90 seconds

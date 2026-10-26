@@ -1,0 +1,118 @@
+--- a/include/hw/ssi/esp32_spi.h
++++ b/include/hw/ssi/esp32_spi.h
+@@ -30,6 +30,8 @@
+     uint32_t mosi_dlen_reg;
+     uint32_t miso_dlen_reg;
+     uint32_t pin_reg;
++    uint32_t trans_done;
++    uint32_t trans_inten;
+     uint32_t data_reg[ESP32_SPI_BUF_WORDS];
+     DeviceState *m5_panel;
+     int m5_dc_pin;
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -47,6 +47,18 @@
+ static void esp32_spi_do_command(Esp32SpiState* state, uint32_t cmd_reg);
+ static uint64_t handoff_trace_count;
+ 
++static void esp32_spi_update_irq(Esp32SpiState *s)
++{
++    bool level = s->trans_done && s->trans_inten;
++
++    if (getenv("M5SW_ESP32_SPI_IRQ_TRACE")) {
++        fprintf(stderr,
++                "[esp32-spi-irq] trans_done=%u trans_inten=%u level=%u\n",
++                s->trans_done, s->trans_inten, level);
++    }
++    qemu_set_irq(s->irq, level);
++}
++
+ static void esp32_spi_m5_dma_panel(Esp32SpiState *s, uint32_t link)
+ {
+     uint32_t desc_addr = 0x3ff00000u | (link & 0xfffff);
+@@ -121,7 +133,8 @@
+         r = 0;
+         break;
+     case A_SPI_SLAVE:
+-        r = BIT(R_SPI_SLAVE_TRANS_DONE_SHIFT) | BIT(R_SPI_SLAVE_TRANS_INTEN_SHIFT);
++        r = FIELD_DP32(0, SPI_SLAVE, TRANS_DONE, s->trans_done);
++        r = FIELD_DP32(r, SPI_SLAVE, TRANS_INTEN, s->trans_inten);
+         break;
+     }
+     return r;
+@@ -177,6 +190,11 @@
+     case A_SPI_CMD:
+         esp32_spi_do_command(s, value);
+         break;
++    case A_SPI_SLAVE:
++        s->trans_done = FIELD_EX32(value, SPI_SLAVE, TRANS_DONE);
++        s->trans_inten = FIELD_EX32(value, SPI_SLAVE, TRANS_INTEN);
++        esp32_spi_update_irq(s);
++        break;
+     case 0x100:
+         if (getenv("M5SW_ESP32_SPI_DMA_TRACE")) {
+             fprintf(stderr, "[esp32-spi-dma] conf=%08lx\n",
+@@ -291,6 +309,8 @@
+         &handoff_trace_count, "ssi", "transaction-end",
+         t->cmd, t->addr, t->data_tx_bytes, t->data_rx_bytes
+     );
++    s->trans_done = 1;
++    esp32_spi_update_irq(s);
+ }
+ 
+ void esp32_spi_attach_m5_panel(DeviceState *dev, DeviceState *panel,
+@@ -453,6 +473,9 @@
+     s->user2_reg = FIELD_DP32(0, SPI_USER2, COMMAND_BITLEN, 4);
+     s->user2_reg = FIELD_DP32(s->user2_reg, SPI_USER2, COMMAND_VALUE, 0);
+     s->status_reg = 0;
++    s->trans_done = 0;
++    s->trans_inten = 0;
++    esp32_spi_update_irq(s);
+ }
+ 
+ static void esp32_spi_realize(DeviceState *dev, Error **errp)
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -579,13 +579,20 @@
+ {
+     const char *words_value =
+         getenv("M5SW_ESP32_HANDOFF_STACK_WORDS");
++    const char *object_words_value =
++        getenv("M5SW_ESP32_HANDOFF_OBJECT_WORDS");
+     unsigned words = words_value ? strtoul(words_value, NULL, 10) : 0;
++    unsigned object_words = object_words_value
++        ? strtoul(object_words_value, NULL, 10) : 0;
+     uint32_t a0 = xtensa_cpu_get_areg(cpu, 0);
+     uint32_t a1 = xtensa_cpu_get_areg(cpu, 1);
+ 
+     if (words > 64) {
+         words = 64;
+     }
++    if (object_words > 32) {
++        object_words = 32;
++    }
+ 
+     fprintf(stderr,
+             "[esp32-handoff] now=%" PRId64
+@@ -630,6 +637,21 @@
+                 esp32_handoff_pause_read_u32_as(cpu->as, pointer),
+                 esp32_handoff_pause_read_u32_as(cpu->as, pointer + 24),
+                 esp32_handoff_pause_read_u32_as(cpu->as, pointer + 28));
++        for (unsigned offset = 0; offset < object_words * 4; offset += 4) {
++            fprintf(stderr,
++                    "[esp32-handoff] now=%" PRId64
++                    " cpu=%d pc=%08" PRIx64
++                    " component=mem event=freeze-object-word"
++                    " a=%08" PRIx32 " b=%08" PRIx32
++                    " c=%u d=0\n",
++                    now_ns, cpu->cpu_index,
++                    cpu->cc && cpu->cc->get_pc ? cpu->cc->get_pc(cpu) : 0,
++                    pointer,
++                    esp32_handoff_pause_read_u32_as(
++                        cpu->as, pointer + offset
++                    ),
++                    offset);
++        }
+     }
+     for (unsigned index = 0; index < words; ++index) {
+         hwaddr addr = a1 + index * sizeof(uint32_t);

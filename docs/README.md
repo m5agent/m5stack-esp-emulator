@@ -100,15 +100,15 @@
 | [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-26` | 先按本轮 P0 区分已完成、在推进和未开始，再给出产品边界、代码盘点、成熟度、阅读顺序、工作流、下一步和文档职责；动态事实仍链接权威入口 |
 | [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-26` | 维护已交付代码面、当前在途、推进顺序、下一验收门禁、稳定代码入口和未完成 Task ID |
 | [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-26` | 分别记录 catalog 日期、当前事实复核和最新 evidence；从 profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
-| [项目当前状态](project-status.md) | 当前结论 | `2026-10-26` | 唯一维护当前能力与边界；开头按网络、Core2、FirmwareManifest 三组 P0 汇总已完成和缺口，后续 Core2 诊断只解释当前阻断，TIMG WDT-mask、stateful SSI、统一 handoff timeline、state sweep、setter trace、WDT liveness 和 WDT-off late-loop 的逐项记录仍转验证台账 |
-| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-26` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Core2 的下一门禁是识别约 44 秒后的 CPU1 flag/object wait、matching ELF/MAP 和同 SHA 非空应用帧 |
+| [项目当前状态](project-status.md) | 当前结论 | `2026-10-26` | 唯一维护当前能力与边界；开头按网络、Core2、FirmwareManifest 三组 P0 汇总已完成和缺口，后续 Core2 诊断只解释当前阻断，TIMG WDT-mask、stateful SSI、handoff、WDT liveness 和 LVGL/SPI flush wait 的逐项记录仍转验证台账 |
+| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-26` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Core2 的下一门禁是修 SPI completion/`lv_disp_flush_ready`、matching ELF/MAP 和同 SHA 非空应用帧 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-26` | 当前源码、FirmwareManifest/Secure Boot 入口、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core 探针、网络/worker 路径、测试、evidence 和文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-26` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
 | [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-26` | `1.34.0`；API、对象、状态机、错误码、worker lease ownership fence、8 MiB Core2 PSRAM/MMU、有界地址/CIDR、controlled exact/domain/CNAME answer binding、严格 Host authority、同 guest CNAME 网络证据和 transport 契约 |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-26` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop 和当前容量门禁；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-26` | 导入、规范化、ZIP path/casefold/symlink 与资源唯一性、多 build SoC 选择、mandatory `capabilities.required/optional`、WebBurner 分段 size/digest 复算、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、aggregate/image/eFuse understatement fail-closed、文件系统、许可策略、capability 观察和 evidence 分层 |
-| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-26` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`RUNTIME-03` 的 Core2 shared I2C、timer、WDT mask、stateful SSI、`0039` state sweep 和 `0040` setter trace 已验证；首次 reset 前约 4,376 次 handoff 均完成，永久 deadlock 被否定，但 normal-WDT legacy 仍无应用进度；`RUNTIME-05` 的 S3 WPA2-PSK 路径已关闭 |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-26` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`RUNTIME-03` 已把 late loop 绑定为 LVGL `lv_refr_vdb_flush` 双缓冲等待，flush callback 已执行但 SPI completion/`lv_disp_flush_ready` 未出现；normal-WDT 仍无应用进度，`RUNTIME-05` 的 S3 WPA2-PSK 路径已关闭 |
 | [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-26` | 网络模式、有界 CIDR egress、domain/CNAME、discovery、worker/companion fencing、同 guest 生命周期和证据要求；运行比例转交验证台账 |
 | [网络诊断 lane](network-lane.md) | 专题 | `2026-10-26` | 只描述诊断/Provisioning，不混同 unified 验收；Linux namespace IPv6 guest 生命周期已 PASS |
 | [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-26` | 当前登记设备与各 QEMU/Tab5/Linux 后端、稳定运行时映射和能力边界；设备数量与运行比例分别转交自动快照和验证台账 |

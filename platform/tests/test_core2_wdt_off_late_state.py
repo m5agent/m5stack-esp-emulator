@@ -97,6 +97,43 @@ class Core2WdtOffLateStateTests(DocsContractBase):
         self.assertIn("event=stack-word", patch)
         self.assertIn("xtensa_cpu_get_areg", patch)
 
+    def test_lvgl_spi_wait_root_cause_is_bin_bound(self) -> None:
+        path = (
+            ROOT
+            / "tests/firmware/core2_handoff_trace/"
+            "evidence-2026-10-26-core2-lvgl-spi-wait.json"
+        )
+        evidence = json.loads(path.read_text())
+        self.assertEqual(evidence["kind"], "core2-lvgl-spi-flush-wait")
+        self.assertEqual(evidence["status"], "PARTIAL")
+        self.assertEqual(
+            evidence["bin_bound_functions"]["0x40100010"],
+            "lv_refr_vdb_flush",
+        )
+        self.assertEqual(
+            evidence["bin_bound_functions"]["0x402605ec"],
+            "lv_disp_flush_ready",
+        )
+        buffer = evidence["late_state_object"]["lv_disp_buf_t"]
+        driver = evidence["late_state_object"]["display_driver"]
+        self.assertNotEqual(buffer["buf1"], buffer["buf2"])
+        self.assertEqual(buffer["flushing"], 1)
+        self.assertEqual(driver["flush_cb"], "0x40174758")
+        self.assertEqual(driver["wait_cb"], "0x00000000")
+        for trace in evidence["pc_trace"].values():
+            self.assertEqual(trace["frame_bytes"], 302)
+        self.assertEqual(
+            evidence["pc_trace"]["spi_trans_done_irq_model"][
+                "completion_callback_calls"
+            ],
+            0,
+        )
+        self.assertEqual(
+            evidence["classification"]["late_loop"],
+            "LVGL_V7_DOUBLE_BUFFER_FLUSH_WAIT",
+        )
+        self.assertEqual(evidence["classification"]["runtime_03"], "OPEN")
+
 
 if __name__ == "__main__":
     import unittest

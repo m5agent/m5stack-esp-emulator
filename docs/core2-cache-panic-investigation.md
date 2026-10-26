@@ -519,12 +519,13 @@ and
 1. Preserve the minimal probe's equal-deadline regression gate and keep the
    business patch separate from diagnostic ring/trace code.
 2. Preserve the stateful SSI batch path and its byte-equivalence gate.
-3. Obtain a matching v1.15.4 ELF/MAP. Until then, follow BIN call/return and data
-   accesses around `0x40100049`, `A2+24`, `A3`, and `A10+28` to identify the
-   late flag producer and consumer; do not reuse local v2.5.3 symbols.
-4. Correlate the last Flash/SSI event at about 44 seconds with the start of the
-   CPU1 late loop. Explain which expected event or object transition is absent
-   after Flash work ends.
+3. Preserve the BIN-bound mapping of `0x40100049` to LVGL `lv_refr_vdb_flush`:
+   `A2+24` is `lv_disp_buf_t.flushing`, and `A10+28` is the display driver's
+   optional `wait_cb`.
+4. Complete the SPI `TRANS_DONE` interrupt/queue path so display completion
+   callback `0x40174884` calls `lv_disp_flush_ready`; obtaining a matching
+   v1.15.4 ELF/MAP can improve symbol confidence but is no longer required to
+   identify this wait.
 5. Reconcile the normal-WDT TG0 stage-1 reset with the WDT-off late state. Keep
    TG0/TG1 feed/clear, stage, mask, `INTSET`, `INTENABLE`, reset PC `0`, and
    service-task progress on the same virtual timeline.

@@ -36,7 +36,7 @@
 | 目标 | 已经落地 | 当前缺口 | 结论 |
 | --- | --- | --- | --- |
 | 网络 namespace、DNS/egress、pcap、错误密码、断线和重连 | controlled DNS A/AAAA/CNAME、有界 IPv4/IPv6 egress、TLS/Host policy、pcap、WPA2-PSK 正确/错误密码、radio/AP 恢复、DHCP renewal、双 guest fabric 和 worker-local QEMU | `NET-04` 的物理跨主机 executor/reattach、跨主机幂等、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和外部 side-effect ownership | 核心虚拟设备路径可用，生产网络仍为 `PILOT` |
-| Core2 cache/PSRAM、原生 BT controller、DNS/公网 | QOM `8 MiB` PSRAM、upper-bank MMU、虚拟 PSRAM 压力、OpenMAC WiFi、公网 DNS/HTTP、native-HCI、外部 NUS GATT、重连、长稳和当前容量并发 | 物理 PSRAM/cache timing、bit-exact BT controller/baseband、更大规模和持续吞吐；legacy UIFlow 仍有 TG0 stage-1 reset、黑帧和 CPU1 late-loop | 功能级路径可用，物理/controller 等价性和 legacy 启动仍 `OPEN` |
+| Core2 cache/PSRAM、原生 BT controller、DNS/公网 | QOM `8 MiB` PSRAM、upper-bank MMU、虚拟 PSRAM 压力、OpenMAC WiFi、公网 DNS/HTTP、native-HCI、外部 NUS GATT、重连、长稳和当前容量并发 | 物理 PSRAM/cache timing、bit-exact BT controller/baseband、更大规模和持续吞吐；legacy UIFlow 仍有 TG0 stage-1 reset、黑帧和 LVGL flush completion wait | 功能级路径可用，物理/controller 等价性和 legacy 启动仍 `OPEN` |
 | FirmwareManifest、WebBurner、安全配置和 capability mismatch | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级和 multi-build SoC 选择 fail closed、mandatory capability policy、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学，以及 aggregate/image/eFuse understatement、key mismatch 和 secure-version rollback fail closed | 运行态 ACL/许可、live eFuse/trust root、生产 key、bootloader anti-rollback 执行、真实云端业务和更多固件族 | 导入与静态审查可用，运行态安全和通用兼容性仍为 `PILOT` |
 
 这三组能力已经串进同一个 Device Service lease/evidence 模型，但“同一 guest
@@ -137,20 +137,32 @@ TG0 stage-1 reset 和累计 Flash/cache-handoff 服务进度仍 `OPEN`。
   为 `NOT_REPRODUCED`。
 - WDT-off 只作为诊断 control：新增 `0041` register/pointer/stack dump 后，
   45 秒与 120 秒两个独立 lease 都停在 CPU0 `0x4026306e`（`waiti` idle）和
-  CPU1 `0x40100049`（同一 flag/object 自旋）。Flash handoff 计数在两次
+  CPU1 `0x40100049`（LVGL 双缓冲 flush wait）。flash-cache handoff 计数在两次
   snapshot 中均为 `49,848` calls / `45,847` changed pages，SSI 均为
   `22,554` transactions / `671,936` RX bytes，最后活动停在约
   `43.91-44.00 s`；cross-core writes 仍从 `123,476` 增加到 `139,094`。
-  CPU1 late-loop 读取 `A2+24=1`，`*(A3)=A10` 且 `A10+28=0`，但没有 matching
-  ELF/MAP，不能把该对象命名为具体驱动、RTOS 或 MicroPython 结构。
+  BIN-bound 反汇编把 wait 定位到 LVGL 7 `lv_refr_vdb_flush`：`A2` 是
+  `lv_disp_buf_t`，`A2+24` 是 `flushing=1`；`A10` 是 display driver，
+  `A10+28` 是可空的 `wait_cb=0`。两次 flush 的显示对象都有两个有效
+  buffer，因此这是在等上一帧异步 flush 完成。
+- `0x40174758` display `flush_cb` 在 WDT-off trace 中于
+  `44.198632 s` 调用一次，但本应调用 `lv_disp_flush_ready()` 的
+  `0x40174884` completion callback 没有出现；302-byte 黑帧不变。
+  `0042` 补了 `SPI_SLAVE.TRANS_DONE/TRANS_INTEN` 到 SPI IRQ 的模型，
+  可观察到 `trans_done=1/trans_inten=1/level=1`，但 50 秒窗口内仍未看到
+  completion callback，normal-WDT 仍在约 `15.9157 s` 由 TG0 stage-1
+  首 reset。因此后续问题已经从“未知 late object”收敛到 display
+  flush -> SPI interrupt -> completion 链。
 
 当前工作假设是 legacy 应用先经历约 44 秒的大量 Flash/cache handoff，随后
-进入一个稳定的 late-boot wait；TG1 feed 并非当前配置下的停摆点。高频采样下
+进入 LVGL 双缓冲 flush completion wait；TG1 feed 并非当前配置下的停摆点。
+高频采样下
 的固定 UART/VM PC 簇不再成立；“单次 cache restore 未返回”被
 `0039/0040` 否定；历史 `800 ms` TG1 gap 在三次当前配置中为
-`NOT_REPRODUCED`，不能继续作为首要根因。下一步是识别
-`0x40100049` 的 flag/object 语义和约 44 秒前的最后启动 phase，同时取得
-v1.15.4 ELF/MAP。
+`NOT_REPRODUCED`，不能继续作为首要根因。下一步是确认 SPI interrupt
+在 guest intmatrix/ISR 中的实际投递和 queue/status 更新，直到
+`0x40174884` 完成 callback 与 `lv_disp_flush_ready()` 可观测。
+v1.15.4 ELF/MAP 仍可并行取得，但不再是理解该 loop 的必要条件。
 精确批次、通过率、
 artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)。
 
@@ -162,7 +174,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 
 | Task / 工作流 | 已具备的可执行面 | 下一项最小交付 | 不可继承边界 |
 | --- | --- | --- | --- |
-| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、统一 timeline、错误 ELF 映射拒绝、exact-time state sweep、setter PC trace、三次 WDT liveness 和 45/120 秒 late-state 对照已验证；Flash 工作约 44 秒结束，随后 CPU0 idle、CPU1 持续等待同一 flag/object | 识别 `0x40100049` 的 flag/object 与约 44 秒前最后启动 phase，说明它为何阻止 setup/REPL；取得 matching ELF/MAP 可并行 | 临时 `blk_pread`、关闭 WDT、accelerator、probe PASS 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；UART 高频 PC 映射、“永久 handoff deadlock”和当前配置未复现的 TG1 `800 ms` gap 都不得复用 |
+| `RUNTIME-03` Core2 legacy I2C / UIFlow 启动 | shared I2C、timer deadline、WDT mask、stateful SSI、统一 timeline、错误 ELF 映射拒绝、exact-time state sweep、setter PC trace、三次 WDT liveness、45/120 秒 late-state 和 BIN-bound LVGL wait 定位已验证；Flash 工作约 44 秒结束，随后 CPU0 idle，CPU1 等 LVGL 双缓冲 `flushing` 清零 | 修正 SPI interrupt/completion 投递，证明 `0x40174884` 调用 `lv_disp_flush_ready()`，再验证 normal-WDT setup/REPL/非空帧；matching ELF/MAP 可并行 | 临时 `blk_pread`、关闭 WDT、accelerator、probe PASS、SPI IRQ level=1 或 UIFlow2 设备组 PASS 都不能继承为 legacy PASS；LVGL callback 未完成前不能把 `0x40100049` 再称为未知对象 |
 | 设备与统一运行时 | `qemu-unified` 单 lease、单 guest、板级 + 网络 + BLE + evidence | 代表设备同 SHA 真机验证；按新固件重新校验符号/profile | 同 SoC、同设备名或其他固件 SHA 不继承 PASS |
 | `NET-04` 网络与 worker | namespace/container worker、discovery、TLS/mTLS、queue、fencing、local QEMU | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、外部 side-effect fence | 单机 namespace/container 不等于物理多机；PID 回收不等于 guest 内部 quiesce |
 | `CORE2-02` Core2 长稳/等价性 | native-HCI、WiFi/公网/GATT、8 MiB PSRAM QOM、upper-bank MMU、重连、active-stop | 大于当前容量、持续吞吐、其他 teardown、bit-exact controller、物理 PSRAM/cache 和真机 | `CORE2-02` 仍为 P0；固定虚拟时钟不代表实时速度，虚拟容量不代表物理性能 |
@@ -179,7 +191,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 | Device Service 与 Live sessions | 可用 | 当前是可信本地/单机服务，不是恶意多租户 VM 沙箱 |
 | `qemu-unified` S3/C6 | 可用 | 功能级 WiFi/HCI；不是 RF/PHY、功耗或电气模型 |
 | Core2 non-display | 可用 | native-HCI hook 绑定已验证 UIFlow2 build；新固件需重新校验 |
-| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing、timer deadline、TIMG WDT mask 和 stateful SSI 已验证；TG0 stage-1/TG1-live 与 45/120 秒 late-state 已分别取证；Flash 工作约 44 秒结束后落到 CPU1 `0x40100049` wait，PSRAM/cache、reset PC `0` 和 late-boot object 仍未闭环；FactoryTest 修复后 `NOT RUN` |
+| Core2 legacy UIFlow/FactoryTest | `PARTIAL` | I2C routing、timer deadline、TIMG WDT mask、stateful SSI、TG0 stage-1/TG1-live 和 45/120 秒 late-state 已验证；CPU1 `0x40100049` 已绑定为 LVGL `lv_refr_vdb_flush` 双缓冲 wait，display flush callback 已执行但 completion/`lv_disp_flush_ready` 未观测；PSRAM/cache、reset PC `0` 和非空帧仍未闭环；FactoryTest 修复后 `NOT RUN` |
 | FirmwareManifest / WebBurner | 可用 | live trust root、生产 key、运行态 ACL 和完整云端业务未闭环 |
 | 网络隔离与取证 | 可用 | 有界策略不是任意公网解析器；不可信固件仍需 disposable VM |
 | Worker 产品化 | 单机/跨容器 `PILOT` | active-token multicast discovery、cross-subnet/NAT unicast seed discovery、credential generation-pointer migration、lease 409 fence、worker-local StickS3 QEMU 和真实 QEMU PID reap 已可用；物理跨主机、迁移、任意 NAT 和生产调度未完成 |
@@ -203,7 +215,7 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 | StamPLC | ESP32-S3 / QEMU | 显示、按键、继电器/输入、CAN、RS-485、温度、蜂鸣器 | 工业电气特性和真机 |
 | NanoC6 | ESP32-C6 / QEMU | 无屏控制台、GPIO、RGB、按键、IR、WiFi、BLE | Zigbee/802.15.4 由 `RUNTIME-02` 跟踪 |
 | Nesso N1 | ESP32-C6 / QEMU | 显示、触摸、扩展 IO、电源、IMU、LoRa、IR、蜂鸣器、WiFi/BLE | RGB 未验；Meshtastic 独立应用异常待归因 |
-| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU、timer/WDT-mask/stateful SSI fixes | legacy UIFlow normal-WDT 首 reset、WDT-off 约 44 秒后的 CPU1 late-loop flag/object wait、黑帧、物理 PSRAM/cache、bit-exact controller 和真机 |
+| Core2 | ESP32 LX6 / QEMU | 显示、触摸、PMIC、IMU、RTC、音频、WiFi、公网、HCI/native-HCI、PSRAM/MMU、timer/WDT-mask/stateful SSI fixes | legacy UIFlow normal-WDT 首 reset、WDT-off 约 44 秒后的 LVGL double-buffer flush wait、SPI completion callback 未观测、黑帧、物理 PSRAM/cache、bit-exact controller 和真机 |
 | Tab5 | ESP32-P4 / esp-emu | 烧录、启动、1280×720、触摸、RS-485、ESP-Hosted、静态 I2C | P4 外设和 P4↔C6 unified network 仍 `partial` |
 | CardputerZero | BCM2837 / Linux ARM64 | 系统、显示、键盘、I2C、PCM、USB Hub、摄像头、Ethernet | 完整系统回归、生产级 USB/时序和真机 |
 
@@ -225,10 +237,11 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
    放到同一虚拟时间轴。`0039/0040` 证明 CPU1 持续执行且 handoff 在 reset
    前完成约 4,376 次；三次 WDT liveness 又证明 TG1 持续 feed 到 TG0
    stage-1 reset 前数毫秒，历史 800 ms gap 未复现。WDT-off 45/120 秒
-   对照又把后续失败收敛到约 44 秒后的 CPU1 `0x40100049` flag/object wait；
-   下一步是绑定该对象，不再寻找已不成立的 TG1 feed 停摆或无限 Flash
-   扫描。该轮仍属于 legacy `flash-cache/IPC/DPORT` 启动边界，量化结果只
-   以验证台账和 evidence 为准。
+   对照又把后续失败收敛到约 44 秒后的 LVGL 双缓冲 flush wait；
+   BIN-bound 映射确认 display `flush_cb` 已执行，但 SPI completion 到
+   `lv_disp_flush_ready()` 的链路未完成。下一步是修 interrupt/queue
+   completion，不再寻找已不成立的 TG1 feed 停摆、无限 Flash 扫描或未知
+   late object。量化结果只以验证台账和 evidence 为准。
 3. **Core2 等价性**：native-HCI 是功能级 controller boundary；不是
    bit-exact Espressif baseband。QOM 模型提供 8 MiB PSRAM/MMU，但不证明
    物理板载 `8 MiB` cache timing 或性能。
