@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "validation": "HOST_ONLY_NOT_GUEST",
+  "reviewed_at": "2026-10-26T18:12:31.941815+00:00",
+  "browser_checks_independently_run": 27,
+  "source_sha256_at_execution": {
+    "platform/web/program-panel.js": "3cf1ae392dff086d07b6cae26742c1fa0d9db129aa391dec7974633ec8235bf0",
+    "platform/web/program-panel.css": "9e5ae1940705ab48843b2aea83eed506ba014e507fe58db8acad96d0fada460a",
+    "platform/web/sha256.js": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413",
+    "platform/tests/test_preview_program_panel.mjs": "962e501a2b3b2adba54f0129623563e1ed054a3d83e634e022bafcea1e49119c",
+    "platform/web/preview-client.js": "dc16770cc67dcdb6fd8612adf1dcad3b9e091935952539d81bc7150f2062e2a7"
+  },
+  "closed_finding": {
+    "priority": "P2",
+    "title": "Cancel could target only old A while admitted B receipt was blocked",
+    "fix": "Freeze already-dispatched logical generation/revision/epoch at cancellation; resolve only those exact targets from fresh authoritative snapshots; do not retarget later C; uncertain cancel is not replayed automatically",
+    "evidence": [
+      "pre-commit real shared-client fixture",
+      "blocked receipt real shared-client fixture",
+      "lost receipt resolved through authority polling",
+      "later external C negative control",
+      "later local C negative control",
+      "executable old captured-A-only algorithm leaves B running"
+    ]
+  },
+  "reviewed": [
+    "complete immutable package metadata/path/count/size/SHA/source/revision ID",
+    "untouched MPY/module/resource bytes preserved",
+    "BOM/CRLF and Unicode codepoint canonical hash",
+    "dirty explicit merge/adopt and load/edit race",
+    "out-of-order save and newer click fencing",
+    "fresh beforeAdmission full-package baseline",
+    "no legacy managed mutation fallback",
+    "no uncertain admission replay",
+    "mobile/desktop PNGs inspected"
+  ],
+  "unresolved_findings": [],
+  "limits": [
+    "Host browser/API fixtures only, no guest/physical hardware acceptance."
+  ],
+  "metadata_only_test_update": {
+    "final_sha256": "6ff7b0c57672777e6bb8847f9e67c448685f93d0da7d9ec080a1c0b2fdfe26fc",
+    "reconstructed_prior_sha256": "962e501a2b3b2adba54f0129623563e1ed054a3d83e634e022bafcea1e49119c",
+    "matches_executed_test": true
+  }
+}

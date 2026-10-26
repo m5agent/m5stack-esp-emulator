@@ -140,6 +140,8 @@
 | [三主机八种 Unit 源码IO](evidence/2026-10-26-unit-source-host-io-d1ba/README.md) | 历史证据 | `2026-10-26` | 新增24源码组合，Fan3在同步前、其余21在同步后；GPIO/RMT/LEDC/UART/HUB多leaf及原host oracle、真实Web/source/PID/取证清理，两准确HEAD与精确源码omission分列，不转授其它组合/硬件 |
 | [AIFlow实时预览API评估计划](plans/2026-10-26-aiflow-live-preview-api.md) | 实现/设计 | `2026-10-27` | UIFlow同guest程序、QEMU按需共享帧和1.42 Preview/Run基础已实现；Web托管消费者、SSE与AIFlow完整接入仍待做，继承Unit/服务Backlog |
 | [同VM Preview/Run控制面](plans/2026-10-27-preview-run-control.md) | 实施计划 | `2026-10-27` | 持久化身份/幂等/latest-wins、真实prompt取消、managed session与输入/帧fence；CoreS3 PIR/Relay限定实际会话与宿主负控已验，PIR部署事务取消已验，AIFlow/Web/GC仍开放 |
+| [Preview Web消费者](plans/2026-10-27-preview-web-consumer.md) | 实施计划 | `2026-10-27` | 共享Preview身份、完整包保留编辑、主机/Unit输入、Run帧与生命周期；CoreS3 PIR/Relay限定真实Web验收完成，AIFlow/SSE与窄屏构图仍开放 |
+| [Preview Web与完整包验收](evidence/2026-10-27-preview-web-consumer/README.md) | 历史证据 | `2026-10-27` | 同VM外部完整包→Web保留MPY/资源编辑、PIR/Relay控制与Run选定像素、取消恢复/ZIP与清理；首次Token与raw-paste oracle失败、取消/松键独审负控保留 |
 | [同VM Preview/Run验收](evidence/2026-10-27-preview-run-control/README.md) | 历史证据 | `2026-10-27` | CoreS3 PIR/Relay同VM公共包/字节码、pending覆盖、真实prompt运行取消、帧/输入fence、ZIP及清理；宿主并发/恢复/保留独审与失败负控分别归档 |
 | [UIFlow同guest实时程序验证](evidence/2026-10-26-uiflow-live-program/README.md) | 历史证据 | `2026-10-26` | AtomS3R同固件/VM程序替换、PIR原驱动、应用帧与语法错误恢复；其它主机、AIFlow接入和硬件不继承 |
 | [UIFlow实时Web与四主机](evidence/2026-10-26-live-program-web-and-hosts/README.md) | 历史证据 | `2026-10-26` | 四主机×PIR/Relay八会话/40次预期提交；真实CoreS3两例Web像素、输入输出、同PID/固件替换与语法恢复；picker失败负控及13项fixture，非AIFlow/SSE/硬件结论 |

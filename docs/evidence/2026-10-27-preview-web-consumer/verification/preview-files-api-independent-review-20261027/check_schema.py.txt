@@ -1,0 +1,89 @@
+"""Read-only product review with isolated host-store/schema fixtures only."""
+import base64
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import sys
+import tempfile
+
+import jsonschema
+import yaml
+
+ROOT = Path(__file__).resolve().parents[2]
+OUT = Path(__file__).resolve().parent
+sys.path[:0] = [str(ROOT / 'platform/tools'), str(ROOT / 'platform/tests')]
+from device_service import DeviceService
+from program_packages import ProgramPackageStore
+from test_mpy_bytecode import HELPER
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def main():
+    document = yaml.safe_load((ROOT / 'docs/device-service.openapi.yaml').read_text())
+    assert document['openapi'] == '3.1.0'
+    operation = document['paths']['/program-revisions/{revision_id}/files']['get']
+    assert set(operation['responses']) == {'200', '401', '404', '500', '503'}
+    references = []
+
+    def inspect(value):
+        if isinstance(value, list):
+            for item in value:
+                inspect(item)
+        elif isinstance(value, dict):
+            if '$ref' in value:
+                target = value['$ref']
+                assert target.startswith('#/'), target
+                resolved = document
+                for part in target[2:].split('/'):
+                    resolved = resolved[part.replace('~1', '/').replace('~0', '~')]
+                assert isinstance(resolved, dict), target
+                references.append(target)
+            for item in value.values():
+                inspect(item)
+
+    inspect(document)
+    schema = {'$ref': '#/components/schemas/ProgramRevisionFilesEnvelope', 'components': document['components']}
+    validator = jsonschema.Draft202012Validator(schema, format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER)
+    original_files = {'main.py': b'print("CRLF")\r\n', 'helper.mpy': HELPER,
+                      'assets/raw.dat': bytes(range(256)), 'assets/\u6807\u8bb0.txt': 'Unicode contents'.encode()}
+    payload = {'source_kind': 'uiflow2-package', 'entrypoint': 'main.py',
+               'files': {path: {'encoding': 'base64', 'data': base64.b64encode(data).decode()} for path, data in original_files.items()}}
+    with tempfile.TemporaryDirectory(prefix='schema-fixture-', dir=OUT) as path:
+        store = ProgramPackageStore(Path(path))
+        revision = store.create(payload)
+        controller = object.__new__(DeviceService)
+        controller.program_packages = store
+        previous_metadata = controller.get_program_revision(revision['revision_id'])
+        before = (store.root / (revision['revision_id'] + '.json')).read_bytes()
+        response = controller.get_program_revision_files(revision['revision_id'])
+        assert set(response) == {'revision', 'limits', 'files'}
+        assert {k: response[k] for k in ('revision', 'limits')} == previous_metadata
+        assert response['revision'] == revision
+        assert (store.root / (revision['revision_id'] + '.json')).read_bytes() == before
+        assert {p: base64.b64decode(row['data'], validate=True) for p, row in response['files'].items()} == original_files
+        assert all(row['encoding'] == 'base64' for row in response['files'].values())
+        validator.validate(response)
+        bad = json.loads(json.dumps(response))
+        bad['files']['main.py']['encoding'] = 'utf8'
+        assert list(validator.iter_errors(bad)), 'response schema must reject UTF-8 download aliases'
+    result = {'status': 'PASS', 'validation': 'HOST_ONLY_NOT_GUEST',
+              'reviewed_at': datetime.now(timezone.utc).isoformat(),
+              'openapi_version': document['info']['version'], 'local_references_resolved': len(references),
+              'files_route_responses': sorted(operation['responses']),
+              'actual_controller_envelope_validates': True, 'metadata_get_unchanged': True,
+              'canonical_base64_original_bytes': True, 'store_record_unchanged': True,
+              'response_schema_rejects_utf8_alias': True,
+              'source_sha256': {p: sha((ROOT / p).read_bytes()) for p in ('platform/tools/serve.py', 'platform/tools/device_service.py',
+                  'platform/tools/program_packages.py', 'platform/tests/test_program_revision_api.py', 'docs/device-service.openapi.yaml')},
+              'script_sha256': sha(Path(__file__).read_bytes()),
+              'limits': ['No live service, compiler, guest or physical device was executed.']}
+    (OUT / 'schema-report.json').write_text(json.dumps(result, indent=2) + '\n')
+    print(json.dumps({k: result[k] for k in ('status', 'local_references_resolved', 'openapi_version')}, indent=2))
+
+
+if __name__ == '__main__':
+    main()

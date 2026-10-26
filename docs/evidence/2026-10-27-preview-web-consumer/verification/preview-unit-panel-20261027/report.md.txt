@@ -1,0 +1,40 @@
+# UNIT-HOST-34 UnitPanel Preview consumer
+
+Date: 2026-10-27. Category: deterministic host browser/API fixtures. Guest, firmware, controller, physical hardware and port 8787 execution: NOT RUN.
+
+## Scope
+
+- Modified `platform/web/unit-panel.js` and added `platform/tests/test_preview_unit_panel.mjs` only. Existing legacy `test_unit_panel.mjs` remains unchanged.
+- Managed Unit reads and inputs consume the shared Preview client, captured immutable context and identity-checked `receipt.result`.
+- Missing Run or malformed non-null management binding fails closed. Initialization only adopts frozen definitions, never unowned live Unit values.
+- Context changes fence reads, receipts, queues, held sources, audio and values without detaching the assembly. Existing LED, drive and button visual feedback is withdrawn.
+- A temporarily lost input ACK parks only a necessary release obligation. After fresh authoritative recovery of the exact same context, a bracketed Unit read confirms false without replay or permits one false correction for an observed true. New Run, terminal state, changed binding and disposal cannot retarget that release. An uncertain correction is not replayed in a loop.
+- `dispose()` returns a cached `Promise.allSettled` for pending input queues. A confirmed hold with no pending queue dispatches its necessary same-Run keepalive release synchronously; an in-flight press preserves queue ordering, and ordinary queued inputs are dropped after disposal. The SessionVisual owner drains these promises before disposing the shared client.
+
+## Verification
+
+- `preview-final/report.json`: PASS, 23 browser protocol/lifecycle groups; includes seven groups using the real `createPreviewClient` implementation. The final group navigates the actual Chromium page and confirms that its pagehide same-Run keepalive release reaches a local HTTP server as `[true,false]`.
+- `legacy-final/report.json`: PASS, 34 existing UnitPanel browser groups (`UNIT_PANEL_BROWSER_OK`).
+- `audio-final/receipt.json`: PASS, 113 unit assertions and 15 browser checks.
+- `node --check platform/web/unit-panel.js`: PASS.
+- `git diff --check`: PASS.
+- Negative baseline `real-before.log`: actual `[true]`, expected `[true,false]`, reproducing the lost press ACK / forgotten release before the fix.
+
+## Frozen source SHA-256
+
+- `platform/web/unit-panel.js`: 7049d4f5ccbd45fc14e44af31e2c4b32ec1f3bcbefb63dcc33ec2aab114c7c78
+- `platform/web/preview-client.js`: dc16770cc67dcdb6fd8612adf1dcad3b9e091935952539d81bc7150f2062e2a7
+- `platform/tests/test_preview_unit_panel.mjs`: 3a8b2830559cad227fb04d789bd60735bbf085fc2fe3c6e3f7ffe31b95062c4a
+
+## Remaining boundary
+
+The shell has no evidenced unknown/reset API for joint angle or position. The panel marks observations unavailable and stops describing the old pose as current. It does not invent a zero-angle or detent reset, and does not add an unverified binding. Independent acceptance of this implementation is required from another agent.
+
+No guest was launched, no live service was operated, and no files were staged or committed.
+
+## Independent Root review
+
+- Found and reproduced a read-only bracket failure consuming the only release attempt before UP dispatch: `root-release-read-audit.log`. Root moved `attempted=true` after the fresh read and identity check, with a temporary `releasing` guard; independent rerun `root-release-read-audit-fixed/report.json` PASS (20 groups).
+- Found and reproduced immediate shared-client disposal swallowing a queued necessary key UP: `root-destroy-release-audit.log`. A second agent independently reproduced the corresponding UnitPanel lifecycle issue using the real shared client. Root now drains Host/Unit release promises for up to 2 seconds before client disposal, synchronously dispatches a known idle held-key release, and drops ordinary queued DOWN after destruction. Current teardown was read-reviewed after this change.
+- Live runner review identified cleanup using a missing session ID, weak Run/checkpoint/readiness identity checks, and clicking load before the Web client observes the external Run. Root applied the respective fixes. The live runner has not been executed by this agent; the parent owns virtual-device acceptance.
+- Parent-owned final live r4 output independently audited PASS: `root-live-independent/report.md` and `r4.json`. All 537 direct response hashes, 1,317 browser requests, PIR/Relay evidence ZIP members, same-VM Run/UART/MPY/resource identity, Unit QOM, selected frame pixels and cleanup were verified read-only. r1/r2 failures and r3 prior product-version PASS are retained with their exact boundaries.

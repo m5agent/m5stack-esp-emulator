@@ -1,6 +1,8 @@
 import { createDeviceShell } from './device-shell-factory.js?v=20261026h';
-import { createUnitPanel, createUnitPicker } from './unit-panel.js?v=20261026h';
-import { createProgramPanel } from './program-panel.js';
+import { createUnitPanel, createUnitPicker } from './unit-panel.js?v=20261027p';
+import { createProgramPanel } from './program-panel.js?v=20261027p';
+import { createPreviewClient } from './preview-client.js?v=20261027p';
+import { Sha256 } from './sha256.js';
 
 const ACTIVE_STATES = new Set(['provisioning', 'flashing', 'booting', 'running']);
 const THREE_PREVIEW_LIMIT = 4;
@@ -25,6 +27,8 @@ const state = {
   unitPickerGeneration: 0,
   unitPickerDeviceId: null,
   creating: false,
+  pendingPreviewCreate: null,
+  previewCreatePoll: null,
 };
 
 const $ = id => document.getElementById(id);
@@ -46,7 +50,11 @@ async function api(path, options = {}) {
   const body = type.includes('json') ? await response.json() : await response.text();
   if (!response.ok) {
     const message = body?.error?.message || body?.error || String(body);
-    throw new Error(`${response.status}: ${message}`);
+    const error = new Error(`${response.status}: ${message}`);
+    const effect = body?.effect_possible ?? body?.error?.effect_possible;
+    Object.assign(error, {status: response.status, code: body?.error?.code, body,
+      effectPossible: typeof effect === 'boolean' ? effect : response.status < 500 ? false : undefined});
+    throw error;
   }
   return body;
 }
@@ -103,12 +111,14 @@ class SessionVisual {
     this.frameMetadata = null;
     this.frameGeneration = 0;
     this.frameRequest = null;
-    this.frameOwnerKey = this.frameOwner();
+    this.frameOwnerKey = this.hostOwner();
     this.lastFrameAt = 0;
     this.lastFrameAttemptAt = 0;
     this.frameApply = Promise.resolve();
     this.controlQueues = new Map();
     this.activeControls = new Set();
+    this.controlOwners = new Map();
+    this.controlReleaseObligations = new Map();
     this.controlReleaseTimers = new Map();
     this.destroyed = false;
     this.allowThree = allowThree;
@@ -117,17 +127,21 @@ class SessionVisual {
     this.shellLoading = false;
     this.placeholder = framePlaceholder(session);
     this.container.innerHTML = `<span class="no-frame">${escapeHtml(this.placeholder)}</span>`;
+    // Ordinary sessions retain their existing API. A malformed non-null
+    // binding is still managed and the shared client rejects its controls.
+    this.previewClient = session.management_binding != null ? createPreviewClient({session, api}) : null;
     const programContainer = this.container.closest('.session-card')?.querySelector('[data-program-panel]');
-    if (programContainer) this.programPanel = createProgramPanel(programContainer, {session, api});
+    if (programContainer) this.programPanel = createProgramPanel(programContainer, {session, api, previewClient: this.previewClient});
     const unitContainer = this.container.closest('.session-card')?.querySelector('[data-unit-panel]');
     if (unitContainer) {
-      createUnitPanel(unitContainer, { session, shell: null, api }).then(panel => {
+      createUnitPanel(unitContainer, { session, shell: null, api, previewClient: this.previewClient }).then(panel => {
         if (this.destroyed) { panel.dispose(); return; }
         this.unitPanel = panel;
         panel.updateSession(this.session);
         if (this.shell) panel.setShell(this.shell);
       }).catch(error => console.warn('Unit panel initialization failed.', error));
     }
+    this.unsubscribePreview = this.previewClient?.subscribe(snapshot => this.previewChanged(snapshot));
     this.init().catch(error => {
       console.warn('Session preview initialization failed.', error);
       this.setMessage(this.placeholder);
@@ -135,7 +149,7 @@ class SessionVisual {
   }
 
   updateSession(session) {
-    const owner = this.frameOwner(session);
+    const owner = this.hostOwner(session);
     if (owner !== this.frameOwnerKey) {
       this.invalidateFrame();
       this.releaseActiveControls();
@@ -149,9 +163,18 @@ class SessionVisual {
     }
     this.session = session;
     this.frameOwnerKey = owner;
+    if (!this.previewClient && session.management_binding != null) {
+      // The binding is immutable for published sessions. If an old response
+      // omitted it, fail closed until the card is recreated on reload.
+      this.bindingUnconfirmed = true;
+      this.invalidateFrame();
+      this.forgetControls();
+    }
+    this.previewClient?.updateSession(session);
     this.unitPanel?.updateSession(session);
     this.programPanel?.updateSession(session);
     if (!ACTIVE_STATES.has(session.state)) this.releaseActiveControls();
+    this.updateManagedUi();
     if (!this.frameBlob && !this.shell) {
       this.placeholder = framePlaceholder(session);
       this.setMessage(this.placeholder);
@@ -161,9 +184,89 @@ class SessionVisual {
     }
   }
 
-  frameOwner(session = this.session) {
+  hostOwner(session = this.session) {
     return JSON.stringify([session.session_id, session.created_at, session.device_id,
       session.firmware_sha256, session.pid]);
+  }
+
+  frameOwner(session = this.session) {
+    return JSON.stringify([this.hostOwner(session), this.previewClient?.snapshot().frameContext?.key || null]);
+  }
+
+  previewChanged(snapshot) {
+    const key = snapshot.frameContext?.key || null;
+    if (this.previewFrameKey !== key) {
+      this.previewFrameKey = key;
+      this.invalidateFrame();
+      this.forgetControls();
+      state.deviceStates.delete(this.session.session_id);
+      this.shell?.setDeviceState?.(null);
+      this.container.querySelector('img.session-frame')?.remove();
+      this.container.classList.remove('has-frame');
+      this.placeholder = key ? '等待本次运行画面…' : '等待当前 Run 同步…';
+      this.shell?.showOverlay?.('Preview', this.placeholder);
+      this.setMessage(this.placeholder);
+      const card = this.container.closest('.session-card');
+      if (card) updateDeviceStateUi(card, null, this.session);
+    }
+    const input = snapshot.inputContext;
+    if (input) {
+      for (const [key, intent] of this.controlReleaseObligations || []) {
+        if (intent.context.key !== input.key) this.controlReleaseObligations.delete(key);
+        else if (!this.controlOwners.has(key) && !intent.attempted && !intent.releasing) void this.recoverControlRelease(key, intent, input);
+      }
+    } else if (snapshot.synchronized && !snapshot.pending &&
+        (snapshot.activeRun?.state !== 'running' || snapshot.activeRun?.cancel_intent || snapshot.transitionRun)) {
+      this.controlReleaseObligations?.clear();
+    }
+    this.updateManagedUi();
+  }
+
+  async recoverControlRelease(key, intent, context) {
+    intent.releasing = true;
+    try {
+      // Host keys have no generic readback property. A fresh same-Run bracket
+      // permits one idempotent UP, never a replayed DOWN or a new-Run release.
+      await this.previewClient.readSession(context, 'device-state');
+      if (this.destroyed || this.controlReleaseObligations.get(key) !== intent ||
+          !this.previewClient.matches(context)) return;
+      intent.attempted = true;
+      await this.previewClient.input(context, 'input', {kind: 'key', key, action: 'up', settle_seconds: 0.02}, {keepalive: true});
+      if (this.controlReleaseObligations.get(key) === intent) this.controlReleaseObligations.delete(key);
+    } catch (error) {
+      console.warn('Preview key release remains unconfirmed.', error);
+    } finally {
+      intent.releasing = false;
+    }
+    this.updateManagedUi();
+  }
+
+  updateManagedUi() {
+    if (!this.previewClient && !this.bindingUnconfirmed) return;
+    const card = this.container.closest('.session-card');
+    if (!card) return;
+    const snapshot = this.previewClient?.snapshot();
+    const control = action => card.querySelector(`[data-action="${action}"]`);
+    if (control('reset')) { control('reset').disabled = true; control('reset').title = '持续预览暂不提供复位；可取消后重新运行'; }
+    if (control('renew')) control('renew').disabled = !snapshot?.canRenew;
+    if (control('stop')) { control('stop').disabled = !snapshot?.canClose; control('stop').textContent = '关闭预览'; }
+    const label = card.querySelector('[data-field="preview"]');
+    if (label) {
+      label.hidden = false;
+      const historical = !ACTIVE_STATES.has(this.session.state);
+      label.textContent = historical ? '历史会话末帧 · 不代表当前 Run' : snapshot?.error
+        ? `持续预览暂不可用：${snapshot.error}`
+        : `持续预览 · ${snapshot?.preview?.state || '同步中'} · ${snapshot?.activeRun?.state || '等待运行'}`;
+      if ([...(this.controlReleaseObligations?.values() || [])].some(intent => intent.attempted)) label.textContent += ' · 按键释放尚未确认';
+    }
+  }
+
+  forgetControls() {
+    for (const timer of this.controlReleaseTimers.values()) clearTimeout(timer);
+    this.controlReleaseTimers.clear();
+    this.activeControls.clear();
+    this.controlOwners?.clear();
+    this.controlQueues.clear();
   }
 
   invalidateFrame() {
@@ -240,15 +343,23 @@ class SessionVisual {
       this.shell = shell;
       this.unitPanel?.setShell(shell);
       this.shell.setViewMode('shell');
-      this.shell.on('control', event => this.handleControl(event));
-      this.shell.on('unit-input', event => this.unitPanel?.handleInput(event));
+      const ownsShell = () => !this.destroyed && this.shell === shell && generation === this.shellGeneration;
+      this.shell.on('control', event => { if (ownsShell()) this.handleControl(event); });
+      this.shell.on('unit-input', event => { if (ownsShell()) this.unitPanel?.handleInput(event); });
       this.shell.on('reset', () => {
-        if (this.session.state !== 'running') return;
+        if (!ownsShell() || this.session.state !== 'running' || this.previewClient || this.bindingUnconfirmed) return;
         api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/reset`, { method: 'POST' })
           .catch(error => console.warn('Session reset failed.', error));
       });
       this.shell.on('touch', ({ x, y, action }) => {
-        if (action !== 'start' || this.session.state !== 'running') return;
+        if (!ownsShell() || action !== 'start' || this.session.state !== 'running') return;
+        if (this.bindingUnconfirmed) return;
+        if (this.previewClient) {
+          const context = this.previewClient.captureInput();
+          if (context) this.previewClient.input(context, 'input', {kind: 'touch', x, y, settle_seconds: 0.05})
+            .catch(error => showError(`触摸结果未确认：${error.message}`));
+          return;
+        }
         api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/input`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -257,6 +368,7 @@ class SessionVisual {
       });
       this.shell.setDeviceState?.(state.deviceStates.get(this.session.session_id));
       if (this.frameBlob) await this.applyThreeFrame();
+      else if (this.previewClient) this.shell.showOverlay?.('Preview', this.placeholder);
     } catch (error) {
       if (shell) {
         if (this.shell === shell) {
@@ -344,9 +456,14 @@ class SessionVisual {
   }
 
   handleControl({ id, key: runtimeKey, down }) {
-    if (this.session.state !== 'running') return;
+    if (this.session.state !== 'running' || this.bindingUnconfirmed) return;
     const key = runtimeKey || this.controlKey(id);
     if (down) {
+      const context = this.previewClient?.captureInput();
+      if (this.previewClient && !context) return;
+      if (this.activeControls.has(key)) return;
+      if (context) this.controlOwners.set(key, context);
+      if (context) this.controlReleaseObligations.set(key, {context, attempted: false});
       this.activeControls.add(key);
       clearTimeout(this.controlReleaseTimers.get(key));
       this.enqueueControl(key, 'down');
@@ -359,6 +476,7 @@ class SessionVisual {
       );
       return;
     }
+    if (this.previewClient && !this.controlOwners.has(key)) return;
     clearTimeout(this.controlReleaseTimers.get(key));
     this.controlReleaseTimers.delete(key);
     this.activeControls.delete(key);
@@ -367,16 +485,51 @@ class SessionVisual {
 
   enqueueControl(key, action, keepalive = false) {
     const sessionId = this.session.session_id;
-    const previous = this.controlQueues.get(key) || Promise.resolve();
-    const request = previous
-      .catch(() => {})
-      .then(() => api(`/api/v1/sessions/${encodeURIComponent(sessionId)}/input`, {
+    const client = this.previewClient;
+    const context = this.controlOwners?.get(key);
+    if (this.bindingUnconfirmed || (client && !context)) return;
+    if (client && action === 'up') {
+      this.controlOwners.delete(key);
+      const intent = this.controlReleaseObligations.get(key);
+      if (intent?.context.key === context.key) intent.releasing = true;
+    }
+    const previous = this.controlQueues.get(key);
+    const execute = () => {
+        if (this.destroyed && action !== 'up') return;
+        if (client) {
+          if (!client.matches(context)) {
+            const intent = this.controlReleaseObligations.get(key);
+            if (intent?.context.key === context.key) intent.releasing = false;
+            return;
+          }
+          return client.input(context, 'input', {kind: 'key', key, action, settle_seconds: 0.02}, {keepalive}).then(receipt => {
+            const intent = this.controlReleaseObligations.get(key);
+            if (intent?.context.key === context.key) {
+              if (action === 'up') this.controlReleaseObligations.delete(key);
+              else intent.acknowledged = true;
+            }
+            return receipt;
+          });
+        }
+        return api(`/api/v1/sessions/${encodeURIComponent(sessionId)}/input`, {
         method: 'POST',
         keepalive,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kind: 'key', key, action, settle_seconds: 0.02 }),
-      }))
-      .catch(error => console.warn(`Session key ${action} injection failed.`, error));
+        });
+    };
+    // An acknowledged hold without an earlier request can release during the
+    // unload event itself. Pending commands still preserve their queue order.
+    const immediate = client && action === 'up' && keepalive && !previous &&
+      this.controlReleaseObligations.get(key)?.acknowledged;
+    const dispatched = immediate ? Promise.resolve(execute())
+      : (previous || Promise.resolve()).catch(() => {}).then(execute);
+    const request = dispatched
+      .catch(error => {
+        const intent = this.controlReleaseObligations?.get(key);
+        if (intent?.context.key === context?.key) intent.releasing = false;
+        console.warn(`Session key ${action} injection failed.`, error);
+      });
     this.controlQueues.set(key, request);
     request.finally(() => {
       if (this.controlQueues.get(key) === request) this.controlQueues.delete(key);
@@ -393,15 +546,30 @@ class SessionVisual {
   }
 
   destroy() {
+    if (this.destroyed) return this.destroyDrain;
     this.destroyed = true;
     this.invalidateFrame();
     this.releaseActiveControls();
-    this.unitPanel?.dispose();
+    const unitDrain = this.unitPanel?.dispose();
     this.programPanel?.dispose();
+    this.unsubscribePreview?.();
+    const client = this.previewClient;
+    // Unmount synchronously, but give captured same-Run keepalive releases a
+    // bounded chance to dispatch before revoking their shared client context.
+    let timer;
+    this.destroyDrain = Promise.race([
+      Promise.allSettled([...this.controlQueues.values(), unitDrain]),
+      new Promise(resolve => { timer = setTimeout(resolve, 2000); }),
+    ]).finally(() => {
+      clearTimeout(timer);
+      client?.dispose();
+      this.controlReleaseObligations?.clear();
+    });
     this.shell?.dispose();
     this.shell = null;
     if (this.frameUrl) URL.revokeObjectURL(this.frameUrl);
     this.frameUrl = null;
+    return this.destroyDrain;
   }
 }
 
@@ -429,6 +597,7 @@ function createSessionCard(session, allowThree) {
         <span data-field="last-frame">frame 未记录</span>
       </div>
       <div class="session-warning" data-field="warning" hidden></div>
+      <div class="session-runtime-note" data-field="preview" role="status" hidden></div>
       <div class="session-runtime" data-field="runtime" hidden>
         <span><small>Battery</small><strong data-runtime="battery">—</strong></span>
         <span><small>Power</small><strong data-runtime="power">—</strong></span>
@@ -540,11 +709,13 @@ function render() {
 
 function renderDevices() {
   const select = $('deviceSelect');
+  const selected = select.value;
   const rows = state.devices.filter(device => device.creatable);
   select.innerHTML = rows.map(device => `
     <option value="${escapeHtml(device.device_id)}">
       ${escapeHtml(device.name)} (${escapeHtml(device.device_id)})${device.peripheral_status === 'partial' ? ' · partial' : ''}
     </option>`).join('');
+  if (rows.some(device => device.device_id === selected)) select.value = selected;
   updateProgramMode();
 }
 
@@ -558,13 +729,61 @@ function updateProgramMode() {
   $('programModeHint').textContent = enabled
     ? '创建后可在当前设备中反复运行源码，屏幕和 Unit 状态随程序更新。'
     : '该型号暂未开放实时编程，可继续创建参考设备。';
+  const previewMode = $('previewModeInput');
+  if (previewMode) {
+    previewMode.disabled = !enabled || !input.checked || !state.token;
+    if (previewMode.disabled) previewMode.checked = false;
+    if (previewMode.checked) $('createBtn').textContent = '创建持续预览';
+  }
   updateCreateControls();
 }
 
 function updateCreateControls() {
   const deviceId = $('deviceSelect').value;
+  $('createBtn').textContent = $('previewModeInput')?.checked ? '创建持续预览'
+    : $('programModeInput').checked ? '创建编程设备' : '创建参考设备';
   $('createBtn').disabled = state.creating || !deviceId
     || state.unitPickerDeviceId !== deviceId || state.unitPicker?.readyDeviceId !== deviceId;
+  if (state.pendingPreviewCreate) {
+    $('createBtn').disabled = state.creating || !!state.pendingPreviewCreate.previewId;
+    $('createBtn').textContent = state.pendingPreviewCreate.previewId ? '预览准备中…' : '重试上次创建（同一请求）';
+  }
+}
+
+function rememberPreviewCreate(record) {
+  state.pendingPreviewCreate = record;
+  try {
+    if (record) sessionStorage.setItem('m5-pending-preview-create', JSON.stringify(record));
+    else sessionStorage.removeItem('m5-pending-preview-create');
+  } catch { /* Same-page retries still retain the original request. */ }
+  updateCreateControls();
+}
+
+function previewCreateMessage(message) {
+  const node = $('previewCreateStatus');
+  if (node) { node.hidden = !message; node.textContent = message; }
+}
+
+async function pollPreviewCreate() {
+  const record = state.pendingPreviewCreate;
+  if (!record?.previewId || state.previewCreatePoll) return;
+  state.previewCreatePoll = true;
+  try {
+    const result = await api(`/api/v1/previews/${encodeURIComponent(record.previewId)}`);
+    if (state.pendingPreviewCreate !== record) return;
+    if (result.preview_id !== record.previewId) throw new Error('创建预览身份不匹配');
+    previewCreateMessage(`持续预览 ${result.state}${result.session_id ? ' · 会话已创建' : ' · 正在分配虚拟设备'}${result.state === 'failed' ? ` · ${result.error?.message || '预览创建失败，请查看会话记录。'}` : ''}`);
+    if (['ready', 'failed', 'closed'].includes(result.state)) {
+      rememberPreviewCreate(null);
+      if (result.state !== 'ready') showError(result.error?.message || '持续预览未就绪，请查看会话记录。');
+      await refreshSessions();
+    }
+  } catch (error) {
+    previewCreateMessage(`创建状态暂未确认：${error.message}；将继续查询同一预览。`);
+  } finally {
+    state.previewCreatePoll = null;
+    if (state.pendingPreviewCreate?.previewId) setTimeout(pollPreviewCreate, 1000);
+  }
 }
 
 async function loadUnitPicker(deviceId) {
@@ -683,6 +902,12 @@ async function refreshFrame(session) {
   if (!visual || visual.destroyed || visual.frameOwner(session) !== visual.frameOwner()) return;
   if (visual.frameRequest) return;
   const active = ACTIVE_STATES.has(session.state);
+  const client = visual.previewClient;
+  const context = client?.snapshot().frameContext;
+  // Terminal sessions retain an explicitly labelled last-session image.
+  // Active managed guests never fall back to an unowned session frame.
+  const managedFrame = !!client && active;
+  if (visual.bindingUnconfirmed || (managedFrame && !context)) return;
   if (!active) {
     if (visual.frameBlob || Date.now() - visual.lastFrameAttemptAt < 5000) return;
     visual.lastFrameAttemptAt = Date.now();
@@ -711,24 +936,40 @@ async function refreshFrame(session) {
   visual.frameRequest = request;
   const current = () => !request.cancelled && !visual.destroyed &&
     state.visuals.get(session.session_id) === visual && visual.frameOwner() === owner &&
-    visual.frameRequest === request && visual.frameGeneration === generation;
+    visual.frameRequest === request && visual.frameGeneration === generation &&
+    (!managedFrame || client.matches(context, 'frame'));
   const timer = setTimeout(() => request.cancel(), FRAME_REQUEST_TIMEOUT_MS);
   try {
     await Promise.race([cancelled, (async () => {
       const query = preview ? `max_age_ms=${FRAME_INTERVAL_MS}` : `t=${Date.now()}`;
+      const path = managedFrame
+        ? `/api/v1/previews/${encodeURIComponent(context.previewId)}/runs/${encodeURIComponent(context.runId)}/frame.png`
+        : `/api/v1/sessions/${encodeURIComponent(session.session_id)}/frame.png`;
       const response = await fetch(
-        `/api/v1/sessions/${encodeURIComponent(session.session_id)}/frame.png?${query}`,
+        `${path}?${query}`,
         { headers, signal: controller.signal, cache: 'no-store' }
       );
       if (!current()) return;
       const metadata = Object.fromEntries([...response.headers].filter(([name]) => name.startsWith('x-frame-')));
+      if (managedFrame && (response.headers.get('X-Preview-ID') !== context.previewId ||
+          response.headers.get('X-Run-ID') !== context.runId ||
+          response.headers.get('X-Frame-Execution-ID') !== context.executionId ||
+          response.headers.get('X-Frame-Revision-ID') !== context.revisionId)) {
+        throw new Error('Run frame identity mismatch');
+      }
       if (response.status === 304) {
-        if (preview && visual.frameBlob && headers.has('If-None-Match')) visual.frameMetadata = metadata;
+        if (preview && visual.frameBlob && headers.has('If-None-Match') &&
+            (!managedFrame || response.headers.get('X-Frame-SHA256') === visual.lastFrameHash)) visual.frameMetadata = metadata;
         return;
       }
       if (!response.ok) throw new Error(`frame ${response.status}`);
       const blob = await response.blob();
       if (!current()) return;
+      if (managedFrame) {
+        const actualHash = new Sha256().update(new Uint8Array(await blob.arrayBuffer())).hex();
+        if (!current()) return;
+        if (actualHash !== response.headers.get('X-Frame-SHA256')) throw new Error('Run frame hash mismatch');
+      }
       const applied = await visual.setFrame(blob, response.headers.get('X-Frame-SHA256'), current);
       if (!current() || !applied) return;
       // Capture context is informational, including executions started by an
@@ -764,15 +1005,23 @@ function startFrameLoop() {
 
 async function refreshDeviceState(session) {
   if (!ACTIVE_STATES.has(session.state) && state.deviceStates.has(session.session_id)) return;
+  const visual = state.visuals.get(session.session_id);
+  const client = visual?.previewClient;
+  const context = client?.snapshot().frameContext;
   try {
-    const payload = await api(
-      `/api/v1/sessions/${encodeURIComponent(session.session_id)}/device-state`
-    );
+    if (visual?.bindingUnconfirmed) return;
+    if (client && !context) return;
+    const payload = client ? await client.readSession(context, 'device-state') : await api(
+      `/api/v1/sessions/${encodeURIComponent(session.session_id)}/device-state`);
+    if (state.visuals.get(session.session_id) !== visual || visual?.destroyed ||
+        (client && !client.matches(context, 'frame'))) return;
     state.deviceStates.set(session.session_id, payload);
     state.visuals.get(session.session_id)?.shell?.setDeviceState?.(payload);
     const card = document.querySelector(`[data-session-id="${session.session_id}"]`);
     if (card) updateDeviceStateUi(card, payload, session);
   } catch (error) {
+    if (state.visuals.get(session.session_id) !== visual || visual?.destroyed ||
+        (client && !client.matches(context, 'frame'))) return;
     const card = document.querySelector(`[data-session-id="${session.session_id}"]`);
     if (card) {
       updateDeviceStateUi(
@@ -834,6 +1083,32 @@ async function createSession() {
   const ttl = Number($('ttlInput').value || 600);
   if (!deviceId || state.creating) return;
   try {
+    if (state.pendingPreviewCreate?.previewId) { void pollPreviewCreate(); return; }
+    if (state.pendingPreviewCreate || $('previewModeInput')?.checked) {
+      let record = state.pendingPreviewCreate;
+      if (!record) {
+        if (!state.token || !$('programModeInput').checked || $('previewModeInput').disabled)
+          throw new Error('持续预览需要实时编程能力和控制 Token。');
+        if (state.unitPickerDeviceId !== deviceId || !state.unitPicker)
+          throw new Error('请等待当前设备的 Unit 配置加载完成。');
+        const random = new Uint8Array(16);
+        crypto.getRandomValues(random);
+        record = {key: `web-preview-${[...random].map(byte => byte.toString(16).padStart(2, '0')).join('')}`,
+          body: {device_id: deviceId, ttl_seconds: ttl, units: state.unitPicker.attachments(deviceId)}};
+        rememberPreviewCreate(record);
+      }
+      state.creating = true;
+      updateCreateControls();
+      previewCreateMessage('正在提交持续预览；重试会沿用同一请求。');
+      const result = await api('/api/v1/previews', {method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Idempotency-Key': record.key}, body: JSON.stringify(record.body)});
+      if (typeof result.preview_id !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(result.preview_id))
+        throw new Error('创建收据未提供有效预览身份；请重试同一请求。');
+      rememberPreviewCreate({...record, previewId: result.preview_id});
+      void pollPreviewCreate();
+      await refreshSessions();
+      return;
+    }
     if (state.unitPickerDeviceId !== deviceId || !state.unitPicker) {
       throw new Error('请等待当前设备的 Unit 配置加载完成。');
     }
@@ -854,6 +1129,9 @@ async function createSession() {
     });
     await refreshSessions();
   } catch (error) {
+    if (state.pendingPreviewCreate && !state.pendingPreviewCreate.previewId) {
+      previewCreateMessage(`创建结果未确认：${error.message}。重试将沿用上次请求，不会生成新的创建意图。`);
+    }
     showError(error.message);
   } finally {
     state.creating = false;
@@ -863,6 +1141,17 @@ async function createSession() {
 
 async function sessionAction(sessionId, action) {
   try {
+    const visual = state.visuals.get(sessionId);
+    const session = state.sessions.find(row => row.session_id === sessionId);
+    if ((visual?.previewClient || session?.management_binding != null) && action !== 'wait') {
+      const client = visual?.previewClient;
+      if (!client) throw new Error('托管身份尚未同步，请刷新页面。');
+      if (action === 'stop') await client.close();
+      else if (action === 'renew') await client.renew(600);
+      else throw new Error('持续预览暂不支持复位；请取消后重新运行。');
+      await refreshSessions();
+      return;
+    }
     if (action === 'stop') {
       await api(`/api/v1/sessions/${encodeURIComponent(sessionId)}`, { method: 'DELETE' });
     } else if (action === 'renew') {
@@ -895,15 +1184,23 @@ async function sessionAction(sessionId, action) {
   }
 }
 
-$('saveTokenBtn').addEventListener('click', () => {
+$('saveTokenBtn').addEventListener('click', async () => {
   state.token = $('tokenInput').value.trim();
   sessionStorage.setItem('m5-service-token', state.token);
+  updateProgramMode();
   showError('');
-  refreshSessions();
+  try {
+    // Initial catalog loading can legitimately have failed before the user
+    // entered a control token. Refreshing sessions alone cannot recover it.
+    await loadCatalog();
+    await refreshSessions();
+    if (state.pendingPreviewCreate?.previewId) void pollPreviewCreate();
+  } catch (error) { showError(error.message); }
 });
 
 $('createBtn').addEventListener('click', createSession);
 $('programModeInput').addEventListener('change', updateProgramMode);
+$('previewModeInput')?.addEventListener('change', updateProgramMode);
 $('deviceSelect').addEventListener('change', () => {
   updateProgramMode();
   void loadUnitPicker($('deviceSelect').value);
@@ -923,7 +1220,7 @@ $('clearHistoryBtn').addEventListener('click', async () => {
     state.deviceStates.clear();
     await refreshSessions();
     showError('');
-    $('sessionSub').textContent = `已清理 ${result.cleared + (result.orphaned_cleared || 0)} 个历史会话`;
+    $('sessionSub').textContent = `已清理 ${result.cleared + (result.orphaned_cleared || 0)} 个历史会话 · 保留 ${result.protected_sessions?.length || 0} 个托管历史 · 跳过 ${result.skipped_sessions?.length || 0} 个`;
   } catch (error) {
     showError(error.message);
   }
@@ -942,6 +1239,16 @@ async function init() {
   try {
     await loadCatalog();
     await refreshSessions();
+    try {
+      const pending = JSON.parse(sessionStorage.getItem('m5-pending-preview-create') || 'null');
+      if (pending && /^web-preview-[0-9a-f]{32}$/.test(pending.key) &&
+          pending.body && typeof pending.body.device_id === 'string' &&
+          (!pending.previewId || /^[a-zA-Z0-9_-]{1,128}$/.test(pending.previewId))) {
+        rememberPreviewCreate(pending);
+        previewCreateMessage(pending.previewId ? '恢复上次创建状态…' : '上次创建结果未确认，请重试同一请求。');
+        if (pending.previewId) void pollPreviewCreate();
+      }
+    } catch { /* Ignore invalid local recovery data; never execute it. */ }
   } catch (error) {
     showError(error.message);
   }

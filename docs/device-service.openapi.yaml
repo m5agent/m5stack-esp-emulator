@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.42.0
+  version: 1.43.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -525,6 +525,35 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProgramRevisionEnvelope"
         "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+  /program-revisions/{revision_id}/files:
+    get:
+      summary: Read the verified complete immutable package without executing it
+      description: >
+        Returns every file as canonical base64, including MPY dependencies and
+        binary resources. The decoded package is bounded to 1 MiB, 64 files and
+        256 KiB per file. Preserve all unchanged files when saving a new revision.
+      parameters:
+        - name: revision_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{64}$"
+      responses:
+        "200":
+          description: Verified complete bytes, metadata and existing package limits
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramRevisionFilesEnvelope"
+        "401":
           $ref: "#/components/responses/Error"
         "404":
           $ref: "#/components/responses/Error"
@@ -3414,6 +3443,30 @@ components:
             enum: [utf8, base64]
           data:
             type: string
+    ProgramRevisionFilesEnvelope:
+      type: object
+      additionalProperties: false
+      required: [revision, limits, files]
+      properties:
+        revision:
+          $ref: "#/components/schemas/ProgramRevisionEnvelope/properties/revision"
+        limits:
+          $ref: "#/components/schemas/ProgramRevisionEnvelope/properties/limits"
+        files:
+          type: object
+          minProperties: 1
+          maxProperties: 64
+          additionalProperties:
+            type: object
+            additionalProperties: false
+            required: [encoding, data]
+            properties:
+              encoding:
+                type: string
+                enum: [base64]
+              data:
+                type: string
+                description: Canonical RFC4648 base64 of the verified file bytes
     ProgramRevisionCreateRequest:
       type: object
       additionalProperties: false

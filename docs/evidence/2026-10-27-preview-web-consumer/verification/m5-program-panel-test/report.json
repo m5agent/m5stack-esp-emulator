@@ -1,0 +1,31 @@
+{
+  "category": "browser-program-orchestration-contract",
+  "status": "PASS",
+  "captured_at": "2026-10-26T18:09:17.877Z",
+  "browser_version": "156.0.8078.48",
+  "source_sha256": {
+    "platform/web/program-panel.js": "3cf1ae392dff086d07b6cae26742c1fa0d9db129aa391dec7974633ec8235bf0",
+    "platform/web/program-panel.css": "9e5ae1940705ab48843b2aea83eed506ba014e507fe58db8acad96d0fada460a",
+    "platform/web/sessions.js": "b4633e970a473dd24ac18dec87ea10ebd06070cd09bd91042cf3afedcbf30cc3",
+    "platform/web/sessions.html": "62367fd2cfe2694b2f13150f905eb1897bcb3ad80292c86dd70c43870259b605",
+    "platform/web/unit-panel.js": "b6f51493df6ce2cd74dc70cc373a14683369894046ae05f36e4f05d0cfbe57e2"
+  },
+  "checks": [
+    "initial-get-gates-first-run-cas-source-snapshot-and-double-click",
+    "old-get-success-null-and-error-cannot-roll-back-new-execution",
+    "polling-preserves-editor-focus-selection-and-draft",
+    "old-get-success-and-error-fenced-across-owner-and-reused-session-id",
+    "old-post-success-error-and-finally-cannot-affect-reused-owner-or-new-pending",
+    "inactive-and-pending-block-handlers-and-old-get-cannot-reactivate",
+    "actual-api-error-retained-while-resync-recovers-generation",
+    "wrong-session-and-history-error-fail-closed-and-utf8-limit-is-real-bytes",
+    "dispose-fences-late-get-and-post-without-clearing-new-dom-owner",
+    "real-poll-timer-and-dispose-stop-further-requests",
+    "responsive-editor-and-keyboard-focus",
+    "actual-sessions-page-creation-capability-unit-payload-run-and-stop",
+    "actual-page-initial-picker-and-device-switch-fenced-in-both-return-orders"
+  ],
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "errors": []
+}

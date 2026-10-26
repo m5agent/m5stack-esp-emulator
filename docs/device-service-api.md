@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-27`.
 
-Status: local MVP with unified-device runtime contract `1.42.0` and bounded
+Status: local MVP with unified-device runtime contract `1.43.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -18,7 +18,8 @@ source revision identities. Source is limited to 64 KiB UTF-8; submissions requi
 `expected_execution_id` (null initially). Cleanup is interrupt-only: native module,
 timer, callback and thread state is not guaranteed to reset. See the
 [Unit Agent API](unit-agent-api.md) for initialization and exact boundaries;
-The Preview/Run coordinator below is under validation; SSE remains future work. QEMU readers can explicitly
+The Preview/Run coordinator below has bounded API and Web acceptance; SSE and
+the AIFlow consumer remain future work. QEMU readers can explicitly
 share demand-driven frame samples with `max_age_ms` and conditional GET; this
 does not create a background stream or an AIFlow consumer integration.
 The mode rejects uploaded firmware/source-pin parameters and incompatible
@@ -57,6 +58,14 @@ Public checkpoints use `POST /program-revisions`, with exactly the required
 The response is `{revision, limits}`; duplicate content returns 201 with the
 same ID and original `created_at`. `GET /program-revisions/{revision_id}`
 returns verified metadata and limits. Stored does not mean compiled or run.
+`GET /program-revisions/{revision_id}/files` adds the complete immutable `files`
+mapping alongside the same `revision` and `limits`. Every file uses canonical
+base64, including binary resources and MPY dependencies. It verifies all stored
+paths, sizes, hashes and the content ID before returning, without creating an
+execution or interrupting a guest. Existing metadata-only GET remains unchanged.
+Clients editing `main.py` must preserve the remaining files and submit a complete
+new snapshot; a missing file means deletion. The response remains bounded by the
+decoded package limits and the 2 MiB JSON envelope.
 Old `uiflow2-python` store IDs are not accepted as complete package references.
 
 A third `/sessions/{id}/program` request form accepts only `revision_id`,
@@ -76,6 +85,16 @@ latest-wins queue, per-Run cancellation or tenant ownership is established by
 these checkpoint routes. Existing service authorization remains in effect.
 
 ### Stable Preview and asynchronous Runs
+
+The Live sessions consumer has separate CoreS3 PIR/Relay Web acceptance under
+UNIT-HOST-34: [exact scope and evidence](evidence/2026-10-27-preview-web-consumer/README.md).
+Enable live programming and the optional persistent-preview checkbox with a
+control Token. It loads complete checkpoints, preserves MPY/resources while
+editing main.py, coordinates Run/cancel/renew/close and uses Run-bound frames.
+Reset remains disabled. Creation retries keep their original idempotency key
+and body, including recovery after reload. An external package update requires
+explicit load/merge; polling never overwrites local drafts. Other targets and
+the AIFlow consumer do not inherit this Web result.
 
 Validation on `2026-10-27`: frozen host regression and independent contract review
 passed. CoreS3 PIR/Relay have bounded same-VM/pending replacement/active-cancel
@@ -2080,6 +2099,7 @@ the session stops. This endpoint does not expose arbitrary QOM internals.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
+| GET | `/api/v1/program-revisions/{revision_id}/files` | Read every verified package file as canonical base64 |
 | GET/POST | `/api/v1/previews` | List retained Previews or allocate a stable managed UIFlow guest |
 | GET | `/api/v1/previews/{preview_id}` | Poll Preview/generation/lease |
 | POST | `/api/v1/previews/{preview_id}/runs` | Queue a checkpoint Run with scoped idempotency |

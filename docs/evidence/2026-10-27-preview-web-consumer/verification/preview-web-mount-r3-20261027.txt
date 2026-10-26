@@ -1,0 +1,14 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.evaluate: TypeError: Cannot read properties of undefined (reading 'values')
+    at SessionVisual.destroy (eval at <anonymous> (eval at evaluate (:370:30)), <anonymous>:462:49)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:24)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+    at /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_session_mount.mjs:43:13 {
+  log: []
+}
+
+Node.js v22.22.2

@@ -1,0 +1,70 @@
+# UNIT-HOST-34 ProgramPanel browser validation
+
+Date: 2026-10-27. Category: host/browser contract. Firmware, Device Service and hardware execution: NOT RUN.
+
+## Scope
+
+Managed Preview consumer retains the complete immutable file package while editing main.py. SHA256/size/count/path/base64 checks cover MPY, modules and binary resources; Python-host golden hashing covers numeric and supplementary Unicode filenames. BOM and unchanged CRLF bytes are preserved. External revisions require explicit package synchronization; polling never replaces drafts.
+
+Cancel freezes the exact local logical generations already dispatched at click time and the captured Run. Independent refresh/polling identifies a delayed or lost receipt by client_generation plus revision_id. A later external or local Run does not inherit an earlier cancel intent. The executable old captured-A-only algorithm is retained as a negative control and leaves B running in the same delayed-receipt window.
+
+## Results
+
+- /tmp/m5-preview-program-panel-test/report.json: PASS, 27 checks, Chrome 156.0.8078.48.
+- /tmp/m5-program-panel-test/report.json: PASS, 13 checks, Chrome 156.0.8078.48.
+- /tmp/m5-preview-session-create-test/report.json: PASS, 8 checks, Chrome 156.0.8078.48.
+
+Managed editor 1440/1024/768/390 CSS pixels: no horizontal overflow; keyboard focus and screenshots checked. The 390px editor screenshot was visually inspected. Existing legacy race and creation tests remain intact. The complete package runtime/MPY import claim requires separate virtual-device evidence.
+
+## Source freeze
+
+| File | SHA256 |
+| --- | --- |
+| platform/web/program-panel.js | 3cf1ae392dff086d07b6cae26742c1fa0d9db129aa391dec7974633ec8235bf0 |
+| platform/web/program-panel.css | 9e5ae1940705ab48843b2aea83eed506ba014e507fe58db8acad96d0fada460a |
+| platform/tests/test_preview_program_panel.mjs | 6ff7b0c57672777e6bb8847f9e67c448685f93d0da7d9ec080a1c0b2fdfe26fc |
+| platform/tests/test_preview_session_create.mjs | 5bccdd42ea8ca8dba604ec3c4354a7b8e3076cb6166b078dc2e7643843ed2d1f |
+
+No stage, commit, service startup, guest creation, flash or external archival was performed by this subtask. Independent shared-client/ProgramPanel cancellation review: PASS. Static cancellation review and a separate Chrome 27-check run are retained under .work/preview-program-independent-review-20261027/. That independent run used test SHA 962e501a2b3b2adba54f0129623563e1ed054a3d83e634e022bafcea1e49119c; only its report description and inclusion of the shared-client SHA changed afterward. The final test SHA in the table above was rerun with all 27 checks PASS. Product and fixture files are frozen for the root virtual-device Web acceptance.
+
+Shared client SHA256: dc16770cc67dcdb6fd8612adf1dcad3b9e091935952539d81bc7150f2062e2a7.
+
+## First-token bootstrap follow-up
+
+Root live r1 exposed an existing first-token initialization defect. The root fixed saveTokenBtn to reload the catalog before refreshing sessions. The retained failed live r1 evidence was not modified by this subtask.
+
+Only test_preview_session_create.mjs changed: a real page starts with no sessionStorage token, receives API /devices 401 while the static catalog is accessible, keeps Preview disabled, then recovers through the visible Save Token button. The authorized device catalog and current-device Unit picker must load before the fixture admits one Preview and polls it ready. No preloaded token bypasses this case.
+
+The latest creation/recovery suite passes all 9 groups. Evidence: .work/preview-create-token-bootstrap-20261027/report.json and first-token-bootstrap-recovered.png. Final creation fixture SHA256: b8fa1d0ee54771da5f999670e78fb2557774d098f592b45bb23197c6c7c5cbf5. Product files were not changed; no live service or guest was started.
+
+## Live r3 screenshots - read-only visual inspection
+
+Date: 2026-10-27. Scope: the root-produced PIR and Relay screenshots at 390, 768, 1024 and 1440 CSS pixels. All eight original PNGs were viewed with view_image; 390/1440 views were revisited at original detail to inspect controls and text. This subtask did not operate the live service, guest, browser, or product code. Screenshot review supplies visual evidence only; the root live report owns functional and execution results.
+
+The form, Unit cards, editor and action rows remain readable at all four widths. At 390px the editor actions wrap, package/Run hashes wrap within their card, and the Run/Cancel/Sync/Load actions remain visible. At 1024px the narrow detail column wraps the actions into two rows. The 768px layout stacks the visual and controls; 1440px uses the desktop columns. Blue primary actions, rounded neutral cards, surface backgrounds and status chips remain consistent with the existing M5Stack tokens. The API Token is visually masked in every screenshot.
+
+The active PIR sample is shown as false in both the visual readout and Unit properties; the active Relay sample is shown as true in both places. Running sessions are separated from stopped history cards. History explicitly says the image is a historical last frame and not the current Run; its live readout and controls are unavailable. The partial startup-menu PNG warning is visible and wraps inside the card. No screenshot shows an unmasked credential or a new error banner.
+
+Two non-blocking visual follow-ups were reported to root without editing the frozen product:
+
+1. The left creation status says Preview ready / session created, but the creation button still says preparing. The screenshot therefore contains stale creation-action wording; this inspection does not claim that control is still disabled. The root should track or correct the label reset separately from the successful creation result.
+2. The 390px and narrow 1024px 3D canvases slightly crop the outer CoreS3/Unit assembly edges. The complete assembly fits at 768/1440px. The scalar state, editor and controls are readable, but these narrow screenshots are not evidence of a fully framed assembly.
+
+The PIR full-page captures place the sticky header/side panel at the capture scroll position, obscuring a strip in the long screenshot. This is a limitation of the full-page evidence capture; no live viewport interaction was performed here to classify a sticky-layout defect. The screenshot check is therefore recorded as usable control layout with the two follow-ups above, not an unconditional visual sign-off.
+
+| Original screenshot | Pixels | SHA256 |
+| --- | --- | --- |
+| .work/preview-web-live-r3-20261027/pir-390.png | 390 x 5621 | 4f07ef1e5ce48531da0200b2b3bcffed4f721196235be1da9c80cda5aa03ca69 |
+| .work/preview-web-live-r3-20261027/pir-768.png | 768 x 5280 | 7b16db633a7b604cef6c65c5aa34cac732b45d3c42359732c7e8c4bb539470d4 |
+| .work/preview-web-live-r3-20261027/pir-1024.png | 1024 x 3516 | 3541c4024a51089955ac398578e365ac38295c372c8ec061de6182cbbf6d7221 |
+| .work/preview-web-live-r3-20261027/pir-1440.png | 1440 x 3159 | f6de3c4119514ed0aa8a9e6d5b0da0edac9040d14ec2014b9ba4bfae7e5bd85e |
+| .work/preview-web-live-r3-20261027/relay-390.png | 390 x 7618 | 4fc05d9431f12c494229ef9566d3c22bb306658f896d88065f049695fec5b7de |
+| .work/preview-web-live-r3-20261027/relay-768.png | 768 x 6856 | ba606401710bdaa5290c5178e9b2904bd1f66461acffba687b616785e1bb9fcc |
+| .work/preview-web-live-r3-20261027/relay-1024.png | 1024 x 4718 | ec140afd2f5f1a81ec2ad75ae2d0f49d4137ca03aac270660e137310ec35b068 |
+| .work/preview-web-live-r3-20261027/relay-1440.png | 1440 x 4239 | a222d77c461ee853ad6c4d09b8815ff20771520db61152dc92359233d4f9610f |
+
+## Ready creation-button wording follow-up
+
+Root corrected updateCreateControls() after the r3 visual observation. The dedicated actual-page fixture now asserts that a ready Preview has no persisted pending creation intent, the creation button is enabled, and its exact label is 创建持续预览. The full creation/recovery suite remains 9 groups PASS. Evidence: .work/preview-create-ready-button-20261027/report.json. Final test_preview_session_create.mjs SHA256: 4e945675cd1d0226d2443bb217b8f7149864e6047b7adac7b6b97a57277cab44.
+
+This closes the stale ready-button wording regression for the recorded source. The r3 narrow-canvas cropping and full-page capture limitations remain documented; this follow-up does not grant an unconditional visual sign-off or modify any frozen product/guest.

@@ -72,8 +72,8 @@ function ordered(attachments) {
 }
 
 class UnitPanel {
-  constructor(container, {session, shell, api, bindingsByUnit = {}}) {
-    Object.assign(this, {container, session, shell, api, bindingsByUnit});
+  constructor(container, {session, shell, api, bindingsByUnit = {}, previewClient = null}) {
+    Object.assign(this, {container, session, shell, api, bindingsByUnit, previewClient});
     this.disposed = false;
     this.generation = 0;
     this.sessionEpoch = 0;
@@ -83,6 +83,7 @@ class UnitPanel {
     this.revision = 0;
     this.pressSources = new Map();
     this.releaseIntents = new Map();
+    this.parkedReleases = new Map();
     this.cards = new Map();
     this.states = new Map();
     this.definitions = new Map();
@@ -90,8 +91,103 @@ class UnitPanel {
     this.audioDefinitions = new Map();
     this.mounted = new Map();
     this.attaching = new Map();
+    this.previewEpoch = 0;
+    this.previewKey = undefined;
+    this.initialized = false;
     this.release = () => this.releaseHeld();
     window.addEventListener('blur', this.release);
+    this.unsubscribePreview = this.previewClient?.subscribe(snapshot => this.previewChanged(snapshot));
+  }
+
+  managed() { return this.previewClient !== null || this.session.management_binding != null; }
+
+  frameContext() { return this.previewClient?.snapshot().frameContext || null; }
+
+  captureInput() { return this.previewClient?.captureInput() || null; }
+
+  matchesPreview(context, kind = 'input') {
+    return !!context && this.previewClient?.matches(context, kind) === true;
+  }
+
+  previewChanged(snapshot) {
+    if (this.disposed) return;
+    const key = JSON.stringify([snapshot.frameContext?.key || null, snapshot.inputContext?.key || null]);
+    if (key !== this.previewKey) {
+      // Losing synchronization withdraws held UI ownership, but an input may
+      // already have reached the controller. Park only its necessary release;
+      // never replay a press or send while the context is unavailable.
+      if (this.previewInputContext && !snapshot.inputContext) {
+        for (const intent of this.releaseIntents.values()) this.parkedReleases.set(intent.key, {...intent, uncertain: true, queued: false});
+        for (const [heldKey, held] of this.pressSources) this.parkedReleases.set(heldKey,
+          {key: heldKey, id: held.id, field: held.field, index: held.index, previewContext: held.previewContext,
+            uncertain: true, retried: false, queued: false});
+      }
+      this.previewKey = key;
+      this.previewEpoch += 1;
+      this.inputEpoch += 1;
+      this.revision += 1;
+      this.refreshing = null;
+      this.pending.clear();
+      this.queues.clear();
+      this.pressSources.clear();
+      this.releaseIntents.clear();
+      if (snapshot.frameContext) {
+        for (const [heldKey, intent] of this.parkedReleases) {
+          if (snapshot.inputContext && this.matchesPreview(intent.previewContext)) {
+            this.releaseIntents.set(heldKey, {...intent, previewContext: snapshot.inputContext});
+          }
+          this.parkedReleases.delete(heldKey);
+        }
+      }
+      clearTimeout(this.timer);
+      this.withdrawPreview();
+      if (this.initialized && snapshot.frameContext) void this.refresh();
+    }
+    if (snapshot.synchronized && !snapshot.pending && !snapshot.frameContext
+      || snapshot.preview && ['closed', 'failed', 'closing'].includes(snapshot.preview.state)) this.parkedReleases.clear();
+    this.previewInputContext = snapshot.inputContext || null;
+    this.enableControls();
+  }
+
+  withdrawPreview(message = '等待当前 Run 的状态确认') {
+    this.audioPayload = null;
+    this.observeAudio(null);
+    this.stateSource = 'unavailable';
+    for (const attachment of this.session.units || []) {
+      const previous = this.states.get(attachment.id);
+      const mounted = this.mounted.get(attachment.id);
+      // Withdraw only existing, evidenced readback commands. No new LED map,
+      // joint angle, switch detent or electrical off observation is inferred.
+      if (previous && mounted) {
+        const commands = visualCommands(previous, mounted.port, {bindings: this.bindingsByUnit[attachment.unit_id]})
+          .flatMap(command => command.type === 'led' ? [{type: 'led', target: command.target, known: false}]
+            : command.type === 'button-state' ? [{...command, pressed: false}]
+              : command.type === 'drive-activity' ? [{...command, active: false}] : []);
+        try { mounted.shell.applyVisualState?.(commands); } catch { /* state remains unavailable */ }
+      }
+      const unavailable = {...attachment, available: false, properties: {}, errors: {preview: message}};
+      this.states.set(attachment.id, unavailable);
+      const card = this.cards.get(attachment.id);
+      card?.querySelector('[data-unit-values]')?.replaceChildren();
+      for (const control of card?.querySelectorAll('[data-input-field]') || []) {
+        if (control.type === 'checkbox') control.checked = false;
+        else control.value = '';
+      }
+      for (const control of card?.querySelectorAll('[aria-pressed]') || []) control.setAttribute('aria-pressed', 'false');
+      this.paint(unavailable);
+      this.note(attachment.id, message);
+    }
+    this.enableControls();
+  }
+
+  async previewInput(context, command, release = false) {
+    if (!this.matchesPreview(context)) return null;
+    const receipt = await this.previewClient.input(context, 'unit_input', command, release ? {keepalive: true} : {});
+    if (!this.matchesPreview(context)) return null;
+    if (receipt?.preview_id !== context.previewId || receipt.run_id !== context.runId
+        || receipt.execution_id !== context.executionId || receipt.revision_id !== context.revisionId
+        || receipt.result?.session_id !== context.sessionId) throw new Error('Unit 输入收据与当前 Run 不匹配');
+    return receipt.result;
   }
 
   currentSession(sessionId, epoch) {
@@ -108,24 +204,31 @@ class UnitPanel {
         this.api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/units`),
         this.api(`/api/v1/units?device_id=${encodeURIComponent(this.session.device_id)}`),
       ]);
-      if (!this.currentSession(observedSessionId, sessionEpoch) || inputEpoch !== this.inputEpoch || state.status === 'fulfilled' && state.value.session_id !== undefined && state.value.session_id !== observedSessionId) return this;
+      if (!this.currentSession(observedSessionId, sessionEpoch) || !this.managed() && inputEpoch !== this.inputEpoch || state.status === 'fulfilled' && (this.managed() ? state.value.session_id !== observedSessionId : state.value.session_id !== undefined && state.value.session_id !== observedSessionId)) return this;
       this.inventory = inventory.status === 'fulfilled' ? inventory.value : {units: [], hosts: []};
       // Session snapshots own the schema. Live inventory is only a legacy
       // fallback and must never replace a captured session's input contract.
       const payload = state.status === 'fulfilled' ? state.value : null;
-      const definitions = Array.isArray(payload?.definitions) ? payload.definitions : this.inventory.units;
+      const definitions = Array.isArray(payload?.definitions) ? payload.definitions : this.managed() ? [] : this.inventory.units;
       this.frozenDefinitions = Array.isArray(payload?.definitions);
       this.definitions = new Map(definitions.map(unit => [unit.id, unit]));
       this.render();
-      if (payload) this.apply(payload, observedSessionId, sessionEpoch);
+      if (this.managed()) this.withdrawPreview();
+      else if (payload) this.apply(payload, observedSessionId, sessionEpoch);
       else {
         this.apply({source: 'unavailable', units: []}, observedSessionId, sessionEpoch);
         for (const id of this.cards.keys()) this.note(id, `状态请求失败：${state.reason?.message || '模型状态不可用'}`);
       }
       await this.setShell(this.shell);
-      this.schedule();
+      this.initialized = true;
+      if (this.managed() && this.frameContext()) await this.refresh();
+      else this.schedule();
     } catch (error) {
       if (this.currentSession(observedSessionId, sessionEpoch)) this.container.textContent = `Unit 状态不可用：${error.message}`;
+      if (this.managed()) {
+        this.initialized = true;
+        this.schedule();
+      }
     }
     return this;
   }
@@ -187,7 +290,8 @@ class UnitPanel {
 
   updateSession(session) {
     const wasActive = ACTIVE.has(this.session.state);
-    const changed = session.session_id !== this.session.session_id;
+    const changed = session.session_id !== this.session.session_id
+      || JSON.stringify(session.management_binding ?? null) !== JSON.stringify(this.session.management_binding ?? null);
     if (changed) {
       // Release ownership while sends still capture the original session.
       this.releaseHeld();
@@ -204,6 +308,7 @@ class UnitPanel {
       this.queues.clear();
       this.pressSources.clear();
       this.releaseIntents.clear();
+      this.parkedReleases.clear();
       this.states.clear();
       this.stateSource = 'unavailable';
       this.frozenDefinitions = false;
@@ -213,12 +318,21 @@ class UnitPanel {
       this.audioDefinitionSessionId = null;
     }
     this.session = session;
-    if (changed) this.render();
+    if (changed) {
+      if (this.managed()) {
+        this.frozenDefinitions = false;
+        this.definitions.clear();
+        this.initialized = false;
+        this.render();
+        void this.init();
+      } else this.render();
+    }
     this.observeAudio(this.audioPayload);
     if (!ACTIVE.has(session.state)) {
       clearTimeout(this.timer);
       this.releaseHeld();
       this.releaseIntents.clear();
+      this.parkedReleases.clear();
     } else if (changed || !wasActive) {
       this.schedule();
     }
@@ -228,7 +342,8 @@ class UnitPanel {
 
   enableControls() {
     for (const [id, card] of this.cards) {
-      const ready = this.session.state === 'running' && this.states.get(id)?.available === true;
+      const ready = this.session.state === 'running' && this.states.get(id)?.available === true
+        && (!this.managed() || this.matchesPreview(this.captureInput()));
       for (const control of card.querySelectorAll('input, button, textarea, select')) control.disabled = !ready;
       const audio = this.audio.get(id);
       const button = card.querySelector('[data-unit-audio-toggle]');
@@ -382,8 +497,12 @@ class UnitPanel {
     return pending ? pending.value : this.states.get(id)?.properties?.[field];
   }
 
-  send(id, values, releaseIntent = null) {
+  send(id, values, releaseIntent = null, capturedContext = undefined) {
     if (this.disposed || this.session.state !== 'running') return Promise.resolve();
+    const managed = this.managed();
+    const previewContext = managed ? capturedContext ?? releaseIntent?.previewContext ?? this.captureInput() : null;
+    const previewEpoch = this.previewEpoch;
+    if (managed && !this.matchesPreview(previewContext)) return Promise.resolve();
     const revision = ++this.revision;
     const observedSessionId = this.session.session_id;
     const sessionEpoch = this.sessionEpoch;
@@ -391,26 +510,35 @@ class UnitPanel {
     const pending = this.pending.get(id) || new Map();
     for (const [field, value] of Object.entries(values)) pending.set(field, {revision, value: copy(value)});
     this.pending.set(id, pending);
-    const previous = this.queues.get(id) || Promise.resolve();
-    const next = previous.catch(() => {}).then(async () => {
+    const previous = this.queues.get(id);
+    const execute = async () => {
       // Necessary releases may outlive the panel. They only target the session
       // that owned the hold; ordinary queued inputs cannot cross its boundary.
-      if (!this.currentSession(observedSessionId, sessionEpoch) && !releaseIntent) return;
-      const payload = await this.api(
+      if (managed ? this.previewEpoch !== previewEpoch || !this.matchesPreview(previewContext)
+        || !this.currentSession(observedSessionId, sessionEpoch) && !releaseIntent
+        : !this.currentSession(observedSessionId, sessionEpoch) && !releaseIntent) return;
+      const payload = managed ? await this.previewInput(previewContext, {id, values}, !!releaseIntent) : await this.api(
         `/api/v1/sessions/${encodeURIComponent(observedSessionId)}/unit-input`,
         {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, values})},
       );
+      if (managed && (this.previewEpoch !== previewEpoch || !this.matchesPreview(previewContext) || !payload)) return;
       if (this.currentSession(observedSessionId, sessionEpoch)) this.inputEpoch += 1;
-      const applied = revision === this.revision && this.apply(payload, observedSessionId, sessionEpoch);
+      const applied = revision === this.revision && this.apply(payload, observedSessionId, sessionEpoch, previewContext, 'input');
       if (this.currentSession(observedSessionId, sessionEpoch) && releaseIntent && this.releaseIntents.get(releaseIntent.key) === releaseIntent) releaseIntent.uncertain = !applied || !this.confirmRelease(releaseIntent);
-    }).catch(error => {
-      if (!this.currentSession(observedSessionId, sessionEpoch)) return;
+      return applied;
+    };
+    // On page exit a confirmed hold's necessary release must start fetch in
+    // this call stack. A pending DOWN still owns the queue and keeps ordering.
+    const work = !previous && releaseIntent?.downAcknowledged ? execute() : (previous || Promise.resolve()).catch(() => {}).then(execute);
+    const next = work.catch(error => {
+      if (!this.currentSession(observedSessionId, sessionEpoch) || managed && (this.previewEpoch !== previewEpoch || !this.matchesPreview(previewContext))) return;
       this.inputEpoch += 1;
       if (releaseIntent && this.releaseIntents.get(releaseIntent.key) === releaseIntent) releaseIntent.uncertain = true;
       this.note(id, `输入未确认：${error.message}`);
     }).finally(() => {
-      if (this.currentSession(observedSessionId, sessionEpoch)) this.inputEpoch += 1;
+      if (this.currentSession(observedSessionId, sessionEpoch) && (!managed || this.previewEpoch === previewEpoch)) this.inputEpoch += 1;
       for (const field of Object.keys(values)) if (pending.get(field)?.revision === revision) pending.delete(field);
+      if (this.queues.get(id) === next) this.queues.delete(id);
     });
     this.queues.set(id, next);
     return next;
@@ -432,11 +560,14 @@ class UnitPanel {
 
   recoverReleases(intents) {
     if (this.disposed || this.session.state !== 'running') return;
+    const managed = this.managed();
+    const previewEpoch = this.previewEpoch;
     const observedSessionId = this.session.session_id;
     const sessionEpoch = this.sessionEpoch;
     const byId = new Map();
     for (const intent of intents) {
-      if (this.releaseIntents.get(intent.key) !== intent || !intent.uncertain || this.pressSources.has(intent.key) || this.confirmRelease(intent)) continue;
+      if (this.releaseIntents.get(intent.key) !== intent || managed && !this.matchesPreview(intent.previewContext)
+        || !intent.uncertain || this.pressSources.has(intent.key) || this.confirmRelease(intent)) continue;
       if (this.releaseValue(intent) !== true) continue;
       if (intent.retried) { this.note(intent.id, '松开仍未确认，请重新按下并松开。'); continue; }
       if (intent.queued) continue;
@@ -449,7 +580,9 @@ class UnitPanel {
       this.inputEpoch += 1;
       const previous = this.queues.get(id) || Promise.resolve();
       const next = previous.catch(() => {}).then(async () => {
-        if (!this.currentSession(observedSessionId, sessionEpoch) || this.session.state !== 'running') return;
+        const previewContext = releases[0]?.previewContext;
+        if (!this.currentSession(observedSessionId, sessionEpoch) || this.session.state !== 'running'
+          || managed && (this.previewEpoch !== previewEpoch || !this.matchesPreview(previewContext))) return;
         const active = releases.filter(intent => this.releaseIntents.get(intent.key) === intent && !this.pressSources.has(intent.key) && this.releaseValue(intent) === true);
         const values = {};
         for (const intent of active) {
@@ -462,12 +595,15 @@ class UnitPanel {
         }
         if (!Object.keys(values).length) return;
         for (const intent of active) intent.retried = true;
-        const payload = await this.api(`/api/v1/sessions/${encodeURIComponent(observedSessionId)}/unit-input`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, values})});
+        const payload = managed ? await this.previewInput(previewContext, {id, values}, true)
+          : await this.api(`/api/v1/sessions/${encodeURIComponent(observedSessionId)}/unit-input`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, values})});
+        if (managed && (this.previewEpoch !== previewEpoch || !this.matchesPreview(previewContext) || !payload)) return;
         if (this.currentSession(observedSessionId, sessionEpoch)) this.inputEpoch += 1;
-        if (revision === this.revision && this.apply(payload, observedSessionId, sessionEpoch)) for (const intent of active) this.confirmRelease(intent);
-      }).catch(error => { if (this.currentSession(observedSessionId, sessionEpoch)) this.note(id, `松开补偿未确认：${error.message}`); }).finally(() => {
-        if (this.currentSession(observedSessionId, sessionEpoch)) this.inputEpoch += 1;
+        if (revision === this.revision && this.apply(payload, observedSessionId, sessionEpoch, previewContext, 'input')) for (const intent of active) this.confirmRelease(intent);
+      }).catch(error => { if (this.currentSession(observedSessionId, sessionEpoch) && (!managed || this.previewEpoch === previewEpoch)) this.note(id, `松开补偿未确认：${error.message}`); }).finally(() => {
+        if (this.currentSession(observedSessionId, sessionEpoch) && (!managed || this.previewEpoch === previewEpoch)) this.inputEpoch += 1;
         for (const intent of releases) intent.queued = false;
+        if (this.queues.get(id) === next) this.queues.delete(id);
       });
       this.queues.set(id, next);
     }
@@ -475,7 +611,9 @@ class UnitPanel {
 
   setHeld(id, field, index, source, pressed) {
     const key = JSON.stringify([id, field, index ?? null]);
-    const entry = this.pressSources.get(key) || {id, field, index, sources: new Set()};
+    const previewContext = this.managed() ? this.pressSources.get(key)?.previewContext || this.captureInput() : null;
+    if (this.managed() && !this.matchesPreview(previewContext)) return;
+    const entry = this.pressSources.get(key) || {id, field, index, sources: new Set(), previewContext};
     const before = entry.sources.size > 0;
     if (pressed) entry.sources.add(source);
     else entry.sources.delete(source);
@@ -486,7 +624,8 @@ class UnitPanel {
     let releaseIntent = null;
     if (after) this.releaseIntents.delete(key);
     else if (!this.disposed && this.session.state === 'running') {
-      releaseIntent = {key, id, field, index, uncertain: false, retried: false, queued: false};
+      releaseIntent = {key, id, field, index, uncertain: false, retried: false, queued: false, previewContext,
+        downAcknowledged: entry.downAcknowledged === true};
       this.releaseIntents.set(key, releaseIntent);
     }
     let value = after;
@@ -513,14 +652,15 @@ class UnitPanel {
     for (const button of card?.querySelectorAll('[data-press-field]') || []) {
       if (button.dataset.pressField === field && (index === undefined ? button.dataset.pressIndex === undefined : Number(button.dataset.pressIndex) === index)) button.setAttribute('aria-pressed', String(after));
     }
-    this.send(id, {[field]: value}, releaseIntent);
+    const request = this.send(id, {[field]: value}, releaseIntent, previewContext);
+    if (after) request.then(acknowledged => { if (acknowledged === true) entry.downAcknowledged = true; });
   }
 
   // Compatibility entry point for callers owning a single Unit Button.
   setPressed(id, source, pressed) { this.setHeld(id, 'pressed', undefined, source, pressed); }
 
   handleInput(event) {
-    if (this.disposed || this.session.state !== 'running') return;
+    if (this.disposed || this.session.state !== 'running' || this.managed() && !this.matchesPreview(this.captureInput())) return;
     const attachments = [...(this.session.units || [])].sort((a, b) => (this.mounted.get(b.id)?.port.length || 0) - (this.mounted.get(a.id)?.port.length || 0));
     for (const attachment of attachments) {
       const mounted = this.mounted.get(attachment.id);
@@ -577,8 +717,19 @@ class UnitPanel {
     }
   }
 
-  apply(payload, observedSessionId = this.session.session_id, sessionEpoch = this.sessionEpoch) {
+  apply(payload, observedSessionId = this.session.session_id, sessionEpoch = this.sessionEpoch, previewContext = null, previewKind = 'frame') {
     if (!this.currentSession(observedSessionId, sessionEpoch) || payload.session_id !== undefined && payload.session_id !== observedSessionId) return false;
+    if (this.managed()) {
+      if (!this.matchesPreview(previewContext, previewKind) || payload.session_id !== observedSessionId || payload.source !== 'live'
+        || !Array.isArray(payload.units) || payload.units.length !== (this.session.units || []).length) return false;
+      const attachments = new Map((this.session.units || []).map(unit => [unit.id, unit.unit_id]));
+      const seen = new Set();
+      for (const unit of payload.units) {
+        if (!unit || seen.has(unit.id) || attachments.get(unit.id) !== unit.unit_id
+          || typeof unit.available !== 'boolean' || !unit.properties || typeof unit.properties !== 'object' || Array.isArray(unit.properties)) return false;
+        seen.add(unit.id);
+      }
+    }
     this.stateSource = payload.source || 'unavailable';
     if (Array.isArray(payload.definitions) && !this.frozenDefinitions) {
       this.releaseHeld();
@@ -628,24 +779,41 @@ class UnitPanel {
 
   schedule() {
     clearTimeout(this.timer);
-    if (!this.disposed && ACTIVE.has(this.session.state)) this.timer = setTimeout(() => this.refresh(), document.hidden ? 2000 : 500);
+    if (!this.disposed && ACTIVE.has(this.session.state) && (!this.managed() || this.frameContext())) this.timer = setTimeout(() => this.refresh(), document.hidden ? 2000 : 500);
   }
 
   async refresh() {
     clearTimeout(this.timer);
     if (this.disposed || this.refreshing || !(this.session.units || []).length) return;
+    const managed = this.managed();
+    const previewContext = managed ? this.frameContext() : null;
+    const previewEpoch = this.previewEpoch;
+    if (managed && !this.matchesPreview(previewContext, 'frame')) {
+      this.withdrawPreview();
+      return;
+    }
     const observedSessionId = this.session.session_id;
     const sessionEpoch = this.sessionEpoch;
     const inputEpoch = this.inputEpoch;
     const request = this.refreshing = {};
-    const current = () => this.currentSession(observedSessionId, sessionEpoch) && inputEpoch === this.inputEpoch;
+    const current = () => this.currentSession(observedSessionId, sessionEpoch) && inputEpoch === this.inputEpoch
+      && (!managed || this.previewEpoch === previewEpoch && this.matchesPreview(previewContext, 'frame'));
     // Only a GET started after uncertainty can confirm/retry that release.
     const recoverable = [...this.releaseIntents.values()].filter(intent => intent.uncertain);
     try {
-      const payload = await this.api(`/api/v1/sessions/${encodeURIComponent(observedSessionId)}/units`);
-      if (current() && this.apply(payload, observedSessionId, sessionEpoch)) this.recoverReleases(recoverable);
+      const payload = managed ? await this.previewClient.readSession(previewContext, 'units')
+        : await this.api(`/api/v1/sessions/${encodeURIComponent(observedSessionId)}/units`);
+      if (current()) {
+        const applied = this.apply(payload, observedSessionId, sessionEpoch, previewContext);
+        if (managed && !applied) throw new Error('Unit 状态与当前 Run 不匹配');
+        if (applied) this.recoverReleases(recoverable);
+      }
     } catch (error) {
       if (!current()) return;
+      if (managed) {
+        this.withdrawPreview(`状态请求失败：${error.message}`);
+        return;
+      }
       this.audioPayload = null;
       this.observeAudio(null, observedSessionId);
       for (const [id, unit] of this.states) {
@@ -671,12 +839,14 @@ class UnitPanel {
   }
 
   dispose() {
-    if (this.disposed) return;
+    if (this.disposed) return this.disposePromise;
     this.releaseHeld();
     this.disposed = true;
+    this.unsubscribePreview?.();
     for (const audio of this.audio.values()) audio.dispose();
     this.audio.clear();
     this.releaseIntents.clear();
+    this.parkedReleases.clear();
     this.generation += 1;
     clearTimeout(this.timer);
     window.removeEventListener('blur', this.release);
@@ -686,6 +856,8 @@ class UnitPanel {
     previous.sort((a, b) => b.port.length - a.port.length).forEach(item => this.safeDetach(item));
     this.shell = null;
     this.container.replaceChildren();
+    this.disposePromise = Promise.allSettled([...this.queues.values()]);
+    return this.disposePromise;
   }
 }
 

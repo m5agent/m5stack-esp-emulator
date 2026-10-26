@@ -1,0 +1,45 @@
+{
+  "category": "independent-live-artifact-audit",
+  "run": "r4",
+  "status": "PASS",
+  "source_freeze": "PASS",
+  "direct_http_bytes_and_sha256": 537,
+  "browser_http": 1317,
+  "legacy_mutations": 0,
+  "page_errors": [],
+  "cases": [
+    {
+      "unit": "pir",
+      "status": "PASS",
+      "zip_members_hashed": 58,
+      "same_vm_runs": 5,
+      "exact_UART_ready_sample_and_mpy_resources": "PASS",
+      "browser_receipts_and_raw_qom": "PASS",
+      "run_PNG_identity_blue_green_web_selected_pixel": "PASS",
+      "web_hash_equals_saved_PNG": false,
+      "close_flash_pid": "PASS"
+    },
+    {
+      "unit": "relay",
+      "status": "PASS",
+      "zip_members_hashed": 69,
+      "same_vm_runs": 6,
+      "exact_UART_ready_sample_and_mpy_resources": "PASS",
+      "browser_receipts_and_raw_qom": "PASS",
+      "run_PNG_identity_blue_green_web_selected_pixel": "PASS",
+      "web_hash_equals_saved_PNG": true,
+      "close_flash_pid": "PASS"
+    }
+  ],
+  "final_capacity_worker_leases": 0,
+  "hardware": "NOT RUN",
+  "bounds": [
+    "Web model comparison proves selected pixel and same Run identity. Separate capture PNG byte equality is only claimed where hashes match.",
+    "390px default 3D camera composition can clip CoreS3; no document horizontal overflow was observed."
+  ],
+  "prior_failures": {
+    "r1": "First-token catalog recovery failed before guest allocation; product fixed and independently host-verified.",
+    "r2": "Raw-paste START framing oracle false negative; ZIP byte/hash and cleanup verified; runner fixed.",
+    "r3": "Full virtual-device PASS for prior two-line button-copy version; data audit preserved."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "status": "PASS",
+  "category": "host-browser-first-token-recovery",
+  "guest_execution": "NOT RUN",
+  "source_sha256": "ee536d5151fc8338527db29216f460886f20676c6f4ba6587a226a16febde2e6",
+  "calls": [
+    {
+      "path": "/api/v1/devices",
+      "status": 401,
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/devices",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/units",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/sessions",
+      "status": 200,
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/capacity",
+      "status": 200,
+      "method": "GET"
+    }
+  ],
+  "errors": []
+}

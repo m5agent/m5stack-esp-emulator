@@ -136,6 +136,7 @@ Unit 集成的其他入口：`platform/web/unit-visual-mappings.js` 与
 `run_sensor_cases.py`、`run_control_cases.py`、`run_io_cases.py` 分组执行
 Device Service 固件探针；`run_live_unit_batch.py` 验证同guest多Unit连续程序，
 `run_frame_preview.py` 与 `platform/tests/test_frame_preview.mjs` 分别验证实际预览和浏览器异步隔离。
+`preview-client.js`由SessionVisual、ProgramPanel与UnitPanel共享，用权威Preview/Run查询、generation/epoch及冻结context协调输入、完整包编辑、续租/取消/关闭和Run帧；`test_preview_client.mjs`与面板fixture属于宿主/浏览器证据，实际链路由显式opt-in的`test_live_preview_service_browser.mjs`另验。
 `DeviceService.create/get_program_revision`提供完整package公共保存/查询；`DeviceSession.run_program`按引用读取且不重建revision。`test_program_revision_api.py`区分宿主HTTP/准入与guest部署，`run_live_package.py --revision-references`以8787实际会话验证原文件包路径；新接口不等于Preview/Run协调器。`serial_read`按offset seek读取有界窗口，任意byte切片的UTF-8 replace解码边界保持。
 `test_model_shell.mjs`及`model_shell_probe_helpers.mjs`以有界context/PNG decode核固定vendor、全部printed-artwork种类和公开LED/joint输出；默认配置、census、明确变体和真实guest证据分别标记，不从新增视觉壳子继承Unit协议准入。
 `arrayLedFeedback`在默认无binding时只映射全N灯同色，非对称/不可用状态撤回旧颜色并标unknown；`test_uniform_unit_led_feedback.mjs`核真实mounted材质与销毁/失败fixture，`test_live_uniform_led_service_browser.mjs`经可见session核原I2C/RMT驱动、同VM四阶段与默认网页反馈。`device_service._public_device`的`program_features`显式发布入口/字节码/namespace/清理边界；[固定源码与真实guest研究](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)不等于二进制入口已实现。

@@ -1,0 +1,36 @@
+{
+  "category": "preview-unit-browser-contract",
+  "status": "PASS",
+  "firmware_execution": "NOT RUN",
+  "browser_version": "156.0.8078.48",
+  "checks": [
+    "no-run-frozen-definitions-without-unowned-live-values",
+    "non-null-malformed-binding-without-client-never-falls-back",
+    "same-id-late-management-binding-fails-closed-without-client",
+    "owned-read-bracket-and-frozen-context-input-receipt-result",
+    "wrong-receipt-identities-never-apply-or-fallback",
+    "old-post-and-ordinary-queued-input-cannot-cross-run",
+    "late-get-success-and-error-cannot-change-new-run",
+    "context-withdraw-and-return-same-key-still-fences-old-read",
+    "run-switch-withdraws-held-release-values-and-known-visuals",
+    "same-run-multiple-sources-and-blur-release-use-original-owner",
+    "same-run-uncertain-release-uses-fresh-bracket-once",
+    "queued-release-recovery-cannot-dispatch-into-new-run",
+    "dispose-keeps-only-same-run-necessary-release-and-unsubscribes",
+    "disposed-release-is-dropped-if-shared-client-switches-owner",
+    "bad-owned-state-identity-withdraws-without-promoting-unowned-values",
+    "partial-or-wrong-unit-identity-never-remains-current-observation",
+    "real-client-lost-press-ack-recovers-release-only-after-fresh-same-run-read",
+    "real-client-lost-release-ack-recovers-once-and-new-run-never-receives-old-release",
+    "real-client-already-applied-release-is-confirmed-without-replay",
+    "real-client-uncertain-compensation-is-never-replayed-in-a-loop",
+    "real-client-dispose-dispatches-acknowledged-release-synchronously-and-drains-idempotently",
+    "real-client-dispose-drains-pending-down-before-release-and-drops-ordinary-queue"
+  ],
+  "source_sha256": {
+    "platform/web/unit-panel.js": "7049d4f5ccbd45fc14e44af31e2c4b32ec1f3bcbefb63dcc33ec2aab114c7c78",
+    "platform/web/preview-client.js": "dc16770cc67dcdb6fd8612adf1dcad3b9e091935952539d81bc7150f2062e2a7",
+    "platform/tests/test_preview_unit_panel.mjs": "9dfb207f455120e6620bfe9c0b7bb967700d4891be65b6e741c8ab6d924e2518"
+  },
+  "errors": []
+}

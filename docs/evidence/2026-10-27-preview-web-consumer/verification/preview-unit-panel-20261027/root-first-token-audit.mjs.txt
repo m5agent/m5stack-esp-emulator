@@ -1,0 +1,47 @@
+import assert from 'node:assert/strict';
+import {createServer} from 'node:http';
+import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {resolve,extname} from 'node:path';
+import {createHash} from 'node:crypto';
+import {chromium} from '/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/node_modules/playwright/index.mjs';
+const root='/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator';
+const output=resolve(root,'.work/preview-unit-panel-20261027/root-first-token-audit');await mkdir(output,{recursive:true});
+const calls=[],errors=[];
+const definitions=JSON.parse(await readFile(resolve(root,'platform/units/catalog.json'),'utf8'));
+const profiles=JSON.parse(await readFile(resolve(root,'platform/units/runtime-profiles.json'),'utf8')).units;
+const hosts=JSON.parse(await readFile(resolve(root,'platform/units/host-ports.json'),'utf8')).hosts;
+const server=createServer(async(req,res)=>{try{
+ const path=new URL(req.url,'http://fixture').pathname;
+ if(path.startsWith('/api/v1/')){
+  const authorized=req.headers.authorization==='Bearer fixture-token';
+  const status=authorized?200:401;calls.push({path,status,method:req.method});res.statusCode=status;res.setHeader('Content-Type','application/json');
+  if(!authorized){res.end(JSON.stringify({error:{code:'unauthorized',message:'fixture auth required'}}));return;}
+  const payload=path==='/api/v1/devices'?{devices:[{device_id:'cores3',name:'CoreS3',creatable:true,program_modes:['uiflow-live']}]}:
+   path==='/api/v1/sessions'?{sessions:[]}:
+   path==='/api/v1/capacity'?{active_sessions:0,max_sessions:2,available_sessions:2}:
+   path==='/api/v1/units'?{units:definitions.units.map(u=>({...u,runtime:profiles[u.id]})),hosts}:{};
+  res.end(JSON.stringify(payload));return;
+ }
+ const file=resolve(root,'.'+path);if(!file.startsWith(root+'/')){res.writeHead(403).end();return;}
+ res.setHeader('Content-Type',{'.js':'text/javascript','.css':'text/css','.json':'application/json','.html':'text/html','.png':'image/png','.svg':'image/svg+xml'}[extname(file)]||'application/octet-stream');res.end(await readFile(file));
+}catch{res.writeHead(404).end();}});
+await new Promise(done=>server.listen(0,'127.0.0.1',done));
+const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
+let status='FAIL',failure;
+try{
+ const page=await browser.newPage();page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(`http://127.0.0.1:${server.address().port}/platform/web/sessions.html`);
+ await page.waitForFunction(()=>document.querySelector('#errorBanner').textContent.includes('401'));
+ await page.fill('#tokenInput','fixture-token');await page.click('#saveTokenBtn');
+ await page.locator('#deviceSelect option[value="cores3"]').waitFor({state:'attached',timeout:3000});
+ await page.locator('#unitModelSelect option[value="pir"]').waitFor({state:'attached',timeout:3000});
+ assert.equal(await page.locator('#programModeInput').isEnabled(),true);assert.equal(await page.locator('#createBtn').isEnabled(),true);
+ assert.deepEqual(calls.filter(c=>c.path==='/api/v1/devices').map(c=>c.status),[401,200]);
+ assert.deepEqual(errors,[]);status='PASS';
+}catch(e){failure=e.stack;}
+finally{
+ await browser.close();await new Promise(done=>server.close(done));
+ const source=await readFile(resolve(root,'platform/web/sessions.js'));
+ await writeFile(resolve(output,'report.json'),JSON.stringify({status,category:'host-browser-first-token-recovery',guest_execution:'NOT RUN',source_sha256:createHash('sha256').update(source).digest('hex'),calls,errors,failure},null,2));
+}
+console.log(status);if(status!=='PASS'){console.error(failure);process.exitCode=1;}

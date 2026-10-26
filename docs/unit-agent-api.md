@@ -75,9 +75,13 @@ Ctrl-C 中断并通过 raw REPL 执行，不保证清空 native 模块、定时�
 
 Unit 仍在创建 session 时接线；运行期间通过现有 `unit-input`、`units`、
 `serial`、`frame.png` 观察同一 guest 的控制器与应用效果。当前尚无运行中热插拔、
-SSE；新增Preview编排已有1.42 CoreS3 PIR/Relay限定验收，也没有 AIFlow 前后端接入的验收结论。QEMU 画面已增加显式
+SSE；Preview编排和1.43托管Web消费者已有CoreS3 PIR/Relay限定验收，AIFlow前后端尚无接入验收结论。QEMU 画面已增加显式
 `frame.png?max_age_ms=125` 的按需共享采样与 ETag/304；默认无参数仍直接采新帧。
 采集时间/程序身份是该帧的观察上下文，不等于应用 READY 或与 Unit 原子采样。
+Preview托管会话必须经`/previews/{id}/input`、`runs`、`renew`、`close`控制，不能
+使用下文普通session的旧mutation路由；reset暂不提供。先读取完整
+`/program-revisions/{revision_id}/files`再编辑main.py，保留所有MPY/模块/资源；
+保存完整新checkpoint后引用Run，详见[API](device-service-api.md#stable-preview-and-asynchronous-runs)与[Web证据](evidence/2026-10-27-preview-web-consumer/README.md)。
 可复现的四款主机同 guest/PIR、Relay/屏幕/程序异常恢复探针见
 [`run_live_program.py`](../tests/units/run_live_program.py)，以 Device Service
 创建可见 session，停止前取证，停止后保留历史。

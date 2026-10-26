@@ -1,0 +1,27 @@
+{
+  "category": "actual-sessions-page-preview-create-recovery",
+  "status": "PASS",
+  "captured_at": "2026-10-26T18:21:45.312Z",
+  "browser_version": "156.0.8078.48",
+  "source_sha256": {
+    "platform/web/sessions.js": "2bdfb9a18c448eac5e450162cb4497bbc6920dbdcb8cc0a67fa491e583d19675",
+    "platform/web/sessions.html": "dcc24c94e12a20b22a4905b6d8599261fb1b8d7b2b10c400a8c1676d3628d3f9",
+    "platform/web/preview-client.js": "dc16770cc67dcdb6fd8612adf1dcad3b9e091935952539d81bc7150f2062e2a7",
+    "platform/tests/test_preview_session_create.mjs": "4e945675cd1d0226d2443bb217b8f7149864e6047b7adac7b6b97a57277cab44"
+  },
+  "checks": [
+    "first-token-save-recovers-401-catalog-and-current-device-unit-picker-before-preview-create",
+    "preview-option-requires-token-and-device-program-capability",
+    "legacy-program-checkbox-still-posts-sessions-with-uiflow-live",
+    "preview-202-polls-preparing-ready-retains-key-and-unit-body",
+    "unknown-network-create-retry-reuses-exact-key-body-despite-ui-edits",
+    "refresh-recovers-unknown-create-and-retries-same-persisted-intent",
+    "refresh-recovers-known-preview-by-get-without-reposting-allocation",
+    "uncertain-poll-retries-get-of-same-preview-and-terminal-failure-clears-intent",
+    "malformed-create-receipt-keeps-original-intent-for-explicit-retry"
+  ],
+  "errors": [],
+  "allocation_model": "fixture-only idempotency ledger",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN"
+}

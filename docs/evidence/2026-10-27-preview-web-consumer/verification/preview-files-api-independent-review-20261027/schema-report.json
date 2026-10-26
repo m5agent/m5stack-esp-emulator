@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "validation": "HOST_ONLY_NOT_GUEST",
+  "reviewed_at": "2026-10-26T18:17:49.439150+00:00",
+  "openapi_version": "1.43.0",
+  "local_references_resolved": 348,
+  "files_route_responses": [
+    "200",
+    "401",
+    "404",
+    "500",
+    "503"
+  ],
+  "actual_controller_envelope_validates": true,
+  "metadata_get_unchanged": true,
+  "canonical_base64_original_bytes": true,
+  "store_record_unchanged": true,
+  "response_schema_rejects_utf8_alias": true,
+  "source_sha256": {
+    "platform/tools/serve.py": "fed6c3f9c98197a49059b8cc7848f3de6e8e4f2806d7529cadcf950a8b3280cf",
+    "platform/tools/device_service.py": "a4be4bebe1f05248b0590226a5b2716c87d24124a316f13761b3549f2d5d57b9",
+    "platform/tools/program_packages.py": "b8180b3846ac23ef5a085e49d539d238c4bf42d114c02d4804a39420e07eddac",
+    "platform/tests/test_program_revision_api.py": "5ac916d93bcbd8989cec2bcca6396a1359bff3674ac52d6e22637b10ee6f5341",
+    "docs/device-service.openapi.yaml": "23c92f9d485506f9edc85df0ec61dee9ead0139fad553850e9be64401cef5580"
+  },
+  "script_sha256": "9959f965bc6325bada840a508870d9bf7350e0139d320dc6be5081e4534880b0",
+  "limits": [
+    "No live service, compiler, guest or physical device was executed."
+  ]
+}

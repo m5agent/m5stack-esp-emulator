@@ -1,0 +1,44 @@
+{
+  "category": "independent-live-artifact-audit",
+  "run": "r3",
+  "status": "PASS",
+  "source_freeze": "PASS",
+  "direct_http_bytes_and_hashes": 525,
+  "browser_http": 911,
+  "legacy_mutations": 0,
+  "page_errors": [],
+  "cases": [
+    {
+      "unit": "pir",
+      "status": "PASS",
+      "zip_members_hashed": 58,
+      "runs_same_pid_firmware": 5,
+      "all_packaged_runs_ready_sample_mpy_resources": "PASS",
+      "input_or_output_raw_qom": "PASS",
+      "run_frame_identity_and_blue_green_pixels": "PASS",
+      "web_selected_pixel_chain": "PASS",
+      "web_hash_equals_saved_same_run_png": true,
+      "close_flash_pid_lease": "PASS"
+    },
+    {
+      "unit": "relay",
+      "status": "PASS",
+      "zip_members_hashed": 69,
+      "runs_same_pid_firmware": 6,
+      "all_packaged_runs_ready_sample_mpy_resources": "PASS",
+      "input_or_output_raw_qom": "PASS",
+      "run_frame_identity_and_blue_green_pixels": "PASS",
+      "web_selected_pixel_chain": "PASS",
+      "web_hash_equals_saved_same_run_png": false,
+      "close_flash_pid_lease": "PASS"
+    }
+  ],
+  "bounds": [
+    "Virtual-device evidence only; hardware NOT RUN.",
+    "Relay Web and saved PNG are separate captures in the same Run; green selected pixel and identity match, full-PNG byte equality is not claimed."
+  ],
+  "prior_failures": {
+    "r1": "First token catalog recovery failure, no guest",
+    "r2": "Raw-paste START framing oracle false negative; closed/stopped/Flash released"
+  }
+}

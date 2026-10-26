@@ -1,0 +1,13 @@
+# Preview UnitPanel independent review — 2026-10-27
+
+**PASS — HOST_ONLY_NOT_GUEST.** No unresolved UnitPanel finding remains.
+
+The reviewer read the parked-release and new disposal mechanisms and independently ran the final 23 Chrome browser groups. Seven groups use the real shared Preview client; the last uses native local HTTP keepalive during actual page navigation and observes `[true, false]` for the same original Run. No guest or firmware is involved.
+
+Parked state retains only necessary release obligations. Fresh authority must restore the exact same context; then a bracketed Unit observation either confirms false without replay, or authorizes one false correction for an observed true. A lost correction acknowledgement is not replayed in a loop. New Run, changed binding, terminal state and disposal cannot retarget the obligation. Ordinary queues, old read/receipt bodies and stale visuals are fenced while the assembly remains mounted.
+
+Independent integration P2 was reproduced: `panel.dispose(); client.dispose()` under the old queued-release implementation produced only `[true]` and left `pressed=true`. The original failure is retained in `destroy-output/independent-destroy-observation.json`. Replaying the same independent probe against the fixed synchronous-release implementation now yields `[true,false]`, `pressed=false`, retained separately in `destroy-fixed-output/`. A confirmed DOWN starts its captured keepalive release immediately; a pending DOWN still drains before its necessary release, while ordinary queued input is dropped. Disposal returns one cached drain promise. Root's SessionVisual.destroy now keeps its shared client alive for host/Unit drains, bounded by two seconds; that ordering was independently read.
+
+The bounded drain is best effort for slow network operations. These fixtures do not prove delivery through arbitrary unload/network failures, physical hardware, other boards or live guest execution.
+
+Final source hashes and exact checks are in `final-module/report.json` and this folder's `report.json`. No product or original test was modified by the reviewer.

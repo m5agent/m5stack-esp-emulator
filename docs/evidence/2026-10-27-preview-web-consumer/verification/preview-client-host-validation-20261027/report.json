@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "validation": "HOST_ONLY_NOT_GUEST",
+  "verified_at": "2026-10-26T18:05:04.223212+00:00",
+  "command": "node platform/tests/test_preview_client.mjs",
+  "test_groups": 22,
+  "files": {
+    "platform/web/preview-client.js": "dc16770cc67dcdb6fd8612adf1dcad3b9e091935952539d81bc7150f2062e2a7",
+    "platform/tests/test_preview_client.mjs": "55ec53bc4a80a448e446d75a514462c237f203d6f007f3d100230657cead7a73"
+  },
+  "syntax_check": "node --check platform/web/preview-client.js",
+  "offline_captured_schema_check": "PASS using actual retained r1 Preview/Run/session response shapes; lease moved into future in memory only; no network/guest",
+  "coverage": [
+    "invalid management binding no legacy fallback",
+    "strict Preview/Run identity/enums/immutable fields/CAS/lease and observation checks",
+    "frozen detached snapshots and immediate subscription",
+    "serial CAS/idempotent Run admission and synchronous beforeAdmission guard",
+    "cancel independent of slow admission; pending POST keeps polling",
+    "stale Preview/Run/queued receipt/input responses cannot revive old owner",
+    "no conflict/ambiguous mutation auto retry; explicit same-key replay original CAS",
+    "input receipts preserve identity and uncertain effect; no automatic input replay",
+    "pre/post readSession freshness barriers; concurrent panel readers do not abort-starve each other",
+    "LAN crypto.getRandomValues fallback without SubtleCrypto or Math.random",
+    "expired/stopped/disposed/rebound fences"
+  ],
+  "live_browser": "NOT RUN BY THIS AGENT",
+  "guest": "NOT RUN BY THIS AGENT",
+  "freshness_barrier": "both before and after; existing older poll settles, then new read; later-issued concurrent read may be shared; no mutual abort starvation"
+}

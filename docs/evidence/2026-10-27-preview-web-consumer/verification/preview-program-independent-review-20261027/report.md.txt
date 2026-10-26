@@ -1,0 +1,11 @@
+# Preview ProgramPanel independent review — 2026-10-27
+
+**PASS — HOST_ONLY_NOT_GUEST.** No unresolved ProgramPanel finding remains.
+
+The original P2 cancellation race is closed: a pending local Run B is identified by its exact pre-dispatch logical generation, revision and owner epoch. Cancel freezes only operations already qualified for dispatch, then resolves their concrete Run IDs through fresh authoritative state. A blocked or lost receipt cannot leave B running silently, and a later external/local C does not inherit B's cancellation. An uncertain cancellation is not automatically retried.
+
+The reviewer read product/CSS/test changes and independently ran all 27 Chrome browser fixture groups, including the real shared client in pre-commit, blocked-receipt, lost-receipt and later-C windows. The executable former captured-A-only algorithm reproduces the original failure inside the same fixture. Full-package preservation, immutable hashes, MPY/resources, dirty drafts, Unicode/BOM/CRLF, out-of-order saves and external beforeAdmission guards are covered. Desktop 1440 and mobile 390 PNGs were also viewed; no overflow or hidden primary action was observed.
+
+Evidence: `browser/report.json`, screenshots, and `report.json` in this folder. The latter records the shared-client SHA as well as every source SHA at execution. The final test differs only in two report metadata expressions: its prior executed source hash was reconstructed exactly from the final source; product/test behavior is unchanged.
+
+No product or original test was changed by the reviewer. No guest, device service, firmware or physical hardware was run. This acceptance does not supply virtual-device or hardware PASS.

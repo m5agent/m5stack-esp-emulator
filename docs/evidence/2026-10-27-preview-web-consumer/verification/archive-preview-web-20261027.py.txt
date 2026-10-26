@@ -1,0 +1,110 @@
+from pathlib import Path
+import hashlib, json, shutil, zipfile
+
+root = Path.cwd()
+destination = root / 'docs/evidence/2026-10-27-preview-web-consumer'
+destination.mkdir(parents=True, exist_ok=True)
+omitted = []
+sha = lambda data: hashlib.sha256(data).hexdigest()
+
+def copy_tree(source, target):
+    if not source.exists():
+        return
+    for path in sorted(source.rglob('*')):
+        if not path.is_file() or '__pycache__' in path.parts:
+            continue
+        relative = path.relative_to(source)
+        if path.suffix in {'.mpy', '.pyc', '.bin', '.rom'}:
+            omitted.append({'path': str(target / relative), 'size': path.stat().st_size,
+                            'sha256': sha(path.read_bytes()), 'reason': 'No standalone firmware/compiler binary; complete submitted package bytes remain in HTTP JSON and evidence ZIP.'})
+            continue
+        output = destination / target / relative
+        if output.suffix in {'.md', '.py', '.js', '.mjs'}:
+            output = output.with_name(output.name + '.txt')
+        output.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(path, output)
+
+current = (root / 'platform/web/sessions.js').read_text()
+before_label = current.replace("  $('createBtn').textContent = $('previewModeInput')?.checked ? '创建持续预览'\n    : $('programModeInput').checked ? '创建编程设备' : '创建参考设备';\n", '')
+before_token = before_label.replace("  const selected = select.value;\n", '').replace("  if (rows.some(device => device.device_id === selected)) select.value = selected;\n", '')
+before_token = before_token.replace("$('saveTokenBtn').addEventListener('click', async () => {", "$('saveTokenBtn').addEventListener('click', () => {")
+before_token = before_token.replace("  try {\n    // Initial catalog loading can legitimately have failed before the user\n    // entered a control token. Refreshing sessions alone cannot recover it.\n    await loadCatalog();\n    await refreshSessions();\n    if (state.pendingPreviewCreate?.previewId) void pollPreviewCreate();\n  } catch (error) { showError(error.message); }\n});", "  refreshSessions();\n});")
+runner = (root / 'platform/tests/test_live_preview_service_browser.mjs').read_text()
+before_marker = runner.replace("        // Raw-paste acknowledgement bytes precede the first stdout marker on\n        // its line. The execution UUID is allocated after this source snapshot\n        // was saved; consume that exact marker's newline, then parse JSON only.\n        const marker=`__M5_EXEC_${current.execution_id}__:START\\r\\n`,position=s.data.indexOf(marker),tail=s.data.slice(position+marker.length).split(/\\r?\\n/);", "        const marker=`__M5_EXEC_${current.execution_id}__:START`,lines=s.data.split(/\\r?\\n/),position=lines.indexOf(marker),tail=lines.slice(position+1);")
+variants = [current.encode(), before_label.encode(), before_token.encode(), runner.encode(), before_marker.encode()]
+freeze = {}
+for attempt in ('r1', 'r2', 'r3', 'r4'):
+    source = root / f'.work/preview-web-live-{attempt}-20261027'
+    report = json.loads((source / 'report.json').read_bytes())
+    if attempt == 'r4':
+        assert report['status'] == 'PASS'
+    copy_tree(source, Path('live') / attempt)
+    for path, expected in report['source_sha256'].items():
+        data = (root / path).read_bytes()
+        mode = 'current-source-identical'
+        if sha(data) != expected:
+            data = next((candidate for candidate in variants if sha(candidate) == expected), None)
+            assert data is not None, (attempt, path, expected)
+            mode = 'reconstructed-from-retained-edit-with-exact-recorded-sha256'
+        assert sha(data) == expected
+        output = destination / 'source-freeze' / attempt / (path + '.txt')
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_bytes(data)
+        freeze[f'{attempt}/{path}'] = {'sha256': expected, 'bytes': len(data), 'mode': mode}
+
+work_dirs = [
+    'preview-client-host-validation-20261027', 'preview-program-independent-review-20261027',
+    'preview-unit-release-independent-review-20261027', 'preview-files-api-independent-review-20261027',
+    'preview-unit-panel-20261027', 'preview-create-token-bootstrap-20261027',
+    'preview-create-ready-button-20261027',
+    'preview-web-style-before-20261027', 'preview-web-style-after-20261027',
+    'preview-web-mount-final-20261027', 'preview-web-reload-r1-20261027',
+]
+for name in work_dirs:
+    copy_tree(root / '.work' / name, Path('verification') / name)
+source_paths = [
+    'platform/tests/test_preview_client.mjs', 'platform/tests/test_preview_program_panel.mjs',
+    'platform/tests/test_preview_unit_panel.mjs', 'platform/tests/test_preview_session_create.mjs',
+    'platform/tests/test_frame_preview.mjs', 'platform/tests/test_session_mount.mjs',
+    'platform/tests/test_program_revision_api.py', 'platform/web/program-panel.css',
+    'platform/web/sessions.css', 'platform/web/model-shell.js', 'platform/web/device-shell-factory.js',
+    'platform/web/unit-visual-mappings.js', 'platform/web/vendor/m5stack-models/vendor-manifest.json',
+    'docs/device-service.openapi.yaml', 'docs/device-service-api.md',
+] + ['platform/tools/' + name + '.py' for name in (
+    'frame_cache', 'guest_console', 'uiflow_runtime', 'program_revisions', 'micropython_repl',
+    'uiflow_package_runtime', 'mpy_bytecode', 'unit_runtime', 'preview_retention')]
+for path in source_paths:
+    data = (root / path).read_bytes()
+    output = destination / 'source-freeze' / 'final' / (path + '.txt')
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(data)
+    freeze['final/' + path] = {'sha256': sha(data), 'bytes': len(data), 'mode': 'final-host-validation-source'}
+for name in ('m5-frame-preview-test', 'm5-preview-program-panel-test', 'm5-program-panel-test',
+             'm5-preview-unit-panel-test', 'm5-unit-panel-test', 'm5-preview-session-create-test'):
+    copy_tree(Path('/tmp') / name, Path('verification') / name)
+for path in sorted((root / '.work').glob('preview-*-20261027.txt')):
+    if path.name.startswith(('preview-web-', 'preview-client-root-')):
+        shutil.copyfile(path, destination / 'verification' / path.name)
+for name in ('preview-program-panel-validation-20261027.md', 'preview-client-contract-20261027.md', 'archive-preview-web-20261027.py'):
+    shutil.copyfile(root / '.work' / name, destination / 'verification' / (name + '.txt'))
+(destination / 'source-freeze.json').write_text(json.dumps(freeze, indent=2) + '\n')
+(destination / 'omitted-duplicate-binaries.json').write_text(json.dumps(omitted, indent=2) + '\n')
+
+token = (root / '.work/preview-control-token').read_bytes().strip()
+index = {}
+zips = []
+for path in sorted(destination.rglob('*')):
+    if not path.is_file() or path.name == 'manifest.json':
+        continue
+    data = path.read_bytes()
+    assert token not in data, f'control credential in {path.relative_to(destination)}'
+    if path.suffix == '.zip':
+        with zipfile.ZipFile(path) as archive:
+            assert archive.testzip() is None
+            for name in archive.namelist():
+                assert token not in archive.read(name), f'control credential in ZIP {name}'
+            zips.append({'path': str(path.relative_to(destination)), 'members': len(archive.namelist())})
+    index[str(path.relative_to(destination))] = {'sha256': sha(data), 'size': len(data)}
+(destination / 'manifest.json').write_text(json.dumps({'files': index, 'zips': zips,
+    'exact_control_token_scan': 'PASS', 'standalone_firmware_binaries_copied': False}, indent=2) + '\n')
+print(json.dumps({'indexed_files': len(index), 'zips': zips, 'source_freeze_entries': len(freeze)}))

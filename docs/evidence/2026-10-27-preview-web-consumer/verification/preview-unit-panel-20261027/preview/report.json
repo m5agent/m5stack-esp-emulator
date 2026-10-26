@@ -1,0 +1,28 @@
+{
+  "category": "preview-unit-browser-contract",
+  "status": "PASS",
+  "firmware_execution": "NOT RUN",
+  "browser_version": "156.0.8078.48",
+  "checks": [
+    "no-run-frozen-definitions-without-unowned-live-values",
+    "non-null-malformed-binding-without-client-never-falls-back",
+    "same-id-late-management-binding-fails-closed-without-client",
+    "owned-read-bracket-and-frozen-context-input-receipt-result",
+    "wrong-receipt-identities-never-apply-or-fallback",
+    "old-post-and-ordinary-queued-input-cannot-cross-run",
+    "late-get-success-and-error-cannot-change-new-run",
+    "context-withdraw-and-return-same-key-still-fences-old-read",
+    "run-switch-withdraws-held-release-values-and-known-visuals",
+    "same-run-multiple-sources-and-blur-release-use-original-owner",
+    "same-run-uncertain-release-uses-fresh-bracket-once",
+    "queued-release-recovery-cannot-dispatch-into-new-run",
+    "dispose-keeps-only-same-run-necessary-release-and-unsubscribes",
+    "disposed-release-is-dropped-if-shared-client-switches-owner",
+    "bad-owned-state-identity-withdraws-without-promoting-unowned-values"
+  ],
+  "source_sha256": {
+    "platform/web/unit-panel.js": "3ca4f9500d708a569e264e9689591f4e854b5adee94dfcb265f8f29120658e1c",
+    "platform/tests/test_preview_unit_panel.mjs": "1441fe5dc9028790f4c86ae57762ecbb2261f084895da6c8880b7c05b0e34c7a"
+  },
+  "errors": []
+}

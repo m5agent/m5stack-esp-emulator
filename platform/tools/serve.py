@@ -419,6 +419,8 @@ class Handler(SimpleHTTPRequestHandler):
                 response = service.capacity()
             elif method == "GET" and len(parts) == 2 and parts[0] == "program-revisions":
                 response = service.get_program_revision(parts[1])
+            elif method == "GET" and len(parts) == 3 and parts[0] == "program-revisions" and parts[2] == "files":
+                response = service.get_program_revision_files(parts[1])
             elif method == "GET" and parts == ["units"]:
                 try:
                     response = UnitRegistry().inventory(query.get("device_id", [None])[0])

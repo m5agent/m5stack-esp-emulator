@@ -1,0 +1,24 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
+    true,
+-   false
+  ]
+
+    at file:///Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_preview_unit_panel.mjs:338:12
+    at async run (file:///Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_preview_unit_panel.mjs:38:39)
+    at async file:///Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_preview_unit_panel.mjs:327:3 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [ true ],
+  expected: [ true, false ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.2

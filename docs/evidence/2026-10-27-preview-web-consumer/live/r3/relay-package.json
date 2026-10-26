@@ -1,0 +1,117 @@
+{
+  "package": {
+    "source_kind": "uiflow2-package",
+    "entrypoint": "main.py",
+    "files": {
+      "assets/pixel.png": {
+        "encoding": "base64",
+        "data": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAKElEQVR4nGP8z0AdwEQlcxhGDSIMRg0iDEYNIgxGDSIMRg0iDAafQQB7qgEvsm2eqgAAAABJRU5ErkJggg=="
+      },
+      "config.json": {
+        "encoding": "utf8",
+        "data": "{\"color\":[255,0,0],\"helper\":17,\"init\":101,\"logic\":3,\"old_present\":true,\"relay\":false,\"version\":\"A\"}\n"
+      },
+      "helper.mpy": {
+        "encoding": "base64",
+        "data": "TQYAHwUAEmhlbHBlci5weQAPEnRyYW5zZm9ybQAKVkFMVUUAgkVsAAQBI5EWAzIAFgJRYwFgEQYCBECwgvQSA/Jj"
+      },
+      "lib/__init__.py": {
+        "encoding": "utf8",
+        "data": "VALUE = 101\n"
+      },
+      "lib/logic.py": {
+        "encoding": "utf8",
+        "data": "import helper\nVALUE = 3\ndef calculate(value):\n return helper.transform(value) + VALUE\n"
+      },
+      "main.py": {
+        "encoding": "utf8",
+        "data": "import os, sys, json, time\nimport M5\nassert '/m5-live-package-9516cd73f6924c07973c57984c05ba56' in sys.path, \"MicroPython VM was reset\"\nwith open('config.json') as stream:\n config = json.load(stream)\nimport helper\nimport lib\nfrom lib import logic\nimport namespace_lib.state as namespace_state\nassert helper.VALUE == config['helper']\nassert lib.VALUE == config['init']\nassert logic.VALUE == config['logic']\nassert namespace_state.VALUE == config['init']\nassert logic.calculate(5) == 10 + config['helper'] + config['logic']\ncwd = os.getcwd()\nmanaged_paths = [path for path in sys.path if isinstance(path, str) and path.startswith('/flash/.m5-live-packages/')]\nassert managed_paths == [cwd], 'stale managed import path'\nfor module in (helper, lib, logic, namespace_state):\n assert module.__file__.startswith(cwd + '/'), 'stale module cache'\nif config['old_present']:\n import old_only\n assert old_only.VALUE == 'A-only'\n old_absent = False\nelse:\n assert 'old_only' not in sys.modules, 'removed module stayed cached'\n try:\n  import old_only\n except ImportError:\n  old_absent = True\n else:\n  raise AssertionError('removed file is still importable')\nM5.begin()\nscreen = M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0)\nwith open('assets/pixel.png', 'rb') as stream:\n screen.drawImage(stream.read(), (screen.width() - 24) // 2, (screen.height() - 24) // 2 - 24)\nscreen.setTextSize(2)\nscreen.setTextColor(0xFFFFFF, 0)\nscreen.setCursor(screen.width() // 2 - 24, screen.height() // 2 + 4)\nscreen.print('PKG ' + config['version'])\nfrom unit import RelayUnit\nunit = RelayUnit((1, 2))\nunit.set_status(config['relay'])\nprint('LIVE_PACKAGE_READY ' + json.dumps({'version': config['version'], 'helper': helper.VALUE, 'init': lib.VALUE, 'logic': logic.VALUE, 'cwd': cwd, 'managed_paths': managed_paths, 'old_absent': old_absent, 'helper_file': helper.__file__, 'logic_file': logic.__file__}))\nprevious = None\nlast_sample = time.ticks_ms()\nwhile True:\n M5.update()\n value = int(unit.get_status())\n now = time.ticks_ms()\n if value != previous:\n  screen.fillRect(0, screen.height() // 2 + 24, screen.width(), 28, 0)\n  screen.setCursor(screen.width() // 2 - 36, screen.height() // 2 + 24)\n  screen.print('RELAY ' + str(value))\n if value != previous or time.ticks_diff(now, last_sample) >= 250:\n  print('LIVE_PACKAGE_SAMPLE ' + json.dumps({'version': config['version'], 'unit': 'relay', 'value': value, 'helper': helper.VALUE, 'init': lib.VALUE, 'logic': logic.VALUE, 'computed': logic.calculate(value)}))\n  last_sample = now\n previous = value\n time.sleep_ms(25)\n"
+      },
+      "namespace_lib/state.py": {
+        "encoding": "utf8",
+        "data": "VALUE = 101\n"
+      },
+      "old_only.py": {
+        "encoding": "utf8",
+        "data": "VALUE = 'A-only'\n"
+      }
+    }
+  },
+  "compiler": {
+    "executable_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+    "executable_bytes": 481256,
+    "version": "MicroPython 78ff170de9 on 2026-10-26; mpy-cross emitting mpy v6.3",
+    "executable_name": "mpy-cross",
+    "helpers": {
+      "A": {
+        "command": [
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/mpy-cross/build/mpy-cross",
+          "-msmall-int-bits=31",
+          "-s",
+          "helper.py",
+          "-o",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/preview-web-live-r3-20261027/relay-compiled/A/helper.mpy",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/preview-web-live-r3-20261027/relay-compiled/A/helper.py"
+        ],
+        "source_sha256": "599721e2b5c4700fd60ab5e6588e956d4c0354c6456e5ced936d38b37a8d6a40",
+        "source_bytes": 59,
+        "binary_sha256": "3ed9e2e38e69781157b5ad5da3296c2936dda16070bd0187a82de2253ecd0b33",
+        "binary_bytes": 66,
+        "header": [
+          77,
+          6,
+          0,
+          31
+        ],
+        "stdout": "",
+        "stderr": ""
+      },
+      "B": {
+        "command": [
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/mpy-cross/build/mpy-cross",
+          "-msmall-int-bits=31",
+          "-s",
+          "helper.py",
+          "-o",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/preview-web-live-r3-20261027/relay-compiled/B/helper.mpy",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/preview-web-live-r3-20261027/relay-compiled/B/helper.py"
+        ],
+        "source_sha256": "e2c4ecc30664eb19526d3c7d425d949414c6aa327b49f78f8f491f96260c7101",
+        "source_bytes": 59,
+        "binary_sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8",
+        "binary_bytes": 66,
+        "header": [
+          77,
+          6,
+          0,
+          31
+        ],
+        "stdout": "",
+        "stderr": ""
+      },
+      "C": {
+        "command": [
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/mpy-cross/build/mpy-cross",
+          "-msmall-int-bits=31",
+          "-s",
+          "helper.py",
+          "-o",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/preview-web-live-r3-20261027/relay-compiled/C/helper.mpy",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/preview-web-live-r3-20261027/relay-compiled/C/helper.py"
+        ],
+        "source_sha256": "48e7d1f3d9b87514b4f43f2c39e3db29a1879fbfc8dd023b10a87cb231207c49",
+        "source_bytes": 59,
+        "binary_sha256": "021edd161bcc79e972301efbf384b07b4d92b326d67e6d61e80cc1d4266ea26a",
+        "binary_bytes": 66,
+        "header": [
+          77,
+          6,
+          0,
+          31
+        ],
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  }
+}

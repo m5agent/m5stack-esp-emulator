@@ -61,21 +61,35 @@ async function setup(extra = {}) {
     HTMLImageElement.prototype.decode = async function () { f.imageDecodes++; const gate = f.imageGates.shift(); if (gate !== undefined) await f.waitGate(gate); return nativeDecode.call(this); };
     window.createImageBitmap = async (...args) => { f.bitmapDecodes++; const gate = f.bitmapGates.shift(); if (gate !== undefined) await f.waitGate(gate); const bitmap = await nativeBitmap(...args); const close = bitmap.close.bind(bitmap); bitmap.close = () => { f.closedBitmaps++; close(); }; return bitmap; };
     window.fetch = async (url, options = {}) => {
-      const match = String(url).match(/\/api\/v1\/sessions\/([^/]+)\/frame\.png/);
+      const match = String(url).match(/\/api\/v1\/(?:sessions\/([^/]+)|previews\/[^/]+\/runs\/([^/]+))\/frame\.png/);
       if (!match) return nativeFetch(url, options);
-      const id = decodeURIComponent(match[1]), headers = new Headers(options.headers);
+      const id = decodeURIComponent(match[1] || 'owner-a'), headers = new Headers(options.headers);
       const call = {id, url: String(url), etag: headers.get('If-None-Match'), auth: headers.get('Authorization'), cache: options.cache, aborted: options.signal?.aborted || false};
       options.signal?.addEventListener('abort', () => { call.aborted = true; }); f.calls.push(call);
       const plan = f.plans.get(id)?.shift() || (f.auto ? {status: call.etag ? 304 : 200, body: 'green', etag: '"auto"'} : {status: 503});
       if (plan.responseGate !== undefined) await f.waitGate(plan.responseGate); // Deliberately ignores abort to exercise the fence.
       if (plan.error) throw new Error(plan.error);
       const status = plan.status || 200;
-      return {status, ok: status >= 200 && status < 300, headers: new Headers({'Content-Type': 'image/png', ...(plan.etag ? {ETag: plan.etag} : {}), 'X-Frame-SHA256': plan.body || 'unchanged', ...(plan.headers || {})}),
+      const owned = match[2] ? {'X-Preview-ID':'preview-a', 'X-Run-ID':match[2], 'X-Frame-Execution-ID':f.client.context?.executionId,
+        'X-Frame-Revision-ID':f.client.context?.revisionId, 'X-Frame-SHA256':f.hashes[plan.body || 'red']} : {};
+      return {status, ok: status >= 200 && status < 300, headers: new Headers({'Content-Type': 'image/png', ...(plan.etag ? {ETag: plan.etag} : {}), 'X-Frame-SHA256': plan.body || 'unchanged', ...owned, ...(plan.headers || {})}),
         async blob() { f.blobsRead++; if (plan.blobGate !== undefined) await f.waitGate(plan.blobGate); if (plan.blobError) throw new Error(plan.blobError); return f.blobs[plan.body || 'red']; }};
     };
     const {createDeviceShell} = await import('/platform/web/device-shell-factory.js');
-    const compiled = new Function('state', 'createDeviceShell', 'ACTIVE_STATES', 'FRAME_INTERVAL_MS', 'FRAME_REQUEST_TIMEOUT_MS', 'HIDDEN_FRAME_INTERVAL_MS', 'CONTROL_RELEASE_TIMEOUT_MS', 'api', 'framePlaceholder', 'escapeHtml', fragments + '\nreturn {SessionVisual, refreshFrame, startFrameLoop};');
-    const code = compiled(state, createDeviceShell, new Set(['provisioning', 'flashing', 'booting', 'running']), 125, 3000, 1000, 5000, async (path, options) => { f.controlCalls.push({path, body: JSON.parse(options.body)}); }, () => 'waiting for frame', String);
+    const {Sha256} = await import('/platform/web/sha256.js');
+    const fakeClient = () => {
+      const client = f.client = {context:null, listeners:[],
+        snapshot() { return {frameContext:this.context,inputContext:this.context,synchronized:!!this.context,activeRun:this.context?{state:'running'}:null, canRenew:true,canClose:true}; },
+        subscribe(fn) { this.listeners.push(fn); fn(this.snapshot()); return () => {}; },
+        change(id) { this.context = id ? {key:id, previewId:'preview-a', ownerEpoch:'epoch-a', sessionId:'owner-a', runId:id, executionId:`execution-${id}`, revisionId:(id==='run-a'?'a':'b').repeat(64)} : null; for(const fn of this.listeners) fn(this.snapshot()); },
+        captureInput() { return this.context; }, matches(context) { return !!context && context.key===this.context?.key; },
+        async input(context, kind, command, options) { if(!this.matches(context)) throw Error('stale'); f.controlCalls.push({context,kind,command,options}); },
+        async readSession(context, action) { if(!this.matches(context)) throw Error('stale'); (f.brackets ||= []).push({context,action}); return {session_id:context.sessionId}; },
+        updateSession() {}, dispose() {this.context=null;this.listeners=[];this.disposed=true;},
+      }; return client;
+    };
+    const compiled = new Function('state', 'createDeviceShell', 'ACTIVE_STATES', 'FRAME_INTERVAL_MS', 'FRAME_REQUEST_TIMEOUT_MS', 'HIDDEN_FRAME_INTERVAL_MS', 'CONTROL_RELEASE_TIMEOUT_MS', 'api', 'framePlaceholder', 'escapeHtml', 'createPreviewClient', 'Sha256', fragments + '\nreturn {SessionVisual, refreshFrame, startFrameLoop};');
+    const code = compiled(state, createDeviceShell, new Set(['provisioning', 'flashing', 'booting', 'running']), 125, 3000, 1000, 5000, async (path, options) => { f.controlCalls.push({path, body: JSON.parse(options.body)}); }, () => 'waiting for frame', String, fakeClient, Sha256);
     const setFrame = code.SessionVisual.prototype.setFrame;
     code.SessionVisual.prototype.setFrame = function (...args) { const work = setFrame.apply(this, args); f.frameJobs.push(work); return work; };
     Object.assign(f, {Visual: code.SessionVisual, refreshFrame: code.refreshFrame, startFrameLoop: code.startFrameLoop, createDeviceShell});
@@ -83,6 +97,7 @@ async function setup(extra = {}) {
       const canvas = document.createElement('canvas'); canvas.width = canvas.height = 2; const ctx = canvas.getContext('2d'); ctx.fillStyle = color; ctx.fillRect(0, 0, 2, 2); f.blobs[name] = await new Promise(done => canvas.toBlob(done, 'image/png'));
     }
     f.blobs.invalid = new Blob(['invalid png'], {type: 'image/png'});
+    f.hashes = Object.fromEntries(await Promise.all(Object.entries(f.blobs).map(async ([name, blob]) => [name, new Sha256().update(new Uint8Array(await blob.arrayBuffer())).hex()])));
     f.add('a', f.session('owner-a', extra));
   }, {fragments, extra});
 }
@@ -262,6 +277,103 @@ try {
     assert.equal(calls.filter(call => call.id === 'owner-a').length, 1); assert.ok(calls.filter(call => call.id === 'owner-b').length >= 3);
     await page.evaluate(() => { window.fixture.state.sessions = []; }); await release(gate);
     await page.waitForFunction(() => !window.fixture.visuals.get('a').frameRequest && !window.fixture.visuals.get('b').frameRequest);
+  });
+  await test('managed-no-run-fails-closed-and-valid-run-verifies-body-and-304', async () => {
+    await setup({management_binding:{preview_id:'preview-a'}});
+    await page.evaluate(() => window.fixture.run('a', 'empty'));
+    await page.waitForFunction(() => window.fixture.done.has('empty'));
+    assert.equal((await page.evaluate(() => window.fixture.snapshot())).calls, 0);
+    await page.evaluate(() => window.fixture.client.change('run-a'));
+    const first = await run({body:'green',etag:'"managed"'});
+    assert.deepEqual(first.pixel, green);
+    assert.match((await page.evaluate(() => window.fixture.calls[0].url)), /previews\/preview-a\/runs\/run-a\/frame.png/);
+    const same = await run({status:304,body:'green',etag:'"managed"'}, {label:'same'});
+    assert.equal(same.imageDecodes, first.imageDecodes); assert.equal(same.url, first.url);
+    await run({status:304,body:'red',headers:{'X-Frame-SHA256':'wrong'}}, {label:'bad304'});
+    assert.deepEqual((await page.evaluate(() => window.fixture.snapshot())).metadata, same.metadata);
+  });
+  await test('managed-bad-preview-run-execution-revision-and-hash-never-decode', async () => {
+    for(const header of ['X-Preview-ID','X-Run-ID','X-Frame-Execution-ID','X-Frame-Revision-ID','X-Frame-SHA256']) {
+      await setup({management_binding:{preview_id:'preview-a'}});
+      await page.evaluate(() => window.fixture.client.change('run-a'));
+      const result = await run({body:'red',headers:{[header]:'wrong'}});
+      assert.equal(result.pixel,null); assert.equal(result.imageDecodes,0); assert.equal(result.etag,null);
+    }
+  });
+  await test('managed-same-vm-run-switch-fences-decode-and-keeps-shell', async () => {
+    await setup({management_binding:{preview_id:'preview-a'}});
+    await page.evaluate(() => window.fixture.client.change('run-a'));
+    const gate = await page.evaluate(() => {const f=window.fixture,g=f.gate();f.imageGates.push(g);f.queue('owner-a',{body:'red',etag:'"old-run"'});f.run('a','old-run');return g;});
+    await entered(gate);
+    await page.evaluate(() => window.fixture.client.change('run-b'));
+    const next = await run({body:'green',etag:'"next-run"'},{label:'next-run'}); await release(gate,'old-run');
+    assert.equal((await page.evaluate(() => window.fixture.snapshot())).url,next.url);
+    assert.deepEqual((await page.evaluate(() => window.fixture.snapshot())).pixel,green);
+    const kept = await page.evaluate(() => {const f=window.fixture,v=f.visuals.get('a');let disposed=0;const shell={dispose(){disposed++;},showOverlay(){},setDeviceState(){}};v.shell=shell;f.client.change('run-c');return v.shell===shell&&disposed===0;});
+    assert.equal(kept,true);
+  });
+  await test('managed-old-key-release-and-queued-down-never-retarget-new-run', async () => {
+    await setup({management_binding:{preview_id:'preview-a'}});
+    await page.evaluate(() => {const f=window.fixture,v=f.visuals.get('a');f.client.change('run-a');v.handleControl({id:'a',down:true});f.client.change('run-b');v.handleControl({id:'a',down:false});});
+    await page.evaluate(() => Promise.resolve());
+    assert.deepEqual(await page.evaluate(() => window.fixture.controlCalls),[]);
+    await page.evaluate(async () => {const f=window.fixture,v=f.visuals.get('a');v.handleControl({id:'a',down:true});await Promise.all(v.controlQueues.values());v.handleControl({id:'a',down:false});await Promise.all(v.controlQueues.values());});
+    const calls=await page.evaluate(() => window.fixture.controlCalls);
+    assert.deepEqual(calls.map(x=>[x.context.runId,x.command.action]),[['run-b','down'],['run-b','up']]);
+  });
+  await test('managed-lost-key-ack-recovers-one-original-run-release-after-fresh-bracket', async () => {
+    for(const next of ['run-a','run-b']) {
+      await setup({management_binding:{preview_id:'preview-a'}});
+      await page.evaluate(() => {const f=window.fixture,c=f.client,v=f.visuals.get('a');c.change('run-a');const input=c.input.bind(c);let drop=true;
+        c.input=async(...args)=>{await input(...args);if(drop){drop=false;c.change(null);throw Error('ACK lost after effect');}};v.handleControl({id:'a',down:true});});
+      await page.waitForFunction(()=>window.fixture.controlCalls.length===1&&!window.fixture.client.context);
+      await page.evaluate(next=>window.fixture.client.change(next),next);
+      if(next==='run-a') await page.waitForFunction(()=>window.fixture.controlCalls.length===2);
+      const calls=await page.evaluate(()=>window.fixture.controlCalls);
+      assert.deepEqual(calls.map(x=>[x.context.runId,x.command.action]), next==='run-a' ? [['run-a','down'],['run-a','up']] : [['run-a','down']]);
+      if(next==='run-a') assert.equal((await page.evaluate(()=>window.fixture.brackets))[0].action,'device-state');
+    }
+  });
+  await test('managed-uncertain-key-release-compensation-never-loops', async () => {
+    await setup({management_binding:{preview_id:'preview-a'}});
+    await page.evaluate(async()=>{const f=window.fixture,c=f.client,v=f.visuals.get('a');c.change('run-a');v.handleControl({id:'a',down:true});await Promise.all(v.controlQueues.values());
+      const input=c.input.bind(c);c.input=async(...args)=>{await input(...args);if(args[2].action==='up'){c.change(null);throw Error('release ACK lost');}};v.handleControl({id:'a',down:false});});
+    await page.waitForFunction(()=>window.fixture.controlCalls.length===2&&!window.fixture.client.context);
+    await page.evaluate(()=>window.fixture.client.change('run-a'));
+    await page.waitForFunction(()=>window.fixture.controlCalls.length===3&&!window.fixture.client.context);
+    await page.evaluate(async()=>{window.fixture.client.change('run-a');await Promise.resolve();await Promise.resolve();});
+    assert.equal((await page.evaluate(()=>window.fixture.controlCalls)).length,3);
+  });
+  await test('managed-failed-read-before-compensation-does-not-consume-release-attempt', async () => {
+    await setup({management_binding:{preview_id:'preview-a'}});
+    await page.evaluate(()=>{const f=window.fixture,c=f.client,v=f.visuals.get('a');c.change('run-a');const input=c.input.bind(c),read=c.readSession.bind(c);let drop=true;f.bracketAttempts=0;
+      c.input=async(...args)=>{await input(...args);if(drop){drop=false;c.change(null);throw Error('press ACK lost');}};
+      c.readSession=async(...args)=>{if(++f.bracketAttempts===1){c.change(null);throw Error('read unavailable before UP');}return read(...args);};
+      v.handleControl({id:'a',down:true});});
+    await page.waitForFunction(()=>window.fixture.controlCalls.length===1&&!window.fixture.client.context);
+    await page.evaluate(()=>window.fixture.client.change('run-a'));
+    await page.waitForFunction(()=>window.fixture.bracketAttempts===1&&!window.fixture.client.context);
+    await page.evaluate(()=>window.fixture.client.change('run-a'));
+    await page.waitForFunction(()=>window.fixture.controlCalls.length===2);
+    assert.equal(await page.evaluate(()=>window.fixture.bracketAttempts),2);
+    assert.deepEqual((await page.evaluate(()=>window.fixture.controlCalls)).map(x=>x.command.action),['down','up']);
+  });
+  await test('managed-destroy-dispatches-acknowledged-key-release-and-drains-unit-before-client', async () => {
+    await setup({management_binding:{preview_id:'preview-a'}});
+    const result=await page.evaluate(async()=>{const f=window.fixture,c=f.client,v=f.visuals.get('a');c.change('run-a');v.handleControl({id:'a',down:true});await Promise.all(v.controlQueues.values());
+      let unitReleased=false;v.unitPanel={dispose:()=>Promise.resolve().then(()=>{unitReleased=c.matches(c.context);})};
+      const task=v.destroy(),sync=f.controlCalls.map(x=>x.command.action),same=v.destroy()===task;
+      await task;return {sync,same,unitReleased,disposed:c.disposed,calls:f.controlCalls};});
+    assert.deepEqual(result.sync,['down','up']);assert.equal(result.same,true);assert.equal(result.unitReleased,true);assert.equal(result.disposed,true);
+    assert.equal(result.calls[1].options.keepalive,true);assert.equal(result.calls[1].context.runId,'run-a');
+  });
+  await test('managed-destroy-is-bounded-and-drops-ordinary-queued-down', async () => {
+    await setup({management_binding:{preview_id:'preview-a'}});
+    const gate=await page.evaluate(()=>{const f=window.fixture,c=f.client,v=f.visuals.get('a'),g=f.gate();c.change('run-a');v.controlQueues.set('a',f.gates[g].promise);v.handleControl({id:'a',down:true});f.destroyTask=v.destroy();return g;});
+    await page.clock.fastForward(2001);await page.evaluate(()=>window.fixture.destroyTask);
+    await page.evaluate(async gate=>{const f=window.fixture;f.release(gate);await Promise.allSettled(f.visuals.get('a').controlQueues.values());},gate);
+    assert.equal(await page.evaluate(()=>window.fixture.client.disposed),true);
+    assert.deepEqual(await page.evaluate(()=>window.fixture.controlCalls),[]);
   });
   assert.deepEqual(errors, []); status = 'PASS';
 } finally {

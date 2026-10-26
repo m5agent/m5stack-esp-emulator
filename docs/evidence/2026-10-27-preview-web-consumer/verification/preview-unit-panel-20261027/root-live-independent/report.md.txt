@@ -1,0 +1,31 @@
+# Independent Root Preview Web acceptance audit
+
+Date: 2026-10-27. Read-only review and host fixtures by the UnitPanel author. Live guest execution was performed by the parent, not by this reviewer. This does not constitute independent acceptance of this author's UnitPanel implementation; the other reviewer separately accepted its frozen 23-group browser fixture and teardown probe.
+
+## Final r4: PASS within the recorded virtual-device scope
+
+Source: `.work/preview-web-live-r4-20261027/report.json`.
+
+The independent audit rehashed all 537 direct HTTP response bodies and compared the current source tree with the runner's frozen source hashes. It reviewed 1,317 browser requests, found no legacy session mutation fallback, and confirmed no browser page errors.
+
+PIR and Relay evidence ZIP archives passed CRC and every declared member size/SHA-256 check: 58 PIR members and 69 Relay members. All 5 PIR and 6 Relay Runs retain the same session-local PID and firmware identity. Each packaged Run has its own execution START followed by valid READY/SAMPLE JSON, matching package cwd, bytecode helper module path, helper/init/logic values and computed sample. Compiled `helper.mpy` and every non-main resource remain byte-identical after main.py edits.
+
+PIR browser inputs have exact Preview/Run/execution/revision receipts for the edited Run; corresponding guest serial samples and raw QOM change from 1 to 0. Relay source sets the real Unit driver state to true and raw QOM confirms the output. Blue and green PNG response bodies match their recorded hashes and four identity headers; their selected (8,8) pixels match the expected colors. The Web model reports the same active execution/revision and green selected pixel.
+
+Both Preview sessions close, capture close evidence, release mutable Flash, terminate their recorded VM PIDs and return active session/worker lease counts to zero. No physical-hardware execution was performed.
+
+Detailed checks: `r4.json`.
+
+## Preserved earlier outcomes
+
+- r1: FAIL before guest allocation. First unauthenticated catalog request returned 401 and saving the token did not reload it. Root fixed the product handler. Independent whole-page host fixture then observed catalog HTTP 401 → 200, device and Unit selectors, and enabled programming/create controls: `../root-first-token-audit/report.json`.
+- r2: FAIL from a runner oracle. MicroPython raw-paste acknowledgement bytes precede the exact execution START on the same serial line. Guest READY/SAMPLE and package execution were valid, but the original whole-line equality check rejected them. Root fixed the runner framing parser. Independent failure ZIP audit verified all 36 declared member hashes, same VM identity, MPY/resource preservation, matching blue PNG and successful close/Flash release: `r2.json`.
+- r3: complete virtual-device PASS for the prior creation-button copy. The independent audit verified 525 response hashes, 911 browser requests, both evidence ZIPs and the same data-plane/cleanup boundaries: `r3.json`. Root subsequently changed only the ready creation-button text and reran full r4.
+
+## Precise visual boundaries
+
+The Web model check establishes a selected pixel and matching active Run identity. Separate PNG captures can differ: r3 PIR/r4 Relay happened to have identical saved/Web frame hashes; r3 Relay/r4 PIR did not. Whole-image byte equality is therefore not claimed for every capture pair.
+
+The r4 mobile screenshot visibly restores the creation button to `创建持续预览`. At 390 px, the existing 3D camera composition can crop the right side of CoreS3 even while the document has no horizontal overflow. This remains a shell composition follow-up, separate from the accepted Run and Unit data plane.
+
+Program execution evidence covers `main.py` plus compiled `.mpy` dependencies and resources through the same live UIFlow guest. Standalone `main.mpy` entrypoint execution remains outside the accepted scope.

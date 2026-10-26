@@ -1,0 +1,38 @@
+{
+  "category": "browser-frame-preview-contract",
+  "status": "PASS",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "browser_version": "156.0.8078.48",
+  "source_sha256": {
+    "platform/web/sessions.js": "2bdfb9a18c448eac5e450162cb4497bbc6920dbdcb8cc0a67fa491e583d19675",
+    "platform/web/model-shell.js": "1cfee042e184fc936da1b9eaef142cf08b7f82daa5fbcbbdd7c150718e5a1876",
+    "platform/web/device-shell-factory.js": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2",
+    "platform/web/three-device-viewer.js": "4dfc936622da7d79b0be3ec92b95884c7574edafdff2ba23e1f7549c4e773517"
+  },
+  "checks": [
+    "qemu-200-304-changed-body-and-external-program-context",
+    "tab5-network-and-unknown-runtime-retain-fresh-lane",
+    "late-response-after-session-owner-switch-is-not-read-or-decoded",
+    "same-id-created-firmware-and-pid-changes-fence-slow-blob",
+    "slow-generic-decode-cannot-overwrite-new-owner-or-tag",
+    "late-saved-frame-fallback-cannot-overwrite-newer-applied-body",
+    "dispose-and-reused-container-fence-response-blob-and-decode",
+    "owner-change-releases-queued-controls-to-original-session",
+    "response-blob-and-decode-timeouts-release-only-their-request",
+    "invalid-body-does-not-save-etag-or-discard-last-good-frame",
+    "real-model-and-generic-renderers-guard-after-bitmap-decode",
+    "slow-three-decode-times-out-without-serializing-new-generation",
+    "slow-session-does-not-delay-other-session-polling-or-overlap-itself",
+    "managed-no-run-fails-closed-and-valid-run-verifies-body-and-304",
+    "managed-bad-preview-run-execution-revision-and-hash-never-decode",
+    "managed-same-vm-run-switch-fences-decode-and-keeps-shell",
+    "managed-old-key-release-and-queued-down-never-retarget-new-run",
+    "managed-lost-key-ack-recovers-one-original-run-release-after-fresh-bracket",
+    "managed-uncertain-key-release-compensation-never-loops",
+    "managed-failed-read-before-compensation-does-not-consume-release-attempt",
+    "managed-destroy-dispatches-acknowledged-key-release-and-drains-unit-before-client",
+    "managed-destroy-is-bounded-and-drops-ordinary-queued-down"
+  ],
+  "errors": []
+}

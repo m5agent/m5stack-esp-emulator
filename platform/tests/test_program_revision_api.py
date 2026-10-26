@@ -5,6 +5,7 @@ and process creation are mocked; no guest, firmware or port 8787 is used.
 """
 from __future__ import annotations
 
+import base64
 import http.client
 from http.server import ThreadingHTTPServer
 import json
@@ -127,6 +128,53 @@ class ProgramRevisionApiTests(_PackageFixture):
         status, body, _ = self.run_request(self.reference(first))
         self.assertEqual(status, 200)
         self.assertEqual(body["program"]["revision_id"], first["revision_id"])
+
+    def test_complete_file_read_preserves_binary_unicode_and_immutable_identity(self):
+        payload = self.checkpoint()
+        payload["files"]["assets/标记.dat"] = _binary(bytes(range(256)))
+        revision = self.create(payload)
+        frozen = self.api.program_packages.read_files(revision["revision_id"])
+        record_path = self.api.program_packages.root / (revision["revision_id"] + ".json")
+        original_record = record_path.read_bytes()
+        with mock.patch.object(self.api.program_packages, "create", side_effect=AssertionError("GET must not create")):
+            status, body, _ = self.request("GET", "/api/v1/program-revisions/" + revision["revision_id"] + "/files")
+        self.assertEqual(status, 200, body)
+        self.assertEqual(set(body), {"revision", "limits", "files"})
+        self.assertEqual(body["revision"], revision)
+        self.assertEqual(set(body["files"]), set(frozen))
+        for path, content in body["files"].items():
+            self.assertEqual(set(content), {"encoding", "data"})
+            self.assertEqual(content["encoding"], "base64")
+            self.assertEqual(base64.b64decode(content["data"], validate=True), frozen[path])
+        self.assertEqual(record_path.read_bytes(), original_record)
+        self.assertEqual(self.create({"source_kind": "uiflow2-package", "entrypoint": "main.py", "files": body["files"]}), revision)
+        self.api.get_session.assert_not_called()
+        self.assert_no_execution()
+
+    def test_complete_file_read_rejects_unknown_corrupt_and_unauthorized(self):
+        revision = self.create()
+        path = "/api/v1/program-revisions/" + revision["revision_id"] + "/files"
+        status, body, _ = self.request("GET", path, authorized=False)
+        self.assertEqual((status, body["error"]["code"]), (401, "unauthorized"))
+        for identity in ("f" * 64, "A" * 64, "bad"):
+            status, body, _ = self.request("GET", "/api/v1/program-revisions/" + identity + "/files")
+            self.assertEqual((status, body["error"]["code"]), (404, "unknown_program_package"))
+        (self.api.program_packages.root / (revision["revision_id"] + ".json")).write_text("{}")
+        status, body, _ = self.request("GET", path)
+        self.assertEqual((status, body["error"]["code"]), (500, "program_package_corrupt"))
+        self.api.get_session.assert_not_called()
+        self.assert_no_execution()
+
+    def test_complete_file_read_maximum_package_is_bounded_and_read_only(self):
+        payload = self.checkpoint(files={"main.py": _binary(b""), **{
+            f"assets/resource-{index}.dat": _binary(bytes([index]) * 262144) for index in range(4)
+        }})
+        revision = self.create(payload)
+        status, body, _ = self.request("GET", "/api/v1/program-revisions/" + revision["revision_id"] + "/files")
+        self.assertEqual(status, 200)
+        self.assertEqual(sum(len(base64.b64decode(row["data"], validate=True)) for row in body["files"].values()), 1048576)
+        self.assertLess(len(json.dumps(body).encode()), 2097152)
+        self.assert_no_execution()
 
     def test_reference_executes_complete_frozen_bytes_without_any_store_create(self):
         payload = self.checkpoint()

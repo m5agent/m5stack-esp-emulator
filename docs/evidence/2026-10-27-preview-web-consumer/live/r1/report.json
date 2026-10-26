@@ -1,0 +1,212 @@
+{
+  "status": "FAIL",
+  "category": "virtual-device-preview-web",
+  "hardware": "NOT RUN",
+  "source_sha256": {
+    "platform/web/sessions.js": "f4b4caaebf23f2fa31c91272cc65c0ebaae8f4e5a11925d55ba58eb2905dce86",
+    "platform/web/sessions.html": "dcc24c94e12a20b22a4905b6d8599261fb1b8d7b2b10c400a8c1676d3628d3f9",
+    "platform/web/preview-client.js": "dc16770cc67dcdb6fd8612adf1dcad3b9e091935952539d81bc7150f2062e2a7",
+    "platform/web/program-panel.js": "3cf1ae392dff086d07b6cae26742c1fa0d9db129aa391dec7974633ec8235bf0",
+    "platform/web/unit-panel.js": "7049d4f5ccbd45fc14e44af31e2c4b32ec1f3bcbefb63dcc33ec2aab114c7c78",
+    "platform/web/sha256.js": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413",
+    "platform/tools/serve.py": "fed6c3f9c98197a49059b8cc7848f3de6e8e4f2806d7529cadcf950a8b3280cf",
+    "platform/tools/device_service.py": "a4be4bebe1f05248b0590226a5b2716c87d24124a316f13761b3549f2d5d57b9",
+    "platform/tools/preview_service.py": "74b4defc7768d6f39542961b46dc2185655af8660f041af21ac4a5fec4707fff",
+    "platform/tools/preview_store.py": "4765415dde87382308dbc76a87415922f2dca8e5019d388d66fd08992177f2fb",
+    "platform/tools/program_packages.py": "b8180b3846ac23ef5a085e49d539d238c4bf42d114c02d4804a39420e07eddac",
+    "platform/tests/test_live_preview_service_browser.mjs": "46b1e09bffab043bf70cd55e0f1c514405f9c2b7962c86c2cedd39a12411b499"
+  },
+  "cases": [],
+  "page_errors": [],
+  "http": [
+    {
+      "path": "health",
+      "method": "GET",
+      "status": 200,
+      "sha256": "e6b0286d0e3a41f1b4c5cfb9361a3b60698c258c96abe645b7c2be3838ad1e29",
+      "bytes": 902,
+      "headers": {
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256, Idempotency-Key",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State, X-Preview-ID, X-Run-ID",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "content-length": "902",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 26 Oct 2026 18:12:54 GMT",
+        "expires": "0",
+        "pragma": "no-cache",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-request-id": "af6e50e22c7a40f2b68ce7d0f3092d72"
+      }
+    }
+  ],
+  "browser_http": [
+    {
+      "path": "/api/v1/devices",
+      "method": "GET",
+      "status": 401
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/capacity",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions",
+      "method": "GET",
+      "status": 200
+    }
+  ],
+  "error": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#deviceSelect option[value=\"cores3\"]')\u001b[22m\n\n    at /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_live_preview_service_browser.mjs:85:62"
+}

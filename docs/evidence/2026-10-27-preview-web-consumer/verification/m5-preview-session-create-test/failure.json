@@ -1,0 +1,38 @@
+{
+  "status": "FAIL",
+  "checks": [
+    "preview-option-requires-token-and-device-program-capability",
+    "legacy-program-checkbox-still-posts-sessions-with-uiflow-live",
+    "preview-202-polls-preparing-ready-retains-key-and-unit-body",
+    "unknown-network-create-retry-reuses-exact-key-body-despite-ui-edits",
+    "refresh-recovers-unknown-create-and-retries-same-persisted-intent",
+    "refresh-recovers-known-preview-by-get-without-reposting-allocation"
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: The input did not match the regular expression /allocation fixture failed/. Input:\n\n''\n\n    at file:///Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_preview_session_create.mjs:134:12\n    at async test (file:///Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_preview_session_create.mjs:85:37)\n    at async file:///Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_preview_session_create.mjs:129:3",
+  "fixture": {
+    "posts": [
+      {
+        "key": "web-preview-e9bce83c1e67b08cc103b5d61f5a514c",
+        "raw": "{\"device_id\":\"atoms3r\",\"ttl_seconds\":600,\"units\":[{\"id\":\"external1\",\"unit_id\":\"pir\",\"port_id\":\"port-a\"}]}",
+        "body": {
+          "device_id": "atoms3r",
+          "ttl_seconds": 600,
+          "units": [
+            {
+              "id": "external1",
+              "unit_id": "pir",
+              "port_id": "port-a"
+            }
+          ]
+        },
+        "authorized": true
+      }
+    ],
+    "reads": [
+      "preview-fixture-1",
+      "preview-fixture-1"
+    ],
+    "allocations": 1
+  }
+}

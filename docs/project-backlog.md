@@ -74,8 +74,8 @@ Scroll限定原驱动与按键/RGB闭环、公共完整checkpoint及同步revisi
 二进制入口须按`UNIT-HOST-33`先取得固件run-as-main/loader路径；普通`.mpy`导入不具备完整脚本入口语义。
 运行时不可中断、native/IRQ/thread 清理及重连缺口须保守处理，不承诺低秒级 SLA。验收见
 [AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
-checkpoint/artifact snapshot/virtual target也需衔接；Preview服务端基础已实现，SSE与消费者未接。
-本客户端旧请求/队列与装配隔离已补齐；Preview服务端Run身份已实现，共享Bearer不等于多租户控制权。下一块优先按UNIT-HOST-34接Live sessions托管消费者：当前旧mutation会409，Run帧客户端fence也未接，不能将API PASS转授Web交互完成。
+checkpoint/artifact snapshot/virtual target也需衔接；Preview服务端与限定Web消费者已实现，SSE与AIFlow消费者未接。
+Live sessions托管消费者已有CoreS3 PIR/Relay的[限定Web验收](evidence/2026-10-27-preview-web-consumer/README.md)，不转授其它Unit/主机或AIFlow；继续补其它组合与UNIT-HOST-35窄屏默认构图裁切，共享Bearer仍不等于多租户控制权。后续按既有Unit队列推进，并衔接AIFlow checkpoint/虚拟目标、SSE与revision有界回收。
 初始picker的跨主机竞态已修复并保留失败负控；范围见[新实时程序证据](evidence/2026-10-26-live-program-web-and-hosts/README.md)。
 三主机HUB数字token换行按`UNIT-HOST-23`单独改善，保留既有controller PASS。
 

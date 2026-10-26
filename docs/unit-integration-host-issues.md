@@ -39,7 +39,8 @@
 | UNIT-HOST-32 | FIXED（Scroll混合输入提前拒绝） | 审查发现live输入逐字段qom-set，按钮先写、计数后因overflow拒绝可留下部分状态。Scroll profile现限定每次live请求1字段，initial仍可同时配置；两种字段顺序宿主零QOM写，真实guest在INT32_MAX下混合400且pressed/source等不变 | 不声明一般QMP多字段事务或回滚；调用方分开提交按钮/计数，readonly输入仍拒绝。[原始断言与真实负控](evidence/2026-10-26-scroll-controller/README.md) |
 | UNIT-HOST-33 | OPEN（独立main.mpy脚本入口） | 固定UIFlow/MicroPython源码与CoreS3同VM探针确认当前固件未开启override-main；普通.py/.mpy导入保留模块名、if-main不执行，__main__.mpy别名仍被REPL内置module遮蔽。source新globals也不替换sys.modules主模块 | 当前明确支持main.py入口+纯字节码依赖，通过program_features声明；新固件官方run-as-main或受验loader须另建/逐主机验证，定义加载/START及异常owner恢复，不把普通import成功称完整入口。[固定源码与实际guest](evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/README.md) |
 
-| UNIT-HOST-34 | OPEN（Preview托管会话Web消费者） | Live sessions未识别management_binding；running的程序、Unit/主机输入、续期/复位/停止仍启用且走旧sessions路由，被409拒绝。frameOwner仅session/PID/firmware，Run切换不形成客户端fence；只读帧/串口/状态仍可用 | 先标识托管并禁用未适配mutation，再接公共checkpoint→Preview Run/generation/epoch、input/renew/close与Run帧；无Preview reset API时保持禁用。须真实Web同guest正反控关闭，API/脚本PASS不外推AIFlow/Web。[本块边界](evidence/2026-10-27-preview-run-control/README.md) |
+| UNIT-HOST-34 | FIXED（限定Web消费者） | 旧页面未识别management_binding，mutation被409拒绝，Run切换缺客户端fence；本块还复现首次无Token目录401后保存无法恢复、取消慢回执漏掉新意图、ACK丢失/销毁松键丢失 | 共享PreviewClient统一Run/epoch/generation、完整包保留编辑、输入/选定帧隔离和renew/close；reset禁用。独审及真实CoreS3 PIR/Relay完整链路通过，原失败和宿主负控保留；不转授其它Unit/主机、AIFlow或硬件。[限定验收](evidence/2026-10-27-preview-web-consumer/README.md) |
+| UNIT-HOST-35 | OPEN（窄屏默认3D构图） | 本块PIR/Relay的390/1024截图中，窄画布默认3D外缘裁切；768/1440完整，文字控件无水平溢出、Run选定屏幕像素和数据链通过。完整页截图中的sticky顶栏捕获位置另列限制 | 后续调整移动端camera-fit/装配边界并补四断点真实外壳截图，不把API、DOM或选定像素PASS当完整模型可视验收。[截图与独审](evidence/2026-10-27-preview-web-consumer/README.md) |
 
 QEMU/esp-emu 的模型缺口继续维护在 `runtime-model-gap-register.md`；既有
 Core2 legacy WDT、C6 Zigbee、ATECC608 等问题不在本页重复创建新任务。

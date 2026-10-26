@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>M5Stack Device Sessions</title>
+  <link rel="stylesheet" href="/platform/web/app.css">
+  <link rel="stylesheet" href="/platform/web/sessions.css?v=20261022e">
+  <link rel="stylesheet" href="/platform/web/three-device-viewer.css?v=20261022e">
+  <link rel="stylesheet" href="/platform/web/unit-panel.css?v=20261026a">
+  <link rel="stylesheet" href="/platform/web/program-panel.css?v=20261027p">
+  <link rel="stylesheet" href="/platform/web/m5-tokens.css">
+  <link rel="stylesheet" href="/platform/web/m5-brand.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/platform/web/vendor/three/three.module.js",
+        "three/addons/": "/platform/web/vendor/three/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="brandbar">
+    <div class="brand-mark"><img src="/platform/web/m5stack-logo.png" alt="M5Stack"></div>
+    <div>
+      <div class="brand-title">Device Sessions</div>
+      <div class="brand-sub">Live virtual-device leases · serial · framebuffer · state</div>
+    </div>
+    <div class="brand-actions">
+      <a class="btn ghost" href="/platform/web/index.html">设备目录</a>
+      <a class="btn ghost" href="/platform/web/firmware.html">WebBurner</a>
+      <button class="btn" id="refreshBtn" type="button">刷新</button>
+    </div>
+  </header>
+
+  <main class="sessions-layout">
+    <aside class="panel sessions-side">
+      <div class="section-title">Service</div>
+      <div id="serviceSummary" class="notice">Loading service status…</div>
+
+      <div class="section">
+        <div class="section-title">API token</div>
+        <input class="field" id="tokenInput" type="password" placeholder="仅局域网服务需要">
+        <button class="btn" id="saveTokenBtn" type="button">保存 Token</button>
+      </div>
+
+      <div class="section">
+        <div class="section-title">创建虚拟设备</div>
+        <label class="field-label" for="deviceSelect">Device</label>
+        <select class="field" id="deviceSelect"></select>
+        <label class="field-label" for="ttlInput">Lease TTL (seconds)</label>
+        <input class="field" id="ttlInput" type="number" min="30" value="600">
+        <label class="program-mode"><input id="programModeInput" type="checkbox" disabled aria-describedby="programModeHint">开启实时编程（UIFlow）</label>
+        <div class="hint" id="programModeHint">读取实时编程能力…</div>
+        <label class="program-mode"><input id="previewModeInput" type="checkbox" disabled aria-describedby="previewModeHint">持续预览（连续运行 / 取消）</label>
+        <div class="hint" id="previewModeHint">持续预览需要服务控制 Token；同一虚拟设备反复执行程序。</div>
+        <div class="hint" id="previewCreateStatus" role="status" aria-live="polite" hidden></div>
+        <div id="unitPicker"></div>
+        <button class="btn primary" id="createBtn" type="button" disabled>创建参考设备</button>
+        <div class="hint">Tab5 可用烧录、启动、串口、GDB 截图和触摸；外设仍是 partial。</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">显示说明</div>
+        <div class="hint">通用固件与 UIFlow 功能测试都应在本服务创建可见会话。M5Burner 待审固件审查才进入独立审查工作台。已建模主机预览使用对应 3D 外壳；`running` 不代表应用已完成首帧。Unit 在创建会话时按真实总线配置连接。</div>
+        <a class="doc-link" href="/api/v1/openapi.yaml" target="_blank" rel="noreferrer">打开 OpenAPI</a>
+        <a class="doc-link" id="reviewDashboardLink" href="#" target="_blank" rel="noreferrer">打开 M5Burner 审查工作台</a>
+      </div>
+    </aside>
+
+    <section class="sessions-main">
+      <div id="errorBanner" class="notice danger" hidden></div>
+      <div class="sessions-head">
+        <div>
+          <div class="stage-title">Live sessions</div>
+          <div class="stage-sub" id="sessionSub">等待服务连接…</div>
+        </div>
+        <div class="sessions-head-actions">
+          <button class="btn ghost" id="historyBtn" type="button">显示全部历史</button>
+          <button class="btn ghost" id="clearHistoryBtn" type="button">清理历史</button>
+          <span class="status-chip" id="capacityChip">loading</span>
+        </div>
+      </div>
+      <div id="sessionList" class="session-list">
+        <div class="panel empty-state">还没有虚拟设备会话。</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="m5-page-footer"><div class="m5-page-footer__inner"><span>M5 AI OPERATIONS</span><span>VIRTUAL DEVICE LEASES</span><span>© 2026 M5Stack</span></div></footer>
+
+  <script type="module" src="/platform/web/sessions.js?v=20261027p"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "validation": "HOST_ONLY_NOT_GUEST",
+  "reviewed_at": "2026-10-26T18:15:05.014986+00:00",
+  "source_sha256": {
+    "platform/web/unit-panel.js": "7049d4f5ccbd45fc14e44af31e2c4b32ec1f3bcbefb63dcc33ec2aab114c7c78",
+    "platform/web/preview-client.js": "dc16770cc67dcdb6fd8612adf1dcad3b9e091935952539d81bc7150f2062e2a7",
+    "platform/tests/test_preview_unit_panel.mjs": "3a8b2830559cad227fb04d789bd60735bbf085fc2fe3c6e3f7ffe31b95062c4a"
+  },
+  "browser_checks_independently_run": 23,
+  "closed_findings": [
+    {
+      "priority": "P2",
+      "title": "Shared client disposed before queued necessary release could start",
+      "baseline": "destroy-output/independent-destroy-observation.json",
+      "baseline_observed": {
+        "inputs": [
+          true
+        ],
+        "pressed": true
+      },
+      "fixed": "destroy-fixed-output/independent-destroy-observation.json",
+      "fixed_observed": {
+        "inputs": [
+          true,
+          false
+        ],
+        "pressed": false
+      },
+      "root_integration": "SessionVisual.destroy now races same-Run host/Unit queue drains against 2 seconds before shared-client dispose; static independently read"
+    }
+  ],
+  "reviewed": [
+    "exact same-Run parked necessary release, no ordinary input replay",
+    "fresh bracketed Unit values before one false correction",
+    "already-applied false confirms without replay",
+    "uncertain correction is never replayed in a loop",
+    "new Run/binding/terminal/dispose cannot retarget parked release",
+    "confirmed DOWN permits synchronous captured keepalive false on pagehide",
+    "pending DOWN queue retains order, ordinary queues stop after dispose",
+    "cached dispose Promise drains without owning shared client lifecycle",
+    "native local HTTP pagehide observes true then false for exact original Run"
+  ],
+  "unresolved_unit_panel_findings": [],
+  "limits": [
+    "No guest, firmware, physical Unit or live service was run by this reviewer.",
+    "Root lifecycle drain is bounded best effort for slow in-flight network operations; this host fixture does not prove arbitrary unload/network failure delivery."
+  ]
+}

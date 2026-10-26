@@ -1,0 +1,4833 @@
+openapi: 3.1.0
+info:
+  title: M5Stack Device Service API
+  version: 1.43.0
+  description: >
+    Leased, on-demand virtual M5Stack device service. QEMU unified sessions
+    keep board and radio evidence in one guest; separate esp-emu network/BLE
+    sessions remain available for diagnostics. Every session uses an isolated
+    firmware copy. The local worker persists heartbeat, lease, drain and
+    restart-classification state under an exclusive state-directory lock. A
+    persistent directory records remote-worker identity, generation,
+    heartbeat, capabilities and bounded result metadata. A separate durable
+    job queue stores idempotent requests, capability requirements, worker
+    leases, retries and terminal results. It is a pull-based queue and
+    supervisor, not an executor or active-process re-attach mechanism.
+    Re-claimed jobs receive a new lease ID; heartbeat or result requests from
+    a superseded lease are rejected with 409 job_lease_mismatch. WorkerAgent
+    treats ownership loss as a local fence, stops its worker-local runtime
+    session, and does not report the stale terminal result. This does not
+    prove termination of a disconnected remote process or physical side
+    effects.
+    The worker agent retries transient control-plane failures, re-registers
+    idempotently after a control-plane restart and reports the original lease
+    while the worker-local runtime remains active.
+    A local running QEMU process can be re-attached after PID start-time,
+    session QMP ownership and query-status checks; this restores QEMU/QMP
+    control. For trusted-host unified sessions, the service also recreates the
+    in-process HTTP fixture and adopts a surviving BLE peer only after exact
+    PID, start-time and command ownership checks. Namespace-managed, Tab5 and
+    cross-host companions are not implied.
+    The service can be exposed over HTTPS with verified server certificates
+    and optional required client certificates (mTLS); worker HMAC remains a
+    separate application authentication layer.
+    CardputerZero is outside this API version. Tab5 is available through
+    esp-emu with partial peripheral status.
+servers:
+  - url: http://127.0.0.1:8787/api/v1
+  - url: https://{host}/api/v1
+    variables:
+      host:
+        default: device-service.example
+        description: TLS-enabled Device Service host.
+security:
+  - bearerAuth: []
+paths:
+  /previews:
+    post:
+      summary: Allocate a stable same-guest UIFlow Preview
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Persists allocation intent before creating a visible managed session. TTL 30–3600 seconds. Creation retries do not allocate a second guest.
+      responses:
+        '202':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preview'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewCreateRequest'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[!-~]+$
+        description: One header only. Same scoped key and request returns the original receipt, even after state changes; different content returns 409.
+    get:
+      summary: List retained Previews
+      description: 'Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. '
+      responses:
+        '200':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - previews
+                - limits
+                properties:
+                  previews:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Preview'
+                  limits:
+                    $ref: '#/components/schemas/PreviewLimits'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+  /previews/{preview_id}:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    get:
+      summary: Poll a Preview
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. The current generation is required for the next Run submission.
+      responses:
+        '200':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preview'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+  /previews/{preview_id}/runs:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    post:
+      summary: Queue an immutable checkpoint Run
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Persists reserved execution identity before UART transfer. One UART owner and latest pending intent per Preview. Queued runs may be superseded; cancellation during transmission cannot guarantee no transient START. Known host package errors do not interrupt the old Run.
+      responses:
+        '202':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewRun'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewRunRequest'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[!-~]+$
+        description: One header only. Same scoped key and request returns the original receipt, even after state changes; different content returns 409.
+  /previews/{preview_id}/runs/{run_id}:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    - name: run_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    get:
+      summary: Poll a Run
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. START is not application readiness. Cancelling remains unconfirmed until a fresh raw prompt is observed; no automatic replay of unknown execution.
+      responses:
+        '200':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewRun'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+  /previews/{preview_id}/runs/{run_id}/cancel:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    - name: run_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    post:
+      summary: Request cancellation without stopping the VM
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Untouched queued work needs no interrupt. Otherwise wait for interrupt_ack=confirmed. Explicit retry may request a fresh prompt; native modules, IRQ, timers and threads are not fully reset.
+      responses:
+        '202':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewRun'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewEpochRequest'
+  /previews/{preview_id}/renew:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    post:
+      summary: Renew Preview and managed session lease
+      description: 'Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. '
+      responses:
+        '200':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preview'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewRenewRequest'
+  /previews/{preview_id}/close:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    post:
+      summary: Capture evidence and stop the managed guest
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Drains input and captures before-close.zip before stop(purge=0). Evidence/release failures remain explicit; cleanup still stops the VM, releases mutable Flash and preserves history. Poll for closed.
+      responses:
+        '202':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preview'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewEpochRequest'
+  /previews/{preview_id}/input:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    post:
+      summary: Apply host or Unit input to the expected running Run
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. A permit drains before switching programs; momentary inputs are released before replacement. If a transition begins while the operation is in flight, 409 may indicate effect_possible=true. Input and framebuffer are separate samples.
+      responses:
+        '200':
+          description: Current record; asynchronous receipts require polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewInputReceipt'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+        '410':
+          $ref: '#/components/responses/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewInputRequest'
+  /previews/{preview_id}/runs/{run_id}/frame.png:
+    parameters:
+    - name: preview_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    - name: run_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{32}$
+    get:
+      summary: Capture a frame fenced to Run identity
+      description: Requires a configured control Bearer token; otherwise 503. The verified shared principal is local-control, including token rotation; no tenant isolation or body owner is accepted. Checks execution/revision before and after capture. A switch during capture returns 409; a historical Run without a retained sample returns 410. ETag includes Preview, Run, revision and PNG hash.
+      responses:
+        '200':
+          description: PNG with X-Preview-ID, X-Run-ID, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-SHA256 and ETag.
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          $ref: '#/components/responses/Error'
+        '413':
+          $ref: '#/components/responses/Error'
+        '429':
+          $ref: '#/components/responses/Error'
+        '500':
+          $ref: '#/components/responses/Error'
+        '503':
+          $ref: '#/components/responses/Error'
+        '304':
+          description: Matching ETag after the same current-Run fence.
+        '410':
+          $ref: '#/components/responses/Error'
+      parameters:
+      - name: max_age_ms
+        in: query
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 1000
+          default: 0
+  /program-revisions:
+    post:
+      summary: Store an immutable complete UIFlow package checkpoint without executing it
+      description: >
+        Requires explicit source_kind=uiflow2-package, entrypoint=main.py and
+        the complete files mapping. Uses the existing package canonical hash
+        and independent package quota. Equivalent UTF-8/base64 bytes retain the
+        same revision_id and original created_at, including duplicate POSTs.
+        The HTTP JSON body is limited to 2 MiB. Structural bytecode checks do
+        not establish compatibility with a particular guest. No firmware or
+        session is created and no code is host-executed. Retention GC is not
+        implemented; the returned package quota is independent of the source
+        revision quota. This uses the service's existing authorization scope,
+        without tenant isolation or caller-provided owner identity.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgramRevisionCreateRequest"
+      responses:
+        "201":
+          description: Immutable package metadata and limits; duplicate content returns the original metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramRevisionEnvelope"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "429":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+  /program-revisions/{revision_id}:
+    get:
+      summary: Read a stored complete package checkpoint's metadata and limits
+      parameters:
+        - name: revision_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{64}$"
+      responses:
+        "200":
+          description: Verified immutable metadata; code and resources are not executed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramRevisionEnvelope"
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+  /program-revisions/{revision_id}/files:
+    get:
+      summary: Read the verified complete immutable package without executing it
+      description: >
+        Returns every file as canonical base64, including MPY dependencies and
+        binary resources. The decoded package is bounded to 1 MiB, 64 files and
+        256 KiB per file. Preserve all unchanged files when saving a new revision.
+      parameters:
+        - name: revision_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{64}$"
+      responses:
+        "200":
+          description: Verified complete bytes, metadata and existing package limits
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramRevisionFilesEnvelope"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/program:
+    get:
+      summary: Observe the latest same-guest MicroPython execution
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Latest execution identity and observed state; null program before first submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramStatus"
+        "404":
+          $ref: "#/components/responses/Error"
+    post:
+      summary: Interrupt and run source in the existing UIFlow2 guest without flashing or resetting
+      description: >
+        Requires a running session created with program_transport=uart-repl
+        and a guest UART REPL route installed at boot. Accepts either single-file
+        source (65536 UTF-8 bytes), a stored package revision_id reference, or
+        a complete files snapshot with main.py,
+        Python modules, bytecode-only .mpy dependencies and resources. Packages
+        are written and SHA/size-verified through the real guest filesystem before
+        activation; main.py compiles before START. The HTTP JSON limit is 2 MiB;
+        package decoded content is limited to 1 MiB/64 files/256 KiB per file.
+        expected_execution_id
+        must equal the latest execution ID, or null for the first submission.
+        The console has one transfer owner; conflicting submissions return 409.
+        Waits for bounded guest acknowledgement, not arbitrary application
+        readiness. Each attempt retains an immutable source revision and execution
+        record. Interrupt-only cleanup does not clear native modules, timers,
+        callbacks or threads. No automatic reset, reflash or guest replacement
+        occurs on failure. The same firmware hash and guest process remain bound
+        to the session. This trusted-local interface does not add tenant isolation.
+        Package directories are limited to 64 per guest, including failed
+        staging directories; quota exhaustion never silently recreates a guest.
+        Native .mpy emitters and main.mpy entrypoints are not admitted.
+        A revision_id request is mutually exclusive with source, files,
+        source_kind and entrypoint. It reads and verifies the stored package
+        directly without creating another revision; unknown references and
+        old python-only IDs return 404. The acknowledgement remains synchronous,
+        and this does not create a Preview/Run coordinator or latest-wins queue.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunProgramRequest"
+      responses:
+        "200":
+          description: Guest execution marker observed; program state can be running, completed or failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramStatus"
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "429":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+        "504":
+          $ref: "#/components/responses/Error"
+  /units:
+    get:
+      summary: List Unit protocols, runtime support and confirmed host wiring
+      parameters:
+        - name: device_id
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: >-
+            Unit inventory. Runtime profiles own current status and admission;
+            model_status/blocker are compatibility aliases. research_snapshot
+            preserves historical protocol research, not current capability.
+            Host admission does not inherit another host's validation.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          $ref: "#/components/responses/Error"
+  /units/{unit_id}:
+    get:
+      summary: Describe one Unit and its explicit runtime boundary
+      parameters:
+        - name: unit_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Unit protocol and runtime contract
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/units:
+    get:
+      summary: Read Unit properties from the attached guest controllers
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Live QOM values or explicitly marked persisted terminal state, with session-frozen definitions, contract_hashes and contract_status. Unrecorded or invalid legacy contracts retain old values but disable writes; individual read failures remain unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "404":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/unit-input:
+    post:
+      summary: Change an attached Unit physical input through QOM
+      description: >
+        Accepting an input is not proof that firmware consumed it. Output-only
+        fields are rejected. A frozen profile may limit max_live_input_fields;
+        Scroll accepts one live field per request and rejects mixed inputs with
+        400 before QOM writes. Initial attachment values are separate. Multi-field
+        QOM writes are not a general atomic transaction or rollback guarantee.
+        Controller refusal returns 409 unit_input_rejected;
+        unrecorded or invalid contracts return 409 unit_contract_unavailable.
+        Transport failure and timeout remain 503 and 504.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [id, values]
+              properties:
+                id:
+                  type: string
+                values:
+                  type: object
+                  additionalProperties: true
+      responses:
+        "200":
+          description: Controller state read back after the physical input update
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /health:
+    get:
+      summary: Service health and capacity
+      security: []
+      responses:
+        "200":
+          description: Service status
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /devices:
+    get:
+      summary: List virtual device profiles
+      parameters:
+        - name: include_unsupported
+          in: query
+          schema:
+            type: string
+            enum: ["0", "1"]
+            default: "1"
+      responses:
+        "200":
+          description: Device catalog
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceCatalog"
+  /devices/{device_id}:
+    get:
+      summary: Read one virtual device profile
+      parameters:
+        - $ref: "#/components/parameters/DeviceId"
+      responses:
+        "200":
+          description: Device profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+        "404":
+          $ref: "#/components/responses/Error"
+  /capacity:
+    get:
+      summary: Read active lease capacity
+      responses:
+        "200":
+          description: Capacity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Capacity"
+  /worker:
+    get:
+      summary: Read the local worker lifecycle state
+      responses:
+        "200":
+          description: Worker identity, generation, heartbeat and lease state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Worker"
+        "503":
+          $ref: "#/components/responses/Error"
+  /worker/drain:
+    post:
+      summary: Stop admitting new leases and drain active leases
+      responses:
+        "200":
+          description: Worker and currently active session leases
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [worker, active_sessions]
+                properties:
+                  worker:
+                    $ref: "#/components/schemas/Worker"
+                  active_sessions:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+        "409":
+          $ref: "#/components/responses/Error"
+  /worker/resume:
+    post:
+      summary: Resume lease admission for a drained worker
+      responses:
+        "200":
+          description: Worker resumed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [worker]
+                properties:
+                  worker:
+                    $ref: "#/components/schemas/Worker"
+        "409":
+          $ref: "#/components/responses/Error"
+  /workers:
+    get:
+      summary: List registered remote simulator workers
+      responses:
+        "200":
+          description: Persistent remote-worker directory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RemoteWorkerList"
+    post:
+      summary: Register a remote simulator worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoteWorkerRegistration"
+      responses:
+        "201":
+          description: Worker registered or an idempotent retry was accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [worker]
+                properties:
+                  worker:
+                    $ref: "#/components/schemas/RemoteWorker"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+  /workers/{worker_id}/heartbeat:
+    post:
+      summary: Refresh a remote worker heartbeat
+      parameters:
+        - $ref: "#/components/parameters/WorkerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoteWorkerHeartbeat"
+      responses:
+        "200":
+          description: Updated remote-worker state
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [worker]
+                properties:
+                  worker:
+                    $ref: "#/components/schemas/RemoteWorker"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /workers/{worker_id}/drain:
+    post:
+      summary: Stop assigning new leases to a remote worker
+      parameters:
+        - $ref: "#/components/parameters/WorkerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoteWorkerIdentity"
+      responses:
+        "200":
+          description: Worker draining or drained
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [worker]
+                properties:
+                  worker:
+                    $ref: "#/components/schemas/RemoteWorker"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /workers/{worker_id}/stop:
+    post:
+      summary: Mark a remote worker stopped
+      parameters:
+        - $ref: "#/components/parameters/WorkerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoteWorkerIdentity"
+      responses:
+        "200":
+          description: Worker stopped
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [worker]
+                properties:
+                  worker:
+                    $ref: "#/components/schemas/RemoteWorker"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /workers/{worker_id}/results:
+    post:
+      summary: Append bounded result metadata for a remote worker
+      parameters:
+        - $ref: "#/components/parameters/WorkerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RemoteWorkerResultRequest"
+      responses:
+        "201":
+          description: Recorded result metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [result]
+                properties:
+                  result:
+                    $ref: "#/components/schemas/RemoteWorkerResult"
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /jobs:
+    get:
+      summary: List durable remote-worker jobs
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [queued, leased, completed, failed, cancelled]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 100
+      responses:
+        "200":
+          description: Persistent job queue snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkerJobList"
+        "400":
+          $ref: "#/components/responses/Error"
+    post:
+      summary: Submit an idempotent durable job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkerJobSubmit"
+      responses:
+        "201":
+          description: Job queued or an idempotent replay returned
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job]
+                properties:
+                  job:
+                    $ref: "#/components/schemas/WorkerJob"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /jobs/claim:
+    post:
+      summary: Claim the oldest matching queued job for a ready worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkerJobClaim"
+      responses:
+        "200":
+          description: Claimed job, or null when no matching job is queued
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job]
+                properties:
+                  job:
+                    oneOf:
+                      - $ref: "#/components/schemas/WorkerJob"
+                      - type: "null"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /jobs/{job_id}:
+    get:
+      summary: Read one durable job
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      responses:
+        "200":
+          description: Job state
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job]
+                properties:
+                  job:
+                    $ref: "#/components/schemas/WorkerJob"
+        "404":
+          $ref: "#/components/responses/Error"
+  /jobs/{job_id}/heartbeat:
+    post:
+      summary: Extend a job lease owned by a specific worker generation
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkerJobLeaseRequest"
+      responses:
+        "200":
+          description: Renewed job lease
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job]
+                properties:
+                  job:
+                    $ref: "#/components/schemas/WorkerJob"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /jobs/{job_id}/result:
+    post:
+      summary: Record a terminal result and optional evidence hash
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkerJobResultRequest"
+      responses:
+        "200":
+          description: Completed or failed job
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job]
+                properties:
+                  job:
+                    $ref: "#/components/schemas/WorkerJob"
+        "400":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /jobs/{job_id}/cancel:
+    post:
+      summary: Cancel a queued or leased job
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  maxLength: 256
+      responses:
+        "200":
+          description: Cancelled job
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job]
+                properties:
+                  job:
+                    $ref: "#/components/schemas/WorkerJob"
+        "404":
+          $ref: "#/components/responses/Error"
+  /storage:
+    get:
+      summary: Read retained-session, cache and disk usage
+      responses:
+        "200":
+          description: Storage inventory and active retention policy
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /storage/prune:
+    post:
+      summary: Apply retention and optionally garbage-collect unreferenced caches
+      parameters:
+        - name: include_cache
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: Prune result
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /artifact-uploads:
+    post:
+      summary: Start a resumable streaming artifact upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArtifactUploadCreate"
+      responses:
+        "202":
+          description: Upload session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactUpload"
+        "400":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "507":
+          $ref: "#/components/responses/Error"
+  /artifact-uploads/{upload_id}:
+    get:
+      summary: Read streaming upload state
+      parameters:
+        - $ref: "#/components/parameters/UploadId"
+      responses:
+        "200":
+          description: Upload state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactUpload"
+        "404":
+          $ref: "#/components/responses/Error"
+    delete:
+      summary: Abort a streaming upload
+      parameters:
+        - $ref: "#/components/parameters/UploadId"
+      responses:
+        "200":
+          description: Upload aborted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactUploadAbort"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /artifact-uploads/{upload_id}/chunks:
+    post:
+      summary: Append one contiguous artifact chunk
+      parameters:
+        - $ref: "#/components/parameters/UploadId"
+        - name: X-Chunk-Offset
+          in: header
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+        - name: X-Chunk-SHA256
+          in: header
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{64}$"
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "202":
+          description: Chunk accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactUploadProgress"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "507":
+          $ref: "#/components/responses/Error"
+  /artifact-uploads/{upload_id}/complete:
+    post:
+      summary: Verify and commit a streaming artifact
+      parameters:
+        - $ref: "#/components/parameters/UploadId"
+      responses:
+        "201":
+          description: Artifact committed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Artifact"
+        "409":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+  /artifacts:
+    get:
+      summary: List uploaded artifacts
+      responses:
+        "200":
+          description: Artifact list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  artifacts:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Artifact"
+    post:
+      summary: Upload a content-addressed binary artifact
+      parameters:
+        - name: X-Artifact-Name
+          in: header
+          schema:
+            type: string
+        - name: X-Artifact-Type
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "201":
+          description: Artifact metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Artifact"
+        "413":
+          $ref: "#/components/responses/Error"
+        "507":
+          $ref: "#/components/responses/Error"
+  /artifacts/{artifact_id}:
+    get:
+      summary: Read artifact metadata
+      parameters:
+        - name: artifact_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[0-9a-f]{64}$"
+      responses:
+        "200":
+          description: Artifact metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Artifact"
+        "404":
+          $ref: "#/components/responses/Error"
+    delete:
+      summary: Delete an artifact
+      parameters:
+        - name: artifact_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Artifact deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /firmware/import:
+    post:
+      summary: Normalize a firmware package and create a validated firmware
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FirmwareImportRequest"
+      responses:
+        "201":
+          description: Normalized firmware metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Firmware"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "507":
+          $ref: "#/components/responses/Error"
+  /firmware:
+    post:
+      summary: Compose and validate a flash-sized firmware image
+      description: >
+        The entire serialized HTTP JSON body is limited to 1 MiB (1048576
+        bytes), including keys, paths, syntax, whitespace and escaping.
+        Oversized bodies return 413 body_too_large. For kind=uiflow, the
+        separate decoded-source UTF-8 byte/file limits also apply.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/MergedFirmwareRequest"
+                - $ref: "#/components/schemas/SegmentedFirmwareRequest"
+                - $ref: "#/components/schemas/ManifestFirmwareRequest"
+                - $ref: "#/components/schemas/UIFlowFirmwareRequest"
+      responses:
+        "201":
+          description: Firmware metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Firmware"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+        "507":
+          $ref: "#/components/responses/Error"
+  /firmware/uiflow:
+    post:
+      summary: Compose Python sources into a cached UIFlow2 reference image
+      description: >
+        Convenience form of POST /firmware with kind=uiflow. This endpoint
+        rejects a kind field and unknown fields with 400 invalid_uiflow_request.
+        Supports only the four admitted, cached S3 references. Mounts and
+        preserves the real LittleFS VFS, verifies persisted bytes and never
+        executes caller Python on the host. COMPOSED_NOT_EXECUTED is packaging
+        evidence; run the returned firmware in a visible session for runtime
+        validation. GET /artifacts/{artifact_id} returns metadata only; the
+        caller-source body remains in the service CAS. The entire serialized
+        HTTP JSON body is independently limited to 1 MiB (1048576 bytes),
+        including keys, paths, whitespace and escaping; excess returns 413
+        body_too_large before composition, even if decoded sources fit the
+        helper source-byte limit. Both source routes keep this HTTP limit.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UIFlowSourceRequest"
+      responses:
+        "201":
+          description: Derived image metadata with source provenance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Firmware"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+        "507":
+          $ref: "#/components/responses/Error"
+  /firmware/{firmware_id}:
+    get:
+      summary: Read firmware metadata
+      parameters:
+        - name: firmware_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Firmware metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Firmware"
+        "404":
+          $ref: "#/components/responses/Error"
+  /firmware/analyze:
+    post:
+      summary: Analyze an existing firmware image
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firmware_id]
+              properties:
+                firmware_id:
+                  type: string
+      responses:
+        "200":
+          description: Static firmware analysis
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /firmware/{firmware_id}/analysis:
+    get:
+      summary: Read firmware analysis
+      parameters:
+        - name: firmware_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Static firmware analysis
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions:
+    get:
+      summary: List leases and retained session history
+      parameters:
+        - name: include_stopped
+          in: query
+          description: Set to 0 to return active leases only. The default includes stopped and failed sessions while they remain retained.
+          schema:
+            type: string
+            enum: ["0", "1"]
+            default: "1"
+      responses:
+        "200":
+          description: Session list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Session"
+    post:
+      summary: Create an asynchronous device lease
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSessionRequest"
+      responses:
+        "202":
+          description: Session accepted for provisioning
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "507":
+          $ref: "#/components/responses/Error"
+        "429":
+          $ref: "#/components/responses/Error"
+    delete:
+      summary: Clear stopped or failed session history
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+            enum: [stopped, failed]
+        - name: purge
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: retain_flash
+          in: query
+          description: Keep full virtual flash files while retaining stopped/failed history.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Clear result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cleared:
+                    type: integer
+                  orphaned_cleared:
+                    type: integer
+                  purged:
+                    type: boolean
+  /sessions/{session_id}:
+    get:
+      summary: Read session state
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Session state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "404":
+          $ref: "#/components/responses/Error"
+    delete:
+      summary: Stop a session
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: purge
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: retain_flash
+          in: query
+          description: Retain the full mutable virtual flash after stop. It is released by default.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Stopped session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+  /sessions/{session_id}/events:
+    get:
+      summary: Read session lifecycle events
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Session events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session_id:
+                    type: string
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+  /sessions/{session_id}/network:
+    get:
+      summary: Read machine-readable radio evidence for one session
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: >
+            WiFi/BLE slice of the current QEMU lease, or RUNNING before
+            completion. Unified profiles also keep frame, input, device-state
+            and audio evidence in the same session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkEvidence"
+        "409":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/network-fault:
+    post:
+      summary: Remove or restore a QEMU link/radio for reconnect tests
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action:
+                  type: string
+                  enum: [down, up]
+                  description: Stops or restores the selected link/radio target.
+                target:
+                  type: string
+                  enum: [link, radio]
+                  default: link
+                  description: >
+                    link uses QMP set_link on wifi0; radio toggles the QEMU
+                    WiFi model's radio-enabled QOM property so beacons and
+                    management replies stop.
+      responses:
+        "200":
+          description: Link state changed
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "409":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/device-state:
+    get:
+      summary: Read normalized device runtime state
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Live or persisted device component state
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  session_id:
+                    type: string
+                  device_id:
+                    type: string
+                  state:
+                    type: string
+                  supported:
+                    type: boolean
+                  available:
+                    type: boolean
+                  source:
+                    type: string
+                    enum: [live, persisted]
+                  captured_at:
+                    type: string
+                    format: date-time
+                  components:
+                    type: object
+                    additionalProperties: true
+                  errors:
+                    type: object
+                    additionalProperties: true
+  /sessions/{session_id}/evidence:
+    get:
+      summary: Download an evidence ZIP
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: include
+          in: query
+          schema:
+            type: string
+            default: manifest,serial,frames,logs,qom
+      responses:
+        "200":
+          description: Evidence ZIP
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+  /sessions/{session_id}/qom/list:
+    get:
+      summary: List QOM properties at a path
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: path
+          in: query
+          schema:
+            type: string
+            default: /machine
+      responses:
+        "200":
+          description: QOM property list
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/qom-snapshot:
+    post:
+      summary: Store a recursive QOM snapshot
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+                  default: /machine
+                depth:
+                  type: integer
+                  default: 2
+                max_nodes:
+                  type: integer
+                  default: 500
+      responses:
+        "200":
+          description: QOM snapshot
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/qom/diff:
+    get:
+      summary: Diff two stored QOM snapshots
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: before
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: after
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: QOM snapshot diff
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/flash:
+    get:
+      summary: Read current virtual flash metadata or bytes
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [sha256, bin]
+            default: sha256
+      responses:
+        "200":
+          description: Flash metadata or binary image
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /sessions/{session_id}/flash-snapshot:
+    post:
+      summary: Store a virtual flash snapshot
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Flash snapshot metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/flash/diff:
+    get:
+      summary: Diff two virtual flash snapshots
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: before
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: after
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Flash snapshot diff
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/wait:
+    post:
+      summary: Wait for running state or a serial marker
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ready_marker:
+                  type: string
+                timeout_seconds:
+                  type: number
+                  default: 30
+                wait_for_completion:
+                  type: boolean
+                  default: false
+                  description: Wait until a one-shot network session stops or fails.
+                ready:
+                  $ref: "#/components/schemas/ReadyConditions"
+      responses:
+        "200":
+          description: Session is ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "408":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/serial:
+    get:
+      summary: Read serial output incrementally
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 262144
+            default: 65536
+      responses:
+        "200":
+          description: Serial chunk
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerialChunk"
+  /sessions/{session_id}/logs:
+    get:
+      summary: Read serial plus runtime log tails
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Log chunks
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SerialChunk"
+                  - type: object
+                    properties:
+                      runtime:
+                        $ref: "#/components/schemas/RuntimeName"
+                      stdout:
+                        type: string
+                      stderr:
+                        type: string
+                      qemu_stdout:
+                        type: string
+                        deprecated: true
+                      qemu_stderr:
+                        type: string
+                        deprecated: true
+  /sessions/{session_id}/frame.png:
+    get:
+      summary: Capture the current framebuffer
+      description: >
+        By default, every request captures a fresh frame (or reads retained history
+        after stop). QEMU readers may explicitly opt into a per-session shared
+        sample with max_age_ms=1..1000. Its age bounds reuse since source capture,
+        not guest-to-browser latency. It is demand-driven, with no background
+        stream. Reset, stop, process identity and program replacement invalidate
+        reuse. Captured program context is not application readiness or an atomic
+        snapshot with Unit/serial state. Tab5/network do not admit shared capture;
+        omit max_age_ms to retain their existing capture behavior.
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: max_age_ms
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1000
+            default: 0
+          description: Zero or omitted always uses the existing fresh capture path.
+        - name: If-None-Match
+          in: header
+          schema:
+            type: string
+          description: Only positive max_age_ms requests use conditional image reuse.
+      responses:
+        "200":
+          description: PNG framebuffer
+          headers:
+            X-Frame-Width:
+              schema:
+                type: integer
+            X-Frame-Height:
+              schema:
+                type: integer
+            X-Frame-SHA256:
+              schema:
+                type: string
+            ETag:
+              description: Quoted PNG SHA256; present on opt-in shared responses.
+              schema:
+                type: string
+            X-Frame-Captured-At:
+              description: Source capture time, preserved on cache hits/history; absent for unknown legacy history.
+              schema:
+                type: string
+                format: date-time
+            X-Frame-Capture-Seq:
+              description: Process-local preview sample sequence, not guest draws or a sequence of all default/fresh captures. History may be republished with a new sequence.
+              schema:
+                type: integer
+            X-Frame-Source:
+              schema:
+                type: string
+                enum: [live, persisted]
+            X-Frame-Execution-ID:
+              description: Execution current at capture, when recorded; not proof that its application has drawn.
+              schema:
+                type: string
+            X-Frame-Revision-ID:
+              schema:
+                type: string
+            X-Frame-Program-State:
+              schema:
+                type: string
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        "304":
+          description: >
+            Opt-in shared image matches If-None-Match. No body; returns the same
+            frame metadata headers as 200. Even identical pixels under a new
+            execution return that capture's new program context.
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /sessions/{session_id}/input:
+    post:
+      summary: Inject key or pointer input
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InputRequest"
+      responses:
+        "200":
+          description: Input accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/qom:
+    post:
+      summary: Set a QOM property
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [path, property]
+              properties:
+                path:
+                  type: string
+                  example: /machine/bmi270
+                property:
+                  type: string
+                  example: accel-x
+                value: {}
+      responses:
+        "200":
+          description: QOM result
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+    get:
+      summary: Read a QOM property
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: property
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: QOM value
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/reset:
+    post:
+      summary: Reset the guest
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Reset accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /sessions/{session_id}/renew:
+    post:
+      summary: Extend a lease
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ttl_seconds:
+                  type: integer
+                  minimum: 30
+      responses:
+        "200":
+          description: Renewed session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: >
+        When an API token is configured, worker-only mutation endpoints also
+        require X-M5-Worker-Id, X-M5-Worker-Instance,
+        X-M5-Worker-Generation, X-M5-Worker-Timestamp, X-M5-Worker-Nonce and
+        X-M5-Worker-Signature. The signature is HMAC-SHA256 over method, path,
+        timestamp, nonce and body SHA256 using a key derived from the master
+        token and worker identity/generation.
+      x-worker-auth:
+        timestamp_window_seconds: 90
+        nonce_replay_cache: true
+        protected_operations:
+          - POST /jobs/claim
+          - POST /jobs/{job_id}/heartbeat
+          - POST /jobs/{job_id}/result
+          - POST /workers/{worker_id}/heartbeat
+          - POST /workers/{worker_id}/drain
+          - POST /workers/{worker_id}/stop
+          - POST /workers/{worker_id}/results
+  parameters:
+    DeviceId:
+      name: device_id
+      in: path
+      required: true
+      schema:
+        type: string
+    WorkerId:
+      name: worker_id
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
+    JobId:
+      name: job_id
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
+    SessionId:
+      name: session_id
+      in: path
+      required: true
+      schema:
+        type: string
+    UploadId:
+      name: upload_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "^[0-9a-f]{32}$"
+  responses:
+    Error:
+      description: Service error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    PreviewLimits:
+      type: object
+      additionalProperties: false
+      required:
+      - max_previews
+      - max_runs_per_preview
+      - retention_mode
+      - gc_enabled
+      properties:
+        max_previews:
+          const: 128
+        max_runs_per_preview:
+          const: 256
+        retention_mode:
+          const: retention-only
+        gc_enabled:
+          const: false
+    PreviewCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - device_id
+      properties:
+        device_id:
+          type: string
+          enum:
+          - cores3
+          - atoms3r
+          - sticks3
+          - stopwatch
+        runtime:
+          type: string
+          enum:
+          - qemu
+          default: qemu
+        units:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/UnitAttachment'
+          maxItems: 16
+        ttl_seconds:
+          type: integer
+          minimum: 30
+          maximum: 3600
+          default: 300
+    PreviewEpochRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_owner_epoch
+      properties:
+        expected_owner_epoch:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+    PreviewRenewRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_owner_epoch
+      - ttl_seconds
+      properties:
+        expected_owner_epoch:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        ttl_seconds:
+          type: integer
+          minimum: 30
+          maximum: 3600
+    PreviewRunRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - revision_id
+      - expected_generation
+      - expected_owner_epoch
+      properties:
+        expected_owner_epoch:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        expected_generation:
+          type: integer
+          minimum: 0
+        revision_id:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        client_generation:
+          type: string
+          minLength: 1
+          maxLength: 256
+          x-max-utf8-bytes: 256
+          description: At most 256 UTF-8 bytes; maxLength is only the character upper bound.
+        timeout_seconds:
+          type: number
+          minimum: 1
+          maximum: 120
+          default: 120
+    PreviewInputRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - expected_owner_epoch
+      - expected_run_id
+      properties:
+        expected_owner_epoch:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        expected_run_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        input:
+          $ref: '#/components/schemas/PreviewHostInput'
+        unit_input:
+          type: object
+          additionalProperties: false
+          required:
+          - id
+          - values
+          properties:
+            id:
+              type: string
+            values:
+              type: object
+      oneOf:
+      - required:
+        - input
+        not:
+          required:
+          - unit_input
+      - required:
+        - unit_input
+        not:
+          required:
+          - input
+    Preview:
+      type: object
+      required:
+      - preview_id
+      - owner_epoch
+      - generation
+      - state
+      - session_id
+      - expires_at
+      - allocation_state
+      - active_run_id
+      - desired_run_id
+      - transition_run_id
+      - capabilities
+      - limits
+      properties:
+        preview_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        owner:
+          const: local-control
+        owner_epoch:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        generation:
+          type: integer
+          minimum: 0
+        state:
+          enum:
+          - preparing
+          - ready
+          - closing
+          - closed
+          - failed
+          - unknown
+        allocation_state:
+          enum:
+          - pending
+          - creating
+          - bound
+          - unknown
+          - failed
+        session_id:
+          type:
+          - string
+          - 'null'
+        expires_at:
+          type: string
+          format: date-time
+        active_run_id:
+          type:
+          - string
+          - 'null'
+        desired_run_id:
+          type:
+          - string
+          - 'null'
+        transition_run_id:
+          type:
+          - string
+          - 'null'
+        capabilities:
+          type: object
+        limits:
+          $ref: '#/components/schemas/PreviewLimits'
+        error:
+          type:
+          - object
+          - 'null'
+        close_evidence:
+          type: object
+          description: Before-close evidence ZIP receipt under the service state directory, or an explicit unavailable error.
+    PreviewRun:
+      type: object
+      required:
+      - preview_id
+      - run_id
+      - execution_id
+      - revision_id
+      - generation
+      - state
+      - cancel_intent
+      - interrupt_ack
+      - application_ready
+      - cleanup_mode
+      properties:
+        preview_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        run_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        execution_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        revision_id:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        generation:
+          type: integer
+          minimum: 1
+        state:
+          enum:
+          - queued
+          - preparing
+          - starting
+          - running
+          - completed
+          - failed
+          - cancelling
+          - cancelled
+          - superseded
+          - interrupted
+          - unknown
+        cancel_intent:
+          type: boolean
+        interrupt_ack:
+          enum:
+          - unknown
+          - confirmed
+          - not-required
+        application_ready:
+          const: unknown
+        execution_mode:
+          const: same-guest-uart-repl
+        cleanup_mode:
+          const: interrupt-only
+        error:
+          type:
+          - object
+          - 'null'
+    PreviewInputReceipt:
+      type: object
+      required:
+      - preview_id
+      - run_id
+      - execution_id
+      - revision_id
+      - captured_at
+      - result
+      properties:
+        preview_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        run_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        execution_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        revision_id:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        captured_at:
+          type: string
+          format: date-time
+        result:
+          type: object
+    PreviewHostInput:
+      type: object
+      description: Canonical host command. Legacy-compatible coercions may also be accepted by the implementation; use the declared JSON types. Omitted coordinates default to zero.
+      required:
+      - kind
+      properties:
+        kind:
+          enum:
+          - key
+          - touch
+          - longpress
+          - drag
+        action:
+          type: string
+          pattern: ^(?:[tT][aA][pP]|[dD][oO][wW][nN]|[uU][pP])$
+          default: tap
+        key:
+          type: string
+          enum:
+          - '0'
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          - a
+          - ac_back
+          - ac_bookmarks
+          - ac_forward
+          - ac_home
+          - ac_refresh
+          - again
+          - alt
+          - alt_r
+          - apostrophe
+          - asterisk
+          - audiomute
+          - audionext
+          - audioplay
+          - audioprev
+          - audiostop
+          - b
+          - backslash
+          - backspace
+          - bracket_left
+          - bracket_right
+          - c
+          - calculator
+          - caps_lock
+          - comma
+          - compose
+          - computer
+          - copy
+          - ctrl
+          - ctrl_r
+          - cut
+          - d
+          - delete
+          - dot
+          - down
+          - e
+          - end
+          - equal
+          - esc
+          - f
+          - f1
+          - f10
+          - f11
+          - f12
+          - f13
+          - f14
+          - f15
+          - f16
+          - f17
+          - f18
+          - f19
+          - f2
+          - f20
+          - f21
+          - f22
+          - f23
+          - f24
+          - f3
+          - f4
+          - f5
+          - f6
+          - f7
+          - f8
+          - f9
+          - find
+          - front
+          - g
+          - grave_accent
+          - h
+          - help
+          - henkan
+          - hiragana
+          - home
+          - i
+          - insert
+          - j
+          - k
+          - katakanahiragana
+          - kp_0
+          - kp_1
+          - kp_2
+          - kp_3
+          - kp_4
+          - kp_5
+          - kp_6
+          - kp_7
+          - kp_8
+          - kp_9
+          - kp_add
+          - kp_comma
+          - kp_decimal
+          - kp_divide
+          - kp_enter
+          - kp_equals
+          - kp_multiply
+          - kp_subtract
+          - l
+          - lang1
+          - lang2
+          - left
+          - less
+          - lf
+          - m
+          - mail
+          - mediaselect
+          - menu
+          - meta_l
+          - meta_r
+          - minus
+          - muhenkan
+          - n
+          - num_lock
+          - o
+          - open
+          - p
+          - paste
+          - pause
+          - pgdn
+          - pgup
+          - power
+          - print
+          - props
+          - q
+          - r
+          - ret
+          - right
+          - ro
+          - s
+          - scroll_lock
+          - semicolon
+          - shift
+          - shift_r
+          - slash
+          - sleep
+          - spc
+          - stop
+          - sysrq
+          - t
+          - tab
+          - u
+          - undo
+          - unmapped
+          - up
+          - v
+          - volumedown
+          - volumeup
+          - w
+          - wake
+          - x
+          - y
+          - yen
+          - z
+        settle_seconds:
+          type: number
+          minimum: 0
+          maximum: 5
+        hold_seconds:
+          type: number
+          minimum: 0
+          maximum: 5
+          default: 0.5
+        x:
+          type: integer
+          minimum: 0
+          description: Must lie within the selected device framebuffer.
+        y:
+          type: integer
+          minimum: 0
+          description: Must lie within the selected device framebuffer.
+        x1:
+          type: integer
+          minimum: 0
+          description: Must lie within the selected device framebuffer.
+        y1:
+          type: integer
+          minimum: 0
+          description: Must lie within the selected device framebuffer.
+        x2:
+          type: integer
+          minimum: 0
+          description: Must lie within the selected device framebuffer.
+        y2:
+          type: integer
+          minimum: 0
+          description: Must lie within the selected device framebuffer.
+      allOf:
+      - if:
+          properties:
+            kind:
+              const: key
+        then:
+          required:
+          - key
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+    RuntimeMemory:
+      type: object
+      additionalProperties: false
+      required:
+        - requested_psram_mib
+        - cli_requested_psram_mib
+        - effective_psram_mib
+        - effective_source
+        - policy
+        - claim
+        - physical_cache_psram_timing
+      properties:
+        requested_psram_mib:
+          type: [integer, "null"]
+        cli_requested_psram_mib:
+          type: [integer, "null"]
+        effective_psram_mib:
+          type: [integer, "null"]
+        effective_source:
+          type: string
+          example: validated-m5core2-qom
+        policy:
+          type: string
+          example: native-controller-machine-default-psram
+        claim:
+          type: string
+          const: qemu-memory-configuration-only
+        physical_cache_psram_timing:
+          type: string
+          const: NOT RUN
+    DeviceCatalog:
+      type: object
+      required: [service, api_version, network_enabled, devices]
+      properties:
+        service:
+          type: string
+        api_version:
+          type: string
+        network_enabled:
+          type: boolean
+        tab5_enabled:
+          type: boolean
+        devices:
+          type: array
+          items:
+            $ref: "#/components/schemas/Device"
+    Device:
+      type: object
+      additionalProperties: true
+      properties:
+        device_id:
+          type: string
+        name:
+          type: string
+        sku:
+          type: string
+        device_codes:
+          type: array
+          items:
+            type: string
+        supported:
+          type: boolean
+        creatable:
+          type: boolean
+        backend_ready:
+          type: boolean
+        missing_runtime_files:
+          type: array
+          items:
+            type: string
+        reference_available:
+          type: boolean
+        flash_size:
+          type: integer
+        display:
+          type: object
+          nullable: true
+        peripheral_status:
+          type: string
+        warnings:
+          type: array
+          items:
+            type: string
+        network_profiles:
+          type: array
+          items:
+            type: string
+            enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-coex, generic-observe]
+        network_console:
+          type: string
+          enum: [auto, uart0, usb-jtag]
+        network_status:
+          type: string
+          enum: [validated, unverified, board-init-blocked, not-supported]
+        firmware_families:
+          type: array
+          items:
+            type: string
+        program_modes:
+          type: array
+          items:
+            type: string
+            enum: [uiflow-live]
+        program_source_kinds:
+          type: array
+          items:
+            type: string
+            enum: [uiflow2-python, uiflow2-package]
+        program_features:
+          type: object
+          additionalProperties: false
+          description: >
+            Same-guest programming admission. Empty on unadmitted devices;
+            this does not grant arbitrary uploaded firmware a compatible REPL.
+            main_namespace describes the initial execution context, not a
+            replacement sys.modules.__main__ module. mpy dependencies use the
+            actual guest importer and require separate compatibility checks.
+          properties:
+            runtimes:
+              type: array
+              items:
+                type: string
+                enum: [qemu]
+            entrypoints:
+              type: array
+              items:
+                type: string
+                enum: [main.py]
+            mpy_dependencies:
+              type: string
+              enum: [bytecode-only]
+            mpy_entrypoint:
+              type: boolean
+            native_mpy:
+              type: boolean
+            main_namespace:
+              type: string
+              enum: [fresh-exec-globals]
+            cleanup_mode:
+              type: string
+              enum: [interrupt-only]
+        coverage:
+          type: object
+          additionalProperties: true
+        features:
+          type: object
+          additionalProperties: true
+    RuntimeName:
+      type: string
+      enum: [qemu, network, qemu-wifi, qemu-ble, qemu-unified]
+      description: >
+        Execution envelope for a session. qemu-unified is the canonical
+        one-guest board + radio runtime for *-unified profiles. qemu-ble is a
+        compatibility alias used by existing unified clients and by
+        radio-specific legacy profiles. qemu-wifi keeps the board and WiFi in
+        one guest without starting the external BLE peer. network is the
+        separate esp-emu diagnostic lane and cannot establish a whole-device
+        PASS by itself.
+    NetworkEvidence:
+      type: object
+      additionalProperties: true
+      required: [schema_version, kind, scope, status]
+      properties:
+        schema_version:
+          type: integer
+        kind:
+          type: string
+        scope:
+          type: string
+          example: simulation-only-not-hardware-validation
+        status:
+          type: string
+          enum: [RUNNING, PASS, PARTIAL, FAIL]
+        session_id:
+          type: string
+        device_id:
+          type: string
+        profile:
+          type: string
+        runtime:
+          type: object
+          additionalProperties: true
+          properties:
+            name:
+              type: string
+            guest_process_count:
+              type: integer
+              minimum: 1
+            memory:
+              $ref: "#/components/schemas/RuntimeMemory"
+            wifi_nic:
+              type: string
+            hci_transport:
+              type: string
+            ble_controller:
+              type: string
+            ble_peer:
+              type: string
+        checks:
+          type: object
+          additionalProperties:
+            type: boolean
+        policy:
+          type: object
+          additionalProperties: true
+          description: Effective isolation, egress and DNS policy.
+        packet_capture:
+          type: object
+          additionalProperties: true
+          description: >
+            PASS with a hashed pcap summary, CAPTURING while QEMU is running,
+            or NOT_RUN with a reason. DHCP summaries distinguish initial DORA,
+            renewal requests and correlated ACKs without retaining payloads.
+        isolation:
+          type: object
+          additionalProperties: true
+          description: >
+            Namespace, egress and cleanup state read from the sandbox evidence.
+            cleanup_completed becomes PASS only after QEMU reap and controlled
+            DNS/HTTP fixture closure.
+        dns_requests:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+          description: >
+            Bounded controlled-DNS decision log, including CNAME chains,
+            terminal names and exact/suffix rules.
+        http_fixture_requests:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+          description: >
+            Requests received by the controlled HTTP fixture in the same
+            session.
+        expected_markers:
+          type: array
+          items:
+            type: string
+        not_claimed:
+          type: array
+          items:
+            type: string
+    ArtifactUploadCreate:
+      type: object
+      required: [expected_size, expected_sha256]
+      properties:
+        expected_size:
+          type: integer
+          minimum: 1
+          maximum: 100663296
+        expected_sha256:
+          type: string
+          pattern: "^[0-9a-fA-F]{64}$"
+        name:
+          type: string
+        content_type:
+          type: string
+    ArtifactUpload:
+      type: object
+      required:
+        - upload_id
+        - status
+        - expected_size
+        - expected_sha256
+        - received_bytes
+        - chunks
+        - name
+        - content_type
+        - created_at
+        - updated_at
+      properties:
+        upload_id:
+          type: string
+          pattern: "^[0-9a-f]{32}$"
+        status:
+          type: string
+          enum: [uploading, completed]
+        expected_size:
+          type: integer
+        expected_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        received_bytes:
+          type: integer
+        chunks:
+          type: integer
+        name:
+          type: string
+        content_type:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        artifact_id:
+          type:
+            - string
+            - "null"
+          pattern: "^[0-9a-f]{64}$"
+    ArtifactUploadProgress:
+      allOf:
+        - $ref: "#/components/schemas/ArtifactUpload"
+        - type: object
+          required: [next_offset]
+          properties:
+            next_offset:
+              type: integer
+    ArtifactUploadAbort:
+      type: object
+      required: [upload_id, aborted, received_bytes]
+      properties:
+        upload_id:
+          type: string
+          pattern: "^[0-9a-f]{32}$"
+        aborted:
+          type: boolean
+        received_bytes:
+          type: integer
+    Artifact:
+      type: object
+      required: [artifact_id, sha256, size, name]
+      properties:
+        artifact_id:
+          type: string
+        sha256:
+          type: string
+        size:
+          type: integer
+        name:
+          type: string
+        content_type:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    FirmwareImportRequest:
+      type: object
+      additionalProperties: false
+      required: [device_id, artifact_id]
+      properties:
+        device_id:
+          type: string
+        artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        required_capabilities:
+          type: array
+          maxItems: 64
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 64
+        optional_capabilities:
+          type: array
+          maxItems: 64
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 64
+    MergedFirmwareRequest:
+      type: object
+      required: [device_id, kind, artifact_id]
+      properties:
+        device_id:
+          type: string
+        kind:
+          const: merged
+        artifact_id:
+          type: string
+    SegmentedFirmwareRequest:
+      type: object
+      required: [device_id, kind, segments]
+      properties:
+        device_id:
+          type: string
+        kind:
+          const: segmented
+        segments:
+          type: array
+          items:
+            type: object
+            required: [offset, artifact_id]
+            properties:
+              offset:
+                oneOf:
+                  - type: integer
+                  - type: string
+              artifact_id:
+                type: string
+    ManifestFirmwareRequest:
+      type: object
+      required: [device_id, kind, manifest]
+      properties:
+        device_id:
+          type: string
+        kind:
+          const: manifest
+        manifest:
+          type: object
+          additionalProperties: true
+          required: [schema_version, kind, artifact, target, security, provenance, validation]
+          description: >
+            Versioned m5stack-firmware-manifest. The normalized merged-flash
+            artifact must already be uploaded; artifact.artifact_id defaults to
+            artifact.sha256 when omitted. Capability, flash-size and security
+            mismatches return unsupported_firmware_capability with structured
+            issues instead of starting a session. Unknown required
+            capabilities fail closed; unknown optional capabilities remain
+            warnings. manifest_id is content-stable and excludes created_at,
+            manifest_id and artifact.file from its canonical payload.
+            Security preflight rejects enabled secure-boot or Flash
+            Encryption evidence in sdkconfig, signed/invalid image evidence or
+            package-provided eFuse claims even when aggregate security fields
+            are understated as unknown.
+    FirmwareKind:
+      type: string
+      enum: [merged, segmented, manifest, uiflow]
+    UIFlowSourceFiles:
+      type: object
+      minProperties: 1
+      maxProperties: 128
+      required: [main.py]
+      additionalProperties:
+        type: string
+      description: >
+        Canonical relative UTF-8 POSIX .py paths mapped to source strings.
+        Nested packages are allowed. The server rejects absolute/traversal,
+        empty, backslash, colon, control-character, non-NFC, case-normalization
+        collisions and existing-VFS file/directory conflicts. Path limits are
+        512 UTF-8 bytes, 32 components and 255 UTF-8 bytes per component.
+        Caller source limits are 256 KiB UTF-8 bytes per file and 1 MiB total;
+        JSON character counts do not enforce these byte limits. Independently,
+        both HTTP source routes limit the entire serialized JSON body to 1 MiB
+        (1048576 bytes), including keys/paths, syntax, whitespace and escaping.
+        A source set within the helper byte limit may still exceed the HTTP
+        body limit and receive 413 body_too_large. Both limits apply.
+        NUL is rejected.
+        main.py is required. Omitted boot.py is generated with the UIFlow2
+        _uiflow_run_main flag; caller boot.py is preserved unchanged and must
+        arrange its own main execution. Python is never executed on the host.
+    UIFlowSourceRequest:
+      type: object
+      additionalProperties: false
+      required: [device_id, files]
+      properties:
+        device_id:
+          type: string
+          enum: [cores3, atoms3r, sticks3, stopwatch]
+        files:
+          $ref: "#/components/schemas/UIFlowSourceFiles"
+        expected_base_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Optional cached-reference pin; mismatch returns 409 uiflow_base_hash_mismatch.
+    UIFlowFirmwareRequest:
+      type: object
+      additionalProperties: false
+      required: [device_id, kind, files]
+      properties:
+        device_id:
+          type: string
+          enum: [cores3, atoms3r, sticks3, stopwatch]
+        kind:
+          const: uiflow
+        files:
+          $ref: "#/components/schemas/UIFlowSourceFiles"
+        expected_base_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Optional cached-reference pin; mismatch returns 409 uiflow_base_hash_mismatch.
+    UIFlowSourceFile:
+      type: object
+      additionalProperties: false
+      required: [path, size, sha256, origin]
+      properties:
+        path:
+          type: string
+        size:
+          type: integer
+          minimum: 0
+          description: UTF-8 byte length.
+        sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        origin:
+          type: string
+          enum: [caller, generated]
+    UIFlowSourceMetadata:
+      type: object
+      additionalProperties: true
+      required:
+        - schema_version
+        - kind
+        - status
+        - entrypoint
+        - base_sha256
+        - source_sha256
+        - effective_source_sha256
+        - source_hash_format
+        - firmware_sha256
+        - files
+        - generated_files
+        - caller_file_count
+        - caller_source_bytes
+        - vfs
+        - preservation
+        - toolchain
+      properties:
+        schema_version:
+          const: 1
+        kind:
+          const: uiflow2-source-composition
+        status:
+          const: COMPOSED_NOT_EXECUTED
+          description: Filesystem composition and readback only; runtime results belong to the session.
+        firmware_family_precondition:
+          const: caller-admitted-UIFlow2-base
+        entrypoint:
+          const: main.py
+        base_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        base_size:
+          type: integer
+        flash_size:
+          type: integer
+        source_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: SHA256 of the canonical caller-files JSON; equals source.artifact_id.
+        effective_source_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Canonical source hash including generated boot.py when present.
+        source_hash_format:
+          const: canonical-json-utf8-path-to-source/v1
+        firmware_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Derived full-flash image hash; differs in meaning from source_sha256.
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/UIFlowSourceFile"
+        generated_files:
+          type: array
+          items:
+            type: string
+        caller_file_count:
+          type: integer
+          minimum: 1
+          maximum: 128
+        caller_source_bytes:
+          type: integer
+          minimum: 0
+          maximum: 1048576
+        vfs:
+          type: object
+          additionalProperties: true
+          description: >
+            Actual base partition label/type/subtype/flags/offset/size and
+            partition_table_offset/source, filesystem=LittleFS, base_sha256,
+            derived_sha256 and base_disk_version/derived_disk_version.
+        preservation:
+          type: object
+          additionalProperties: true
+          required: [outside_vfs_unchanged, existing_files_readback_verified, source_readback_verified]
+          properties:
+            outside_vfs_unchanged:
+              const: true
+            existing_files_readback_verified:
+              const: true
+            source_readback_verified:
+              const: true
+            base_file_count:
+              type: integer
+            preserved_file_count:
+              type: integer
+            overwritten_files:
+              type: array
+              items:
+                type: string
+        toolchain:
+          type: object
+          additionalProperties: true
+          description: Builder, Python version/ABI, LittleFS Python/library/disk versions and exact filesystem config.
+    UIFlowFirmwareSource:
+      type: object
+      additionalProperties: false
+      required: [kind, artifact_id, metadata]
+      properties:
+        kind:
+          const: uiflow
+        artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: >
+            Immutable canonical caller-files JSON artifact in the internal CAS,
+            including source code. GET /artifacts/{artifact_id} is metadata only.
+            Session snapshots and evidence expose hash-only provenance.
+        metadata:
+          $ref: "#/components/schemas/UIFlowSourceMetadata"
+    Firmware:
+      type: object
+      additionalProperties: true
+      required: [firmware_id, sha256, device_id, flash_size, kind]
+      properties:
+        firmware_id:
+          type: string
+        sha256:
+          type: string
+        device_id:
+          type: string
+        flash_size:
+          type: integer
+        kind:
+          $ref: "#/components/schemas/FirmwareKind"
+        source:
+          type: object
+        header_magic:
+          type: integer
+      allOf:
+        - if:
+            properties:
+              kind:
+                const: uiflow
+          then:
+            required: [source]
+            properties:
+              source:
+                $ref: "#/components/schemas/UIFlowFirmwareSource"
+    UnitAttachment:
+      type: object
+      additionalProperties: false
+      required: [id, unit_id, port_id]
+      properties:
+        id:
+          type: string
+          pattern: "^[a-z][a-z0-9_-]{0,47}$"
+        unit_id:
+          type: string
+        port_id:
+          type: string
+        parent_id:
+          type: string
+          pattern: "^[a-z][a-z0-9_-]{0,47}$"
+          description: >
+            Optional passive HUB instance. Its child port_id must be grove-1,
+            grove-2 or grove-3. Pins inherit from the upstream host connector.
+        initial:
+          type: object
+          additionalProperties: true
+      description: >
+        Attached at guest creation. Pins and QOM paths are resolved from verified
+        host wiring, never supplied by a caller. Unimplemented models or missing
+        controller routes return 409 runtime_model_gap. A HUB parent is required
+        before multiple Units can share a physical port. Cycles, occupied slots,
+        duplicate I2C addresses and unmodeled GPIO bus contention are rejected.
+        Parallel HUB leaves currently require I2C. Power-current limits and
+        physical electrical behavior are not established by this topology.
+    RunProgramRequest:
+      oneOf:
+        - $ref: "#/components/schemas/RunProgramSourceRequest"
+        - $ref: "#/components/schemas/RunProgramPackageRequest"
+        - $ref: "#/components/schemas/RunProgramRevisionRequest"
+    ProgramPackageFiles:
+      type: object
+      minProperties: 1
+      maxProperties: 64
+      description: >
+        Complete snapshot including root main.py. Canonical relative UTF-8
+        paths, at most 192 bytes/eight components, without traversal, aliases,
+        casefold collisions, path-prefix collisions or boot.py. Individual
+        decoded files are limited to 256 KiB; decoded total to 1 MiB.
+        Deleted files leave the active import path. Reused guest directories
+        still require every declared file and directory to pass SHA/size checks.
+      additionalProperties:
+        type: object
+        additionalProperties: false
+        required: [encoding, data]
+        properties:
+          encoding:
+            type: string
+            enum: [utf8, base64]
+          data:
+            type: string
+    ProgramRevisionFilesEnvelope:
+      type: object
+      additionalProperties: false
+      required: [revision, limits, files]
+      properties:
+        revision:
+          $ref: "#/components/schemas/ProgramRevisionEnvelope/properties/revision"
+        limits:
+          $ref: "#/components/schemas/ProgramRevisionEnvelope/properties/limits"
+        files:
+          type: object
+          minProperties: 1
+          maxProperties: 64
+          additionalProperties:
+            type: object
+            additionalProperties: false
+            required: [encoding, data]
+            properties:
+              encoding:
+                type: string
+                enum: [base64]
+              data:
+                type: string
+                description: Canonical RFC4648 base64 of the verified file bytes
+    ProgramRevisionCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [source_kind, entrypoint, files]
+      properties:
+        source_kind:
+          type: string
+          enum: [uiflow2-package]
+        entrypoint:
+          type: string
+          enum: [main.py]
+        files:
+          $ref: "#/components/schemas/ProgramPackageFiles"
+    ProgramRevisionEnvelope:
+      type: object
+      additionalProperties: false
+      required: [revision, limits]
+      properties:
+        revision:
+          type: object
+          additionalProperties: false
+          required: [revision_id, source_sha256, source_kind, entrypoint, total_file_bytes, files, created_at]
+          properties:
+            revision_id:
+              type: string
+              pattern: "^[0-9a-f]{64}$"
+            source_sha256:
+              type: string
+              pattern: "^[0-9a-f]{64}$"
+            source_kind:
+              type: string
+              enum: [uiflow2-package]
+            entrypoint:
+              type: string
+              enum: [main.py]
+            total_file_bytes:
+              type: integer
+              minimum: 0
+              maximum: 1048576
+            files:
+              type: array
+              minItems: 1
+              maxItems: 64
+              items:
+                type: object
+                additionalProperties: false
+                required: [path, size, sha256, kind]
+                properties:
+                  path:
+                    type: string
+                  size:
+                    type: integer
+                    minimum: 0
+                    maximum: 262144
+                  sha256:
+                    type: string
+                    pattern: "^[0-9a-f]{64}$"
+                  kind:
+                    type: string
+                    enum: [python, mpy, resource]
+            created_at:
+              type: string
+              format: date-time
+        limits:
+          type: object
+          additionalProperties: false
+          required: [max_revisions, max_files, max_file_bytes, max_total_file_bytes, max_http_body_bytes, gc_enabled]
+          properties:
+            max_revisions:
+              type: integer
+              minimum: 1
+              maximum: 256
+            max_files:
+              type: integer
+              const: 64
+            max_file_bytes:
+              type: integer
+              const: 262144
+            max_total_file_bytes:
+              type: integer
+              const: 1048576
+            max_http_body_bytes:
+              type: integer
+              const: 2097152
+            gc_enabled:
+              type: boolean
+              const: false
+    RunProgramRevisionRequest:
+      type: object
+      additionalProperties: false
+      required: [revision_id, expected_execution_id]
+      properties:
+        revision_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        expected_execution_id:
+          type: [string, "null"]
+          pattern: "^[0-9a-f]{32}$"
+        timeout_seconds:
+          type: number
+          minimum: 1
+          maximum: 120
+          default: 120
+          description: Shared package deployment/start acknowledgement budget; no async Preview/Run resource is created.
+    RunProgramSourceRequest:
+      type: object
+      additionalProperties: false
+      required: [source, expected_execution_id]
+      properties:
+        source:
+          type: string
+          description: Complete main.py source, limited to 65536 UTF-8 bytes
+        expected_execution_id:
+          type: [string, "null"]
+          pattern: "^[0-9a-f]{32}$"
+          description: Latest execution ID, or null before the first submission
+        timeout_seconds:
+          type: number
+          minimum: 1
+          maximum: 30
+          default: 10
+    RunProgramPackageRequest:
+      type: object
+      additionalProperties: false
+      required: [files, expected_execution_id]
+      properties:
+        source_kind:
+          type: string
+          enum: [uiflow2-package]
+          default: uiflow2-package
+        entrypoint:
+          type: string
+          enum: [main.py]
+          default: main.py
+        files:
+          $ref: "#/components/schemas/ProgramPackageFiles"
+        expected_execution_id:
+          type: [string, "null"]
+          pattern: "^[0-9a-f]{32}$"
+          description: Latest execution ID, or null before the first submission
+        timeout_seconds:
+          type: number
+          minimum: 1
+          maximum: 120
+          default: 120
+          description: Shared deployment and application-start acknowledgement budget, not program lifetime.
+    ProgramStatus:
+      type: object
+      required: [session_id, program_transport, program, history_error]
+      properties:
+        session_id:
+          type: string
+        program_transport:
+          type: [string, "null"]
+        history_error:
+          type: [string, "null"]
+        program:
+          type: [object, "null"]
+          description: >
+            Execution ID, immutable revision/source hashes, firmware hash, PID,
+            serial window, state and actual transfer/cleanup mode. State running
+            means the guest START marker was observed; application readiness,
+            frame and Unit effects require their own observations. At most 256
+            execution records per session and 256 source revisions per service
+            are accepted. File packages have a separate 256-revision store.
+            Package records add source_kind, total_file_bytes, file_count and
+            deployment phase/guest capabilities/hash inventory. Publishing or
+            activating files is distinct from entering application execution.
+          additionalProperties: true
+    CreateSessionRequest:
+      type: object
+      required: [device_id]
+      properties:
+        program_mode:
+          type: string
+          enum: [uiflow-live]
+          description: >
+            Initialize the admitted cores3/atoms3r/sticks3/stopwatch cached UIFlow2
+            reference once with a guest UART REPL bootstrap, then opt into
+            program_transport=uart-repl. Only runtime=qemu is admitted. Omit
+            firmware_id and uiflow_source_sha256; this mode rejects custom
+            firmware/source pins instead of silently replacing them. Initialization
+            uses the existing source composer and isolated virtual Flash. Subsequent
+            POST program requests execute in this same guest without flashing.
+            Readiness waits for M5EMU_UART_REPL_READY; custom application readiness
+            conditions belong to each program, not this empty bootstrap. Original
+            caller create idempotency remains effective. GET devices advertises
+            program_modes per device; admission alone is not hardware validation.
+        units:
+          type: array
+          maxItems: 16
+          items:
+            $ref: "#/components/schemas/UnitAttachment"
+        device_id:
+          type: string
+        idempotency_key:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: >
+            Optional caller-stable key for safe create retries. The service
+            persists only SHA256(key) and the canonical request hash. Reusing
+            the key with different request content returns 409.
+        firmware_id:
+          type: string
+          description: Omit to use the cached reference UIFlow2 image.
+        program_transport:
+          type: string
+          enum: [uart-repl]
+          description: >
+            Opt into a bidirectional guest UART console. Admitted only for runtime
+            qemu on cores3, atoms3r, sticks3 or stopwatch using reference or
+            composed UIFlow2 firmware. This setting does not install a guest REPL
+            route; an appropriate boot.py/native UART REPL remains required.
+            Actual same-guest firmware execution must be verified per profile.
+        uiflow_source_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: >
+            Required when firmware_id resolves to kind=uiflow. Copy
+            firmware.source.metadata.source_sha256 from the compose response.
+            Missing returns 400 uiflow_source_binding_required; a mismatch or
+            a supplied pin on a non-uiflow firmware returns 409
+            uiflow_source_binding_mismatch before launch. This binds caller
+            source when identical image bytes have different source declarations.
+        ttl_seconds:
+          type: integer
+          minimum: 30
+          default: 1800
+        owner:
+          type: string
+          maxLength: 128
+          description: Optional non-secret label stored with the worker lease.
+        ready_marker:
+          type: string
+        ready_timeout_seconds:
+          type: number
+          default: 30
+          description: >
+            Requested application and peer-workload readiness budget. BLE
+            unified and HCI profiles enforce a workload-aware minimum of
+            min(7200, 60 + ble_reconnect_cycles *
+            (6 + ble_reconnect_delay_seconds)) seconds, even when a smaller
+            value is requested.
+        ready:
+          $ref: "#/components/schemas/ReadyConditions"
+        runtime_env:
+          type: object
+          description: >
+            Trusted-local runtime overrides for the QEMU process. Only
+            M5SW_CORE2_PMIC, M5SW_I2S_DMA_IRQ, M5SW_I2S_PCM_FILE,
+            M5SW_I2S_RX_PCM_FILE and M5SW_I2S_TRACE are accepted.
+          properties:
+            M5SW_CORE2_PMIC:
+              type: string
+              enum: [axp192, axp2101]
+          additionalProperties:
+            type: string
+        runtime:
+          allOf:
+            - $ref: "#/components/schemas/RuntimeName"
+          default: qemu
+        network:
+          $ref: "#/components/schemas/NetworkExecution"
+        storage:
+          $ref: "#/components/schemas/StorageExecution"
+        nvs:
+          $ref: "#/components/schemas/NvsExecution"
+    StorageExecution:
+      type: object
+      additionalProperties: false
+      required: [sd_image_artifact_id]
+      description: >
+        Attach a content-addressed raw SD-card image to a device profile with
+        a modeled SDMMC interface. The artifact is copied into the session
+        directory, mounted as writable `if=sd`, and hashed again before QEMU
+        starts. The source artifact is never mounted directly.
+      properties:
+        sd_image_artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+    NvsExecution:
+      type: object
+      additionalProperties: false
+      required: [image_artifact_id]
+      description: >
+        Overlay a complete content-addressed NVS partition into the
+        session-isolated virtual flash after validating the firmware partition
+        table. The source firmware and NVS artifacts are never modified. The
+        fixture size must exactly match the selected NVS partition. Accepted
+        only by QEMU guest runtimes: qemu, qemu-wifi, qemu-ble and
+        qemu-unified. The network diagnostic lane and Tab5 backend reject this
+        field because they do not execute the same session-isolated guest
+        flash path.
+      properties:
+        partition_label:
+          type: string
+          minLength: 1
+          maxLength: 16
+          default: nvs
+        image_artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+    NetworkExecution:
+      type: object
+      required: [profile]
+      description: >
+        Select the profile for the requested device. runtime=qemu-unified
+        requires a one-guest *-unified profile. runtime=qemu-ble remains
+        accepted for compatibility and for radio-specific profiles.
+      properties:
+        profile:
+          type: string
+          enum: [uiflow2-sticks3, uiflow2-sticks3-wifi, uiflow2-sticks3-unified, uiflow2-cores3-unified, uiflow2-cardputer-adv-unified, uiflow2-stopwatch-unified, uiflow2-atoms3r-unified, uiflow2-papercolor-unified, uiflow2-papermono-unified, uiflow2-stackchan-unified, uiflow2-stamplc-unified, core2-openmac, core2-ble-advertise, core2-hci-gatt, core2-unified, core2-native-hci, core2-native-vhci, nanoc6-hci-ble, nesso-unified, esp-idf-http, esp-idf-smoke, idf-dns-udp, esp-idf-wrong-password, esp-idf-coex, generic-observe]
+        wifi:
+          type: boolean
+        ble:
+          type: boolean
+        tcp:
+          type: boolean
+        wifi_ssid:
+          type: string
+          maxLength: 32
+        wifi_password:
+          type: string
+          maxLength: 63
+          writeOnly: true
+          description: >
+            WPA passphrase. ESP32-S3 qemu-wifi supports WPA2-PSK with an
+            8-63 character passphrase or Open auth with an empty password.
+            The value is redacted from session snapshots and evidence.
+        firmware_ap_password:
+          type: string
+          maxLength: 63
+          writeOnly: true
+          description: >
+            Password used when esp-emu joins a SoftAP created by the firmware.
+            Use an empty string for an open AP. Open and WPA2-PSK APs are
+            supported; WPA3-SAE-only and hidden SSIDs are not. The value is
+            redacted from session records, command evidence and serial logs.
+        hostfwd:
+          type: array
+          maxItems: 8
+          description: >
+            Loopback-only TCP/UDP forwards from the review host into the guest.
+            Host addresses are fixed to 127.0.0.1. These forwards can expose a
+            firmware provisioning portal without connecting the guest to the
+            workstation LAN. TCP forwards reach a firmware-created SoftAP and
+            its station path; UDP forwards currently reach only the station
+            path. A live session exposes the normalized forwards in its
+            network snapshot.
+          items:
+            type: object
+            additionalProperties: false
+            required: [protocol, host_port, guest_port]
+            properties:
+              protocol:
+                type: string
+                enum: [tcp, udp]
+              host_port:
+                type: integer
+                minimum: 1024
+                maximum: 65535
+              guest_port:
+                type: integer
+                minimum: 1
+                maximum: 65535
+        wifi_auth:
+          type: string
+          enum: [wpa2-wpa3, wpa3-sae, wpa2-psk, open]
+          description: >
+            Security mode. ESP32-S3 qemu-wifi currently accepts open or
+            wpa2-psk. WPA3-SAE is rejected with unsupported_wifi_security on
+            that runtime; the other values remain available to esp-emu
+            network profiles.
+        psram_size:
+          type: string
+          enum: ["0", 2M, 4M, 8M, 16M, 32M, 64M]
+        net_mode:
+          type: string
+          enum: [user, "user,restrict=yes"]
+          description: >
+            Guest network backend. generic-observe defaults to
+            user,restrict=yes; validated profiles default to user.
+            core2-openmac currently supports user only.
+            core2-ble-advertise is a same-instance controller bootstrap and
+            advertising profile. core2-hci-gatt runs a UIFlow2 HCI-UART test
+            image against a Bumble controller and an external GATT peer.
+            uiflow2-sticks3-unified runs the S3 WiFi MAC/DMA model, board
+            peripherals, controlled HTTP and HCI-UART BLE in one QEMU guest.
+            uiflow2-cores3-unified runs the same unified data planes on the
+            CoreS3 board profile, including touch, AXP2101, BMI270, AW88298,
+            WiFi DHCP/HTTP and HCI-UART BLE.
+            uiflow2-cardputer-adv-unified runs the Cardputer ADV display,
+            keyboard, BMI270, ES8311/NS4150B audio, WiFi DHCP/HTTP and
+            HCI-UART BLE in one QEMU guest.
+            uiflow2-stopwatch-unified runs the StopWatch 466x466 display,
+            touch, M5PM1, M5IOE1/AW8737A amplifier, BMI270, ES8311 audio,
+            WiFi DHCP/HTTP and HCI-UART BLE in one QEMU guest.
+            uiflow2-atoms3r-unified runs the AtomS3R display, button,
+            BMI270, BMM150, LP5562, WiFi DHCP/HTTP and HCI-UART BLE in one
+            QEMU guest.
+            uiflow2-papercolor-unified runs the PaperColor 400x600 display,
+            buttons, M5PM1, SHT40, ES8311/AW8737A audio, WiFi DHCP/HTTP and
+            HCI-UART BLE in one QEMU guest.
+            uiflow2-papermono-unified runs the PaperMono 480x800 display,
+            touch, keys, M5PM1/IP2315, BMI270, RX8130, RGB, speaker, WiFi
+            DHCP/HTTP and HCI-UART BLE in one QEMU guest.
+            uiflow2-stackchan-unified runs the StackChan 320x240 display,
+            touch, camera, IMU/magnetometer, power/audio/IR/NFC/servo,
+            WiFi DHCP/HTTP and UART2 HCI BLE in one QEMU guest.
+            uiflow2-stamplc-unified runs the StamPLC 240x135 display,
+            keys/RGB, relay/input banks, CAN, PWR-485, buzzer, WiFi
+            DHCP/HTTP and UART1 HCI BLE in one QEMU guest.
+            core2-unified runs display/touch, AXP2101/INA3221, IMU/RTC,
+            speaker/microphone, OpenMAC WiFi DHCP/HTTP and UART1 HCI BLE
+            in one m5core2 guest when M5_CORE2_RADIO_QEMU is configured.
+            core2-native-hci is the canonical stock-firmware path. It requires
+            network.elf_artifact_id, resolves API/HLI hook addresses from that
+            ELF, runs the QEMU esp32-native-hci device and keeps frame/QOM,
+            OpenMAC WiFi, public network, pcap and external NUS GATT in one
+            lease without a GDB bridge.
+            core2-native-vhci runs the stock internal-controller build,
+            requires network.elf_artifact_id, pins the ESP32 VHCI symbol
+            addresses from that ELF, bridges the real VHCI boundary to
+            Bumble, and keeps board/frame/QOM, OpenMAC WiFi, public network
+            and external NUS GATT in one diagnostic lease. GDB controls pause,
+            callback injection and synthetic return; repeated-lease stability
+            was 1/2, so it is a compatibility/diagnostic profile only.
+            nanoc6-hci-ble runs NanoC6 RGB/button/IR, QEMU ESP32-C6 WiFi
+            DHCP/HTTP and UART1 HCI BLE in one ESP32-C6 guest.
+            nesso-unified runs Nesso N1 display/touch, PI4IOE, power telemetry,
+            BMI270, SX1262, IR, buzzer, QEMU ESP32-C6 WiFi DHCP/HTTP and
+            UART1 HCI BLE in one ESP32-C6 guest; the stock UIFlow2 RGB API is
+            explicitly NOT RUN.
+        capture_pcap:
+          type: boolean
+          default: true
+          description: >
+            Capture QEMU Ethernet traffic through filter-dump. runtime=network
+            rejects true because esp-emu user networking exposes no pcap path.
+            Stopping the session writes network.pcap.json with flow, DNS, DHCP,
+            ARP and payload hashes but no raw payloads.
+        cname_records:
+          type: object
+          maxProperties: 64
+          description: >
+            Optional exact-name CNAME aliases for controlled DNS. Requires
+            policy.egress=allowlist and policy.dns=controlled. Every alias
+            must be covered by policy.allowed_hosts or policy.allowed_domains;
+            chains are limited to eight hops and must terminate at an exact
+            allowed host or controlled domain answer. Cycles, uncontrolled
+            targets, aliases outside the policy and CNAME owners that also
+            have exact or domain-suffix address data are rejected.
+          additionalProperties:
+            type: string
+            pattern: "^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+        ble_linger_seconds:
+          type: number
+          minimum: 0
+          maximum: 7260
+          default: 20
+          description: >
+            Keep an external BLE GATT peer connected after its first passing
+            exchange. Long unified holds can use this to test an active BLE
+            link instead of the expected peer-close queue tail.
+        ble_reconnect_cycles:
+          type: integer
+          minimum: 1
+          maximum: 121
+          default: 1
+          description: >
+            Number of complete scan/connect/GATT/disconnect cycles performed by
+            the external BLE peer without restarting the guest. This workload
+            raises the effective ready_timeout_seconds so long reconnect runs
+            are not terminated by a fixed startup timeout.
+        ble_reconnect_delay_seconds:
+          type: number
+          minimum: 0
+          maximum: 30
+          default: 2
+          description: >
+            Delay between a peer disconnect and the next scan when multiple BLE
+            reconnect cycles are requested.
+        ble_post_pass_continuity:
+          type: boolean
+          default: false
+          description: >
+            Test orchestration mode for trusted-host restart continuity. After
+            the initial BLE PASS, the peer waits for a session-local trigger
+            and then performs one additional GATT cycle. The trigger is not
+            exposed as a guest or production control-plane operation.
+        policy:
+          type: object
+          additionalProperties: false
+          description: >
+            Fail-closed network policy. namespace isolation is Linux-only and
+            refuses to start if a private network namespace cannot be created.
+            lab-only starts loopback fixtures without an external route.
+            allowlist installs nftables default-drop rules and permits only
+            declared IP/CIDR endpoints plus required loopback control ports.
+          properties:
+            isolation:
+              type: string
+              enum: [trusted-host, namespace]
+              default: trusted-host
+            egress:
+              type: string
+              enum: [native, deny-all, lab-only, allowlist]
+              default: native
+            dns:
+              type: string
+              enum: [slirp, deny, controlled]
+              default: slirp
+              description: >
+                controlled requires namespace isolation and
+                egress=allowlist. It installs a temporary resolver
+                configuration in a private mount namespace and serves only
+                allowed_hosts and explicitly bound allowed_domains. It also
+                requires at least one allowed endpoint; exact A/AAAA and
+                CNAME terminal answers must be covered by that endpoint.
+            allowed_hosts:
+              type: array
+              maxItems: 32
+              uniqueItems: true
+              description: >
+                Optional exact HTTP Host and DNS-name allowlist. Filters the
+                Host header at the controlled HTTP gateway. Values use strict
+                ASCII DNS labels, lowercase normalization and at most one
+                trailing root dot; ports, wildcards and userinfo are rejected.
+                Managed
+                dns=controlled profiles resolve these names to 10.0.2.2 and
+                therefore require a controlled HTTP profile or an exact
+                10.0.2.2 endpoint. The resolver core supports exact A/AAAA
+                records; the managed HTTP fixture currently exposes IPv4.
+              items:
+                type: string
+                maxLength: 253
+                pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\\.?$"
+            allowed_domains:
+              type: array
+              maxItems: 32
+              uniqueItems: true
+              description: >
+                DNS suffix grants for egress=allowlist with dns=controlled.
+                Matching is on a DNS label boundary, so allowy.test permits
+                allowy.test and api.allowy.test but not evilallowy.test.
+                Every suffix must be bound to controlled resolver answers
+                that are covered by an allowed_endpoints entry. Managed
+                profiles bind suffixes to 10.0.2.2 and require a controlled
+                HTTP profile or an exact 10.0.2.2 endpoint. A suffix never
+                grants arbitrary addresses returned by an external resolver.
+              items:
+                type: string
+                pattern: "^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+            allowed_endpoints:
+              type: array
+              maxItems: 64
+              description: >
+                IPv4/IPv6 protocol/address-or-CIDR/port egress grants for
+                egress=allowlist. IPv4 rules are at least /16 and IPv6 rules
+                at least /48; broad, special-use, IPv4-mapped and QEMU SLiRP
+                synthetic CIDRs are rejected. 10.0.2.2 and fec0::2 are
+                mapped to QEMU SLiRP host loopback sockets; other destinations
+                use a per-session dual-stack veth/NAT gateway. Profiles with a
+                controlled HTTP fixture add the exact fixture endpoint
+                automatically.
+              items:
+                type: object
+                additionalProperties: false
+                required: [protocol, address, port]
+                properties:
+                  protocol:
+                    type: string
+                    enum: [tcp, udp]
+                  address:
+                    type: string
+                    description: >
+                      Exact unicast non-loopback/non-link-local IPv4 or IPv6
+                      address, or a CIDR of at least /16 (IPv4) or /48
+                      (IPv6). IPv4-mapped IPv6 and QEMU SLiRP synthetic
+                      ranges must use the exact 10.0.2.2 or fec0::2 host
+                      address instead.
+                  port:
+                    type: integer
+                    minimum: 1
+                    maximum: 65535
+        console_mode:
+          type: string
+          enum: [auto, uart0, usb-jtag]
+          description: >
+            Guest console used for observation. generic-observe uses the
+            device's network_console value when declared, otherwise auto;
+            validated profiles default to uart0.
+        ble_name:
+          type: string
+          minLength: 1
+          maxLength: 29
+        elf_artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: >
+            Matching Xtensa ELF artifact. Required by Core2
+            core2-native-hci and legacy core2-native-vhci. The ELF must come
+            from the exact firmware build; symbol names alone do not make a
+            different build compatible with the pinned hook offsets.
+        expected_markers:
+          type: array
+          maxItems: 16
+          items:
+            type: string
+            minLength: 1
+            maxLength: 200
+        attempts:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 5
+          description: >
+            Core2 QEMU startup attempts. Core2 radio runs use deterministic
+            TCG/icount scheduling; retries remain available for diagnostics but
+            are not evidence that a failed first attempt was repaired.
+        i2c_devices:
+          type: array
+          maxItems: 32
+          description: >
+            Static register-file endpoints behind the emulated SoC I2C
+            controller. These are for board bootstrap and register identity
+            only; they do not claim a complete keyboard, PMIC, touch or sensor
+            data plane.
+          items:
+            type: string
+            pattern: '^[01]:0x[0-9A-Fa-f]{2}(,(width=[12]|fill=0x[0-9A-Fa-f]{2}|reg=0x[0-9A-Fa-f]{2}=0x[0-9A-Fa-f]{2}))*$'
+        timeout_seconds:
+          type: number
+          minimum: 5
+          maximum: 300
+          default: 60
+    CompanionState:
+      type: object
+      additionalProperties: false
+      required: [required]
+      properties:
+        required:
+          type: boolean
+        state:
+          type: string
+          enum:
+            - running
+            - recovered
+            - adopted
+            - completed
+            - recovery-failed
+            - terminated
+        pid:
+          type: integer
+          minimum: 1
+        port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+        generation:
+          type: integer
+          minimum: 1
+        ownership_verified:
+          type: boolean
+        adopted:
+          type: boolean
+        recovery_action:
+          type: string
+        continuity_trigger:
+          type: string
+    Session:
+      type: object
+      additionalProperties: true
+      required: [session_id, device_id, state]
+      properties:
+        units:
+          type: array
+          description: Session-scoped attachments with server-resolved physical pins
+          items:
+            type: object
+            additionalProperties: true
+        session_id:
+          type: string
+        device_id:
+          type: string
+        state:
+          type: string
+          enum:
+            - provisioning
+            - flashing
+            - booting
+            - running
+            - stopping
+            - stopped
+            - failed
+        stop_pending:
+          type: boolean
+          description: >
+            True in a stopping acknowledgement while lifecycle or cleanup is
+            still pending. Only required Session fields and selected metadata
+            are guaranteed in this response. Poll the session until terminal;
+            capacity and the worker lease remain occupied until confirmed cleanup.
+        pid:
+          type: integer
+          nullable: true
+        idempotent_replay:
+          type: boolean
+          description: >
+            Present on POST /sessions responses. True means an identical
+            idempotency key/request returned the existing session.
+        firmware_id:
+          type: string
+        firmware_sha256:
+          type: string
+        firmware_source:
+          type: string
+        firmware_provenance:
+          $ref: "#/components/schemas/UIFlowFirmwareSource"
+          description: >
+            Optional frozen UIFlow source provenance, retained across history
+            restoration and as firmware/uiflow-source.json in the evidence ZIP.
+            Contains hashes/metadata, never source bodies.
+        runtime:
+          $ref: "#/components/schemas/RuntimeName"
+        runtime_memory:
+          allOf:
+            - $ref: "#/components/schemas/RuntimeMemory"
+          nullable: true
+        network:
+          type: object
+          nullable: true
+          additionalProperties: true
+        nvs:
+          type: object
+          nullable: true
+          additionalProperties: true
+        artifact_sha256:
+          type: string
+          nullable: true
+        source_artifacts:
+          type: array
+          description: For uiflow, contains caller-source JSON artifact IDs, not image SHA256.
+          items:
+            type: string
+        flash:
+          type: object
+          nullable: true
+        flash_retained:
+          type: boolean
+          description: >
+            True while the session-private virtual flash file exists. It is
+            released when a session stops unless retain_flash is requested.
+        serial_bytes:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        error:
+          type: string
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        event_count:
+          type: integer
+        restored:
+          type: boolean
+          description: True when the record was reconstructed from persisted session metadata.
+        interrupted:
+          type: boolean
+          description: >
+            True when a previously active session could not be safely
+            re-attached after service restart.
+        reattached_process:
+          type: boolean
+          description: >
+            True when the current service accepted a previously orphaned QEMU
+            process only after PID start-time and QMP ownership checks.
+        recovery_scope:
+          type: [string, "null"]
+          enum:
+            - qemu-control-plane
+            - qemu-control-plane+companions
+            - null
+          description: >
+            qemu-control-plane means QEMU/QMP only.
+            qemu-control-plane+companions additionally means the trusted-host
+            HTTP fixture was recreated and the surviving BLE peer was safely
+            adopted for that same session. Other runtime classes are not
+            implied.
+        companions:
+          type: object
+          additionalProperties: false
+          description: >
+            Safe companion ownership and recovery state. Raw start tokens,
+            command lines and command hashes remain in the private session
+            record rather than this snapshot.
+          properties:
+            http_fixture:
+              $ref: "#/components/schemas/CompanionState"
+            ble_probe:
+              $ref: "#/components/schemas/CompanionState"
+        worker:
+          type: object
+          additionalProperties: false
+          required: [worker_id, generation, lease_active]
+          properties:
+            worker_id:
+              type: string
+            generation:
+              type: integer
+            lease_active:
+              type: boolean
+        last_frame_available:
+          type: boolean
+        last_frame_captured_at:
+          type: string
+          format: date-time
+          nullable: true
+        device_state_supported:
+          type: boolean
+        last_device_state_available:
+          type: boolean
+        last_device_state_at:
+          type: string
+          format: date-time
+          nullable: true
+    ReadyConditions:
+      type: object
+      properties:
+        serial_markers:
+          type: array
+          items:
+            type: string
+        frame_nonblank:
+          type: boolean
+        frame_min_bytes:
+          type: integer
+          default: 1024
+        frame_min_nonblack_pixels:
+          type: integer
+          default: 16
+        require_all:
+          type: boolean
+          default: true
+    SerialChunk:
+      type: object
+      required: [session_id, offset, next_offset, data, bytes]
+      properties:
+        session_id:
+          type: string
+        offset:
+          type: integer
+        next_offset:
+          type: integer
+        data:
+          type: string
+        bytes:
+          type: integer
+    InputRequest:
+      oneOf:
+        - type: object
+          required: [kind, key]
+          properties:
+            kind:
+              const: key
+            key:
+              type: string
+            action:
+              type: string
+              enum: [tap, down, up]
+              default: tap
+              description: >
+                Omit or use tap for a complete press/release. Use down and up
+                separately for a model button that is physically held.
+            settle_seconds:
+              type: number
+        - type: object
+          required: [kind, x, y]
+          properties:
+            kind:
+              const: touch
+            x:
+              type: integer
+            y:
+              type: integer
+            settle_seconds:
+              type: number
+        - type: object
+          required: [kind, x, y]
+          properties:
+            kind:
+              const: longpress
+            x:
+              type: integer
+            y:
+              type: integer
+            hold_seconds:
+              type: number
+        - type: object
+          required: [kind, x1, y1, x2, y2]
+          properties:
+            kind:
+              const: drag
+            x1:
+              type: integer
+            y1:
+              type: integer
+            x2:
+              type: integer
+            y2:
+              type: integer
+    Capacity:
+      type: object
+      additionalProperties: true
+      properties:
+        worker:
+          $ref: "#/components/schemas/Worker"
+    Worker:
+      type: object
+      additionalProperties: true
+      required: [schema_version, worker_id, generation, state, accepting_leases]
+      properties:
+        schema_version:
+          type: integer
+        worker_id:
+          type: string
+        instance_id:
+          type: string
+        generation:
+          type: integer
+        state:
+          type: string
+          enum: [starting, ready, draining, drained, stopped]
+        pid:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+        heartbeat_at:
+          type: string
+          format: date-time
+        heartbeat_age_seconds:
+          type: number
+          nullable: true
+        stale:
+          type: boolean
+        accepting_leases:
+          type: boolean
+        active_lease_count:
+          type: integer
+        active_lease_ids:
+          type: array
+          items:
+            type: string
+        drained_at:
+          type: string
+          nullable: true
+        capabilities:
+          type: object
+          additionalProperties: true
+        abandoned_leases:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        recent_results:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    RemoteWorkerIdentity:
+      type: object
+      required: [instance_id, generation]
+      properties:
+        instance_id:
+          type: string
+          minLength: 1
+          maxLength: 128
+        generation:
+          type: integer
+          minimum: 1
+    RemoteWorkerRegistration:
+      allOf:
+        - $ref: "#/components/schemas/RemoteWorkerIdentity"
+        - type: object
+          required: [worker_id]
+          properties:
+            worker_id:
+              type: string
+              minLength: 1
+              maxLength: 128
+            stale_after_seconds:
+              type: number
+              minimum: 2
+              maximum: 300
+              default: 15
+            endpoint:
+              type: [string, "null"]
+              maxLength: 512
+              description: HTTP(S) endpoint without credentials, query or fragment.
+            capabilities:
+              type: object
+              additionalProperties: true
+              description: JSON capability metadata, limited to 16 KiB.
+            active_lease_ids:
+              type: array
+              maxItems: 128
+              uniqueItems: true
+              items:
+                type: string
+    RemoteWorkerHeartbeat:
+      allOf:
+        - $ref: "#/components/schemas/RemoteWorkerIdentity"
+        - type: object
+          properties:
+            state:
+              type: string
+              enum: [ready, draining, drained]
+            capabilities:
+              type: object
+              additionalProperties: true
+            active_lease_ids:
+              type: array
+              maxItems: 128
+              uniqueItems: true
+              items:
+                type: string
+    RemoteWorkerResultRequest:
+      allOf:
+        - $ref: "#/components/schemas/RemoteWorkerIdentity"
+        - type: object
+          required: [lease_id, state]
+          properties:
+            lease_id:
+              type: string
+              minLength: 1
+              maxLength: 128
+            state:
+              type: string
+              minLength: 1
+              maxLength: 64
+            evidence_sha256:
+              type: [string, "null"]
+              pattern: "^[0-9a-f]{64}$"
+    RemoteWorkerResult:
+      type: object
+      required: [lease_id, state, completed_at]
+      properties:
+        lease_id:
+          type: string
+        state:
+          type: string
+        evidence_sha256:
+          type: [string, "null"]
+        completed_at:
+          type: string
+          format: date-time
+    RemoteWorker:
+      allOf:
+        - $ref: "#/components/schemas/RemoteWorkerRegistration"
+        - type: object
+          required:
+            - state
+            - stale
+            - accepting_leases
+            - active_lease_count
+            - recent_results
+            - registered_at
+            - heartbeat_at
+          properties:
+            state:
+              type: string
+              enum: [ready, draining, drained, stopped]
+            stale:
+              type: boolean
+            accepting_leases:
+              type: boolean
+            active_lease_count:
+              type: integer
+            heartbeat_age_seconds:
+              type: [number, "null"]
+            registered_at:
+              type: string
+              format: date-time
+            heartbeat_at:
+              type: string
+              format: date-time
+            drained_at:
+              type: [string, "null"]
+              format: date-time
+            stopped_at:
+              type: [string, "null"]
+              format: date-time
+            recent_results:
+              type: array
+              maxItems: 32
+              items:
+                $ref: "#/components/schemas/RemoteWorkerResult"
+    RemoteWorkerList:
+      type: object
+      required:
+        - schema_version
+        - worker_count
+        - accepting_count
+        - stale_count
+        - active_lease_count
+        - workers
+      properties:
+        schema_version:
+          type: integer
+        updated_at:
+          type: [string, "null"]
+          format: date-time
+        worker_count:
+          type: integer
+        accepting_count:
+          type: integer
+        stale_count:
+          type: integer
+        active_lease_count:
+          type: integer
+        workers:
+          type: array
+          items:
+            $ref: "#/components/schemas/RemoteWorker"
+    WorkerJobIdentity:
+      type: object
+      required: [worker_id, instance_id, generation]
+      properties:
+        worker_id:
+          type: string
+          minLength: 1
+          maxLength: 128
+        instance_id:
+          type: string
+          minLength: 1
+          maxLength: 128
+        generation:
+          type: integer
+          minimum: 1
+    WorkerJobSubmit:
+      type: object
+      required: [request]
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 160
+        request:
+          type: object
+          additionalProperties: true
+          description: >
+            JSON request payload limited to 64 KiB. It must contain job
+            parameters rather than credentials, tokens or firmware bytes.
+            A numeric evidence_delay_seconds from 0 to 300 keeps the worker
+            waiting after session readiness before evidence collection; the
+            heartbeat loop remains active.
+        required_capabilities:
+          type: object
+          additionalProperties: true
+          description: Flat capability requirements matched against worker capabilities.
+        max_attempts:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 3
+        idempotency_key:
+          type: string
+          minLength: 1
+          maxLength: 160
+    WorkerJobClaim:
+      allOf:
+        - $ref: "#/components/schemas/WorkerJobIdentity"
+        - type: object
+          properties:
+            job_id:
+              type: string
+              minLength: 1
+              maxLength: 128
+    WorkerJobLeaseRequest:
+      allOf:
+        - $ref: "#/components/schemas/WorkerJobIdentity"
+        - type: object
+          required: [lease_id]
+          properties:
+            lease_id:
+              type: string
+              minLength: 1
+              maxLength: 128
+    WorkerJobResultRequest:
+      allOf:
+        - $ref: "#/components/schemas/WorkerJobLeaseRequest"
+        - type: object
+          required: [state]
+          description: >
+            The request must use the current claim's lease_id. A superseded
+            lease is rejected with 409 job_lease_mismatch and cannot overwrite
+            the newer claim's result.
+          properties:
+            state:
+              type: string
+              enum: [PASS, PARTIAL, FAIL, REVIEW]
+            evidence_sha256:
+              type: [string, "null"]
+              pattern: "^[0-9a-f]{64}$"
+            summary:
+              type: object
+              additionalProperties: true
+              description: JSON evidence summary limited to 8 KiB.
+    WorkerJobStoredResult:
+      type: object
+      required:
+        - state
+        - lease_id
+        - evidence_sha256
+        - summary
+        - worker
+        - completed_at
+      properties:
+        state:
+          type: string
+          enum: [PASS, PARTIAL, FAIL, REVIEW]
+        lease_id:
+          type: string
+        evidence_sha256:
+          type: [string, "null"]
+          pattern: "^[0-9a-f]{64}$"
+        summary:
+          type: object
+          additionalProperties: true
+        worker:
+          $ref: "#/components/schemas/WorkerJobIdentity"
+        completed_at:
+          type: string
+          format: date-time
+    WorkerJobLease:
+      type: object
+      required:
+        - lease_id
+        - worker_id
+        - instance_id
+        - generation
+        - claimed_at
+        - heartbeat_at
+        - expires_at
+      properties:
+        lease_id:
+          type: string
+        worker_id:
+          type: string
+        instance_id:
+          type: string
+        generation:
+          type: integer
+        claimed_at:
+          type: string
+          format: date-time
+        heartbeat_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+    WorkerJob:
+      type: object
+      required:
+        - job_id
+        - status
+        - request
+        - required_capabilities
+        - max_attempts
+        - attempts
+        - created_at
+        - updated_at
+        - idempotent_replay
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, leased, completed, failed, cancelled]
+        label:
+          type: [string, "null"]
+        request:
+          type: object
+          additionalProperties: true
+        request_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        required_capabilities:
+          type: object
+          additionalProperties: true
+        max_attempts:
+          type: integer
+        attempts:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        lease:
+          oneOf:
+            - $ref: "#/components/schemas/WorkerJobLease"
+            - type: "null"
+        last_worker:
+          oneOf:
+            - $ref: "#/components/schemas/WorkerJobIdentity"
+            - type: "null"
+        last_released_at:
+          type: [string, "null"]
+          format: date-time
+        last_release_reason:
+          type: [string, "null"]
+        result:
+          oneOf:
+            - $ref: "#/components/schemas/WorkerJobStoredResult"
+            - type: "null"
+        failure:
+          type: [object, "null"]
+          additionalProperties: true
+        idempotent_replay:
+          type: boolean
+    WorkerJobList:
+      type: object
+      required:
+        - schema_version
+        - job_count
+        - counts
+        - jobs
+      properties:
+        schema_version:
+          type: integer
+        updated_at:
+          type: [string, "null"]
+          format: date-time
+        job_count:
+          type: integer
+        counts:
+          type: object
+          required: [queued, leased, completed, failed, cancelled]
+          properties:
+            queued:
+              type: integer
+            leased:
+              type: integer
+            completed:
+              type: integer
+            failed:
+              type: integer
+            cancelled:
+              type: integer
+        jobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkerJob"

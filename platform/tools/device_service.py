@@ -9521,6 +9521,15 @@ class DeviceService:
             raise ServiceError(error.code, error.message, error.status) from error
         return self._program_revision_response(revision)
 
+    def get_program_revision_files(self, revision_id: str) -> dict:
+        """Read the verified complete immutable package, without guest work."""
+        try:
+            revision = self.program_packages.get(revision_id)
+            source = self.program_packages.source(revision_id)
+        except ProgramPackageError as error:
+            raise ServiceError(error.code, error.message, error.status) from error
+        return {**self._program_revision_response(revision), "files": source["files"]}
+
     def preview_control(self):
         """Initialize the optional Preview coordinator without importing it early."""
         with self._preview_control_lock:

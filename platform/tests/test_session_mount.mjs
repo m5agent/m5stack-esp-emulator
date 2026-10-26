@@ -27,7 +27,7 @@ try{
   let constructedDetached=false;
   const factory=(host,...args)=>{constructedDetached=!host.isConnected;return createDeviceShell(host,...args);};
   const Visual=new Function('state','createDeviceShell','CONTROL_RELEASE_TIMEOUT_MS','api','framePlaceholder',fragment+'\nreturn SessionVisual;')(state,factory,5000,async()=>{},()=> 'waiting');
-  const visual=Object.create(Visual.prototype);Object.assign(visual,{container:document.querySelector('#host'),session:{session_id:'geometry-fixture',device_id:profile.id,state:'running'},allowThree:true,threeAttempted:false,shellLoading:false,shellGeneration:0,destroyed:false,shell:null,unitPanel:null,frameBlob:null,activeControls:new Set(),controlReleaseTimers:new Map(),frameApply:Promise.resolve()});
+  const visual=Object.create(Visual.prototype);Object.assign(visual,{container:document.querySelector('#host'),session:{session_id:'geometry-fixture',device_id:profile.id,state:'running'},allowThree:true,threeAttempted:false,shellLoading:false,shellGeneration:0,destroyed:false,shell:null,unitPanel:null,frameBlob:null,activeControls:new Set(),controlQueues:new Map(),controlReleaseTimers:new Map(),frameApply:Promise.resolve()});
   window.mountVisual=visual;await visual.init();return {constructedDetached,model:visual.shell?.root?.dataset.modelSource};
  },{fragment,profile});
  assert.equal(setup.constructedDetached,true);assert.equal(setup.model,'m5stack-models');

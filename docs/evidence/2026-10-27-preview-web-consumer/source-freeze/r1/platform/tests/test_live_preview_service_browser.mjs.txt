@@ -1,0 +1,235 @@
+// Explicit local virtual-device acceptance. Does not start QEMU directly.
+import assert from 'node:assert/strict';
+import {createHash, randomUUID} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
+import {dirname, resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {setTimeout as delay} from 'node:timers/promises';
+import {chromium} from 'playwright';
+
+assert.equal(process.env.M5_PREVIEW_SERVICE_E2E, '1', 'Explicit virtual-device execution opt-in required');
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+const base = process.env.M5_DEVICE_SERVICE_URL || 'http://127.0.0.1:8787';
+assert.ok(['127.0.0.1', 'localhost', '[::1]'].includes(new URL(base).hostname));
+const token = (await readFile(process.env.M5_CONTROL_TOKEN_FILE, 'utf8')).trim();
+const expectedRuntime = process.env.M5_EXPECTED_RUNTIME_SHA256;
+assert.match(expectedRuntime || '', /^[0-9a-f]{64}$/);
+const output = resolve(process.env.M5_PREVIEW_BROWSER_OUT || '/tmp/m5-live-preview-browser');
+await mkdir(output, {recursive: true});
+const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+const paths = ['platform/web/sessions.js', 'platform/web/sessions.html', 'platform/web/preview-client.js',
+  'platform/web/program-panel.js', 'platform/web/unit-panel.js', 'platform/web/sha256.js',
+  'platform/tools/serve.py', 'platform/tools/device_service.py', 'platform/tools/preview_service.py',
+  'platform/tools/preview_store.py', 'platform/tools/program_packages.py',
+  'platform/tests/test_live_preview_service_browser.mjs'];
+const fingerprints = async () => Object.fromEntries(await Promise.all(paths.map(async path => [path, sha(await readFile(resolve(root, path)))])));
+const report = {status:'FAIL', category:'virtual-device-preview-web', hardware:'NOT RUN',
+  source_sha256:await fingerprints(), cases:[], page_errors:[], http:[], browser_http:[]};
+const save = async (name, value) => writeFile(resolve(output, name), JSON.stringify(value, null, 2)+'\n');
+async function api(path, method='GET', body=null, key=null) {
+  const index=report.http.length, row={path,method}; report.http.push(row);
+  if(body) await save(`http-${index}.request.json`,body);
+  const response=await fetch(`${base}/api/v1/${path}`, {method, headers:{Authorization:`Bearer ${token}`,
+    ...(body ? {'Content-Type':'application/json'}:{}), ...(key?{'Idempotency-Key':key}:{})},
+    ...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(30000)});
+  const bytes=Buffer.from(await response.arrayBuffer());
+  Object.assign(row,{status:response.status,sha256:sha(bytes),bytes:bytes.length,headers:Object.fromEntries(response.headers)});
+  await writeFile(resolve(output,`http-${index}.response`),bytes);
+  assert.ok(response.ok, `${path}: ${response.status} ${bytes.toString().slice(0,1000)}`);
+  return path.includes('frame.png') || path.endsWith('/evidence') ? bytes : JSON.parse(bytes);
+}
+async function until(read,predicate,timeout=60000) {
+  const deadline=Date.now()+timeout;
+  while(Date.now()<deadline) { const value=await read(); if(predicate(value)) return value; await delay(100); }
+  throw Error('Actual Preview/guest/Web observation deadline exceeded');
+}
+const runtimeIdentity = pid => JSON.parse(execFileSync('/opt/miniconda3/bin/python3.12',['-c',
+  'import ctypes,hashlib,json,pathlib,sys; p=int(sys.argv[1]); b=ctypes.create_string_buffer(4096); assert ctypes.CDLL("/usr/lib/libproc.dylib").proc_pidpath(p,b,len(b))>0; f=pathlib.Path(b.value.decode()); print(json.dumps({"pid":p,"executable_name":f.name,"sha256":hashlib.sha256(f.read_bytes()).hexdigest()}))',String(pid)],{encoding:'utf8'}));
+let browser,page,currentPreview,currentSession;
+async function closeOwned() {
+  const p=await api(`previews/${currentPreview}`);
+  currentSession ||= p.session_id;
+  await api(`previews/${currentPreview}/close`,'POST',{expected_owner_epoch:p.owner_epoch});
+  const closed=await until(()=>api(`previews/${currentPreview}`),p=>p.state==='closed');
+  if (!currentSession) return {closed, session_allocation:'not published'};
+  const stopped=await api(`sessions/${currentSession}`);
+  assert.equal(stopped.state,'stopped'); assert.equal(stopped.flash_retained,false);
+  return {closed,stopped};
+}
+try {
+  const health=await api('health'); assert.equal(health.capacity.active_sessions,0);
+  browser=await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,
+    args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+  page=await browser.newPage({viewport:{width:1440,height:1080}});
+  page.on('pageerror',error=>report.page_errors.push(error.message));
+  const browserWrites=[];
+  page.on('response',response=>{
+    if(!response.url().startsWith(base+'/api/v1/')) return;
+    const request=response.request();
+    const row={path:new URL(response.url()).pathname,method:request.method(),status:response.status()};
+    report.browser_http.push(row);
+    if(request.method()!=='GET') {
+      row.body=request.postDataJSON();
+      const task=response.json().then(body=>{row.response=body;}).catch(()=>{});
+      browserWrites.push(task);
+    }
+  });
+  await page.route('**/platform/web/sessions.js*',async route=>{
+    const response=await route.fetch(), actual=await response.text();
+    assert.equal(sha(actual),report.source_sha256['platform/web/sessions.js']);
+    await route.fulfill({response,body:actual+'\nwindow.__previewProbe={state,SessionVisual};\n'});
+  });
+  await page.goto(`${base}/platform/web/sessions.html`,{waitUntil:'domcontentloaded'});
+  await page.fill('#tokenInput',token); await page.click('#saveTokenBtn');
+  await page.locator('#deviceSelect option[value="cores3"]').waitFor({state:'attached'});
+  for(const unit of ['pir','relay']) {
+    const result={unit_id:unit,checks:{}}; report.cases.push(result);
+    await page.selectOption('#deviceSelect','cores3');
+    await page.locator(`#unitModelSelect option[value="${unit}"]`).waitFor({state:'attached'});
+    await page.selectOption('#unitModelSelect',unit);
+    await page.check('#programModeInput'); await page.check('#previewModeInput');
+    const creation=page.waitForResponse(r=>r.url()===base+'/api/v1/previews' && r.request().method()==='POST');
+    await page.click('#createBtn'); const reply=await creation, created=await reply.json();
+    if(reply.status()===202 && created.preview_id) currentPreview=created.preview_id;
+    assert.equal(reply.status(),202,JSON.stringify(created));
+    const prefix=`previews/${currentPreview}`;
+    const p=await until(()=>api(prefix),p=>['ready','failed'].includes(p.state),120000);
+    currentSession=p.session_id; assert.equal(p.state,'ready');
+    const session=await api(`sessions/${currentSession}`);
+    Object.assign(result,{preview_id:currentPreview,session_id:currentSession,pid:session.pid,firmware_sha256:session.firmware_sha256,runtime:runtimeIdentity(session.pid)});
+    assert.equal(result.runtime.sha256,expectedRuntime);
+    const card=page.locator(`[data-session-id="${currentSession}"]`);
+    const editor=card.locator('[data-program-source]'),runButton=card.locator('[data-program-run]');
+    await until(()=>runButton.isEnabled(),Boolean);
+    assert.equal(await card.locator('[data-action="reset"]').isDisabled(),true);
+    const nonce=randomUUID().replaceAll('-','');
+    const initial=`import sys\nsys.path.append('/m5-live-package-${nonce}')\nprint('WEB_VM_${nonce}')\n`;
+    async function clickRun(source) {
+      const offset=(await api(`sessions/${currentSession}/serial?limit=1048576`)).next_offset;
+      await editor.fill(source);
+      const saved=page.waitForResponse(r=>r.url()===`${base}/api/v1/program-revisions` && r.request().method()==='POST');
+      const receipt=page.waitForResponse(r=>r.url()===`${base}/api/v1/${prefix}/runs` && r.request().method()==='POST');
+      await runButton.click(); const response=await receipt; assert.equal(response.status(),202,await response.text());
+      const checkpointResponse=await saved, checkpoint=await checkpointResponse.json();
+      assert.equal(checkpointResponse.status(),201); assert.deepEqual(checkpointResponse.request().postDataJSON().files['main.py'],{encoding:'utf8',data:source});
+      const accepted=await response.json();
+      assert.equal(accepted.preview_id,currentPreview); assert.equal(accepted.revision_id,checkpoint.revision.revision_id);
+      assert.match(accepted.run_id,/^[0-9a-f]{32}$/); assert.match(accepted.execution_id,/^[0-9a-f]{32}$/);
+      const current=await until(()=>api(`${prefix}/runs/${accepted.run_id}`),r=>['running','completed','failed','unknown','cancelled'].includes(r.state),120000);
+      for (const field of ['preview_id','run_id','execution_id','revision_id']) assert.equal(current[field],accepted[field]);
+      assert.ok(['running','completed'].includes(current.state),JSON.stringify(current));
+      if(source.includes('LIVE_PACKAGE_READY')) await until(()=>api(`sessions/${currentSession}/serial?offset=${offset}&limit=1048576`),s=>{
+        const marker=`__M5_EXEC_${current.execution_id}__:START`,lines=s.data.split(/\r?\n/),position=lines.indexOf(marker),tail=lines.slice(position+1);
+        const parsed=prefix=>tail.filter(line=>line.startsWith(prefix)).flatMap(line=>{try{return [JSON.parse(line.slice(prefix.length))];}catch{return [];}});
+        const ready=parsed('LIVE_PACKAGE_READY ').find(row=>row.version==='A'&&row.helper===17&&row.init===101&&row.logic===3
+          && typeof row.cwd==='string' && row.cwd.startsWith('/flash/.m5-live-packages/')&&JSON.stringify(row.managed_paths)===JSON.stringify([row.cwd]));
+        const sample=parsed('LIVE_PACKAGE_SAMPLE ').find(row=>row.version==='A'&&row.unit===unit&&row.helper===17&&row.init===101&&row.logic===3&&row.computed===row.value*2+20);
+        return position>=0 && ready && sample;
+      });
+      return current;
+    }
+    const init=await clickRun(initial); result.initial_run=init;
+    await until(()=>api(`sessions/${currentSession}/serial?limit=1048576`),s=>s.data.includes(`WEB_VM_${nonce}`));
+    const build=String.raw`import json,sys
+from pathlib import Path
+sys.path[:0]=['tests/units','platform/tools']
+from run_live_package import build_packages,checkpoint_payload
+p,c=build_packages(Path(sys.argv[1]),Path(sys.argv[2]),sys.argv[3],json.loads(sys.argv[4]),sys.argv[5])
+print(json.dumps({'package':checkpoint_payload(p['A']),'compiler':c}))`;
+    const bundle=JSON.parse(execFileSync('/opt/miniconda3/bin/python3.12',['-c',build,process.env.M5_MPY_CROSS,resolve(output,unit+'-compiled'),nonce,JSON.stringify(session.units[0].pins),unit],
+      {cwd:root,env:{...process.env,PYTHONPATH:'platform/tools:platform/tests:tests/units:.work/py312'},encoding:'utf8'}));
+    await save(unit+'-package.json',bundle);
+    const checkpoint=await api('program-revisions','POST',bundle.package);
+    const fresh=await api(prefix);
+    const queued=await api(prefix+'/runs','POST',{revision_id:checkpoint.revision.revision_id,expected_owner_epoch:p.owner_epoch,
+      expected_generation:fresh.generation,client_generation:'external-agent-package',timeout_seconds:120},randomUUID());
+    const external=await until(()=>api(`${prefix}/runs/${queued.run_id}`),r=>['running','failed'].includes(r.state),120000);
+    assert.equal(external.state,'running'); result.external_run=external;
+    await page.waitForFunction(({sid,run})=>{const s=window.__previewProbe.state.visuals.get(sid)?.previewClient?.snapshot();return s?.synchronized&&['preview_id','run_id','execution_id','revision_id'].every(key=>s.activeRun?.[key]===run[key]);},{sid:currentSession,run:external});
+    await until(()=>card.locator('[data-program-load]').isEnabled(),Boolean);
+    await card.locator('[data-program-load]').click();
+    await until(()=>editor.inputValue(),text=>text.includes('LIVE_PACKAGE_READY'));
+    const original=await editor.inputValue();
+    const blueSource=original.replace('previous = None','screen.fillRect(0,0,16,16,0x0000FF)\nprevious = None');
+    const editA=await clickRun(`print('WEB_PACKAGE_EDIT_A')\n${blueSource}`); result.edit_run=editA;
+    const files=await api(`program-revisions/${editA.revision_id}/files`);
+    for(const [path,row] of Object.entries(bundle.package.files)) {
+      if(path==='main.py') continue;
+      const expected=Buffer.from(row.data,row.encoding==='utf8'?'utf8':'base64');
+      assert.equal(sha(Buffer.from(files.files[path].data,'base64')),sha(expected),`resource lost: ${path}`);
+    }
+    result.checks.mpy_modules_and_resources_preserved_after_main_edit=true;
+    await until(()=>api(`sessions/${currentSession}/serial?limit=1048576`),s=>s.data.includes('WEB_PACKAGE_EDIT_A') && s.data.includes('LIVE_PACKAGE_READY'));
+    if(unit==='pir') {
+      await page.waitForFunction(id=>window.__previewProbe.state.visuals.get(id)?.unitPanel?.states.get('external1')?.available,currentSession);
+      const field=card.locator('.unit-control input').first();
+      for(const value of [true,false]) {
+        await until(()=>field.isEnabled(),Boolean); const offset=(await api(`sessions/${currentSession}/serial?limit=1048576`)).next_offset;
+        const input=page.waitForResponse(r=>r.url()===`${base}/api/v1/${prefix}/input`&&r.request().method()==='POST');
+        await field.setChecked(value); const response=await input; assert.equal(response.status(),200,await response.text());
+        await until(()=>api(`sessions/${currentSession}/serial?offset=${offset}&limit=1048576`),s=>s.data.split('\n').some(line=>{try{const row=JSON.parse(line.slice(20));return line.startsWith('LIVE_PACKAGE_SAMPLE ')&&row.version==='A'&&row.unit===unit&&row.value===Number(value)&&row.computed===Number(value)*2+20;}catch{return false;}}));
+        const qom=await api(`sessions/${currentSession}/qom-snapshot`,'POST',{path:'/machine/units/external1',depth:0});
+        assert.equal(Number(qom.nodes['input-level'].value),Number(value));
+      }
+      result.checks.trusted_web_unit_input_to_guest_uart_and_raw_qom=true;
+    }
+    const blueFrame=await api(`${prefix}/runs/${editA.run_id}/frame.png`); await writeFile(resolve(output,unit+'-blue-frame.png'),blueFrame);
+    const greenSource=original.replace('previous = None','screen.fillRect(0,0,16,16,0x00FF00)\nprevious = None');
+    const editB=await clickRun(`print('WEB_PACKAGE_EDIT_B')\n${greenSource}`); result.second_edit_run=editB;
+    if(unit==='relay') {
+      // Keep the complete dependency package; change only the main script.
+      const changed=greenSource.replace("unit.set_status(config['relay'])","unit.set_status(True)");
+      const relay=await clickRun(`print('WEB_RELAY_ON')\n${changed}`); result.relay_run=relay;
+      await page.waitForFunction(id=>window.__previewProbe.state.visuals.get(id)?.unitPanel?.states.get('external1')?.properties['output-level']===true,currentSession);
+      const qom=await api(`sessions/${currentSession}/qom-snapshot`,'POST',{path:'/machine/units/external1',depth:0});
+      assert.equal(qom.nodes['output-level'].value,true); result.checks.guest_output_to_web_unit_and_raw_qom=true;
+    }
+    const active=await api(prefix),activeRun=await api(`${prefix}/runs/${active.active_run_id}`);
+    const png=await api(`${prefix}/runs/${activeRun.run_id}/frame.png`); await writeFile(resolve(output,unit+'-frame.png'),png);
+    await page.waitForFunction(({id,execution})=>{const v=window.__previewProbe.state.visuals.get(id),pixel=v?.shell?.display?.getPixel(8,8);return v?.frameBlob&&v.frameMetadata?.['x-frame-execution-id']===execution&&pixel?.[0]===0&&pixel?.[1]===255&&pixel?.[2]===0;},{id:currentSession,execution:activeRun.execution_id});
+    const web=await page.evaluate(id=>{const v=window.__previewProbe.state.visuals.get(id),d=v.shell?.display;return {hash:v.lastFrameHash,metadata:v.frameMetadata,pixel:d?.getPixel(8,8)};},currentSession);
+    assert.match(web.hash,/^[0-9a-f]{64}$/); assert.equal(web.metadata['x-frame-revision-id'],activeRun.revision_id); result.web_frame=web;
+    const actualPixel=await page.evaluate(async encoded=>{const bitmap=await createImageBitmap(new Blob([Uint8Array.from(atob(encoded),c=>c.charCodeAt(0))],{type:'image/png'}));try{const canvas=document.createElement('canvas');canvas.width=bitmap.width;canvas.height=bitmap.height;const ctx=canvas.getContext('2d');ctx.drawImage(bitmap,0,0);return [...ctx.getImageData(8,8,1,1).data].slice(0,3);}finally{bitmap.close();}},png.toString('base64'));
+    assert.deepEqual(web.pixel.slice(0,3),actualPixel); assert.deepEqual(actualPixel,[0,255,0]);
+    assert.notEqual(sha(blueFrame),sha(png)); result.checks.actual_guest_png_to_web_model_pixels=true;
+    for(const width of [390,768,1024,1440]) {
+      await page.setViewportSize({width,height:1080}); await delay(200);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`horizontal overflow at ${width}`);
+      await page.screenshot({path:resolve(output,`${unit}-${width}.png`),fullPage:true});
+    }
+    await editor.focus(); await page.keyboard.press('Tab'); assert.equal(await runButton.evaluate(node=>node===document.activeElement),true);
+    const renew=page.waitForResponse(r=>r.url()===`${base}/api/v1/${prefix}/renew`&&r.request().method()==='POST');
+    await card.locator('[data-action="renew"]').click(); assert.equal((await renew).status(),200);
+    const cancelled=page.waitForResponse(r=>r.url().endsWith(`/runs/${activeRun.run_id}/cancel`)&&r.request().method()==='POST');
+    await card.locator('[data-program-cancel]').click(); assert.equal((await cancelled).status(),202);
+    const terminal=await until(()=>api(`${prefix}/runs/${activeRun.run_id}`),r=>r.state==='cancelled'); assert.equal(terminal.interrupt_ack,'confirmed');
+    const recovered=await clickRun(`print('WEB_AFTER_CANCEL')\n${original}`); result.recovered_run=recovered;
+    const endSession=await api(`sessions/${currentSession}`); assert.equal(endSession.pid,session.pid); assert.equal(endSession.firmware_sha256,session.firmware_sha256);
+    const zip=await api(`sessions/${currentSession}/evidence`); await writeFile(resolve(output,unit+'-evidence.zip'),zip); result.evidence_sha256=sha(zip);
+    const closeResponse=page.waitForResponse(r=>r.url()===`${base}/api/v1/${prefix}/close`&&r.request().method()==='POST');
+    await card.locator('[data-action="stop"]').click(); assert.equal((await closeResponse).status(),202);
+    const closed=await until(()=>api(prefix),p=>p.state==='closed');
+    const stopped=await api(`sessions/${currentSession}`); assert.equal(stopped.state,'stopped');assert.equal(stopped.flash_retained,false);
+    assert.equal(closed.close_evidence.status,'captured');
+    await until(()=>page.locator(`[data-session-id="${currentSession}"] [data-field="preview"]`).textContent(),t=>t.includes('历史会话末帧'));
+    assert.ok((await api(`sessions/${currentSession}/frame.png`)).length>100);
+    assert.throws(()=>process.kill(session.pid,0),{code:'ESRCH'});
+    const capacity=await api('capacity'); assert.equal(capacity.active_sessions,0); assert.equal(capacity.worker.active_lease_count,0);
+    Object.assign(result,{closed,stopped,status:'PASS'}); currentPreview=currentSession=null;
+  }
+  await Promise.all(browserWrites);
+  assert.deepEqual(report.page_errors,[]); assert.deepEqual(await fingerprints(),report.source_sha256);
+  const legacy=report.browser_http.filter(row=>row.method!=='GET' && /\/sessions\/[^/]+\/(program|input|unit-input|renew|reset)$/.test(row.path));
+  assert.deepEqual(legacy,[]); report.status='PASS';
+} catch(error) {report.error=error.stack || String(error);}
+finally {
+  if(currentPreview) {
+    try {currentSession ||= (await api(`previews/${currentPreview}`)).session_id;}catch(error){report.cleanup_identity_error=String(error);}
+    try {if(currentSession) await writeFile(resolve(output,'failure-evidence.zip'),await api(`sessions/${currentSession}/evidence`));}catch(error){report.evidence_error=String(error);}
+    try {report.failure_cleanup=await closeOwned();}catch(error){report.cleanup_error=String(error);}
+  }
+  await browser?.close(); await save('report.json',report);
+}
+console.log(`LIVE_PREVIEW_BROWSER_${report.status}`);
+if(report.status!=='PASS') {console.error(report.error || report.cleanup_error);process.exitCode=1;}

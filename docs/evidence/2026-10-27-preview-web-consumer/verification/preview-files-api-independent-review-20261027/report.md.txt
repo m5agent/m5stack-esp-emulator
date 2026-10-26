@@ -1,0 +1,13 @@
+# Complete-package files API / OpenAPI independent review — 2026-10-27
+
+**PASS — HOST_ONLY_NOT_GUEST.** No unresolved finding.
+
+The new GET `/api/v1/program-revisions/{revision_id}/files` preserves the existing metadata-only GET and returns exactly `revision`, `limits`, and all verified files encoded as canonical base64. Binary resources, MPY dependencies and UTF-8/CRLF bytes survive unchanged. The package store validates path, metadata and content hashes before returning; no session lookup, guest interrupt/execution or checkpoint creation is involved. Existing bearer authorization applies before routing. Unknown IDs, corrupt records, unauthorized reads and maximum-size packages are covered.
+
+Independent verification:
+
+- All 18 `test_program_revision_api.py` HTTP/store/regression tests passed in 9.270 seconds; guest execution/process creation are mocked and HTTP uses a fresh ephemeral local port.
+- The OpenAPI 3.1 document parses; all 348 local references resolve, including the new envelope's nested metadata/limits references. The actual current DeviceService controller response, produced against an isolated temporary package store, validates against the declared schema with format checks. A UTF-8 download alias is rejected by that response schema.
+- Existing metadata envelope and immutable store bytes remain byte-for-byte unchanged. The tested response contains real MPY fixture bytes, binary bytes and a Unicode resource path. The temporary fixture is isolated from user packages and removed after testing.
+
+Source/schema hashes and a replayable check are in `schema-report.json` / `check_schema.py`; the 18-test result is recorded in `report.json`. The reviewer made no product/schema/original-test changes and made no live service or guest request.

@@ -1,0 +1,18 @@
+{
+  "category": "independent-live-artifact-audit",
+  "run": "r2",
+  "overall": "FAIL - runner raw-paste START framing false negative",
+  "checks": {
+    "zip_crc": "PASS",
+    "manifest_file_size_and_sha256": "PASS",
+    "manifest_files": 36,
+    "same_vm_pid_firmware": "PASS",
+    "compiled_module_and_resources_retained": "PASS",
+    "exact_execution_ready_and_sample": "PASS",
+    "frame_identity_and_blue_pixel": "PASS",
+    "stopped_flash_release": "PASS"
+  },
+  "web_unit_input": "NOT REACHED",
+  "web_model_png_comparison": "NOT REACHED",
+  "hardware": "NOT RUN"
+}
