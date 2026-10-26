@@ -1,0 +1,104 @@
+{
+  "firmware_id": "92b9e26c1752ea6dd119ca04b9427aac3a4726635d6e97523c19015adeab846a",
+  "sha256": "92b9e26c1752ea6dd119ca04b9427aac3a4726635d6e97523c19015adeab846a",
+  "device_id": "stopwatch",
+  "flash_size": 16777216,
+  "size": 16777216,
+  "kind": "uiflow",
+  "source": {
+    "kind": "uiflow",
+    "artifact_id": "e14a79abf57433afba06231a1f9af8bf7d68e92f56f1cb1ccb19dd2e9240fba1",
+    "metadata": {
+      "schema_version": 1,
+      "kind": "uiflow2-source-composition",
+      "status": "COMPOSED_NOT_EXECUTED",
+      "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+      "entrypoint": "main.py",
+      "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "base_size": 16773120,
+      "flash_size": 16777216,
+      "source_sha256": "e14a79abf57433afba06231a1f9af8bf7d68e92f56f1cb1ccb19dd2e9240fba1",
+      "effective_source_sha256": "e14a79abf57433afba06231a1f9af8bf7d68e92f56f1cb1ccb19dd2e9240fba1",
+      "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+      "files": [
+        {
+          "path": "boot.py",
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "origin": "caller"
+        },
+        {
+          "path": "host_program.py",
+          "size": 3935,
+          "sha256": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "origin": "caller"
+        },
+        {
+          "path": "main.py",
+          "size": 251,
+          "sha256": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_config.py",
+          "size": 303,
+          "sha256": "5349e8a00dd301bf2efa0cfa2e0c8fc107b5ea1bebd8b472bc62ef12c383dace",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_logging.py",
+          "size": 210,
+          "sha256": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "origin": "caller"
+        }
+      ],
+      "caller_file_count": 5,
+      "caller_source_bytes": 4723,
+      "generated_files": [],
+      "firmware_sha256": "92b9e26c1752ea6dd119ca04b9427aac3a4726635d6e97523c19015adeab846a",
+      "vfs": {
+        "label": "vfs",
+        "type": 1,
+        "subtype": 129,
+        "flags": 0,
+        "offset": 8519680,
+        "size": 8253440,
+        "partition_table_offset": 32768,
+        "source": "actual-base-partition-table",
+        "filesystem": "LittleFS",
+        "base_sha256": "36c5f2fd68cea5188c8d2abc7d8498fcc531e7d583312a95bed9a47d19d897de",
+        "derived_sha256": "cf3fc6d5b713400089e3270ad644913589edef45b9a5b3540813b036f06377a4",
+        "base_disk_version": 131072,
+        "derived_disk_version": 131073
+      },
+      "preservation": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "toolchain": {
+        "builder": "uiflow_source/1",
+        "python": "3.12.8",
+        "python_abi": "cpython-312",
+        "littlefs_python": "0.19.0",
+        "littlefs_library": "(2, 11)",
+        "littlefs_disk": "(2, 1)",
+        "config": {
+          "block_size": 4096,
+          "read_size": 128,
+          "prog_size": 32,
+          "lookahead_size": 128,
+          "block_cycles": 100
+        }
+      }
+    }
+  },
+  "header_magic": 233,
+  "created_at": "2026-10-26T04:53:17.777400+00:00"
+}

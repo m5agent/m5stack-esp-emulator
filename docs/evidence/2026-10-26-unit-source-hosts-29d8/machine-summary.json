@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "category": "three-host UIFlow source API virtual-device validation",
+  "hardware": "NOT RUN",
+  "external_work_log": "SKIPPED_BY_USER",
+  "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "functional_pass_sessions": 9,
+  "sessions": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "button",
+      "session_id": "8b6a5ca4b8724de498dcf5132cb6866c",
+      "status": "PASS",
+      "firmware_sha256": "af44160550fde3c015034fb53d2f86cebc4d925294557bad364264e2fe84bfc6",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "source_cas_sha256": "f1fc143afe499ff9920e3d6db737f59daf87c30ce719bec1606e195beef24922",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "result": "batches/post-sync-r1/atoms3r/button/result.json",
+      "result_sha256": "1f4acd25d99366431a2c8596f684990bff298aa8e12429444945808b079dedc8"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "relay",
+      "session_id": "c39527063bd747a98907c9e7e1402c20",
+      "status": "PASS",
+      "firmware_sha256": "ea7e303e8e85ca0d7c9f9972c2f31e4927da020ff014afd0c0f48e84a45db566",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "source_cas_sha256": "4ad126c158cda48674cd42ee2b5fe88853981b939334e40e12f68385bc0980db",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "result": "batches/post-sync-r1/atoms3r/relay/result.json",
+      "result_sha256": "9fd125c8332fe7e8b05f365bc1e8d76534d21ecd59d98f25c73caf3c7f3e0fcc"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "env-iii",
+      "session_id": "6169526d75c44ca1896bbe23469db49a",
+      "status": "PASS",
+      "firmware_sha256": "e23b4f5faae268a3c08af2869a97e0583266dc53659e747b3d2adde425507f2a",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "source_cas_sha256": "72d3e3f68084a69f8c6c984ce324ebbb7514db1f6dd77530d10acba2889bafb5",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "result": "batches/post-sync-r1/atoms3r/env-iii/result.json",
+      "result_sha256": "a350ab7707eddc7457444dd2ff82cc8f86c34d0729e5e48b88498b61b508a90f"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "button",
+      "session_id": "20fe7cdc249040d580f14e0bd8483f07",
+      "status": "PASS",
+      "firmware_sha256": "873e3c3fdc518b6643eca6c5bcc435f0e5fe13c5748ad1af1727a47dc9babc88",
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "source_cas_sha256": "f594512e6e6438478c8b713d98a3d43b82ec8c9b568f2f57dc06e5060e7db230",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "result": "batches/post-sync-r1/sticks3/button/result.json",
+      "result_sha256": "31ac78af0eb4e8a7f1d491b9cb07b2c31bdc523fdabeaa38d95ce89074e0116f"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "relay",
+      "session_id": "0a49078e902c4661a9a15511d5e857af",
+      "status": "PASS",
+      "firmware_sha256": "7fdcf9d9d16fcf78289082ffe0f8c574bbc78c8ba2b29048941d48d75473bbde",
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "source_cas_sha256": "b170ecb673316b04eba9e22171e78be022617b7e8cd49f6f90544ac6d91350c8",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "result": "batches/post-sync-r1/sticks3/relay/result.json",
+      "result_sha256": "8959fc4002ca2314d996962bc32996820bc3e7b896456dbf09116496522ecb9c"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "env-iii",
+      "session_id": "57e1162930be4dc3bac43f9abe9c3d46",
+      "status": "PASS",
+      "firmware_sha256": "8daeb83ba9b16422be710544bb199055fcfc2596ea4861d229a7f49e34d47c0e",
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "source_cas_sha256": "1743d4ba7c38eb69228eba6dee30dc4ff910e43432f97ed7a6520aa5db100dbe",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "result": "batches/post-sync-r1/sticks3/env-iii/result.json",
+      "result_sha256": "70d7b408615fe8ec03e24b3f0a7e4031c5adfa0f12a60a950c96661cbe97296d"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "button",
+      "session_id": "b73b0876526f47dd81ad8727422dd11c",
+      "status": "PASS",
+      "firmware_sha256": "8d40af7568717283c1de1d6e298d3786803bdeacba334a14a7bdcf39064d4663",
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "source_cas_sha256": "0005bc8ef2ba44dcc537272b01b08dd52929417ee4960b908957c5deca5f33a3",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "result": "batches/post-sync-r1/stopwatch/button/result.json",
+      "result_sha256": "145220a6c8b0be9aaaf0f5b0c56eabd3be9839d49948dc54ad282647d54a4051"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "relay",
+      "session_id": "baa618a26cbb447db4efb3ffad6e8e65",
+      "status": "PASS",
+      "firmware_sha256": "e41992637f649f072ad067e7213974d12b41dc40b180b520eaab620178bfcbf7",
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "source_cas_sha256": "e9159b5805282a77c820c3c2b2a98fd468b2dc34aa8ace91862ebf02b55402a4",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "result": "batches/post-sync-r1/stopwatch/relay/result.json",
+      "result_sha256": "8052b17630f537ef0042e088323607bb20060ce15289115f6063bdc0a7920ef1"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "env-iii",
+      "session_id": "3082109c4bf04acb8e2ac923e71018d4",
+      "status": "PASS",
+      "firmware_sha256": "92b9e26c1752ea6dd119ca04b9427aac3a4726635d6e97523c19015adeab846a",
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "source_cas_sha256": "e14a79abf57433afba06231a1f9af8bf7d68e92f56f1cb1ccb19dd2e9240fba1",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "result": "batches/post-sync-r1/stopwatch/env-iii/result.json",
+      "result_sha256": "8b756e713af2d040283559c3768a25ba93f4a8b8f142f0b1b16471003ed8620a"
+    }
+  ],
+  "scope": "Only Button/Relay/ENV III per host; reference-bundled drivers unchanged; no inference for other 24 types, hotplug, physical behavior or shared full matrix"
+}

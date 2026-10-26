@@ -1,0 +1,18 @@
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0xcf8
+load:0x403c8700,len:0xb34
+load:0x403cb700,len:0x2d18
+entry 0x403c8890
+E (833) i2c.master: this port has not been initialized, please initialize it first
+HOST_PROBE_START sticks3 button
+HOST_GEOMETRY 135 240 0
+HOST_BOARD 26
+HOST_INTERNAL before 36 1
+HOST_INTERNAL after_init 36 2
+HOST_PROBE_READY sticks3 button
+HOST_BUTTON 1 0
+HOST_INTERNAL loop 36 3

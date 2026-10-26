@@ -1,0 +1,13 @@
+# Three-host actual-session review preparation
+
+Status: PREPARATION ONLY. No API/browser/guest/QEMU/build was invoked and no runtime PASS is granted. The live output directory and post-sync source-context commit are pending root. Existing authoring/self-check outputs are not accepted as actual-session evidence.
+
+Read the original host_probe files, run_host_cases HOSTS/reference_layout/validate_case/validate_bundle, source harness README, recorder and semantic checks. The actual path is AtomS3R, StickS3 and StopWatch times Button, Relay and ENV III: nine combinations. All five caller files must match four original probe files plus the original generated configuration expression. Reference firmware bundled drivers remain unchanged; uploaded source contains no replacement driver.
+
+Host-specific review boundaries: AtomS3R internal I2C1 SDA47/SCL0 versus Grove white1/yellow2, native/canvas128x128. StickS3 internal47/48 versus Grove white10/yellow9, native/canvas135x240. StopWatch internal47/48 versus Grove white11/yellow10, native466x466 versus guest canvas468x468. StopWatch geometry difference is an explicit original profile, not a framebuffer failure. Native readability will be opened and assessed per actual host/frame rather than inferred from nonblank pixels.
+
+Guest onboard BMI270 reads CHIP_ID0x24 at I2C address0x68/register0 before construction, after init and after external operations; the counter is strictly increasing. ENV III external scan must be exactly0x44/0x70 and preserve onboard identity after each fresh input. Button retains all four edge/IRQ observations. Relay has zero host input and must show both actual guest output levels through recorded QOM sampling. Original predicates/timeouts are preserved.
+
+The pending audit will independently recompute actual source/session HTTP, caller CAS and host base/VFS binding, fresh lower/upper UART windows, per-host display and pins, raw browser actions/noops/POST readbacks, actual serial byte intervals against ZIP, controller/contract data, owned PID/runtime29d8/worker provenance and ZIP-before-retained-stop cleanup. Missing/wrong source-pin negatives are not claimed unless root actually executes them in this new batch. Hardware and broad cross-host/firmware-family equivalence remain separate.
+
+expected-contract.json records the current authoring source hashes and exact host/case expectations. Re-read the final executed source snapshot after root supplies its terminal directory; this preflight snapshot is not the final execution freeze.

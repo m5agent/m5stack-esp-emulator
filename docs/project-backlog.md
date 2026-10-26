@@ -61,10 +61,10 @@ eFuse 或生产 key。
 
 ## 当前执行顺序
 
-按最新用户优先级，`UNIT-01` 已具备 CoreS3 选定 UIFlow 源码场景的
-Device Service API→可见 session/多 Unit→实时读写控制闭环，范围与复现入口
-见[源码 API 指南](unit-agent-api.md)。下一步将其它三款准入主机接入实际源码
-API 执行，并解决这些主机的 ADC app calibration/ADC2 oracle 与 Thermal
+按最新用户优先级，`UNIT-01` 已具备 CoreS3 选定场景及三主机首批 Unit 的
+UIFlow 源码 API→可见 session→实时读写控制闭环，范围与复现入口见
+[源码 API 指南](unit-agent-api.md)。下一步扩展这三款主机剩余 Unit 的实际
+源码 API 执行，并解决这些主机的 ADC app calibration/ADC2 oracle 与 Thermal
 fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、原 Buzzer、
 PWM 初始化 QOM route/完整周期语义及共享 runtime 完整回归门禁。实现契约见
 [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md)，精确批次与证据
@@ -113,7 +113,7 @@ PWM 初始化 QOM route/完整周期语义及共享 runtime 完整回归门禁�
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
-| `UNIT-01` | 进行中 | 其它三款准入主机的实际源码 API 执行、三主机 IO 的 ADC app calibration/ADC2 oracle 与 Thermal fixture、新 HUB 拓扑、原 IR GC 长期风险、原 Buzzer、PWM 初始化 QOM route/完整周期语义、共享完整回归、Heart 零值暂态/生理算法和视觉缺口 | 新固件重新验证；逐型号同 guest 读写、Web 输入/输出、可见 session 和 evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有 UI 状态；主机问题单独记录，不以诊断、custom guest 或桥契约替代原固件结论；真机同路径另验 |
+| `UNIT-01` | 进行中 | 其它三款准入主机剩余 Unit 的实际源码 API 执行、三主机 IO 的 ADC app calibration/ADC2 oracle 与 Thermal fixture、新 HUB 拓扑、原 IR GC 长期风险、原 Buzzer、PWM 初始化 QOM route/完整周期语义、共享完整回归、Heart 零值暂态/生理算法和视觉缺口 | 新固件重新验证；逐型号同 guest 读写、Web 输入/输出、可见 session 和 evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有 UI 状态；主机问题单独记录，不以诊断、custom guest 或桥契约替代原固件结论；真机同路径另验 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
 ## P0：Core2 legacy UIFlow 运行时

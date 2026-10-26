@@ -151,3 +151,10 @@ display-only 适配；Fan 图形活动只覆盖实际观测段。
 本批未改共享 runtime，不补全旧完整矩阵；跨主机、原驱动缺口和视觉/物理
 映射继续在权威 Backlog 中推进。完成该检查点并提交后，再拉取最新主线、
 审查合并影响并继续 Unit；不覆盖其它会话的工作目录。
+
+扩展源码块已提交为 `0fe6a01`，之后正式 fetch 并合并检查 `origin/main`
+仍为 `f206175`，已包含最新远端。全新准备的 AtomS3R/StickS3/StopWatch ×
+Button/Relay/ENV III 九个源码 API 会话全部通过，原 host probe、板载 BMI270
+总线隔离、显示与原断言保留。该结果只授予这九个新固件/场景，不继承其它
+二十四种 Unit；精确 source pin、同 guest/Web/QOM、ZIP、直接 PID 及清理见
+[三主机源码归档](../evidence/2026-10-26-unit-source-hosts-29d8/README.md)。

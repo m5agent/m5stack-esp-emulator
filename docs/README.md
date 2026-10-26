@@ -135,6 +135,7 @@
 | [Unit 接入问题](unit-integration-host-issues.md) | 参考记录 | `2026-10-26` | 接入期间发现的主机问题与处理边界 |
 | [Unit 源码 API 首批验收](evidence/2026-10-26-unit-source-api-29d8/README.md) | 历史证据 | `2026-10-26` | 五例源码 API 与逐字 Button/HUB+ENV/NCIR 示例；同 guest/Web/QOM/sourcepin/ZIP 和清理，限 CoreS3，硬件 NOT RUN |
 | [Unit 源码 API 扩展验收](evidence/2026-10-26-unit-source-api-expanded-29d8/README.md) | 历史证据 | `2026-10-26` | 传感器、IO、控制类及显式 custom；原 IR 待审、原 Buzzer 自然归零失败、Thermal 负控与功能例分开，公开研究和可重放原始证据，限 CoreS3 |
+| [三主机 Unit 源码 API](evidence/2026-10-26-unit-source-hosts-29d8/README.md) | 历史证据 | `2026-10-26` | 提交并同步主线后全新准备；AtomS3R、StickS3、StopWatch 各 Button/Relay/ENV III，同 guest 原 host probe、内部总线隔离、真实 Web/源码 pin/取证与清理，其它 Unit 不继承 |
 | [S3 LEDC 读回与试听](evidence/2026-10-26-unit-ledc-audio-29d8/README.md)、[七层重放](evidence/2026-10-26-unit-ledc-audio-29d8/replay/README.md)、[getter独审](evidence/2026-10-26-unit-ledc-audio-29d8/replay/getter-independent-review/README.md) | 历史证据 | `2026-10-26` | 同 SHA getter/MMIO A/B、真实音频图与停止静音；完整回归66/67与独立复测分开，完整门禁仍OPEN |
 | [三主机六传感器实际证据](evidence/2026-10-26-unit-host-sensors-gen9-a8fe/README.md) | 历史证据 | `2026-10-26` | 18 个同 guest/Web 会话、原驱动负控、fresh 串口、直接 PID、三路非原子帧和保留历史；Heart 零值暂态与人工可读性分别记录 |
 | [Unit 官方协议](unit-research/official-protocols.md) | 参考依据 | `2026-10-26` | 官方芯片、驱动、物理端口、版本冲突与离线参考；不是 runtime PASS |

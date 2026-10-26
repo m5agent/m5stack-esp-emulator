@@ -1,0 +1,9 @@
+# Three-host source API harness independent review
+
+Result: NO_ACTIONABLE_FINDINGS for frozen harness 84633d2b4bea3445d2eadc8dca56907fb6f83daa467709114b86cd5e12ca6965.
+
+Independent offline preparation completed 150 checks across all nine combinations while socket, urllib HTTP, subprocess, Client and original BIN-builder/prepare operations were denied. Unexpected calls: zero; generated firmware binaries: zero. Four original guest Python files are byte-exact; generated config retains device-specific physical bus and display values, including StopWatch native 466x466 versus 468x468 guest canvas. Three distinct real reference hashes and five-file source CAS are recomputed.
+
+Original HOSTS/validate_case/validate_bundle and Observations are pinned, preserving onboard BMI before/after/loop reads, external ENV scan/two vectors, Button IRQ edges, Relay output states and original ZIP identity/hash oracles. Static review confirms direct PID/observed_pid alias, observed worker generation, caller source/host base pin, real Web/HTTP backing, ZIP-before-stop, retained history/Flash release and cleanup checks. Synthetic live-wait and offline-window counterexamples independently reject old predicates plus unrelated new UART, stale UART, and borrowing later-input UART.
+
+Execution still requires root commit/fetch and fresh preparation bound to actual post-sync HEAD. This is authoring acceptance, not source API/guest PASS. The original final BMI read is not claimed atomic with the final QOM/frame, so no extra atomicity conclusion is granted. Frozen author inputs remained unchanged.

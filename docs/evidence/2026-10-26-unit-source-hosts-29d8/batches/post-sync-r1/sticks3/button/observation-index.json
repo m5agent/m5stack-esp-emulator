@@ -1,0 +1,222 @@
+[
+  {
+    "at": "2026-10-26T04:51:25.243390+00:00",
+    "event_id": 0,
+    "kind": "wait-success",
+    "phase": "startup",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00000-serial.txt",
+    "serial_sha256": "1e2f764f0944286b9858d157f4736d4903ed8036fef10b97f47299223390d4ad"
+  },
+  {
+    "at": "2026-10-26T04:51:25.243544+00:00",
+    "event_id": 1,
+    "kind": "marker",
+    "marker": "HOST_PROBE_READY sticks3 button",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00001-marker.txt",
+    "serial_sha256": "1e2f764f0944286b9858d157f4736d4903ed8036fef10b97f47299223390d4ad"
+  },
+  {
+    "at": "2026-10-26T04:51:25.266774+00:00",
+    "event_id": 2,
+    "kind": "wait-success",
+    "phase": "HOST_PROBE_READY sticks3 button",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00002-serial.txt",
+    "serial_sha256": "1e2f764f0944286b9858d157f4736d4903ed8036fef10b97f47299223390d4ad"
+  },
+  {
+    "at": "2026-10-26T04:51:25.267020+00:00",
+    "event_id": 3,
+    "kind": "marker",
+    "marker": "HOST_GEOMETRY 135 240 0",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00003-marker.txt",
+    "serial_sha256": "1e2f764f0944286b9858d157f4736d4903ed8036fef10b97f47299223390d4ad"
+  },
+  {
+    "at": "2026-10-26T04:51:25.269873+00:00",
+    "event_id": 4,
+    "kind": "wait-success",
+    "phase": "HOST_GEOMETRY 135 240 0",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00004-serial.txt",
+    "serial_sha256": "1e2f764f0944286b9858d157f4736d4903ed8036fef10b97f47299223390d4ad"
+  },
+  {
+    "at": "2026-10-26T04:51:25.270023+00:00",
+    "event_id": 5,
+    "kind": "marker",
+    "marker": "HOST_INTERNAL before 36 1",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00005-marker.txt",
+    "serial_sha256": "1e2f764f0944286b9858d157f4736d4903ed8036fef10b97f47299223390d4ad"
+  },
+  {
+    "at": "2026-10-26T04:51:25.272484+00:00",
+    "event_id": 6,
+    "kind": "wait-success",
+    "phase": "HOST_INTERNAL before 36 1",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00006-serial.txt",
+    "serial_sha256": "1e2f764f0944286b9858d157f4736d4903ed8036fef10b97f47299223390d4ad"
+  },
+  {
+    "at": "2026-10-26T04:51:25.272722+00:00",
+    "event_id": 7,
+    "kind": "marker",
+    "marker": "HOST_INTERNAL after_init 36 2",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00007-marker.txt",
+    "serial_sha256": "1e2f764f0944286b9858d157f4736d4903ed8036fef10b97f47299223390d4ad"
+  },
+  {
+    "at": "2026-10-26T04:51:25.273910+00:00",
+    "event_id": 8,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "pressed": true
+    },
+    "before_cursor": {
+      "session_id": "20fe7cdc249040d580f14e0bd8483f07",
+      "offset": 0,
+      "next_offset": 515,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (833) i2c.master: this port has not been initialized, please initialize it first\r\nHOST_PROBE_START sticks3 button\r\nHOST_GEOMETRY 135 240 0\r\nHOST_BOARD 26\r\nHOST_INTERNAL before 36 1\r\nHOST_INTERNAL after_init 36 2\r\nHOST_PROBE_READY sticks3 button\r\nHOST_BUTTON 1 0\r\nHOST_INTERNAL loop 36 3\r\n",
+      "bytes": 515
+    },
+    "via_ui": true,
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T04:51:27.020404+00:00",
+    "event_id": 9,
+    "kind": "wait-success",
+    "phase": "HOST_INTERNAL after_init 36 2",
+    "offset": 515,
+    "input_event": 8,
+    "serial_file": "observations/00009-serial.txt",
+    "serial_sha256": "aebace773faf08125febd7d4ee41dfa270939cd41b384092ae4d1794cba95186"
+  },
+  {
+    "at": "2026-10-26T04:51:27.021682+00:00",
+    "event_id": 10,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "pressed": false
+    },
+    "before_cursor": {
+      "session_id": "20fe7cdc249040d580f14e0bd8483f07",
+      "offset": 0,
+      "next_offset": 725,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (833) i2c.master: this port has not been initialized, please initialize it first\r\nHOST_PROBE_START sticks3 button\r\nHOST_GEOMETRY 135 240 0\r\nHOST_BOARD 26\r\nHOST_INTERNAL before 36 1\r\nHOST_INTERNAL after_init 36 2\r\nHOST_PROBE_READY sticks3 button\r\nHOST_BUTTON 1 0\r\nHOST_INTERNAL loop 36 3\r\nHOST_INTERNAL loop 36 4\r\nHOST_INTERNAL loop 36 5\r\nHOST_INTERNAL loop 36 6\r\nHOST_INTERNAL loop 36 7\r\nHOST_INTERNAL loop 36 8\r\nHOST_BUTTON 1 0\r\nHOST_INTERNAL loop 36 9\r\nHOST_BUTTON 0 0\r\nHOST_INTERNAL loop 36 10\r\n",
+      "bytes": 725
+    },
+    "via_ui": true,
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T04:51:27.281707+00:00",
+    "event_id": 11,
+    "kind": "wait-success",
+    "phase": "HOST_INTERNAL after_init 36 2",
+    "offset": 725,
+    "input_event": 10,
+    "serial_file": "observations/00011-serial.txt",
+    "serial_sha256": "5aa766533c1dc9d46e0a2e4c41aa068e7008e761fd803d64dbc39cb38a8f1e10"
+  },
+  {
+    "at": "2026-10-26T04:51:27.283137+00:00",
+    "event_id": 12,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "pressed": true
+    },
+    "before_cursor": {
+      "session_id": "20fe7cdc249040d580f14e0bd8483f07",
+      "offset": 0,
+      "next_offset": 768,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (833) i2c.master: this port has not been initialized, please initialize it first\r\nHOST_PROBE_START sticks3 button\r\nHOST_GEOMETRY 135 240 0\r\nHOST_BOARD 26\r\nHOST_INTERNAL before 36 1\r\nHOST_INTERNAL after_init 36 2\r\nHOST_PROBE_READY sticks3 button\r\nHOST_BUTTON 1 0\r\nHOST_INTERNAL loop 36 3\r\nHOST_INTERNAL loop 36 4\r\nHOST_INTERNAL loop 36 5\r\nHOST_INTERNAL loop 36 6\r\nHOST_INTERNAL loop 36 7\r\nHOST_INTERNAL loop 36 8\r\nHOST_BUTTON 1 0\r\nHOST_INTERNAL loop 36 9\r\nHOST_BUTTON 0 0\r\nHOST_INTERNAL loop 36 10\r\nHOST_BUTTON 1 1\r\nHOST_INTERNAL loop 36 11\r\n",
+      "bytes": 768
+    },
+    "via_ui": true,
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T04:51:27.809071+00:00",
+    "event_id": 13,
+    "kind": "wait-success",
+    "phase": "HOST_INTERNAL after_init 36 2",
+    "offset": 768,
+    "input_event": 12,
+    "serial_file": "observations/00013-serial.txt",
+    "serial_sha256": "6779e5cfc1d2b0257f7bfdf875d8056ce85df5ac6c9f764899fc5dccfcf1e7f0"
+  },
+  {
+    "at": "2026-10-26T04:51:27.810531+00:00",
+    "event_id": 14,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "pressed": false
+    },
+    "before_cursor": {
+      "session_id": "20fe7cdc249040d580f14e0bd8483f07",
+      "offset": 0,
+      "next_offset": 837,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (833) i2c.master: this port has not been initialized, please initialize it first\r\nHOST_PROBE_START sticks3 button\r\nHOST_GEOMETRY 135 240 0\r\nHOST_BOARD 26\r\nHOST_INTERNAL before 36 1\r\nHOST_INTERNAL after_init 36 2\r\nHOST_PROBE_READY sticks3 button\r\nHOST_BUTTON 1 0\r\nHOST_INTERNAL loop 36 3\r\nHOST_INTERNAL loop 36 4\r\nHOST_INTERNAL loop 36 5\r\nHOST_INTERNAL loop 36 6\r\nHOST_INTERNAL loop 36 7\r\nHOST_INTERNAL loop 36 8\r\nHOST_BUTTON 1 0\r\nHOST_INTERNAL loop 36 9\r\nHOST_BUTTON 0 0\r\nHOST_INTERNAL loop 36 10\r\nHOST_BUTTON 1 1\r\nHOST_INTERNAL loop 36 11\r\nHOST_INTERNAL loop 36 12\r\nHOST_BUTTON 0 2\r\nHOST_INTERNAL loop 36 13\r\n",
+      "bytes": 837
+    },
+    "via_ui": true,
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T04:51:28.139862+00:00",
+    "event_id": 15,
+    "kind": "wait-success",
+    "phase": "HOST_INTERNAL after_init 36 2",
+    "offset": 837,
+    "input_event": 14,
+    "serial_file": "observations/00015-serial.txt",
+    "serial_sha256": "0ea6ce99f8bc09d568f714833c3e8c69aa251fbca7151a97d63f602ec44a6c89"
+  },
+  {
+    "at": "2026-10-26T04:51:28.356088+00:00",
+    "event_id": 16,
+    "kind": "wait-success",
+    "phase": "HOST_INTERNAL after_init 36 2",
+    "offset": 880,
+    "input_event": 14,
+    "serial_file": "observations/00016-serial.txt",
+    "serial_sha256": "33489708075adf70b590bdd1b87d8ff7a503f4b1d091f69a26494faaf182683b"
+  },
+  {
+    "at": "2026-10-26T04:51:28.830303+00:00",
+    "event_id": 17,
+    "kind": "state",
+    "file": "observations/00017-state.json",
+    "phase": "HOST_INTERNAL after_init 36 2",
+    "input_event": 14
+  },
+  {
+    "at": "2026-10-26T04:51:28.835222+00:00",
+    "event_id": 18,
+    "kind": "wait-success",
+    "phase": "HOST_INTERNAL after_init 36 2",
+    "offset": 0,
+    "input_event": 14,
+    "serial_file": "observations/00018-serial.txt",
+    "serial_sha256": "393f0db4716643525cb0fe43848fa1e773b87a94a565c036e731e729b8e0eb20"
+  }
+]

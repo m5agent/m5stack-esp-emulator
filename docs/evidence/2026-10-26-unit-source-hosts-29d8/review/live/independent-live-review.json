@@ -1,0 +1,824 @@
+{
+  "status": "PASS",
+  "scope": "Exact terminal post-sync host9 source/guest/controller/Web/ZIP/cleanup bytes; native visual inspection is reported separately",
+  "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+  "harness_sha256": "84633d2b4bea3445d2eadc8dca56907fb6f83daa467709114b86cd5e12ca6965",
+  "api_or_process_calls": 0,
+  "hardware": "NOT RUN",
+  "cases": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "button",
+      "session_id": "8b6a5ca4b8724de498dcf5132cb6866c",
+      "status": "PASS",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "f1fc143afe499ff9920e3d6db737f59daf87c30ce719bec1606e195beef24922",
+      "base_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "five_original_config_source_files": true,
+      "native": [
+        128,
+        128
+      ],
+      "guest_canvas": [
+        128,
+        128
+      ],
+      "grove_pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "internal_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0,
+        "chip_id": 36,
+        "reads": 20,
+        "last_read_counter": 20
+      },
+      "semantics": {
+        "button_fresh_edges": [
+          {
+            "pressed": true,
+            "original_minimum_irq": 0,
+            "observed_matches": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "pressed": false,
+            "original_minimum_irq": 1,
+            "observed_matches": [
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "pressed": true,
+            "original_minimum_irq": 2,
+            "observed_matches": [
+              [
+                0,
+                2
+              ]
+            ]
+          },
+          {
+            "pressed": false,
+            "original_minimum_irq": 3,
+            "observed_matches": [
+              [
+                1,
+                3
+              ]
+            ]
+          }
+        ],
+        "oracle": "Original raw level + count>=index preserved; no new exact-count/stability gate"
+      },
+      "fresh_windows": [
+        {
+          "input_event": 8,
+          "lower": 516,
+          "observed_end": 778,
+          "next_input_upper": 778
+        },
+        {
+          "input_event": 10,
+          "lower": 778,
+          "observed_end": 821,
+          "next_input_upper": 821
+        },
+        {
+          "input_event": 12,
+          "lower": 821,
+          "observed_end": 890,
+          "next_input_upper": 890
+        },
+        {
+          "input_event": 14,
+          "lower": 890,
+          "observed_end": 1011,
+          "next_input_upper": 1011
+        }
+      ],
+      "real_browser_posts": 4,
+      "raw_http_events": 96,
+      "raw_serial_ranges_bound_to_zip": 43,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "raw_history_flash_idle_cleanup": true,
+      "native_frame_sha256": "9e78579aa04288ecae265397062e8507ed4f7971e1c0955affe3506467b5cb38",
+      "pid_exit": "Execution-time owned-PID record verified; no new OS process sampling"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "relay",
+      "session_id": "c39527063bd747a98907c9e7e1402c20",
+      "status": "PASS",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "4ad126c158cda48674cd42ee2b5fe88853981b939334e40e12f68385bc0980db",
+      "base_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "five_original_config_source_files": true,
+      "native": [
+        128,
+        128
+      ],
+      "guest_canvas": [
+        128,
+        128
+      ],
+      "grove_pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "internal_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0,
+        "chip_id": 36,
+        "reads": 9,
+        "last_read_counter": 9
+      },
+      "semantics": {
+        "relay_recorded_qom_levels": [
+          false,
+          false,
+          false,
+          true,
+          true,
+          true,
+          false,
+          false,
+          false,
+          true,
+          true,
+          true,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "input_count": 0,
+        "oracle": "Both original guest output markers and actual QOM levels; no host-forced output"
+      },
+      "fresh_windows": [],
+      "real_browser_posts": 0,
+      "raw_http_events": 88,
+      "raw_serial_ranges_bound_to_zip": 29,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "raw_history_flash_idle_cleanup": true,
+      "native_frame_sha256": "0551134d30d362704f608450a184dc68fda592cd7e0c37d452efe29e071e515d",
+      "pid_exit": "Execution-time owned-PID record verified; no new OS process sampling"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "env-iii",
+      "session_id": "6169526d75c44ca1896bbe23469db49a",
+      "status": "PASS",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "72d3e3f68084a69f8c6c984ce324ebbb7514db1f6dd77530d10acba2889bafb5",
+      "base_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "five_original_config_source_files": true,
+      "native": [
+        128,
+        128
+      ],
+      "guest_canvas": [
+        128,
+        128
+      ],
+      "grove_pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "internal_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0,
+        "chip_id": 36,
+        "reads": 9,
+        "last_read_counter": 9
+      },
+      "semantics": {
+        "env_fresh_vectors": [
+          {
+            "expected": [
+              31.5,
+              67,
+              98765
+            ],
+            "observed_matches": [
+              [
+                31.5,
+                67.0,
+                98765.0
+              ]
+            ]
+          },
+          {
+            "expected": [
+              18.75,
+              45.5,
+              103200
+            ],
+            "observed_matches": [
+              [
+                18.75,
+                45.5,
+                103200.0
+              ]
+            ]
+          }
+        ],
+        "external_scan": [
+          68,
+          112
+        ],
+        "onboard_bmi_after_each_vector": true,
+        "controller_counters": {
+          "transactions": 77,
+          "read-bytes": 152,
+          "written-bytes": 54,
+          "input-events": 6
+        }
+      },
+      "fresh_windows": [
+        {
+          "input_event": 10,
+          "lower": 588,
+          "observed_end": 757,
+          "next_input_upper": 757
+        },
+        {
+          "input_event": 13,
+          "lower": 757,
+          "observed_end": 842,
+          "next_input_upper": 842
+        }
+      ],
+      "real_browser_posts": 6,
+      "raw_http_events": 75,
+      "raw_serial_ranges_bound_to_zip": 31,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "raw_history_flash_idle_cleanup": true,
+      "native_frame_sha256": "3014e69e5e1319fe509b82939621cb53cfed68de9d1fe6848c53196cd988cd19",
+      "pid_exit": "Execution-time owned-PID record verified; no new OS process sampling"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "button",
+      "session_id": "20fe7cdc249040d580f14e0bd8483f07",
+      "status": "PASS",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "f594512e6e6438478c8b713d98a3d43b82ec8c9b568f2f57dc06e5060e7db230",
+      "base_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "five_original_config_source_files": true,
+      "native": [
+        135,
+        240
+      ],
+      "guest_canvas": [
+        135,
+        240
+      ],
+      "grove_pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "internal_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48,
+        "chip_id": 36,
+        "reads": 17,
+        "last_read_counter": 17
+      },
+      "semantics": {
+        "button_fresh_edges": [
+          {
+            "pressed": true,
+            "original_minimum_irq": 0,
+            "observed_matches": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "pressed": false,
+            "original_minimum_irq": 1,
+            "observed_matches": [
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "pressed": true,
+            "original_minimum_irq": 2,
+            "observed_matches": [
+              [
+                0,
+                2
+              ]
+            ]
+          },
+          {
+            "pressed": false,
+            "original_minimum_irq": 3,
+            "observed_matches": [
+              [
+                1,
+                3
+              ]
+            ]
+          }
+        ],
+        "oracle": "Original raw level + count>=index preserved; no new exact-count/stability gate"
+      },
+      "fresh_windows": [
+        {
+          "input_event": 8,
+          "lower": 515,
+          "observed_end": 725,
+          "next_input_upper": 725
+        },
+        {
+          "input_event": 10,
+          "lower": 725,
+          "observed_end": 768,
+          "next_input_upper": 768
+        },
+        {
+          "input_event": 12,
+          "lower": 768,
+          "observed_end": 837,
+          "next_input_upper": 837
+        },
+        {
+          "input_event": 14,
+          "lower": 837,
+          "observed_end": 958,
+          "next_input_upper": 958
+        }
+      ],
+      "real_browser_posts": 4,
+      "raw_http_events": 68,
+      "raw_serial_ranges_bound_to_zip": 29,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "raw_history_flash_idle_cleanup": true,
+      "native_frame_sha256": "776a51f5179e388d16bc477e5d9a89a6d18b7d0b35ebb4f80c4f9a7cf8be2b0e",
+      "pid_exit": "Execution-time owned-PID record verified; no new OS process sampling"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "relay",
+      "session_id": "0a49078e902c4661a9a15511d5e857af",
+      "status": "PASS",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "b170ecb673316b04eba9e22171e78be022617b7e8cd49f6f90544ac6d91350c8",
+      "base_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "five_original_config_source_files": true,
+      "native": [
+        135,
+        240
+      ],
+      "guest_canvas": [
+        135,
+        240
+      ],
+      "grove_pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "internal_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48,
+        "chip_id": 36,
+        "reads": 9,
+        "last_read_counter": 9
+      },
+      "semantics": {
+        "relay_recorded_qom_levels": [
+          false,
+          false,
+          true,
+          true,
+          true,
+          false,
+          false,
+          false,
+          true,
+          true,
+          true,
+          false,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "input_count": 0,
+        "oracle": "Both original guest output markers and actual QOM levels; no host-forced output"
+      },
+      "fresh_windows": [],
+      "real_browser_posts": 0,
+      "raw_http_events": 80,
+      "raw_serial_ranges_bound_to_zip": 25,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "raw_history_flash_idle_cleanup": true,
+      "native_frame_sha256": "6938a3552796a91832a0b12999a70458ebed1f911d5d234421c4e7483cc448c6",
+      "pid_exit": "Execution-time owned-PID record verified; no new OS process sampling"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "env-iii",
+      "session_id": "57e1162930be4dc3bac43f9abe9c3d46",
+      "status": "PASS",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "1743d4ba7c38eb69228eba6dee30dc4ff910e43432f97ed7a6520aa5db100dbe",
+      "base_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "five_original_config_source_files": true,
+      "native": [
+        135,
+        240
+      ],
+      "guest_canvas": [
+        135,
+        240
+      ],
+      "grove_pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "internal_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48,
+        "chip_id": 36,
+        "reads": 8,
+        "last_read_counter": 8
+      },
+      "semantics": {
+        "env_fresh_vectors": [
+          {
+            "expected": [
+              31.5,
+              67,
+              98765
+            ],
+            "observed_matches": [
+              [
+                31.5,
+                67.0,
+                98765.0
+              ]
+            ]
+          },
+          {
+            "expected": [
+              18.75,
+              45.5,
+              103200
+            ],
+            "observed_matches": [
+              [
+                18.75,
+                45.5,
+                103200.0
+              ]
+            ]
+          }
+        ],
+        "external_scan": [
+          68,
+          112
+        ],
+        "onboard_bmi_after_each_vector": true,
+        "controller_counters": {
+          "transactions": 74,
+          "read-bytes": 146,
+          "written-bytes": 50,
+          "input-events": 6
+        }
+      },
+      "fresh_windows": [
+        {
+          "input_event": 10,
+          "lower": 697,
+          "observed_end": 756,
+          "next_input_upper": 756
+        },
+        {
+          "input_event": 13,
+          "lower": 756,
+          "observed_end": 841,
+          "next_input_upper": 841
+        }
+      ],
+      "real_browser_posts": 6,
+      "raw_http_events": 51,
+      "raw_serial_ranges_bound_to_zip": 19,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "raw_history_flash_idle_cleanup": true,
+      "native_frame_sha256": "36c476e34fa1df9f29e1090f429886db005a66bb00cf708509f8da1cb11fe6ee",
+      "pid_exit": "Execution-time owned-PID record verified; no new OS process sampling"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "button",
+      "session_id": "b73b0876526f47dd81ad8727422dd11c",
+      "status": "PASS",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "0005bc8ef2ba44dcc537272b01b08dd52929417ee4960b908957c5deca5f33a3",
+      "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "five_original_config_source_files": true,
+      "native": [
+        466,
+        466
+      ],
+      "guest_canvas": [
+        468,
+        468
+      ],
+      "grove_pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "internal_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48,
+        "chip_id": 36,
+        "reads": 19,
+        "last_read_counter": 19
+      },
+      "semantics": {
+        "button_fresh_edges": [
+          {
+            "pressed": true,
+            "original_minimum_irq": 0,
+            "observed_matches": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "pressed": false,
+            "original_minimum_irq": 1,
+            "observed_matches": [
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "pressed": true,
+            "original_minimum_irq": 2,
+            "observed_matches": [
+              [
+                0,
+                2
+              ]
+            ]
+          },
+          {
+            "pressed": false,
+            "original_minimum_irq": 3,
+            "observed_matches": [
+              [
+                1,
+                3
+              ]
+            ]
+          }
+        ],
+        "oracle": "Original raw level + count>=index preserved; no new exact-count/stability gate"
+      },
+      "fresh_windows": [
+        {
+          "input_event": 8,
+          "lower": 519,
+          "observed_end": 781,
+          "next_input_upper": 781
+        },
+        {
+          "input_event": 10,
+          "lower": 781,
+          "observed_end": 850,
+          "next_input_upper": 850
+        },
+        {
+          "input_event": 12,
+          "lower": 850,
+          "observed_end": 919,
+          "next_input_upper": 919
+        },
+        {
+          "input_event": 14,
+          "lower": 919,
+          "observed_end": 988,
+          "next_input_upper": 988
+        }
+      ],
+      "real_browser_posts": 4,
+      "raw_http_events": 100,
+      "raw_serial_ranges_bound_to_zip": 45,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "raw_history_flash_idle_cleanup": true,
+      "native_frame_sha256": "401b2455646a64664f6f4b67d1fb95d2a672b8824bb492dafd57c3bd6ac7102b",
+      "pid_exit": "Execution-time owned-PID record verified; no new OS process sampling"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "relay",
+      "session_id": "baa618a26cbb447db4efb3ffad6e8e65",
+      "status": "PASS",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "e9159b5805282a77c820c3c2b2a98fd468b2dc34aa8ace91862ebf02b55402a4",
+      "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "five_original_config_source_files": true,
+      "native": [
+        466,
+        466
+      ],
+      "guest_canvas": [
+        468,
+        468
+      ],
+      "grove_pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "internal_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48,
+        "chip_id": 36,
+        "reads": 10,
+        "last_read_counter": 10
+      },
+      "semantics": {
+        "relay_recorded_qom_levels": [
+          false,
+          false,
+          true,
+          true,
+          true,
+          false,
+          false,
+          false,
+          true,
+          true,
+          true,
+          false,
+          false,
+          false,
+          true,
+          true,
+          true
+        ],
+        "input_count": 0,
+        "oracle": "Both original guest output markers and actual QOM levels; no host-forced output"
+      },
+      "fresh_windows": [],
+      "real_browser_posts": 0,
+      "raw_http_events": 116,
+      "raw_serial_ranges_bound_to_zip": 43,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "raw_history_flash_idle_cleanup": true,
+      "native_frame_sha256": "12d104e1b216e08ee04d71a2f0237d6b863997e51a7820ebfb1ec43a441596e6",
+      "pid_exit": "Execution-time owned-PID record verified; no new OS process sampling"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "env-iii",
+      "session_id": "3082109c4bf04acb8e2ac923e71018d4",
+      "status": "PASS",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "e14a79abf57433afba06231a1f9af8bf7d68e92f56f1cb1ccb19dd2e9240fba1",
+      "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "five_original_config_source_files": true,
+      "native": [
+        466,
+        466
+      ],
+      "guest_canvas": [
+        468,
+        468
+      ],
+      "grove_pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "internal_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48,
+        "chip_id": 36,
+        "reads": 7,
+        "last_read_counter": 7
+      },
+      "semantics": {
+        "env_fresh_vectors": [
+          {
+            "expected": [
+              31.5,
+              67,
+              98765
+            ],
+            "observed_matches": [
+              [
+                31.5,
+                67.0,
+                98765.0
+              ]
+            ]
+          },
+          {
+            "expected": [
+              18.75,
+              45.5,
+              103200
+            ],
+            "observed_matches": [
+              [
+                18.75,
+                45.5,
+                103200.0
+              ]
+            ]
+          }
+        ],
+        "external_scan": [
+          68,
+          112
+        ],
+        "onboard_bmi_after_each_vector": true,
+        "controller_counters": {
+          "transactions": 64,
+          "read-bytes": 126,
+          "written-bytes": 43,
+          "input-events": 6
+        }
+      },
+      "fresh_windows": [
+        {
+          "input_event": 10,
+          "lower": 651,
+          "observed_end": 710,
+          "next_input_upper": 710
+        },
+        {
+          "input_event": 13,
+          "lower": 710,
+          "observed_end": 820,
+          "next_input_upper": 820
+        }
+      ],
+      "real_browser_posts": 6,
+      "raw_http_events": 105,
+      "raw_serial_ranges_bound_to_zip": 46,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "zip_before_stop": true,
+      "raw_history_flash_idle_cleanup": true,
+      "native_frame_sha256": "34f83fd42ab235c8b003733abdf47ece886026e5bdd708368371092e6f4b2c05",
+      "pid_exit": "Execution-time owned-PID record verified; no new OS process sampling"
+    }
+  ],
+  "limitations": [
+    "Only these captured post-sync sources/firmware/runtime and three hosts are covered.",
+    "Bundled reference drivers were not independently rebuilt or tied to an upstream driver source commit.",
+    "Button retains the original variable count>=index oracle; no additional exact count/stability gate.",
+    "Runtime PID exit is historical executor evidence, not a new process observation.",
+    "Readability conclusions are restricted to separately opened captured final PNGs."
+  ]
+}

@@ -1,0 +1,21 @@
+# 三主机源码归档独立审查
+
+结论：PASS；当前审查范围无未关闭问题。仅审查 root 追加最终 verification/本报告前的固定归档。
+
+- 原归档 2233 文件、20631366 字节；逐项核对顶层 SHA 全集，2226 份复制原文与现存 `.work` 原字节一致。
+- 4 份 Markdown 仅改存储后缀；2104 条嵌套 SHA 经映射逐条解析成功。
+- 18 份 ZIP（9 个唯一载荷）、198 成员路径/模式/CRC/清单 hash 正常；81 次图像完整解码成功；独立隐私候选为 0。
+- 精确三主机×三类型、九个唯一会话；sync HEAD/runtime/harness 与准备、源快照、结果身份一致。仅核对记录内容与完整性，UART/QOM 的实际功能语义已有独立 live 审查。
+- 把归档真实复制至无 `.work` 的临时新 checkout，直接导入所附 auditor，完整 audit PASS。
+- 15 个负控均按预期拒绝：源文件/祖先 symlink、错误 sync HEAD/runtime/harness、未 fresh fetch/脏树、非 post-sync/仍需 prepare、早于同步/无时区时间，以及 JSON/单引号/赋值形式的合成 credential。负控不改原归档，不依赖 checksum 失败。
+- 原归档审前审后逐文件指纹完全相同。未调用 API、浏览器、网络或 guest；没有重跑功能测试；hardware NOT RUN。
+
+审查时固定指纹：
+
+```text
+auditor_sha256 bd819eca8ebbf2e467bf00de252b1a4fd40815c9a968b31c91d9d06c27a230fc
+SHA256SUMS_sha256 300bea8e1456953f143eec16a793a88a0e331128741383242fb648789b196eae
+all_files_index_sha256 18883717c8d8473d5496b9225cf45b6b0586646c7ab7fbafcbeb60746399c8a5
+```
+
+前期发现的 symlink 检查顺序、sync 语义绑定、quoted JSON 键扫描已由 owner 修复，并由本次负控独立验证。root 之后附加文件需重新生成顶层 SHA 并 rerun audit；本报告不预先覆盖这些新增文件。

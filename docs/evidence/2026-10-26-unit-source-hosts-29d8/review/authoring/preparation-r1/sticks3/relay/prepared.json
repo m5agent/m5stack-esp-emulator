@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "device_id": "sticks3",
+  "unit_id": "relay",
+  "runtime": "qemu",
+  "source_intake": "uiflow-source-api",
+  "source_context_commit": "5cf58191af2938ecd86f991455b47145872fb08e",
+  "source_context_stage": "AUTHORING_ONLY_REPREPARE_AFTER_ROOT_SYNC",
+  "host_profile": {
+    "rotation": 0,
+    "size": [
+      135,
+      240
+    ],
+    "text": [
+      4,
+      4,
+      127
+    ],
+    "internal_sda": 47,
+    "internal_scl": 48,
+    "log_tx": 43,
+    "log_rx": 44,
+    "internal_controller": 1,
+    "external_controller": 0,
+    "canvas_size": [
+      135,
+      240
+    ]
+  },
+  "port_id": "custom",
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "relay",
+      "port_id": "custom"
+    }
+  ],
+  "official_host_evidence": [
+    {
+      "url": "https://docs.m5stack.com/en/core/StickS3",
+      "checked_at": "2026-10-26",
+      "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+    }
+  ],
+  "reference_layout": {
+    "source": "actual-reference-partition-table",
+    "offset": 6623232,
+    "size": 1761280,
+    "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+  },
+  "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+  "reference_file": "platform/.cache/firmware/sticks3/uiflow2.bin",
+  "flash_size": 8388608,
+  "expected_size": [
+    135,
+    240
+  ],
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "source_cas_sha256": "b170ecb673316b04eba9e22171e78be022617b7e8cd49f6f90544ac6d91350c8",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+    "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+    "probe_config.py": "e2df2df3b015c895699292d7fec86e7af8f6237a27180ee8416c4c33bec1cf6f",
+    "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+  },
+  "original_function_sha256": {
+    "tests/units/run_host_cases.py::HOSTS": "46ad25f54424fafc562b520c1caef66a10b8c805a9f31665c200145bbc3fce8d",
+    "tests/units/run_host_cases.py::reference_layout": "09451ea6139f930c48e8aa1c7f9ec7dbc3c8af48e8837abe3fad5bf5b0da9b4c",
+    "tests/units/run_host_cases.py::validate_bundle": "2fb49ab8dba1823a242f542eb2419cdc755db3d3c63c21cc5509d6b37281e37d",
+    "tests/units/run_host_cases.py::validate_case": "211fa55db9e6f41244c93012a67fc9d6f5b7f8ed6d6b2ce4428b1d51d0d78520",
+    "tests/units/run_io_cases.py::Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd"
+  },
+  "driver_source": "Unchanged reference-firmware-bundled unit/hardware/driver modules; not uploaded, patched or independently rebuilt",
+  "uploaded_driver_files": [],
+  "adc_fixture": "NOT USED",
+  "host_admission_modified": false,
+  "ready_marker": "HOST_PROBE_READY sticks3 relay",
+  "status": "PREPARED_NO_API_OR_RUNTIME"
+}

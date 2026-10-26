@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "platform_tests": 648,
+  "generated_checks": 4,
+  "functional_api_sessions": 9,
+  "hardware": "NOT RUN",
+  "external_work_log": "SKIPPED_BY_USER",
+  "production_source_or_runtime_changed": false,
+  "full_matrix": "NOT RUN; no shared controller/runtime change; older full-matrix failure remains separate",
+  "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+  "sync_receipt": ".work/unit-post-block-sync-20261026.json",
+  "records": [
+    {
+      "name": "platform",
+      "path": ".work/unit-source-hosts-platform-final.log",
+      "sha256": "4b911bff755c0279a387ebbdc69df4ad964d563ca7e0f349e38eea14a4e220a0",
+      "bytes": 7755,
+      "status": "PASS",
+      "test_count": 648
+    },
+    {
+      "name": "coverage",
+      "path": ".work/unit-source-hosts-runtime_coverage-final.log",
+      "sha256": "ae22dc70eea81ac4f6d6918c0d694fc72cbc72cb589a13d93dac5b5c453d9311",
+      "bytes": 20,
+      "status": "PASS",
+      "test_count": null
+    },
+    {
+      "name": "catalog",
+      "path": ".work/unit-source-hosts-peripheral_catalog-final.log",
+      "sha256": "6e3c49ec0c80a56051031a4bf3ba0fe16aa118f2b31f8863c09ef0bc4cc89633",
+      "bytes": 22,
+      "status": "PASS",
+      "test_count": null
+    },
+    {
+      "name": "profiles",
+      "path": ".work/unit-source-hosts-qemu_profiles-final.log",
+      "sha256": "04a26a35d775027ee0ce627c0888eeb20272591f8801dbd6e2f0dfb2e499281e",
+      "bytes": 17,
+      "status": "PASS",
+      "test_count": null
+    },
+    {
+      "name": "snapshot",
+      "path": ".work/unit-source-hosts-project_snapshot-final.log",
+      "sha256": "05110c70ad2d40d6a4943005ed5d00f2780cb44d5288bcee45128d62b19d6f1d",
+      "bytes": 20,
+      "status": "PASS",
+      "test_count": null
+    }
+  ]
+}

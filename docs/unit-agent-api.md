@@ -7,7 +7,8 @@ Unit 输入/guest 读取/画面 → evidence 的最短流程。CoreS3 已有选�
 27 种 Unit 源码场景：25 种原驱动、IR/Buzzer 两种显式 custom 驱动。
 下方给出可直接重放的源码 JSON；它们来自多批独立会话，不是原版 27 项
 单次全绿运行。下面逐字 Button 与 HUB + ENV III + NCIR 示例也已独立运行。
-这不继承为其它主机或任意代码的 PASS。当前能力、未完成
+AtomS3R、StickS3、StopWatch 的 Button/Relay/ENV III 另有九个源码 API
+会话独立通过；其它组合或任意代码不继承 PASS。当前能力、未完成
 门禁和日期化结果分别见[项目当前状态](project-status.md)、
 [项目 Backlog](project-backlog.md)、[验证台账](validation-ledger.md)。
 完整对象、错误码和安全约束见[API](device-service-api.md)与
@@ -314,7 +315,7 @@ I2C leaf 并接到同一被动 HUB。
 
 ## 已验证的 27 种源码场景
 
-以下每个链接都是仓内冻结的 `source-request.json`，包含 caller Python 文件，
+本表均为 CoreS3。以下每个链接都是仓内冻结的 `source-request.json`，包含 caller Python 文件，
 可提交到 `POST /firmware/uiflow`。同目录 `prepared.json` 保存主机、
 `ready_marker`、`attachments` 和初始 fixture。附件必须整体保留：例如 Thermal
 依赖明确的 raw fixture，不能删掉 `initial` 后把该场景仍称为功能验收。
@@ -375,7 +376,7 @@ request = {
     "device_id": prepared["device_id"], "runtime": prepared["runtime"],
     "firmware_id": firmware["firmware_id"],
     "uiflow_source_sha256": source["metadata"]["source_sha256"],
-    "ready_marker": prepared["ready_marker"], "ready_timeout_seconds": 150,
+    "ready_marker": prepared["ready_marker"], "ready_timeout_seconds": 180,
     "ttl_seconds": 900, "units": prepared["attachments"],
 }
 (output / "session-request.json").write_text(json.dumps(request), encoding="utf-8")
@@ -392,6 +393,29 @@ Live sessions，使用 `/units` 声明的输入并核对新串口、控制器与
 验证场景，不能去掉身份检查后沿用旧 PASS。附件/源码成功重放只是新一次
 执行的起点，完整验收还需重复各场景的输入、负控与输出断言。
 
+## 三主机：Button、Relay、ENV III
+
+AtomS3R、StickS3、StopWatch 各自的三个场景已通过新源码 compose 和独立可见
+session。下表可复用上节的 JSON 重放步骤；把 `M5_CASE_DIR` 改为相应请求所在
+目录，附件仍从同目录 `prepared.json` 读取，使用本次响应的 firmware/source
+pin。这些主机的入口使用原 `host_probe` 四个 Python 文件和显式生成的主机
+配置，运行时调用各 reference 固件内原驱动，不上传或替换驱动。
+
+| 主机 | 主 Grove `port_id`；white/yellow GPIO | Button 源码 | Relay 源码 | ENV III 源码 |
+| --- | --- | --- | --- | --- |
+| AtomS3R | `custom`；1/2 | [JSON](evidence/2026-10-26-unit-source-hosts-29d8/batches/post-sync-r1/atoms3r/button/source-request.json) | [JSON](evidence/2026-10-26-unit-source-hosts-29d8/batches/post-sync-r1/atoms3r/relay/source-request.json) | [JSON](evidence/2026-10-26-unit-source-hosts-29d8/batches/post-sync-r1/atoms3r/env-iii/source-request.json) |
+| StickS3 | `custom`；10/9 | [JSON](evidence/2026-10-26-unit-source-hosts-29d8/batches/post-sync-r1/sticks3/button/source-request.json) | [JSON](evidence/2026-10-26-unit-source-hosts-29d8/batches/post-sync-r1/sticks3/relay/source-request.json) | [JSON](evidence/2026-10-26-unit-source-hosts-29d8/batches/post-sync-r1/sticks3/env-iii/source-request.json) |
+| StopWatch | `port-a`；11/10 | [JSON](evidence/2026-10-26-unit-source-hosts-29d8/batches/post-sync-r1/stopwatch/button/source-request.json) | [JSON](evidence/2026-10-26-unit-source-hosts-29d8/batches/post-sync-r1/stopwatch/relay/source-request.json) | [JSON](evidence/2026-10-26-unit-source-hosts-29d8/batches/post-sync-r1/stopwatch/env-iii/source-request.json) |
+
+端口、内部 I2C、reference 和显示参数均按主机固定，不能只替换 CoreS3 的
+`device_id`。原探针保留 BMI270 初始化前后及外部操作后的读数、ENV 外部精确
+scan/两个输入向量、Button 四次 GPIO/IRQ 边沿和 Relay 双输出。原生 frame
+分别为 128×128、135×240、466×466；StopWatch 的 guest canvas 仍为
+468×468，不能据此把原生 PNG 判错。该批验证非空帧和尺寸，不把这些检查等同
+于所有显示状态的可读性或跨请求原子快照。每款主机的其它 24 种 Unit 尚未由
+本批源码路径验证；此前的 BIN 路径结果也不自动转授。详见
+[九组合证据](evidence/2026-10-26-unit-source-hosts-29d8/README.md)。
+
 ## 结果边界
 
 本页示例的 ready、输入、帧和 ZIP 必须来自新源码构建的同一个 guest。源码
@@ -401,8 +425,9 @@ missing-fixture 负控 PASS、原 IR 的待审观察和原 Buzzer FAIL。具体�
 [首批](evidence/2026-10-26-unit-source-api-29d8/README.md)与
 [扩展批次](evidence/2026-10-26-unit-source-api-expanded-29d8/README.md)。
 
-- 实际源码 API 执行仅 CoreS3；AtomS3R/StickS3/StopWatch 本轮仅离线 compose。
-  控制四例使用 `controls-probe-cores3-native-display-v1`，原驱动和控制断言
+- CoreS3 选定 27 种场景与三主机各 Button/Relay/ENV III 分别有实际源码 API
+  执行证据，具体固件/主机/输入单列；其它组合不继承。CoreS3 控制四例使用
+  `controls-probe-cores3-native-display-v1`，原驱动和控制断言
   不改，只做可逆的 display-only 调整；显示可读性限实际捕获帧。Heart 不证明
   BPM/SpO2，Fan 动画不外推其它 duty、比例或物理转速。
 - 原 IR 本轮为 `REVIEW_REQUIRED / protocol_status=PASS`，独审结论

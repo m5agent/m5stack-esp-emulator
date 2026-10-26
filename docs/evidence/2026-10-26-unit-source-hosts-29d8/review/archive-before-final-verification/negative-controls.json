@@ -1,0 +1,98 @@
+{
+  "status": "PASS",
+  "tests": 15,
+  "results": [
+    {
+      "name": "wrong-sync-head",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "semantic assertion after byte checks"
+    },
+    {
+      "name": "wrong-sync-runtime",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "semantic assertion after byte checks"
+    },
+    {
+      "name": "wrong-sync-harness",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "semantic assertion after byte checks"
+    },
+    {
+      "name": "sync-fetch-not-fresh",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "semantic assertion after byte checks"
+    },
+    {
+      "name": "sync-tree-not-clean",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "semantic assertion after byte checks"
+    },
+    {
+      "name": "prepare-not-post-sync",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "semantic assertion after byte checks"
+    },
+    {
+      "name": "prepare-still-required",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "semantic assertion after byte checks"
+    },
+    {
+      "name": "prepare-before-sync",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "semantic assertion after byte checks"
+    },
+    {
+      "name": "prepare-naive-time",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "semantic assertion after byte checks"
+    },
+    {
+      "name": "sync-naive-time",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "semantic assertion after byte checks"
+    },
+    {
+      "name": "quoted-json-credential",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "credential/MAC candidate"
+    },
+    {
+      "name": "single-quoted-credential",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "credential/MAC candidate"
+    },
+    {
+      "name": "quoted-assignment-credential",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "credential/MAC candidate"
+    },
+    {
+      "name": "source-file-symlink",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "symlink source/destination component"
+    },
+    {
+      "name": "source-ancestor-symlink",
+      "status": "REJECTED_AS_EXPECTED",
+      "type": "AssertionError",
+      "expected_stage": "symlink source/destination component"
+    }
+  ],
+  "on_original_archive_mutation": false,
+  "network_browser_guest_calls": 0
+}

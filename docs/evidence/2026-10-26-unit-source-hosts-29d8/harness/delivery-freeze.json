@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "OFFLINE_AUTHORING_READY_INDEPENDENTLY_REVIEWED",
+  "files": {
+    "run_source_hosts.py": {
+      "sha256": "84633d2b4bea3445d2eadc8dca56907fb6f83daa467709114b86cd5e12ca6965",
+      "size": 42130
+    },
+    "source_api_common.py": {
+      "sha256": "bd8ec912e22849bdbb7555c5c91e34acb466f1387f0a00e5013ed09ab508eba1",
+      "size": 46310
+    },
+    "self_check.py": {
+      "sha256": "0903c6845f8fe12ecb8d691fb511c339de219a7740e2535436b9f3e146961579",
+      "size": 7791
+    },
+    "README.md": {
+      "sha256": "6d89d2730b4ad9ef01b6d5592a3743af3a66eb8140b5a36a6f9549de0bc0eaa3",
+      "size": 5756
+    },
+    "common-origin.json": {
+      "sha256": "877384f7091db70988824d57352cfee2b6120eec690a90f64b2a32653a92f8fd",
+      "size": 524
+    }
+  },
+  "self_check": "self-check-r1/result.json",
+  "self_check_status": "PASS",
+  "self_check_count": 148,
+  "combination_count": 9,
+  "api_browser_guest_process_binary_execution": "NOT RUN",
+  "requires_root_commit_fetch_and_fresh_prepare": true,
+  "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "worker_generation": "observed live; optional explicit expected value; never hard-coded",
+  "independent_review": {
+    "path": ".work/unit-source-hosts-independent-review-20261026/review.json",
+    "sha256": "5afe09dcde2b0763a65497a1f85c4797c15f776e0745733304a649da5f90e8c3",
+    "result": "NO_ACTIONABLE_FINDINGS",
+    "checks": 150,
+    "api_browser_guest_process_binary_execution": "NOT RUN"
+  }
+}

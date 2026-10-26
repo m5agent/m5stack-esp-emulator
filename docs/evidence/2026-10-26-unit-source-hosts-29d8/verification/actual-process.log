@@ -1,0 +1,309 @@
+atoms3r/button: visible source session 8b6a5ca4b8724de498dcf5132cb6866c
+atoms3r/button: PASS 
+atoms3r/relay: visible source session c39527063bd747a98907c9e7e1402c20
+atoms3r/relay: PASS 
+atoms3r/env-iii: visible source session 6169526d75c44ca1896bbe23469db49a
+atoms3r/env-iii: PASS 
+sticks3/button: visible source session 20fe7cdc249040d580f14e0bd8483f07
+sticks3/button: PASS 
+sticks3/relay: visible source session 0a49078e902c4661a9a15511d5e857af
+sticks3/relay: PASS 
+sticks3/env-iii: visible source session 57e1162930be4dc3bac43f9abe9c3d46
+sticks3/env-iii: PASS 
+stopwatch/button: visible source session b73b0876526f47dd81ad8727422dd11c
+stopwatch/button: PASS 
+stopwatch/relay: visible source session baa618a26cbb447db4efb3ffad6e8e65
+stopwatch/relay: PASS 
+stopwatch/env-iii: visible source session 3082109c4bf04acb8e2ac923e71018d4
+stopwatch/env-iii: PASS 
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "button",
+      "session_id": "8b6a5ca4b8724de498dcf5132cb6866c",
+      "status": "PASS",
+      "semantic": {
+        "status": "PASS",
+        "accepted_inputs": 4,
+        "bounded_windows": [
+          {
+            "event_id": 8,
+            "lower": 516,
+            "observed_end": 778,
+            "next_input_upper": 778
+          },
+          {
+            "event_id": 10,
+            "lower": 778,
+            "observed_end": 821,
+            "next_input_upper": 821
+          },
+          {
+            "event_id": 12,
+            "lower": 821,
+            "observed_end": 890,
+            "next_input_upper": 890
+          },
+          {
+            "event_id": 14,
+            "lower": 890,
+            "observed_end": 1011,
+            "next_input_upper": 1011
+          }
+        ],
+        "internal_reads": 20,
+        "last_internal_counter": 20
+      },
+      "browser": {
+        "running_snapshots": 7,
+        "real_posts": 4,
+        "actions": 4
+      },
+      "worker_generation": 11
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "relay",
+      "session_id": "c39527063bd747a98907c9e7e1402c20",
+      "status": "PASS",
+      "semantic": {
+        "status": "PASS",
+        "accepted_inputs": 0,
+        "bounded_windows": [],
+        "internal_reads": 9,
+        "last_internal_counter": 9
+      },
+      "browser": {
+        "running_snapshots": 19,
+        "real_posts": 0,
+        "actions": 0
+      },
+      "worker_generation": 11
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "env-iii",
+      "session_id": "6169526d75c44ca1896bbe23469db49a",
+      "status": "PASS",
+      "semantic": {
+        "status": "PASS",
+        "accepted_inputs": 2,
+        "bounded_windows": [
+          {
+            "event_id": 10,
+            "lower": 588,
+            "observed_end": 757,
+            "next_input_upper": 757
+          },
+          {
+            "event_id": 13,
+            "lower": 757,
+            "observed_end": 842,
+            "next_input_upper": 842
+          }
+        ],
+        "internal_reads": 9,
+        "last_internal_counter": 9
+      },
+      "browser": {
+        "running_snapshots": 6,
+        "real_posts": 6,
+        "actions": 6
+      },
+      "worker_generation": 11
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "button",
+      "session_id": "20fe7cdc249040d580f14e0bd8483f07",
+      "status": "PASS",
+      "semantic": {
+        "status": "PASS",
+        "accepted_inputs": 4,
+        "bounded_windows": [
+          {
+            "event_id": 8,
+            "lower": 515,
+            "observed_end": 725,
+            "next_input_upper": 725
+          },
+          {
+            "event_id": 10,
+            "lower": 725,
+            "observed_end": 768,
+            "next_input_upper": 768
+          },
+          {
+            "event_id": 12,
+            "lower": 768,
+            "observed_end": 837,
+            "next_input_upper": 837
+          },
+          {
+            "event_id": 14,
+            "lower": 837,
+            "observed_end": 958,
+            "next_input_upper": 958
+          }
+        ],
+        "internal_reads": 17,
+        "last_internal_counter": 17
+      },
+      "browser": {
+        "running_snapshots": 7,
+        "real_posts": 4,
+        "actions": 4
+      },
+      "worker_generation": 11
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "relay",
+      "session_id": "0a49078e902c4661a9a15511d5e857af",
+      "status": "PASS",
+      "semantic": {
+        "status": "PASS",
+        "accepted_inputs": 0,
+        "bounded_windows": [],
+        "internal_reads": 9,
+        "last_internal_counter": 9
+      },
+      "browser": {
+        "running_snapshots": 19,
+        "real_posts": 0,
+        "actions": 0
+      },
+      "worker_generation": 11
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "env-iii",
+      "session_id": "57e1162930be4dc3bac43f9abe9c3d46",
+      "status": "PASS",
+      "semantic": {
+        "status": "PASS",
+        "accepted_inputs": 2,
+        "bounded_windows": [
+          {
+            "event_id": 10,
+            "lower": 697,
+            "observed_end": 756,
+            "next_input_upper": 756
+          },
+          {
+            "event_id": 13,
+            "lower": 756,
+            "observed_end": 841,
+            "next_input_upper": 841
+          }
+        ],
+        "internal_reads": 8,
+        "last_internal_counter": 8
+      },
+      "browser": {
+        "running_snapshots": 6,
+        "real_posts": 6,
+        "actions": 6
+      },
+      "worker_generation": 11
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "button",
+      "session_id": "b73b0876526f47dd81ad8727422dd11c",
+      "status": "PASS",
+      "semantic": {
+        "status": "PASS",
+        "accepted_inputs": 4,
+        "bounded_windows": [
+          {
+            "event_id": 8,
+            "lower": 519,
+            "observed_end": 781,
+            "next_input_upper": 781
+          },
+          {
+            "event_id": 10,
+            "lower": 781,
+            "observed_end": 850,
+            "next_input_upper": 850
+          },
+          {
+            "event_id": 12,
+            "lower": 850,
+            "observed_end": 919,
+            "next_input_upper": 919
+          },
+          {
+            "event_id": 14,
+            "lower": 919,
+            "observed_end": 988,
+            "next_input_upper": 988
+          }
+        ],
+        "internal_reads": 19,
+        "last_internal_counter": 19
+      },
+      "browser": {
+        "running_snapshots": 7,
+        "real_posts": 4,
+        "actions": 4
+      },
+      "worker_generation": 11
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "relay",
+      "session_id": "baa618a26cbb447db4efb3ffad6e8e65",
+      "status": "PASS",
+      "semantic": {
+        "status": "PASS",
+        "accepted_inputs": 0,
+        "bounded_windows": [],
+        "internal_reads": 10,
+        "last_internal_counter": 10
+      },
+      "browser": {
+        "running_snapshots": 19,
+        "real_posts": 0,
+        "actions": 0
+      },
+      "worker_generation": 11
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "env-iii",
+      "session_id": "3082109c4bf04acb8e2ac923e71018d4",
+      "status": "PASS",
+      "semantic": {
+        "status": "PASS",
+        "accepted_inputs": 2,
+        "bounded_windows": [
+          {
+            "event_id": 10,
+            "lower": 651,
+            "observed_end": 710,
+            "next_input_upper": 710
+          },
+          {
+            "event_id": 13,
+            "lower": 710,
+            "observed_end": 820,
+            "next_input_upper": 820
+          }
+        ],
+        "internal_reads": 7,
+        "last_internal_counter": 7
+      },
+      "browser": {
+        "running_snapshots": 6,
+        "real_posts": 6,
+        "actions": 6
+      },
+      "worker_generation": 11
+    }
+  ],
+  "scope": "Exact original host source/validate_case/validate_bundle + real source API/PID/DOM/HTTP/bounded UART/QOM/ZIP/cleanup; hardware NOT RUN"
+}

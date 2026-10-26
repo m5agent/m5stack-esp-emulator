@@ -1,0 +1,200 @@
+{
+  "status": "PREPARATION_ONLY_NO_RUNTIME_VERDICT",
+  "live_directory": "PENDING_ROOT_TERMINAL_DIRECTORY",
+  "source_context_commit": "PENDING_ROOT_COMMIT_FETCH_AND_FRESH_EXECUTION",
+  "prepared_harness_snapshot_sha256": "84633d2b4bea3445d2eadc8dca56907fb6f83daa467709114b86cd5e12ca6965",
+  "shared_common_sha256": "bd8ec912e22849bdbb7555c5c91e34acb466f1387f0a00e5013ed09ab508eba1",
+  "source_files": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+    "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+    "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+  },
+  "original_host_function_sha256": {
+    "reference_layout": "09451ea6139f930c48e8aa1c7f9ec7dbc3c8af48e8837abe3fad5bf5b0da9b4c",
+    "validate_bundle": "2fb49ab8dba1823a242f542eb2419cdc755db3d3c63c21cc5509d6b37281e37d",
+    "validate_case": "211fa55db9e6f41244c93012a67fc9d6f5b7f8ed6d6b2ce4428b1d51d0d78520"
+  },
+  "hosts": {
+    "atoms3r": {
+      "native": [
+        128,
+        128
+      ],
+      "canvas": [
+        128,
+        128
+      ],
+      "rotation": 0,
+      "internal_sda": 47,
+      "internal_scl": 0,
+      "text": [
+        4,
+        4,
+        120
+      ],
+      "port_id": "custom",
+      "grove_pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "internal_controller": 1,
+      "external_controller": 0,
+      "log_tx": 43,
+      "log_rx": 44,
+      "reference_file": "platform/.cache/firmware/atoms3r/uiflow2.bin",
+      "base_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+    },
+    "sticks3": {
+      "native": [
+        135,
+        240
+      ],
+      "canvas": [
+        135,
+        240
+      ],
+      "rotation": 0,
+      "internal_sda": 47,
+      "internal_scl": 48,
+      "text": [
+        4,
+        4,
+        127
+      ],
+      "port_id": "custom",
+      "grove_pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "internal_controller": 1,
+      "external_controller": 0,
+      "log_tx": 43,
+      "log_rx": 44,
+      "reference_file": "platform/.cache/firmware/sticks3/uiflow2.bin",
+      "base_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+    },
+    "stopwatch": {
+      "native": [
+        466,
+        466
+      ],
+      "canvas": [
+        468,
+        468
+      ],
+      "rotation": 0,
+      "internal_sda": 47,
+      "internal_scl": 48,
+      "text": [
+        80,
+        110,
+        306
+      ],
+      "port_id": "port-a",
+      "grove_pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "internal_controller": 1,
+      "external_controller": 0,
+      "log_tx": 43,
+      "log_rx": 44,
+      "reference_file": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+      "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+    }
+  },
+  "cases": {
+    "button": {
+      "pressed": [
+        true,
+        false,
+        true,
+        false
+      ],
+      "expected_gpio_raw": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "minimum_original_irq_count": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "input_count": 4
+    },
+    "relay": {
+      "input_count": 0,
+      "guest_markers": [
+        "HOST_RELAY 1",
+        "HOST_RELAY 0"
+      ],
+      "qom_output_levels": [
+        true,
+        false
+      ],
+      "original_sampling": "16 reads at 0.25 second intervals; unchanged original validate_case"
+    },
+    "env-iii": {
+      "input_count": 2,
+      "expected_external_scan": [
+        68,
+        112
+      ],
+      "vectors": [
+        [
+          31.5,
+          67,
+          98765
+        ],
+        [
+          18.75,
+          45.5,
+          103200
+        ]
+      ],
+      "tolerance": [
+        0.2,
+        0.2,
+        1.0
+      ],
+      "onboard_id_after_each_vector": 36
+    }
+  },
+  "onboard_bmi270": {
+    "address": 104,
+    "register": 0,
+    "chip_id": 36,
+    "before_counter": 1,
+    "after_init_counter": 2,
+    "after_external": "new HOST_INTERNAL loop 36 counter; strictly increasing same-session reads"
+  },
+  "source_contract": {
+    "caller_file_count": 5,
+    "four_original_files_byte_exact": true,
+    "only_generated_file": "probe_config.py",
+    "bundled_drivers": "Not uploaded/patched/rebuilt and not pinned independently to an upstream source version",
+    "source_api_route": "POST /api/v1/firmware/uiflow",
+    "sourcepin": "canonical caller files JSON SHA256 supplied as uiflow_source_sha256",
+    "reference": "host-specific actual image SHA and parsed LittleFS partition; no CoreS3 base/frame helper reuse"
+  },
+  "review_scope": [
+    "fresh post-sync source-context and exact caller bytes",
+    "actual source API/session requests and responses plus sourcepin",
+    "per-host canvas versus native PNG geometry and readable rows",
+    "bounded UART windows before next input; original predicates and BMI reads",
+    "actual per-Unit pins/QOM/driver data plane and independent onboard bus",
+    "real Web gestures/noops/POST and DOM readback backing",
+    "same direct owned PID/runtime29d8/worker session+ZIP provenance",
+    "raw serial byte ranges match ZIP; CRC/index/member hashes and frozen contracts",
+    "ZIP before purge=0; retained source/frame/history; released Flash; service+worker idle; execution-time PID-exit record"
+  ],
+  "device_service_calls": 0,
+  "guest_or_qemu_started": false,
+  "binary_build_or_upload": false,
+  "runtime_validation": "NOT RUN",
+  "hardware_validation": "NOT RUN"
+}

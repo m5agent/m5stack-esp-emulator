@@ -1,0 +1,178 @@
+{
+  "session_id": "c39527063bd747a98907c9e7e1402c20",
+  "device_id": "atoms3r",
+  "state": "running",
+  "pid": 17466,
+  "firmware_id": "ea7e303e8e85ca0d7c9f9972c2f31e4927da020ff014afd0c0f48e84a45db566",
+  "firmware_sha256": "ea7e303e8e85ca0d7c9f9972c2f31e4927da020ff014afd0c0f48e84a45db566",
+  "firmware_source": "uploaded",
+  "artifact_sha256": "4ad126c158cda48674cd42ee2b5fe88853981b939334e40e12f68385bc0980db",
+  "source_artifacts": [
+    "4ad126c158cda48674cd42ee2b5fe88853981b939334e40e12f68385bc0980db"
+  ],
+  "firmware_provenance": {
+    "kind": "uiflow",
+    "artifact_id": "4ad126c158cda48674cd42ee2b5fe88853981b939334e40e12f68385bc0980db",
+    "metadata": {
+      "schema_version": 1,
+      "kind": "uiflow2-source-composition",
+      "status": "COMPOSED_NOT_EXECUTED",
+      "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+      "entrypoint": "main.py",
+      "base_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "base_size": 8384512,
+      "flash_size": 8388608,
+      "source_sha256": "4ad126c158cda48674cd42ee2b5fe88853981b939334e40e12f68385bc0980db",
+      "effective_source_sha256": "4ad126c158cda48674cd42ee2b5fe88853981b939334e40e12f68385bc0980db",
+      "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+      "files": [
+        {
+          "path": "boot.py",
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "origin": "caller"
+        },
+        {
+          "path": "host_program.py",
+          "size": 3935,
+          "sha256": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+          "origin": "caller"
+        },
+        {
+          "path": "main.py",
+          "size": 251,
+          "sha256": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_config.py",
+          "size": 293,
+          "sha256": "ccedf43c532e7bd9ce264f9f19a91236c819fa0b6b7483c27a60c767190f3057",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_logging.py",
+          "size": 210,
+          "sha256": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e",
+          "origin": "caller"
+        }
+      ],
+      "caller_file_count": 5,
+      "caller_source_bytes": 4713,
+      "generated_files": [],
+      "firmware_sha256": "ea7e303e8e85ca0d7c9f9972c2f31e4927da020ff014afd0c0f48e84a45db566",
+      "vfs": {
+        "label": "vfs",
+        "type": 1,
+        "subtype": 129,
+        "flags": 0,
+        "offset": 6557696,
+        "size": 1826816,
+        "partition_table_offset": 32768,
+        "source": "actual-base-partition-table",
+        "filesystem": "LittleFS",
+        "base_sha256": "168e3d1550af5b64b23fc075bdaa5ab521ff755c721966194b47bd939e9cea68",
+        "derived_sha256": "734f6bc5797077dd5097bb6b68c4e7b6e821974ab0e95fb6fd71846a4c09b3da",
+        "base_disk_version": 131072,
+        "derived_disk_version": 131073
+      },
+      "preservation": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "toolchain": {
+        "builder": "uiflow_source/1",
+        "python": "3.12.8",
+        "python_abi": "cpython-312",
+        "littlefs_python": "0.19.0",
+        "littlefs_library": "(2, 11)",
+        "littlefs_disk": "(2, 1)",
+        "config": {
+          "block_size": 4096,
+          "read_size": 128,
+          "prog_size": 32,
+          "lookahead_size": 128,
+          "block_cycles": 100
+        }
+      }
+    }
+  },
+  "runtime_env": {},
+  "runtime": "qemu",
+  "runtime_memory": {
+    "requested_psram_mib": null,
+    "cli_requested_psram_mib": null,
+    "effective_psram_mib": null,
+    "effective_source": "qemu-cli-request",
+    "policy": "not-configured",
+    "claim": "qemu-memory-configuration-only",
+    "physical_cache_psram_timing": "NOT RUN"
+  },
+  "network": null,
+  "storage": null,
+  "units": [
+    {
+      "id": "external1",
+      "unit_id": "relay",
+      "port_id": "custom",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "nvs": null,
+  "flash": {
+    "transport": "esp-emu-esptool",
+    "chip": "esp32s3",
+    "flash_size": 8388608,
+    "verified": true,
+    "session_isolated_copy": true
+  },
+  "flash_retained": true,
+  "serial_bytes": 511,
+  "created_at": "2026-10-26T04:50:23.167135+00:00",
+  "expires_at": "2026-10-26T05:05:23.167140+00:00",
+  "error": null,
+  "display": {
+    "driver": "ST7735 / GC9107",
+    "width": 128,
+    "height": 128,
+    "shape": "rect",
+    "touch": false
+  },
+  "display_available": true,
+  "last_frame_available": true,
+  "last_frame_captured_at": "2026-10-26T04:50:36.638509+00:00",
+  "device_state_supported": true,
+  "last_device_state_available": true,
+  "last_device_state_at": "2026-10-26T04:50:37.239130+00:00",
+  "completed_at": null,
+  "event_count": 7,
+  "restored": false,
+  "interrupted": false,
+  "reattached_process": false,
+  "recovery_scope": null,
+  "companions": {
+    "http_fixture": {
+      "required": false
+    },
+    "ble_probe": {
+      "required": false
+    }
+  },
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 11,
+    "lease_active": true
+  }
+}

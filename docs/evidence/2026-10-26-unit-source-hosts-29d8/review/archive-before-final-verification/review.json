@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "at": "2026-10-26T05:08:02.066996+00:00",
+  "scope": "Frozen archive before root appends final verification and this review; archive integrity and declared identity binding only; live UART/QOM semantics reviewed separately in review/live",
+  "archive": "2026-10-26-unit-source-hosts-29d8",
+  "before_final_verification_fingerprint": {
+    "files": 2233,
+    "bytes": 20631366,
+    "all_files_index_sha256": "18883717c8d8473d5496b9225cf45b6b0586646c7ab7fbafcbeb60746399c8a5",
+    "top_manifest_sha256": "300bea8e1456953f143eec16a793a88a0e331128741383242fb648789b196eae",
+    "auditor_sha256": "bd819eca8ebbf2e467bf00de252b1a4fd40815c9a968b31c91d9d06c27a230fc"
+  },
+  "archive_unchanged_after_review": true,
+  "source_original_bytes_compared": 2226,
+  "markdown_transport_entries": 4,
+  "nested_checksum_entries": 2104,
+  "counts": {
+    "zip_copies": 18,
+    "zip_unique": 9,
+    "zip_members": 198,
+    "images": 81,
+    "utf8": 2330,
+    "python_parsed": 98
+  },
+  "privacy_candidates": 0,
+  "exact_host_case_pairs": 9,
+  "unique_sessions": 9,
+  "sessions": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "button",
+      "session_id": "8b6a5ca4b8724de498dcf5132cb6866c",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "f1fc143afe499ff9920e3d6db737f59daf87c30ce719bec1606e195beef24922",
+      "firmware_sha256": "af44160550fde3c015034fb53d2f86cebc4d925294557bad364264e2fe84bfc6",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "relay",
+      "session_id": "c39527063bd747a98907c9e7e1402c20",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "4ad126c158cda48674cd42ee2b5fe88853981b939334e40e12f68385bc0980db",
+      "firmware_sha256": "ea7e303e8e85ca0d7c9f9972c2f31e4927da020ff014afd0c0f48e84a45db566",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "env-iii",
+      "session_id": "6169526d75c44ca1896bbe23469db49a",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "72d3e3f68084a69f8c6c984ce324ebbb7514db1f6dd77530d10acba2889bafb5",
+      "firmware_sha256": "e23b4f5faae268a3c08af2869a97e0583266dc53659e747b3d2adde425507f2a",
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "button",
+      "session_id": "20fe7cdc249040d580f14e0bd8483f07",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "f594512e6e6438478c8b713d98a3d43b82ec8c9b568f2f57dc06e5060e7db230",
+      "firmware_sha256": "873e3c3fdc518b6643eca6c5bcc435f0e5fe13c5748ad1af1727a47dc9babc88",
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "relay",
+      "session_id": "0a49078e902c4661a9a15511d5e857af",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "b170ecb673316b04eba9e22171e78be022617b7e8cd49f6f90544ac6d91350c8",
+      "firmware_sha256": "7fdcf9d9d16fcf78289082ffe0f8c574bbc78c8ba2b29048941d48d75473bbde",
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "env-iii",
+      "session_id": "57e1162930be4dc3bac43f9abe9c3d46",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "1743d4ba7c38eb69228eba6dee30dc4ff910e43432f97ed7a6520aa5db100dbe",
+      "firmware_sha256": "8daeb83ba9b16422be710544bb199055fcfc2596ea4861d229a7f49e34d47c0e",
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "button",
+      "session_id": "b73b0876526f47dd81ad8727422dd11c",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "0005bc8ef2ba44dcc537272b01b08dd52929417ee4960b908957c5deca5f33a3",
+      "firmware_sha256": "8d40af7568717283c1de1d6e298d3786803bdeacba334a14a7bdcf39064d4663",
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "relay",
+      "session_id": "baa618a26cbb447db4efb3ffad6e8e65",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "e9159b5805282a77c820c3c2b2a98fd468b2dc34aa8ace91862ebf02b55402a4",
+      "firmware_sha256": "e41992637f649f072ad067e7213974d12b41dc40b180b520eaab620178bfcbf7",
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "env-iii",
+      "session_id": "3082109c4bf04acb8e2ac923e71018d4",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_cas_sha256": "e14a79abf57433afba06231a1f9af8bf7d68e92f56f1cb1ccb19dd2e9240fba1",
+      "firmware_sha256": "92b9e26c1752ea6dd119ca04b9427aac3a4726635d6e97523c19015adeab846a",
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+    }
+  ],
+  "archived_auditor_without_original_work": "PASS; real archive copy in fresh checkout with no .work directory",
+  "negative_controls": 15,
+  "preflight_findings": [
+    {
+      "finding": "source/ancestor symlink identity before resolve",
+      "status": "FIXED_AND_NEGATIVE_CONTROL_VERIFIED"
+    },
+    {
+      "finding": "sync receipt semantic binding",
+      "status": "FIXED_AND_NEGATIVE_CONTROL_VERIFIED"
+    },
+    {
+      "finding": "quoted JSON credential key scanning",
+      "status": "FIXED_AND_NEGATIVE_CONTROL_VERIFIED"
+    }
+  ],
+  "open_findings": [],
+  "functional_rerun": "NOT RUN; existing nine virtual-device sessions are preserved evidence",
+  "hardware": "NOT RUN",
+  "api_browser_network_guest_calls": 0
+}

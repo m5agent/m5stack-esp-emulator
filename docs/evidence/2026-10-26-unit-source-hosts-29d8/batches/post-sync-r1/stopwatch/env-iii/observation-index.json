@@ -1,0 +1,218 @@
+[
+  {
+    "at": "2026-10-26T04:53:40.118031+00:00",
+    "event_id": 0,
+    "kind": "wait-success",
+    "phase": "startup",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00000-serial.txt",
+    "serial_sha256": "d1a1d26dd0454f100a05e1764ef84b07ad1160f63ee5f1bddc6cceb7888333f0"
+  },
+  {
+    "at": "2026-10-26T04:53:40.118195+00:00",
+    "event_id": 1,
+    "kind": "marker",
+    "marker": "HOST_PROBE_READY stopwatch env-iii",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00001-marker.txt",
+    "serial_sha256": "d1a1d26dd0454f100a05e1764ef84b07ad1160f63ee5f1bddc6cceb7888333f0"
+  },
+  {
+    "at": "2026-10-26T04:53:40.138491+00:00",
+    "event_id": 2,
+    "kind": "wait-success",
+    "phase": "HOST_PROBE_READY stopwatch env-iii",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00002-serial.txt",
+    "serial_sha256": "be78ae473845aa604c80a1391aebd79429af0344678a1cd7530d5c7e94db0f06"
+  },
+  {
+    "at": "2026-10-26T04:53:40.138633+00:00",
+    "event_id": 3,
+    "kind": "marker",
+    "marker": "HOST_GEOMETRY 468 468 0",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00003-marker.txt",
+    "serial_sha256": "be78ae473845aa604c80a1391aebd79429af0344678a1cd7530d5c7e94db0f06"
+  },
+  {
+    "at": "2026-10-26T04:53:40.141108+00:00",
+    "event_id": 4,
+    "kind": "wait-success",
+    "phase": "HOST_GEOMETRY 468 468 0",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00004-serial.txt",
+    "serial_sha256": "be78ae473845aa604c80a1391aebd79429af0344678a1cd7530d5c7e94db0f06"
+  },
+  {
+    "at": "2026-10-26T04:53:40.141274+00:00",
+    "event_id": 5,
+    "kind": "marker",
+    "marker": "HOST_INTERNAL before 36 1",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00005-marker.txt",
+    "serial_sha256": "be78ae473845aa604c80a1391aebd79429af0344678a1cd7530d5c7e94db0f06"
+  },
+  {
+    "at": "2026-10-26T04:53:40.143774+00:00",
+    "event_id": 6,
+    "kind": "wait-success",
+    "phase": "HOST_INTERNAL before 36 1",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00006-serial.txt",
+    "serial_sha256": "be78ae473845aa604c80a1391aebd79429af0344678a1cd7530d5c7e94db0f06"
+  },
+  {
+    "at": "2026-10-26T04:53:40.143928+00:00",
+    "event_id": 7,
+    "kind": "marker",
+    "marker": "HOST_INTERNAL after_init 36 2",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00007-marker.txt",
+    "serial_sha256": "be78ae473845aa604c80a1391aebd79429af0344678a1cd7530d5c7e94db0f06"
+  },
+  {
+    "at": "2026-10-26T04:53:40.146761+00:00",
+    "event_id": 8,
+    "kind": "wait-success",
+    "phase": "HOST_INTERNAL after_init 36 2",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00008-serial.txt",
+    "serial_sha256": "be78ae473845aa604c80a1391aebd79429af0344678a1cd7530d5c7e94db0f06"
+  },
+  {
+    "at": "2026-10-26T04:53:40.146963+00:00",
+    "event_id": 9,
+    "kind": "marker",
+    "marker": "HOST_EXTERNAL_SCAN 68 112",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00009-marker.txt",
+    "serial_sha256": "be78ae473845aa604c80a1391aebd79429af0344678a1cd7530d5c7e94db0f06"
+  },
+  {
+    "at": "2026-10-26T04:53:40.148247+00:00",
+    "event_id": 10,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "temperature-c": 31.5,
+      "humidity-pct": 67,
+      "pressure-pa": 98765
+    },
+    "before_cursor": {
+      "session_id": "3082109c4bf04acb8e2ac923e71018d4",
+      "offset": 0,
+      "next_offset": 651,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (779) i2c.master: this port has not been initialized, please initialize it first\r\nHOST_PROBE_START stopwatch env-iii\r\nHOST_GEOMETRY 468 468 0\r\nHOST_BOARD 30\r\nHOST_INTERNAL before 36 1\r\nE (1429) i2c.master: this port has not been initialized, please initialize it first\r\nHOST_EXTERNAL_SCAN 68 112\r\nHOST_INTERNAL after_init 36 2\r\nHOST_PROBE_READY stopwatch env-iii\r\nHOST_ENV 25.000 50.000 101325.000\r\nHOST_INTERNAL loop 36 3\r\n",
+      "bytes": 651
+    },
+    "via_ui": true,
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T04:53:40.662127+00:00",
+    "event_id": 11,
+    "kind": "wait-success",
+    "phase": "HOST_EXTERNAL_SCAN 68 112",
+    "offset": 651,
+    "input_event": 10,
+    "serial_file": "observations/00011-serial.txt",
+    "serial_sha256": "4babff8b2391130dfae117d5fa2194609f44b375847b53a8d1cb7db45e45ca0d"
+  },
+  {
+    "at": "2026-10-26T04:53:40.666376+00:00",
+    "event_id": 12,
+    "kind": "wait-success",
+    "phase": "HOST_EXTERNAL_SCAN 68 112",
+    "offset": 651,
+    "input_event": 10,
+    "serial_file": "observations/00012-serial.txt",
+    "serial_sha256": "4babff8b2391130dfae117d5fa2194609f44b375847b53a8d1cb7db45e45ca0d"
+  },
+  {
+    "at": "2026-10-26T04:53:40.667963+00:00",
+    "event_id": 13,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "temperature-c": 18.75,
+      "humidity-pct": 45.5,
+      "pressure-pa": 103200
+    },
+    "before_cursor": {
+      "session_id": "3082109c4bf04acb8e2ac923e71018d4",
+      "offset": 0,
+      "next_offset": 710,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (779) i2c.master: this port has not been initialized, please initialize it first\r\nHOST_PROBE_START stopwatch env-iii\r\nHOST_GEOMETRY 468 468 0\r\nHOST_BOARD 30\r\nHOST_INTERNAL before 36 1\r\nE (1429) i2c.master: this port has not been initialized, please initialize it first\r\nHOST_EXTERNAL_SCAN 68 112\r\nHOST_INTERNAL after_init 36 2\r\nHOST_PROBE_READY stopwatch env-iii\r\nHOST_ENV 25.000 50.000 101325.000\r\nHOST_INTERNAL loop 36 3\r\nHOST_ENV 31.500 67.000 98765.000\r\nHOST_INTERNAL loop 36 4\r\n",
+      "bytes": 710
+    },
+    "via_ui": true,
+    "accepted": true
+  },
+  {
+    "at": "2026-10-26T04:53:41.177566+00:00",
+    "event_id": 14,
+    "kind": "wait-success",
+    "phase": "HOST_EXTERNAL_SCAN 68 112",
+    "offset": 710,
+    "input_event": 13,
+    "serial_file": "observations/00014-serial.txt",
+    "serial_sha256": "40c5bd958f87d1aab4cffa1e8a22cc978b0291956f850114770eae15db631bd5"
+  },
+  {
+    "at": "2026-10-26T04:53:41.180735+00:00",
+    "event_id": 15,
+    "kind": "wait-success",
+    "phase": "HOST_EXTERNAL_SCAN 68 112",
+    "offset": 710,
+    "input_event": 13,
+    "serial_file": "observations/00015-serial.txt",
+    "serial_sha256": "40c5bd958f87d1aab4cffa1e8a22cc978b0291956f850114770eae15db631bd5"
+  },
+  {
+    "at": "2026-10-26T04:53:41.482717+00:00",
+    "event_id": 16,
+    "kind": "state",
+    "file": "observations/00016-state.json",
+    "phase": "HOST_EXTERNAL_SCAN 68 112",
+    "input_event": 13
+  },
+  {
+    "at": "2026-10-26T04:53:41.699652+00:00",
+    "event_id": 17,
+    "kind": "wait-success",
+    "phase": "HOST_EXTERNAL_SCAN 68 112",
+    "offset": 770,
+    "input_event": 13,
+    "serial_file": "observations/00017-serial.txt",
+    "serial_sha256": "6cd2828c25c5df7dbe8fb7841dbe670d4ec82c0beb887c20d122be88aeffaa6c"
+  },
+  {
+    "at": "2026-10-26T04:53:41.988310+00:00",
+    "event_id": 18,
+    "kind": "state",
+    "file": "observations/00018-state.json",
+    "phase": "HOST_EXTERNAL_SCAN 68 112",
+    "input_event": 13
+  },
+  {
+    "at": "2026-10-26T04:53:41.993380+00:00",
+    "event_id": 19,
+    "kind": "wait-success",
+    "phase": "HOST_EXTERNAL_SCAN 68 112",
+    "offset": 0,
+    "input_event": 13,
+    "serial_file": "observations/00019-serial.txt",
+    "serial_sha256": "54c249e2f9882970619177e2e0da96471918daa761720e3f0b58f52b93212c4a"
+  }
+]

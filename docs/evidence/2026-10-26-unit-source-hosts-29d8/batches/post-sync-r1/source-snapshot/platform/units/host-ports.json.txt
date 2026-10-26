@@ -1,0 +1,578 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-26",
+  "scope": "Official host connector wiring; this file does not assert runtime GPIO/I2C/UART controller support.",
+  "wire_convention": {
+    "yellow": "Named Yellow column in official PinMap; numeric connector pin numbering is deliberately not inferred.",
+    "white": "Named White column in official PinMap. UIFlow GPIO port tuples conventionally order white first, yellow second; this is not a connector pin number.",
+    "red": "5V in the cited host PinMap",
+    "black": "GND"
+  },
+  "hosts": [
+    {
+      "device_id": "sticks3",
+      "ports": [
+        {
+          "id": "custom",
+          "label": "CUSTOM",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 9,
+            "white": 10
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/StickS3",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": []
+        }
+      ],
+      "unconfirmed": []
+    },
+    {
+      "device_id": "cores3",
+      "ports": [
+        {
+          "id": "port-a",
+          "label": "PORT.A",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/CoreS3",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": []
+        },
+        {
+          "id": "port-b",
+          "label": "PORT.B",
+          "visual_port": null,
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 9,
+            "white": 8
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "accessory-or-configuration-dependent",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/CoreS3",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": [
+            "PinMap GPIO assignment is confirmed; connector availability depends on the base/accessory configuration and is not enabled as a visual port."
+          ]
+        },
+        {
+          "id": "port-c",
+          "label": "PORT.C",
+          "visual_port": null,
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 17,
+            "white": 18
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "accessory-or-configuration-dependent",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/CoreS3",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": [
+            "PinMap GPIO assignment is confirmed; connector availability depends on the base/accessory configuration and is not enabled as a visual port."
+          ]
+        }
+      ],
+      "unconfirmed": []
+    },
+    {
+      "device_id": "stopwatch",
+      "ports": [
+        {
+          "id": "port-a",
+          "label": "PORT.A",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 10,
+            "white": 11
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/StopWatch",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": []
+        }
+      ],
+      "unconfirmed": []
+    },
+    {
+      "device_id": "cardputer-adv",
+      "ports": [
+        {
+          "id": "custom",
+          "label": "CUSTOM",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/Cardputer-ADV",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": []
+        }
+      ],
+      "unconfirmed": []
+    },
+    {
+      "device_id": "cardputer-zero",
+      "ports": [],
+      "unconfirmed": [
+        {
+          "field": "grove",
+          "reason": "Official product URL returned HTTP 404; external Linux backend and connector GPIO routing are unconfirmed.",
+          "url": "https://docs.m5stack.com/en/core/CardputerZero"
+        }
+      ]
+    },
+    {
+      "device_id": "papermono",
+      "ports": [],
+      "unconfirmed": [
+        {
+          "field": "grove",
+          "reason": "The current official product page and selected shell source do not identify a Grove connector or external Grove GPIO pin map. No port is invented.",
+          "url": "https://docs.m5stack.com/en/core/PaperMono"
+        }
+      ]
+    },
+    {
+      "device_id": "core2",
+      "ports": [
+        {
+          "id": "port-a",
+          "label": "PORT.A",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 32,
+            "white": 33
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/zh_CN/core/Core2_v1.1",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": []
+        },
+        {
+          "id": "port-b",
+          "label": "PORT.B",
+          "visual_port": null,
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 26,
+            "white": 36
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "accessory-or-configuration-dependent",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/zh_CN/core/Core2_v1.1",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": [
+            "PinMap GPIO assignment is confirmed; connector availability depends on the base/accessory configuration and is not enabled as a visual port.",
+            "ESP32 GPIO36 is input-only; do not assign host outputs, SCL or UART TX to the white wire."
+          ]
+        },
+        {
+          "id": "port-c",
+          "label": "PORT.C",
+          "visual_port": null,
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 14,
+            "white": 13
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "accessory-or-configuration-dependent",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/zh_CN/core/Core2_v1.1",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": [
+            "PinMap GPIO assignment is confirmed; connector availability depends on the base/accessory configuration and is not enabled as a visual port."
+          ]
+        }
+      ],
+      "unconfirmed": []
+    },
+    {
+      "device_id": "papercolor",
+      "ports": [
+        {
+          "id": "port-a",
+          "label": "PORT.A",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 4,
+            "white": 5
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/PaperColor",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": []
+        }
+      ],
+      "unconfirmed": []
+    },
+    {
+      "device_id": "nanoc6",
+      "ports": [
+        {
+          "id": "custom",
+          "label": "CUSTOM",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/NanoC6",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": []
+        }
+      ],
+      "unconfirmed": []
+    },
+    {
+      "device_id": "stackchan",
+      "ports": [
+        {
+          "id": "port-a",
+          "label": "PORT.A",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/StackChan",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": []
+        },
+        {
+          "id": "port-b",
+          "label": "PORT.B",
+          "visual_port": null,
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 9,
+            "white": 8
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "accessory-or-configuration-dependent",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/StackChan",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": [
+            "PinMap GPIO assignment is confirmed; connector availability depends on the base/accessory configuration and is not enabled as a visual port."
+          ]
+        },
+        {
+          "id": "port-c",
+          "label": "PORT.C",
+          "visual_port": null,
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 17,
+            "white": 18
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "accessory-or-configuration-dependent",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/StackChan",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": [
+            "PinMap GPIO assignment is confirmed; connector availability depends on the base/accessory configuration and is not enabled as a visual port."
+          ]
+        }
+      ],
+      "unconfirmed": []
+    },
+    {
+      "device_id": "tab5",
+      "ports": [
+        {
+          "id": "port-a",
+          "label": "PORT.A",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 53,
+            "white": 54
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/Tab5",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": []
+        }
+      ],
+      "unconfirmed": []
+    },
+    {
+      "device_id": "atoms3r",
+      "ports": [
+        {
+          "id": "custom",
+          "label": "CUSTOM",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/AtomS3R",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": []
+        }
+      ],
+      "unconfirmed": []
+    },
+    {
+      "device_id": "nesso-n1",
+      "ports": [
+        {
+          "id": "port-a",
+          "label": "PORT.A",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 5,
+            "white": 4
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/Arduino_Nesso_N1",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": []
+        }
+      ],
+      "unconfirmed": []
+    },
+    {
+      "device_id": "stamplc",
+      "ports": [
+        {
+          "id": "port-a",
+          "label": "PORT.A",
+          "visual_port": "grove",
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "main-device",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/StamPLC",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": []
+        },
+        {
+          "id": "port-c",
+          "label": "PORT.C",
+          "visual_port": null,
+          "connector": "HY2.0-4P",
+          "pins": {
+            "yellow": 5,
+            "white": 4
+          },
+          "power": {
+            "nominal_v": 5,
+            "control": "unknown"
+          },
+          "wiring_status": "confirmed",
+          "physical_presence": "accessory-or-configuration-dependent",
+          "evidence": [
+            {
+              "url": "https://docs.m5stack.com/en/core/StamPLC",
+              "checked_at": "2026-10-26",
+              "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+            }
+          ],
+          "limitations": [
+            "PinMap GPIO assignment is confirmed; connector availability depends on the base/accessory configuration and is not enabled as a visual port."
+          ]
+        }
+      ],
+      "unconfirmed": []
+    }
+  ]
+}

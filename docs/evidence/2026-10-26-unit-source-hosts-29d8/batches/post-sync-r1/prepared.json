@@ -1,0 +1,743 @@
+{
+  "status": "PREPARED_NO_API_OR_RUNTIME",
+  "created_at": "2026-10-26T04:50:02.066543+00:00",
+  "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+  "source_context_stage": "ROOT_SUPPLIED_POST_SYNC",
+  "fresh_prepare_required_after_root_commit_and_fetch": false,
+  "cases": [
+    {
+      "schema_version": 1,
+      "device_id": "atoms3r",
+      "unit_id": "button",
+      "runtime": "qemu",
+      "source_intake": "uiflow-source-api",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_context_stage": "ROOT_SUPPLIED_POST_SYNC",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          128,
+          128
+        ],
+        "text": [
+          4,
+          4,
+          120
+        ],
+        "internal_sda": 47,
+        "internal_scl": 0,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0,
+        "canvas_size": [
+          128,
+          128
+        ]
+      },
+      "port_id": "custom",
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "button",
+          "port_id": "custom"
+        }
+      ],
+      "official_host_evidence": [
+        {
+          "url": "https://docs.m5stack.com/en/core/AtomS3R",
+          "checked_at": "2026-10-26",
+          "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+        }
+      ],
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6557696,
+        "size": 1826816,
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+      },
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "reference_file": "platform/.cache/firmware/atoms3r/uiflow2.bin",
+      "flash_size": 8388608,
+      "expected_size": [
+        128,
+        128
+      ],
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "source_cas_sha256": "f1fc143afe499ff9920e3d6db737f59daf87c30ce719bec1606e195beef24922",
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "58fedb032b32af357f29e27f65384edbc78165b9455a89193794d754d280bf2e",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "original_function_sha256": {
+        "tests/units/run_host_cases.py::HOSTS": "46ad25f54424fafc562b520c1caef66a10b8c805a9f31665c200145bbc3fce8d",
+        "tests/units/run_host_cases.py::reference_layout": "09451ea6139f930c48e8aa1c7f9ec7dbc3c8af48e8837abe3fad5bf5b0da9b4c",
+        "tests/units/run_host_cases.py::validate_bundle": "2fb49ab8dba1823a242f542eb2419cdc755db3d3c63c21cc5509d6b37281e37d",
+        "tests/units/run_host_cases.py::validate_case": "211fa55db9e6f41244c93012a67fc9d6f5b7f8ed6d6b2ce4428b1d51d0d78520",
+        "tests/units/run_io_cases.py::Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd"
+      },
+      "driver_source": "Unchanged reference-firmware-bundled unit/hardware/driver modules; not uploaded, patched or independently rebuilt",
+      "uploaded_driver_files": [],
+      "adc_fixture": "NOT USED",
+      "host_admission_modified": false,
+      "ready_marker": "HOST_PROBE_READY atoms3r button",
+      "status": "PREPARED_NO_API_OR_RUNTIME"
+    },
+    {
+      "schema_version": 1,
+      "device_id": "atoms3r",
+      "unit_id": "relay",
+      "runtime": "qemu",
+      "source_intake": "uiflow-source-api",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_context_stage": "ROOT_SUPPLIED_POST_SYNC",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          128,
+          128
+        ],
+        "text": [
+          4,
+          4,
+          120
+        ],
+        "internal_sda": 47,
+        "internal_scl": 0,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0,
+        "canvas_size": [
+          128,
+          128
+        ]
+      },
+      "port_id": "custom",
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "relay",
+          "port_id": "custom"
+        }
+      ],
+      "official_host_evidence": [
+        {
+          "url": "https://docs.m5stack.com/en/core/AtomS3R",
+          "checked_at": "2026-10-26",
+          "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+        }
+      ],
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6557696,
+        "size": 1826816,
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+      },
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "reference_file": "platform/.cache/firmware/atoms3r/uiflow2.bin",
+      "flash_size": 8388608,
+      "expected_size": [
+        128,
+        128
+      ],
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "source_cas_sha256": "4ad126c158cda48674cd42ee2b5fe88853981b939334e40e12f68385bc0980db",
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "ccedf43c532e7bd9ce264f9f19a91236c819fa0b6b7483c27a60c767190f3057",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "original_function_sha256": {
+        "tests/units/run_host_cases.py::HOSTS": "46ad25f54424fafc562b520c1caef66a10b8c805a9f31665c200145bbc3fce8d",
+        "tests/units/run_host_cases.py::reference_layout": "09451ea6139f930c48e8aa1c7f9ec7dbc3c8af48e8837abe3fad5bf5b0da9b4c",
+        "tests/units/run_host_cases.py::validate_bundle": "2fb49ab8dba1823a242f542eb2419cdc755db3d3c63c21cc5509d6b37281e37d",
+        "tests/units/run_host_cases.py::validate_case": "211fa55db9e6f41244c93012a67fc9d6f5b7f8ed6d6b2ce4428b1d51d0d78520",
+        "tests/units/run_io_cases.py::Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd"
+      },
+      "driver_source": "Unchanged reference-firmware-bundled unit/hardware/driver modules; not uploaded, patched or independently rebuilt",
+      "uploaded_driver_files": [],
+      "adc_fixture": "NOT USED",
+      "host_admission_modified": false,
+      "ready_marker": "HOST_PROBE_READY atoms3r relay",
+      "status": "PREPARED_NO_API_OR_RUNTIME"
+    },
+    {
+      "schema_version": 1,
+      "device_id": "atoms3r",
+      "unit_id": "env-iii",
+      "runtime": "qemu",
+      "source_intake": "uiflow-source-api",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_context_stage": "ROOT_SUPPLIED_POST_SYNC",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          128,
+          128
+        ],
+        "text": [
+          4,
+          4,
+          120
+        ],
+        "internal_sda": 47,
+        "internal_scl": 0,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0,
+        "canvas_size": [
+          128,
+          128
+        ]
+      },
+      "port_id": "custom",
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "env-iii",
+          "port_id": "custom"
+        }
+      ],
+      "official_host_evidence": [
+        {
+          "url": "https://docs.m5stack.com/en/core/AtomS3R",
+          "checked_at": "2026-10-26",
+          "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+        }
+      ],
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6557696,
+        "size": 1826816,
+        "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a"
+      },
+      "base_firmware_sha256": "91c0f97c904271d4c47d240165fbf5589d44aa0d753ca17d685bfdce5bff199a",
+      "reference_file": "platform/.cache/firmware/atoms3r/uiflow2.bin",
+      "flash_size": 8388608,
+      "expected_size": [
+        128,
+        128
+      ],
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "source_cas_sha256": "72d3e3f68084a69f8c6c984ce324ebbb7514db1f6dd77530d10acba2889bafb5",
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "9c04ab235a05322ffccd017455a8d950ecfccce6d1ab0fad1f311610eedb334b",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "original_function_sha256": {
+        "tests/units/run_host_cases.py::HOSTS": "46ad25f54424fafc562b520c1caef66a10b8c805a9f31665c200145bbc3fce8d",
+        "tests/units/run_host_cases.py::reference_layout": "09451ea6139f930c48e8aa1c7f9ec7dbc3c8af48e8837abe3fad5bf5b0da9b4c",
+        "tests/units/run_host_cases.py::validate_bundle": "2fb49ab8dba1823a242f542eb2419cdc755db3d3c63c21cc5509d6b37281e37d",
+        "tests/units/run_host_cases.py::validate_case": "211fa55db9e6f41244c93012a67fc9d6f5b7f8ed6d6b2ce4428b1d51d0d78520",
+        "tests/units/run_io_cases.py::Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd"
+      },
+      "driver_source": "Unchanged reference-firmware-bundled unit/hardware/driver modules; not uploaded, patched or independently rebuilt",
+      "uploaded_driver_files": [],
+      "adc_fixture": "NOT USED",
+      "host_admission_modified": false,
+      "ready_marker": "HOST_PROBE_READY atoms3r env-iii",
+      "status": "PREPARED_NO_API_OR_RUNTIME"
+    },
+    {
+      "schema_version": 1,
+      "device_id": "sticks3",
+      "unit_id": "button",
+      "runtime": "qemu",
+      "source_intake": "uiflow-source-api",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_context_stage": "ROOT_SUPPLIED_POST_SYNC",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          135,
+          240
+        ],
+        "text": [
+          4,
+          4,
+          127
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0,
+        "canvas_size": [
+          135,
+          240
+        ]
+      },
+      "port_id": "custom",
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "button",
+          "port_id": "custom"
+        }
+      ],
+      "official_host_evidence": [
+        {
+          "url": "https://docs.m5stack.com/en/core/StickS3",
+          "checked_at": "2026-10-26",
+          "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+        }
+      ],
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6623232,
+        "size": 1761280,
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+      },
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "reference_file": "platform/.cache/firmware/sticks3/uiflow2.bin",
+      "flash_size": 8388608,
+      "expected_size": [
+        135,
+        240
+      ],
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "source_cas_sha256": "f594512e6e6438478c8b713d98a3d43b82ec8c9b568f2f57dc06e5060e7db230",
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "6df6eb0d0f6d2f36bfdbf4bfb6628daec4ea2d7b52c25e8d25821c8dd1933da7",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "original_function_sha256": {
+        "tests/units/run_host_cases.py::HOSTS": "46ad25f54424fafc562b520c1caef66a10b8c805a9f31665c200145bbc3fce8d",
+        "tests/units/run_host_cases.py::reference_layout": "09451ea6139f930c48e8aa1c7f9ec7dbc3c8af48e8837abe3fad5bf5b0da9b4c",
+        "tests/units/run_host_cases.py::validate_bundle": "2fb49ab8dba1823a242f542eb2419cdc755db3d3c63c21cc5509d6b37281e37d",
+        "tests/units/run_host_cases.py::validate_case": "211fa55db9e6f41244c93012a67fc9d6f5b7f8ed6d6b2ce4428b1d51d0d78520",
+        "tests/units/run_io_cases.py::Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd"
+      },
+      "driver_source": "Unchanged reference-firmware-bundled unit/hardware/driver modules; not uploaded, patched or independently rebuilt",
+      "uploaded_driver_files": [],
+      "adc_fixture": "NOT USED",
+      "host_admission_modified": false,
+      "ready_marker": "HOST_PROBE_READY sticks3 button",
+      "status": "PREPARED_NO_API_OR_RUNTIME"
+    },
+    {
+      "schema_version": 1,
+      "device_id": "sticks3",
+      "unit_id": "relay",
+      "runtime": "qemu",
+      "source_intake": "uiflow-source-api",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_context_stage": "ROOT_SUPPLIED_POST_SYNC",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          135,
+          240
+        ],
+        "text": [
+          4,
+          4,
+          127
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0,
+        "canvas_size": [
+          135,
+          240
+        ]
+      },
+      "port_id": "custom",
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "relay",
+          "port_id": "custom"
+        }
+      ],
+      "official_host_evidence": [
+        {
+          "url": "https://docs.m5stack.com/en/core/StickS3",
+          "checked_at": "2026-10-26",
+          "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+        }
+      ],
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6623232,
+        "size": 1761280,
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+      },
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "reference_file": "platform/.cache/firmware/sticks3/uiflow2.bin",
+      "flash_size": 8388608,
+      "expected_size": [
+        135,
+        240
+      ],
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "source_cas_sha256": "b170ecb673316b04eba9e22171e78be022617b7e8cd49f6f90544ac6d91350c8",
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "e2df2df3b015c895699292d7fec86e7af8f6237a27180ee8416c4c33bec1cf6f",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "original_function_sha256": {
+        "tests/units/run_host_cases.py::HOSTS": "46ad25f54424fafc562b520c1caef66a10b8c805a9f31665c200145bbc3fce8d",
+        "tests/units/run_host_cases.py::reference_layout": "09451ea6139f930c48e8aa1c7f9ec7dbc3c8af48e8837abe3fad5bf5b0da9b4c",
+        "tests/units/run_host_cases.py::validate_bundle": "2fb49ab8dba1823a242f542eb2419cdc755db3d3c63c21cc5509d6b37281e37d",
+        "tests/units/run_host_cases.py::validate_case": "211fa55db9e6f41244c93012a67fc9d6f5b7f8ed6d6b2ce4428b1d51d0d78520",
+        "tests/units/run_io_cases.py::Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd"
+      },
+      "driver_source": "Unchanged reference-firmware-bundled unit/hardware/driver modules; not uploaded, patched or independently rebuilt",
+      "uploaded_driver_files": [],
+      "adc_fixture": "NOT USED",
+      "host_admission_modified": false,
+      "ready_marker": "HOST_PROBE_READY sticks3 relay",
+      "status": "PREPARED_NO_API_OR_RUNTIME"
+    },
+    {
+      "schema_version": 1,
+      "device_id": "sticks3",
+      "unit_id": "env-iii",
+      "runtime": "qemu",
+      "source_intake": "uiflow-source-api",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_context_stage": "ROOT_SUPPLIED_POST_SYNC",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          135,
+          240
+        ],
+        "text": [
+          4,
+          4,
+          127
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0,
+        "canvas_size": [
+          135,
+          240
+        ]
+      },
+      "port_id": "custom",
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "env-iii",
+          "port_id": "custom"
+        }
+      ],
+      "official_host_evidence": [
+        {
+          "url": "https://docs.m5stack.com/en/core/StickS3",
+          "checked_at": "2026-10-26",
+          "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+        }
+      ],
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 6623232,
+        "size": 1761280,
+        "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+      },
+      "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "reference_file": "platform/.cache/firmware/sticks3/uiflow2.bin",
+      "flash_size": 8388608,
+      "expected_size": [
+        135,
+        240
+      ],
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "source_cas_sha256": "1743d4ba7c38eb69228eba6dee30dc4ff910e43432f97ed7a6520aa5db100dbe",
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "001a052422661aafe4d8807d7b5d5e0dab5393a06a7e8be9f86869b62363efaa",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "original_function_sha256": {
+        "tests/units/run_host_cases.py::HOSTS": "46ad25f54424fafc562b520c1caef66a10b8c805a9f31665c200145bbc3fce8d",
+        "tests/units/run_host_cases.py::reference_layout": "09451ea6139f930c48e8aa1c7f9ec7dbc3c8af48e8837abe3fad5bf5b0da9b4c",
+        "tests/units/run_host_cases.py::validate_bundle": "2fb49ab8dba1823a242f542eb2419cdc755db3d3c63c21cc5509d6b37281e37d",
+        "tests/units/run_host_cases.py::validate_case": "211fa55db9e6f41244c93012a67fc9d6f5b7f8ed6d6b2ce4428b1d51d0d78520",
+        "tests/units/run_io_cases.py::Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd"
+      },
+      "driver_source": "Unchanged reference-firmware-bundled unit/hardware/driver modules; not uploaded, patched or independently rebuilt",
+      "uploaded_driver_files": [],
+      "adc_fixture": "NOT USED",
+      "host_admission_modified": false,
+      "ready_marker": "HOST_PROBE_READY sticks3 env-iii",
+      "status": "PREPARED_NO_API_OR_RUNTIME"
+    },
+    {
+      "schema_version": 1,
+      "device_id": "stopwatch",
+      "unit_id": "button",
+      "runtime": "qemu",
+      "source_intake": "uiflow-source-api",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_context_stage": "ROOT_SUPPLIED_POST_SYNC",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          466,
+          466
+        ],
+        "canvas_size": [
+          468,
+          468
+        ],
+        "text": [
+          80,
+          110,
+          306
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "port_id": "port-a",
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "button",
+          "port_id": "port-a"
+        }
+      ],
+      "official_host_evidence": [
+        {
+          "url": "https://docs.m5stack.com/en/core/StopWatch",
+          "checked_at": "2026-10-26",
+          "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+        }
+      ],
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 8519680,
+        "size": 8253440,
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+      },
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "reference_file": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+      "flash_size": 16777216,
+      "expected_size": [
+        466,
+        466
+      ],
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "source_cas_sha256": "0005bc8ef2ba44dcc537272b01b08dd52929417ee4960b908957c5deca5f33a3",
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "a6ff5cfc2a98839ca448fc5789915644f6e1528be091ae628fb81a032286a2d2",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "original_function_sha256": {
+        "tests/units/run_host_cases.py::HOSTS": "46ad25f54424fafc562b520c1caef66a10b8c805a9f31665c200145bbc3fce8d",
+        "tests/units/run_host_cases.py::reference_layout": "09451ea6139f930c48e8aa1c7f9ec7dbc3c8af48e8837abe3fad5bf5b0da9b4c",
+        "tests/units/run_host_cases.py::validate_bundle": "2fb49ab8dba1823a242f542eb2419cdc755db3d3c63c21cc5509d6b37281e37d",
+        "tests/units/run_host_cases.py::validate_case": "211fa55db9e6f41244c93012a67fc9d6f5b7f8ed6d6b2ce4428b1d51d0d78520",
+        "tests/units/run_io_cases.py::Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd"
+      },
+      "driver_source": "Unchanged reference-firmware-bundled unit/hardware/driver modules; not uploaded, patched or independently rebuilt",
+      "uploaded_driver_files": [],
+      "adc_fixture": "NOT USED",
+      "host_admission_modified": false,
+      "ready_marker": "HOST_PROBE_READY stopwatch button",
+      "status": "PREPARED_NO_API_OR_RUNTIME"
+    },
+    {
+      "schema_version": 1,
+      "device_id": "stopwatch",
+      "unit_id": "relay",
+      "runtime": "qemu",
+      "source_intake": "uiflow-source-api",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_context_stage": "ROOT_SUPPLIED_POST_SYNC",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          466,
+          466
+        ],
+        "canvas_size": [
+          468,
+          468
+        ],
+        "text": [
+          80,
+          110,
+          306
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "port_id": "port-a",
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "relay",
+          "port_id": "port-a"
+        }
+      ],
+      "official_host_evidence": [
+        {
+          "url": "https://docs.m5stack.com/en/core/StopWatch",
+          "checked_at": "2026-10-26",
+          "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+        }
+      ],
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 8519680,
+        "size": 8253440,
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+      },
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "reference_file": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+      "flash_size": 16777216,
+      "expected_size": [
+        466,
+        466
+      ],
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "source_cas_sha256": "e9159b5805282a77c820c3c2b2a98fd468b2dc34aa8ace91862ebf02b55402a4",
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "384f21789862baebbfeb757d48b3692e94a298744bfa01ee7dfaf549d8304355",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "original_function_sha256": {
+        "tests/units/run_host_cases.py::HOSTS": "46ad25f54424fafc562b520c1caef66a10b8c805a9f31665c200145bbc3fce8d",
+        "tests/units/run_host_cases.py::reference_layout": "09451ea6139f930c48e8aa1c7f9ec7dbc3c8af48e8837abe3fad5bf5b0da9b4c",
+        "tests/units/run_host_cases.py::validate_bundle": "2fb49ab8dba1823a242f542eb2419cdc755db3d3c63c21cc5509d6b37281e37d",
+        "tests/units/run_host_cases.py::validate_case": "211fa55db9e6f41244c93012a67fc9d6f5b7f8ed6d6b2ce4428b1d51d0d78520",
+        "tests/units/run_io_cases.py::Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd"
+      },
+      "driver_source": "Unchanged reference-firmware-bundled unit/hardware/driver modules; not uploaded, patched or independently rebuilt",
+      "uploaded_driver_files": [],
+      "adc_fixture": "NOT USED",
+      "host_admission_modified": false,
+      "ready_marker": "HOST_PROBE_READY stopwatch relay",
+      "status": "PREPARED_NO_API_OR_RUNTIME"
+    },
+    {
+      "schema_version": 1,
+      "device_id": "stopwatch",
+      "unit_id": "env-iii",
+      "runtime": "qemu",
+      "source_intake": "uiflow-source-api",
+      "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+      "source_context_stage": "ROOT_SUPPLIED_POST_SYNC",
+      "host_profile": {
+        "rotation": 0,
+        "size": [
+          466,
+          466
+        ],
+        "canvas_size": [
+          468,
+          468
+        ],
+        "text": [
+          80,
+          110,
+          306
+        ],
+        "internal_sda": 47,
+        "internal_scl": 48,
+        "log_tx": 43,
+        "log_rx": 44,
+        "internal_controller": 1,
+        "external_controller": 0
+      },
+      "port_id": "port-a",
+      "attachments": [
+        {
+          "id": "external1",
+          "unit_id": "env-iii",
+          "port_id": "port-a"
+        }
+      ],
+      "official_host_evidence": [
+        {
+          "url": "https://docs.m5stack.com/en/core/StopWatch",
+          "checked_at": "2026-10-26",
+          "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+        }
+      ],
+      "reference_layout": {
+        "source": "actual-reference-partition-table",
+        "offset": 8519680,
+        "size": 8253440,
+        "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0"
+      },
+      "base_firmware_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+      "reference_file": "platform/.cache/firmware/stopwatch/uiflow2.bin",
+      "flash_size": 16777216,
+      "expected_size": [
+        466,
+        466
+      ],
+      "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "source_cas_sha256": "e14a79abf57433afba06231a1f9af8bf7d68e92f56f1cb1ccb19dd2e9240fba1",
+      "probe_sha256": {
+        "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+        "host_program.py": "cb3c06021b764b66b9d0ce134bef0c6a1d55b02271da7d6519d004f22a494529",
+        "main.py": "a2fb90bc861e72c9e2d64494d3b1fb5d02b1e6abe13ed5f9b1c0dd3822a56579",
+        "probe_config.py": "5349e8a00dd301bf2efa0cfa2e0c8fc107b5ea1bebd8b472bc62ef12c383dace",
+        "probe_logging.py": "0eb8019b5b06f0bcf018633f6b4a57ecf162b5732de14c8f95e0c6f924995f0e"
+      },
+      "original_function_sha256": {
+        "tests/units/run_host_cases.py::HOSTS": "46ad25f54424fafc562b520c1caef66a10b8c805a9f31665c200145bbc3fce8d",
+        "tests/units/run_host_cases.py::reference_layout": "09451ea6139f930c48e8aa1c7f9ec7dbc3c8af48e8837abe3fad5bf5b0da9b4c",
+        "tests/units/run_host_cases.py::validate_bundle": "2fb49ab8dba1823a242f542eb2419cdc755db3d3c63c21cc5509d6b37281e37d",
+        "tests/units/run_host_cases.py::validate_case": "211fa55db9e6f41244c93012a67fc9d6f5b7f8ed6d6b2ce4428b1d51d0d78520",
+        "tests/units/run_io_cases.py::Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd"
+      },
+      "driver_source": "Unchanged reference-firmware-bundled unit/hardware/driver modules; not uploaded, patched or independently rebuilt",
+      "uploaded_driver_files": [],
+      "adc_fixture": "NOT USED",
+      "host_admission_modified": false,
+      "ready_marker": "HOST_PROBE_READY stopwatch env-iii",
+      "status": "PREPARED_NO_API_OR_RUNTIME"
+    }
+  ],
+  "binary_build_or_upload": false,
+  "functions_called_during_prepare": [
+    "reference_layout (actual reference bytes/partition parser)"
+  ],
+  "network_browser_guest_process_calls": 0
+}

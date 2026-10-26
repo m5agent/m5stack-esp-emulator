@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "scope": "Read-only public archive audit with every .work source treated as absent",
+  "audit": {
+    "schema_version": 1,
+    "status": "PASS",
+    "scope": "Offline public archive byte provenance/transport/ZIP/CRC/images/UTF8/privacy/counts/sync binding; no API, guest, subprocess or compiler",
+    "provenance_files": 2226,
+    "transported_markdown": 4,
+    "nested_checksum_entries": 2104,
+    "zip_payload_copies": 18,
+    "unique_zip_payloads": 9,
+    "zip_members": 198,
+    "images_decoded": 81,
+    "utf8_payloads": 2330,
+    "functional_pass_sessions": 9,
+    "source_context_commit": "0fe6a013b7ca040583339ef7827d4daf8e3810dc",
+    "fresh_prepare_after_sync_verified": true,
+    "hardware": "NOT RUN",
+    "source_work_directories_required_for_audit": false
+  },
+  "api_or_subprocess_calls": 0,
+  "files_changed": false,
+  "archive_files": 2233,
+  "archive_entries": 2337
+}

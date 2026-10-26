@@ -274,8 +274,8 @@ CoreS3 的 Button/Relay/ENV III/RGB/Encoder 五例已通过该源码入口实际
 HUB+ENV III+NCIR 另两个 session 也通过，验证自动 boot、两个 leaf 独立
 I2C 读写和同 guest 的屏幕反馈。合计覆盖七种 Unit 的源码 API 路径；HUB
 是被动接线，不凭其零事务值判失败或虚构控制器。所有八个会话（含单独 Button
-预检）停止前取 ZIP、保留历史、PID 退出并释放 Flash。其余三主机只有源码
-打包离线检查，不能继承 CoreS3 的此次运行 PASS。调用方式见
+预检）停止前取 ZIP、保留历史、PID 退出并释放 Flash。截至该首批，其余三主机
+只有源码打包离线检查，不能继承 CoreS3 的此次运行 PASS。调用方式见
 [外部 Agent 指南](unit-agent-api.md)，精确 SHA/输入/原始证据见
 [本轮归档](evidence/2026-10-26-unit-source-api-29d8/README.md)。
 
@@ -300,10 +300,20 @@ controller/真实 Web、直接 PID、停止前 ZIP 和停止后的清理证据�
 的相关 wrapper/native 文件仍保留已识别的 callback 参数/保活模式；该源码
 查证不等于所有 port 或最新发行固件均失败。
 见[扩展批次与精确范围](evidence/2026-10-26-unit-source-api-expanded-29d8/README.md)
-和[27 种可复用源码请求](unit-agent-api.md#已验证的-27-种源码场景)。本轮源码
-API 实际运行仍仅 CoreS3，其余三主机只有离线 compose。PWM 初始化 QOM route、
+和[27 种可复用源码请求](unit-agent-api.md#已验证的-27-种源码场景)。该扩展批源码
+API 实际运行仅 CoreS3，其余三主机当时只有离线 compose。PWM 初始化 QOM route、
 完整周期语义、共享 runtime 最新完整矩阵及真机等门禁仍 OPEN；精确计数见
 验证台账，Core2 IMU 单例复测不拼成全量 PASS。
+
+本工作块提交后已重新 fetch 并确认已包含当时最新主线，随后使用同步后源码重新
+准备并执行 AtomS3R、StickS3、StopWatch 的 Button/Relay/ENV III。九个独立
+源码 API 会话均通过，原主机探针、内部 BMI270 与外部总线隔离、显示参数、
+GPIO/IRQ/输出及 ENV 两向量断言完整保留；真实 Web、source pin、直接 PID、
+停止前 ZIP、保留历史和 Flash/PID 清理分别绑定。主机附件和九份源码请求见
+[三主机指南](unit-agent-api.md#三主机buttonrelayenv-iii)，同步收据及精确固件见
+[本批证据](evidence/2026-10-26-unit-source-hosts-29d8/README.md)。新结果仅覆盖
+三主机各自这三种 Unit，不从 CoreS3 转授其它 24 种。非空帧/尺寸通过不等于
+所有显示状态可读或跨请求原子一致，也不新增硬件与共享完整矩阵结论。
 
 CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展开与真实端口
 线缆布置。ENV III/ToF/Color 四档场景、手机 Button 输入/聚焦和失败回滚共
