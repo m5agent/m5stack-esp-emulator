@@ -1,6 +1,6 @@
 # HTTP-only worker executor
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 `platform/tools/worker_agent.py` is an independent process that uses only the
 public Device Service API:

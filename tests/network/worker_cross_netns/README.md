@@ -1,6 +1,6 @@
 # Cross-network-namespace worker control and execution
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This Linux-only fixture creates two private network namespaces connected by a
 veth pair:

@@ -2,7 +2,7 @@
 
 # 项目快照（自动生成）
 
-来源日期：`2026-10-25`；最新 evidence 日期：`2026-10-26`。
+设备目录日期：`2026-10-26`；当前事实复核：`2026-10-26`；最新 evidence 日期：`2026-10-26`。
 
 本页只汇总机器可读源和已提交 evidence，避免在多个文档手写同一组动态事实。实现结论、风险说明和验证层级仍以[项目当前状态](project-status.md)、[验证证据台账](validation-ledger.md)和 [项目 Backlog](project-backlog.md) 为准。
 
@@ -15,9 +15,9 @@
 | 设备 | SoC | 后端 | 外设 | 最近验证 | 当前边界 |
 | --- | --- | --- | --- | --- | --- |
 | StopWatch (`stopwatch`) | ESP32-S3R8 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-touch-peripherals-wifi-ble-pass` | 无登记 blocker |
-| AtomS3R (`atoms3r`) | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
-| CoreS3 (`cores3`) | ESP32-S3 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-touch-peripherals-wifi-ble-pass` | UIFlow startup-menu palette PNG/tRNS assets render striped artifacts; ordinary RGB PNG and opaque drawing paths are correct |
-| StickS3 (`sticks3`) | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
+| AtomS3R (`atoms3r`) | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
+| CoreS3 (`cores3`) | ESP32-S3 | `qemu-esp32s3` | `simulated` | `2026-10-25` / `display-touch-peripherals-wifi-ble-pass` | UIFlow startup-menu palette PNG/tRNS assets render striped artifacts; ordinary RGB PNG and opaque drawing paths are correct |
+| StickS3 (`sticks3`) | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
 | Cardputer-ADV (`cardputer-adv`) | ESP32-S3FN8 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-keyboard-peripherals-wifi-ble-pass` | 无登记 blocker |
 | StackChan (`stackchan`) | ESP32-S3 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
 | StamPLC (`stamplc`) | ESP32-S3FN8 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
@@ -26,7 +26,7 @@
 | NanoC6 (`nanoc6`) | ESP32-C6FH4 | `qemu-esp32c6` | `simulated` | `2026-10-24` / `board-peripherals-wifi-ble-pass` | Zigbee/802.15.4 controller data plane is not modeled (RUNTIME-02) |
 | Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | `qemu-esp32c6` | `simulated` | `2026-10-24` / `display-touch-peripherals-wifi-ble-pass` | Meshtastic remains PARTIAL after an independent post-application instruction access fault (RUNTIME-01 flash/PMP defect is fixed) |
 | CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | `external-linux-arm64` | `simulated` | `2026-10-22` / `linux-display-input-i2c-audio-power-usb-camera-partial` | not an ESP32 firmware target |
-| Core2 (`core2`) | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | Core2 legacy UIFlow shared I2C routing is fixed; watchdog failures are timing/concurrency-sensitive and explicit thread/icount controls do not fix them; non-empty application frame remains OPEN; physical cache/PSRAM timing equivalence remains NOT RUN; bit-exact ESP32 BT baseband/controller remains NOT RUN; two independent two-instance no-stagger 4x120s gates pass 8/8, two independent three-instance 3x120s gates pass 6/6, two independent four-instance 4x120s gates pass 8/8, two independent five-instance 30-second-stagger 5x120s gates pass 10/10, two fixed-icount zero-stagger five-instance 5x120s gates pass 10/10, two fixed-icount zero-stagger six-instance 6x120s gates pass 12/12, and two fixed-icount zero-stagger eight-instance 8x120s gates pass 16/16 after hold/12 sweep-floor calibration; more-than-eight-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN; the bounded-TCG host-memory result is validated only for the tested 7200s workload |
+| Core2 (`core2`) | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | `simulated` | `2026-10-26` / `display-input-peripherals-wifi-ble-pass` | Core2 legacy UIFlow shared I2C, equal-deadline timer and TIMG WDT-mask semantics are fixed. Patches 0036-0042 add stateful SSI, unified timeline, exact-time pause/state sweep, BIN-bound setter trace, bounded register/object/stack dumps, and a partial SPI TRANS_DONE/TRANS_INTEN IRQ model. TG0 stage-0 is masked at about 5.91 s and TG0 stage-1 triggers the first reset at about 15.91 s while TG1 remains live. WDT-off 45/120 s controls show Flash/SSI activity ending around 44 s, followed by CPU0 waiti idle and CPU1 at 0x40100049 in LVGL lv_refr_vdb_flush waiting on a double-buffered vdb with flushing=1 and a null wait_cb. The display flush_cb at 0x40174758 runs, but completion 0x40174884 and lv_disp_flush_ready are not observed. The early 800 ms TG1 gap is NOT_REPRODUCED, and the remaining issue is the SPI interrupt/queue completion chain, not a permanent cross-core deadlock, UART storm, TG1 feed stop, never-ending Flash scan or unknown late object. Temporary bulk-read and watchdog-disable diagnostics are not product fixes; physical cache/PSRAM timing equivalence remains NOT RUN; bit-exact ESP32 BT baseband/controller remains NOT RUN; virtual-device concurrency gates cover the current service capacity; more-than-eight-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN (CORE2-02); the bounded-TCG host-memory result is validated only for the tested long-hold workload |
 | Tab5 (`tab5`) | ESP32-P4NRW32 | `esp-emulator-native` | `partial` | `2026-10-22` / `display-touch-rs485-pass-peripherals-partial` | SC2356 MIPI CSI-2 controller/frame path missing from esp-emu 0.50.0; ES8388/ES7210 I2S register and PCM endpoints missing from esp-emu 0.50.0; ESP32-P4 USB Host controller and endpoint attachment missing; Tab5 ST7123 touch is currently a firmware GDB mailbox rather than an I2C chip model; Tab5 SDIO storage is not wired to a host block backend; Tab5 INA226 register preload reaches Power as 8000 mV/1248 mA/87%, direct machine.I2C write/read reaches RX8130 registers, and PI4IOE CHG_STAT/CHG_EN reach Power.isCharging() in both charging and discharging scenarios, but RTC progression, dynamic I2C/time injection and IP2326 analog current/termination behavior remain partial; BMI270 identity also remains partial |
 
 ## 外接 Unit 库存与准入
@@ -57,7 +57,7 @@
 
 ## 通用固件审查
 
-公开样本快照覆盖 `7` 台设备、`21` 个固件：`10` PASS、`11` PARTIAL、`0` FAIL。PARTIAL 不自动等于固件缺陷；`runtime_model_gap` 必须保留模型边界。
+历史哈希绑定公开样本基线（来源日期 `2026-10-24`）覆盖 `7` 台设备、`21` 个固件：`10` PASS、`11` PARTIAL、`0` FAIL。PARTIAL 不自动等于固件缺陷；`runtime_model_gap` 必须保留模型边界。之后刷新、专项 fixture、安全与导入结果分别回查专题页和验证台账，不把新 evidence 自动并入这份历史样本计数。
 
 ## 运行时模型缺口
 
@@ -66,16 +66,16 @@
 | `RUNTIME-01` | `FIXED` | C6 软件复位后 chip-id 错误 |
 | `RUNTIME-05` | `FIXED` | S3 QEMU AP WPA2-PSK 数据面 |
 | `RUNTIME-02` | `OPEN` | C6 Zigbee/802.15.4 运行时未建模 |
-| `RUNTIME-03` | `OPEN` | Core2 legacy I2C shared bus 已修正，后续 WDT 未闭环 |
+| `RUNTIME-03` | `OPEN` | Core2 I2C/timer/WDT-mask 已修复，legacy LVGL flush wait 未闭环 |
 | `RUNTIME-04` | `OPEN` | Core2 for AWS ATECC608 未建模 |
 
 ## Backlog Task 板
 
 | Task | 当前状态 | 下一项最小交付 |
 | --- | --- | --- |
-| `RUNTIME-03` | 进行中 | shared GPIO21/22 board bus 已修复；用 TIMG trace 隔离启动期同步路径、虚拟时间和调度 |
+| `RUNTIME-03` | 进行中 | `0x40100049` 已绑定为 LVGL `lv_refr_vdb_flush`：VDB `flushing=1`、`wait_cb=null`，display `flush_cb=0x40174758` 已调用，但 completion `0x40174884` / `lv_disp_flush_ready` 未观测。下一项修 SPI interrupt/queue completion；matching ELF/MAP 可并行 |
 | `NET-04` | 进行中 | 物理跨主机 executor/reattach、跨主机幂等、任意 NAT、QEMU 内 guest/controller 和外部 side-effect fence |
-| `CORE2-02` | 进行中 | 大于八实例、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
+| `CORE2-02` | 进行中 | 大于当前服务容量、持续吞吐、其他 teardown、bit-exact controller/baseband、物理 PSRAM/cache timing 和真机 |
 | `FW-01` | 进行中 | 运行态 ACL/权限、完整源码和依赖许可覆盖、法律审批 |
 | `FW-02` | 进行中 | 真机 Secure Boot、Flash Encryption、live eFuse、bootloader anti-rollback 和生产 key |
 | `FW-03` | 进行中 | 真实 key/云端业务；更多设备与 firmware family；继续扩展 SD/NVS 和网络预期 |
@@ -83,7 +83,7 @@
 | `RUNTIME-04` | 进行中 | ATECC608 I2C 命令和测试 slot/config fixture |
 | `SVC-01` | 进行中 | namespace-managed/Tab5/cross-host companion 和跨主机 idempotency |
 | `SVC-02` | 待做 | warm pool、配额、对象存储、审计和容量指标 |
-| `SVC-03` | 待做 | 拆分 `device_service.py` 的 store/runtime/evidence/session 状态机 |
+| `SVC-03` | 待做 | 先提取纯配置/请求解析边界，再拆 store、runtime adapter、evidence collector 和 session 状态机 |
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
@@ -92,29 +92,30 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`43` 个 Python 模块，`35035` 行；规模最大的模块如下。
+- `platform/tools`：`43` 个 Python 模块，`35807` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 10065 |
-| `firmware_manifest.py` | 3067 |
+| `device_service.py` | 10062 |
+| `firmware_manifest.py` | 3612 |
 | `user_firmware_matrix.py` | 2069 |
-| `network_sandbox.py` | 1556 |
+| `network_sandbox.py` | 1681 |
 | `firmware_filesystems.py` | 1469 |
 | `worker_agent.py` | 1429 |
 
-- `tests/`：`87` 个可执行 Python 测试文件，分布在 `49` 个目录；`197` 个 evidence JSON。
-- `patches/`：`13` 个补丁组，`70` 个 patch 文件。
-- 文档：`275` 个 Markdown 页面，`26069` 行。
+- `tests/`：`95` 个可执行 Python 测试文件，分布在 `55` 个目录；`221` 个 evidence JSON。
+- `patches/`：`13` 个补丁组，`80` 个 patch 文件。
+- 文档：`281` 个 Markdown 页面；除本生成页外共 `27587` 行。
 
 ## 文档与测试
 
-- 平台测试：`562` 项。
+- 平台测试：`607` 项。
 - Docs 新鲜度登记：`77` 行；其中非历史页 `33` 行，历史固定页 `44` 行。
 - 文档职责分布：待办 `3`，契约 `6`，历史固定 `44`，实现/设计 `7`，参考 `13`，工作流/导航 `4`。
-- 全量文档盘点：`275` 个 Markdown 页面；职责分布：权威/专题页 `77`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `14`，平台说明 `4`，仓内历史记录 `5`，测试/用例说明 `141`，未登记 docs 页面 `2`，第三方来源说明 `9`。
+- 全量文档盘点：`281` 个 Markdown 页面；职责分布：权威/专题页 `77`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `14`，平台说明 `4`，仓内历史记录 `5`，测试/用例说明 `147`，未登记 docs 页面 `2`，第三方来源说明 `9`。
 - 所有非历史页的最近复核日期均与当前事实日期一致。
-- 没有带显式旧复核日期的委派文档。
+- 带显式旧复核日期的委派文档（需按相邻索引和权威页复核）：
+  - [platform/web/vendor/m5stack-models/docs/INTEGRATION.md](../platform/web/vendor/m5stack-models/docs/INTEGRATION.md) `2026-10-25`
 - 代码边界和大型模块的维护建议由[代码与验证入口地图](code-map.md)维护。
 
 ## 维护入口

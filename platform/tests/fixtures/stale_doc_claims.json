@@ -2,14 +2,25 @@
   "schema_version": 1,
   "purpose": "Forbid retired claims from returning to current project-entry documents.",
   "authorities": [
+    "docs/README.md",
+    "docs/engineering-handoff.md",
+    "docs/workstreams.md",
     "docs/project-status.md",
     "docs/project-backlog.md",
     "docs/validation-ledger.md",
     "docs/runtime-model-gap-register.md",
     "docs/project-snapshot.md",
-    "docs/code-map.md"
+    "docs/code-map.md",
+    "docs/qemu-device-adaptation-matrix.md",
+    "docs/user-firmware-simulation-matrix.md",
+    "docs/core2-cache-panic-investigation.md"
   ],
   "claims": [
+    {
+      "id": "STALE-000",
+      "text": "公开样本快照覆盖",
+      "reason": "The generated project snapshot now labels the 2026-10-24 sample set as a dated hash-bound baseline; later evidence must not be folded into that count implicitly."
+    },
     {
       "id": "STALE-001",
       "text": "网络模拟尚未接入统一设备服务",
@@ -729,6 +740,86 @@
       "id": "STALE-144",
       "text": "next address-`0x51` RTC-candidate transaction is not acknowledged on the legacy controller path",
       "reason": "Retired current result; the follow-up trace acknowledges address 0x51 after routing both controllers to the physical board bus."
+    },
+    {
+      "id": "STALE-145",
+      "text": "CPU1 flash/partition access is the confirmed first failure",
+      "reason": "Retired by the corrected ESP-IDF flash-IPC probe: CPU1 regularly reaches READ_START and completes partition reads; the old pre-read assertion was a probe stack overflow."
+    },
+    {
+      "id": "STALE-146",
+      "text": "failure is inside `esp_partition_read()`",
+      "reason": "Corrected runs complete 1000 partition reads; WDT samples occur later with both CPUs in idle waiti and do not currently attribute failure to a specific read call."
+    },
+    {
+      "id": "STALE-147",
+      "text": "S32C1I CAS behavior is already confirmed as the root cause",
+      "reason": "S32C1I is the next high-priority trace target, but no CAS input/result or defective compare-and-swap has been captured."
+    },
+    {
+      "id": "STALE-148",
+      "text": "`READ_START` is never reached by the flash-IPC probe",
+      "reason": "The corrected probe reaches CORE2_FLASH_IPC_READ_START in 20/20 dated first boots."
+    },
+    {
+      "id": "STALE-149",
+      "text": "a 4096-byte local read buffer on a 4096-byte task stack is a valid test harness",
+      "reason": "That buffer overran the CPU1 task stack, corrupted a queue spinlock and invalidated the earlier pre-read assertion."
+    },
+    {
+      "id": "STALE-150",
+      "text": "the flash-before spinlock mismatch is current runtime evidence",
+      "reason": "The mismatch is retained only as a corrected probe-harness failure; it is not evidence of a QEMU runtime model defect."
+    },
+    {
+      "id": "STALE-151",
+      "text": "next question is why application initialization does not finish before the TG0 stage-1 deadline",
+      "reason": "The WDT-off late-state control moved the current boundary past startup-time attribution to a stable CPU1 flag/object wait after Flash/SSI activity ends."
+    },
+    {
+      "id": "STALE-152",
+      "text": "remaining gate is why application initialization does not complete before TG0 stage-1",
+      "reason": "This was superseded by the 45/120-second WDT-off snapshots and the normal-WDT reset split."
+    },
+    {
+      "id": "STALE-153",
+      "text": "当前瓶颈判断转为累计同步 Flash/cache handoff 吞吐",
+      "reason": "The later WDT-off late-state evidence shows Flash/SSI work has an endpoint, so aggregate throughput is no longer the current leading boundary."
+    },
+    {
+      "id": "STALE-154",
+      "text": "应用初始化尚未在 TG0 stage-1 前完成",
+      "reason": "The current boundary is the late CPU1 flag/object wait after Flash/SSI activity, together with the unexplained normal-WDT reset."
+    },
+    {
+      "id": "STALE-155",
+      "text": "应用初始化超过 TG0 stage-1 deadline",
+      "reason": "Current evidence separates normal-WDT reset timing from the WDT-off late loop; the old single-cause wording is retired."
+    },
+    {
+      "id": "STALE-156",
+      "text": "unknown_required_capability / unknown_optional_capability warning",
+      "reason": "Unknown required capabilities now fail closed and reject the manifest; only unknown optional capabilities remain warnings."
+    },
+    {
+      "id": "STALE-157",
+      "text": "manifest_id may vary with package output filename",
+      "reason": "Manifest identity excludes artifact.file; identical semantic content from differently named output directories has the same manifest_id."
+    },
+    {
+      "id": "STALE-158",
+      "text": "only the aggregate secure_boot and flash_encryption fields are checked",
+      "reason": "Security preflight now checks aggregate fields, sdkconfig, signed/invalid image evidence and package-provided eFuse claims."
+    },
+    {
+      "id": "STALE-159",
+      "text": "setting aggregate security fields to unknown bypasses preflight",
+      "reason": "Understated aggregate fields fail closed when any other evidence layer requires an unmodeled secure-boot or Flash Encryption chain."
+    },
+    {
+      "id": "STALE-160",
+      "text": "secure_boot_config does not affect Device Service preflight",
+      "reason": "Enabled secure-boot sdkconfig is a structured preflight rejection, not a warning-only field."
     }
   ]
 }

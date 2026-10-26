@@ -1896,7 +1896,14 @@ components:
             artifact must already be uploaded; artifact.artifact_id defaults to
             artifact.sha256 when omitted. Capability, flash-size and security
             mismatches return unsupported_firmware_capability with structured
-            issues instead of starting a session.
+            issues instead of starting a session. Unknown required
+            capabilities fail closed; unknown optional capabilities remain
+            warnings. manifest_id is content-stable and excludes created_at,
+            manifest_id and artifact.file from its canonical payload.
+            Security preflight rejects enabled secure-boot or Flash
+            Encryption evidence in sdkconfig, signed/invalid image evidence or
+            package-provided eFuse claims even when aggregate security fields
+            are understated as unknown.
     Firmware:
       type: object
       additionalProperties: true
@@ -2260,21 +2267,27 @@ components:
                 controlled requires namespace isolation and
                 egress=allowlist. It installs a temporary resolver
                 configuration in a private mount namespace and serves only
-                allowed_hosts and explicitly bound allowed_domains.
+                allowed_hosts and explicitly bound allowed_domains. It also
+                requires at least one allowed endpoint; exact A/AAAA and
+                CNAME terminal answers must be covered by that endpoint.
             allowed_hosts:
               type: array
               maxItems: 32
               uniqueItems: true
               description: >
                 Optional exact HTTP Host and DNS-name allowlist. Filters the
-                Host header at the controlled HTTP gateway. Managed
+                Host header at the controlled HTTP gateway. Values use strict
+                ASCII DNS labels, lowercase normalization and at most one
+                trailing root dot; ports, wildcards and userinfo are rejected.
+                Managed
                 dns=controlled profiles resolve these names to 10.0.2.2 and
                 therefore require a controlled HTTP profile or an exact
                 10.0.2.2 endpoint. The resolver core supports exact A/AAAA
                 records; the managed HTTP fixture currently exposes IPv4.
               items:
                 type: string
-                pattern: "^[A-Za-z0-9.-]{1,253}$"
+                maxLength: 253
+                pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\\.?$"
             allowed_domains:
               type: array
               maxItems: 32

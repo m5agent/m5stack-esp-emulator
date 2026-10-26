@@ -1,6 +1,6 @@
 # Test index and evidence rules
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This directory contains runnable regression fixtures and committed evidence.
 It is not the authoritative description of current product capability:
@@ -29,7 +29,7 @@ as today's complete-device capability.
 | Platform contracts | [`platform/tests/`](../platform/tests/) | API, catalog, manifest, storage, worker and documentation contracts | implementation support, not guest execution |
 | UIFlow2 and device runtime | [`uiflow2/README.md`](uiflow2/README.md) | flash, boot, frame, input, peripherals, unified board/WiFi/BLE and Core2 radio | one case is scoped to its device, firmware, profile and evidence |
 | Network and worker | [`network/README.md`](network/README.md) | Linux namespaces/containers, DNS/TLS, bounded address/CIDR/domain-set/CNAME egress, pcap, reconnect, worker control/runtime planes, cross-container QEMU and restart continuity | diagnostic or transport evidence unless the fixture explicitly starts a matching guest |
-| Firmware review | [`firmware/README.md`](firmware/README.md) | FirmwareManifest, static review, filesystems, SD/NVS fixtures, public-firmware matrix, security and model gaps | intake/static/runtime/security results stay separate |
+| Firmware review | [`firmware/README.md`](firmware/README.md) | FirmwareManifest, static review, filesystems, SD/NVS fixtures, public-firmware matrix, security/model gaps, Core2 flash-IPC and exact-time handoff diagnostics | intake/static/runtime/security results stay separate; diagnostic traces do not imply application PASS |
 | CardputerZero | [`cardputer_zero/README.md`](cardputer_zero/README.md) | Linux ARM64 boot, display, input and peripheral data planes | not an ESP32/UIFlow2 result |
 
 Support directories such as `tests/uiflow2/lib/`,

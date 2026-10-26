@@ -1,6 +1,6 @@
 # IP/CIDR and port egress allowlist
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This Linux-only integration test proves that an isolated namespace can reach
 one allowed IPv4 CIDR and one exact IPv6 TCP destination while blocking a
@@ -65,9 +65,11 @@ and
 [`evidence-2026-10-24-dual-stack-github-actions-pass.json`](evidence-2026-10-24-dual-stack-github-actions-pass.json).
 
 GitHub Actions runs this deterministic fixture as the
-`network-namespace-policy` job together with the full platform suite. The
-successful Ubuntu runner evidence is
+`network-namespace-policy` job together with the full platform suite. Historical
+Ubuntu runner evidence is
 [`evidence-2026-10-24-github-actions-pass.json`](evidence-2026-10-24-github-actions-pass.json).
-The next source-bound CI run re-executes the current CIDR fixture. These jobs
-validate Linux namespace/nftables policy and cleanup, not QEMU guest behavior
-or a self-hosted worker lifecycle.
+The current source-bound CI run for the main branch completed successfully;
+see the repository CI result for the exact commit rather than treating this
+older fixture artifact as the current source hash. These jobs validate Linux
+namespace/nftables policy and cleanup, not QEMU guest behavior or a
+self-hosted worker lifecycle.

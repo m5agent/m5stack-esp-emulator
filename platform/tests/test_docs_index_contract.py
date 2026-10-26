@@ -103,6 +103,16 @@ class DocsIndexContractTests(DocsContractBase):
             "tests/uiflow2/evidence-2026-10-25-core2-0009-device-group.json",
             "tests/uiflow2/evidence-2026-10-25-core2-power-monitor-postboot-injection-fail.json",
             "tests/uiflow2/evidence-2026-10-25-core2-qom-boot-device-group.json",
+            (
+                "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-26-core2-concurrent-8x120-"
+                "fixed-icount-pass-a.json"
+            ),
+            (
+                "tests/uiflow2/core2_native_hci/"
+                "evidence-2026-10-26-core2-concurrent-8x120-"
+                "fixed-icount-pass-b.json"
+            ),
             "tests/uiflow2/core2_native_hci/run_full.py",
             "tests/uiflow2/core2_native_hci/run_service_5x.py",
             "tests/uiflow2/core2_native_hci/run_service_teardown.py",
@@ -282,6 +292,18 @@ class DocsIndexContractTests(DocsContractBase):
             "tests/firmware/secure_boot_image/README.md",
             "tests/firmware/secure_boot_image/run_test.py",
             "tests/firmware/evidence-2026-10-25-secure-boot-image.json",
+            "tests/firmware/evidence-2026-10-26-secure-boot-image.json",
+            (
+                "tests/firmware/"
+                "evidence-2026-10-26-secure-boot-image-security-preflight.json"
+            ),
+            (
+                "tests/firmware/"
+                "evidence-2026-10-26-firmware-security-preflight-fail-closed.json"
+            ),
+            "tests/firmware/security_preflight/README.md",
+            "tests/firmware/security_preflight/run_test.py",
+            "platform/tests/test_security_preflight_evidence.py",
             "tests/firmware/evidence-2026-10-24-license-policy.json",
             "tests/firmware/evidence-2026-10-24-streaming-artifact-upload.json",
             "tests/firmware/evidence-2026-10-24-webburner-ui.json",
@@ -293,8 +315,15 @@ class DocsIndexContractTests(DocsContractBase):
             "tests/firmware/evidence-2026-10-25-openai-nvs-precondition.json",
             "tests/firmware/evidence-2026-10-25-image-capability-observation.json",
             "tests/firmware/evidence-2026-10-25-webburner-capability-display.json",
+            (
+                "tests/firmware/"
+                "evidence-2026-10-26-unknown-required-capability-fail-closed.json"
+            ),
             "tests/firmware/image_capability_observation/README.md",
             "tests/firmware/image_capability_observation/run_test.py",
+            "tests/firmware/unknown_required_capability/README.md",
+            "tests/firmware/unknown_required_capability/run_test.py",
+            "platform/tests/test_unknown_required_capability_evidence.py",
             "tests/uiflow2/evidence-2026-10-25-s3-wpa2-regression.json",
             "tests/firmware/openai_nvs_precondition/README.md",
             "tests/firmware/openai_nvs_precondition/run_test.py",
@@ -315,6 +344,70 @@ class DocsIndexContractTests(DocsContractBase):
             ),
             "patches/qemu-m5stack-peripherals/0031-core2-shared-board-i2c.patch",
             "patches/qemu-m5stack-peripherals/0032-esp32-timg-wdt-trace.patch",
+            (
+                "patches/qemu-m5stack-peripherals/"
+                "0034-xtensa-ccompare-equal-deadline.patch"
+            ),
+            "patches/qemu-m5stack-peripherals/0035-esp32-timg-wdt-int-ena.patch",
+            "patches/qemu-m5stack-peripherals/0036-ssi-transfer-buf.patch",
+            "patches/qemu-m5stack-peripherals/0037-esp32-handoff-trace.patch",
+            (
+                "tests/firmware/"
+                "evidence-2026-10-26-core2-qio-crosscore-diagnostic.json"
+            ),
+            "tests/firmware/evidence-2026-10-26-core2-ssi-transfer-buf.json",
+            "tests/firmware/core2_handoff_trace/README.md",
+            "tests/firmware/core2_handoff_trace/summarize.py",
+            "tests/firmware/core2_handoff_trace/audit_elf_bin_mapping.py",
+            "patches/qemu-m5stack-peripherals/0038-esp32-handoff-pause.patch",
+            "patches/qemu-m5stack-peripherals/0039-esp32-handoff-state-dump.patch",
+            "patches/qemu-m5stack-peripherals/0040-xtensa-handoff-pc-trace.patch",
+            (
+                "patches/qemu-m5stack-peripherals/"
+                "0041-esp32-handoff-register-stack-dump.patch"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
+                "pc-symbolization-2026-10-26-core2-handoff.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-pc-mapping-audit.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-handoff-pause.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-handoff-state-sweep.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-handoff-pc-trace.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-wdt-liveness-3x.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-wdt-off-late-state.json"
+            ),
+            (
+                "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-handoff-timeline.json"
+            ),
+            "platform/tests/test_core2_handoff_trace.py",
+            "platform/tests/test_core2_pc_mapping_audit.py",
+            "platform/tests/test_core2_handoff_pause.py",
+            "platform/tests/test_core2_handoff_state_sweep.py",
+            "platform/tests/test_core2_handoff_pc_trace.py",
+            "platform/tests/test_core2_wdt_liveness.py",
+            "platform/tests/test_core2_wdt_off_late_state.py",
+            "tests/firmware/core2_handoff_trace/run_pause_sweep.py",
+            "tests/firmware/core2_handoff_trace/run_pc_trace.py",
+            "tests/firmware/core2_handoff_trace/run_wdt_liveness.py",
             "tests/firmware/c6_zigbee_thread_sim/README.md",
             "tests/firmware/c6_zigbee_thread_sim/run_feasibility.py",
             "tests/firmware/README.md",
@@ -435,12 +528,28 @@ class DocsIndexContractTests(DocsContractBase):
             audit["total"],
         )
         self.assertEqual(coverage["categories"]["navigation"], 1)
-        self.assertEqual(coverage["older_delegated"], [])
-        rendered = (DOCS / "project-snapshot.md").read_text()
+        self.assertEqual(
+            coverage["older_delegated"],
+            sorted(
+                coverage["older_delegated"],
+                key=lambda row: (row["reviewed"], row["page"]),
+            ),
+        )
+        for row in coverage["older_delegated"]:
+            self.assertLess(row["reviewed"], snapshot["fact_date"])
+            self.assertNotIn(
+                row["category"],
+                {"authority", "record"},
+                "authority pages are tracked by older_current instead",
+            )
+        rendered = project_snapshot.render_markdown(snapshot)
         self.assertIn("## 文档与测试", rendered)
         self.assertIn("文档职责分布", rendered)
         self.assertIn("全量文档盘点", rendered)
-        self.assertIn("没有带显式旧复核日期的委派文档", rendered)
+        if coverage["older_delegated"]:
+            self.assertIn("带显式旧复核日期的委派文档", rendered)
+        else:
+            self.assertIn("没有带显式旧复核日期的委派文档", rendered)
         if audit["older_current"]:
             self.assertIn("复核日期早于当前事实日期的非历史页", rendered)
         else:
@@ -448,6 +557,57 @@ class DocsIndexContractTests(DocsContractBase):
                 "所有非历史页的最近复核日期均与当前事实日期一致",
                 rendered,
             )
+
+    def test_project_snapshot_separates_catalog_and_fact_dates(self) -> None:
+        snapshot = project_snapshot.collect()
+        self.assertRegex(snapshot["catalog_date"], r"^\d{4}-\d{2}-\d{2}$")
+        self.assertRegex(snapshot["fact_date"], r"^\d{4}-\d{2}-\d{2}$")
+        self.assertGreaterEqual(
+            snapshot["fact_date"],
+            snapshot["latest_evidence_date"],
+            "the project fact date must cover the newest committed evidence",
+        )
+        self.assertGreaterEqual(
+            snapshot["fact_date"],
+            snapshot["catalog_date"],
+            "the project fact date must cover the device catalog",
+        )
+        for relative in (
+            "docs/README.md",
+            "docs/project-status.md",
+            "docs/project-backlog.md",
+            "docs/validation-ledger.md",
+            "docs/engineering-handoff.md",
+        ):
+            reviewed = project_snapshot.document_date(ROOT / relative)
+            self.assertLessEqual(
+                reviewed,
+                snapshot["fact_date"],
+                f"{relative} is dated after the generated project fact date",
+            )
+        rendered = project_snapshot.render_markdown(snapshot)
+        self.assertIn(
+            f"设备目录日期：`{snapshot['catalog_date']}`",
+            rendered,
+        )
+        self.assertIn(
+            f"当前事实复核：`{snapshot['fact_date']}`",
+            rendered,
+        )
+
+    def test_project_snapshot_line_count_is_not_self_referential(self) -> None:
+        snapshot = project_snapshot.collect()
+        excluded = snapshot["code_inventory"]["documented_markdown_lines_exclude"]
+        self.assertEqual(excluded, ["docs/project-snapshot.md"])
+        expected_lines = sum(
+            len(path.read_text(errors="replace").splitlines())
+            for path in project_snapshot.document_paths()
+            if path != DOCS / "project-snapshot.md"
+        )
+        self.assertEqual(
+            snapshot["code_inventory"]["documented_markdown_lines"],
+            expected_lines,
+        )
 
     def test_project_snapshot_ignores_untracked_runtime_docs(self) -> None:
         paths = {
@@ -571,7 +731,22 @@ class DocsIndexContractTests(DocsContractBase):
                 ROOT / "tests" / "uiflow2" / "sticks3_peripherals" / "README.md",
                 ROOT / "tests" / "README.md",
                 ROOT / "tests" / "network" / "README.md",
+                ROOT / "tests" / "firmware" / "README.md",
+                (
+                    ROOT
+                    / "tests"
+                    / "firmware"
+                    / "core2_handoff_trace"
+                    / "README.md"
+                ),
                 ROOT / "patches" / "README.md",
+                (
+                    ROOT
+                    / "patches"
+                    / "qemu-m5stack-peripherals"
+                    / "README.md"
+                ),
+                ROOT / "platform" / "qemu" / "profiles.json",
                 ROOT / "patches" / "qemu-core2-openmac-wifi" / "README.md",
                 ROOT / "patches" / "qemu-core2-ble-controller" / "README.md",
                 ROOT / "patches" / "qemu-multi-board-uiflow2" / "README.md",

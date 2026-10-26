@@ -2,7 +2,7 @@
 
 Status: implemented routing rule, reviewed `2026-10-25`.
 
-Last reviewed: `2026-10-25`. Current capability and open tasks live in the
+Last reviewed: `2026-10-26`. Current capability and open tasks live in the
 [project status](project-status.md) and [project backlog](project-backlog.md).
 
 This document separates two workflows that previously shared the same Agent

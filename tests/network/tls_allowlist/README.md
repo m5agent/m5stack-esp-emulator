@@ -66,6 +66,22 @@ The guest TLS request is allowed only for the exact endpoint
 exceptions. Evidence:
 [`evidence-2026-10-24-ip-port-nftables-pass.json`](evidence-2026-10-24-ip-port-nftables-pass.json).
 
+The `2026-10-26` hardening pass additionally validates exact DNS-answer
+binding and strict HTTP Host authority. Exact A/AAAA and CNAME terminal
+answers must be covered by an allowed endpoint; IPv4-mapped IPv6 DNS records
+fail closed. The HTTP fixture accepts one Host header with an optional numeric
+port and an origin-form request target. Userinfo, comma/multi-colon values,
+invalid or out-of-range ports, duplicate Host headers and absolute-form
+authority ambiguity receive `403`.
+
+The same StickS3 Linux namespace run completed WiFi association, DHCP,
+controlled DNS allow/NXDOMAIN, TLS 200/403, pcap and namespace/QEMU cleanup.
+Evidence:
+[`evidence-2026-10-26-host-authority-exact-dns-namespace-pass.json`](evidence-2026-10-26-host-authority-exact-dns-namespace-pass.json).
+Host parser regression also covers `allowed.lab.test:not-a-port`,
+`allowed.lab.test:443,evil`, userinfo, multiple colons, duplicate Host headers
+and an absolute URI request target.
+
 The test covers a namespace-local TLS gateway allowlist. It does not claim
 arbitrary public-internet allowlisting, certificate pinning, mutual TLS,
 hardware RF behavior or malicious-firmware safety.

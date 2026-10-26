@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "kind": "core2-legacy-qio-and-crosscore-diagnostic",
+  "validation": "virtual-device validation",
+  "status": "DIAGNOSTIC_ONLY",
+  "device_id": "core2",
+  "firmware": {
+    "name": "UIFlow_Core2",
+    "version": "v1.15.4",
+    "firmware_id": "1897200000000002280",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "normalized_flash_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "qemu_source_commit": "da100c909249926b9f4458f18e4f2d216d08f51a",
+    "qemu_worktree_state": "dirty",
+    "qemu_sha256_at_inspection": "cbe9b1f20de6a1e0a9d196ee74a56a6c5243ba28fc5f9bdde10fd3b1867e2bd0",
+    "artifact_bound": false,
+    "note": "Ad hoc diagnostic logs were captured from the retained dirty QEMU worktree. They identify investigation paths but do not define a product runtime."
+  },
+  "qio_bulk_read_diagnostic": {
+    "temporary_switches": {
+      "M5SW_ESP32_SPI_BULK_READ": "1",
+      "M5SW_ESP32_SPI_BULK_VERIFY": "1"
+    },
+    "method": "For selected QIO reads, the temporary diagnostic path reads from the same m25p80 BlockBackend with blk_pread and compares the result with the subsequent byte-wise SSI data stream.",
+    "sample_transactions": 512,
+    "sample_bytes_per_transaction": 64,
+    "mismatch_count": 0,
+    "mismatch=-1 occurrences": 512,
+    "representative_offsets": [
+      "0x00521000",
+      "0x00521080",
+      "0x00521600"
+    ],
+    "stderr_bytes": 39014,
+    "stderr_sha256": "d50806d9bad23665c3fd2106f104b5854e3ee00e61870cc1323572ee41345994",
+    "serial_bytes": 507,
+    "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+    "temporary_path_result": {
+      "same_run_as_byte_comparison": false,
+      "run_role": "separate temporary-path progress control",
+      "serial_markers": [
+        "Performing initial setup",
+        "MicroPython a3bd196ef-dirty",
+        ">>>"
+      ],
+      "serial_bytes": 2705,
+      "serial_sha256": "8f016e089ba1a07260a67ac0cb3a3a7c8633eec46f7c432fb92201546e331afa",
+      "followed_by": [
+        "TG0WDT_SYS_RESET",
+        "WDT reset info: PRO CPU PC=0x0"
+      ],
+      "reproduction": "NOT REPRODUCED in the later stateful-SSI rebuild within a 120-second direct-read window; treat the REPL observation as runtime/window-sensitive rather than a stable milestone"
+    },
+    "classification": "The temporary shortcut proved the backing-store bytes agree with the modeled SSI stream and that per-byte QIO forwarding is a major diagnostic cost. The shortcut bypasses the SSI data phase and is not an acceptable product fix.",
+    "next_product_step": "Preserve the stateful SSI batch path and correlate flash-operation, cross-core/DPORT handoff, guest progress and watchdog feed on one virtual timeline; do not reduce the fix to a direct BlockBackend bypass."
+  },
+  "wdt_int_ena_semantics": {
+    "product_patch": "patches/qemu-m5stack-peripherals/0035-esp32-timg-wdt-int-ena.patch",
+    "observed_register_state": {
+      "INT_ENA": "0x00000000",
+      "INT_RAW": "0x00000004",
+      "masked_status": "0x00000000"
+    },
+    "masked_timeout_events_session_a": 4,
+    "device_service_sessions": [
+      {
+        "label": "control-a",
+        "session_ref_sha256": "e8b2c423a183bfbe5ba4a1ebeb3a52ea45f915b98224a1492534816c96d306b0",
+        "tg0_system_resets": 6,
+        "reset_pc_zero_observations": 3,
+        "qemu_stderr_sha256": "7cea6d04c655c43ce89ebd7e262ae6e55328ed035bebb81cd23428172cb091ac",
+        "serial_sha256": "102839ce1d83f1ce3dd03643ad8b332942539e80c3127450757c8b08073b815b"
+      },
+      {
+        "label": "control-b",
+        "session_ref_sha256": "d1d1a4c94bd0fe1f66f53583b2a13e3bb9ca8c03d6fb835929126d3b9d8308c5",
+        "tg0_system_resets": 10,
+        "reset_pc_zero_observations": 5,
+        "qemu_stderr_sha256": "8a98b05296cf940ed865ea8f677fbd5b417a399293cf1cdf4c6af8302b1bf483",
+        "serial_sha256": "7da630e3892e7eef7c64e7b6a119e0245488f4cea00bcc49bac9a8911cf052af"
+      }
+    ],
+    "classification": "The old model raised the WDT level line while INT_ENA.WDT was clear. Patch 0035 corrects that register semantic, but the same legacy firmware still enters TG0WDT_SYS_RESET. This is an independent model fix, not the root cause of RUNTIME-03."
+  },
+  "crosscore_stall_diagnostic": {
+    "temporary_switches": {
+      "M5SW_DISABLE_WDT": "1",
+      "M5SW_ESP32_SPI_BULK_READ": "1",
+      "M5SW_CROSSCORE_INT_TRACE": "1"
+    },
+    "cpu0_wait_pc": "0x4008798b",
+    "cpu0_wait_address": "0x3ffc7ec8",
+    "cpu1_pc_samples": [
+      "0x40093932",
+      "0x400843af"
+    ],
+    "symbol_hint": "CPU0 wait path corresponds to spi_flash_op_block_func; the CPU1 samples are in the DPORT safe-read / flash-cache handoff path.",
+    "crosscore_trace_lines": 97150,
+    "crosscore_level_transitions": {
+      "irq1_raise": 35818,
+      "irq1_clear": 35818,
+      "irq0_raise": 12749,
+      "irq0_clear": 12749,
+      "irq3_raise": 8,
+      "irq3_clear": 8
+    },
+    "stderr_bytes": 5051902,
+    "stderr_sha256": "f874e02a27325f4d728f0101d600d342b43e1e3bc473d853a1cb22e628de6391",
+    "serial_bytes": 507,
+    "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+    "classification": "Disabling watchdog reset removed the reset symptom, but the earlier claim of a permanent cross-core deadlock was too strong. A later direct memory-state trace observed the flash-operation can-start/complete flags and cross-core reasons toggling repeatedly. The current leading boundary is aggregate synchronous flash/cache-handoff throughput, not a proven permanent handshake deadlock.",
+    "reproduction_follow_up": {
+      "evidence": "tests/firmware/evidence-2026-10-26-core2-ssi-transfer-buf.json",
+      "crosscore_handshake": "completes repeatedly",
+      "legacy_repl_reached": false
+    }
+  },
+  "checks": {
+    "bulk_backing_store_bytes_match_ssi_stream": "PASS / diagnostic",
+    "temporary_path_reaches_micropython_repl": "PASS / diagnostic",
+    "temporary_path_bypasses_ssi_data_phase": "CONFIRMED",
+    "wdt_int_ena_mask_semantics": "FIXED BY 0035",
+    "legacy_firmware_still_resets_with_0035": "FAIL",
+    "watchdog_disabled_removes_symptom": "PASS / diagnostic",
+    "crosscore_handshake_completes": "NOT OBSERVED",
+    "nonempty_application_frame": "FAIL",
+    "stable_guest_after_initialization": "FAIL",
+    "physical_hardware": "NOT RUN"
+  },
+  "not_claimed": [
+    "the temporary bulk-read shortcut is a product implementation",
+    "disabling the watchdog is a fix",
+    "the cross-core trace proves one root cause",
+    "complete legacy UIFlow compatibility",
+    "physical SPI flash, cache, PSRAM, timer or watchdog timing",
+    "hardware validation"
+  ]
+}

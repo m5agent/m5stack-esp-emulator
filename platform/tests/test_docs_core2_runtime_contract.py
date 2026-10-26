@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
+import sys
 import unittest
 
 from _docs_contract_support import DocsContractBase, ROOT, DOCS
@@ -92,7 +94,11 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         for text in (status, backlog, register, workstreams, matrix):
             self.assertIn("shared", text.lower())
             self.assertIn("WDT", text)
-        self.assertIn("后初始化 WDT", workstreams)
+        self.assertIn("0x40100049", backlog)
+        for text in (status, register, workstreams):
+            self.assertIn("flash-cache", text)
+            self.assertIn("DPORT", text)
+            self.assertIn("late", text.lower())
         self.assertIn("0031", matrix)
         self.assertIn("Core2FactoryTest", matrix)
         self.assertIn("rerun is `NOT RUN`", matrix)
@@ -167,10 +173,24 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         workstreams = (DOCS / "workstreams.md").read_text()
         ledger = (DOCS / "validation-ledger.md").read_text()
         firmware_readme = (ROOT / "tests/firmware/README.md").read_text()
+        qemu_matrix = (
+            DOCS / "qemu-device-adaptation-matrix.md"
+        ).read_text()
+        uiflow_index = (ROOT / "tests/uiflow2/README.md").read_text()
+        unified_core2 = (
+            ROOT / "tests/uiflow2/unified_core2/README.md"
+        ).read_text()
         for text in (status, backlog, register, workstreams, ledger):
             self.assertIn("TIMG", text)
+        self.assertIn("flash-cache/IPC/DPORT", qemu_matrix)
+        self.assertIn("历史诊断选项", uiflow_index)
+        self.assertIn("diagnostic evidence", unified_core2)
+        self.assertNotIn(
+            "Repeated-lease stability is currently",
+            unified_core2,
+        )
         self.assertIn("宿主调度", status)
-        self.assertIn("timing-sensitive", register)
+        self.assertIn("NOT_REPRODUCED", register)
         self.assertIn("5/8", ledger)
         self.assertIn("M5SW_TIMG_TRACE", firmware_readme)
         self.assertIn(
@@ -180,6 +200,360 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             ).read_text(),
         )
 
+    def test_core2_flash_ipc_probe_reconciles_timer_and_legacy_boundaries(
+        self,
+    ) -> None:
+        probe_root = ROOT / "tests/firmware/core2_flash_ipc"
+        evidence = json.loads(
+            (
+                probe_root
+                / "evidence-2026-10-26-core2-flash-ipc-wdt.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "PARTIAL")
+        current = evidence["current_runtime"]
+        self.assertEqual(current["attempts"], 5)
+        self.assertEqual(current["passed"], 1)
+        self.assertEqual(current["interrupt_wdt"], 4)
+        self.assertEqual(current["spinlock_owner_assert"], 0)
+        self.assertEqual(current["read_start_observed"], 5)
+        portable = evidence["portable_runtime_control"]
+        self.assertEqual(portable["attempts"], 15)
+        self.assertEqual(portable["passed"], 13)
+        self.assertEqual(portable["interrupt_wdt"], 2)
+        self.assertEqual(portable["spinlock_owner_assert"], 0)
+        combined = evidence["combined_result"]
+        self.assertEqual(combined["attempts"], 20)
+        self.assertEqual(combined["passed"], 14)
+        self.assertEqual(combined["interrupt_wdt"], 6)
+        self.assertEqual(combined["spinlock_owner_assert"], 0)
+        self.assertIn(
+            "4096-byte CPU1 task stack",
+            evidence["historical_correction"]["observation"],
+        )
+        equal_deadline = json.loads(
+            (
+                probe_root
+                / "evidence-2026-10-26-core2-ccompare-equal-deadline.json"
+            ).read_text()
+        )
+        self.assertEqual(
+            equal_deadline["status"],
+            "FIXED_FOR_MINIMAL_PROBE_LEGACY_OPEN",
+        )
+        self.assertEqual(equal_deadline["post_fix"]["attempts"], 40)
+        self.assertEqual(equal_deadline["post_fix"]["passed"], 40)
+        self.assertEqual(equal_deadline["post_fix"]["interrupt_wdt"], 0)
+        self.assertFalse(
+            equal_deadline["legacy_uiflow"]["unique_application_frame"]
+        )
+        self.assertEqual(
+            equal_deadline["legacy_uiflow"]["reset_cpu_pc"],
+            "0x0",
+        )
+
+        runner_path = probe_root / "run_test.py"
+        spec = importlib.util.spec_from_file_location(
+            "core2_flash_ipc_runner",
+            runner_path,
+        )
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        spec.loader.exec_module(module)
+        module.validate_artifact_hashes(
+            module.EXPECTED_IMAGE_SHA256,
+            module.EXPECTED_ELF_SHA256,
+            expected_image_sha256=module.EXPECTED_IMAGE_SHA256,
+            expected_elf_sha256=module.EXPECTED_ELF_SHA256,
+        )
+        with self.assertRaisesRegex(ValueError, "image SHA256 mismatch"):
+            module.validate_artifact_hashes(
+                "0" * 64,
+                module.EXPECTED_ELF_SHA256,
+                expected_image_sha256=module.EXPECTED_IMAGE_SHA256,
+                expected_elf_sha256=module.EXPECTED_ELF_SHA256,
+            )
+        passed = module.classify_serial(
+            "CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd\n"
+            "CORE2_FLASH_IPC_READY core=1 prid=0x0000abab\n"
+            "CORE2_FLASH_IPC_READ_START core=1\n"
+            "CORE2_FLASH_IPC_WORKER_PASS core=1\n"
+            "CORE2_FLASH_IPC_PASS\n"
+        )
+        self.assertEqual(passed["status"], "PASS")
+        self.assertTrue(passed["flash_read_started"])
+        incomplete = module.classify_serial(
+            "CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd\n"
+            "CORE2_FLASH_IPC_READY core=1 prid=0x0000abab\n"
+            "CORE2_FLASH_IPC_READ_START core=1\n"
+            "CORE2_FLASH_IPC_PROGRESS core=1 iteration=50\n"
+        )
+        self.assertEqual(incomplete["status"], "INCOMPLETE")
+        self.assertTrue(incomplete["flash_read_started"])
+        spinlock_after_start = module.classify_serial(
+            "CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd\n"
+            "CORE2_FLASH_IPC_READY core=1 prid=0x0000abab\n"
+            "CORE2_FLASH_IPC_READ_START core=1\n"
+            "assert failed: spinlock_release spinlock.h:190 "
+            "(core_owner_id == lock->owner)\n"
+        )
+        self.assertEqual(
+            spinlock_after_start["status"],
+            "REPRODUCED_AFTER_READ_START",
+        )
+        self.assertTrue(spinlock_after_start["flash_read_started"])
+        cross_reboot = module.classify_serial(
+            "Guru Meditation Error: Core  0 panic'ed "
+            "(Interrupt wdt timeout on CPU0).\n"
+            "Rebooting...\n"
+            "CORE2_FLASH_IPC_MAIN core=0 prid=0x0000cdcd\n"
+            "CORE2_FLASH_IPC_READY core=1 prid=0x0000abab\n"
+            "assert failed: spinlock_release spinlock.h:190 "
+            "(core_owner_id == lock->owner)\n"
+        )
+        self.assertEqual(cross_reboot["status"], "INTERRUPT_WDT")
+        self.assertTrue(cross_reboot["interrupt_wdt_in_first_boot"])
+        self.assertTrue(cross_reboot["reboot_observed"])
+
+        source = (probe_root / "main/app_main.c").read_text()
+        self.assertIn("CORE2_FLASH_IPC_READ_START", source)
+        self.assertIn("read_raw_prid", source)
+        self.assertIn("static uint8_t flash_buffer", source)
+        self.assertIn("vTaskDelay", source)
+        readme = (probe_root / "README.md").read_text()
+        self.assertIn("stack overflow", readme)
+        self.assertIn("interrupt-WDT", readme)
+        self.assertIn("READ_START", readme)
+        self.assertIn("CCOMPARE == CCOUNT", readme)
+        self.assertIn(".work/core2-flash-ipc-16m-final.bin", readme)
+        self.assertNotIn("--image .work/core2-flash-ipc-16m.bin", readme)
+
+        deadline_patch = (
+            ROOT
+            / "patches/qemu-m5stack-peripherals/"
+            "0034-xtensa-ccompare-equal-deadline.patch"
+        ).read_text()
+        self.assertIn(
+            "uint32_t delta = env->sregs[CCOMPARE + i] - "
+            "env->sregs[CCOUNT];",
+            deadline_patch,
+        )
+        self.assertIn("dcc = delta ? delta : 1;", deadline_patch)
+        self.assertNotIn("M5SW_XTENSA_IRQ", deadline_patch)
+
+        for path in (
+            DOCS / "project-status.md",
+            DOCS / "runtime-model-gap-register.md",
+            DOCS / "workstreams.md",
+            DOCS / "validation-ledger.md",
+        ):
+            text = path.read_text()
+            self.assertIn("interrupt-WDT", text)
+            self.assertIn("READ_START", text)
+        for path in (
+            DOCS / "project-status.md",
+            DOCS / "runtime-model-gap-register.md",
+            DOCS / "engineering-handoff.md",
+            DOCS / "workstreams.md",
+        ):
+            text = path.read_text()
+            self.assertIn("CCOMPARE", text)
+            self.assertIn("legacy", text.lower())
+        for path in (
+            ROOT / "README.md",
+            DOCS / "project-status.md",
+            DOCS / "project-backlog.md",
+            DOCS / "engineering-handoff.md",
+            DOCS / "workstreams.md",
+            DOCS / "qemu-device-adaptation-matrix.md",
+            DOCS / "code-map.md",
+        ):
+            text = path.read_text()
+            for volatile_count in (
+                "14 PASS",
+                "14/20",
+                "6/20",
+                "6 次 interrupt-WDT",
+            ):
+                self.assertNotIn(volatile_count, text, path.relative_to(ROOT))
+        readme = (ROOT / "README.md").read_text()
+        for diagnostic_detail in (
+            "14.800033",
+            "15.301447",
+            "0x40087980",
+            "0x40084484",
+        ):
+            self.assertNotIn(
+                diagnostic_detail,
+                readme,
+                "README must route exact-time diagnostics to status/ledger",
+            )
+        for path in (
+            DOCS / "runtime-model-gap-register.md",
+            DOCS / "validation-ledger.md",
+        ):
+            text = path.read_text()
+            self.assertIn("CCOMPARE == CCOUNT", text)
+            self.assertIn("0034", text)
+        self.assertIn("40/40", (DOCS / "validation-ledger.md").read_text())
+        history = (DOCS / "core2-cache-panic-investigation.md").read_text()
+        self.assertIn("2026-10-26 update", history)
+        self.assertIn("stack overflow", history)
+        self.assertIn("idle", history)
+
+    def test_core2_qio_wdt_mask_and_crosscore_boundaries_are_explicit(
+        self,
+    ) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-26-core2-qio-crosscore-diagnostic.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["status"], "DIAGNOSTIC_ONLY")
+        self.assertFalse(evidence["runtime"]["artifact_bound"])
+        qio = evidence["qio_bulk_read_diagnostic"]
+        self.assertEqual(qio["sample_transactions"], 512)
+        self.assertEqual(qio["mismatch_count"], 0)
+        self.assertIn(
+            "MICROPYTHON",
+            " ".join(
+                marker.upper()
+                for marker in qio["temporary_path_result"]["serial_markers"]
+            ),
+        )
+        mask = evidence["wdt_int_ena_semantics"]
+        self.assertEqual(mask["observed_register_state"]["INT_ENA"], "0x00000000")
+        self.assertEqual(mask["observed_register_state"]["INT_RAW"], "0x00000004")
+        self.assertIn("not the root cause", mask["classification"])
+        crosscore = evidence["crosscore_stall_diagnostic"]
+        self.assertEqual(crosscore["cpu0_wait_address"], "0x3ffc7ec8")
+        self.assertIn("spi_flash_op_block_func", crosscore["symbol_hint"])
+        self.assertIn(
+            "DPORT safe-read",
+            crosscore["symbol_hint"],
+        )
+
+        patch = (
+            ROOT
+            / "patches/qemu-m5stack-peripherals/"
+            "0035-esp32-timg-wdt-int-ena.patch"
+        ).read_text()
+        self.assertIn("if (s->int_ena & mask) {", patch)
+        self.assertIn(
+            "-            if (true) { /* should be checking "
+            "s->int_ena & mask",
+            patch,
+        )
+        self.assertIn(
+            "+            if (s->int_ena & mask) {",
+            patch,
+        )
+        patches_readme = (
+            ROOT / "patches/qemu-m5stack-peripherals/README.md"
+        ).read_text()
+        self.assertIn("0035-esp32-timg-wdt-int-ena.patch", patches_readme)
+        self.assertIn("INT_RAW & INT_ENA", patches_readme)
+
+        ssi_evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/"
+                "evidence-2026-10-26-core2-ssi-transfer-buf.json"
+            ).read_text()
+        )
+        self.assertEqual(ssi_evidence["status"], "PARTIAL")
+        self.assertEqual(
+            ssi_evidence["data_plane_equivalence"]["batches"],
+            512,
+        )
+        self.assertEqual(
+            ssi_evidence["data_plane_equivalence"]["mismatch_count"],
+            0,
+        )
+        self.assertEqual(ssi_evidence["regression"]["cases_passed"], 6)
+        self.assertEqual(ssi_evidence["regression"]["checks_passed"], 24)
+        self.assertFalse(ssi_evidence["regression"]["retry_used"])
+        self.assertEqual(
+            ssi_evidence["regression"]["summary_sha256"],
+            "62d7d42568be7758f51f7b61d960b3cadcd02940f4746f960078625afa47f450",
+        )
+        full_matrix = ssi_evidence["full_matrix_regression"]
+        self.assertEqual(full_matrix["cases_passed"], 67)
+        self.assertEqual(full_matrix["cases_failed"], 0)
+        self.assertEqual(full_matrix["checks_passed"], 274)
+        self.assertEqual(full_matrix["checks_failed"], 0)
+        self.assertFalse(full_matrix["retry_used"])
+        self.assertEqual(
+            full_matrix["summary_sha256"],
+            "44b65976d60589662e04454c4680cec90c8137a5934cece9bb371099297b3455",
+        )
+        suite = ssi_evidence["validation_suite"]
+        self.assertEqual(suite["platform_unittest"]["passed"], 501)
+        self.assertEqual(suite["docs_contract"]["passed"], 41)
+        self.assertEqual(suite["qemu_profile_contract"]["passed"], 19)
+        self.assertEqual(
+            ssi_evidence["checks"]["legacy_normal_watchdog_boot"],
+            "FAIL",
+        )
+        self.assertEqual(
+            ssi_evidence["checks"]["full_uiflow2_device_matrix"],
+            "PASS",
+        )
+        self.assertEqual(
+            ssi_evidence["checks"]["platform_static_and_contract_checks"],
+            "PASS",
+        )
+        self.assertEqual(
+            ssi_evidence["checks"]["crosscore_handshake_completes"],
+            "PASS",
+        )
+        ssi_patch = (
+            ROOT
+            / "patches/qemu-m5stack-peripherals/"
+            "0036-ssi-transfer-buf.patch"
+        ).read_text()
+        self.assertIn("ssi_transfer_buf", ssi_patch)
+        self.assertIn("m25p80_transfer_buf", ssi_patch)
+        self.assertIn("STATE_READ", ssi_patch)
+        self.assertNotIn("blk_pread", ssi_patch)
+        self.assertNotIn("M5SW_ESP32_SPI_DIRECT_READ", ssi_patch)
+        self.assertIn("0036-ssi-transfer-buf.patch", patches_readme)
+
+        for path in (
+            DOCS / "project-status.md",
+            DOCS / "runtime-model-gap-register.md",
+            DOCS / "workstreams.md",
+            DOCS / "validation-ledger.md",
+        ):
+            text = path.read_text()
+            self.assertIn("0035", text, path.relative_to(ROOT))
+            self.assertIn("QIO", text, path.relative_to(ROOT))
+            self.assertIn("cross-core", text, path.relative_to(ROOT))
+            self.assertIn("0036", text, path.relative_to(ROOT))
+            self.assertIn("0037", text, path.relative_to(ROOT))
+            self.assertIn("0038", text, path.relative_to(ROOT))
+        for path in (
+            ROOT / "README.md",
+            DOCS / "qemu-device-adaptation-matrix.md",
+            DOCS / "user-firmware-simulation-matrix.md",
+            DOCS / "code-map.md",
+        ):
+            text = path.read_text()
+            self.assertIn("QIO", text, path.relative_to(ROOT))
+            self.assertIn("cross-core", text, path.relative_to(ROOT))
+            self.assertIn("0037", text, path.relative_to(ROOT))
+            self.assertTrue(
+                "0038" in text or "0037-0040" in text,
+                path.relative_to(ROOT),
+            )
+        history = (DOCS / "core2-cache-panic-investigation.md").read_text()
+        self.assertIn("2026-10-26 QIO and cross-core follow-up", history)
+        self.assertIn("512 sampled transactions", history)
+
     def test_core2_reconnect_evidence_is_reconciled(self):
         backlog = (DOCS / "project-backlog.md").read_text()
         workstreams = (DOCS / "workstreams.md").read_text()
@@ -188,6 +562,12 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             DOCS / "qemu-device-adaptation-matrix.md"
         ).read_text()
         core2_backend = (DOCS / "core2-native-hci-backend.md").read_text()
+        core2_runner_readme = (
+            ROOT / "tests/uiflow2/core2_native_hci/README.md"
+        ).read_text()
+        peripheral_matrix = (
+            DOCS / "uiflow2-peripheral-test-matrix.md"
+        ).read_text()
         runtime_contract = (DOCS / "unified-device-runtime.md").read_text()
         project_snapshot = (DOCS / "project-snapshot.md").read_text()
         catalog_source_text = (
@@ -313,6 +693,24 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("3/3 PASS", ledger)
         self.assertIn("Core2", project_snapshot)
         self.assertIn("physical cache/PSRAM", project_snapshot)
+        self.assertIn("The contract range is 1-121", core2_runner_readme)
+        self.assertIn(
+            "more than\neight zero-stagger instances",
+            core2_runner_readme,
+        )
+        self.assertNotIn(
+            "more than\nfive zero-stagger instances",
+            core2_runner_readme,
+        )
+        self.assertIn(
+            "当前完整矩阵基线由 `0036`",
+            peripheral_matrix,
+        )
+        self.assertIn("`0038` exact-time handoff pause", peripheral_matrix)
+        self.assertNotIn(
+            "last full run       2026-10-24",
+            peripheral_matrix,
+        )
         self.assertIn("one Device Service lease", runtime_contract)
         self.assertIn("one guest instance", runtime_contract)
         self.assertIn("Core2 三 lease 121 轮", ledger)
@@ -381,7 +779,8 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             "Three independent leases complete 121 reconnect cycles",
             qemu_profiles_text,
         )
-        self.assertIn("接受 `1–121` 轮", platform_readme)
+        self.assertIn("validation-ledger.md", platform_readme)
+        self.assertIn("reconnect", platform_readme)
         self.assertIn("docs/project-status.md", device_readme)
         self.assertIn("docs/validation-ledger.md", device_readme)
         self.assertIn("docs/project-backlog.md", device_readme)
@@ -787,25 +1186,13 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("bounded host memory", profile_detail)
         self.assertNotIn("More than sixty", profile_detail)
         self.assertNotIn("bounded-TCG 7200s rerun remains pending", profile_detail)
-        self.assertTrue(
-            any(
-                "two independent two-instance no-stagger 4x120s gates pass 8/8"
-                in blocker
-                and "three-instance 3x120s gates pass 6/6" in blocker
-                and "four-instance 4x120s gates pass 8/8" in blocker
-                and "five-instance 30-second-stagger 5x120s" in blocker
-                and "pass 10/10" in blocker
-                and "fixed-icount zero-stagger five-instance 5x120s gates pass 10/10"
-                in blocker
-                and "fixed-icount zero-stagger six-instance 6x120s" in blocker
-                and "pass 12/12" in blocker
-                and "zero-stagger eight-instance 8x120s" in blocker
-                and "pass 16/16" in blocker
-                and "hold/12 sweep-floor calibration" in blocker
-                and "more-than-eight-instance stability" in blocker
-                for blocker in core2_profile["blockers"]
-            )
-        )
+        blocker_text = " ".join(core2_profile["blockers"])
+        self.assertIn("virtual-device concurrency gates", blocker_text)
+        self.assertIn("current service capacity", blocker_text)
+        self.assertIn("more-than-eight-instance stability", blocker_text)
+        self.assertIn("bounded-TCG host-memory", blocker_text)
+        for volatile_count in ("8/8", "6/6", "10/10", "12/12", "16/16"):
+            self.assertNotIn(volatile_count, blocker_text)
         self.assertEqual(active_stop["status"], "PASS")
         self.assertEqual(active_stop["attempts_requested"], 3)
         self.assertEqual(active_stop["attempts_passed"], 3)
@@ -1625,10 +2012,10 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
                 ).read_text()
             )
             for filename in (
-                "evidence-2026-10-25-core2-concurrent-8x120-"
-                "fixed-icount-pass-a.json",
-                "evidence-2026-10-25-core2-concurrent-8x120-"
-                "fixed-icount-pass-b.json",
+                "evidence-2026-10-26-core2-concurrent-8x120-"
+                "network-hardening-pass-a.json",
+                "evidence-2026-10-26-core2-concurrent-8x120-"
+                "network-hardening-pass-b.json",
             )
         ]
         pre_calibration_runs = [
@@ -1769,20 +2156,14 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
                     run["failure_diagnostics"]["panic_count"],
                     0,
                 )
-        self.assertEqual(
-            sum(
-                run["native_hci_health"]["hli-prealloc-failures"]
-                for run in eight_instance_runs[0]["runs"]
-            ),
-            1,
-        )
-        self.assertEqual(
-            sum(
-                run["native_hci_health"]["hli-prealloc-failures"]
-                for run in eight_instance_runs[1]["runs"]
-            ),
-            1,
-        )
+        for evidence in eight_instance_runs:
+            self.assertIn(
+                sum(
+                    run["native_hci_health"]["hli-prealloc-failures"]
+                    for run in evidence["runs"]
+                ),
+                (0, 1),
+            )
 
         device_group = json.loads(
             (
@@ -1816,7 +2197,7 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         }.items():
             for evidence in current_concurrent:
                 self._assert_recorded_tool_hash(
-                    "core2-recorded-concurrency", relative,
+                    "core2-recorded-concurrency-20261026-network-hardening", relative,
                     evidence["tool_hashes"][name],
                 )
 
@@ -1910,37 +2291,19 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn("0008", code_map)
         self.assertIn("0009", code_map)
         self.assertIn("0010", code_map)
-        self.assertIn("no-stagger 4x120s", profiles)
-        self.assertIn("Two independent two-instance no-stagger 4x120s gates", profiles)
-        self.assertIn("three-instance 3x120s gates pass 6/6", profiles)
-        self.assertIn("two independent four-instance 4x120s gates pass 8/8", profiles)
-        self.assertIn("five-instance 30-second-stagger 5x120s", profiles)
-        self.assertIn("pass 10/10", profiles)
-        self.assertIn("fixed-icount zero-stagger six-instance 6x120s", profiles)
-        self.assertIn("pass 12/12", profiles)
-        self.assertIn("zero-stagger eight-instance 8x120s", profiles)
-        self.assertIn("pass 16/16", profiles)
-        self.assertIn(
-            "fixed-icount zero-stagger five-instance 5x120s gates pass 10/10",
-            profiles,
-        )
+        self.assertIn("virtual-device concurrency gates", profiles)
+        self.assertIn("current service capacity", profiles)
         self.assertIn(
             "one batch passed 5/5 and an independent confirmation failed 3/5",
             profiles,
         )
         self.assertIn("more-than-eight-instance stability", profiles)
-        for text in (platform_readme, unified_core2):
+        for text in (unified_core2,):
             self.assertIn("0008", text)
             self.assertIn("0009", text)
-            self.assertIn("8/8", text)
             self.assertIn("shift=5", text)
-        self.assertTrue(
-            "five-instance" in platform_readme.lower()
-            or "五实例" in platform_readme
-        )
-        self.assertIn("四实例", platform_readme)
-        self.assertIn("8×120s", platform_readme)
-        self.assertIn("16/16", platform_readme)
+        self.assertIn("当前服务容量内的并发", platform_readme)
+        self.assertIn("validation-ledger.md", platform_readme)
         self.assertIn("`5x120s`", unified_core2)
         self.assertIn("`6x120s`", unified_core2)
         self.assertIn("`8x120s`", unified_core2)
@@ -2173,6 +2536,179 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
         self.assertIn(
             "600-second",
             profile_core2["validation"]["memory_validation"],
+        )
+
+    def test_core2_completed_handoff_trace_is_reconciled(self) -> None:
+        state_evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-handoff-state-sweep.json"
+            ).read_text()
+        )
+        setter_evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-handoff-pc-trace.json"
+            ).read_text()
+        )
+        self.assertEqual(state_evidence["status"], "PASS")
+        self.assertEqual(
+            setter_evidence["summary"]["first_wdt_timeout_ns"],
+            5_913_935_000,
+        )
+        self.assertEqual(
+            setter_evidence["summary"]["first_wdt_reset_ns"],
+            15_914_787_000,
+        )
+        self.assertEqual(
+            setter_evidence["summary"]["pc_counts"]["0x40087b02"],
+            4_376,
+        )
+        for relative in (
+            "README.md",
+            "docs/project-status.md",
+            "docs/runtime-model-gap-register.md",
+            "docs/workstreams.md",
+            "docs/qemu-device-adaptation-matrix.md",
+            "docs/code-map.md",
+            "docs/validation-ledger.md",
+        ):
+            text = (ROOT / relative).read_text()
+            self.assertIn("0039", text, relative)
+            self.assertIn("0040", text, relative)
+        for text in (
+            (ROOT / "docs/project-status.md").read_text(),
+            (ROOT / "docs/runtime-model-gap-register.md").read_text(),
+            (ROOT / "docs/workstreams.md").read_text(),
+        ):
+            self.assertIn("4,376", text)
+            self.assertNotIn("specific non-returning", text.lower())
+
+    def test_core2_wdt_liveness_reconciles_stage1_reset(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-wdt-liveness-3x.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["kind"], "core2-wdt-liveness")
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertEqual(len(evidence["runs"]), 3)
+        self.assertFalse(evidence["failures"])
+        for run in evidence["runs"]:
+            self.assertEqual(
+                run["classification"],
+                "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE",
+            )
+            self.assertTrue(run["tg0"]["stage0_interrupt_masked"])
+            self.assertEqual(
+                run["tg0"][
+                    "reconfigure_feed_or_protect_after_stage0"
+                ],
+                0,
+            )
+            self.assertEqual(run["tg1"]["timeout_count_before_reset"], 0)
+            self.assertEqual(run["tg1"]["intervals_over_100ms"], 0)
+            self.assertFalse(run["serial"]["has_repl_prompt"])
+        self.assertEqual(
+            evidence["classification"]["single_tg1_800ms_gap"],
+            "NOT_REPRODUCED",
+        )
+
+        status = (DOCS / "project-status.md").read_text()
+        backlog = (DOCS / "project-backlog.md").read_text()
+        register = (DOCS / "runtime-model-gap-register.md").read_text()
+        workstreams = (DOCS / "workstreams.md").read_text()
+        matrix = (DOCS / "qemu-device-adaptation-matrix.md").read_text()
+        code_map = (DOCS / "code-map.md").read_text()
+        firmware_readme = (ROOT / "tests/firmware/README.md").read_text()
+        trace_readme = (
+            ROOT / "tests/firmware/core2_handoff_trace/README.md"
+        ).read_text()
+        platform_readme = (ROOT / "platform/README.md").read_text()
+        self.assertIn(
+            "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE",
+            status,
+        )
+        self.assertIn("NOT_REPRODUCED", status)
+        self.assertIn("TG0 stage-1", backlog)
+        self.assertIn(
+            "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE",
+            register,
+        )
+        self.assertIn("未复现", workstreams)
+        self.assertIn("TG1 一直 feed", matrix)
+        self.assertIn("Core2 WDT liveness", code_map)
+        self.assertIn("run_wdt_liveness.py", firmware_readme)
+        self.assertIn("run_wdt_liveness.py", trace_readme)
+        self.assertIn("三次 WDT liveness", platform_readme)
+
+    def test_core2_wdt_off_late_state_is_reconciled(self) -> None:
+        evidence = json.loads(
+            (
+                ROOT
+                / "tests/firmware/core2_handoff_trace/"
+                "evidence-2026-10-26-core2-wdt-off-late-state.json"
+            ).read_text()
+        )
+        self.assertEqual(evidence["kind"], "core2-wdt-off-late-state")
+        self.assertEqual(evidence["status"], "PASS")
+        self.assertTrue(evidence["runtime"]["wdt_disabled"])
+        early, late = evidence["snapshots"]
+        self.assertEqual(early["cpu"]["0"]["pc"], "0x4026306e")
+        self.assertEqual(late["cpu"]["0"]["pc"], "0x4026306e")
+        self.assertEqual(early["cpu"]["1"]["pc"], "0x40100049")
+        self.assertEqual(late["cpu"]["1"]["pc"], "0x40100049")
+        self.assertEqual(
+            early["flash_handoff"]["cache_sync_calls"],
+            late["flash_handoff"]["cache_sync_calls"],
+        )
+        self.assertEqual(
+            early["flash_handoff"]["changed_pages"],
+            late["flash_handoff"]["changed_pages"],
+        )
+        self.assertEqual(
+            early["ssi"]["transactions"],
+            late["ssi"]["transactions"],
+        )
+        self.assertGreater(late["crosscore_writes"], early["crosscore_writes"])
+        self.assertEqual(
+            evidence["classification"]["wdt_disabled_diagnostic"],
+            "FLASH_WORK_COMPLETED_LATE_LOOP",
+        )
+
+        for relative in (
+            "README.md",
+            "docs/project-status.md",
+            "docs/project-backlog.md",
+            "docs/runtime-model-gap-register.md",
+            "docs/engineering-handoff.md",
+            "docs/workstreams.md",
+            "docs/qemu-device-adaptation-matrix.md",
+            "docs/code-map.md",
+            "tests/firmware/README.md",
+            "tests/firmware/core2_handoff_trace/README.md",
+            "platform/README.md",
+        ):
+            self.assertIn(
+                "0x40100049",
+                (ROOT / relative).read_text(),
+                relative,
+            )
+        profile = json.loads(
+            (ROOT / "platform/qemu/profiles.json").read_text()
+        )
+        core2 = next(
+            item for item in profile["devices"] if item["id"] == "core2"
+        )
+        self.assertTrue(
+            any(
+                "0x40100049" in blocker
+                for blocker in core2["blockers"]
+            )
         )
 
 

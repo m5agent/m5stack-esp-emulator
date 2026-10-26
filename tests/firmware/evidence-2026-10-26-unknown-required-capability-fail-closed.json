@@ -1,0 +1,406 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-firmware-capability-fail-closed",
+  "date": "2026-10-26",
+  "generated_from_artifact_mtime": "2026-10-23T06:00:43.299769+00:00",
+  "status": "PASS",
+  "scope": "static-manifest-capability-check-not-runtime-capability-proof",
+  "sample": {
+    "firmware_id": "2108939572843147265",
+    "device_id": "sticks3",
+    "source_bytes": 8323072,
+    "source_sha256": "8b7b47c8d601e1821817f8d0e6b55568829913e50333dbcc15de6ffdbad1997c",
+    "normalized_flash_sha256": "d291e77f782399e37fd5b464f9b206a00654b2c10556d730d1c45667156c603f"
+  },
+  "runs": {
+    "merged_baseline": {
+      "exit_code": 0,
+      "status": "PASS",
+      "manifest_id": "3a68914fdebe094efc79b037aa0057e9fd3dd15d9c2276e9220dded478b1596e",
+      "artifact_sha256": "d291e77f782399e37fd5b464f9b206a00654b2c10556d730d1c45667156c603f",
+      "flash_size": 8388608,
+      "soc": "esp32s3",
+      "source_format": "merged-bin",
+      "errors": [],
+      "warnings": [
+        {
+          "code": "license_policy_review_required",
+          "message": "license declarations require policy review; no legal conclusion was inferred",
+          "path": "license_policy"
+        },
+        {
+          "code": "security_metadata_incomplete",
+          "message": "eFuse and runtime security state are not embedded in a flash image",
+          "path": "security"
+        },
+        {
+          "code": "static_review_required",
+          "message": "static review produced 9 finding(s); values are redacted in the manifest",
+          "path": "review.findings"
+        },
+        {
+          "code": "filesystem_inventory_incomplete",
+          "message": "one or more data filesystems could not be fully inventoried",
+          "path": "target.filesystems"
+        },
+        {
+          "code": "sbom_not_provided",
+          "message": "package does not include a recognized SPDX/CycloneDX SBOM",
+          "path": "review.sbom"
+        },
+        {
+          "code": "unsupported_optional_capability",
+          "message": "firmware optionally supports camera, but device sticks3 does not expose it; the firmware remains a candidate",
+          "requirement": "camera",
+          "available": [
+            "audio",
+            "ble",
+            "button",
+            "display",
+            "imu",
+            "ir",
+            "microphone",
+            "psram",
+            "speaker",
+            "wifi"
+          ],
+          "path": "capabilities.optional"
+        },
+        {
+          "code": "observed_capability_not_declared",
+          "message": "image contains low-confidence display signature(s) (lcd_panel_, m5gfx), but neither required nor optional capabilities name it; this is not runtime proof",
+          "requirement": "display",
+          "available": [
+            "camera",
+            "wifi"
+          ],
+          "path": "capabilities.observed"
+        }
+      ]
+    },
+    "merged_unknown_required": {
+      "exit_code": 1,
+      "status": "REJECTED",
+      "manifest_id": "20917d37ed7c55b221475119e0168b831a9e7445d4f309df17ab70cc295224d7",
+      "artifact_sha256": "d291e77f782399e37fd5b464f9b206a00654b2c10556d730d1c45667156c603f",
+      "flash_size": 8388608,
+      "soc": "esp32s3",
+      "source_format": "merged-bin",
+      "errors": [
+        {
+          "code": "unknown_required_capability",
+          "message": "firmware requires 'vendor-private-sensor', but the compatibility checker does not recognize it; unknown required capabilities fail closed",
+          "requirement": "vendor-private-sensor",
+          "path": "capabilities.required"
+        }
+      ],
+      "warnings": [
+        {
+          "code": "license_policy_review_required",
+          "message": "license declarations require policy review; no legal conclusion was inferred",
+          "path": "license_policy"
+        },
+        {
+          "code": "security_metadata_incomplete",
+          "message": "eFuse and runtime security state are not embedded in a flash image",
+          "path": "security"
+        },
+        {
+          "code": "static_review_required",
+          "message": "static review produced 9 finding(s); values are redacted in the manifest",
+          "path": "review.findings"
+        },
+        {
+          "code": "filesystem_inventory_incomplete",
+          "message": "one or more data filesystems could not be fully inventoried",
+          "path": "target.filesystems"
+        },
+        {
+          "code": "sbom_not_provided",
+          "message": "package does not include a recognized SPDX/CycloneDX SBOM",
+          "path": "review.sbom"
+        },
+        {
+          "code": "observed_capability_not_declared",
+          "message": "image contains low-confidence wifi signature(s) (esp_wifi_init), but neither required nor optional capabilities name it; this is not runtime proof",
+          "requirement": "wifi",
+          "available": [
+            "vendor-private-sensor"
+          ],
+          "path": "capabilities.observed"
+        },
+        {
+          "code": "observed_capability_not_declared",
+          "message": "image contains low-confidence display signature(s) (lcd_panel_, m5gfx), but neither required nor optional capabilities name it; this is not runtime proof",
+          "requirement": "display",
+          "available": [
+            "vendor-private-sensor"
+          ],
+          "path": "capabilities.observed"
+        }
+      ]
+    },
+    "merged_unknown_optional": {
+      "exit_code": 0,
+      "status": "PASS",
+      "manifest_id": "ca2558152d0c8abb52e1928134d65e648c4503d5cf1298c3c8eb5459cd89ca50",
+      "artifact_sha256": "d291e77f782399e37fd5b464f9b206a00654b2c10556d730d1c45667156c603f",
+      "flash_size": 8388608,
+      "soc": "esp32s3",
+      "source_format": "merged-bin",
+      "errors": [],
+      "warnings": [
+        {
+          "code": "license_policy_review_required",
+          "message": "license declarations require policy review; no legal conclusion was inferred",
+          "path": "license_policy"
+        },
+        {
+          "code": "security_metadata_incomplete",
+          "message": "eFuse and runtime security state are not embedded in a flash image",
+          "path": "security"
+        },
+        {
+          "code": "static_review_required",
+          "message": "static review produced 9 finding(s); values are redacted in the manifest",
+          "path": "review.findings"
+        },
+        {
+          "code": "filesystem_inventory_incomplete",
+          "message": "one or more data filesystems could not be fully inventoried",
+          "path": "target.filesystems"
+        },
+        {
+          "code": "sbom_not_provided",
+          "message": "package does not include a recognized SPDX/CycloneDX SBOM",
+          "path": "review.sbom"
+        },
+        {
+          "code": "unknown_optional_capability",
+          "message": "optional capability 'vendor-private-sensor' is not recognized by the compatibility checker",
+          "requirement": "vendor-private-sensor",
+          "path": "capabilities.optional"
+        },
+        {
+          "code": "observed_capability_not_declared",
+          "message": "image contains low-confidence display signature(s) (lcd_panel_, m5gfx), but neither required nor optional capabilities name it; this is not runtime proof",
+          "requirement": "display",
+          "available": [
+            "vendor-private-sensor",
+            "wifi"
+          ],
+          "path": "capabilities.observed"
+        }
+      ]
+    },
+    "webburner_baseline": {
+      "exit_code": 0,
+      "status": "PASS",
+      "manifest_id": "e032b536f93faa1dea7e232c30133f0ad5c02f84fc7fa2c973efc5bf5aa999c0",
+      "artifact_sha256": "d291e77f782399e37fd5b464f9b206a00654b2c10556d730d1c45667156c603f",
+      "flash_size": 8388608,
+      "soc": "esp32s3",
+      "source_format": "web-manifest",
+      "errors": [],
+      "warnings": [
+        {
+          "code": "license_policy_review_required",
+          "message": "license declarations require policy review; no legal conclusion was inferred",
+          "path": "license_policy"
+        },
+        {
+          "code": "security_metadata_incomplete",
+          "message": "eFuse and runtime security state are not embedded in a flash image",
+          "path": "security"
+        },
+        {
+          "code": "static_review_required",
+          "message": "static review produced 9 finding(s); values are redacted in the manifest",
+          "path": "review.findings"
+        },
+        {
+          "code": "filesystem_inventory_incomplete",
+          "message": "one or more data filesystems could not be fully inventoried",
+          "path": "target.filesystems"
+        },
+        {
+          "code": "sbom_not_provided",
+          "message": "package does not include a recognized SPDX/CycloneDX SBOM",
+          "path": "review.sbom"
+        },
+        {
+          "code": "unsupported_optional_capability",
+          "message": "firmware optionally supports camera, but device sticks3 does not expose it; the firmware remains a candidate",
+          "requirement": "camera",
+          "available": [
+            "audio",
+            "ble",
+            "button",
+            "display",
+            "imu",
+            "ir",
+            "microphone",
+            "psram",
+            "speaker",
+            "wifi"
+          ],
+          "path": "capabilities.optional"
+        },
+        {
+          "code": "observed_capability_not_declared",
+          "message": "image contains low-confidence display signature(s) (lcd_panel_, m5gfx), but neither required nor optional capabilities name it; this is not runtime proof",
+          "requirement": "display",
+          "available": [
+            "camera",
+            "wifi"
+          ],
+          "path": "capabilities.observed"
+        }
+      ]
+    },
+    "webburner_repeat": {
+      "exit_code": 0,
+      "status": "PASS",
+      "manifest_id": "e032b536f93faa1dea7e232c30133f0ad5c02f84fc7fa2c973efc5bf5aa999c0",
+      "artifact_sha256": "d291e77f782399e37fd5b464f9b206a00654b2c10556d730d1c45667156c603f",
+      "flash_size": 8388608,
+      "soc": "esp32s3",
+      "source_format": "web-manifest",
+      "errors": [],
+      "warnings": [
+        {
+          "code": "license_policy_review_required",
+          "message": "license declarations require policy review; no legal conclusion was inferred",
+          "path": "license_policy"
+        },
+        {
+          "code": "security_metadata_incomplete",
+          "message": "eFuse and runtime security state are not embedded in a flash image",
+          "path": "security"
+        },
+        {
+          "code": "static_review_required",
+          "message": "static review produced 9 finding(s); values are redacted in the manifest",
+          "path": "review.findings"
+        },
+        {
+          "code": "filesystem_inventory_incomplete",
+          "message": "one or more data filesystems could not be fully inventoried",
+          "path": "target.filesystems"
+        },
+        {
+          "code": "sbom_not_provided",
+          "message": "package does not include a recognized SPDX/CycloneDX SBOM",
+          "path": "review.sbom"
+        },
+        {
+          "code": "unsupported_optional_capability",
+          "message": "firmware optionally supports camera, but device sticks3 does not expose it; the firmware remains a candidate",
+          "requirement": "camera",
+          "available": [
+            "audio",
+            "ble",
+            "button",
+            "display",
+            "imu",
+            "ir",
+            "microphone",
+            "psram",
+            "speaker",
+            "wifi"
+          ],
+          "path": "capabilities.optional"
+        },
+        {
+          "code": "observed_capability_not_declared",
+          "message": "image contains low-confidence display signature(s) (lcd_panel_, m5gfx), but neither required nor optional capabilities name it; this is not runtime proof",
+          "requirement": "display",
+          "available": [
+            "camera",
+            "wifi"
+          ],
+          "path": "capabilities.observed"
+        }
+      ]
+    },
+    "webburner_unknown_required": {
+      "exit_code": 1,
+      "status": "REJECTED",
+      "manifest_id": "eaaf322bbf3ff3bb0f2531903fc14dee81b745cf60962b62e93afa9fa992b13e",
+      "artifact_sha256": "d291e77f782399e37fd5b464f9b206a00654b2c10556d730d1c45667156c603f",
+      "flash_size": 8388608,
+      "soc": "esp32s3",
+      "source_format": "web-manifest",
+      "errors": [
+        {
+          "code": "unknown_required_capability",
+          "message": "firmware requires 'vendor-private-sensor', but the compatibility checker does not recognize it; unknown required capabilities fail closed",
+          "requirement": "vendor-private-sensor",
+          "path": "capabilities.required"
+        }
+      ],
+      "warnings": [
+        {
+          "code": "license_policy_review_required",
+          "message": "license declarations require policy review; no legal conclusion was inferred",
+          "path": "license_policy"
+        },
+        {
+          "code": "security_metadata_incomplete",
+          "message": "eFuse and runtime security state are not embedded in a flash image",
+          "path": "security"
+        },
+        {
+          "code": "static_review_required",
+          "message": "static review produced 9 finding(s); values are redacted in the manifest",
+          "path": "review.findings"
+        },
+        {
+          "code": "filesystem_inventory_incomplete",
+          "message": "one or more data filesystems could not be fully inventoried",
+          "path": "target.filesystems"
+        },
+        {
+          "code": "sbom_not_provided",
+          "message": "package does not include a recognized SPDX/CycloneDX SBOM",
+          "path": "review.sbom"
+        },
+        {
+          "code": "observed_capability_not_declared",
+          "message": "image contains low-confidence wifi signature(s) (esp_wifi_init), but neither required nor optional capabilities name it; this is not runtime proof",
+          "requirement": "wifi",
+          "available": [
+            "vendor-private-sensor"
+          ],
+          "path": "capabilities.observed"
+        },
+        {
+          "code": "observed_capability_not_declared",
+          "message": "image contains low-confidence display signature(s) (lcd_panel_, m5gfx), but neither required nor optional capabilities name it; this is not runtime proof",
+          "requirement": "display",
+          "available": [
+            "vendor-private-sensor"
+          ],
+          "path": "capabilities.observed"
+        }
+      ]
+    }
+  },
+  "checks": {
+    "public_firmware_hash_bound": true,
+    "merged_baseline_pass": true,
+    "merged_unknown_required_rejected": true,
+    "unknown_optional_remains_candidate": true,
+    "webburner_baseline_pass": true,
+    "webburner_unknown_required_rejected": true,
+    "merged_webburner_artifact_match": true,
+    "webburner_manifest_id_stable": true
+  },
+  "boundary": {
+    "boot": "NOT RUN",
+    "network": "NOT RUN",
+    "runtime_capability_call_path": "NOT RUN",
+    "secure_boot_runtime": "NOT RUN",
+    "physical_hardware": "NOT RUN"
+  }
+}

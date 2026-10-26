@@ -719,6 +719,18 @@ always publishes a normalized merged-flash artifact to the firmware store and
 preserves the original source format and normalized segment hashes in the
 manifest. `409 unsupported_firmware_capability` includes structured
 `issues[]`; an invalid package returns `400 invalid_firmware_package`.
+An unknown required capability also fails closed through this response because
+the service cannot verify that the target profile supports it. Unknown optional
+capabilities remain warnings. The manifest identity is content-stable across
+different output/package filenames; `artifact.file` is not part of
+`manifest_id`.
+
+Security preflight also inspects every supplied evidence layer. A caller cannot
+hide secure boot or Flash Encryption by setting only the aggregate security
+fields to `unknown`: enabled sdkconfig, a signed/invalid Secure Boot v2 image
+claim, or a package-provided eFuse claim is rejected when the target runtime
+does not model that chain. These checks remain compatibility decisions; they
+do not authenticate the package summary or perform a live eFuse read.
 
 The browser page is `/platform/web/firmware.html`. It streams the complete
 SHA256 calculation and 4 MiB chunks, retries transient failures, exposes
@@ -937,11 +949,16 @@ the request fails with `allowlist_not_supported`.
 sandbox creates a private mount namespace, binds a temporary resolver
 configuration only into the QEMU process tree, and serves explicitly bound
 names or domain suffixes while returning NXDOMAIN for other names.
-`allowed_hosts` is an exact Host/DNS allowlist. `allowed_domains` is a suffix
-allowlist with DNS-label boundaries: `allowy.test` also matches
+`allowed_hosts` is an exact Host/DNS allowlist with strict ASCII DNS labels,
+lowercase normalization and at most one trailing root dot. It rejects empty
+labels, leading/trailing hyphens, ports, userinfo and wildcard syntax.
+`dns=controlled` requires at least one allowed endpoint. `allowed_domains` is
+a suffix allowlist with DNS-label boundaries: `allowy.test` also matches
 `api.allowy.test`, but not `evilallowy.test`; exact records win and the
 longest suffix wins. Every suffix must have explicit resolver answers covered
-by an allowed endpoint. Managed profiles bind Host/domain grants to
+by an allowed endpoint. Exact A/AAAA records and CNAME terminal answers use
+the same endpoint check; IPv4-mapped IPv6 DNS records are rejected. Managed
+profiles bind Host/domain grants to
 `10.0.2.2` and therefore require a controlled HTTP profile or an exact
 `10.0.2.2` endpoint. A domain suffix never authorizes arbitrary addresses
 from an outside resolver. The sandbox core accepts exact A/AAAA records and
@@ -969,6 +986,14 @@ lease resolves the controlled alias, follows its terminal A record to
 name and rejects an unlisted port. Three independent leases PASS with
 identical probe/QEMU/service/sandbox hashes. CNAME resolution never bypasses
 endpoint IP/CIDR/port egress rules.
+
+Controlled HTTP evaluates exactly one Host header with an optional numeric
+port and an origin-form request target. Userinfo, comma-separated or
+multi-colon authorities, invalid/out-of-range ports, duplicate Host headers
+and absolute-form request targets are denied. A Linux namespace StickS3 lease
+on `2026-10-26` completed controlled DNS allow/NXDOMAIN, strict Host
+allow/deny, TLS 200/403, DHCP, pcap and cleanup under the same evidence
+bundle.
 
 For namespaced QEMU radio sessions, `GET /sessions/{id}/network` also returns
 the sandbox `isolation` state plus bounded `dns_requests` and

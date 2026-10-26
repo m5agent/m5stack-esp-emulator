@@ -105,6 +105,7 @@ class NetworkPolicyTests(unittest.TestCase):
                 "dns": "deny",
                 "allowed_hosts": [
                     "Allowed.Lab.Test",
+                    "allowed.lab.test.",
                     "10.0.2.2",
                 ],
                 "allowed_endpoints": [
@@ -214,6 +215,45 @@ class NetworkPolicyTests(unittest.TestCase):
                         "protocol": "tcp",
                         "address": "1.1.1.1",
                         "port": 80,
+                    }
+                ],
+            },
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "controlled",
+                "allowed_hosts": ["allowed..example.test"],
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "1.1.1.1",
+                        "port": 80,
+                    }
+                ],
+            },
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "controlled",
+                "allowed_hosts": [""],
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "1.1.1.1",
+                        "port": 80,
+                    }
+                ],
+            },
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "controlled",
+                "allowed_hosts": ["allowed.example.test:443"],
+                "allowed_endpoints": [
+                    {
+                        "protocol": "tcp",
+                        "address": "1.1.1.1",
+                        "port": 443,
                     }
                 ],
             },

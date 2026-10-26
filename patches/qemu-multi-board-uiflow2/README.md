@@ -1,6 +1,6 @@
 # QEMU 多机型 UIFlow2 补丁
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 > 历史启动补丁：本文保留 2026-10-20 的板级 bring-up 边界。后续网络、
 > BLE、Core2 长稳和设备服务能力见

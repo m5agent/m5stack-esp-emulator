@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-webburner-import-policy",
+  "date": "2026-10-26",
+  "status": "PASS",
+  "validation": "static WebBurner import selection and path policy",
+  "tool_hashes": {
+    "runner": "3bd938c8e8f46b34bbc809abf25cc6594f0397b35493c2ef5fb26dfc0926407a",
+    "firmware_manifest": "f2c99c54a2e264ad331f807b06a0eff6483a5c253d7c36ff69f77438c8d4e50b"
+  },
+  "input_assets_unchanged": true,
+  "checks": {
+    "target_build_selected": true,
+    "multi_build_requires_target": true,
+    "multi_build_requires_unique_soc": true,
+    "multiple_web_manifests_rejected": true,
+    "multiple_sdkconfig_rejected": true,
+    "multiple_efuse_rejected": true,
+    "zip_case_collision_rejected": true,
+    "zip_symlink_rejected": true,
+    "zip_dotdot_rejected": true,
+    "zip_reserved_name_rejected": true,
+    "zip_nested_case_collision_rejected": true,
+    "multiple_sbom_rejected": true,
+    "sdkconfig_precedence_is_explicit": true,
+    "multiple_sdkconfig_defaults_rejected": true,
+    "multiple_flasher_args_rejected": true,
+    "boolean_offset_rejected": true
+  },
+  "errors": {
+    "multi_build_no_device": "multi-build WebBurner package requires a target device",
+    "multi_build_wrong_soc": "multi-build WebBurner package must have exactly one build for target SoC esp32c6",
+    "multiple_web_manifests": "multiple WebBurner manifests found: manifest.json, web-manifest.json",
+    "multiple_sdkconfig": "package contains multiple sdkconfig resources: a/sdkconfig, b/sdkconfig",
+    "multiple_efuse": "package contains multiple eFuse summaries: a/efuse-summary.json, b/efuse-summary.json",
+    "multiple_sbom": "package contains multiple sbom resources: bom.json, sbom.json",
+    "multiple_sdkconfig_defaults": "package contains multiple sdkconfig.defaults resources: a/sdkconfig.defaults, b/sdkconfig.defaults",
+    "multiple_flasher_args": "package contains multiple flasher_args.json files",
+    "boolean_offset": "WebBurner part 0 has invalid offset",
+    "zip_case_collision": "archive entries collide after normalization: 'A.bin' and 'a.bin'",
+    "zip_symlink": "archive symlink entries are not supported: firmware.bin",
+    "zip_dotdot": "archive entry escapes root: dir/../firmware.bin",
+    "zip_reserved_name": "archive entry path uses a reserved name: 'CON.bin'",
+    "zip_nested_case_collision": "archive directory paths collide after normalization: 'A' and 'a'"
+  },
+  "boundary": {
+    "flash": "NOT RUN",
+    "boot": "NOT RUN",
+    "runtime": "NOT RUN",
+    "physical_hardware": "NOT RUN"
+  }
+}

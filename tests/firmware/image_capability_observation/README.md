@@ -1,6 +1,6 @@
 # Firmware image capability observation
 
-Last reviewed: `2026-10-25`.
+Last reviewed: `2026-10-26`.
 
 This static-manifest probe records low-confidence capability signatures from a
 normalized full-flash image and verifies that a required capability unsupported

@@ -1,6 +1,6 @@
 # Remote worker durable job queue
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This contract slice covers `NET-04` job admission and lease supervision. It
 does not launch a QEMU process, execute a claimed request, upload an evidence

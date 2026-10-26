@@ -1,0 +1,151 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <329351612+m5agent@users.noreply.github.com>
+Date: Mon, 26 Oct 2026 03:20:00 +0800
+Subject: [PATCH] hw/ssi: add stateful byte-buffer transfers
+
+Add an optional SSI peripheral batch callback for controller data phases.
+The generic bus fallback remains byte-for-byte equivalent to ssi_transfer.
+m25p80 accelerates only STATE_READ, preserving command, address, dummy,
+CS and address-wrap semantics. ESP32 SPI uses the batch API only for
+receive-only data phases.
+
+--- a/include/hw/ssi/ssi.h
++++ b/include/hw/ssi/ssi.h
+@@ -40,6 +40,13 @@
+      * This is called when the device cs is active (true by default).
+      */
+     uint32_t (*transfer)(SSIPeripheral *dev, uint32_t val);
++    /*
++     * Optional byte-wide batch transfer for the active device. The callback
++     * must update the peripheral state exactly as repeated transfer calls and
++     * OR each received byte into rx. It is called only while CS is active.
++     */
++    void (*transfer_buf)(SSIPeripheral *dev, const uint8_t *tx,
++                         uint8_t *rx, size_t len);
+     /* called when the CS line changes. Optional, devices only need to implement
+      * this if they have side effects associated with the cs line (beyond
+      * tristating the txrx lines).
+@@ -111,6 +118,12 @@
+ SSIBus *ssi_create_bus(DeviceState *parent, const char *name);
+ 
+ uint32_t ssi_transfer(SSIBus *bus, uint32_t val);
++/*
++ * Transfer len bytes on an SSI bus. tx may be NULL for receive-only data.
++ * rx must be non-NULL; the caller's previous contents are overwritten.
++ */
++void ssi_transfer_buf(SSIBus *bus, const uint8_t *tx, uint8_t *rx,
++                      size_t len);
+ 
+ DeviceState *ssi_get_cs(SSIBus *bus, uint8_t cs_index);
+ 
+--- a/hw/ssi/ssi.c
++++ b/hw/ssi/ssi.c
+@@ -82,13 +82,20 @@
+     s->cs = cs;
+ }
+ 
++static bool ssi_peripheral_selected(SSIPeripheral *dev)
++{
++    SSIPeripheralClass *ssc = dev->spc;
++
++    return (dev->cs && ssc->cs_polarity == SSI_CS_HIGH) ||
++           (!dev->cs && ssc->cs_polarity == SSI_CS_LOW) ||
++           ssc->cs_polarity == SSI_CS_NONE;
++}
++
+ static uint32_t ssi_transfer_raw_default(SSIPeripheral *dev, uint32_t val)
+ {
+     SSIPeripheralClass *ssc = dev->spc;
+ 
+-    if ((dev->cs && ssc->cs_polarity == SSI_CS_HIGH) ||
+-        (!dev->cs && ssc->cs_polarity == SSI_CS_LOW) ||
+-        ssc->cs_polarity == SSI_CS_NONE) {
++    if (ssi_peripheral_selected(dev)) {
+         return ssc->transfer(dev, val);
+     }
+     return 0;
+@@ -168,6 +175,28 @@
+     return r;
+ }
+ 
++void ssi_transfer_buf(SSIBus *bus, const uint8_t *tx, uint8_t *rx,
++                      size_t len)
++{
++    BusState *b = BUS(bus);
++    BusChild *kid;
++
++    memset(rx, 0, len);
++    QTAILQ_FOREACH(kid, &b->children, sibling) {
++        SSIPeripheral *p = SSI_PERIPHERAL(kid->child);
++
++        if (p->spc->transfer_buf && ssi_peripheral_selected(p)) {
++            p->spc->transfer_buf(p, tx, rx, len);
++        } else {
++            for (size_t i = 0; i < len; i++) {
++                rx[i] |= ssi_transfer_raw_default(
++                    p, tx ? tx[i] : 0
++                );
++            }
++        }
++    }
++}
++
+ const VMStateDescription vmstate_ssi_peripheral = {
+     .name = "SSISlave",
+     .version_id = 1,
+--- a/hw/block/m25p80.c
++++ b/hw/block/m25p80.c
+@@ -1675,6 +1675,27 @@
+     return r;
+ }
+ 
++static void m25p80_transfer_buf(SSIPeripheral *ss, const uint8_t *tx,
++                                uint8_t *rx, size_t len)
++{
++    Flash *s = M25P80(ss);
++
++    if (s->state != STATE_READ) {
++        for (size_t i = 0; i < len; i++) {
++            rx[i] |= m25p80_transfer8(ss, tx ? tx[i] : 0);
++        }
++        return;
++    }
++
++    for (size_t i = 0; i < len; i++) {
++        uint8_t value = s->storage[s->cur_addr];
++
++        trace_m25p80_read_byte(s, s->cur_addr, value);
++        rx[i] |= value;
++        s->cur_addr = (s->cur_addr + 1) & (s->size - 1);
++    }
++}
++
+ static void m25p80_write_protect_pin_irq_handler(void *opaque, int n, int level)
+ {
+     Flash *s = M25P80(opaque);
+@@ -1887,6 +1908,7 @@
+ 
+     k->realize = m25p80_realize;
+     k->transfer = m25p80_transfer8;
++    k->transfer_buf = m25p80_transfer_buf;
+     k->set_cs = m25p80_cs;
+     k->cs_polarity = SSI_CS_LOW;
+     dc->vmsd = &vmstate_m25p80;
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -235,7 +235,14 @@
+     for (int i = 0; i < t->extra_dummy_bytes; i++) {
+         ssi_transfer(s->spi, 0xff);
+     }
+-    esp32_spi_txrx_buffer(s, t->data, t->data_tx_bytes, t->data_rx_bytes);
++    if (t->data_tx_bytes == 0 && t->data_rx_bytes > 0) {
++        ssi_transfer_buf(
++            s->spi, NULL, (uint8_t *)t->data, t->data_rx_bytes
++        );
++    } else {
++        esp32_spi_txrx_buffer(
++            s, t->data, t->data_tx_bytes, t->data_rx_bytes);
++    }
+     if (s->m5_panel) {
+         if (t->data_tx_bytes) {
+             bool command_phase = s->m5_dc_pin >= 0

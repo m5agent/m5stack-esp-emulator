@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-xtensa-ccompare-equal-deadline",
+  "date": "2026-10-26",
+  "validation": "virtual-device validation",
+  "status": "FIXED_FOR_MINIMAL_PROBE_LEGACY_OPEN",
+  "firmware": {
+    "target": "esp32",
+    "build": "ESP-IDF 5.5.4",
+    "image_sha256": "c2762e5f34d513e34a47739174fd452567f2f3ec87164a4d421a1a7141c68359",
+    "image_bytes": 16777216,
+    "elf_sha256": "7636c3e5aa182621f9998e12938a2e037adf99689f7d1b7e5c154a7892aaf88b"
+  },
+  "pre_fix": {
+    "evidence": "evidence-2026-10-26-core2-flash-ipc-wdt.json",
+    "combined_first_boots": 20,
+    "passed": 14,
+    "interrupt_wdt": 6,
+    "spinlock_owner_assert": 0,
+    "read_start_observed": 20,
+    "irq_ring_observation": {
+      "batches": 1,
+      "attempts": 10,
+      "passed": 3,
+      "interrupt_wdt": 7,
+      "equal_deadline_records": 12,
+      "record_shape": "kind=wsr-ccompare a=<CCOMPARE> b=<CCOUNT> c=0000000100000000 where a == b",
+      "interpretation": "The old subtraction scheduled 2^32 ticks instead of the next CCOUNT cycle. Repeated ring dumps can contain the same event more than once, so the record count is diagnostic rather than a failure count."
+    }
+  },
+  "fix": {
+    "patch": "patches/qemu-m5stack-peripherals/0034-xtensa-ccompare-equal-deadline.patch",
+    "qemu_source_commit": "da100c909249926b9f4458f18e4f2d216d08f51a",
+    "diagnostic_qemu_binary_sha256": "c41042e3d35b66d5967163749f49602a3b8efa466a733fa6244d5d4838e27bd2",
+    "source_file": "target/xtensa/op_helper.c",
+    "function": "HELPER(update_ccompare)",
+    "behavior": "An equal CCOMPARE/CCOUNT deadline is armed for the next cycle; every other delta keeps the existing unsigned 32-bit wraparound interpretation.",
+    "excluded_from_patch": [
+      "IRQ ring instrumentation",
+      "verbose trace helpers",
+      "watchdog timeout changes",
+      "retry or QOM pause behavior"
+    ],
+    "patch_apply_check": {
+      "base": "clean archived target/xtensa/op_helper.c at the diagnostic QEMU HEAD",
+      "forward": "PASS",
+      "reverse": "PASS"
+    }
+  },
+  "post_fix": {
+    "attempts": 40,
+    "passed": 40,
+    "interrupt_wdt": 0,
+    "spinlock_owner_assert": 0,
+    "reboot_observed": 0,
+    "serial_log_aggregate_sha256": "908ad2d228a59adc4ad3685261856c8deaaebc03997acdfa482b050f22b3ad5c",
+    "serial_log_aggregate_method": "sha256 of sorted per-attempt sha256 lines",
+    "batches": [
+      {
+        "id": "shift5-ring-a",
+        "accelerator": "icount shift=5",
+        "trace": "IRQ ring enabled",
+        "attempts": 10,
+        "passed": 10,
+        "evidence_sha256": "b74e2f0df5ad9ff52c62e53892fd0d27c7a25fca0b5b446c64aede65228067dd"
+      },
+      {
+        "id": "shift5-ring-b",
+        "accelerator": "icount shift=5",
+        "trace": "IRQ ring enabled",
+        "attempts": 10,
+        "passed": 10,
+        "evidence_sha256": "7df24fe760926b55dea79f72f767d59cecadbbede63dbf63f3d99727206c1b34"
+      },
+      {
+        "id": "shift5-clean",
+        "accelerator": "icount shift=5",
+        "trace": "disabled",
+        "attempts": 10,
+        "passed": 10,
+        "evidence_sha256": "c29ff0cde8a27bc0910bf7bd7d542d373808781fa0ce49fb5b5fbd8b41867189"
+      },
+      {
+        "id": "auto-clean",
+        "accelerator": "icount shift=auto",
+        "trace": "disabled",
+        "attempts": 10,
+        "passed": 10,
+        "evidence_sha256": "8f4253745de2a93e15f6b90a6ae8d57f5d685d94421375b77ff6c344b00e121b"
+      }
+    ]
+  },
+  "current_runner_regression": {
+    "observation_seconds": 15,
+    "known_image_attempts": 3,
+    "known_image_passed": 3,
+    "known_image_incomplete": 0,
+    "artifact_hash_gate": "PASS",
+    "old_image": ".work/core2-flash-ipc-16m.bin",
+    "old_image_sha256": "7e786a27678285d60c006fcb25226b98212672b34ec8b3b844833b5050a18da3",
+    "old_image_exit_status": 2,
+    "old_image_upload_attempted": false
+  },
+  "legacy_uiflow": {
+    "firmware": "UIFlow_Core2 v1.15.4",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "observation_seconds": 90,
+    "final_service_state": "running",
+    "frames_observed": 17,
+    "unique_application_frame": false,
+    "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+    "frame_png_bytes": 302,
+    "reset_reasons": [
+      "TG1WDT_SYS_RESET",
+      "TG0WDT_SYS_RESET"
+    ],
+    "reset_cpu_pc": "0x0",
+    "result": "FAIL_BLACK_FRAME_WDT_RESET_LOOP",
+    "interpretation": "The equal-deadline timer fix removes the minimal ESP-IDF probe's WDT but does not fix the legacy firmware's separate TG0/TG1 watchdog path."
+  },
+  "checks": {
+    "equal_deadline_root_cause_observed": "PASS",
+    "minimal_probe_post_fix_first_boot": "PASS",
+    "trace_disabled_control": "PASS",
+    "fixed_and_auto_icount_control": "PASS",
+    "legacy_uiflow_nonempty_frame": "FAIL",
+    "legacy_uiflow_wdt_reset_loop": "FAIL"
+  },
+  "not_proven": [
+    "the TG0/TG1 legacy-UIFlow reset root cause",
+    "physical ESP32 timer, cache or PSRAM timing",
+    "hardware validation",
+    "all Core2 firmware compatibility"
+  ]
+}

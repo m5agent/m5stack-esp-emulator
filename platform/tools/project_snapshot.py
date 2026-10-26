@@ -22,6 +22,9 @@ VISUAL_VENDOR = ROOT / "platform/web/vendor/m5stack-models/vendor-manifest.json"
 BACKLOG = ROOT / "docs/project-backlog.md"
 RUNTIME_GAPS = ROOT / "docs/runtime-model-gap-register.md"
 DOC_INDEX = ROOT / "docs/README.md"
+PROJECT_STATUS = ROOT / "docs/project-status.md"
+VALIDATION_LEDGER = ROOT / "docs/validation-ledger.md"
+ENGINEERING_HANDOFF = ROOT / "docs/engineering-handoff.md"
 FIRMWARE_EVIDENCE = (
     ROOT
     / "tests/firmware/"
@@ -79,6 +82,7 @@ def code_inventory(documents: list[Path]) -> dict:
     document_lines = sum(
         len(path.read_text(errors="replace").splitlines())
         for path in documents
+        if path != OUTPUT
     )
     return {
         "tool_modules": len(tool_files),
@@ -96,6 +100,7 @@ def code_inventory(documents: list[Path]) -> dict:
         "patch_files": len(patch_files),
         "documented_markdown_files": len(documents),
         "documented_markdown_lines": document_lines,
+        "documented_markdown_lines_exclude": [OUTPUT.relative_to(ROOT).as_posix()],
     }
 
 
@@ -106,6 +111,39 @@ def latest_evidence_date() -> str:
         if match:
             dates.append(match.group(1))
     return max(dates, default="unknown")
+
+
+def document_date(path: Path) -> str:
+    head = "\n".join(path.read_text(errors="replace").splitlines()[:20])
+    match = re.search(
+        r"(?:Last reviewed|最近核对|日期)[:：]\s*`?(\d{4}-\d{2}-\d{2})",
+        head,
+    )
+    return match.group(1) if match else "unknown"
+
+
+def current_fact_date(catalog_date: str) -> str:
+    """Return the newest fact explicitly covered by a project entry document.
+
+    ``devices/catalog.source.json`` has its own generation date. Treating that
+    catalog date as the project-wide fact date made a fresh evidence ledger look
+    stale whenever only device metadata was unchanged.
+    """
+    dates = [
+        catalog_date,
+        latest_evidence_date(),
+        *(
+            document_date(path)
+            for path in (
+                DOC_INDEX,
+                PROJECT_STATUS,
+                BACKLOG,
+                VALIDATION_LEDGER,
+                ENGINEERING_HANDOFF,
+            )
+        ),
+    ]
+    return max(date for date in dates if re.fullmatch(r"\d{4}-\d{2}-\d{2}", date))
 
 
 def parse_runtime_gaps() -> list[dict[str, str]]:
@@ -217,15 +255,6 @@ def summarize_documents(
         "historical": category_counts["historical"],
         "older_current": older_current_rows,
     }
-
-
-def document_date(path: Path) -> str:
-    head = "\n".join(path.read_text(errors="replace").splitlines()[:20])
-    match = re.search(
-        r"(?:Last reviewed|最近核对|日期)[:：]\s*`?(\d{4}-\d{2}-\d{2})",
-        head,
-    )
-    return match.group(1) if match else "unknown"
 
 
 def summarize_document_coverage(
@@ -394,6 +423,8 @@ def collect() -> dict:
     source = load_json(SOURCE_DEVICES)
     profiles = load_json(PROFILES)
     peripheral = load_json(PERIPHERALS)
+    catalog_date = source["generated_at"]
+    fact_date = current_fact_date(catalog_date)
     source_devices = source["devices"]
     profile_devices = profiles["devices"]
     source_by_id = {device["id"]: device for device in source_devices}
@@ -439,6 +470,12 @@ def collect() -> dict:
         "pass": cross_status["PASS"] + core2_status["PASS"],
         "partial": cross_status["PARTIAL"] + core2_status["PARTIAL"],
         "fail": cross_status["FAIL"] + core2_status["FAIL"],
+        "source_dates": sorted(
+            {
+                str(cross_vendor.get("date") or "unknown"),
+                str(core2_firmware.get("date") or "unknown"),
+            }
+        ),
     }
 
     group_counts = Counter(device["group"] for device in source_devices)
@@ -452,7 +489,8 @@ def collect() -> dict:
     documents = parse_document_rows()
     all_documents = document_paths()
     return {
-        "source_date": source["generated_at"],
+        "catalog_date": catalog_date,
+        "fact_date": fact_date,
         "latest_evidence_date": latest_evidence_date(),
         "devices_total": len(source_devices),
         "devices_by_group": dict(sorted(group_counts.items())),
@@ -466,12 +504,12 @@ def collect() -> dict:
         "backlog": parse_backlog_tasks(),
         "documents": documents,
         "document_audit": summarize_documents(
-            documents, source["generated_at"]
+            documents, fact_date
         ),
         "document_coverage": summarize_document_coverage(
             all_documents,
             documents,
-            source["generated_at"],
+            fact_date,
         ),
         "platform_tests": platform_test_count(),
         "code_inventory": code_inventory(all_documents),
@@ -485,7 +523,8 @@ def render_markdown(snapshot: dict) -> str:
         "# 项目快照（自动生成）",
         "",
         (
-            f"来源日期：`{snapshot['source_date']}`；"
+            f"设备目录日期：`{snapshot['catalog_date']}`；"
+            f"当前事实复核：`{snapshot['fact_date']}`；"
             f"最新 evidence 日期：`{snapshot['latest_evidence_date']}`。"
         ),
         "",
@@ -557,11 +596,15 @@ def render_markdown(snapshot: dict) -> str:
         "## 通用固件审查",
         "",
         (
-            f"公开样本快照覆盖 `{firmware['devices']}` 台设备、"
+            "历史哈希绑定公开样本基线（来源日期 "
+            + "、".join(f"`{date}`" for date in firmware["source_dates"])
+            + f"）覆盖 `{firmware['devices']}` 台设备、"
             f"`{firmware['samples']}` 个固件："
             f"`{firmware['pass']}` PASS、`{firmware['partial']}` PARTIAL、"
             f"`{firmware['fail']}` FAIL。PARTIAL 不自动等于固件缺陷；"
-            "`runtime_model_gap` 必须保留模型边界。"
+            "`runtime_model_gap` 必须保留模型边界。之后刷新、专项 fixture、"
+            "安全与导入结果分别回查专题页和验证台账，不把新 evidence 自动并入"
+            "这份历史样本计数。"
         ),
         "",
         "## 运行时模型缺口",
@@ -616,7 +659,8 @@ def render_markdown(snapshot: dict) -> str:
         ),
         (
             f"- 文档：`{snapshot['code_inventory']['documented_markdown_files']}` "
-            f"个 Markdown 页面，`{snapshot['code_inventory']['documented_markdown_lines']}` 行。"
+            f"个 Markdown 页面；除本生成页外共 "
+            f"`{snapshot['code_inventory']['documented_markdown_lines']}` 行。"
         ),
         "",
         "## 文档与测试",
@@ -688,12 +732,12 @@ def render_markdown(snapshot: dict) -> str:
     if older_delegated:
         lines.append(
             "- 带显式旧复核日期的委派文档（需按相邻索引和权威页复核）："
-            + "，".join(
-                f"[{row['page']}]({os.path.relpath(ROOT / row['page'], ROOT / 'docs')}) "
-                f"`{row['reviewed']}`"
-                for row in older_delegated
-            )
-            + "。"
+        )
+        lines.extend(
+            f"  - [{row['page']}]"
+            f"({os.path.relpath(ROOT / row['page'], ROOT / 'docs')}) "
+            f"`{row['reviewed']}`"
+            for row in older_delegated
         )
     else:
         lines.append("- 没有带显式旧复核日期的委派文档。")

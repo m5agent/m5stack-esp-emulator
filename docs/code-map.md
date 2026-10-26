@@ -40,7 +40,7 @@
 | `tests/` | 测试分层、evidence 命名和 Agent 功能测试路由；入口见 `tests/README.md` | 是 |
 | `tests/uiflow2/` | 外设、UI、统一运行时、Core2 无线和证据包 | 是 |
 | `tests/network/` | namespace、DNS、TLS、错误密码、worker continuity 和 Core2 网络夹具；总索引见 `tests/network/README.md` | 是 |
-| `tests/firmware/` | FirmwareManifest、静态审查、文件系统、NVS 和跨厂商运行时证据 | 是 |
+| `tests/firmware/` | FirmwareManifest、静态审查、文件系统、NVS、Core2 PSRAM/flash-IPC 探针和跨厂商运行时证据 | 是 |
 | `devices/` | 源设备清单、生成后的设备档案、固件来源和说明 | 是 |
 | `platform/web/` | 设备目录、Live session、WebBurner、输入和 3D 外壳 | 是 |
 | `platform/runtime/wasm/` | 固定版本的第三方 `esp-emu` 运行时资产 | 仅 Tab5/诊断后端 |
@@ -101,7 +101,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/network_policy.py` | isolation/egress/DNS/TLS/pcap 策略校验 | Device Service |
 | `platform/tools/network_egress.py` | 精确 IPv4/IPv6 地址/协议/端口、双栈 veth/route/NAT、IPv6 neighbor control 和清理 | Device Service、隔离测试 |
 | `platform/tools/network_fabric.py` | private namespace、双 TAP/bridge DHCP primitive 和双 guest QEMU socket L2 switch | lab-fabric runner、CI |
-| `platform/tools/network_sandbox.py` | Linux private net/mount namespace、controlled DNS A/AAAA、domain suffix 和 bounded CNAME chain | 隔离 runner、worker |
+| `platform/tools/network_sandbox.py` | Linux private net/mount namespace、controlled DNS A/AAAA、exact/domain/CNAME answer binding、严格 Host authority 和 bounded CNAME chain | 隔离 runner、worker |
 | `platform/tools/network_lane.py` | `esp-emu` 网络诊断与 SoftAP provisioning lane | CLI、Device Service |
 | `platform/tools/unified_http_guestfwd.py` | QEMU user-net `guestfwd` 的 per-connection HTTP fixture；避免并发 session 共享宿主 18089 端口 | Device Service、Core2 concurrent runner |
 | `platform/tools/pcap_summary.py` | pcap flow/DNS/DHCP/ARP 和 payload hash 摘要 | Device Service、测试 |
@@ -110,7 +110,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/hci_stream.py` | H4 HCI command/event/ACL 分包工具 | BLE runners、测试 |
 | `platform/tools/qemu_network_preflight.py` | 检查 QEMU user-net/网络后端能力 | 部署和测试 |
 | `platform/tools/qemu_accel.py` | Core2 deterministic TCG、bounded 128 MiB translation buffer 和默认固定 `icount shift=5`；`M5_CORE2_ICOUNT_SHIFT` 仅接受 `auto` 或 `0-10` 作为显式诊断覆盖 | Device Service、Core2 runners、回归测试 |
-| `platform/tools/qemu_profiles.py` | 检查/查询 machine、profile、runtime 和资产 | CI、设备中心 |
+| `platform/tools/qemu_profiles.py` | 检查/查询 machine、profile、runtime 和资产；`--check` 同时拒绝 profile/catalog 的生成日期及验证日期/状态漂移 | CI、设备中心 |
 | `platform/tools/peripheral_catalog.py` | 检查设备硬件需求、模型、blocker 和覆盖 | CI |
 | `platform/tools/peripheral_inventory.py` | 生成设备中心可消费的外设/控制清单 | `serve.py`、设备页 |
 | `platform/tools/runtime_coverage.py` | 检查 simulated 模型到设备级运行证据的映射 | CI |
@@ -211,8 +211,13 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 | `tests/network/dns_cname_chain/` | Controlled resolver 的 2-hop chain、A/AAAA chain encoding、CNAME query、NXDOMAIN、非法图与 8 跳边界 | `network_sandbox.py` resolver/CNAME 策略改动 |
 | `tests/network/cname_guest_lifecycle/` | 三个独立 Device Service lease 的同一 guest CNAME→A→HTTP、denied-name/port、pcap、namespace cleanup 与 startup failure 诊断 | CNAME guest lifecycle、network evidence ZIP 或 namespace teardown 改动 |
 | `tests/network/wrong_password/` | ESP-IDF 错误密码拒绝、重试、no-DHCP/no-HTTP 负向门禁和脱敏 evidence | `network_lane.py` 错误密码 profile 改动 |
-| `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS/NVS 证据 | manifest/filesystem/NVS 改动 |
+| `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS/NVS capability 证据 | manifest/filesystem/NVS/capability 改动 |
+| `tests/firmware/security_preflight/run_test.py` | 用 synthetic Secure Boot v2 image、sdkconfig、eFuse summary 和篡改 aggregate 对照 Device Service security preflight；任何已声明 enabled 但 profile 未建模的链均 fail closed | security fields、Secure Boot/Flash Encryption preflight 或 schema enum 改动 |
+| `tests/firmware/unknown_required_capability/run_test.py` | 对同一 public StickS3 SHA 同时跑 merged/WebBurner baseline、unknown required 和 unknown optional；验证 required 未知时 CLI/import fail closed，optional 仅 warning | capability policy、Manifest importer 或 WebBurner capability 输入改动 |
+| `tests/firmware/manifest_policy/run_test.py` | 验证根 `capabilities`/`required`/`optional` 必填、数组边界、signed-image status understatement、eFuse enum、key mismatch 和 secure-version rollback 都 fail closed | Manifest schema、capability policy 或 Security preflight 改动 |
+| `tests/firmware/webburner_import_policy/run_test.py`、`platform/tests/test_webburner_import_policy_evidence.py` | 验证 ZIP path 归一/casefold/symlink、文件/目录父子冲突、manifest/sdkconfig/eFuse/flasher/SBOM 唯一性、sdkconfig 明确优先级和多 build SoC 选择都 fail closed | WebBurner/ZIP importer、资源发现或 build 选择改动 |
 | `tests/firmware/openai_nvs_precondition/` | 对照空 NVS、Open/WPA2 正确密码和错误密码，绑定 NVS overlay、EAPOL/CCMP、DHCP/DNS/TCP 与 pcap | NVS fixture、generic S3 qemu-wifi、S3 WPA2 或该样本分类改动 |
+| `tests/firmware/core2_flash_ipc/run_test.py` | 通过独立 Device Service lease 执行 ESP-IDF CPU1 partition reads；默认校验已知 image/ELF SHA，按 first boot 分类 PASS、interrupt-WDT、spinlock assert，并保存 serial/evidence hash | Core2 flash/IPC、timer/WDT、flash-cache/DPORT 或 `RUNTIME-03` 探针改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |
 | `platform/tests/test_worker_registry.py` | worker 状态转换、独占锁、重启 abandoned lease 和 recent result | worker 生命周期改动 |
 | `platform/tests/test_worker_directory.py` | 远程 worker 注册、持久化、generation、stale/drain/stop、容量和结果元数据契约 | `/api/v1/workers` 或 `worker_directory.py` 改动 |
@@ -238,7 +243,7 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 
 | 位置 | 现象 | 处理原则 |
 | --- | --- | --- |
-| `platform/tools/device_service.py` | 最大服务编排单文件；session、存储、runtime、证据和生命周期仍在同一热区 | 按 `SVC-03` 拆存储、runtime adapter、evidence 和 history；拆分前先锁 API/evidence 契约 |
+| `platform/tools/device_service.py` | `ServiceError`、`DeviceSpec`、三个 session class、`DeviceService`、`ArtifactStore`、`FirmwareStore` 和请求解析仍集中在同一模块；Core2 并发 evidence 还绑定该文件 SHA | 按 `SVC-03` 先锁契约并计划配套 evidence 重跑，再移无状态配置/解析、存储、runtime adapter、evidence 和 history；不得让新代码借用旧 tool hash |
 | `platform/tests/test_device_service.py` | 大型 service 契约测试，覆盖多个生命周期和数据面 | 跟随后续 service 模块拆分，不先做无语义的测试改名 |
 | `tests/uiflow2/run_peripheral_matrix.py` | 大型 case 注册、输入和断言集合 | case registry、输入注入和断言可拆；每个设备 probe 仍保留设备本地证据 |
 | `tests/uiflow2/unified_*/` | S3/C6 与 Core2 radio profiles 有相似的 board/WiFi/BLE 外壳 | 先抽无设备语义的 transport/evidence helper；不要用一个万能 probe 吞掉设备差异 |
@@ -248,11 +253,13 @@ Buzzer 的定时零必须先于后续手动写入；显式 custom wrapper 适配
 
 `SVC-03` 的目标不是一次搬空 `device_service.py`，而是按可回滚边界拆：
 
-1. content-addressed firmware/artifact store 与 resumable upload；
-2. session repository、状态机和历史恢复；
-3. QEMU、esp-emu/Tab5、network runtime adapters；
-4. serial/frame/QOM/audio/network evidence collector；
-5. HTTP handler 与 orchestration facade。
+1. 锁定并测试 `/api/v1`、session JSON、evidence ZIP、历史恢复和现有公开符号；
+2. 提取无状态请求解析、运行参数构造与设备规格加载；
+3. content-addressed firmware/artifact store 与 resumable upload；
+4. session repository、状态机和历史恢复；
+5. QEMU、esp-emu/Tab5、network runtime adapters；
+6. serial/frame/QOM/audio/network evidence collector；
+7. HTTP handler 与 orchestration facade。
 
 每一步先保留现有 `/api/v1`、session JSON、evidence ZIP 和 stopped-session
 恢复契约，再迁移一个边界；禁止在同一变更里同时改 API、存储布局和运行时。
@@ -291,7 +298,7 @@ HTTP / browser
 | `platform/tools/worker_agent.py` | 独立 HTTP executor、中央 worker/job heartbeat、可选 worker-local runtime 的 session/evidence/stop 和 result 回报 |
 | `platform/tools/worker_discovery.py` | active-token HMAC multicast beacon、过期/来源校验和无硬编码 URL 的 worker bootstrap |
 | `platform/tools/storage_policy.py` | 会话历史、Flash 保留与缓存 GC |
-| `platform/tools/qemu_profiles.py` | QEMU profile、machine、runtime 和资产检查 |
+| `platform/tools/qemu_profiles.py` | QEMU profile、machine、runtime 和资产检查；验证日期/状态必须与设备目录一致 |
 | `platform/web/` | 设备目录、会话观察和浏览器设备外壳 |
 
 `device_service.py` 仍是主要编排热区。修改时应先锁定对外 API 和会话状态机，
@@ -316,13 +323,13 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/fetch_firmware.py` | 公开 M5Burner 固件查询、校验、下载与缓存 |
 | `platform/tools/firmware_analysis.py` | ESP image、分区、应用描述和静态镜像分析 |
 | `platform/tools/firmware_filesystems.py` | LittleFS 挂载、FAT12/16/32 与 SPIFFS 只读解析、文件哈希、敏感路径脱敏和 SPDX 提取 |
-| `platform/tools/firmware_manifest.py` | ZIP/目录导入、sparse 补齐、manifest、sdkconfig detected、低置信度 image-signature observed、Secure Boot v2/eFuse 摘要与 anti-rollback version 对照和 capability mismatch |
+| `platform/tools/firmware_manifest.py` | ZIP/目录导入、sparse 补齐、content-stable `manifest_id`、sdkconfig detected、低置信度 image-signature observed、Secure Boot v2/eFuse 摘要与 anti-rollback version 对照；known/unknown required capability mismatch fail closed，unknown optional 保持 warning；security aggregate 不能被 sdkconfig、signed/invalid image 或 eFuse 的 enabled 证据 understate |
 | `platform/tools/firmware_static_review.py` | URL/凭据/高熵脱敏审查与 SBOM 摘要 |
 | `platform/tools/firmware_manifest.schema.json` | 版本化 manifest schema |
 | `platform/tools/user_firmware_matrix.py` | 通过 Device Service 批量运行热门公开固件 |
 | `platform/tools/user_firmware_expectations.schema.json` | UI/headless/network-first review expectation v1 schema |
 | `platform/tools/nvs_image.py` | 生成确定性 NVSv2 namespace/string 配置 fixture |
-| [`tests/firmware/`](../tests/firmware/README.md) | FirmwareManifest、静态审查、文件系统、NVS/OpenAI 专用探针和跨厂商运行时 evidence |
+| [`tests/firmware/`](../tests/firmware/README.md) | FirmwareManifest、静态审查、文件系统、NVS/OpenAI、Core2 PSRAM/flash-IPC 专用探针和跨厂商运行时 evidence |
 | `platform/tools/generate_catalog.py` | 从 `catalog.source.json` 生成目录、设备 JSON 和 README |
 | `platform/web/firmware.html`、`firmware.js`、`firmware-report.js`、`firmware-upload.js`、`sha256.js` | 浏览器 WebBurner 包上传、流式 SHA256、重试/取消/刷新恢复、manifest 导入、sdkconfig/image capability 来源与 warning 展示 |
 
@@ -333,7 +340,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/network_policy.py` | `isolation`、`egress`、controlled DNS、exact Host/domain suffix 和 pcap 策略 |
 | `platform/tools/network_egress.py` | 有界 IPv4/IPv6 地址或 CIDR/协议/端口、nftables、per-session 双栈 veth/NAT、IPv6 neighbor control 和清理 |
 | `platform/tools/network_fabric.py` | private namespace、双 guest QEMU socket switch、DHCP reservation、TAP/bridge primitive |
-| `platform/tools/network_sandbox.py` | Linux net/mount namespace、controlled A/AAAA + label-boundary domain suffix resolver、explicit answer binding、lab-only 无路由、allowlist nft 执行和 fail-closed 启动 |
+| `platform/tools/network_sandbox.py` | Linux net/mount namespace、controlled A/AAAA + label-boundary domain suffix resolver、exact/domain/CNAME explicit answer binding、严格 Host authority、lab-only 无路由、allowlist nft 执行和 fail-closed 启动 |
 | `platform/tools/network_lane.py` | `esp-emu` 诊断/Provisioning 网络 lane |
 | `platform/tools/pcap_summary.py` | flow、DNS、DHCP message/transaction/renewal、ARP、egress scope 和 payload hash |
 | `platform/tools/ble_probe.py` | 外部 BLE peer / GATT 验证；默认一轮，可要求同一 peer 进程连续多轮 |
@@ -378,6 +385,11 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 
 ## 验证入口
 
+下表是“源码/测试/证据在什么位置”的索引，不是当前验证快照。表中的
+PASS 比例、轮次、资源数值和哈希都只属于所链接的 evidence；新运行应先更新
+`validation-ledger.md` 和 evidence，不要求逐行改本表。只有入口、补丁或测试
+路径变化时才改这里。
+
 | 层级 | 命令或入口 | 能证明什么 |
 | --- | --- | --- |
 | 平台单元/契约 | `platform/tests/` | 解析、目录一致性、API、manifest、网络策略和文档契约 |
@@ -402,11 +414,21 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Core2 bounded TCG memory | `platform/tools/qemu_accel.py`；`run_service_5x.py --hold-seconds 120`；`evidence-2026-10-24-hci4-tb128-hold120-1x.json` | `tb-size=128` 后 120 秒 WiFi/公网/GATT/frame/pcap/HLI 全 PASS；RSS `323600→323584 KiB`、phys footprint `214016→196608 KiB`；最终 7200 秒限容门禁独立保留 |
 | Core2 final bounded 7200-second hold | `run_service_5x.py --hold-seconds 7200 --attempts 1`；`evidence-2026-10-25-hci4-active-ble-hold7200-tb128-artifact-bound-1x.json` | 1/1 artifact-bound lease；`bounded_tcg_cache`、frame/QOM、WiFi/公网、active NUS GATT、pcap、HLI `45/45`、active peer、evidence 和 cleanup 全 PASS；240 个资源采样 RSS `323536→252992 KiB`、phys footprint `250880→188416 KiB`，输入与工具哈希无漂移 |
 | Core2 PSRAM/QOM and bank switch | `device_service.qemu_runtime_memory()`；`0030-core2-eight-mib-psram.patch`；`tests/firmware/core2_psram_himem/` | CLI `-m 0` 与 QOM-effective `8 MiB` 分开记录；普通 DRAM1 heap 保持 `4 MiB`，upper-bank `esp_himem` MMU remap 3/3 PASS；物理 cache/PSRAM 仍为 `NOT RUN` |
-| Core2 legacy shared I2C bus | `hw/m5stopwatch/m5core2.c`；`0031-core2-shared-board-i2c.patch`；`M5SW_I2C_CTRL_TRACE=1`；`evidence-2026-10-25-core2-shared-board-i2c.json` | Port trace 证明旧固件在 controller 0 上访问 AXP/RTC；两个 controller 现共享 GPIO21/22 板级 bus，`0x34`/`0x51`/INA `0x40` 均 ACK，原 I2C error 消失。后续 interrupt WDT 与 black frame 仍为 OPEN；现有 UIFlow2 Core2 设备组 `6/6 PASS` |
-| Core2 legacy WDT timing | `hw/timer/esp32_timg.c`；`0032-esp32-timg-wdt-trace.patch`；`M5SW_TIMG_TRACE=1`；`evidence-2026-10-25-core2-wdt-timing.json` | 默认单会话保持超过 285 秒且 TG0/TG1 持续 feed；两批四实例并发中的 5/8 lease 出现 interrupt-WDT，CPU/PC 不固定。`thread=single`、`thread=multi` 和 `icount shift=0/5` 均不能修复，thread/icount 对照还暴露 TG hardware reset。当前调查点是长同步启动阶段与虚拟时间/宿主调度的组合 |
+| Core2 flash/IPC timer diagnostic | `tests/firmware/core2_flash_ipc/`；`run_test.py`；`evidence-2026-10-26-core2-flash-ipc-wdt.json`；`evidence-2026-10-26-core2-ccompare-equal-deadline.json`；`0033-esp32-s32c1i-trace.patch` 与 `0034-xtensa-ccompare-equal-deadline.patch` | 最小 probe 捕获到 ISR 写入 `CCOMPARE == CCOUNT` 后旧 QEMU 安排 `2^32` ticks；`0034` 只把相等期限安排到下一 cycle，trace 开/关和 `shift=5`/`auto` 对照通过首启动门禁。早期 4096-byte 局部 buffer 放在 4096-byte task stack 导致错误断言，证据已明确撤销；通过率、哈希和逐轮分类只看 evidence/验证台账 |
+| Core2 stateful SSI/QIO | `include/hw/ssi/ssi.h`、`hw/ssi/ssi.c`、`hw/block/m25p80.c`、`hw/ssi/esp32_spi.c`；`0036-ssi-transfer-buf.patch`；`evidence-2026-10-26-core2-ssi-transfer-buf.json` | 新增可选 byte-buffer SSI 接口；m25p80 只在 `STATE_READ` 批量读取并保留 CS/command/address/dummy/wrap 状态，ESP32 SPI 只在 receive-only data phase 使用。批量字节等价与 Core2 UIFlow2 设备组通过，但 normal-WDT legacy 仍失败；该补丁是数据面优化，不是 `RUNTIME-03` 关闭证据。精确计数只查 evidence/验证台账 |
+| Core2 unified handoff timeline | `include/hw/misc/esp32_handoff_trace.h`、cross-core、DPORT、TIMG、UART、ESP32 SPI；`0037-esp32-handoff-trace.patch`；`tests/firmware/core2_handoff_trace/` | 默认关闭的 `M5SW_ESP32_HANDOFF_TRACE` 统一记录 virtual time、CPU、guest PC 与四个事件值；timeout/int/reset 始终记录，常规事件可采样。早期 normal-WDT 配置观察到最后 feed 后 `800 ms` timeout，WDT-disabled `sample=1024` 与 trace-off Serial 相同；该 `800 ms` 现象已在三次当前 liveness 配置中标记为未复现而不是当前根因。`audit_elf_bin_mapping.py` 证明 local UIFlow2 v2.5.3 ELF 在三个 CPU0 采样地址上与 public legacy v1.15.4 BIN 字节不一致，因此旧 UART/VM 符号映射被拒绝；BIN 自身控制流落在 cross-core/DPORT Flash-cache disable 候选区，精确函数仍未绑定。`0037` 绑定 `0036` 后的目标树，不是裸上游单补丁；它关闭“缺少统一时间轴”前置条件，不关闭 `RUNTIME-03` |
+| Core2 exact-time handoff freeze | `hw/misc/esp32_dport.c`；`0038-esp32-handoff-pause.patch`；`M5SW_ESP32_HANDOFF_PAUSE_NS`；`evidence-2026-10-26-core2-handoff-pause.json` | 在指定 QEMU virtual time 输出 pause marker 后 `SIGSTOP`。14.800 s 早窗口无固定 PC；15.301 s 晚窗口 CPU0 `0x40087980` / CPU1 `0x40084484`，BIN 源码形态匹配 Flash block/cache handshake。不启用 PC sampling，不改变 WDT/controller；仍未证明具体未返回操作 |
+| Core2 exact-time state sweep | `0039-esp32-handoff-state-dump.patch`；`run_pause_sweep.py`；`evidence-2026-10-26-core2-handoff-state-sweep.json` | pause 前直接记录 CPU、DCACHE handoff flag、DPORT cache control、cache-sync、SSI 和 cross-core counters；`PAUSE_ACTION=exit` 允许每个独立 lease 采一个 virtual-time 点。14.8/15.3/15.9 s 中 CPU0 等待与 CPU1 变化并存；changed-page 计数停在 6679，而 SSI transaction/cross-core 继续增加，排除两核永久停止 |
+| Core2 handoff setter PC trace | `0040-xtensa-handoff-pc-trace.patch`；`run_pc_trace.py`；`evidence-2026-10-26-core2-handoff-pc-trace.json` | 默认关闭的 `M5SW_XTENSA_PC_TRACE` 只记录显式 BIN-bound PC。complete/can-start set/clear 四个 setter 在首轮 reset 前各命中约 4,377 次，stage-0 WDT 首次 timeout 为 5.913935 s、reset 为 15.914787 s；证明 cache handoff 反复完成，不再支持简单永久 deadlock。该 trace 默认关闭且不绑定 ELF 符号名 |
+| Core2 WDT liveness | `run_wdt_liveness.py`；`evidence-2026-10-26-core2-wdt-liveness-3x.json`；`test_core2_wdt_liveness.py` | 三次独立 18 秒运行关闭 PC trace、启用 TIMG verbose trace：TG0 stage-0 在约 `5.91 s` 被 mask，TG0 stage-1 在约 `15.91 s` 触发首次 reset；TG1 完成 6,618-6,807 次 feed，最大相邻间隔 8.478-10.410 ms，最后 feed 距 reset 1.779-4.271 ms，`0` 次 TG1 timeout，且 stage-0 后没有 TG0 feed/reconfigure/protect 写入。当前分类为 `BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE`；历史 `800 ms` gap 记为 `NOT_REPRODUCED` |
+| Core2 WDT-off late state | `0041-esp32-handoff-register-stack-dump.patch`；`run_pause_sweep.py --disable-wdt`；`evidence-2026-10-26-core2-wdt-off-late-state.json`；`test_core2_wdt_off_late_state.py` | 默认关闭的 `M5SW_ESP32_HANDOFF_STACK_WORDS` 增加 A0-A15、PS、对象指针和最多 64-word stack dump。45/120 秒独立 lease 均停在 CPU0 `0x4026306e` waiti idle、CPU1 `0x40100049` spin；Flash/SSI 活动约 44 秒结束。BIN-bound 分析确认 `A2` 是 `lv_disp_buf_t`、`A2+24` 是 `flushing=1`，`A10` 是 display driver、`A10+28` 是空 `wait_cb` |
+| Core2 LVGL/SPI completion diagnostic | `0042-esp32-spi-trans-done-irq-diagnostic.patch`；`evidence-2026-10-26-core2-lvgl-spi-wait.json`；`test_core2_wdt_off_late_state.py` | 补 `SPI_SLAVE.TRANS_DONE/TRANS_INTEN` 与 SPI IRQ level，并增加 bounded object-word dump。`0x40100010` 绑定为 LVGL `lv_refr_vdb_flush`，display `flush_cb=0x40174758` 在 WDT-off 中执行，但 completion `0x40174884`/`lv_disp_flush_ready` 未出现；normal-WDT 仍在 TG0 stage-1 reset。该补丁是 partial diagnostic，不关闭 `RUNTIME-03` |
+| Core2 legacy timing/cross-core diagnostic | `hw/misc/esp32_crosscore_int.c`、`hw/misc/esp32_dport.c`、`target/xtensa/`；`0035-esp32-timg-wdt-int-ena.patch`；`evidence-2026-10-26-core2-qio-crosscore-diagnostic.json` | `0035` 修正 `INT_RAW & INT_ENA` 的 WDT level 语义。直接 state trace 观察到 flash-op can-start/complete 与 cross-core reason 反复完成；旧 direct-read REPL 在当前重建中未复现。该阶段曾把累计 Flash/cache 吞吐列为候选，后续 `0041/0042` 证明 Flash/SSI 活动有终点，当前边界改为 LVGL/SPI flush completion chain |
+| Core2 legacy shared I2C bus | `hw/m5stopwatch/m5core2.c`；`0031-core2-shared-board-i2c.patch`；`M5SW_I2C_CTRL_TRACE=1`；`evidence-2026-10-25-core2-shared-board-i2c.json` | Port trace 证明旧固件在 controller 0 上访问 AXP/RTC；两个 controller 现共享 GPIO21/22 板级 bus，`0x34`/`0x51`/INA `0x40` 均 ACK，原 I2C error 消失。后续 interrupt-WDT 与 black frame 仍为 OPEN；现有 Core2 UIFlow2 设备组保持通过 |
+| Core2 legacy WDT timing | `hw/timer/esp32_timg.c`；`0032-esp32-timg-wdt-trace.patch`；`M5SW_TIMG_TRACE=1`；`evidence-2026-10-25-core2-wdt-timing.json` | 默认单会话可持续 feed；并发 lease 会出现 CPU/PC 不固定的 interrupt-WDT。`thread=single`、`thread=multi` 和 `icount shift=0/5` 均不能稳定修复，thread/icount 对照还暴露 TG hardware reset。当前调查点是长同步启动阶段与虚拟时间/宿主调度的组合；数量和哈希只查 evidence/验证台账 |
 | Core2 guest PSRAM sustained stress | `tests/uiflow2/unified_core2/main.py`；`run_service_5x.py --require-psram`；`evidence-2026-10-25-core2-psram-sustained-8m-3x120.json` | 3 个独立 120 秒 lease 各完成 35 次 `1 MiB` 全缓冲校验（累计 `105 MiB`），同时执行 30 次受控 HTTP、10 次公网 recheck 并保持 active BLE/frame/QOM/pcap；QOM 8 MiB，物理 cache timing 不在结论内 |
 | Core2 guest PSRAM 600-second stress | `run_service_5x.py --require-psram --hold-seconds 600 --attempts 1`；`evidence-2026-10-25-core2-psram-sustained-1x600.json`；pcap summary | 单 lease 600 秒完成 179 次 `1 MiB` 全缓冲校验（约 `179 MiB`）、51 次受控 HTTP、18 次公网 recheck；active BLE/HLI/bounded TCG/frame/QOM/912-packet pcap/evidence/cleanup PASS；物理边界不变 |
-| Core2 concurrent unified leases | `run_service_5x.py --attempts 2/3/4/5/6/8 --concurrency 2/3/4/5/6/8 --stagger-seconds 0/30 --hold-seconds 120`；`unified_http_guestfwd.py`；`qemu_accel.py` 固定 `shift=5`；`0007` valid-queue gate；`0008` guest event/ACL preallocation；`0009` `8/4` expanded reserve；`0010` ACK-state observability；五/六/八实例 focused tests | 双/三/四实例各两批无错峰 `8/8`、`6/6`、`8/8`，五实例 30 秒错峰 `10/10`，固定 `shift=5`/BLE-first 零错峰五实例 `10/10`、六实例 `12/12`、八实例 `16/16`。八实例旧 `hold/10` control 为 `4/8` 纯 sweep 阈值失败，校准 `hold/12` 后通过。每轮 120 秒完成 11–15 次 PSRAM 全缓冲校验、WiFi/公网/GATT/frame/31 节点 QOM/pcap/evidence；HLI `45/45`、36 events/9 ACLs、errors/reset/panic/dropped 为 0，prealloc transient 保留 |
+| Core2 concurrent unified leases | `run_service_5x.py --attempts 2/3/4/5/6/8 --concurrency 2/3/4/5/6/8 --stagger-seconds 0/30 --hold-seconds 120`；`unified_http_guestfwd.py`；`qemu_accel.py` 固定 `shift=5`；`0007` valid-queue gate；`0008` guest event/ACL preallocation；`0009` `8/4` expanded reserve；`0010` ACK-state observability；五/六/八实例 focused tests；当前 tool hash 的 `2026-10-26` 八实例 A/B | 当前服务容量内的并发门禁覆盖双实例到八实例，包含零错峰和错峰、固定 `shift=5`/BLE-first、PSRAM、WiFi/公网、GATT、frame/QOM、pcap、HLI health 和失败 control。`manifest_id` 语义变更后已用当前 Device Service 重跑两批 `8×120s`，避免复用旧 tool-hash PASS。具体批次、通过率、资源数值和 transient 只查验证台账与 evidence；大于八实例、持续吞吐和其他 teardown 不继承 |
 | Core2 same-guest reconnect | `ble_runtime_limits.py:reconnect_workload_timeout_seconds`；`run_service_5x.py --ble-reconnect-cycles 20/30/60/120/121`；`ble_probe.py --reconnect-cycles`；`test_ble_probe.py`；`test_ble_runtime_limits.py`；`test_device_service.py`；`0006-esp32-native-hci-observability.patch`；20/30/60/120 轮、两个 121 harness failure 和 121 three-lease PASS evidence | 3 个独立 stock-firmware lease 各完成 20、30、60、120 轮；120 轮每 lease HLI `3377/3377`、events 2297、ACLs 1080；参数范围 `1–121`，`122` 拒绝。修复固定 readiness 预算和 reconnect-only accelerator 采样后，3 个独立 lease 均完成 `121/121`，同 firmware/ELF/QEMU/工具哈希 |
 | Core2 evidence binding | `run_service_5x.py:tool_hashes`；`qemu_accel.py`；`ble_runtime_limits.py`；五/六/八实例 focused tests；`test_qemu_accel.py`；`test_docs_core2_runtime_contract.py` | runner 在首 lease 前记录工具哈希，运行期对 firmware/ELF/QEMU 做漂移检查；每轮同时断言 bounded `tb-size=128` 和实际 `icount shift=5`。五/六/八实例证据还锁定原始 JSON SHA；八实例 control 绑定旧 runner hash，证明阈值是唯一变更。该机制只绑定本轮实现，不替代设备功能或物理等价证据 |
 | GDMA external memory + full matrix | `tests/uiflow2/evidence-2026-10-24-gdma-external-memory-matrix.json` | AES/GDMA 外部内存修复后 67/67、274/274，全部首轮无重试 |
@@ -421,7 +443,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | WebBurner browser intake | `platform/web/firmware.html`; `platform/tests/test_firmware_upload.mjs`; `tests/firmware/evidence-2026-10-24-webburner-ui.json` | 9.44 MiB / 3 chunk、浏览器 SHA256、进度重试、刷新续接、取消清理和 WebBurner ZIP → manifest import |
 | Manifest 公共样本/WebBurner | `firmware_manifest.py`；`test_firmware_manifest.py`；`evidence-2026-10-24-public-manifest-web-conformance.json` | 同一公开固件的 merged 与 WebBurner 输入规范化到同一 artifact hash；`camera`-on-StickS3 结构化拒绝；安全证据分层和 HTTP import PASS |
 | WebBurner part integrity | `firmware_manifest.py:_web_part_integrity`；`firmware_manifest.schema.json`；`webburner_part_integrity/run_test.py`；`evidence-2026-10-25-webburner-part-integrity.json` | `parts[]` 可选 size/SHA-256/SHA-1/MD5 流式复算；mismatch、非法 digest、冲突声明或未知 integrity 字段在规范化前拒绝；成功 manifest 记录算法集合和 weak-digest 标志，不声称签名或发布者认证 |
-| Image capability observation | `tests/firmware/image_capability_observation/run_test.py`；`test_firmware_manifest.py`；`evidence-2026-10-25-image-capability-observation.json` | 无 sdkconfig 的公开 StickS3 Weather 镜像观察到 wifi/display；required wifi PASS，required camera 仍结构化拒绝；observed entry 固定 low-confidence，未声明/未观察只产生 review warning，不冒充运行态能力使用 |
+| Image capability observation | `tests/firmware/image_capability_observation/run_test.py`；`unknown_required_capability/run_test.py`；`test_unknown_required_capability_evidence.py`；`test_firmware_manifest.py`；`evidence-2026-10-25-image-capability-observation.json`；`evidence-2026-10-26-unknown-required-capability-fail-closed.json` | 无 sdkconfig 的公开 StickS3 Weather 镜像观察到 wifi/display；required wifi PASS，required camera 仍结构化拒绝；未知 required capability 在 merged/WebBurner 两条路径均 fail closed，未知 optional 仅 warning；observed entry 固定 low-confidence，不冒充运行态能力使用 |
 | Public artifact refresh invariant | `user_firmware_matrix.py:download_candidates`；`test_user_firmware_matrix.py`；`firmware-manifest.md` | 每个 matrix run 重新解析公开版本并 `force=True` 下载；同 firmware/version ID 的缓存不能证明当前 CDN 内容；新 SHA 必须重新执行 Device Service 才能继承功能结论 |
 | SD media fixture | `platform/tools/sd_image.py`；`test_sd_image.py`；Device Service `storage.sd_image_artifact_id` | 纯 Python 生成确定性 FAT32+MBR 或 FAT16 superfloppy raw image；Device Service 拒绝无 SD 模型的设备，校验 512-byte 对齐，复制到 session 后重新哈希并以 writable `if=sd` 挂载 |
 | NVS partition fixture | `platform/tools/nvs_image.py`；`test_nvs_image.py`；Device Service `nvs.image_artifact_id` | 生成与 ESP-IDF generator 逐字节一致的 NVSv2 namespace/string 数据；服务按固件分区表校验 label/offset/size，只覆盖 session Flash 副本并记录 base/effective SHA |
@@ -430,7 +452,7 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | Refreshed public artifacts functional | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；`evidence-2026-10-25-refreshed-four-functional-sd-mbr/evidence.json`；`evidence-2026-10-25-openai-nvs-precondition.json` | 4 个当前公开 BIN 的 Device Service 结果为 `3 PASS / 1 PARTIAL`；XiaoZhi/EDC/CrossPoint 达到 frame/input 层 PASS；OpenAI 的 UI/input 规则仍为 PARTIAL，但空 NVS、WPA2 与错误密码前置条件已分层验证 |
 | 跨厂商公开固件 runtime matrix | `user_firmware_matrix.py`；`test_user_firmware_matrix.py`；S3/C6 与 Core2 evidence | 7 台设备、21 个公开样本；10 PASS / 11 PARTIAL；Core2 PMIC/AWS ATECC 与 C6 Zigbee 归类为 `runtime_model_gap` |
 | C6 Zigbee `thread-sim` 可行性 | `tests/firmware/c6_zigbee_thread_sim/run_feasibility.py`；`evidence-2026-10-24-c6-zigbee-thread-sim-feasibility.json` | 双实例 UDP relay 观察到双向 802.15.4 帧，但 commissioning/join 未完成；结果为 `PARTIAL/runtime_model_gap` |
-| 运行时模型缺口登记 | `runtime-model-gap-register.md`；C6 Flash/PMP patches；跨厂商与修复 evidence | `RUNTIME-01` 已关闭；`RUNTIME-02` 为 802.15.4 ACK/commissioning，`RUNTIME-03` 的 Core2 shared I2C 已修复但后初始化 WDT/非空帧仍开放，`RUNTIME-04` 为 ATECC608 |
+| 运行时模型缺口登记 | `runtime-model-gap-register.md`；C6 Flash/PMP patches；Core2 flash-IPC/QIO/cross-core/WDT-liveness/late-state 探针；timer/WDT-mask/stateful-SSI/handoff-trace patches；LVGL/SPI completion diagnostic；跨厂商与修复 evidence | `RUNTIME-01` 已关闭；`RUNTIME-02` 为 802.15.4 ACK/commissioning；`RUNTIME-03` 已把 normal-WDT 首 reset 归到 TG0 stage-1，并把约 44 秒后的 CPU1 wait 绑定到 LVGL double-buffer flush；SPI completion/`lv_disp_flush_ready`、reset PC `0` 和非空帧仍开放；`RUNTIME-04` 为 ATECC608 |
 | 网络隔离 | `tests/network/linux_isolation/` | Linux private namespace、无外部路由、pcap |
 | 错误密码 P0 | `tests/network/wrong_password/run_test.py`；`evidence-2026-10-24-wrong-password-pass.json` | 6 次 auth/reject、无 DHCP、无 HTTP、固件失败 marker 和 SoftAP wrong-password warning 同次 `7/7 PASS` |
 | 错误密码/radio 重连 | `network_lane.py`、`tests/network/reconnect_probe/run_test.py`；`evidence-2026-10-24-radio-loss-recovery-pass.json` | radio QOM `false→true`、scan `1→0→1`、双 DHCP、前后 HTTP 200、双侧流 pcap 和同 session 证据 |
@@ -439,7 +461,8 @@ profile、设备级测试和文档；生成目录不得手改成与源清单和�
 | DNS + TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | Linux namespace 下允许域名 A/拒绝 NXDOMAIN、TLS CA、允许 200/拒绝 403 和 pcap PASS |
 | UIFlow2 guest IPv6 lifecycle | `tests/network/ipv6_end_to_end/`；test-only patch；`evidence-2026-10-24-guest-ipv6-direct-test-build-pass.json`；`evidence-2026-10-25-ipv6-namespace-aaaa-http-pass.json` | Direct run 在同一 StickS3 guest 创建 link-local 并完成 IPv6 HTTP；Linux namespace run 进一步由同一 test-build guest 完成 controlled AAAA、allowed HTTP、denied-port、pcap、namespace/QEMU cleanup。原厂 UIFlow2 仍未默认启用 IPv6，结果不等于公网 IPv6 或 RF |
 | Bounded CIDR/dual-stack egress | `tests/network/egress_allowlist/` | nftables 默认 drop、IPv4 CIDR 与 IPv6 exact 地址的允许/拒绝端口/地址、worker→upstream 双栈 veth/NAT、源地址转换、IPv6 neighbor control、namespace/NAT 清理 |
-| Controlled domain set | `network_policy.py`；`network_sandbox.py`；`test_network_policy.py`；`test_network_sandbox.py` | suffix 只在 DNS label boundary 匹配；exact 优先、最长 suffix 优先；每个受控 answer 必须被 allowed endpoint 地址/CIDR 覆盖；`evilallowy.test` 不匹配 `allowy.test` |
+| Controlled domain set | `network_policy.py`；`network_sandbox.py`；`test_network_policy.py`；`test_network_sandbox.py` | suffix 只在 DNS label boundary 匹配；exact 优先、最长 suffix 优先；每个 exact/domain/CNAME terminal answer 必须被 allowed endpoint 地址/CIDR 覆盖；IPv4-mapped IPv6 record 拒绝；`evilallowy.test` 不匹配 `allowy.test` |
+| HTTP Host authority | `network_sandbox.normalize_http_authority()`；`ControlledHttp`；`test_network_sandbox.py`；`evidence-2026-10-26-host-authority-exact-dns-namespace-pass.json` | 只接受单一 Host header、可选数字端口、origin-form target 和严格 DNS label；拒绝 userinfo、逗号/multi-colon、越界端口、absolute-form 和重复 Host；Linux namespace 下同一 StickS3 guest 完成 DNS/TLS/DHCP/pcap |
 | Controlled CNAME lifecycle | `network_sandbox.py`；`device_service.py`；`tests/network/dns_cname_chain/`；`tests/network/cname_guest_lifecycle/` | resolver 覆盖最多 8 跳、cycle/权限/冲突；三个独立 lease 由同一 stock UIFlow2 guest 完成 CNAME→terminal A→HTTP、denied-name/port、pcap、namespace cleanup。evidence ZIP 同时带 DNS/HTTP fixture 和 isolation 文件 |
 | DHCP renewal | `tests/network/idf_dhcp_renewal/` | guest 调用 renew API；pcap 区分初次 DORA 与后续 REQUEST/ACK，lease/地址/HTTP 联合 PASS |
 | 双设备 lab fabric | `tests/network/lab_fabric/`、patches `0028` | private namespace 内两台 QEMU guest 完成 DORA、A→B TCP 和双侧 pcap；宿主、公网、metadata、默认路由不可达并按预期清理。QEMU 运行路径是 socket switch；TAP/bridge 是独立 primitive |

@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-firmware-security-preflight",
+  "date": "2026-10-26",
+  "status": "PASS",
+  "validation": "static manifest security compatibility",
+  "tool_hashes": {
+    "runner": "add55627a85bef996842f6837f7338ddbaadf58a11d9ae2faaf6a283fce02862",
+    "firmware_manifest": "bbdc0b82f2d8093e024a95131cf25c3f770e24f9d26852db6ce558db9809aba1",
+    "manifest_schema": "af5f1523b4c87aa20fa441c088e232c06eabd6ad303292a8163c5a2c9d62e921",
+    "test_image_builder": "511ea44594194ec0c6c3f82592e4758620509c366defb0620fa4ec1f4995bd43"
+  },
+  "input_assets_unchanged": true,
+  "checks": {
+    "baseline_pass": true,
+    "aggregate_secure_boot_rejected": true,
+    "config_secure_boot_rejected": true,
+    "signed_image_rejected": true,
+    "invalid_image_rejected": true,
+    "config_flash_encryption_rejected": true,
+    "efuse_secure_boot_rejected": true,
+    "efuse_flash_encryption_rejected": true,
+    "missing_security_field_rejected": true,
+    "invalid_security_enum_rejected": true,
+    "schema_allows_explicit_disabled_config": true
+  },
+  "cases": {
+    "baseline": {
+      "status": "PASS",
+      "device_id": "sticks3",
+      "errors": [],
+      "warnings": []
+    },
+    "aggregate_secure_boot": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "secure_boot_not_modeled",
+          "message": "target profile does not model the required secure-boot chain",
+          "requirement": "v2",
+          "available": "not modeled",
+          "path": "security.secure_boot"
+        }
+      ],
+      "warnings": []
+    },
+    "understated_secure_boot_config": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "secure_boot_config_not_modeled",
+          "message": "sdkconfig enables a secure-boot chain that the target profile does not model",
+          "requirement": "v2",
+          "available": "not modeled",
+          "path": "security.secure_boot_config"
+        }
+      ],
+      "warnings": []
+    },
+    "understated_signed_image": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "secure_boot_image_not_modeled",
+          "message": "a Secure Boot v2 signed image was observed, but the target profile does not model the boot trust chain",
+          "requirement": "signed-image-observed",
+          "available": "not modeled",
+          "path": "security.secure_boot_image.status"
+        }
+      ],
+      "warnings": []
+    },
+    "invalid_signed_image": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "secure_boot_image_invalid",
+          "message": "Secure Boot v2 signature evidence is invalid; the image cannot be accepted as boot-compatible",
+          "requirement": "invalid",
+          "available": "invalid",
+          "path": "security.secure_boot_image.status"
+        }
+      ],
+      "warnings": []
+    },
+    "understated_flash_encryption_config": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "flash_encryption_config_not_modeled",
+          "message": "sdkconfig enables Flash Encryption, which the target profile does not model",
+          "requirement": "enabled",
+          "available": "not modeled",
+          "path": "security.flash_encryption_config"
+        }
+      ],
+      "warnings": []
+    },
+    "understated_efuse_summary": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "secure_boot_efuse_not_modeled",
+          "message": "package-provided eFuse summary indicates secure boot, which the target profile does not model",
+          "requirement": "v2",
+          "available": "not modeled",
+          "path": "security.efuse_summary.secure_boot"
+        },
+        {
+          "code": "flash_encryption_efuse_not_modeled",
+          "message": "package-provided eFuse summary indicates Flash Encryption, which the target profile does not model",
+          "requirement": "enabled",
+          "available": "not modeled",
+          "path": "security.efuse_summary.flash_encryption"
+        }
+      ],
+      "warnings": []
+    },
+    "missing_security_field_errors": [
+      "manifest.security.secure_boot is required",
+      "manifest.security.secure_boot is invalid"
+    ],
+    "invalid_security_enum_errors": [
+      "manifest.security.flash_encryption is invalid"
+    ]
+  },
+  "boundary": {
+    "boot": "NOT RUN",
+    "network": "NOT RUN",
+    "secure_boot_runtime": "NOT RUN",
+    "live_efuse": "NOT RUN",
+    "flash_encryption_runtime": "NOT RUN",
+    "physical_hardware": "NOT RUN"
+  },
+  "not_claimed": [
+    "package-provided eFuse summary authenticity",
+    "live eFuse state",
+    "ROM or bootloader trust-chain execution",
+    "Flash Encryption key or runtime state",
+    "physical hardware validation"
+  ]
+}

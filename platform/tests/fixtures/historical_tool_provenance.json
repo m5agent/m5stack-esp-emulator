@@ -12,6 +12,14 @@
     "worker-recorded-unicast-discovery": {
       "source_snapshot_commit": "eff1561e9f0da700c843ed14d9019c81f1e27e55",
       "scope": "Source blobs matching the tool hashes in the recorded three-attempt seed/NAT evidence; not a current cross-host validation"
+    },
+    "secure-boot-recorded-image-20261026-manifest-policy-v2": {
+      "source_snapshot_commit": "f2061759897955e6017d4aa2a41bd5ba962c35b6",
+      "scope": "Source blobs matching the 2026-10-26 secure-boot image manifest-policy-v2 evidence; not a current runtime or signature-authenticity claim"
+    },
+    "core2-recorded-concurrency-20261026-network-hardening": {
+      "source_snapshot_commit": "f2061759897955e6017d4aa2a41bd5ba962c35b6",
+      "scope": "Source blobs matching the 2026-10-26 Core2 network-hardening concurrent pass-a/pass-b evidence; not a runtime claim for current Unit changes"
     }
   }
 }

@@ -432,7 +432,13 @@ def main() -> int:
             isolation.get("controlled_dns") is True
         )
         relevant_dns = [
-            row
+            (
+                row.get("name"),
+                row.get("qtype"),
+                row.get("decision"),
+                row.get("status"),
+                row.get("rule"),
+            )
             for row in dns_requests
             if row.get("name") in {
                 "allowed.lab.test",
@@ -440,18 +446,20 @@ def main() -> int:
             }
         ]
         checks["dns_allow_and_deny"] = relevant_dns == [
-            {
-                "name": "allowed.lab.test",
-                "qtype": "1",
-                "decision": "allow",
-                "status": "A",
-            },
-            {
-                "name": "denied.lab.test",
-                "qtype": "1",
-                "decision": "deny",
-                "status": "NXDOMAIN",
-            },
+            (
+                "allowed.lab.test",
+                "1",
+                "allow",
+                "A",
+                "exact:allowed.lab.test",
+            ),
+            (
+                "denied.lab.test",
+                "1",
+                "deny",
+                "NXDOMAIN",
+                "none",
+            ),
         ]
         checks["dns_background_denied"] = all(
             row.get("decision") == "deny"

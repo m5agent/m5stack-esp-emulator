@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "kind": "core2-wdt-liveness",
+  "validation": "virtual-device validation",
+  "status": "PASS",
+  "firmware": {
+    "name": "UIFlow_Core2 v1.15.4",
+    "normalized_flash_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc",
+    "bytes": 16777216
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "qemu_binary_sha256": "f7ac5a0352eb4345f5c3b719a5dd656c5c0cdfb3d805cf258f144d1ae1fb6718",
+    "observe_seconds": 18.0,
+    "attempts": 3,
+    "runtime": "qemu",
+    "icount_shift": null,
+    "pc_trace": "NOT RUN",
+    "timg_verbose_trace": "ENABLED",
+    "tg1_live_gap_limit_ns": 10000000,
+    "tg1_max_gap_limit_ns": 100000000
+  },
+  "runs": [
+    {
+      "first_boot_reset_ns": 15912522000,
+      "tg0": {
+        "stage0_timeout_ns": 5910698000,
+        "stage0_feed_gap_ns": 5000603000,
+        "stage0_feed_count": 1,
+        "stage0_interrupt_masked": true,
+        "stage1_timeout_ns": 15912466000,
+        "reconfigure_feed_or_protect_after_stage0": 0
+      },
+      "tg1": {
+        "feed_count_before_reset": 6681,
+        "first_feed_ns": 902154000,
+        "last_feed_ns": 15910725000,
+        "last_feed_gap_to_reset_ns": 1797000,
+        "max_feed_interval_ns": 8505000,
+        "intervals_over_100ms": 0,
+        "timeout_count_before_reset": 0
+      },
+      "serial": {
+        "bytes": 1546,
+        "sha256": "dcc637cde7fcf8bc9f108daa7aa9429b296a8f74bc966cdb656a6890c8b5387a",
+        "has_micropython_banner": true,
+        "has_repl_prompt": false
+      },
+      "frame": {
+        "bytes": 302,
+        "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "png": true
+      },
+      "classification": "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE",
+      "attempt": 1,
+      "session_id_sha256": "8a12d7c9eff4715067219ceb5d1668fe831b76cb19273600dca1d0513e0efebc",
+      "qemu_stderr_sha256": "cc9d924a3ce3a4e528584897e2c148004108a4dec726703fc72d350bc93be062"
+    },
+    {
+      "first_boot_reset_ns": 15926661000,
+      "tg0": {
+        "stage0_timeout_ns": 5922631000,
+        "stage0_feed_gap_ns": 5000475000,
+        "stage0_feed_count": 1,
+        "stage0_interrupt_masked": true,
+        "stage1_timeout_ns": 15926599000,
+        "reconfigure_feed_or_protect_after_stage0": 0
+      },
+      "tg1": {
+        "feed_count_before_reset": 6618,
+        "first_feed_ns": 915110000,
+        "last_feed_ns": 15922390000,
+        "last_feed_gap_to_reset_ns": 4271000,
+        "max_feed_interval_ns": 10410000,
+        "intervals_over_100ms": 0,
+        "timeout_count_before_reset": 0
+      },
+      "serial": {
+        "bytes": 1394,
+        "sha256": "49d69eb6cfdd40dd692fd436dabc56c6e0dc41d222eb84ee0d7b31e13b23027d",
+        "has_micropython_banner": true,
+        "has_repl_prompt": false
+      },
+      "frame": {
+        "bytes": 302,
+        "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "png": true
+      },
+      "classification": "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE",
+      "attempt": 2,
+      "session_id_sha256": "cda33a515f64f794995285fab0b791bf0beb46c1de7baf8122312be36a7862b4",
+      "qemu_stderr_sha256": "6260fbf82d0aaeb2c78236c7913f0cf6fafb39189a6e5c43b832bcd9fb2d268d"
+    },
+    {
+      "first_boot_reset_ns": 15912004000,
+      "tg0": {
+        "stage0_timeout_ns": 5910705000,
+        "stage0_feed_gap_ns": 5001478000,
+        "stage0_feed_count": 1,
+        "stage0_interrupt_masked": true,
+        "stage1_timeout_ns": 15911945000,
+        "reconfigure_feed_or_protect_after_stage0": 0
+      },
+      "tg1": {
+        "feed_count_before_reset": 6807,
+        "first_feed_ns": 902148000,
+        "last_feed_ns": 15910225000,
+        "last_feed_gap_to_reset_ns": 1779000,
+        "max_feed_interval_ns": 8478000,
+        "intervals_over_100ms": 0,
+        "timeout_count_before_reset": 0
+      },
+      "serial": {
+        "bytes": 1546,
+        "sha256": "053c650c20b70a5addba06eda96dea5927c00a5e23c55a7d41efa7b02f7a2247",
+        "has_micropython_banner": true,
+        "has_repl_prompt": false
+      },
+      "frame": {
+        "bytes": 302,
+        "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "png": true
+      },
+      "classification": "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE",
+      "attempt": 3,
+      "session_id_sha256": "b08ac92eb09f8c55814c8682c622361c9dd7f21b1adf9cb680c7787cc681144d",
+      "qemu_stderr_sha256": "855baaead5a09517bd6ee244dc39e935013700fa0a67413e1e1790e07f0eb1d1"
+    }
+  ],
+  "failures": [],
+  "classification": {
+    "classifications": [
+      "BOOTLOADER_TG0_STAGE1_RESET_WITH_TG1_LIVE"
+    ],
+    "tg1_feed_liveness": "LIVE_UNTIL_TG0_STAGE1_RESET",
+    "single_tg1_800ms_gap": "NOT_REPRODUCED",
+    "legacy_boot": "FAIL"
+  },
+  "boundaries": [
+    "Only virtual-device validation.",
+    "TG1 feed liveness does not prove physical watchdog timing.",
+    "The exact-time trace is enabled; results do not claim zero perturbation.",
+    "No REPL or non-empty application frame is evidence of a successful boot."
+  ]
+}

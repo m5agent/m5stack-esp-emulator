@@ -1,6 +1,6 @@
 # 固件清单与 WebBurner 导入
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 ## 目标
 
@@ -57,9 +57,11 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 | 字段 | 作用 |
 | --- | --- |
 | `artifact` | 规范化完整镜像或分段 artifact 的路径、大小、SHA256 |
+| `manifest_id` | 对去除 `created_at`、`manifest_id` 和 `artifact.file` 后的 canonical JSON 计算 SHA256；同一语义内容从不同目录/文件名导入时保持一致，输出文件名本身不作为身份 |
 | `target` | SoC、chip ID、Flash、PSRAM、分区表、应用描述 |
 | `target.filesystems` | LittleFS/FAT/SPIFFS 分区、文件路径/大小/SHA256、敏感路径和许可证声明 |
 | `security` | 安全启动、Flash Encryption、配置态、eFuse 摘要和 secure version 边界 |
+| `capabilities` | 必填对象；显式包含 `required` 和 `optional` 两个数组，未知 required 不能靠省略整个对象绕过 |
 | `provenance` | M5Burner ID、版本、来源 URL/类型、license |
 | `resources` | ELF、MAP、sdkconfig、flasher args、SBOM |
 | `capabilities.required` | 目标设备必须提供的能力 |
@@ -71,6 +73,25 @@ python3 platform/tools/firmware_manifest.py /path/to/firmware.bin \
 JSON 中不写宿主绝对路径；`file` 均为输出目录内相对文件名。
 
 ## WebBurner 分段完整性
+
+WebBurner/ZIP 选择和路径规则现在 fail closed：
+
+- ZIP entry 先做 Unicode NFC 与 POSIX 路径归一，拒绝绝对路径、反斜杠、
+  控制字符、空/`.`/`..` 路径段、Windows 保留名或非便携名称、symlink，
+  以及文件/目录在 casefold 后的冲突或父子歧义；
+- `manifest.json`、`web-manifest.json` 等多份 WebBurner manifest 同时存在
+  时拒绝；
+- `efuse-summary.json`、`flasher_args.json`、ELF、MAP 和 SBOM 等同角色
+  资源必须唯一，不能在多个文件之间静默选择排序第一份；
+- 多个同名/同级 `sdkconfig` 或 `sdkconfig.defaults` 会拒绝；两类同时存在时
+  明确选择实际 `sdkconfig`，不会把 defaults 当成已生效配置；
+- 多 build 包必须由目标设备 SoC 唯一选中一个 build；无目标设备、无匹配
+  build 或同 SoC 多个 build 均拒绝。
+
+相同内容仍通过规范化镜像 SHA 和 content-stable `manifest_id` 绑定；选择
+歧义不会因为输出文件名不同而形成第二套“稳定”身份。
+证据：
+[`webburner-import-policy.json`](../tests/firmware/evidence-2026-10-26-webburner-import-policy.json)。
 
 WebBurner `parts[]` 可在原有 `path`/`offset` 之外提供：
 
@@ -154,6 +175,51 @@ QEMU profile 没有建模对应的密钥和启动链。
 - enabled Flash Encryption 没有可读的 XTS AES key purpose。
 
 warning 不会把自报 eFuse 提升为可信真机状态，也不会推断生产 key 合法。
+
+### Device Service 安全 preflight
+
+Device Service 不只信任 manifest 的聚合 `secure_boot` /
+`flash_encryption` 字段。只要下列任一可用证据是否定或未知、但其它层声称
+启用了当前 profile 未建模的启动/加密链，就会 fail closed：
+
+- `security.secure_boot_config` 为 v1/v2/enabled-unspecified；
+- `security.secure_boot_image.status` 为 signed-image-observed 或 invalid；
+- `security.secure_boot_image.status` 被改成 not-found，但 image entries 仍含
+  signed blocks；
+- `security.efuse_summary.secure_boot` 为合法启用枚举；
+- `security.flash_encryption_config` 为 enabled；
+- `security.efuse_summary.flash_encryption` 为 enabled。
+
+因此手写或篡改 manifest 把聚合字段改成 `unknown`，不能绕过 preflight。
+结构校验同时要求：
+
+- `capabilities` 对象及 `required`/`optional` 数组存在，每个数组最多 64 项、
+  每项 1–64 字符；
+- `secure_boot`、`flash_encryption` 和 `efuse` 存在且为受支持枚举；
+- 包内 `efuse_summary` 同时包含 `secure_boot`、`flash_encryption`，并使用
+  与主 manifest 相同的严格枚举；
+- 显式 `disabled` 的 sdkconfig 状态是合法值，不会被误判为字段缺失。
+
+Device Service 还会拒绝以下证据冲突：
+
+- Secure Boot image status 与 image block/trust-root evidence 不一致；
+- Secure Boot image key digest 与包内 eFuse summary 不匹配；
+- application secure version 低于包内 eFuse anti-rollback version。
+
+相应 issue code 包括
+`secure_boot_config_not_modeled`、`secure_boot_image_not_modeled`、
+`secure_boot_image_invalid`、`secure_boot_efuse_not_modeled`、
+`flash_encryption_config_not_modeled` 和
+`flash_encryption_efuse_not_modeled`，以及
+`secure_boot_image_status_understated`、
+`secure_boot_efuse_key_mismatch`、
+`firmware_secure_version_below_efuse`、
+`invalid_efuse_security_evidence` 和 `capabilities_required`。
+
+证据：
+[`manifest-policy-fail-closed.json`](../tests/firmware/evidence-2026-10-26-manifest-policy-fail-closed.json)。
+这不是 live eFuse read 或启动链执行证明；包内 eFuse summary 仍标记为
+unverified。
 
 ### Secure Boot v2 镜像签名 sector
 
@@ -478,14 +544,23 @@ CLI、`POST /api/v1/firmware/import` 和 WebBurner 都接受独立于镜像的
 required/optional capability 声明。服务端会去除首尾空白、转小写、展开
 `screen`/`framebuffer`→`display` 等别名并去重；最多 64 项、每项 64
 字符。未知 capability 保留在 manifest 中并产生
-`unknown_required_capability` / `unknown_optional_capability` warning，
-不会被静默删除。同一 capability 不能同时出现在 required 和 optional，
-否则 importer 与 manifest structure 校验都会拒绝。目标设备缺少 optional
-能力时只产生 `unsupported_optional_capability` warning，固件仍是候选；
-required 不匹配才升级为结构化错误。WebBurner 的两个
+`unknown_required_capability` / `unknown_optional_capability` finding，
+不会被静默删除。未知 **required** capability 无法由当前兼容性检查器证明，
+因此产生结构化 error 并将 manifest/Device Service 导入置为 `REJECTED`；
+未知 optional capability 只产生 warning。同一 capability 不能同时出现在
+required 和 optional，否则 importer 与 manifest structure 校验都会拒绝。
+目标设备缺少 optional 能力时只产生 `unsupported_optional_capability`
+warning，固件仍是候选；required 不匹配才升级为结构化错误。WebBurner 的两个
 输入框分别在导入前发送 `required_capabilities` 和
 `optional_capabilities`；例如在 StickS3 上声明 `camera` 会得到结构化
 `unsupported_firmware_capability`，不会创建空 capability manifest。
+Unknown required/optional 和 merged/WebBurner 等价性由
+[`unknown-required-capability-fail-closed.json`](../tests/firmware/evidence-2026-10-26-unknown-required-capability-fail-closed.json)
+绑定到同一个 public StickS3 SHA；该结果是静态 manifest contract，不是
+runtime capability proof。
+手写或编辑后的 manifest 即使完全删除 `capabilities`，或者只删除
+`required`/`optional` 数组，也会同时被 JSON Schema、内部结构校验和
+`validate_capabilities()` 拒绝，不能静默退化成“没有能力要求”。
 
 包内提供 `sdkconfig` 时，manifest 还会在 `capabilities.detected` 中记录
 高置信构建开关：

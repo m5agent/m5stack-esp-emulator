@@ -1,6 +1,6 @@
 # User firmware simulation matrix
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 `platform/tools/user_firmware_matrix.py` selects the most-downloaded compatible
 M5Burner images for each simulated ESP device, excludes baseline UIFlow2 when
@@ -275,7 +275,7 @@ zero `FAIL`.
 
 | Firmware | SHA-256 | Result | Observed boundary |
 | --- | --- | --- | --- |
-| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The 2026-10-24 snapshot stopped at RTC address `0x51`; after the 2026-10-25 shared-bus fix, AXP/RTC/INA transactions ACK. A TIMG trace then showed default single-session watchdog feed staying healthy for minutes, while concurrent and explicit accelerator runs failed at varying PCs; the image still renders a black frame |
+| `UIFlow_Core2` | `18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a` | `PARTIAL` | The original RTC `0x51` failure is superseded by the shared-bus fix. Patches `0034-0042` validate the equal-deadline timer, WDT mask, stateful SSI, unified timeline, exact-time state capture, late register dump and partial SPI `TRANS_DONE` IRQ model. Normal-WDT legacy still resets from TG0 stage-1 with reset PC `0`; three liveness runs keep TG1 live until that reset and retire the earlier `800 ms` gap as `NOT_REPRODUCED`. WDT-off 45/120-second snapshots stop at CPU0 `waiti` `0x4026306e` plus CPU1 `0x40100049`. BIN-bound analysis identifies that loop as LVGL `lv_refr_vdb_flush`: `A2` is `lv_disp_buf_t` with `flushing=1`, and `A10` is the display driver with `wait_cb=null`. Display `flush_cb=0x40174758` runs, but completion `0x40174884`/`lv_disp_flush_ready` is not observed. Permanent handoff deadlock, UART storm, TG1 feed stop and never-ending Flash scan are not supported. No setup/REPL or non-empty application frame |
 | `Core2FactoryTest` | `4dbddb210d382ed3ca536fc07c962521b238c025016213c947fb4ff7a1bbd4ef` | `PARTIAL` | The 2026-10-24 snapshot stopped during PMIC/RTC initialization and had no frame; a post-fix rerun is `NOT RUN`, so its current first blocker cannot be inherited from the old result |
 | `Core2_For_AWS` | `22ee8c0f5d3c9640be370cb1a89496ed265b685d573b0e41d62320cf6288ff3a` | `PARTIAL` | ATECC608 secure element is not modeled; firmware aborts |
 
@@ -307,6 +307,37 @@ also exposed TG hardware resets during boot. The remaining issue is therefore
 timing-sensitive rather than a fixed missing peripheral or one proven firmware
 deadlock.
 
+The 2026-10-26 minimal ESP-IDF probe initially produced a misleading spinlock
+assertion because its 4096-byte local read buffer overflowed a 4096-byte task
+stack. The corrected probe then exposed a generic Xtensa timer bug: a timer ISR
+writing `CCOMPARE == CCOUNT` during the final equal-cycle window was treated as
+a `2^32`-tick delay. The business-only `0034` patch arms that deadline on the
+next cycle while preserving the old interpretation for other deltas. The
+minimal probe's first-boot gate passed in trace-enabled and trace-disabled
+controls, so PRID, S32C1I and the original virtual-time hypothesis are no
+longer the explanation for this reproducer.
+
+This does not close the public legacy firmware. The same image still reaches a
+TG0 stage-1 system reset with reset CPU PC `0` and produces only a black frame.
+The minimal-probe timer was therefore a real but separate model bug; it did not
+explain the remaining legacy path.
+
+The subsequent QIO/cross-core trace added `0035`, then `0036` replaced the
+temporary direct-read path with a stateful SSI batch interface. `0037-0040`
+put cross-core, DPORT/cache, SSI and TIMG events on one virtual timeline and
+showed repeated completed handoffs while CPU1 continued executing. An early
+normal-WDT configuration placed stage-0 timeout exactly 800 ms after the last
+TG1 feed; a later three-run liveness control kept TG1 alive until a TG0
+stage-1 reset and marked that gap `NOT_REPRODUCED`.
+
+`0041/0042` and two WDT-off snapshots then separated the later failure phase:
+Flash/SSI counters stop changing around 44 seconds, CPU0 enters `waiti`, and
+CPU1 remains in LVGL `lv_refr_vdb_flush` waiting for a double-buffer flush to
+complete. The display flush callback runs once, but the completion callback
+that should call `lv_disp_flush_ready` is not observed. The next acceptance
+requires the SPI interrupt/queue completion chain to run and a non-empty
+application frame under the normal WDT.
+
 These are tracked as `RUNTIME-03` for the remaining Core2 legacy UIFlow
 post-initialization WDT/non-empty-frame gate and `RUNTIME-04` for the Core2 for
 AWS ATECC608 secure element. They remain `OPEN` until the relevant guest data
@@ -315,7 +346,11 @@ paths complete.
 Evidence:
 [`core2-public-firmware-model-gaps.json`](../tests/firmware/evidence-2026-10-24-core2-public-firmware-model-gaps.json),
 [`core2-shared-board-i2c.json`](../tests/firmware/evidence-2026-10-25-core2-shared-board-i2c.json),
-[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json).
+[`core2-wdt-timing.json`](../tests/firmware/evidence-2026-10-25-core2-wdt-timing.json),
+[`core2-flash-ipc-wdt.json`](../tests/firmware/core2_flash_ipc/evidence-2026-10-26-core2-flash-ipc-wdt.json),
+[`core2-wdt-liveness-3x.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-wdt-liveness-3x.json),
+[`core2-wdt-off-late-state.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-wdt-off-late-state.json),
+[`core2-lvgl-spi-wait.json`](../tests/firmware/core2_handoff_trace/evidence-2026-10-26-core2-lvgl-spi-wait.json).
 
 The 90-second run also exposed and fixed a matrix-client timeout: the HTTP
 `/wait` request used 90 seconds while the server was allowed to wait 90 seconds

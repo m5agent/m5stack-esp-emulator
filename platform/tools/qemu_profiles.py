@@ -8,11 +8,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 REGISTRY = ROOT / "platform/qemu/profiles.json"
+DEVICE_SOURCE = ROOT / "devices/catalog.source.json"
 STATUSES = {"ready", "shared-backend", "backend-pending", "blocked", "separate-backend"}
 
 
 def load():
     return json.loads(REGISTRY.read_text())
+
+
+def load_device_source():
+    return json.loads(DEVICE_SOURCE.read_text())
 
 
 def cmd_list(registry, group=None):
@@ -27,8 +32,37 @@ def cmd_list(registry, group=None):
         print(f"{row['id']:16} {str(row.get('soc'))[:24]:24} {row['backend']:18} {row['qemu_status']:18} {display.get('driver') or 'none'} {size}")
 
 
-def cmd_check(registry):
+def catalog_validation_errors(registry, source):
+    """Keep the runtime registry from drifting behind the device catalog."""
     errors = []
+    if registry.get("generated_at") != source.get("generated_at"):
+        errors.append(
+            "profiles generated_at must match devices/catalog.source.json"
+        )
+    catalog = {
+        device["id"]: device.get("runtime", {}).get("validation", {})
+        for device in source.get("devices", [])
+    }
+    for row in registry["devices"]:
+        if not row["backend"].startswith(("qemu-esp32", "esp-emulator")):
+            continue
+        expected = catalog.get(row["id"])
+        if expected is None:
+            errors.append(f"{row['id']}: missing from devices/catalog.source.json")
+            continue
+        validation = row.get("validation", {})
+        for field in ("date", "status"):
+            if validation.get(field) != expected.get(field):
+                errors.append(
+                    f"{row['id']}: catalog/profile validation {field} differs"
+                )
+    return errors
+
+
+def cmd_check(registry, source=None):
+    errors = []
+    if source is not None:
+        errors.extend(catalog_validation_errors(registry, source))
     ids = [row["id"] for row in registry["devices"]]
     qemu_count = sum(
         row["backend"].startswith("qemu-esp32")
@@ -69,7 +103,7 @@ def main():
                 return 0
         raise SystemExit(f"unknown device: {args.device}")
     if args.check:
-        raise SystemExit(cmd_check(registry))
+        raise SystemExit(cmd_check(registry, load_device_source()))
     cmd_list(registry, args.group)
 
 

@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "kind": "core2-stateful-ssi-batch-validation",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "device_id": "core2",
+  "firmware": {
+    "name": "UIFlow_Core2",
+    "version": "v1.15.4",
+    "source_sha256": "18d77e28adfacf7e719a167bd0c3450b78357d13cb1d2f2a8b7bccc2248a909a",
+    "normalized_flash_sha256": "152127c808b9212e3a5b55dd9e0a2d24e71b902e225452b67db381c76caba1cc"
+  },
+  "runtime": {
+    "machine": "m5core2",
+    "qemu_source_commit": "da100c909249926b9f4458f18e4f2d216d08f51a",
+    "qemu_binary_sha256": "832cf2a4298ddc55937052709bb1458496c96456f0761eb7fb9e22db23735418",
+    "artifact_bound": false
+  },
+  "patch": {
+    "path": "patches/qemu-m5stack-peripherals/0036-ssi-transfer-buf.patch",
+    "sha256": "9732be19f48d4b9e000686435df33c543c7926f68d93110bc002eccd6a184e05",
+    "scope": "Generic optional byte-buffer SSI transfer, m25p80 STATE_READ fast path, ESP32 SPI receive-only data phase",
+    "clean_base_forward_reverse_check": "PASS"
+  },
+  "data_plane_equivalence": {
+    "method": "For the first 512 m25p80 STATE_READ batches, execute the original per-byte transfer path from the same saved address and compare it with the batch result.",
+    "batches": 512,
+    "bytes_per_batch": 64,
+    "mismatch_count": 0,
+    "captured_at_addresses": [
+      "0x00009000",
+      "0x00521000",
+      "0x00521600"
+    ],
+    "qemu_stderr_bytes": 27160,
+    "qemu_stderr_sha256": "ba45d60fa41eefc19fe5fe209a89819ee8a27aa1d0fa18d07615b1eb5d6a89d0"
+  },
+  "regression": {
+    "command": "PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py --device core2",
+    "completed_at": "2026-10-26T03:18:35.609683+08:00",
+    "cases_passed": 6,
+    "cases_failed": 0,
+    "checks_passed": 24,
+    "checks_failed": 0,
+    "retry_used": false,
+    "summary_sha256": "62d7d42568be7758f51f7b61d960b3cadcd02940f4746f960078625afa47f450",
+    "scope": [
+      "display/touch",
+      "RTC",
+      "power key",
+      "INA3221",
+      "MPU6886",
+      "audio",
+      "microphone",
+      "AXP192"
+    ]
+  },
+  "full_matrix_regression": {
+    "command": "PYTHONPATH=.work/py python3 tests/uiflow2/run_peripheral_matrix.py --out-dir /tmp/m5-uiflow2-ssi-transfer-buf-final",
+    "completed_at": "2026-10-26T03:33:53.128722+08:00",
+    "cases_passed": 67,
+    "cases_failed": 0,
+    "checks_passed": 274,
+    "checks_failed": 0,
+    "retry_used": false,
+    "summary_sha256": "44b65976d60589662e04454c4680cec90c8137a5934cece9bb371099297b3455",
+    "scope": "All registered UIFlow2 device-group cases on the shared QEMU controller path"
+  },
+  "legacy_boot_controls": [
+    {
+      "mode": "runtime=qemu, normal watchdog",
+      "observation_seconds": 120,
+      "serial_bytes": 7275,
+      "serial_sha256": "36d383362ff059e4ae8f06ed7be9e1598c7ec44740ccfaeaf90250b00fffd061",
+      "result": "TG0WDT_SYS_RESET loop, no setup text or REPL"
+    },
+    {
+      "mode": "runtime=qemu, watchdog reset disabled, stateful SSI batch",
+      "observation_seconds": 180,
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "result": "banner-only, no setup text or REPL"
+    },
+    {
+      "mode": "runtime=qemu, watchdog reset disabled, temporary direct BlockBackend read",
+      "observation_seconds": 120,
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "result": "banner-only; the older REPL observation did not reproduce in this rebuild"
+    },
+    {
+      "mode": "qemu-wifi/core2-openmac, thread=single, icount shift=5, watchdog reset disabled",
+      "observation_seconds": 120,
+      "serial_bytes": 507,
+      "serial_sha256": "e996276519b4f8882739ff1c494dcecba313c99278857a53a984c1c9986a1b62",
+      "result": "banner-only"
+    },
+    {
+      "mode": "qemu-wifi/core2-openmac, thread=single, icount shift=0, watchdog reset disabled",
+      "observation_seconds": 90,
+      "serial_bytes": 348,
+      "serial_sha256": "11272b4bed1010b91bc412351b78a76f855b8f6f8ddf5e0c404957eaf380e3b5",
+      "result": "boot flow did not reach the full banner within the window"
+    },
+    {
+      "mode": "qemu-wifi/core2-openmac, thread=single without icount, watchdog reset disabled",
+      "observation_seconds": 90,
+      "serial_bytes": 348,
+      "serial_sha256": "11272b4bed1010b91bc412351b78a76f855b8f6f8ddf5e0c404957eaf380e3b5",
+      "result": "boot flow did not reach the full banner within the window"
+    }
+  ],
+  "crosscore_state": {
+    "evidence_environment": "watchdog reset disabled; sampled every 1024 crosscore writes",
+    "qemu_stderr_sha256": "8d0832d83d0f35cca868c5298dc57e6bf6db6c5c5ed6123dfcc94503587e45dc",
+    "observed_flash_flags": {
+      "can_start": [
+        0,
+        1
+      ],
+      "complete": [
+        0,
+        1
+      ]
+    },
+    "observed_crosscore_reasons": [
+      "reason0=00000000 reason1=00000001",
+      "reason0=00000001 reason1=00000000"
+    ],
+    "classification": "Cross-core interrupt delivery and the flash-operation handshake complete repeatedly. A permanent handshake deadlock is not supported by this trace."
+  },
+  "validation_suite": {
+    "platform_unittest": {
+      "passed": 501,
+      "failed": 0
+    },
+    "docs_contract": {
+      "passed": 41,
+      "failed": 0
+    },
+    "qemu_profile_contract": {
+      "passed": 19,
+      "failed": 0
+    },
+    "node_sha256_upload": "PASS",
+    "worker_credential_migration": "PASS",
+    "compileall": "PASS",
+    "ruff": "PASS (E9/F over platform/tools and platform/tests)",
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "checks": {
+    "stateful_batch_matches_original_per_byte_path": "PASS",
+    "preserves_command_address_dummy_and_cs_state": "PASS",
+    "core2_uiflow2_device_group": "PASS",
+    "full_uiflow2_device_matrix": "PASS",
+    "legacy_normal_watchdog_boot": "FAIL",
+    "legacy_watchdog_disabled_progress_to_repl": "FAIL",
+    "direct_read_repl_result_reproduced": "FAIL",
+    "accelerator_controls_remove_throughput_failure": "FAIL",
+    "crosscore_handshake_completes": "PASS",
+    "platform_static_and_contract_checks": "PASS",
+    "nonempty_application_frame": "FAIL",
+    "physical_hardware": "NOT RUN"
+  },
+  "classification": "The stateful batch API is a valid controller/model optimization with matching bytes and no Core2 UIFlow2 regression. It is not sufficient to close RUNTIME-03. Current evidence points to aggregate synchronous flash/cache-handoff throughput, not a permanent cross-core deadlock.",
+  "not_claimed": [
+    "legacy UIFlow application startup",
+    "the direct BlockBackend diagnostic path is a product implementation",
+    "watchdog disable or accelerator override is a fix",
+    "a permanent cross-core deadlock",
+    "complete Core2 controller or cache equivalence",
+    "physical hardware validation"
+  ]
+}

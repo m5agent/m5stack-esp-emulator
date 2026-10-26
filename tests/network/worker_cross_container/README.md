@@ -1,6 +1,6 @@
 # Worker QEMU execution across containers
 
-Last reviewed: `2026-10-25`.
+Last reviewed: `2026-10-26`.
 
 Status: `PASS` for the reviewed two-container implementation. The committed
 three-run aggregate is

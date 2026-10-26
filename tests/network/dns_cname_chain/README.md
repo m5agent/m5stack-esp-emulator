@@ -1,6 +1,6 @@
 # Controlled DNS CNAME chain
 
-Last reviewed: `2026-10-25`.
+Last reviewed: `2026-10-26`.
 
 This fixture exercises exact-name CNAME aliases in the controlled DNS resolver:
 

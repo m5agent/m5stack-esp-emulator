@@ -11,7 +11,32 @@
 项目文档很多，但不是所有页面都描述“当前能力”。本页定义阅读顺序、文档职责
 和新鲜度规则，避免把历史排障、计划或单次证据误当成今天的实现状态。
 
-## 先看这九页
+## 五分钟阅读顺序
+
+只想知道“现在做到哪、还差什么”时，不需要从头读所有专题：
+
+1. [工程交接总览](engineering-handoff.md)：当前工作、代码边界和下一步；
+2. [项目当前状态](project-status.md)：已经具备的能力与不可继承边界；
+3. [项目 Backlog](project-backlog.md)：仍未完成的任务、依赖和验收；
+4. [验证证据台账](validation-ledger.md)：上述结论对应的日期化 evidence；
+5. 需要改代码时再读[代码与验证入口地图](code-map.md)和相关专题页。
+
+文档按“事实层级”使用，而不是按修改时间判断可信度：
+
+| 层级 | 可以回答什么 | 不能回答什么 |
+| --- | --- | --- |
+| 当前事实 | `project-status.md` 描述当前能力和边界 | 具体历史轮次、失败 control |
+| 待办 | `project-backlog.md` 描述未完成工作和验收 | 已完成能力的完整证据 |
+| 生成快照 | `project-snapshot.md` 汇总动态计数和新旧日期 | 人工判断、硬件结论 |
+| 契约 | API、Manifest、统一运行时和部署页面定义稳定接口 | 今天某项固件是否 PASS |
+| 专题/历史 | 解释某条实现、根因或单次验证 | 不能覆盖当前状态页；即使页首日期较新，也要看 evidence 日期 |
+
+页首“最近核对”表示维护者已确认该页与当前入口不冲突，不表示页内所有底层
+矩阵都在当天重跑。页内固件 SHA、轮次、截图和失败 control 只覆盖其 evidence
+日期；看到 `PASS`、`current` 或 `latest` 时，必须继续核对它指向的 artifact
+和设备/profile。
+
+## 按角色继续阅读
 
 1. [工程交接总览](engineering-handoff.md)：用一页理解产品边界、代码阅读顺序、
    当前工作流和下一步；不复制动态计数。
@@ -60,44 +85,54 @@
 “最近核对”表示该页结论已经和当前主入口对齐，不表示所有底层矩阵都在同一天
 重跑；真正的验证时间以页内 evidence 和 JSON 为准。
 
+自动快照区分三种日期，避免把设备目录的生成时间误当成项目事实日期：
+
+- 设备目录日期：`devices/catalog.source.json` 的 `generated_at`；
+- 当前事实复核：机器源日期、最新 evidence 和五个项目入口复核日期中的最大值；
+- 最新 evidence 日期：已提交 `tests/**/evidence-YYYY-MM-DD-*.json` 的最大日期。
+
+因此 catalog 未变化但新 evidence 已提交时，快照仍会推进“当前事实复核”，并把
+显式复核日期更早的权威页、委派页分别列为待复核项。待复核是审计信号，不是
+自动判定内容错误。
+
 | 页面 | 类型 | 最近核对 | 事实基线 |
 | --- | --- | --- | --- |
-| [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-26` | 产品边界、成熟度、代码阅读顺序、当前工作流、P0 下一步和文档职责；动态事实仍链接权威入口 |
-| [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-26` | 维护已交付代码面、当前在途、下一验收门禁、稳定代码入口和未完成 Task ID |
-| [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-25` | 从 catalog/profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
-| [项目当前状态](project-status.md) | 当前结论 | `2026-10-26` | 唯一维护当前能力、最新验证结论和已知风险的系统性叙述 |
-| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-26` | 只保留尚未达到验收条件的任务、依赖和验收 |
-| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-26` | 当前源码、FirmwareManifest/Secure Boot 入口、runtime priority、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、worker namespace/container-local execution、测试、evidence 和文档生成入口 |
+| [工程交接总览](engineering-handoff.md) | 人读交接 | `2026-10-26` | 先按本轮 P0 区分已完成、在推进和未开始，再给出产品边界、代码盘点、成熟度、阅读顺序、工作流、下一步和文档职责；动态事实仍链接权威入口 |
+| [工作流总台账](workstreams.md) | 工作流导航与当前在途 | `2026-10-26` | 维护已交付代码面、当前在途、推进顺序、下一验收门禁、稳定代码入口和未完成 Task ID |
+| [自动项目快照](project-snapshot.md) | 生成事实 | `2026-10-26` | 分别记录 catalog 日期、当前事实复核和最新 evidence；从 profile/evidence/Backlog 自动生成设备、样本、缺口、Task、测试规模，并盘点权威页和委派文档的新鲜度 |
+| [项目当前状态](project-status.md) | 当前结论 | `2026-10-26` | 唯一维护当前能力与边界；按网络、Core2、FirmwareManifest 汇总 P0 已完成和缺口，并保留 Unit 当前范围；Core2 TIMG WDT-mask、stateful SSI、handoff、WDT liveness 和 LVGL/SPI flush wait 的逐项证据仍转验证台账 |
+| [项目 Backlog](project-backlog.md) | 待办 | `2026-10-26` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Core2 的下一门禁是修 SPI completion/`lv_disp_flush_ready`、matching ELF/MAP 和同 SHA 非空应用帧 |
+| [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-26` | 当前源码、FirmwareManifest/Secure Boot、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、namespace/container-local execution、Unit、测试/evidence/文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-26` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-26` | `1.34.0`；新增 Unit 准入、HUB 拓扑、冻结 schema/QOM mapping、输入/状态/取证；原 worker、网络和固件契约继续保留 |
-| [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-25` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
-| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-25` | native-HCI 数据面、QOM 8 MiB PSRAM/MMU、两小时、121 轮、active-stop、双/三/四实例无错峰、五实例错峰 `10/10`、固定 `icount shift=5`/BLE-first 后五实例 `10/10`、六实例 `12/12` 和校准后八实例 `16/16`；旧 `shift=auto`、旧 sweep threshold 与 `0010` trace 保留为历史 |
-| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-25` | 导入、规范化、WebBurner 分段 size/digest 复算、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、文件系统、许可策略、sdkconfig detected / image observed capability、WebBurner 来源展示和 evidence 分层 |
-| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-25` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`RUNTIME-03` 的 Core2 共享 I2C routing 已修复，后续 WDT 已定位为调度/虚拟时间敏感但尚未修复；`RUNTIME-05` 的 S3 WPA2-PSK 路径已关闭，WPA3/group multicast 仍明确为未覆盖边界 |
-| [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-25` | 网络模式、有界 CIDR egress、domain/CNAME、multicast/unicast discovery、worker process/QEMU/`qemu-unified` companion partition fencing、同 guest 网络生命周期和证据要求 |
-| [网络诊断 lane](network-lane.md) | 专题 | `2026-10-25` | 只描述诊断/Provisioning，不混同 unified 验收；Linux namespace IPv6 guest 生命周期已 PASS |
-| [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-25` | 当前登记设备与各 QEMU/Tab5/Linux 后端，设备数量见自动快照；Core2 121 轮、双/三/四实例无错峰、五实例错峰 `10/10`、固定 icount 五实例 `10/10`、六实例 `12/12`、校准后八实例 `16/16`、持续 PSRAM/周期联网与物理边界已回写 |
-| [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-25` | 外设数据面覆盖；Core2 `0008` 后完整回归 `67/67`、`274/274`；`0009` 源码构建的定向 Core2 组 `6/6`、`24/24`，固定脱敏汇总已入仓 |
-| [Tab5 暂缓项](tab5-deferred-backlog.md) | 专项 Backlog | `2026-10-25` | 能力仍以 2026-10-22 定向证据为基线；后来的 S3/C6/Core2 无线工作不继承给 P4 |
-| [设备视觉保真](device-visual-fidelity-backlog.md) | 专项 Backlog | `2026-10-25` | StopWatch 是唯一参考质量外壳；后续功能验证不代表视觉模型已升级 |
-| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-25` | 保留旧命名和复现，补充 TCG translation-buffer 归因与当前门禁 |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-26` | `1.34.0`；Unit 准入、HUB 拓扑、冻结 schema/QOM mapping、输入/状态/取证；保留 API 对象/状态机/错误码、worker lease ownership fence、8 MiB Core2 PSRAM/MMU、有界地址/CIDR、controlled exact/domain/CNAME answer binding、严格 Host authority、同 guest CNAME 网络证据和 transport 契约 |
+| [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
+| [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-26` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop 和当前容量门禁；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |
+| [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-26` | 导入、规范化、ZIP path/casefold/symlink 与资源唯一性、多 build SoC 选择、mandatory `capabilities.required/optional`、WebBurner 分段 size/digest 复算及来源展示、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、aggregate/image/eFuse understatement fail-closed、文件系统/许可策略、sdkconfig detected / image observed capability 和 evidence 分层 |
+| [运行时模型缺口登记](runtime-model-gap-register.md) | 缺口登记 | `2026-10-26` | 每个 `RUNTIME-*` 的现象、证据、修复状态和关闭条件；`RUNTIME-03` 的共享 I2C routing 已修，late loop 已绑定为 LVGL `lv_refr_vdb_flush` 双缓冲等待，flush callback 已执行但 SPI completion/`lv_disp_flush_ready` 未出现，normal-WDT 仍无应用进度；`RUNTIME-05` S3 WPA2-PSK 路径已关闭，WPA3/group multicast 仍未覆盖 |
+| [网络模拟方案](network-simulation-plan.md) | 架构 / 验收专题 | `2026-10-26` | 网络模式、有界 CIDR egress、domain/CNAME、multicast/unicast discovery、worker process/QEMU 与 `qemu-unified` companion partition fencing、namespace/container-local execution、同 guest 网络生命周期和证据要求；运行比例转交验证台账 |
+| [网络诊断 lane](network-lane.md) | 专题 | `2026-10-26` | 只描述诊断/Provisioning，不混同 unified 验收；Linux namespace IPv6 guest 生命周期已 PASS |
+| [虚拟主机矩阵](qemu-device-adaptation-matrix.md) | 当前事实 | `2026-10-26` | 当前登记设备与各 QEMU/Tab5/Linux 后端、稳定运行时映射和能力边界；设备数量与运行比例分别转交自动快照和验证台账 |
+| [UIFlow2 外设矩阵](uiflow2-peripheral-test-matrix.md) | 当前事实 | `2026-10-26` | 外设数据面和 runner 语义；主线完整矩阵基线由 `0036` stateful SSI 重建定义，`0038` 为 exact-time 诊断加定向回归；Unit 扩展 runtime 的完整门禁分别核验，不跨 binary 拼接；轮次和 case/check 数量只查验证台账与 evidence |
+| [Tab5 暂缓项](tab5-deferred-backlog.md) | 专项 Backlog | `2026-10-26` | 能力仍以 2026-10-22 定向证据为基线；后来的 S3/C6/Core2 无线工作不继承给 P4 |
+| [设备视觉保真](device-visual-fidelity-backlog.md) | 专项 Backlog | `2026-10-26` | StopWatch 是唯一参考质量外壳；后续功能验证不代表视觉模型已升级 |
+| [Core2 cache/WDT 调查](core2-cache-panic-investigation.md) | 历史根因 | `2026-10-26` | 保留旧命名和复现、TCG translation-buffer 归因与 UIFlow2 门禁；补充 timer/WDT-mask、stateful SSI、统一 timeline、WDT-disabled 对照、public BIN/local ELF 字节审计、exact-time SIGSTOP freeze 和三次 WDT liveness 对账。历史 `800 ms` 现象未在当前配置复现，TG1 在 TG0 stage-1 reset 前仍持续 feed |
 | [跨设备回归审计](uiflow2-cross-device-regression-audit.md) | 历史证据 | `2026-10-21` | 固定在当轮修复和截图 |
 | [StopWatch QEMU 启动](stopwatch-uiflow2-qemu.md) | 历史证据 | `2026-10-20` | 解释初轮启动链，不描述后续 multi-board 能力 |
-| [部署与运行时资产](deployment.md) | 运维指南 | `2026-10-25` | `.work/` 不随仓库发布；提供已验证 macOS arm64 runtime release，QEMU/namespace 的资产和权限要求 |
-| [设备中心接入契约](device-center-adapter.md) | 接口契约 | `2026-10-25` | 目录、外设接口、设备状态、worker lifecycle 与页面消息 |
-| [虚拟设备功能测试工作流](device-functional-test-workflow.md) | 工作流契约 | `2026-10-25` | 功能测试必须走 Device Service、保留 session evidence，并按 PID/QMP ownership 接管或明确失败 |
-| [固件审查与仿真工作流](firmware-review-and-simulation-workflow.md) | 工作流契约 | `2026-10-25` | 审查证据分层、Secure Boot v2/包内 eFuse 摘要与 anti-rollback version 对照、公开 BIN 刷新/SHA 绑定、运行路径和发布门禁 |
-| [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-25` | catalog、runtime coverage、S3 WPA2/Core2 native-HCI 边界和后端数据面 |
-| [P4 外设后端要求](p4-peripheral-backend-requirements.md) | 专项设计 | `2026-10-25` | Tab5 缺失的 P4 控制器、DMA 和端点；仍以 2026-10-22 focused probe 为能力基线 |
-| [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-25` | 单机模块化单体、control/runtime 分离、multicast/unicast discovery、network-partition fence、双 namespace worker-local QEMU、companion recovery 和 warm-pool 边界 |
-| [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-25` | 历史哈希绑定结果、公开 CDN 强制刷新、四个当前样本、SD/NVS fixture、OpenAI 首次启动对照；Core2 legacy UIFlow 的原始无 ACK 结果与 shared-bus 后续复核分层记录 |
-| [CoreS3 图像边界](cores3-image-rendering-boundary.md) | 已知差异 | `2026-10-25` | 仍固定在 2026-10-22 透明度/调色板图像分析，状态保持 `OPEN` |
+| [部署与运行时资产](deployment.md) | 运维指南 | `2026-10-26` | `.work/` 不随仓库发布；提供已验证 macOS arm64 runtime release，QEMU/namespace 的资产和权限要求 |
+| [设备中心接入契约](device-center-adapter.md) | 接口契约 | `2026-10-26` | 目录、外设接口、设备状态、worker lifecycle 与页面消息 |
+| [虚拟设备功能测试工作流](device-functional-test-workflow.md) | 工作流契约 | `2026-10-26` | 功能测试必须走 Device Service、保留 session evidence，并按 PID/QMP ownership 接管或明确失败 |
+| [固件审查与仿真工作流](firmware-review-and-simulation-workflow.md) | 工作流契约 | `2026-10-26` | 审查方法和证据分层、Secure Boot v2/包内 eFuse 摘要与 anti-rollback version 对照、公开 BIN 刷新/SHA 绑定、运行路径和发布门禁；当前进度回权威状态页 |
+| [外设仿真架构](peripheral-simulation-architecture.md) | 实现专题 | `2026-10-26` | catalog、runtime coverage、S3 WPA2/Core2 native-HCI 边界和后端数据面 |
+| [P4 外设后端要求](p4-peripheral-backend-requirements.md) | 专项设计 | `2026-10-26` | Tab5 缺失的 P4 控制器、DMA 和端点；仍以 2026-10-22 focused probe 为能力基线 |
+| [模拟器服务架构](simulator-service-architecture.md) | 设计 / 运维 | `2026-10-26` | 单机模块化单体、control/runtime 分离、multicast/unicast discovery、network-partition fence、双 namespace worker-local QEMU、companion recovery 和 warm-pool 边界 |
+| [热门用户固件矩阵](user-firmware-simulation-matrix.md) | 当前验证工具 | `2026-10-26` | 历史哈希绑定结果、公开 CDN 强制刷新、四个当前样本、SD/NVS fixture、OpenAI 首次启动对照；Core2 legacy UIFlow 的原始无 ACK 结果与 shared-bus 后续复核分层记录 |
+| [CoreS3 图像边界](cores3-image-rendering-boundary.md) | 已知差异 | `2026-10-26` | 仍固定在 2026-10-22 透明度/调色板图像分析，状态保持 `OPEN` |
 | [CoreS3 三渲染器](cores3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [StickS3 三渲染器](sticks3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [多设备模拟器设计](plans/2026-10-20-multi-device-emulator-design.md) | 历史设计 | `2026-10-20` | 早期后端和能力分层，不代表当前设备状态 |
-| [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md) | 实现设计 | `2026-10-26` | 固定公开模型源、控制器数据面、Web 双向状态和完整批次验收 |
+| [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md) | 实现设计 | `2026-10-26` | 当前优先补外部 Agent UIFlow 源码→Device Service API→可见 session/多 Unit→实时读写；固定公开模型源、控制器数据面、Web 双向状态和完整批次门禁仍分别验收 |
 | [Unit 接入问题](unit-integration-host-issues.md) | 参考记录 | `2026-10-26` | 接入期间发现的主机问题与处理边界 |
-| [S3 LEDC 读回与试听](evidence/2026-10-26-unit-ledc-audio-29d8/README.md)、[七层重放](evidence/2026-10-26-unit-ledc-audio-29d8/replay/README.md)、[getter独审](evidence/2026-10-26-unit-ledc-audio-29d8/replay/getter-independent-review/README.md) | 历史证据 | `2026-10-26` | 同 SHA getter/MMIO A/B、真实音频图与停止静音；完整回归66/67与独立复测分开 |
+| [S3 LEDC 读回与试听](evidence/2026-10-26-unit-ledc-audio-29d8/README.md)、[七层重放](evidence/2026-10-26-unit-ledc-audio-29d8/replay/README.md)、[getter独审](evidence/2026-10-26-unit-ledc-audio-29d8/replay/getter-independent-review/README.md) | 历史证据 | `2026-10-26` | 同 SHA getter/MMIO A/B、真实音频图与停止静音；完整回归66/67与独立复测分开，完整门禁仍OPEN |
 | [三主机六传感器实际证据](evidence/2026-10-26-unit-host-sensors-gen9-a8fe/README.md) | 历史证据 | `2026-10-26` | 18 个同 guest/Web 会话、原驱动负控、fresh 串口、直接 PID、三路非原子帧和保留历史；Heart 零值暂态与人工可读性分别记录 |
 | [Unit 官方协议](unit-research/official-protocols.md) | 参考依据 | `2026-10-26` | 官方芯片、驱动、物理端口、版本冲突与离线参考；不是 runtime PASS |
 | [外壳浏览器集成证据](evidence/2026-10-26-visual-model-integration/README.md) | 历史证据 | `2026-10-26` | 固定提交的浏览器像素/输入/装配验证，不是固件或电气结论 |
@@ -161,6 +196,12 @@
 它把已完成项写成待办、把 `runtime_model_gap` 写成固件 FAIL，或与权威页
 冲突，就必须修改局部页或明确标为历史。机器生成设备 README 只保留硬件档案、
 验证状态和 blocker，详细运行流水统一放在验证台账和专题页。
+
+用例 README 中的 `Status: PASS`、固件 SHA、案例计数和截图都表示**该用例
+最后一次 evidence**，不是今天的产品总状态。看到 `current`、`latest` 或
+`canonical` 时，应同时确认它指向的 profile/commit 是否仍是
+`project-status.md` 中的规范路径；被新路径取代的诊断 lane 必须明确标成
+`historical` 或 `diagnostic`。
 
 ## 入口索引
 
@@ -254,7 +295,7 @@
 - [本地 QEMU PID/QMP restart re-attach](../tests/network/worker_reattach/README.md)
 - [Cross-network-namespace worker control plane](../tests/network/worker_cross_netns/README.md)
 - [Cross-container worker QEMU execution](../tests/network/worker_cross_container/README.md)
-- [Core2 stock VHCI BLE](../tests/uiflow2/core2_native_vhci/README.md)
+- [Core2 stock VHCI BLE（legacy GDB 诊断）](../tests/uiflow2/core2_native_vhci/README.md)
 - [Core2 native HCI backend](core2-native-hci-backend.md)
 
 ### 专项 Backlog
@@ -299,6 +340,10 @@
   页面，CI 不把历史固定页误报为过期。
 - 同一证据的 SHA、测试数、Task 状态不要复制到历史页或设计页；应链接当前
   状态/Backlog，减少多处数字漂移。
+- PASS/FAIL 比例、轮次、资源数值、固件/工具哈希和逐项检查数只维护在
+  `validation-ledger.md`、专题日期化证据或 evidence JSON。README、当前状态、
+  Backlog、交接页和工作流页只描述稳定结论与不可继承边界；需要量化时链接
+  台账，避免一次新运行迫使多个入口同步改写。
 
 文档一致性由五个 `platform/tests/test_docs_*_contract.py` 模块分域检查，
 覆盖导航/链接、当前状态、Core2、固件安全和网络/worker；

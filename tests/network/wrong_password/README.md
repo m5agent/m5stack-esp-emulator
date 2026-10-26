@@ -1,6 +1,6 @@
 # ESP-IDF wrong-password regression
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This P0 case joins the emulator lab AP with an intentionally wrong password and
 requires all of the following in one guest run:

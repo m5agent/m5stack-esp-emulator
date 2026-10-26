@@ -9,6 +9,7 @@ import sys
 import tempfile
 import struct
 import zlib
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -80,6 +81,10 @@ def import_case(
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument(
+        "--date",
+        default=datetime.now().astimezone().date().isoformat(),
+    )
     args = parser.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
     hashes_before = {
@@ -428,7 +433,7 @@ def main() -> int:
     evidence = {
         "schema_version": 1,
         "kind": "m5stack-secure-boot-v2-image-evidence",
-        "date": "2026-10-25",
+        "date": args.date,
         "validation": "static secure-boot image validation",
         "status": "PASS" if all(checks.values()) else "FAIL",
         "schema_version_tested": 1,

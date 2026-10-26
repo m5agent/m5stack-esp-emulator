@@ -1,11 +1,15 @@
 # Core2 native HCI backend design
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本文定义 `CORE2-01` 的目标结构、当前 GDB 诊断桥的失效边界，以及可执行的
 QEMU 内部实现路线。当前能力结论仍以
 [项目当前状态](project-status.md) 为准，未完成项只在
 [项目 Backlog](project-backlog.md) 跟踪。
+
+> 本页同时保留设计、根因和按时间累积的验证记录。下文中的轮次、哈希和
+> `PASS/FAIL` 是当时 evidence 的事实，不代表整个平台今天的全局状态；当前
+> 能力与剩余边界只看状态页，精确运行结果只看验证台账。
 
 ## 当前阶段快照
 
@@ -44,6 +48,7 @@ QEMU 内部实现路线。当前能力结论仍以
 | `CORE2-02` five-instance simultaneous cold start | `10/10 PASS with fixed icount` | `evidence-2026-10-25-core2-concurrent-5x120-fixed-icount-blefirst-pass-a.json`、`evidence-2026-10-25-core2-concurrent-5x120-fixed-icount-blefirst-pass-b.json`；历史失败 `evidence-2026-10-25-core2-concurrent-5x120-no-stagger-pass-1.json`、`evidence-2026-10-25-core2-concurrent-5x120-no-stagger-fail-1.json` | 旧 `shift=auto` 实现下，一批零错峰 `5×120s` 为 `5/5 PASS`，独立确认批为 `3/5 FAIL`，因此错峰稳态不能继承给同时冷启动。trace 显示 guest 在 PSRAM 初始化窗口关闭中断时 HLI 已入队；`shift=auto` 又会随宿主争用拉伸虚拟时间，使 delivery 越过 NimBLE ACK 预算。默认改为固定 `shift=5`，并让测试 BLE server 在 WiFi 和长 PSRAM 压力前启动后，两批独立零错峰 `5×120s` 均 `5/5 PASS`，合计 `10/10`。每个 lease 完成 WiFi DHCP/HTTP、公网 DNS/HTTP、NUS GATT、frame、31 节点 QOM、pcap、evidence 和 14–15 次 1 MiB PSRAM 全缓冲校验；HLI `45/45`、36 events/9 ACLs，errors/reset/panic/dropped/queue depth 均为 0 |
 | `CORE2-02` six-instance simultaneous cold start | `12/12 PASS with fixed icount` | `evidence-2026-10-25-core2-concurrent-6x120-fixed-icount-pass-a.json`、`evidence-2026-10-25-core2-concurrent-6x120-fixed-icount-pass-b.json` | 两批独立零错峰 `6×120s` 均 `6/6 PASS`，合计 `12/12`，最大真实并发 6。每个 lease 完成 WiFi DHCP/HTTP、公网 DNS/HTTP、NUS GATT、frame、31 节点 QOM、pcap、evidence 和 12–13 次 1 MiB PSRAM 全缓冲校验；HLI `45/45`、36 events/9 ACLs、reset/panic/dropped/queue depth 均为 0。batch B 的 attempt 6 记录一次可恢复 `hli-prealloc-failures=1`，随后仍完成全部 36/9 fast-path packet 和 45/45 HLI 投递，该 transient 保留为诊断 |
 | `CORE2-02` eight-instance simultaneous cold start | `16/16 PASS after calibration` | `evidence-2026-10-25-core2-concurrent-8x120-threshold-fail.json`、`evidence-2026-10-25-core2-concurrent-8x120-fixed-icount-pass-a.json`、`evidence-2026-10-25-core2-concurrent-8x120-fixed-icount-pass-b.json` | 旧 `hold/10` 下限下首批 `4/8 FAIL`，但 HCI/网络/GATT/frame/QOM/pcap 全部 PASS、panic 为 0；失败 lease 均完成 11 次连续 sweep。该 evidence 保留为阈值校准控制。按最高服务并发 8 校准为 `hold/12` 后，两批独立 `8×120s` 均 `8/8 PASS`，合计 `16/16`，达到当前服务单设备容量。每 lease 完成 11–12 次 PSRAM 全缓冲校验；两批各保留一次可恢复 prealloc transient |
+| `CORE2-02` eight-instance tool-hash rebind | `16/16 PASS` | `evidence-2026-10-26-core2-concurrent-8x120-network-hardening-pass-a.json`、`evidence-2026-10-26-core2-concurrent-8x120-network-hardening-pass-b.json` | HTTP Host/DNS exact-answer hardening 更新 `device_service.py` 与 `network_policy.py` 后，用当前工具 hash 重跑两批独立零错峰 `8×120s`。每批 `8/8 PASS`，最大真实并发 8；每 lease 完成 frame/31 节点 QOM、WiFi DHCP/HTTP、公网 DNS/HTTP、外部 NUS GATT、pcap、11–12 次 1 MiB PSRAM 全缓冲读回、bounded TCG、evidence 和 cleanup，HLI errors/reset/panic/dropped 为 0。manifest-identity rebind 的旧 A/B 证据保留。该重绑维持当前服务容量门禁，不证明大于八实例、持续吞吐、物理 PSRAM/cache、bit-exact controller/RF 或真机 |
 | `CORE2-02` five-instance ACK observability | `HISTORICAL FAIL / RETAINED` | `evidence-2026-10-25-core2-concurrent-5x20-ack-observability.json`、`evidence-2026-10-25-core2-ack-observability-default-1x.json`、`evidence-2026-10-25-core2-ack-observability-summary.json`、trace/serial/peer logs；`0010-esp32-native-hci-ack-observability.patch` | 旧 `shift=auto` 诊断批次保留了 `3/5 PASS` 的零错峰失败。第一条 Reset response 已从 Bumble 返回，但 response→HLI 时间戳差为 `4.506306s`（host trace time，不是 guest 虚拟时钟）；guest 连续重发三次 Reset，恢复后旧 Reset Complete 与新 `0x1001` response 交错，`ble_hs_hci_process_ack` 以 error 12 调度 reset，后续 `0x402630cc` panic 是次生结果。第一条事件进入 ACK 检查时 `ack=NULL`、semaphore count `0`，排除了初始 stale ACK pointer/semaphore-state 假设。`0010` 只增加 opt-in 观测，不改变默认运行路径；历史失败不会删除 |
 
 `HCI-3a` 已证明 callback ABI、guest buffer、window/return 和

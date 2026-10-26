@@ -1,6 +1,6 @@
 # Core2 classic ESP32 BT controller bootstrap
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This patch follows `qemu-core2-openmac-wifi` and adds the missing classic
 ESP32 Bluetooth shared-memory and control-register block used by stock

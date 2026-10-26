@@ -102,6 +102,8 @@ class DocsCurrentStateContractTests(DocsContractBase):
         )
         self.assertIn(f"设备登记：`{device_count}` 台", snapshot)
         self.assertIn(f"Device Service 可创建：`{service_count}` 台", snapshot)
+        self.assertIn("历史哈希绑定公开样本基线", snapshot)
+        self.assertNotIn("公开样本快照覆盖", snapshot)
 
         current_tasks = {
             task["id"]: task
@@ -157,6 +159,11 @@ class DocsCurrentStateContractTests(DocsContractBase):
         workstreams = (DOCS / "workstreams.md").read_text()
         code_map = (DOCS / "code-map.md").read_text()
         backlog = (DOCS / "project-backlog.md").read_text()
+        handoff = (DOCS / "engineering-handoff.md").read_text()
+        qemu_matrix = (
+            DOCS / "qemu-device-adaptation-matrix.md"
+        ).read_text()
+        network_plan = (DOCS / "network-simulation-plan.md").read_text()
         lab_fabric = (
             ROOT / "tests/network/lab_fabric/README.md"
         ).read_text()
@@ -212,6 +219,21 @@ class DocsCurrentStateContractTests(DocsContractBase):
             re.search(r"\b\d+/\d+\s+PASS\b", workstreams),
             "workstreams.md must route to status/ledger instead of copying counts",
         )
+        for relative, text in (
+            ("README.md", (ROOT / "README.md").read_text()),
+            ("docs/engineering-handoff.md", handoff),
+            ("docs/qemu-device-adaptation-matrix.md", qemu_matrix),
+            ("docs/network-simulation-plan.md", network_plan),
+        ):
+            self.assertIsNone(
+                re.search(r"\b\d+/\d+\s+PASS\b", text),
+                f"{relative} must route volatile run counts to the ledger",
+            )
+            self.assertTrue(
+                "validation-ledger.md" in text
+                or "证据台账" in text,
+                f"{relative} must route volatile run counts to the ledger",
+            )
         for task_id in task_ids:
             self.assertIn(
                 f"`{task_id}`",
@@ -276,6 +298,18 @@ class DocsCurrentStateContractTests(DocsContractBase):
         self.assertIn("network.cname_records", markdown)
         self.assertIn("allowed_endpoints", openapi)
         self.assertIn("controlled", openapi)
+        self.assertIn("strict ASCII DNS labels", markdown)
+        self.assertIn("requires at least one allowed endpoint", markdown)
+        self.assertIn("duplicate Host headers", markdown)
+        self.assertIn("requires at least one allowed endpoint", openapi)
+        self.assertIn(
+            "CNAME terminal answers must be covered by that endpoint",
+            openapi,
+        )
+        self.assertIn(
+            "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?",
+            openapi,
+        )
         self.assertIn("two simultaneous cold starts", markdown)
         self.assertIn("preallocated while CPU0 is idle", markdown)
         self.assertIn("gates pass `8/8`", markdown)

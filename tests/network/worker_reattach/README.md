@@ -1,6 +1,6 @@
 # Local QEMU restart re-attach
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This contract slice implements `SVC-01` local control-plane recovery for a
 QEMU process that survives a Device Service restart.

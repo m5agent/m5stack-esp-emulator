@@ -1,6 +1,6 @@
 # ESP-IDF DHCP renewal probe
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This ESP32-S3 program joins the QEMU `myssid` lab AP, obtains an initial DHCP
 lease, calls `netifapi_dhcp_renew()` on the live lwIP netif, waits for renewal,

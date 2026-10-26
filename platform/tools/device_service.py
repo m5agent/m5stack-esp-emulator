@@ -57,6 +57,7 @@ from firmware_manifest import (  # noqa: E402
     canonical_json_sha256,
     import_package,
     load_device_profile,
+    manifest_identity_payload,
     normalize_capability_declarations,
     validate_capabilities,
     validate_manifest_structure,
@@ -615,6 +616,10 @@ def parse_network_policy(
         policy = NetworkPolicy.from_mapping(value)
         if policy.egress == "allowlist" and implicit_endpoints:
             policy = policy.with_allowed_endpoints(implicit_endpoints)
+        if policy.dns == "controlled" and not policy.allowed_endpoints:
+            raise NetworkPolicyError(
+                "dns=controlled requires at least one allowed endpoint"
+            )
         return policy
     except NetworkPolicyError as error:
         raise ServiceError(
@@ -2523,11 +2528,7 @@ class FirmwareStore:
             manifest_id = manifest.get("manifest_id")
             if manifest_id:
                 expected_manifest_id = canonical_json_sha256(
-                    {
-                        key: value
-                        for key, value in manifest.items()
-                        if key not in {"manifest_id", "created_at"}
-                    }
+                    manifest_identity_payload(manifest)
                 )
                 if manifest_id != expected_manifest_id:
                     raise ServiceError(
@@ -8423,11 +8424,7 @@ class DeviceService:
                 manifest["artifact"].pop("segments", None)
             manifest["device_id"] = device_id
             manifest["manifest_id"] = canonical_json_sha256(
-                {
-                    key: value
-                    for key, value in manifest.items()
-                    if key not in {"manifest_id", "created_at"}
-                }
+                manifest_identity_payload(manifest)
             )
             return self.firmware.create(
                 {

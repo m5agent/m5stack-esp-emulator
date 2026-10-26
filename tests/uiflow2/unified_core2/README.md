@@ -1,6 +1,6 @@
 # Core2 unified runtime probe
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This probe runs the Core2 320x240 display, touch, AXP2101, INA3221,
 MPU6886, PCF8563, NS4168 speaker, SPM1423 microphone, PSRAM allocation/readback,
@@ -107,9 +107,10 @@ python3 tests/uiflow2/unified_core2/run_test.py \
   --attempts 3 --require-all-attempts
 ```
 
-This path keeps display/touch, audio, QOM, WiFi, public DNS/HTTP and native
-VHCI BLE in one guest and is recorded in
-`evidence-2026-10-24-native-vhci-pinned.json` as 3/3 PASS. The runner parses
+The direct `native-vhci` option keeps display/touch, audio, QOM, WiFi, public
+DNS/HTTP and debugger-mediated BLE in one guest. Its historical pinned run is
+recorded in `evidence-2026-10-24-native-vhci-pinned.json`; that result is
+diagnostic evidence, not the current production path. The runner parses
 the matching Xtensa ELF with `xtensa_elf_symbols.py` and passes the three VHCI
 addresses as fixed environment values, so GDB no longer performs symbol
 lookup. It requires the classic ESP32 BB idle-readback patch.
@@ -118,12 +119,12 @@ The GDB path remains available through Device Service as legacy
 `qemu-unified/profile=core2-native-vhci`; its service-side run is recorded in
 `evidence-2026-10-23-native-vhci-service.json`. GDB still pauses the guest,
 invokes firmware callbacks and supplies the synthetic send-frame return.
-Repeated-lease stability is currently `1/2`, recorded in
-`evidence-2026-10-24-native-vhci-service-stability.json`. The failed lease was
-rejected while injecting the C2H Command Complete for `LE Set Event Mask`,
-then the guest raised a debug exception and rebooted. Removal of that GDB
-control plane is complete in the canonical `core2-native-hci` profile, whose
-`HCI-4` evidence is
+The historical Device Service stability check did not pass consistently:
+`evidence-2026-10-24-native-vhci-service-stability.json` retains the failed
+lease. The failure occurred while injecting the C2H Command Complete for
+`LE Set Event Mask`, followed by a guest debug exception and reboot. Removal
+of that GDB control plane is complete in the canonical `core2-native-hci`
+profile, whose current `HCI-4` evidence is
 `tests/uiflow2/core2_native_hci/evidence-2026-10-24-hci4-service-5x.json`.
 Use native-HCI for new validation; keep this lane for diagnosis only.
 

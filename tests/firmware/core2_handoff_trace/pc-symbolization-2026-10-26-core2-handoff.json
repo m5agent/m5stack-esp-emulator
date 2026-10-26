@@ -1,0 +1,18 @@
+{
+  "status": "REJECTED_BY_BIN_BYTES",
+  "elf_sha256": "5bec056bb775bcc94bc020e4fa411def097ea17b108dcd597d9cdab3c347db49",
+  "artifact_bound_to_public_image": false,
+  "mapping_audit": "evidence-2026-10-26-core2-pc-mapping-audit.json",
+  "rejected_mapping": {
+    "cpu0": {
+      "0x400843ac": "uart_rx_intr_handler_default",
+      "0x400843af": "uart_rx_intr_handler_default",
+      "0x400843b1": "uart_rx_intr_handler_default"
+    },
+    "cpu1": {
+      "0x4008649c": "mp_execute_bytecode",
+      "0x4008649e": "mp_execute_bytecode"
+    }
+  },
+  "classification": "Rejected: the normalized UIFlow_Core2 v1.15.4 BIN and local UIFlow2 v2.5.3 ELF contain different bytes at all three CPU0 sample addresses. The UART ISR and MicroPython VM names therefore cannot be used as evidence for this public firmware. Exact-BIN control flow around the sampled cluster is consistent with cross-core Flash/cache-disable handoff, but the function name remains unbound."
+}

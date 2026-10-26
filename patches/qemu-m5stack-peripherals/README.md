@@ -112,11 +112,14 @@ The peripheral work adds:
   peripherals in the same machine.
 
 Historical incremental replay uses `0001` then `0002` on their original
-derived tree. For the standalone M5StopWatch-QEMU-derived tree, use `0003`
-followed by the PCM capture fix `0004`:
+derived tree. The list below records predecessor order on the retained
+M5StopWatch-QEMU-derived target tree. It is **not** a validated raw-upstream
+bootstrap recipe: later snapshots contain state from earlier incremental
+changes, and some files exist only in the retained worktree.
 
 ```bash
 cd "$QEMU_ROOT/build/qemu"
+# Historical provenance order; apply only to the matching predecessor tree.
 git apply /path/to/0003-m5stack-shared-spi-full.patch
 git apply /path/to/0004-m5stack-i2s-pcm-capture.patch
 git apply /path/to/0005-m5stack-max3421e-usb.patch
@@ -148,6 +151,16 @@ git apply /path/to/0029-esp32s3-wpa2-psk-data-plane.patch
 git apply /path/to/0030-core2-eight-mib-psram.patch
 git apply /path/to/0031-core2-shared-board-i2c.patch
 git apply /path/to/0032-esp32-timg-wdt-trace.patch
+git apply /path/to/0033-esp32-s32c1i-trace.patch
+git apply /path/to/0034-xtensa-ccompare-equal-deadline.patch
+git apply /path/to/0035-esp32-timg-wdt-int-ena.patch
+git apply /path/to/0036-ssi-transfer-buf.patch
+git apply /path/to/0037-esp32-handoff-trace.patch
+git apply /path/to/0038-esp32-handoff-pause.patch
+git apply /path/to/0039-esp32-handoff-state-dump.patch
+git apply /path/to/0040-xtensa-handoff-pc-trace.patch
+git apply /path/to/0041-esp32-handoff-register-stack-dump.patch
+git apply /path/to/0042-esp32-spi-trans-done-irq-diagnostic.patch
 ninja -C build qemu-system-xtensa qemu-system-riscv32
 ```
 
@@ -164,7 +177,10 @@ Verified source baseline:
   `zqqf16/M5StopWatch-QEMU` v0.1.0 patches;
 - QEMU `9.2.2`;
 - historical `0001`/`0002` checks pass on their incremental baseline;
-- `0004` applies cleanly immediately after the current standalone `0003`.
+- `0004` and the later numbered patches are predecessor-bound, not standalone
+  raw-upstream patches. The current `0003` snapshot already contains later PCM
+  state, so replaying `0004` after that snapshot is not a supported
+  clean-room operation.
 
 The camera frame path is a simulation data plane, not real-camera validation.
 
@@ -205,7 +221,7 @@ RTC, touch and IMU once. Legacy UIFlow performs AXP and BM8563 transactions
 through controller 0, while the previous model exposed RTC only on controller
 1. Port-level trace proves `0x34` and `0x51` now share
 `/machine/soc/i2c0/i2c`; the public UIFlow image advances beyond the prior
-`I2C bus error (19)`. Existing UIFlow2 Core2 peripheral cases pass `6/6`.
+`I2C bus error (19)`. Existing UIFlow2 Core2 peripheral cases pass.
 The same firmware still reaches an independent interrupt-WDT boundary and
 does not yet produce a non-empty application frame. This patch does not claim
 physical board timing or complete legacy-firmware compatibility.
@@ -221,6 +237,104 @@ the thread and icount controls instead exposed TG hardware resets during boot.
 The remaining investigation is the interaction between the guest's long
 synchronous boot phase and virtual-time/host scheduling, not a missing PMIC
 transaction.
+
+`0033-esp32-s32c1i-trace.patch` adds a default-off
+`M5SW_S32C1I_TRACE` channel for CPU index, PRID, stack pointer, PC, virtual
+address, `SCOMPARE1`, desired value, returned old value and CAS success. It is
+a diagnostic only and does not change compare-and-swap semantics. The corrected
+`core2_flash_ipc` probe produced no spinlock-owner assertion across dated
+current/portable runs, so this trace is retained to audit atomic operations
+rather than as evidence of a confirmed CAS defect.
+
+`0034-xtensa-ccompare-equal-deadline.patch` fixes the generic Xtensa timer
+deadline calculation when a guest writes `CCOMPARE == CCOUNT`. The old
+subtraction wrapped that valid equal-cycle window to `2^32` ticks, deferring
+the next interrupt by roughly 26.8 seconds on Core2 and allowing the guest
+tick watchdog to expire. The patch schedules the equal deadline on the next
+cycle while preserving the previous 32-bit wraparound interpretation for all
+other deltas. A business-only control with tracing disabled passed the
+corrected `core2_flash_ipc` first-boot probe repeatedly; this does not close
+the separate legacy-UIFlow TG0/TG1 watchdog and black-frame failure.
+
+`0035-esp32-timg-wdt-int-ena.patch` corrects TIMG WDT level-interrupt masking.
+The model previously raised the WDT line whenever `INT_RAW.WDT` became set,
+even when `INT_ENA.WDT` was clear. The patch preserves raw status and the stage
+timer but drives the level only from `INT_RAW & INT_ENA`. The trace observed
+`INT_ENA=0`, `INT_RAW=4`, masked status `0`; two Device Service controls still
+reached `TG0WDT_SYS_RESET` after the fix. This patch is a model-semantics fix,
+not closure of the legacy UIFlow QIO/cross-core/flash-cache path.
+
+`0036-ssi-transfer-buf.patch` adds an optional byte-buffer transfer callback to
+the generic SSI bus. Devices without the callback retain the original
+per-byte `ssi_transfer` behavior. m25p80 implements the callback only for
+`STATE_READ`; command, address, dummy-cycle, CS and address-wrap handling stay
+on the existing state machine. ESP32 SPI uses the callback only for
+receive-only data phases. In the legacy Core2 image, sampled batches matched
+the original per-byte path; the Core2 UIFlow2 device group and shared-controller
+full matrix passed, but watchdog-disabled legacy firmware still did not reach
+the REPL.
+This is a controller/data-path optimization, not closure of `RUNTIME-03`.
+
+`0037-esp32-handoff-trace.patch` adds a default-off
+`M5SW_ESP32_HANDOFF_TRACE` diagnostic channel shared by cross-core interrupts,
+DPORT cache control/sync, TIMG WDT, UART interrupt state and ESP32 SPI
+transactions. Each line records virtual time, current CPU, guest PC and four
+component-specific values. Routine events support
+`M5SW_ESP32_HANDOFF_TRACE_SAMPLE`; WDT timeout/interrupt/reset events are always
+emitted. `M5SW_ESP32_HANDOFF_PC_SAMPLE_NS=1000000` optionally samples both
+guest PCs, but is off by default because it perturbs scheduling. Early
+normal-WDT runs showed a fixed 800 ms gap between the last TG1 feed and stage-0
+timeout, but a later no-PC-trace TIMG liveness control classified that gap as
+`NOT_REPRODUCED`. A same-VMA byte audit rejected the
+local UIFlow2 v2.5.3 ELF mapping of the public legacy v1.15.4 BIN to UART
+ISR/MicroPython; the exact BIN bytes are consistent with cross-core
+Flash/cache-disable handoff but remain symbol-unbound. WDT-disabled
+`sample=1024` and trace-off produced the same serial output. This patch closes
+the missing-timeline prerequisite, not `RUNTIME-03`.
+
+`0038-esp32-handoff-pause.patch` adds the default-off
+`M5SW_ESP32_HANDOFF_PAUSE_NS` diagnostic timer. At the requested QEMU virtual
+time it records a `component=cpu event=pause` marker and sends `SIGSTOP` to the
+QEMU process. This freezes both vCPUs without enabling high-frequency PC
+sampling, allowing a debugger to read guest PS, `INTENABLE`, `INTSET`,
+`EXCCAUSE`, register windows and QEMU CPU state at an exact virtual timestamp.
+It is diagnostic-only and does not alter reset, WDT or controller behavior.
+
+`0039-esp32-handoff-state-dump.patch` makes the pause self-describing. It logs
+both vCPU PCs, interrupt-request and halted/running state, the Core2 handoff
+flags, DPORT cache state, and aggregate cache/SSI/cross-core counters before
+optionally entering `SIGSTOP`. The default action remains `SIGSTOP`;
+`M5SW_ESP32_HANDOFF_PAUSE_ACTION=exit` is only for isolated one-point Device
+Service diagnostics.
+
+`0040-xtensa-handoff-pc-trace.patch` adds a default-off list of
+`M5SW_XTENSA_PC_TRACE` addresses. It records only selected BIN-bound PCs with
+PRID, PS, INTENABLE and INTSET, avoiding the scheduling perturbation of a
+periodic PC sampler. A normal-WDT run observed 4,376 completed cache-handoff
+cycles before reset at `15.914787 s`, so `RUNTIME-03` is not a permanent
+cross-core deadlock. The three-run liveness control further shows a masked TG0
+stage-0 timeout, TG0 stage-1 as the first reset path, and TG1 feeding until
+`1.779-4.271 ms` before reset with zero TG1 timeouts. Exact counts and evidence
+remain in the validation ledger.
+
+`0041-esp32-handoff-register-stack-dump.patch` extends the exact-time dump with
+A0-A15, PS, selected object pointers and an optional bounded stack window.
+`M5SW_ESP32_HANDOFF_STACK_WORDS` is clamped to 64 words, defaults to zero and
+is read through each vCPU's address space. WDT-off 45/120-second snapshots
+placed CPU0 in `waiti` idle and CPU1 in the same `0x40100049` flag/object loop
+after Flash activity ended around 44 seconds. This is diagnostic only; the
+late object has no matching ELF symbol.
+
+`0042-esp32-spi-trans-done-irq-diagnostic.patch` adds the missing
+`SPI_SLAVE.TRANS_DONE`/`TRANS_INTEN` state and drives the SPI interrupt line
+as their logical AND. It also adds optional bounded object-word output to the
+exact-time handoff dump. BIN-bound analysis identifies the former late loop as
+LVGL `lv_refr_vdb_flush`: the VDB is double-buffered with `flushing=1`,
+`wait_cb` is null, and the display flush callback is invoked at about 44-48 s.
+The completion callback and `lv_disp_flush_ready` were still not observed
+within 50 seconds after enabling the transaction-done IRQ model, and normal
+WDT still reset at TG0 stage-1. This is a partial controller-model diagnostic,
+not a `RUNTIME-03` fix.
 
 `0023-user-firmware-hot-samples.patch` adds the regressions found by booting
 three popular M5Burner images per available ESP device. It enables the S3 LEDC

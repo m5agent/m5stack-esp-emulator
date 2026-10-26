@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "kind": "m5stack-core2-flash-ipc-interrupt-wdt-diagnostic",
+  "validation": "virtual-device validation",
+  "status": "PARTIAL",
+  "classification": "interrupt_wdt_after_flash_read_start",
+  "device_id": "core2",
+  "runtime": "qemu",
+  "firmware": {
+    "image_sha256": "c2762e5f34d513e34a47739174fd452567f2f3ec87164a4d421a1a7141c68359",
+    "image_bytes": 16777216,
+    "elf_sha256": "7636c3e5aa182621f9998e12938a2e037adf99689f7d1b7e5c154a7892aaf88b",
+    "build": "ESP-IDF 5.5.4",
+    "target": "esp32"
+  },
+  "probe": {
+    "worker_cpu": 1,
+    "iterations": 1000,
+    "read_bytes_per_iteration": 4096,
+    "total_read_bytes": 4096000,
+    "buffer_storage": "static aligned internal RAM",
+    "yield_interval_iterations": 50
+  },
+  "runtime_assets": {
+    "current_qemu_sha256": "7226de8c4a7292055b981ccbcb42ef865b883178b15e937e03da8767c409bf8d",
+    "portable_qemu_sha256": "4095fb1180f128f9d5fe8c240643dcc0fa99fca72981f6241b089667c0ca2fa8",
+    "traces": []
+  },
+  "current_runtime": {
+    "qemu_sha256": "7226de8c4a7292055b981ccbcb42ef865b883178b15e937e03da8767c409bf8d",
+    "attempts": 5,
+    "read_start_observed": 5,
+    "passed": 1,
+    "interrupt_wdt": 4,
+    "spinlock_owner_assert": 0,
+    "runs": [
+      {
+        "status": "INTERRUPT_WDT",
+        "progress_markers": 14,
+        "session_id_sha256": "a0c1e9d343e2064f7c0197995b545ef5a00792b959d2bdf5d8dfa496c4bcac87",
+        "serial_sha256": "4022f0d5e9f05eb313ff4655334e3ebcf2ee13e3ef1ba9780f6a83cd53994d3d"
+      },
+      {
+        "status": "INTERRUPT_WDT",
+        "progress_markers": 5,
+        "session_id_sha256": "d3497b5f895ea15f54dba928aeb3dea6f9c726b291b69b820b41ba74bb6700cd",
+        "serial_sha256": "31419ec8ab0e481c154a2a13633ef257c690b7ef91ada4f01eae6a1d58e11ef7"
+      },
+      {
+        "status": "INTERRUPT_WDT",
+        "progress_markers": 11,
+        "session_id_sha256": "45d98fd7f694433de7ebf2671a1870c8bbdbe0f90994e035f9e856b22f7b1b1f",
+        "serial_sha256": "7d9f39977d148df45536cad277b31b46b49cc7e0dde2521daffb06457d32c8fb"
+      },
+      {
+        "status": "PASS",
+        "progress_markers": 20,
+        "session_id_sha256": "bff8a073dde498b437485510ec9786d3c49995103860e428d3b28d6b690c33f8",
+        "serial_sha256": "6587e99c66d87dcb13dc84fe4eb7ae3e8d40055edb7d0aa874e2760a83cf5628"
+      },
+      {
+        "status": "INTERRUPT_WDT",
+        "progress_markers": 5,
+        "session_id_sha256": "67ebc3befccae9acc244ca3d9d1a9619434ea86c07fab4ae1acb461a0f11414a",
+        "serial_sha256": "211b8fbbd57520c54bb7d047b9738cc14202e4ca8294dd34d7bcada4cfd99ac4"
+      }
+    ]
+  },
+  "portable_runtime_control": {
+    "qemu_sha256": "4095fb1180f128f9d5fe8c240643dcc0fa99fca72981f6241b089667c0ca2fa8",
+    "attempt_batches": [
+      5,
+      10
+    ],
+    "attempts": 15,
+    "read_start_observed": 15,
+    "passed": 13,
+    "interrupt_wdt": 2,
+    "spinlock_owner_assert": 0
+  },
+  "combined_result": {
+    "attempts": 20,
+    "read_start_observed": 20,
+    "passed": 14,
+    "interrupt_wdt": 6,
+    "spinlock_owner_assert": 0,
+    "conclusion": "Both runtimes execute the CPU1 partition-read path, but interrupt-WDT remains intermittent. The current build is less stable in the sampled window, while the older portable runtime also reproduces the same failure class."
+  },
+  "wdt_observation": {
+    "panic": "Interrupt wdt timeout on CPU0 and CPU1",
+    "backtrace": "0x40083d8f:0x3ffb71c0 0x400de9e3:0x3ffb71e0 0x40086942:0x3ffb7200 0x40085b91:0x3ffb7220",
+    "symbolization": [
+      {
+        "pc": "0x40083d8f",
+        "symbol": "xt_utils_wait_for_intr <- esp_cpu_wait_for_intr"
+      },
+      {
+        "pc": "0x400de9e3",
+        "symbol": "esp_vApplicationIdleHook"
+      },
+      {
+        "pc": "0x40086942",
+        "symbol": "prvIdleTask"
+      },
+      {
+        "pc": "0x40085b91",
+        "symbol": "vPortTaskWrapper"
+      }
+    ],
+    "progress_before_failure_markers": [
+      5,
+      5,
+      11,
+      14
+    ]
+  },
+  "historical_correction": {
+    "invalid_image_sha256": "7e786a27678285d60c006fcb25226b98212672b34ec8b3b844833b5050a18da3",
+    "invalid_elf_sha256": "af6d765b5f17052d92bf582e9e3ab1ec05b12b3a43f61366f7da5f31eb5db648",
+    "observation": "The first probe placed a 4096-byte local array on a 4096-byte CPU1 task stack. Its stack overflow corrupted a FreeRTOS queue spinlock and produced the earlier owner-mismatch assertion.",
+    "resolution": "Move the read buffer to static aligned internal RAM and yield every 50 iterations. The corrected probe no longer produces spinlock owner assertions and reaches READ_START in every attempt."
+  },
+  "checks": {
+    "cpu0_prid_cdcd": "PASS",
+    "cpu1_prid_abab": "PASS",
+    "flash_read_started": "PASS",
+    "flash_read_data_plane": "PARTIAL",
+    "spinlock_owner_assert_absent": "PASS",
+    "stable_first_boot": "PARTIAL",
+    "physical_hardware": "NOT RUN"
+  },
+  "interpretation": {
+    "proven": [
+      "CPU1 executes 4 KiB esp_partition_read calls under QEMU.",
+      "The corrected probe reaches READ_START in 20/20 combined attempts.",
+      "Completed attempts reach 1000/1000 reads with no spinlock owner assertion.",
+      "Interrupt-WDT can occur after flash reads start while both CPUs are sampled in the idle waiti path."
+    ],
+    "not_proven": [
+      "Why virtual timer or interrupt delivery stalls in the WDT attempts.",
+      "Whether this is the same single root cause as legacy UIFlow.",
+      "Physical timer, cache, PSRAM or multicore behavior."
+    ],
+    "next": [
+      "Compare current and portable QEMU binaries with identical fixed inputs and larger attempt counts.",
+      "Trace TIMG, CCOMPARE, INTENABLE, INTSET and host/virtual-time progression around the idle waiti failure.",
+      "Retain the S32C1I trace as a default-off diagnostic, but stop treating spinlock/CAS as the primary hypothesis."
+    ]
+  }
+}

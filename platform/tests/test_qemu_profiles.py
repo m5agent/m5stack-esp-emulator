@@ -3,6 +3,8 @@ import json
 import unittest
 from pathlib import Path
 
+import qemu_profiles
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -22,25 +24,30 @@ class QemuProfileTest(unittest.TestCase):
         source = json.loads(
             (ROOT / "devices/catalog.source.json").read_text()
         )
-        catalog = {
-            device["id"]: device["runtime"].get("validation", {})
-            for device in source["devices"]
-        }
-        for row in self.registry["devices"]:
-            if not row["backend"].startswith(("qemu-esp32", "esp-emulator")):
-                continue
-            validation = row.get("validation", {})
-            with self.subTest(device=row["id"]):
-                self.assertEqual(
-                    validation.get("date"),
-                    catalog[row["id"]].get("date"),
-                    f"{row['id']}: QEMU profile and device catalog dates differ",
-                )
-                self.assertEqual(
-                    validation.get("status"),
-                    catalog[row["id"]].get("status"),
-                    f"{row['id']}: QEMU profile and device catalog statuses differ",
-                )
+        self.assertEqual(
+            qemu_profiles.catalog_validation_errors(self.registry, source),
+            [],
+        )
+
+    def test_qemu_profile_check_rejects_catalog_validation_drift(self):
+        source = json.loads(
+            (ROOT / "devices/catalog.source.json").read_text()
+        )
+        registry = json.loads(json.dumps(self.registry))
+        registry["generated_at"] = "2000-01-01"
+        core2 = next(
+            row for row in registry["devices"] if row["id"] == "core2"
+        )
+        core2["validation"]["date"] = "2000-01-01"
+        errors = qemu_profiles.catalog_validation_errors(registry, source)
+        self.assertIn(
+            "profiles generated_at must match devices/catalog.source.json",
+            errors,
+        )
+        self.assertIn(
+            "core2: catalog/profile validation date differs",
+            errors,
+        )
 
     def test_stopwatch_is_reference_ready(self):
         row = next(row for row in self.registry["devices"] if row["id"] == "stopwatch")
@@ -171,13 +178,14 @@ class QemuProfileTest(unittest.TestCase):
         self.assertIn("36 events", text)
         self.assertIn("9 ACLs", text)
         self.assertIn("four-instance 4x120s gates pass 8/8", text)
-        self.assertIn("five-instance 30-second-stagger 5x120s", text)
+        self.assertIn("five-instance", text)
+        self.assertIn("30-second", text)
         self.assertIn("pass 10/10", text)
-        self.assertIn("fixed-icount zero-stagger six-instance 6x120s", text)
+        self.assertIn("six-instance", text)
         self.assertIn("pass 12/12", text)
-        self.assertIn("zero-stagger eight-instance 8x120s", text)
-        self.assertIn("pass 16/16", text)
-        self.assertIn("hold/12 sweep-floor calibration", text)
+        self.assertIn("eight-instance", text)
+        self.assertIn("16/16 total", text)
+        self.assertIn("calibrating the sustained floor to hold/12", text)
         self.assertIn(
             "one batch passed 5/5 and an independent confirmation failed 3/5",
             text,

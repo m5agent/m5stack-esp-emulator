@@ -53,6 +53,81 @@ class IPv6ThreadingHTTPServer(ThreadingHTTPServer):
     address_family = socket.AF_INET6
 
 
+def normalize_host_name(value: str, *, field: str) -> str:
+    if not isinstance(value, str):
+        raise SandboxError(f"{field} must contain host name strings")
+    host = value.strip().lower()
+    if not host:
+        raise SandboxError(f"{field} contains an empty host name")
+    if host.endswith("."):
+        host = host[:-1]
+        if not host or host.endswith("."):
+            raise SandboxError(f"{field} contains an invalid trailing dot")
+    if len(host) > 253 or any(
+        not character.isascii()
+        or not (character.isalnum() or character in {"-", "."})
+        for character in host
+    ):
+        raise SandboxError(f"{field} contains an invalid host name")
+    labels = host.split(".")
+    if any(
+        not label
+        or len(label) > 63
+        or label.startswith("-")
+        or label.endswith("-")
+        for label in labels
+    ):
+        raise SandboxError(f"{field} contains an invalid host name")
+    return host
+
+
+def _normalize_authority_port(value: str) -> None:
+    if not value or not value.isascii() or not value.isdigit():
+        raise SandboxError("HTTP Host port is invalid")
+    port = int(value)
+    if not 1 <= port <= 65535:
+        raise SandboxError("HTTP Host port is out of range")
+
+
+def normalize_http_authority(value: str) -> str:
+    """Parse the Host authority, including its optional numeric port."""
+    if not isinstance(value, str):
+        raise SandboxError("HTTP Host must be a string")
+    raw = value.strip()
+    if (
+        not raw
+        or value != raw
+        or any(character.isspace() for character in raw)
+        or any(character in raw for character in ",/@\\")
+    ):
+        raise SandboxError("HTTP Host authority is malformed")
+    if raw.startswith("["):
+        closing = raw.find("]")
+        if closing <= 1:
+            raise SandboxError("HTTP Host IPv6 literal is malformed")
+        literal = raw[1:closing]
+        remainder = raw[closing + 1 :]
+        try:
+            host = str(ipaddress.IPv6Address(literal))
+        except ValueError as error:
+            raise SandboxError("HTTP Host IPv6 literal is invalid") from error
+        if remainder:
+            if not remainder.startswith(":"):
+                raise SandboxError("HTTP Host authority is malformed")
+            _normalize_authority_port(remainder[1:])
+        return host
+    if raw.count(":") > 1:
+        raise SandboxError(
+            "HTTP Host IPv6 literals must use square brackets"
+        )
+    if ":" in raw:
+        host_value, port_value = raw.rsplit(":", 1)
+        _normalize_authority_port(port_value)
+    else:
+        host_value = raw
+    return normalize_host_name(host_value, field="HTTP Host")
+
+
 def domain_matches_suffix(host: str, suffix: str) -> bool:
     normalized_host = host.strip().lower().rstrip(".")
     normalized_suffix = suffix.strip().lower().rstrip(".")
@@ -78,7 +153,6 @@ def normalize_domain_suffixes(value: object) -> tuple[str, ...]:
             {
                 item.strip().lower().rstrip(".")
                 for item in value
-                if item.strip()
             }
         )
     )
@@ -119,9 +193,8 @@ def normalize_allowed_hosts(
     return tuple(
         sorted(
             {
-                item.strip().lower().rstrip(".")
+                normalize_host_name(item, field=field)
                 for item in value
-                if item.strip()
             }
         )
     )
@@ -431,24 +504,34 @@ class ControlledHttp:
 
         class Handler(BaseHTTPRequestHandler):
             def do_GET(self) -> None:
-                host_header = self.headers.get("Host", "")
-                host = (
-                    host_header.rsplit(":", 1)[0]
-                    .strip()
-                    .lower()
-                    .rstrip(".")
-                )
-                allowed = (
+                host_values = self.headers.get_all("Host", [])
+                host_header = host_values[0] if len(host_values) == 1 else ""
+                enforce_host_policy = not (
                     owner.allowed_hosts is None
                     and owner.allowed_domains is None
-                ) or (
-                    owner.allowed_hosts is not None
-                    and host in owner.allowed_hosts
-                ) or (
-                    owner.allowed_domains is not None
-                    and any(
-                        domain_matches_suffix(host, suffix)
-                        for suffix in owner.allowed_domains
+                )
+                host = ""
+                if enforce_host_policy:
+                    try:
+                        host = normalize_http_authority(host_header)
+                    except SandboxError:
+                        host = ""
+                allowed = not enforce_host_policy or (
+                    len(host_values) == 1
+                    and self.path.startswith("/")
+                    and bool(
+                        (
+                            owner.allowed_hosts is not None
+                            and host in owner.allowed_hosts
+                        )
+                        or (
+                            owner.allowed_domains is not None
+                            and host
+                            and any(
+                                domain_matches_suffix(host, suffix)
+                                for suffix in owner.allowed_domains
+                            )
+                        )
                     )
                 )
                 status = 200 if allowed else 403
@@ -594,7 +677,10 @@ class ControlledDns:
         for raw_name, raw_addresses in records.items():
             if not isinstance(raw_name, str) or not raw_name.strip():
                 raise SandboxError("sandbox DNS record names must be strings")
-            name = raw_name.strip().lower().rstrip(".")
+            name = normalize_host_name(
+                raw_name,
+                field="sandbox DNS record names",
+            )
             values = (
                 [raw_addresses]
                 if isinstance(raw_addresses, str)
@@ -637,6 +723,14 @@ class ControlledDns:
                         raise SandboxError(
                             f"sandbox DNS record for {name} is not an IP address"
                         ) from error
+                if (
+                    isinstance(address, ipaddress.IPv6Address)
+                    and address.ipv4_mapped is not None
+                ):
+                    raise SandboxError(
+                        f"sandbox DNS record for {name} must use IPv4 "
+                        "instead of an IPv4-mapped IPv6 address"
+                    )
                 if address.is_unspecified or address.is_multicast:
                     raise SandboxError(
                         f"sandbox DNS record for {name} is not a unicast address"
@@ -676,8 +770,15 @@ class ControlledDns:
                 raise SandboxError(
                     "sandbox DNS CNAME aliases and targets must be strings"
                 )
-            alias = normalize_domain_suffixes((raw_alias,))[0]
-            target = normalize_domain_suffixes((raw_target,))[0]
+            aliases = normalize_domain_suffixes((raw_alias,))
+            targets = normalize_domain_suffixes((raw_target,))
+            if not aliases or not targets:
+                raise SandboxError(
+                    "sandbox DNS CNAME aliases and targets must be "
+                    "non-empty domain names"
+                )
+            alias = aliases[0]
+            target = targets[0]
             if alias == target:
                 raise SandboxError(
                     f"sandbox DNS CNAME {alias} cannot target itself"
@@ -998,6 +1099,27 @@ def _egress_endpoints(config: dict[str, Any]) -> tuple[EgressEndpoint, ...]:
         raise SandboxError(str(error)) from error
 
 
+def validate_exact_record_bindings(
+    records: dict[str, Any],
+    endpoints: tuple[EgressEndpoint, ...],
+) -> dict[
+    str,
+    tuple[ipaddress.IPv4Address | ipaddress.IPv6Address, ...],
+]:
+    exact_records = ControlledDns.normalize_records(records)
+    for name, addresses in exact_records.items():
+        for address in addresses:
+            if not any(
+                endpoint_contains_address(endpoint, address)
+                for endpoint in endpoints
+            ):
+                raise SandboxError(
+                    f"sandbox DNS exact record {name} resolves to "
+                    f"{address}, which is not covered by an allowed endpoint"
+                )
+    return exact_records
+
+
 def validate_domain_record_bindings(
     records: dict[str, Any],
     allowed_domains: tuple[str, ...],
@@ -1279,7 +1401,10 @@ def run(
                 raise SandboxError(
                     "sandbox DNS requires hosts, domain_records or cname_records"
                 )
-            normalized_records = ControlledDns.normalize_records(records)
+            normalized_records = validate_exact_record_bindings(
+                records,
+                endpoints,
+            )
             domain_records = validate_domain_record_bindings(
                 raw_domain_records,
                 allowed_domains,

@@ -1,11 +1,12 @@
 # 虚拟主机适配矩阵
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本页只维护稳定的设备、SoC、后端和板级入口映射。动态 PASS 计数、最新验证
 日期、运行边界和剩余缺口分别由
 [自动项目快照](project-snapshot.md)、[项目当前状态](project-status.md)和
-[项目 Backlog](project-backlog.md)维护，避免同一组数字在多个页面漂移。
+[项目 Backlog](project-backlog.md)维护，精确运行记录由
+[验证证据台账](validation-ledger.md)维护，避免同一组数字在多个页面漂移。
 
 ## 后端划分
 
@@ -13,7 +14,7 @@
 | --- | --- | --- | --- |
 | ESP32-S3 | `qemu-esp32s3` | 单 guest 板级、WiFi（含 WPA2-PSK pairwise/unicast）和 HCI BLE | 功能级 MAC/DMA/网络模型，不是 WPA3/group multicast、PHY/RF、功耗或电气模型 |
 | ESP32-C6 | `qemu-esp32c6` | 单 guest 板级、WiFi 和 HCI BLE | Zigbee/802.15.4 由 `RUNTIME-02` 单列 |
-| ESP32 LX6 | `qemu-esp32lx6` | Core2 板级、OpenMAC WiFi、BLE controller boundary、8 MiB PSRAM QOM、DRAM1 MMU upper-bank remap、共享 GPIO21/22 板级 I2C bus、TIMG watchdog trace 与周期联网 | canonical BLE 路径为 `core2-native-hci`；legacy VHCI 仅诊断；普通 4 MiB heap stress + upper-bank `3/3` 已覆盖；双实例 `8/8`、三实例 `6/6`、四实例 `8/8`、五实例 30 秒错峰 `10/10`；旧 `shift=auto` 零错峰 `5/5 PASS`/`3/5 FAIL` 保留，固定 `icount shift=5` 与 BLE-first 后两批零错峰五实例 `10/10`、六实例 `12/12`；八实例先用旧 `hold/10` 得到 `4/8` 纯吞吐阈值失败，校准 `hold/12` 后两批 `16/16 PASS`；legacy UIFlow 已越过原 I2C error，但 WDT 对调度/虚拟时间敏感，显式 accelerator 对照未修复，black frame 仍 OPEN；大于八实例、持续吞吐及物理 PSRAM/cache timing 不覆盖 |
+| ESP32 LX6 | `qemu-esp32lx6` | Core2 板级、OpenMAC WiFi、8 MiB PSRAM QOM、DRAM1 upper-bank MMU、native-HCI、重连、长稳、active-stop 和当前容量内并发 | canonical BLE 路径为 `core2-native-hci`，legacy VHCI 仅诊断。legacy UIFlow 仍为 `PARTIAL`：共享 I2C、timer、WDT mask、QIO/stateful SSI、`0037` cross-core flash-cache/IPC/DPORT timeline、`0038` exact-time pause、`0039/0040` state/setter trace、`0041` late-state 和 `0042` partial SPI transaction-done IRQ model 已验证。三次 WDT liveness 证明 TG1 一直 feed 到 TG0 stage-1 reset；WDT-off 约 44 秒后的 CPU1 `0x40100049` 已绑定为 LVGL `lv_refr_vdb_flush` 双缓冲 wait，flush callback 已执行但 SPI completion/`lv_disp_flush_ready` 未出现。当前门禁是 completion 链、normal-WDT 非空帧、物理 PSRAM/cache、bit-exact controller、大于当前容量和持续吞吐；精确记录见[运行时模型缺口登记](runtime-model-gap-register.md)和[验证证据台账](validation-ledger.md) |
 | ESP32-P4 | `esp-emulator-native` | Tab5 烧录、M5GFX framebuffer、touch mailbox 和部分 I2C | 闭源 P4 后端，外设仍为 `partial` |
 | Linux ARM64 | `external-linux-arm64` | CardputerZero 独立 Linux 设备 | 不是 ESP32/UIFlow2 固件目标，也不由当前 `/api/v1` 管理 |
 
@@ -52,10 +53,9 @@
 | Linux 设备 | `external-linux-arm64` | CardputerZero 系统、驱动和帧数据面 | ESP32/UIFlow2 结论 |
 
 `qemu-ble` 仍作为兼容别名接受，新调用使用 `qemu-unified`。Core2 新调用使用
-`profile=core2-native-hci`；`core2-native-vhci` 只用于显式诊断。
-Core2 的长 BLE reconnect workload 使用按 cycles/delay 计算的 readiness
-预算；首次 `121` 轮运行曾被固定 `180s` 预算误杀，失败保留为等待预算证据，
-修复后 3 个独立 lease 均为 `121/121 PASS`。
+`profile=core2-native-hci`；`core2-native-vhci` 只用于显式诊断。Core2 的
+长 BLE reconnect workload 使用按 cycles/delay 计算的 readiness 预算；历史
+超时和修复由验证台账维护，本页不复制轮次。
 
 ## 板级接入步骤
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import stat
 import sys
 import tempfile
 import unittest
@@ -84,6 +85,18 @@ class FirmwareManifestTests(unittest.TestCase):
         self.assertIn(
             "image-below-efuse-unverified-source",
             anti_rollback_schema["properties"]["comparison"]["enum"],
+        )
+        self.assertIn(
+            "disabled",
+            schema["properties"]["security"]["properties"][
+                "secure_boot_config"
+            ]["enum"],
+        )
+        self.assertIn(
+            "disabled",
+            schema["properties"]["security"]["properties"][
+                "flash_encryption_config"
+            ]["enum"],
         )
         segment_properties = (
             schema["properties"]["artifact"]["properties"]["segments"]["items"][
@@ -933,6 +946,303 @@ class FirmwareManifestTests(unittest.TestCase):
         self.assertNotEqual(first["created_at"], second["created_at"])
         self.assertEqual(first["manifest_id"], second["manifest_id"])
 
+    def test_security_preflight_rejects_understated_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "secure-boot.bin"
+            image.write_bytes(build_flash_with_secure_boot_v2())
+            (root / "sdkconfig").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+                "CONFIG_SECURE_BOOT_V2_ENABLED=y\n"
+            )
+            manifest = import_package(
+                image,
+                root / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+        device = load_device_profile("sticks3")
+
+        def codes(overrides: dict) -> set[str]:
+            candidate = json.loads(json.dumps(manifest))
+            candidate["security"].update(overrides)
+            return {
+                issue["code"]
+                for issue in validate_capabilities(
+                    candidate,
+                    device,
+                )["errors"]
+            }
+
+        signed_image = json.loads(
+            json.dumps(manifest["security"]["secure_boot_image"])
+        )
+        self.assertIn(
+            "secure_boot_image_not_modeled",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "unknown",
+                    "secure_boot_image": signed_image,
+                }
+            ),
+        )
+        self.assertIn(
+            "secure_boot_config_not_modeled",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "v2",
+                    "secure_boot_image": {
+                        **signed_image,
+                        "status": "not-found",
+                    },
+                }
+            ),
+        )
+        self.assertIn(
+            "secure_boot_image_invalid",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "unknown",
+                    "secure_boot_image": {
+                        **signed_image,
+                        "status": "invalid",
+                    },
+                }
+            ),
+        )
+        self.assertIn(
+            "secure_boot_image_status_understated",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "unknown",
+                    "secure_boot_image": {
+                        **signed_image,
+                        "status": "not-found",
+                    },
+                }
+            ),
+        )
+        trust_root = json.loads(
+            json.dumps(manifest["security"]["trust_root"])
+        )
+        trust_root["comparison"] = "mismatch-unverified-source"
+        self.assertIn(
+            "secure_boot_efuse_key_mismatch",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "unknown",
+                    "secure_boot_image": {
+                        **signed_image,
+                        "status": "not-found",
+                    },
+                    "trust_root": trust_root,
+                }
+            ),
+        )
+        anti_rollback = json.loads(
+            json.dumps(manifest["security"]["anti_rollback"])
+        )
+        anti_rollback["comparison"] = (
+            "image-below-efuse-unverified-source"
+        )
+        anti_rollback["image_secure_version"] = 1
+        anti_rollback["efuse_secure_version"] = 2
+        self.assertIn(
+            "firmware_secure_version_below_efuse",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "unknown",
+                    "secure_boot_image": {
+                        **signed_image,
+                        "status": "not-found",
+                    },
+                    "anti_rollback": anti_rollback,
+                }
+            ),
+        )
+        self.assertIn(
+            "flash_encryption_config_not_modeled",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "unknown",
+                    "secure_boot_image": {
+                        **signed_image,
+                        "status": "not-found",
+                    },
+                    "flash_encryption": "unknown",
+                    "flash_encryption_config": "enabled",
+                }
+            ),
+        )
+        efuse_codes = codes(
+            {
+                "secure_boot": "unknown",
+                "secure_boot_config": "unknown",
+                "secure_boot_image": {
+                    **signed_image,
+                    "status": "not-found",
+                },
+                "flash_encryption": "unknown",
+                "flash_encryption_config": "unknown",
+                "efuse_summary": {
+                    "secure_boot": "v2",
+                    "flash_encryption": "enabled",
+                },
+            }
+        )
+        self.assertIn("secure_boot_efuse_not_modeled", efuse_codes)
+        self.assertIn("flash_encryption_efuse_not_modeled", efuse_codes)
+        invalid_efuse_codes = codes(
+            {
+                "secure_boot": "unknown",
+                "secure_boot_config": "unknown",
+                "secure_boot_image": {
+                    **signed_image,
+                    "status": "not-found",
+                },
+                "flash_encryption": "unknown",
+                "flash_encryption_config": "unknown",
+                "efuse_summary": {
+                    "secure_boot": "enabled",
+                    "flash_encryption": "enabled-active",
+                },
+            }
+        )
+        self.assertIn(
+            "invalid_efuse_security_evidence",
+            invalid_efuse_codes,
+        )
+
+    def test_security_shape_is_required_even_without_schema_validator(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "probe.bin"
+            image.write_bytes(build_flash())
+            manifest = import_package(
+                image,
+                root / "out",
+                flash_size=8 << 20,
+            )["manifest"]
+        missing = json.loads(json.dumps(manifest))
+        missing["security"].pop("secure_boot")
+        self.assertIn(
+            "manifest.security.secure_boot is required",
+            validate_manifest_structure(missing),
+        )
+        invalid = json.loads(json.dumps(manifest))
+        invalid["security"]["flash_encryption"] = "enabled-elsewhere"
+        self.assertIn(
+            "manifest.security.flash_encryption is invalid",
+            validate_manifest_structure(invalid),
+        )
+        missing_capabilities = json.loads(json.dumps(manifest))
+        missing_capabilities.pop("capabilities")
+        self.assertIn(
+            "manifest.capabilities is required",
+            validate_manifest_structure(missing_capabilities),
+        )
+        missing_capability_arrays = json.loads(json.dumps(manifest))
+        missing_capability_arrays["capabilities"].pop("required")
+        missing_capability_arrays["capabilities"].pop("optional")
+        structure_errors = validate_manifest_structure(
+            missing_capability_arrays
+        )
+        self.assertIn(
+            "manifest.capabilities.required is required",
+            structure_errors,
+        )
+        self.assertIn(
+            "manifest.capabilities.optional is required",
+            structure_errors,
+        )
+        invalid_efuse = json.loads(json.dumps(manifest))
+        invalid_efuse["security"]["efuse_summary"] = {
+            "secure_boot": "enabled",
+            "flash_encryption": "enabled-active",
+        }
+        efuse_errors = validate_manifest_structure(invalid_efuse)
+        self.assertIn(
+            "manifest.security.efuse_summary.secure_boot is invalid",
+            efuse_errors,
+        )
+        self.assertIn(
+            "manifest.security.efuse_summary.flash_encryption is invalid",
+            efuse_errors,
+        )
+        missing_validation_list = json.loads(json.dumps(manifest))
+        missing_validation_list["validation"].pop("warnings")
+        self.assertIn(
+            "manifest.validation.warnings must be an array",
+            validate_manifest_structure(missing_validation_list),
+        )
+
+    def test_webburner_manifest_id_ignores_output_filename(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = build_flash()
+            parts = {
+                "bootloader.bin": image[:0x8000],
+                "partition-table.bin": image[0x8000:0x10000],
+                "application.bin": image[0x10000:],
+            }
+            offsets = {
+                "bootloader.bin": 0,
+                "partition-table.bin": 0x8000,
+                "application.bin": 0x10000,
+            }
+            manifests = []
+            for package_name in ("package-a", "package-b"):
+                package = root / package_name
+                package.mkdir()
+                for name, data in parts.items():
+                    (package / name).write_bytes(data)
+                (package / "manifest.json").write_text(
+                    json.dumps(
+                        {
+                            "name": "Identity Probe",
+                            "version": "1.0.0",
+                            "builds": [
+                                {
+                                    "chipFamily": "ESP32-S3",
+                                    "parts": [
+                                        {
+                                            "path": name,
+                                            "offset": offsets[name],
+                                        }
+                                        for name in parts
+                                    ],
+                                }
+                            ],
+                        }
+                    )
+                )
+                manifests.append(
+                    import_package(
+                        package,
+                        root / f"out-{package_name}",
+                        device_id="sticks3",
+                        flash_size=8 << 20,
+                    )["manifest"]
+                )
+        self.assertNotEqual(
+            manifests[0]["artifact"]["file"],
+            manifests[1]["artifact"]["file"],
+        )
+        self.assertEqual(
+            manifests[0]["artifact"]["sha256"],
+            manifests[1]["artifact"]["sha256"],
+        )
+        self.assertEqual(
+            manifests[0]["manifest_id"],
+            manifests[1]["manifest_id"],
+        )
+
     def test_imports_webburner_segmented_package(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1171,11 +1481,32 @@ class FirmwareManifestTests(unittest.TestCase):
         self.assertIn(
             "unknown_required_capability",
             {
-                warning["code"]
-                for warning in manifest["validation"]["warnings"]
+                error["code"]
+                for error in manifest["validation"]["errors"]
             },
         )
         self.assertEqual(manifest["validation"]["status"], "REJECTED")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "probe.bin"
+            image.write_bytes(build_flash())
+            unknown_result = import_package(
+                image,
+                root / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+                required_capabilities=["vendor-private-sensor"],
+            )
+        unknown_manifest = unknown_result["manifest"]
+        self.assertEqual(unknown_manifest["validation"]["status"], "REJECTED")
+        self.assertEqual(
+            [
+                error["code"]
+                for error in unknown_manifest["validation"]["errors"]
+            ],
+            ["unknown_required_capability"],
+        )
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1221,6 +1552,51 @@ class FirmwareManifestTests(unittest.TestCase):
                     required_capabilities=["wifi"],
                     optional_capabilities=["WIFI"],
                 )
+
+    def test_capability_section_is_required_and_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "probe.bin"
+            image.write_bytes(build_flash())
+            manifest = import_package(
+                image,
+                root / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+            )["manifest"]
+        device = load_device_profile("sticks3")
+        omitted = json.loads(json.dumps(manifest))
+        omitted.pop("capabilities")
+        self.assertIn(
+            "manifest.capabilities is required",
+            validate_manifest_structure(omitted),
+        )
+        result = validate_capabilities(omitted, device)
+        self.assertEqual(result["status"], "REJECTED")
+        self.assertIn(
+            "capabilities_required",
+            {issue["code"] for issue in result["errors"]},
+        )
+        missing_required = json.loads(json.dumps(manifest))
+        missing_required["capabilities"].pop("required")
+        result = validate_capabilities(missing_required, device)
+        self.assertEqual(result["status"], "REJECTED")
+        self.assertIn(
+            "invalid_capability_declarations",
+            {issue["code"] for issue in result["errors"]},
+        )
+        oversized = json.loads(json.dumps(manifest))
+        oversized["capabilities"]["required"] = ["wifi"] * 65
+        self.assertIn(
+            "manifest.capabilities.required exceeds 64 entries",
+            validate_manifest_structure(oversized),
+        )
+        result = validate_capabilities(oversized, device)
+        self.assertEqual(result["status"], "REJECTED")
+        self.assertIn(
+            "invalid_capability_declarations",
+            {issue["code"] for issue in result["errors"]},
+        )
 
     def test_capability_declarations_are_bounded_and_canonical(self):
         self.assertEqual(
@@ -1620,6 +1996,308 @@ class FirmwareManifestTests(unittest.TestCase):
                 archive.writestr("../escape.bin", b"bad")
             with self.assertRaisesRegex(ManifestError, "escapes root"):
                 import_package(archive_path, root / "out")
+
+    def test_archive_rejects_colliding_or_nonportable_paths(self):
+        cases = (
+            (
+                ("A.bin", b"a"),
+                ("a.bin", b"b"),
+                "collide after normalization",
+            ),
+            (
+                ("\u00e9.bin", b"a"),
+                ("e\u0301.bin", b"b"),
+                "collide after normalization",
+            ),
+            (
+                ("dir/../A.bin", b"a"),
+                None,
+                "escapes root",
+            ),
+            (
+                ("./firmware.bin", b"a"),
+                None,
+                "ambiguous",
+            ),
+            (
+                ("dir//firmware.bin", b"a"),
+                None,
+                "ambiguous",
+            ),
+            (
+                ("CON.bin", b"a"),
+                None,
+                "reserved name",
+            ),
+            (
+                ("folder./firmware.bin", b"a"),
+                None,
+                "not portable",
+            ),
+            (
+                ("A/file.bin", b"a"),
+                ("a/other.bin", b"b"),
+                "directory paths collide",
+            ),
+            (
+                ("firmware.bin", b"a"),
+                ("firmware.bin/sub.bin", b"b"),
+                "nested below a file",
+            ),
+            (
+                (r"dir\\firmware.bin", b"a"),
+                None,
+                "invalid path",
+            ),
+            (
+                ("C:/firmware.bin", b"a"),
+                None,
+                "not portable",
+            ),
+        )
+        for first, second, expected in cases:
+            with self.subTest(first=first, second=second), tempfile.TemporaryDirectory() as tmp:
+                archive_path = Path(tmp) / "firmware.zip"
+                with zipfile.ZipFile(archive_path, "w") as archive:
+                    archive.writestr(first[0], first[1])
+                    if second is not None:
+                        archive.writestr(second[0], second[1])
+                with self.assertRaisesRegex(ManifestError, expected):
+                    import_package(archive_path, Path(tmp) / "out")
+
+    def test_archive_rejects_symlink_entries(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            archive_path = Path(tmp) / "firmware.zip"
+            entry = zipfile.ZipInfo("firmware.bin")
+            entry.external_attr = (stat.S_IFLNK | 0o777) << 16
+            with zipfile.ZipFile(archive_path, "w") as archive:
+                archive.writestr(entry, "target.bin")
+            with self.assertRaisesRegex(
+                ManifestError,
+                "symlink entries",
+            ):
+                import_package(archive_path, Path(tmp) / "out")
+
+    def test_webburner_selects_exactly_one_target_build(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = build_flash()
+            parts = {
+                "bootloader.bin": image[:0x8000],
+                "partition-table.bin": image[0x8000:0x10000],
+                "application.bin": image[0x10000:],
+            }
+            offsets = {
+                "bootloader.bin": 0,
+                "partition-table.bin": 0x8000,
+                "application.bin": 0x10000,
+            }
+            for name, data in parts.items():
+                (root / name).write_bytes(data)
+            base_build = {
+                "parts": [
+                    {
+                        "path": name,
+                        "offset": offsets[name],
+                    }
+                    for name in parts
+                ]
+            }
+            (root / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "name": "Multi Build Probe",
+                        "version": "1.0.0",
+                        "builds": [
+                            {"chipFamily": "ESP32-S3", **base_build},
+                            {"chipFamily": "ESP32-C3", **base_build},
+                        ],
+                    }
+                )
+            )
+            result = import_package(
+                root,
+                root / "out-s3",
+                device_id="sticks3",
+                flash_size=8 << 20,
+            )
+            self.assertEqual(result["manifest"]["target"]["soc"], "esp32s3")
+            with self.assertRaisesRegex(
+                ManifestError,
+                "requires a target device",
+            ):
+                import_package(root, root / "out-no-device")
+            with self.assertRaisesRegex(
+                ManifestError,
+                "exactly one build",
+            ):
+                import_package(
+                    root,
+                    root / "out-c6",
+                    device_id="nesso-n1",
+                    flash_size=8 << 20,
+                )
+
+    def test_webburner_rejects_ambiguous_sources(self):
+        image = build_flash()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            for name in ("a", "b"):
+                case = root / name
+                case.mkdir()
+                (case / "sdkconfig").write_text(
+                    "CONFIG_SECURE_BOOT=n\n"
+                )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "multiple sdkconfig resources",
+            ):
+                import_package(root / "firmware.bin", root / "out-sdk")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            for name in ("a", "b"):
+                case = root / name
+                case.mkdir()
+                (case / "efuse-summary.json").write_text(
+                    json.dumps(
+                        {
+                            "ABS_DONE_1": {
+                                "value": False,
+                                "readable": True,
+                            },
+                            "SPI_BOOT_CRYPT_CNT": {
+                                "value": "Disable",
+                                "readable": True,
+                            },
+                        }
+                    )
+                )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "multiple eFuse summaries",
+            ):
+                import_package(root / "firmware.bin", root / "out-efuse")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name in ("manifest.json", "web-manifest.json"):
+                (root / name).write_text(
+                    json.dumps(
+                        {
+                            "builds": [
+                                {
+                                    "chipFamily": "ESP32-S3",
+                                    "parts": [
+                                        {
+                                            "path": "firmware.bin",
+                                            "offset": 0,
+                                        }
+                                    ],
+                                }
+                            ]
+                        }
+                    )
+                )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "multiple WebBurner manifests",
+            ):
+                import_package(
+                    root,
+                    root / "out-manifest",
+                    device_id="sticks3",
+                    flash_size=8 << 20,
+                )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            for name in ("a", "b"):
+                case = root / name
+                case.mkdir()
+                (case / "flasher_args.json").write_text(
+                    json.dumps({"flash_files": {"0x0": "../firmware.bin"}})
+                )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "multiple flasher_args.json",
+            ):
+                import_package(root, root / "out-flasher")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            (root / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "builds": [
+                            {
+                                "chipFamily": "ESP32-S3",
+                                "parts": [
+                                    {
+                                        "path": "firmware.bin",
+                                        "offset": True,
+                                    }
+                                ],
+                            }
+                        ]
+                    }
+                )
+            )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "has invalid offset",
+            ):
+                import_package(
+                    root,
+                    root / "out-boolean-offset",
+                    device_id="sticks3",
+                    flash_size=8 << 20,
+                )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            for name in ("sbom.json", "bom.json"):
+                (root / name).write_text(
+                    json.dumps({"bomFormat": "CycloneDX"})
+                )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "multiple sbom resources",
+            ):
+                import_package(root / "firmware.bin", root / "out-sbom")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            (root / "sdkconfig").write_text("CONFIG_SECURE_BOOT=n\n")
+            for name in ("a", "b"):
+                case = root / name
+                case.mkdir()
+                (case / "sdkconfig.defaults").write_text(
+                    "CONFIG_SECURE_BOOT=n\n"
+                )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "multiple sdkconfig.defaults resources",
+            ):
+                import_package(
+                    root / "firmware.bin",
+                    root / "out-sdkconfig-defaults",
+                )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            (root / "sdkconfig").write_text("CONFIG_SECURE_BOOT=n\n")
+            (root / "sdkconfig.defaults").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+            )
+            result = import_package(
+                root / "firmware.bin",
+                root / "out-sdkconfig-precedence",
+            )
+            self.assertEqual(
+                result["manifest"]["resources"]["sdkconfig"]["file"],
+                "sdkconfig",
+            )
 
 
 if __name__ == "__main__":

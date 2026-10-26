@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-sticks3-tls-host-allowlist",
+  "scope": "virtual-device-linux-network-namespace-dns-tls-not-hardware-rf",
+  "date": "2026-10-26",
+  "status": "PASS",
+  "duration_seconds": 24.44,
+  "isolation": "namespace",
+  "image_sha256": "29135a1fdd422491172da4bd1896a15e5ce4aa58eb0024d8a62ab33bd51eea29",
+  "base_image_sha256": "c08196024019273ccadee9b4b3da303567f7ab206fa14edd1af283f04f6e98d8",
+  "certificate_sha256": "8b91873839c6163e2546030e1ed25c5b9b330c61e227203a0a5d5b4168ddf860",
+  "runtime_sha256": {
+    "qemu_linux_arm64": "f024f034d20bd5b8e2c224ce69deed70984b0514f8a310d221b388b74c179ecb",
+    "network_sandbox.py": "ff095c3b17d0318a2959e107ec6a36696d889bbcb2a7f750f31d829ec5c16c55",
+    "network_policy.py": "45cdba291b9351d69d326cc0adfaa84d107141023d9c1a7d9fdc5ba8ab00cd67",
+    "tls_allowlist_runner": "edb3f023aa4e21daaff6091785c188b93905379ead783510629bc1a783863845"
+  },
+  "checks": {
+    "TLS_WIFI_READY": true,
+    "TLS_CONTEXT_READY": true,
+    "TLS_CA_LOADED": true,
+    "TLS_ALLOWED PASS": true,
+    "TLS_DENIED PASS": true,
+    "TLS_ALLOWLIST_RESULT PASS": true,
+    "TLS_DNS_ALLOWED PASS": true,
+    "TLS_DNS_DENIED PASS": true,
+    "tls_allow_and_deny": true,
+    "dhcp": true,
+    "tls_port_observed": true,
+    "pcap_written": true,
+    "private_namespace": true,
+    "no_external_route": true,
+    "allowlist_evidence": true,
+    "allowed_endpoint_evidence": true,
+    "nftables_default_drop": true,
+    "controlled_dns": true,
+    "dns_allow_and_deny": true,
+    "dns_background_denied": true
+  },
+  "tls_requests": [
+    {
+      "path": "/allowed",
+      "host": "allowed.lab.test",
+      "decision": "allow",
+      "status": "200"
+    },
+    {
+      "path": "/denied",
+      "host": "denied.lab.test",
+      "decision": "deny",
+      "status": "403"
+    }
+  ],
+  "dns_requests": [
+    {
+      "name": "allowed.lab.test",
+      "qtype": "1",
+      "decision": "allow",
+      "status": "A",
+      "rule": "exact:allowed.lab.test"
+    },
+    {
+      "name": "denied.lab.test",
+      "qtype": "1",
+      "decision": "deny",
+      "status": "NXDOMAIN",
+      "rule": "none"
+    },
+    {
+      "name": "uiflow2.m5stack.com",
+      "qtype": "1",
+      "decision": "deny",
+      "status": "NXDOMAIN",
+      "rule": "none"
+    },
+    {
+      "name": "ntp.aliyun.com",
+      "qtype": "1",
+      "decision": "deny",
+      "status": "NXDOMAIN",
+      "rule": "none"
+    }
+  ],
+  "packet_capture": {
+    "status": "PASS",
+    "bytes": 11851,
+    "sha256": "bdf242674da5a947008ddc4a2fd01975511ffab57522bfc0872ced18f0e85c35",
+    "packets": 74,
+    "truncated_records": 0,
+    "malformed_records": 0,
+    "dns_queries": 5,
+    "dns_malformed": 0,
+    "dhcp": "PASS"
+  },
+  "hardening_under_test": {
+    "allowed_host_normalization": "lowercase, trailing-dot removal, strict DNS labels",
+    "http_host_authority": "one Host header, numeric optional port, no userinfo or ambiguous separators, origin-form target",
+    "dns_exact_answer_binding": "every exact A/AAAA answer must be covered by an allowed endpoint",
+    "dns_ipv4_mapped_ipv6": "rejected instead of treated as an IPv6 allowlist entry"
+  },
+  "not_claimed": [
+    "real-hardware TLS or RF behavior",
+    "public-internet availability",
+    "arbitrary public DNS or DNSSEC",
+    "external resolver rebinding safety",
+    "certificate-pinned or mutual-TLS firmware",
+    "malicious-firmware safety"
+  ]
+}

@@ -64,9 +64,9 @@
     "display_protocol": "spi-ili9342",
     "execution": "native-qemu",
     "validation": {
-      "date": "2026-10-23",
+      "date": "2026-10-25",
       "status": "display-touch-peripherals-wifi-ble-pass",
-      "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 320x240 显示/触摸、电源/RTC/IMU/ALS、AW9523、扬声器、麦克风、GC0308 camera.snapshot()、MAX3421E USB Host、WiFi DHCP/HTTP 和 UART1 HCI BLE。启动菜单透明/调色板图像仍有独立视觉边界。"
+      "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 320x240 显示/触摸、电源/RTC/IMU/ALS、AW9523、扬声器、麦克风、GC0308 camera.snapshot()、MAX3421E USB Host、WiFi DHCP/HTTP 和 UART1 HCI BLE，并通过 WPA2-PSK 正确密码与 M2 MIC 错误密码拒绝路径。启动菜单透明/调色板图像仍有独立视觉边界。"
     }
   },
   "uiflow2": {

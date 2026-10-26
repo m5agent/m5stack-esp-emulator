@@ -1,31 +1,35 @@
 # UIFlow2 外设 API 测试矩阵
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本矩阵验证的是 QEMU 中的完整控制器/总线路径，而不是在 Python 测试代码里伪造
 API 返回值。当前结果只代表仿真验收，不是实机验收。
 
 代码阅读顺序、整体成熟度和未完成 Task 见
-[工程交接总览](engineering-handoff.md)；本页只维护外设 API 数据面矩阵及其
-固定运行证据。
+[工程交接总览](engineering-handoff.md)；本页只维护稳定的外设 API 数据面
+矩阵、runner 语义和固定 evidence 入口。最新运行日期、case/check 数、重试
+状态和失败 control 只查[验证证据台账](validation-ledger.md)。
 
-## 基线全矩阵结果（固定证据）
+## 当前基线入口
 
-最近一次完整回归是 `2026-10-25 15:47 +08:00`：Core2 `0008` guest HLI
-event/ACL 预分配版本完成 `67/67` case、`274/274` check，全部首轮无重试；
-其中 Core2 六个 case 为 `24/24` check。固定汇总见
-[`core2-hli-preallocation-full-matrix.json`](../tests/uiflow2/evidence-2026-10-25-core2-hli-preallocation-full-matrix.json)。
+当前完整矩阵基线由 `0036` stateful SSI 重建后的共享控制器回归定义；
+`0038` exact-time handoff pause 只增加诊断能力，随后跑的是 Core2 设备组
+定向回归，没有把定向结果冒充成新的完整矩阵。两项结论的日期、汇总哈希和
+精确检查数见[验证证据台账](validation-ledger.md)。
 
-当前 `0009` 源码构建的 QEMU `0e1165fb…` 又完成 Core2 六例定向回归
-`6/6`、`24/24` check，全部 attempts=1、无 retry；该回归确认扩大 HLI
-备用池没有破坏既有板级外设路径，完整 67-case 矩阵仍以上一 `0008`
-基线为准。此前 `core2-power-monitor` 的默认 post-boot QOM 注入在 8 秒
-窗口内错过固件读取；固定传感器值改为 boot-time 注入后通过。失败分类和扩展等待对照见
-[`postboot-injection-fail.json`](../tests/uiflow2/evidence-2026-10-25-core2-power-monitor-postboot-injection-fail.json)，
-当前设备组见
-[`qom-boot-device-group.json`](../tests/uiflow2/evidence-2026-10-25-core2-qom-boot-device-group.json)。
-`0009` 当前 QEMU 的脱敏六例汇总见
-[`core2-0009-device-group.json`](../tests/uiflow2/evidence-2026-10-25-core2-0009-device-group.json)。
+以下 evidence 继续作为可复现历史入口保留：
+
+- [`0008` full matrix](../tests/uiflow2/evidence-2026-10-25-core2-hli-preallocation-full-matrix.json)
+  证明扩大 HLI 预分配前的外设矩阵基线；
+- [`0009` device group](../tests/uiflow2/evidence-2026-10-25-core2-0009-device-group.json)
+  证明扩大 HLI reserve 后 Core2 板级路径没有回归；
+- [`power-monitor post-boot failure`](../tests/uiflow2/evidence-2026-10-25-core2-power-monitor-postboot-injection-fail.json)
+  和 [`boot-time QOM device group`](../tests/uiflow2/evidence-2026-10-25-core2-qom-boot-device-group.json)
+  解释 8 秒 post-boot 注入窗口与确定性 boot-time 注入的差异。
+
+以上文件是日期化 evidence，不是今天应继续引用的“最新基线”。此前
+`core2-power-monitor` 的默认 post-boot QOM 注入在 8 秒窗口内错过固件读取；
+固定传感器值改为 boot-time 注入后通过。
 
 | 设备 | 闭环能力 | UIFlow2 API | 结果 |
 | --- | --- | --- | --- |
@@ -116,35 +120,23 @@ StackChan 的陀螺仪测试在固件启动后注入动态角速度，避免把 
 `machine.I2C` 直接访问 PCF8563 的 BCD 时间寄存器，验证写入、回读和走时；
 `machine.RTC` 仅修改 SoC 系统时钟，不能作为外部 RTC 证据。
 
-汇总：
+## 运行结果归档
 
-```text
-configured cases   67
-configured checks  274
-last clean full     67 cases / 274 checks PASS
-last full run       2026-10-24 06:47 +08:00
-attempts            1 per case
-retry_used          false for every case
-```
+本页不复制“最后一次 clean full”输出。每次 milestone 的矩阵入口、日期、
+attempts、retry 状态、summary SHA 和失败 control 都追加到
+[验证证据台账](validation-ledger.md)。`2026-10-24` dual-guest fabric 和
+S3 GDMA 全量结果仍保留为历史 evidence，不自动覆盖后续 `0036`、`0038`
+或未来重建的结论。
 
-下表是 `2026-10-24` 最后一次干净全量矩阵的固定基线，不是每次新增外设
-用例后自动刷新。较新的 unified、network、Core2 长稳和固件审查结果以
-[验证证据台账](validation-ledger.md)及对应用例 evidence 为准。
-
-该次干净全量运行同时包含 S3 QIO read-phase、Core2 BB idle readback、
-deterministic TCG/icount、RTC 虚拟时钟和双 guest WiFi patch `0028`。首轮
-暴露 Cardputer-ADV 键盘的 6 秒启动窗口竞争；定向复现后将等待改为 10 秒，
-输入端等待改为 2 秒，再完成 67/67 用例、274/274 检查全部通过和 Core2
-6 个 case 首轮 PASS。matrices 默认拒绝配置 `retries` 的 case，诊断重试必须
-显式启用 `--allow-retries`。该结果仍不等同于物理 cache/PSRAM、RF 或真机
-时序验证。证据见
-[`evidence-2026-10-24-dual-guest-fabric-matrix.json`](../tests/uiflow2/evidence-2026-10-24-dual-guest-fabric-matrix.json)。
+matrices 默认拒绝配置 `retries` 的 case，诊断重试必须显式启用
+`--allow-retries`。任何矩阵 PASS 仍不等同于物理 cache/PSRAM、RF、功耗或
+真机时序验证。
 
 NanoC6 无显示屏，额外使用 `run_nanoc6_peripherals.py` 验证 RGB、按键和蓝灯，
-不计入上述需要截图的 peripheral matrix 统计。上述汇总来自全量矩阵运行；
-失败重试的原始串口日志会作为 `serial.attempt-N.log` 保留。
+不计入需要截图的 peripheral matrix 统计。全量运行失败并显式启用诊断重试时，
+原始串口日志会作为 `serial.attempt-N.log` 保留。
 
-该次全量矩阵用例均完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
+矩阵用例必须完成“注入 -> 控制器/总线 -> 芯片模型 -> UIFlow2 API ->
 屏幕/帧输出”的闭环。每个 check 的 PASS 状态由本次运行的串口、QOM、PCM、
 RMT、磁盘或帧像素证据生成；没有运行时证据源的用例会被 runner 直接拒绝。
 

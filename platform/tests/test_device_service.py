@@ -42,6 +42,7 @@ from device_service import (
     effective_session_ready_timeout,
 )
 from nvs_image import PAGE_SIZE, build_string_nvs_image
+from network_egress import EgressEndpoint
 from serve import Handler, _wait_for_session
 from test_firmware_analysis import build_flash
 from worker_auth import sign_worker_request
@@ -132,6 +133,13 @@ def webburner_package(image: bytes) -> bytes:
         for name, data in parts.items():
             archive.writestr(name, data)
     return output.getvalue()
+
+
+def seal_manifest(manifest: dict) -> dict:
+    manifest["manifest_id"] = device_service_module.canonical_json_sha256(
+        device_service_module.manifest_identity_payload(manifest)
+    )
+    return manifest
 
 
 class DeviceServiceUnitTests(unittest.TestCase):
@@ -560,9 +568,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 "warnings": [],
             },
         }
-        manifest["manifest_id"] = device_service_module.canonical_json_sha256(
-            manifest
-        )
+        seal_manifest(manifest)
         firmware = self.service.create_firmware(
             {
                 "device_id": "sticks3",
@@ -581,15 +587,27 @@ class DeviceServiceUnitTests(unittest.TestCase):
         )
         self.assertEqual(firmware["size"], 8 << 20)
 
-        rejected = json.loads(json.dumps(manifest))
-        rejected["capabilities"]["required"] = ["camera"]
-        rejected["manifest_id"] = device_service_module.canonical_json_sha256(
+        renamed_artifact = json.loads(json.dumps(manifest))
+        renamed_artifact["artifact"]["file"] = "renamed-output.bin"
+        self.assertEqual(
+            renamed_artifact["manifest_id"],
+            manifest["manifest_id"],
+        )
+        renamed_firmware = self.service.create_firmware(
             {
-                key: value
-                for key, value in rejected.items()
-                if key != "manifest_id"
+                "device_id": "sticks3",
+                "kind": "manifest",
+                "manifest": renamed_artifact,
             }
         )
+        self.assertEqual(
+            renamed_firmware["manifest_id"],
+            manifest["manifest_id"],
+        )
+
+        rejected = json.loads(json.dumps(manifest))
+        rejected["capabilities"]["required"] = ["camera"]
+        seal_manifest(rejected)
         with self.assertRaises(ServiceError) as caught:
             self.service.create_firmware(
                 {
@@ -605,6 +623,50 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.assertEqual(
             caught.exception.extra["issues"][0]["code"],
             "unsupported_capability",
+        )
+
+        unknown = json.loads(json.dumps(manifest))
+        unknown["capabilities"]["required"] = ["vendor-private-sensor"]
+        seal_manifest(unknown)
+        with self.assertRaises(ServiceError) as unknown_caught:
+            self.service.create_firmware(
+                {
+                    "device_id": "sticks3",
+                    "kind": "manifest",
+                    "manifest": unknown,
+                }
+            )
+        self.assertEqual(
+            unknown_caught.exception.code,
+            "unsupported_firmware_capability",
+        )
+        self.assertEqual(
+            unknown_caught.exception.extra["issues"][0]["code"],
+            "unknown_required_capability",
+        )
+
+        understated_security = json.loads(json.dumps(manifest))
+        understated_security["security"]["secure_boot"] = "unknown"
+        understated_security["security"]["secure_boot_config"] = "v2"
+        seal_manifest(understated_security)
+        with self.assertRaises(ServiceError) as security_caught:
+            self.service.create_firmware(
+                {
+                    "device_id": "sticks3",
+                    "kind": "manifest",
+                    "manifest": understated_security,
+                }
+            )
+        self.assertEqual(
+            security_caught.exception.code,
+            "unsupported_firmware_capability",
+        )
+        self.assertIn(
+            "secure_boot_config_not_modeled",
+            {
+                issue["code"]
+                for issue in security_caught.exception.extra["issues"]
+            },
         )
 
     def test_qemu_runtime_accepts_eight_mib_board_psram(self):
@@ -650,9 +712,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 "warnings": [],
             },
         }
-        manifest["manifest_id"] = device_service_module.canonical_json_sha256(
-            manifest
-        )
+        seal_manifest(manifest)
         firmware = self.service.create_firmware(
             {
                 "device_id": "core2",
@@ -1750,6 +1810,36 @@ class DeviceServiceUnitTests(unittest.TestCase):
             ],
         )
         self.assertTrue(parsed["policy"]["controlled_resolver"])
+
+    def test_controlled_dns_requires_resolved_allowed_endpoint(self):
+        with self.assertRaises(ServiceError) as no_endpoint:
+            device_service_module.parse_network_policy(
+                {
+                    "isolation": "namespace",
+                    "egress": "allowlist",
+                    "dns": "controlled",
+                    "allowed_hosts": ["allowed.lab.test"],
+                }
+            )
+        self.assertEqual(
+            no_endpoint.exception.code,
+            "invalid_network_policy",
+        )
+        parsed = device_service_module.parse_network_policy(
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "controlled",
+                "allowed_hosts": ["allowed.lab.test"],
+            },
+            implicit_endpoints=(
+                EgressEndpoint("tcp", "10.0.2.2", 18443),
+            ),
+        )
+        self.assertEqual(
+            parsed.allowed_endpoints,
+            (EgressEndpoint("tcp", "10.0.2.2", 18443),),
+        )
 
     def test_controlled_dns_cname_records_require_bounded_policy(self):
         request = {

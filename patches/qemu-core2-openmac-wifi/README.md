@@ -1,6 +1,6 @@
 # Core2 OpenMAC WiFi model
 
-Last reviewed: `2026-10-25`
+Last reviewed: `2026-10-26`
 
 This patch imports the ESP32 classic WiFi device from
 `esp32-open-mac/qemu` commit

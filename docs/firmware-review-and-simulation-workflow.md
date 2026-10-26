@@ -1,7 +1,7 @@
 # 固件审查与仿真测试工作流
 
 - 状态：工作流基线，持续更新
-- 日期：2026-10-25
+- 日期：2026-10-26
 - 适用对象：UIFlow/UIFlow2、ESP-IDF、Arduino、MicroPython 和自研 ESP32 固件
 - 相关文档：
   - [工程交接总览](engineering-handoff.md)
@@ -13,6 +13,12 @@
   - [虚拟主机适配矩阵](qemu-device-adaptation-matrix.md)
   - [UIFlow2 外设 API 测试矩阵](uiflow2-peripheral-test-matrix.md)
   - [跨设备显示、输入与音频回归审计](uiflow2-cross-device-regression-audit.md)
+
+> 本页维护审查方法和证据规则，不是项目进度页。文中出现的样本结果、轮次和
+> `PASS/PARTIAL/NOT RUN` 都是当时 evidence；当前能力只看
+> [项目当前状态](project-status.md)，未完成项只看
+> [项目 Backlog](project-backlog.md)，精确运行记录只看
+> [验证证据台账](validation-ledger.md)。
 
 ## 1. 结论
 

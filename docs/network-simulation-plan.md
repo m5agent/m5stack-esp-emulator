@@ -1,6 +1,6 @@
 # 网络模拟方案
 
-日期：`2026-10-25`
+日期：`2026-10-26`
 
 本文定义网络数据面、隔离模式、测试要求和安全边界。当前 PASS 计数、具体
 固件结果和未完成 Task 分别由
@@ -56,25 +56,25 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   session-derived eFuse/NIC MAC 绑定和 unicast DHCP delivery；
 - Core2 OpenMAC WiFi、公网 DNS/HTTP 和 `core2-native-hci` controller
   boundary；
-- Core2 `0008` 在 CPU0 idle 时预分配真实 guest HCI event/ACL 对象，避免
-  ACL FIFO head 把 Command Status/LE Meta 延迟到 NimBLE `2s` ACK 预算之外；
-  两批双实例 `4×120s` 为 `8/8 PASS`，两批三实例 `3×120s` 为
-  `6/6 PASS`；extended BLE peer scan 预算随 session readiness 有界扩展。
-  四实例首批先 `1 PASS / 3 FAIL`，暴露 HLI health/prealloc failure 和
-  NimBLE `ble_hs_hci_process_ack` panic；`0009` 将真实 guest event/ACL
-  备用池扩到 `8/4` 后，两批四实例各 `4/4 PASS`。两批五实例 30 秒错峰
-  各 `5/5 PASS`；旧 `shift=auto` 零错峰实现先 `5/5 PASS`、独立确认批
-  `3/5 FAIL`。默认固定 `icount shift=5` 并前置测试 BLE server 后，两批
-  zero-stagger 五实例均 `5/5 PASS`；随后两批六实例又均 `6/6 PASS`，
-  合计 `12/12`；八实例先以旧 sweep 下限得到纯吞吐阈值失败，校准
-  `hold/12` 后两批均 `8/8 PASS`，合计 `16/16`，达到服务单设备容量上限。
-  结论仍不外推到大于八实例、physical controller/RF 或真机；
+- Core2 `0008/0009` 在实测的并发窗口内使用真实 guest HCI event/ACL
+  对象预分配，避免 ACL FIFO head 把 Command Status/LE Meta 延迟到 NimBLE
+  ACK 预算之外；extended BLE peer scan 预算随 session readiness 有界扩展。
+  固定 `icount shift=5`、BLE-first 和当前服务容量内的门禁已通过，但旧
+  `shift=auto`、prealloc transient 与阈值失败 control 仍保留。具体轮次、
+  失败比例和容量只查[验证证据台账](validation-ledger.md)，本页不把它们写成
+  任意规模或 physical controller/RF 结论；
 - `core2-native-vhci` GDB 诊断路径，仅作为兼容和历史对照；
 - controlled DNS、exact A/AAAA records、domain suffix 的 label-boundary
   匹配、最多 8 跳 exact-name CNAME chain、测试 CA、DNS/TLS allowlist、
   Host 决策和 pcap 摘要；
+- `allowed_hosts` 经过小写化、单一尾点归一和 DNS label 校验；HTTP Host
+  authority 只接受一个 Host header、可选数字端口和 origin-form request
+  target，拒绝 userinfo、多重冒号、逗号拼接、越界端口和 absolute-form
+  歧义；
 - domain suffix 必须显式绑定受控 resolver answer，且 answer 必须落在
   `allowed_endpoints` 的地址/CIDR 内；域名不直接授权外部解析出的任意地址；
+- exact A/AAAA 与 CNAME terminal answer 也必须绑定到
+  `allowed_endpoints`；IPv4-mapped IPv6 DNS record 在解析前 fail closed；
 - CNAME alias 和 terminal 都必须受 policy 覆盖；A/AAAA response 返回
   chain+terminal record，CNAME query 返回 chain；cycle、uncontrolled
   terminal、越权 alias、与 exact A/AAAA 或 domain-suffix answer 冲突和
@@ -100,7 +100,7 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   返回同一 HMAC-signed beacon；worker 通过
   `--discover-control-seed-url` 验证签名后使用其中的 control URL。
   privileged Linux fixture 用两个独立 subnet、IPv4 forwarding 和
-  masquerade 连续 `3/3 PASS`，同时证明 multicast 不跨 router、错误/旧
+  masquerade 通过重复门禁，同时证明 multicast 不跨 router、错误/旧
   token reject、rotation、NAT 源地址和 cleanup；
 - job claim 后，worker 对 transient control-plane network/429/5xx 做有界
   heartbeat/result retry；central service 以同一 state dir 重启后，worker
@@ -110,10 +110,10 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
   namespace fixture 在 local runtime session 与 child process 已创建后
   drop control traffic，worker fence、DELETE runtime、reap process、拒绝
   stale result；5 秒 lease expiry 后 job re-queue，网络恢复后第二个 worker
-  以新 attempt 完成 PASS，连续 `3/3`。同一 runner 另有真实 worker-local
-  Device Service + StickS3 QEMU lane：首轮 QEMU PID 被 reap，attempt 2
-  启动新 QEMU 并完成 PASS，亦为 `3/3`。worker-local `qemu-unified` lane
-  又在三次独立运行中等待同 session 的 HTTP request、BLE PASS 和非空 pcap
+  以新 attempt 完成 PASS。同一 runner 另有真实 worker-local Device Service +
+  StickS3 QEMU lane：首轮 QEMU PID 被 reap，attempt 2 启动新 QEMU 并完成
+  PASS。worker-local `qemu-unified` lane 又在重复运行中等待同 session 的
+  HTTP request、BLE PASS 和非空 pcap
   后断网，验证 HTTP/BLE companion 进入 terminated、BLE PID 回收、pcap
   summary 完成以及 fresh retry 重新取得 unified evidence；QEMU 内
   guest/controller 内部状态与 worker 未拥有的外部 side effect 仍开放；
@@ -153,7 +153,7 @@ external evidence 流、没有 reachable seed 时的任意 NAT traversal 和不�
 | --- | --- |
 | Scan/associate | guest 看见目标 SSID，并记录预期安全模式或明确仅使用开放测试 AP |
 | DHCP | guest 获得 address、gateway 和 DNS |
-| DNS | 允许/拒绝查询到达受控 resolver，并有 pcap 或结构化 query log |
+| DNS | 允许/拒绝查询到达受控 resolver，并有 pcap 或结构化 query log；exact、suffix 和 CNAME terminal answer 均受 allowed endpoint 约束 |
 | TCP/UDP | guest 与 namespace 内 peer 完成请求/响应或 datagram |
 | Wrong credential | 认证失败、重试、无 DHCP/HTTP 和明确失败 marker 同时成立 |
 | WPA2-PSK | 正确密码完成 RSN、M1-M4、CCMP RX、DHCP/DNS/TCP；错误密码在 M2 MIC 拒绝且无 DHCP |
@@ -162,6 +162,7 @@ external evidence 流、没有 reachable seed 时的任意 NAT traversal 和不�
 | Multi-device | 两台 guest 只能通过预期 lab fabric 通信 |
 | Core egress | 允许/拒绝 IP 或 CIDR+protocol+port 可重复，不能被 user-net 旁路 |
 | Domain/CNAME | suffix 只在 DNS label boundary 匹配；exact/longest suffix 顺序稳定；CNAME chain 有界、无 cycle、alias/terminal 受 policy 覆盖；同一 guest 使用 terminal address 完成 TCP/HTTP，未允许名称/端口被拒绝 |
+| Host authority | Host header 数量、DNS label、端口、userinfo/分隔符和 request-target form 无歧义；错误 authority 返回 403 |
 | Worker transport | 认证、TLS/mTLS、rotation、drain、replay 防护、network-partition runtime fence 和 fail-closed 有同次证据 |
 | Evidence | 只保存允许的网络元数据和 payload hash，artifact 可复现 |
 
