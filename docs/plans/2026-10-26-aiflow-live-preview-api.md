@@ -2,6 +2,9 @@
 
 日期：2026-10-26。归属 `UNIT-01`，模块边界与 `SVC-03` 协同。
 状态：**评估完成，以下新接口与性能目标尚未实现/验收**。
+生命周期修复已进入实现与验证，本轮结果见
+[取消与 Unit 回归](../evidence/2026-10-26-session-cancellation-f309/README.md)；
+以下评估表描述固定旧基线，新 Preview/Revision/Run 接口仍未实现。
 执行优先级只维护在[项目Backlog](../project-backlog.md)，本页定义本任务的方案与门禁。
 
 ## 结论与当前证据
@@ -115,6 +118,11 @@ host调度/资源，不执行QEMU/guest/API，不提供外设测量。
 独立退出，terminal不回到booting/running。普通qemu、radio/companion、Tab5与
 network子类分别列覆盖，不能用一个分支通过代表全后端。验收包括重复stop、
 失败回收、lease归零、取消后零新进程/可变Flash；超时不得提前承诺stopped。
+
+本块已增加各会话生命周期事务、单调取消、停止意图版本与自动收尾，Tab5 reset、
+Network runner child 收据、重附着 identity、draining/在途 janitor 均纳入同一
+资源所有权边界。真实 8787 AtomS3R 源码准备取消与随后新 guest 的 PIR 交互已
+通过；其它后端同场景实际执行与低延迟基准不继承宿主 mock 回归。
 
 ### 先形成可用的保存后预览
 

@@ -140,6 +140,7 @@
 | [三主机八种 Unit 源码IO](evidence/2026-10-26-unit-source-host-io-d1ba/README.md) | 历史证据 | `2026-10-26` | 新增24源码组合，Fan3在同步前、其余21在同步后；GPIO/RMT/LEDC/UART/HUB多leaf及原host oracle、真实Web/source/PID/取证清理，两准确HEAD与精确源码omission分列，不转授其它组合/硬件 |
 | [AIFlow实时预览API评估计划](plans/2026-10-26-aiflow-live-preview-api.md) | 实现/设计 | `2026-10-26` | 当前能力/24真实会话时延/取消竞态与Preview-Revision-Run方案，拟定接口尚未实现；继承Unit/服务Backlog |
 | [AIFlow实时预览API审查证据](evidence/2026-10-26-aiflow-preview-api-audit/README.md) | 历史证据 | `2026-10-26` | 两仓固定源码与调用链、24原ZIP timeline分析、确定性host取消竞态；非AIFlow端到端/首帧/性能SLA或新接口PASS |
+| [会话取消与 Unit 回归](evidence/2026-10-26-session-cancellation-f309/README.md) | 历史证据 | `2026-10-26` | 生命周期/停止意图/Network child收据与draining所有权，宿主隔离回归和真实AtomS3R源码取消/PIR新guest交互；其它后端实际执行、预览接口与硬件不继承 |
 | [S3 LEDC 读回与试听](evidence/2026-10-26-unit-ledc-audio-29d8/README.md)、[七层重放](evidence/2026-10-26-unit-ledc-audio-29d8/replay/README.md)、[getter独审](evidence/2026-10-26-unit-ledc-audio-29d8/replay/getter-independent-review/README.md) | 历史证据 | `2026-10-26` | 同 SHA getter/MMIO A/B、真实音频图与停止静音；完整回归66/67与独立复测分开，完整门禁仍OPEN |
 | [三主机六传感器实际证据](evidence/2026-10-26-unit-host-sensors-gen9-a8fe/README.md) | 历史证据 | `2026-10-26` | 18 个同 guest/Web 会话、原驱动负控、fresh 串口、直接 PID、三路非原子帧和保留历史；Heart 零值暂态与人工可读性分别记录 |
 | [Unit 官方协议](unit-research/official-protocols.md) | 参考依据 | `2026-10-26` | 官方芯片、驱动、物理端口、版本冲突与离线参考；不是 runtime PASS |

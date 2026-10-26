@@ -2,6 +2,20 @@
 
 日期：`2026-10-26`
 
+## 取消与资源收据
+
+runner 在创建 BLE/emulator child 前原子写入 `lifecycle.json`，记录 runner 和
+child 的 PID、启动标识、命令哈希及清理状态，不保存命令正文或凭据。BLE
+ready 等待响应停止，Popen 返回后的取消/记录失败也走相同 finally 清理。
+只有已创建 child 的 Popen 确认退出且 fixture/collector 已收尾，才发布
+`cleanup_complete=true`。Device Service 核对同 runner 收据；收据不完整或
+身份错配时保留 stopping/lease，不把 runner 已退出当作其子进程全部退出。
+
+父层的正常终止等待覆盖两个独立进程组的 TERM/KILL 预算。强杀且无有效完成
+收据时可能需要人工核查，不能提前释放资源所有权。宿主隔离测试和实际
+AtomS3R QEMU 源码取消分别见[证据](evidence/2026-10-26-session-cancellation-f309/README.md)；
+后者不转授为本诊断 lane、物理网络或其它后端的实际执行结果。
+
 ## 定位
 
 `platform/tools/network_lane.py` 是基于 `esp-emu` 的独立诊断 lane。它适合：

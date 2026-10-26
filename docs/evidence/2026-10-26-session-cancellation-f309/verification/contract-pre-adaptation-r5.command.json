@@ -1,0 +1,35 @@
+{
+  "recording_type": "Exact host test runner subprocess.run invocation record; not an OS exec trace",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "platform/tests",
+    "-p",
+    "test_device_session_cancellation.py",
+    "-v"
+  ],
+  "env": {
+    "M5_PYTHON_DEPS": ".work/py312",
+    "PYTHONPATH": ".work/py312:platform/tools"
+  },
+  "started_at": "2026-10-26T07:44:08.707436+00:00",
+  "sha256_before": {
+    "device_service": "f3099a49187f5839598f7d48d2120d938be48b96f038a42201b8310ffad47323",
+    "network_lane": "04b2c8fc003f5789fd506b56dab147438d80df6b863613133198f71d9bd9905e",
+    "test_file": "52630a9c423957a087a8bf695c1b1d9d994aff81a64f8bdb3c2f473f18d725f1"
+  },
+  "stdout_log": ".work/aiflow-session-cancellation-tests-20261026/contract-pre-adaptation-r5.stdout.log",
+  "scope": "Raw failure attempt before external lifecycle receipt fixture adaptation",
+  "observed_exit_code": 1,
+  "finished_at": "2026-10-26T07:44:09.881848+00:00",
+  "sha256_after": {
+    "device_service": "f3099a49187f5839598f7d48d2120d938be48b96f038a42201b8310ffad47323",
+    "network_lane": "04b2c8fc003f5789fd506b56dab147438d80df6b863613133198f71d9bd9905e",
+    "test_file": "52630a9c423957a087a8bf695c1b1d9d994aff81a64f8bdb3c2f473f18d725f1"
+  },
+  "source_unchanged": true
+}

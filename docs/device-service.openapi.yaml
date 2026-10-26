@@ -2709,6 +2709,13 @@ components:
             - stopping
             - stopped
             - failed
+        stop_pending:
+          type: boolean
+          description: >
+            True in a stopping acknowledgement while lifecycle or cleanup is
+            still pending. Only required Session fields and selected metadata
+            are guaranteed in this response. Poll the session until terminal;
+            capacity and the worker lease remain occupied until confirmed cleanup.
         pid:
           type: integer
           nullable: true

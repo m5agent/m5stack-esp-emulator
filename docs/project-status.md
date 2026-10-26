@@ -12,11 +12,13 @@
 
 ## 一页结论
 
-AIFlow实时编程场景已完成API只读评估：当前可做完整源码后的新session交互预览，
-24个具体source会话创建到探针READY中位约17秒；尚无持久guest代码部署、可靠的
-旧运行取消和实时分发契约。host测试已确定性复现stop后provision继续启动，仍待
-修复；拟定Preview/Revision/Run接口不是当前已实现能力。证据与后续门禁见
-[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。
+AIFlow实时编程场景可复用完整源码后的新session交互预览。旧基线24个具体
+source会话创建到探针READY中位约17秒，非首帧/SLA。启动取消现已增加生命周期
+事务、pending确认与自动收尾、停止意图版本、Network child收据及draining所有权
+门禁；真实AtomS3R冷准备取消与随后新guest的PIR双向交互通过，其它后端实际
+同场景执行不继承宿主回归。持久guest代码部署和拟定Preview/Revision/Run/实时
+分发仍未实现，门禁见[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)，
+本块证据见[取消回归](evidence/2026-10-26-session-cancellation-f309/README.md)。
 
 项目已经不是单固件 PoC，而是可执行的多设备 virtual-device 平台：
 
@@ -285,71 +287,38 @@ I2C 读写和同 guest 的屏幕反馈。合计覆盖七种 Unit 的源码 API �
 [外部 Agent 指南](unit-agent-api.md)，精确 SHA/输入/原始证据见
 [本轮归档](evidence/2026-10-26-unit-source-api-29d8/README.md)。
 
-随后 gen11/29d8 的 CoreS3 源码 API 扩展批共二十五个独立会话：七传感器、
-九 IO、四控制类和两种显式 custom 共 22 个功能 PASS；Thermal
-missing-fixture 另有一个负控 PASS，不与使用 raw fixture 的功能例混计。
-结合首批，选定源码场景覆盖 27 种 Unit（25 种原驱动、IR/Buzzer 两种
-custom），不是单次原版 27 项全绿。四控制例保持原驱动和控制断言，使用
-`controls-probe-cores3-native-display-v1` 的可逆 display-only 调整，显示
-可读性只覆盖捕获帧。Fan 三阶段控制器功能通过，动画仅证明 100% duty
-观测段；Heart 只证明 raw IR/red/FIFO，不证明 BPM/SpO2。源码请求、初始
-fixture 与附件拓扑已冻结在仓内，可经指南使用新 compose 响应重放。
+CoreS3 选定源码场景覆盖27种Unit：25种原驱动及IR/Buzzer两种显式custom，
+来自多批独立会话，不是单次原版27项全绿。扩展批22个功能PASS与Thermal
+missing-fixture负控分列；raw fixture功能例不混计。四控制例保留原驱动/断言，
+只作可逆display-only调整。Fan动画限100% duty观测，Heart不证明BPM/SpO2。
+原IR为协议观察通过、GC长期风险OPEN；原Buzzer自然timer-zero仍FAIL，手动OFF
+不能补PASS。旧harness误要求output-only输入POST的browser_error不算产品故障。
+相关固定上游wrapper/native源码保留callback/保活模式，但不外推所有port/发行
+固件。caller、fixture、source pin及原驱动/custom精确边界见
+[扩展证据](evidence/2026-10-26-unit-source-api-expanded-29d8/README.md)及
+[27种源码指南](unit-agent-api.md#已验证的-27-种源码场景)。
 
-同批原 IR 为 `REVIEW_REQUIRED / protocol_status=PASS`，独审结论
-`OBSERVED_PROTOCOL_PASS_RISK_OPEN`；本次四个新鲜输入窗口通过，历史 GC
-风险继续 OPEN。原 Buzzer 自然 timer-zero FAIL；旧 harness 对输出类误要求
-输入 POST 的附加 `browser_error` 单列，不能描述为产品浏览器故障，手动
-OFF 的零也不能补自然停止 PASS。两种 custom 均有独立 source pin、同 guest
-controller/真实 Web、直接 PID、停止前 ZIP 和停止后的清理证据；不会把原
-驱动失败改写为通过。2026-10-26 固定上游
-`m5stack/uiflow-micropython@3a86d8f611b3639cca755a933e01a5a829771ef1`
-的相关 wrapper/native 文件仍保留已识别的 callback 参数/保活模式；该源码
-查证不等于所有 port 或最新发行固件均失败。
-见[扩展批次与精确范围](evidence/2026-10-26-unit-source-api-expanded-29d8/README.md)
-和[27 种可复用源码请求](unit-agent-api.md#已验证的-27-种源码场景)。该扩展批源码
-API 实际运行仅 CoreS3，其余三主机当时只有离线 compose。该批尚未验证 PWM
-初始化修复与新完整矩阵；后续结果见下文，旧 Core2 IMU 单例复测不拼成全量 PASS。
+AtomS3R、StickS3、StopWatch各有11种选定源码场景：先前Button/Relay/ENV III
+九组合，后续PIR、DualButton、LIMIT、Key、RGB、Fan、RS485、HUB共24组合，
+HUB含ENV III/NCIR/TVOC三个leaf。后批Fan3在cba4e3c、rest21在0a6a9a2同步主线后
+执行；两批481项源码依赖字节相同，runtime均d1ba/gen12，每份19个caller保留。
+同guest的host字体/canvas/BMI内部总线及GPIO/RMT/LEDC/UART/I2C断言、新鲜串口
+上下界、真实Web、source pin、PID、停止前ZIP与历史/Flash清理有独审。
+指南共60份请求；三HUB原生数字token拆行仍PARTIAL，完整精确数值由UART/QOM
+单列验证。非空帧/尺寸不等于所有UI状态可读，也不继承其它组合、ADC/Thermal、
+原IR/Buzzer、hotplug或硬件。见[九组合](evidence/2026-10-26-unit-source-hosts-29d8/README.md)、
+[后续24组合](evidence/2026-10-26-unit-source-host-io-d1ba/README.md)与
+[源码请求](unit-agent-api.md)。
 
-本工作块提交后已重新 fetch 并确认已包含当时最新主线，随后使用同步后源码重新
-准备并执行 AtomS3R、StickS3、StopWatch 的 Button/Relay/ENV III。九个独立
-源码 API 会话均通过，原主机探针、内部 BMI270 与外部总线隔离、显示参数、
-GPIO/IRQ/输出及 ENV 两向量断言完整保留；真实 Web、source pin、直接 PID、
-停止前 ZIP、保留历史和 Flash/PID 清理分别绑定。主机附件和九份源码请求见
-[三主机指南](unit-agent-api.md#三主机buttonrelayenv-iii)，同步收据及精确固件见
-[本批证据](evidence/2026-10-26-unit-source-hosts-29d8/README.md)。新结果仅覆盖
-三主机各自这三种 Unit，不从 CoreS3 转授其它 24 种。非空帧/尺寸通过不等于
-所有显示状态可读或跨请求原子一致，也不新增硬件与共享完整矩阵结论。
-
-`0038` 已关闭 `UNIT-HOST-20` 的初始化路由观察缺口。新运行时
-`d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff`
-来自独立冷构建与八层 patch 正反重放。GPIO route 改变时只重算现有 LEDC
-寄存器状态，既不重放写入，也不由 Python 填入 Unit 值。同一固件
-`81187ab008f53f2dd6385110fba727f4ee340be8a49e0fa05e19106d1a7fda11`
-和 caller/request/source CAS 在 gen11/29d8 复现八窗 0Hz/0%，在 gen12/d1ba
-八窗为 2000Hz/0%；没有初始化后的 setter。真实 Web、直接 PID、source pin、
-停止前 ZIP、历史/最后帧与 Flash/PID 清理均有独审。每组只覆盖约4秒 guest
-采样，不能写成整60秒hold或上电首瞬间连续验证；属性变化计数也不是物理脉冲。
-
-该运行时独立单次完整回归 **67/67 case、274/274 assertion PASS**，无重试，
-Core2 IMU 原始帧标记为绿；旧29d8的66/67不改写，偶发根因仍OPEN。388份输入
-冻结、204份最终Python源码与134份PNG/PPM逐像素核验通过；起始完整ROM/C6
-freeze缺失，保留中途及终态观测，PaperColor RGB的profile命令仅能静态重构。
-六个IR例的最终mutable Flash hash与初始hash不同，最终Python源码相同，不推断
-具体改写原因。平台 **652项全通过、零跳过**，四生成检查通过。原Buzzer定时
-回调、完整PWM周期/latch/fade、其它固件及硬件验证仍分别开放。精确来源见
-[PWM修复与回归归档](evidence/2026-10-26-unit-pwm-route-d1ba/README.md)。
-
-三主机后续八种 Unit 的24个实际源码会话现已全部通过：PIR、Dual Button、
-LIMIT、Key、RGB、Fan、RS485、HUB（ENV III/NCIR/TVOC三个leaf）。Fan3在
-`cba4e3c` 执行，其余21例在PWM块提交 `0a6a9a2` 并正式fetch/merge主线后
-全新准备；两批481项依赖清单/字节哈希相同，实际runtime均d1ba/gen12。
-每份19个原caller/driver/config保留，完整IO与host字体/canvas/BMI前后与loop
-断言未减；source-pin、真实Web与GPIO/RMT/LEDC/UART/I2C数据面、新鲜串口
-上下界、直接PID、停止前ZIP及历史/Flash/进程清理通过独审。结合此前9例，
-三主机各有11种选定源码场景，源码 API 指南共60份请求；不转授其它组合、原IR/Buzzer、
-ADC/Thermal准入、运行中hotplug或物理行为。三主机的HUB显示有数字token拆行，原生数值连续性为PARTIAL，
-控制器/串口的精确数值验证单列。取证与可读性范围见
-[24组合归档](evidence/2026-10-26-unit-source-host-io-d1ba/README.md)。
+0038关闭初始化GPIO路由观察缺口：route改变时只读重算现有LEDC状态，不重放
+MMIO或由Python填值。d1ba来自独立冷构建/八patch重放；同固件/caller/CAS、
+无初始化后setter，旧29d8八窗0Hz/0%，新d1ba八窗2000Hz/0%。每组仅约4秒guest
+采样，非60秒soak、上电首瞬间连续证明或物理脉冲。独立单次完整回归全量通过，
+无重试；精确计数见验证台账，旧失败轮不改写，Core2偶发marker
+根因仍OPEN。完整ROM/C6仅mid/end freeze、PaperColor RGB命令静态重构、六IR
+mutable Flash hash变化但最终源码相同等限制均保留。完整PWM周期/latch/fade、
+原Buzzer定时回调、其它固件和硬件仍OPEN，精确来源见
+[PWM修复与回归](evidence/2026-10-26-unit-pwm-route-d1ba/README.md)。
 
 CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展开与真实端口
 线缆布置。ENV III/ToF/Color 四档场景、手机 Button 输入/聚焦和失败回滚共

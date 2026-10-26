@@ -1636,11 +1636,27 @@ State machine:
 ```text
 provisioning -> flashing -> booting -> running
                                   \-> failed
-running -> stopping -> stopped
+any active state -> stopping -> stopped / failed
 ```
 
 `POST /api/v1/sessions` is asynchronous and returns `202 Accepted` while the
 session is provisioning. Poll the session or call `wait`.
+
+Stop is also valid during provisioning, flashing or booting. If the current
+resource transaction has not left its slow preparation/launch boundary within
+the stop lock wait, the response is `state: stopping, stop_pending: true`.
+This acknowledgement contains the required session/device/state fields and
+selected identity/worker metadata; optional live fields may be absent. Poll
+`GET /sessions/{id}` until terminal. Pending cancellation continues to occupy
+capacity and its worker lease, and does not purge files or release Flash early.
+The transaction owner completes cleanup automatically; repeated stop is safe.
+
+Purge intent is monotonic. A later explicit `retain_flash=false` can narrow an
+earlier retention request, including during teardown; an internal/default
+retry preserves the first retention choice. Delayed purge runs after cleanup,
+and DELETE does not forget a still-stopping session. Cancellation cannot
+transition back to booting/running. Cleanup or lease-release uncertainty keeps
+the session stopping; the service does not assert successful termination.
 
 `running` means the QEMU process and QMP control channel are alive. It does
 not guarantee that the application reached its first frame or a serial marker.

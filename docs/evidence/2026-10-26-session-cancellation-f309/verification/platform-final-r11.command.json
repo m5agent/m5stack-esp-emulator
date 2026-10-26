@@ -1,0 +1,36 @@
+{
+  "command": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "platform/tests",
+    "-p",
+    "test_*.py"
+  ],
+  "environment": {
+    "M5_PYTHON_DEPS": ".work/py312",
+    "PYTHONPATH": "platform/tools:platform/tests:tests/units:.work/py312"
+  },
+  "before_sha256": {
+    "platform/tools/device_service.py": "f3099a49187f5839598f7d48d2120d938be48b96f038a42201b8310ffad47323",
+    "platform/tools/network_lane.py": "04b2c8fc003f5789fd506b56dab147438d80df6b863613133198f71d9bd9905e",
+    "platform/tests/test_device_session_cancellation.py": "25ed508edd898525cfdce50ae8ffd079d58b4364613c17387ded128f06c5c0b8",
+    "platform/tests/test_network_lane_cancellation.py": "1748a0180bec30444926b72339c9343587e08d5492b0c41079af00b4be7e76cd",
+    "platform/tests/test_device_service.py": "233df2cfcea0cecc9b6acf7196bd478e3e21ea3f63a27866dae84b2ad605fdf6",
+    "platform/tests/test_unit_service_state.py": "faf9bd629399776e0605be6ca3c625c5d155e7b1e29cd3a99a84ff8000bdd3a4"
+  },
+  "started_at_epoch": 1793001232.8277109,
+  "exit_code": 0,
+  "after_sha256": {
+    "platform/tools/device_service.py": "f3099a49187f5839598f7d48d2120d938be48b96f038a42201b8310ffad47323",
+    "platform/tools/network_lane.py": "04b2c8fc003f5789fd506b56dab147438d80df6b863613133198f71d9bd9905e",
+    "platform/tests/test_device_session_cancellation.py": "25ed508edd898525cfdce50ae8ffd079d58b4364613c17387ded128f06c5c0b8",
+    "platform/tests/test_network_lane_cancellation.py": "1748a0180bec30444926b72339c9343587e08d5492b0c41079af00b4be7e76cd",
+    "platform/tests/test_device_service.py": "233df2cfcea0cecc9b6acf7196bd478e3e21ea3f63a27866dae84b2ad605fdf6",
+    "platform/tests/test_unit_service_state.py": "faf9bd629399776e0605be6ca3c625c5d155e7b1e29cd3a99a84ff8000bdd3a4"
+  },
+  "finished_at_epoch": 1793001320.0777888
+}

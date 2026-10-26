@@ -192,3 +192,9 @@ ZIP-before-stop/history/Flash/idle通过；具体可读性与两间接依赖精�
 [API评估计划](2026-10-26-aiflow-live-preview-api.md)。当前仅评估与host取消竞态
 复现完成，新Preview/Revision/Run/stream与同guest部署尚未实现；实际队列仍以
 Backlog为准。三HUB数字token拆行另记UNIT-HOST-23，取消竞态记UNIT-HOST-24。
+
+后续取消块已实现生命周期事务、pending自动收尾、停止意图版本、Network child
+收据与draining/janitor门禁；各adapter有隔离宿主回归，实际AtomS3R源码冷准备
+取消及同镜像新guest的PIR交互通过。具体证据、其它后端现场门禁及非SLA范围见
+[取消回归](../evidence/2026-10-26-session-cancellation-f309/README.md)。新预览编排
+与持久guest部署仍未实现，不以本次修复关闭整个Unit/API工作流。

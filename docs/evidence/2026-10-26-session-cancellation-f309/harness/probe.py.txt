@@ -1,0 +1,172 @@
+"""Actual Device Service cancellation and Unit control smoke; root only."""
+import hashlib
+import json
+import re
+import subprocess
+import sys
+import time
+import uuid
+from pathlib import Path
+from urllib.request import Request, urlopen
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'platform/tools'))
+from device_service import inspect_process
+
+OUT = Path(sys.argv[1])
+OUT.mkdir(parents=True, exist_ok=False)
+BASE = 'http://127.0.0.1:8787/api/v1'
+OLD = ROOT / '.work/unit-source-host-io-20261026/live-rest-r1/atoms3r/pir'
+STATE = ROOT / '.work/unit-device-service/sessions'
+QEMU_SHA = 'd1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff'
+calls = []
+owned = []
+
+def save(name, value):
+    (OUT / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+def api(method, path, payload=None, name=None, binary=False):
+    n = len(calls)
+    data = None if payload is None else json.dumps(payload).encode()
+    prefix = f'{n:04d}'
+    if data is not None:
+        (OUT / (prefix + '.request.json')).write_bytes(data)
+    started = time.monotonic()
+    with urlopen(Request(BASE + path, data=data, method=method,
+                         headers={'Content-Type': 'application/json'}), timeout=120) as r:
+        body = r.read()
+        row = {'index': n, 'method': method, 'path': path, 'status': r.status,
+               'duration_seconds': time.monotonic() - started,
+               'response_sha256': hashlib.sha256(body).hexdigest()}
+    suffix = '.response.raw' if binary else '.response.json'
+    (OUT / (prefix + suffix)).write_bytes(body)
+    calls.append(row)
+    save('http-calls.json', calls)
+    if name:
+        (OUT / name).write_bytes(body)
+    return body if binary else json.loads(body)
+
+def until_terminal(sid, timeout=180):
+    end = time.monotonic() + timeout
+    while time.monotonic() < end:
+        value = api('GET', f'/sessions/{sid}')
+        if value['state'] in {'stopped', 'failed'}:
+            return value
+        assert value['state'] != 'running', 'cancelled startup revived'
+        time.sleep(.2)
+    raise AssertionError('cancel cleanup deadline exceeded')
+
+def evidence(sid, name):
+    return api('GET', f'/sessions/{sid}/evidence?include=manifest,serial,frames,logs,qom',
+               name=name, binary=True)
+
+result = {'status': 'RUNNING', 'hardware': 'NOT RUN', 'service_code_sha256':
+          hashlib.sha256((ROOT / 'platform/tools/device_service.py').read_bytes()).hexdigest()}
+save('result.json', result)
+try:
+    health = api('GET', '/health', name='initial-health.json')
+    assert health['capacity']['active_sessions'] == 0
+    request = json.loads((OLD / 'source-request.json').read_text())
+    request['files']['main.py'] += '\n# cancellation smoke ' + uuid.uuid4().hex + '\n'
+    save('source-request.json', request)
+    firmware = api('POST', '/firmware/uiflow', request, 'firmware.json')
+    create = json.loads((OLD / 'session-request.json').read_text())
+    create.update(firmware_id=firmware['firmware_id'],
+                  uiflow_source_sha256=firmware['source']['metadata']['source_sha256'])
+    create['ttl_seconds'] = 300
+    save('session-request.json', create)
+    cancelled = api('POST', '/sessions', create, 'cancel-created.json')
+    sid = cancelled['session_id']; owned.append(sid)
+    assert cancelled['state'] in {'provisioning', 'flashing'}
+    evidence(sid, 'cancel-before-stop.zip')
+    start = time.monotonic()
+    stopped = api('POST', f'/sessions/{sid}/stop', {'purge': False}, 'cancel-stop.json')
+    elapsed = time.monotonic() - start
+    assert stopped['state'] == 'stopping' and stopped['stop_pending']
+    assert stopped['worker']['lease_active'] and stopped['completed_at'] is None
+    pending_capacity = api('GET', '/capacity', name='cancel-pending-capacity.json')
+    assert pending_capacity['active_sessions'] == 1
+    final = until_terminal(sid)
+    assert final['state'] == 'stopped' and not final['worker']['lease_active']
+    assert not final['flash_retained'] and final['pid'] is None
+    events = api('GET', f'/sessions/{sid}/events', name='cancel-final-events.json')
+    assert not any(e.get('to') in {'booting', 'running'} for e in events['events'])
+    assert not (STATE / sid / 'virtual-flash.bin').exists()
+    time.sleep(.3)
+    assert api('GET', f'/sessions/{sid}')['state'] == 'stopped'
+    result['cancellation'] = {'session_id': sid, 'status': 'PASS',
+                              'stop_ack_seconds': elapsed, 'final': final,
+                              'caller_stop_count': 1, 'revived': False}
+    # Reuse the same immutable, now-prepared source image in a new real guest.
+    running = api('POST', '/sessions', create, 'normal-created.json')
+    sid = running['session_id']; owned.append(sid)
+    end = time.monotonic() + 180
+    while running['state'] != 'running' and time.monotonic() < end:
+        assert running['state'] != 'failed', running
+        time.sleep(.2)
+        running = api('GET', f'/sessions/{sid}')
+    assert running['state'] == 'running'
+    save('normal-running.json', running)
+    pid = running['pid']; identity = inspect_process(pid)
+    assert identity['exists']
+    comm = subprocess.check_output(['ps', '-ww', '-p', str(pid), '-o', 'comm='], text=True).strip()
+    runtime_sha = hashlib.sha256(Path(comm).read_bytes()).hexdigest()
+    assert runtime_sha == QEMU_SHA, runtime_sha
+    serial = api('GET', f'/sessions/{sid}/serial?offset=0')
+    assert 'IO_PROBE_READY pir' in serial['data']
+    observations = []
+    for motion in (True, False):
+        boundary = api('GET', f'/sessions/{sid}/serial?offset=0')['next_offset']
+        state = api('POST', f'/sessions/{sid}/unit-input',
+                    {'id': 'external1', 'values': {'motion': motion}})
+        unit = state['units'][0]
+        assert unit['source'] == 'guest-qom' and unit['properties']['motion'] is motion
+        deadline = time.monotonic() + 8
+        fresh = ''
+        while time.monotonic() < deadline:
+            fresh = api('GET', f'/sessions/{sid}/serial?offset={boundary}')['data']
+            if re.search(r'^IO_PIR ' + str(int(motion)) + r' ', fresh, re.M):
+                break
+            time.sleep(.1)
+        assert re.search(r'^IO_PIR ' + str(int(motion)) + r' ', fresh, re.M), fresh
+        observations.append({'motion': motion, 'serial_start_offset': boundary,
+                             'fresh_serial': fresh, 'unit': unit})
+    save('unit-observations.json', observations)
+    png = api('GET', f'/sessions/{sid}/frame.png', name='normal-frame.png', binary=True)
+    assert png.startswith(b'\x89PNG\r\n\x1a\n')
+    evidence(sid, 'normal-before-stop.zip')
+    stopped = api('POST', f'/sessions/{sid}/stop', {'purge': False}, 'normal-stop.json')
+    if stopped['state'] == 'stopping':
+        stopped = until_terminal(sid)
+    assert stopped['state'] == 'stopped' and not stopped['flash_retained']
+    assert not stopped['worker']['lease_active'] and not (STATE / sid / 'virtual-flash.bin').exists()
+    after = inspect_process(pid)
+    assert not after['exists'] or after['start_token'] != identity['start_token']
+    assert api('GET', f'/sessions/{sid}')['last_frame_available']
+    history_png = api('GET', f'/sessions/{sid}/frame.png', name='history-frame.png', binary=True)
+    assert history_png == (STATE / sid / 'last-frame.png').read_bytes()
+    result['unit_control'] = {'session_id': sid, 'status': 'PASS', 'runtime_sha256': runtime_sha,
+                              'firmware_sha256': firmware['sha256'],
+                              'source_sha256': create['uiflow_source_sha256'],
+                              'pid': pid, 'identity_before': identity, 'identity_after': after,
+                              'input_values': [True, False], 'final': stopped}
+    health = api('GET', '/health', name='final-health.json')
+    worker = api('GET', '/worker', name='final-worker.json')
+    assert health['capacity']['active_sessions'] == 0 and worker['active_lease_count'] == 0
+    result['status'] = 'PASS'
+except BaseException as error:
+    result['status'] = 'FAIL'
+    result['error'] = repr(error)
+    raise
+finally:
+    for sid in owned:
+        try:
+            state = api('GET', f'/sessions/{sid}')
+            if state['state'] not in {'stopped', 'failed'}:
+                evidence(sid, f'cleanup-{sid}.zip')
+                api('POST', f'/sessions/{sid}/stop', {'purge': False})
+                until_terminal(sid)
+        except Exception as error:
+            result.setdefault('cleanup_errors', []).append(repr(error))
+    save('result.json', result)
+print(json.dumps({'status': result['status'], 'output': str(OUT)}))

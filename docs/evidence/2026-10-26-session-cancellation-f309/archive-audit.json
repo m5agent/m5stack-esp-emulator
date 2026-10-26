@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "archive_files": 165,
+  "zip_files": 4,
+  "zip_members": 28,
+  "images": 6,
+  "provenance_sources_verified": 161,
+  "bytes_preserved": true,
+  "privacy_candidates": 1,
+  "reviewed_synthetic_test_literals": 1,
+  "unreviewed_privacy_candidates": 0,
+  "review": {
+    "kind": "credential-literal",
+    "locator": "source/test_network_lane_cancellation.py.txt",
+    "raw_value_printed": false,
+    "file_sha256": "1748a0180bec30444926b72339c9343587e08d5492b0c41079af00b4be7e76cd",
+    "classification": "NONWORKING_SYNTHETIC_MOCK_TEST_INPUT",
+    "ast_keyword": "password",
+    "source_line": 165,
+    "literal_length": 24,
+    "literal_sha256": "2383a794bd060c39ba88684747de22ddaedf8309115d5f86a7c5717ce1e7815b",
+    "basis": "Fake Popen/children; verifies that credentials are excluded from lifecycle receipts.",
+    "general_allowlist": false,
+    "bytes_changed": false
+  },
+  "scanner_repository_path": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/audit_archive.py",
+  "scanner_sha256": "f61cf6290c74519c14bf527af950e310867c994d425a97e752b32a2b716c4080"
+}

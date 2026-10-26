@@ -1,0 +1,36 @@
+{
+  "recording_type": "Exact host test runner subprocess.run invocation record; not an OS exec trace",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "platform/tests",
+    "-p",
+    "test_device_session_cancellation.py",
+    "-v"
+  ],
+  "env": {
+    "M5_PYTHON_DEPS": ".work/py312",
+    "PYTHONPATH": ".work/py312:platform/tools"
+  },
+  "started_at": "2026-10-26T07:46:42.891436+00:00",
+  "sha256_before": {
+    "device_service": "f3099a49187f5839598f7d48d2120d938be48b96f038a42201b8310ffad47323",
+    "network_lane": "04b2c8fc003f5789fd506b56dab147438d80df6b863613133198f71d9bd9905e",
+    "test_file": "25ed508edd898525cfdce50ae8ffd079d58b4364613c17387ded128f06c5c0b8"
+  },
+  "stdout_log": ".work/aiflow-session-cancellation-tests-20261026/final-green-r6.stdout.log",
+  "scope": "Host-only real Session lifecycle methods with mocked external process/QMP/signal/fixture boundaries; no API or guest execution",
+  "observed_exit_code": 0,
+  "finished_at": "2026-10-26T07:46:44.270446+00:00",
+  "sha256_after": {
+    "device_service": "f3099a49187f5839598f7d48d2120d938be48b96f038a42201b8310ffad47323",
+    "network_lane": "04b2c8fc003f5789fd506b56dab147438d80df6b863613133198f71d9bd9905e",
+    "test_file": "25ed508edd898525cfdce50ae8ffd079d58b4364613c17387ded128f06c5c0b8"
+  },
+  "source_unchanged": true,
+  "stdout_sha256": "d4a6c1f1b3a268d9da27eeec92a1d2854fbc1e518c073f73495150884af849ca"
+}

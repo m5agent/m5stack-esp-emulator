@@ -25,6 +25,7 @@ import time
 import uuid
 import zipfile
 from dataclasses import dataclass
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -141,6 +142,7 @@ TAB5_I2C_DEVICES = (
 )
 QMP_COMMAND_TIMEOUT = 2
 QMP_START_TIMEOUT = 60
+SESSION_STOP_WAIT_SECONDS = 1.0
 EXCLUDED_DEVICES = {
     "cardputer-zero": "CardputerZero uses a separate Linux backend",
 }
@@ -150,6 +152,7 @@ MAX_SERIAL_READ = 256 * 1024
 SESSION_IDEMPOTENCY_SCHEMA_VERSION = 1
 MAX_SESSION_IDEMPOTENCY_ENTRIES = 4096
 ACTIVE_STATES = {"provisioning", "flashing", "booting", "running"}
+OCCUPIED_STATES = ACTIVE_STATES | {"stopping"}
 ALLOWED_RUNTIME_ENV = {
     "M5SW_CORE2_PMIC",
     "M5SW_I2S_DMA_IRQ",
@@ -1694,6 +1697,13 @@ class ServiceError(Exception):
         return {"error": {"code": self.code, "message": self.message, **self.extra}}
 
 
+class SessionCancelled(ServiceError):
+    """A lifecycle transaction was superseded by an explicit stop request."""
+
+    def __init__(self):
+        super().__init__("session_stopping", "session stop was requested", 409)
+
+
 @dataclass(frozen=True)
 class DeviceSpec:
     id: str
@@ -3019,7 +3029,18 @@ class DeviceSession:
         self._proc: subprocess.Popen | None = None
         self._qmp: QMP | None = None
         self._lock = threading.RLock()
+        # Never wait for this lock while holding _lock or the service lock.
+        # It owns resource creation, publication and teardown, including waits.
+        self._lifecycle_lock = threading.RLock()
+        self._lifecycle_depth = 0
+        self._stop_request_lock = threading.Lock()
         self._stop_event = threading.Event()
+        self._stop_complete = threading.Event()
+        self._stop_purge = False
+        self._stop_retain_flash: bool | None = None
+        self._stop_intent_version = 0
+        self._purged_snapshot: dict | None = None
+        self._provision_error: str | None = None
         self._last_frame_persisted_at = 0.0
         self.unified_frame_changed: bool | None = None
         self.events: list[dict] = [dict(event) for event in (events or [])]
@@ -3439,6 +3460,14 @@ class DeviceSession:
         return self._companion_snapshot()
 
     def reattach(self) -> dict:
+        with self._lifecycle_operation():
+            try:
+                return self._reattach_runtime()
+            except Exception as error:
+                self._request_failure(error)
+                raise
+
+    def _reattach_runtime(self) -> dict:
         if self.runtime not in QEMU_QMP_RUNTIMES:
             raise ServiceError(
                 "reattach_unsupported",
@@ -3549,6 +3578,8 @@ class DeviceSession:
         self._persist_session()
 
     def snapshot(self) -> dict:
+        if self._stop_event.is_set() and not self._stop_complete.is_set():
+            return self._pending_stop_snapshot()
         with self._lock:
             if (
                 self._proc is not None
@@ -3676,26 +3707,37 @@ class DeviceSession:
         *,
         reason: str | None = None,
     ) -> None:
-        self.state = "failed"
-        self.error = (
-            self.error
-            or reason
-            or f"process exited with code {returncode}"
-        )
-        self.completed_at = self.completed_at or iso_now()
-        self._record_event("process_exited", returncode=returncode)
-        self._reattached_process = False
-        self._close_http_fixture()
-        self._terminate_hci_probe()
-        if self.runtime in QEMU_RADIO_RUNTIMES:
-            self._finalize_network_capture()
-        if not self.service.storage_policy.retain_session_flash:
-            self._release_virtual_flash()
-        self._release_worker_lease(
-            state="failed",
-            error=self.error,
-        )
-        self._persist_session()
+        # The transaction owner handles startup/reset failures. A snapshot or
+        # janitor must not remove resources while that owner can still publish.
+        with self._lock:
+            if self._lifecycle_depth or self._stop_event.is_set():
+                return
+            self._terminate_runtime()
+            self.state = "failed"
+            self.error = (
+                self.error
+                or reason
+                or f"process exited with code {returncode}"
+            )
+            self.completed_at = self.completed_at or iso_now()
+            self._record_event("process_exited", returncode=returncode)
+            self._reattached_process = False
+            self._close_http_fixture()
+            self._terminate_hci_probe()
+            if self.runtime in QEMU_RADIO_RUNTIMES:
+                self._finalize_network_capture()
+            if not self.service.storage_policy.retain_session_flash:
+                self._release_virtual_flash()
+            release_error = self._release_worker_lease(
+                state="failed",
+                error=self.error,
+            )
+            if release_error:
+                self._provision_error = self.error
+                self.state = "stopping"
+                self.completed_at = None
+                self._stop_event.set()
+            self._persist_session()
 
     def start(self) -> None:
         thread = threading.Thread(
@@ -3705,10 +3747,69 @@ class DeviceSession:
         )
         thread.start()
 
+    def _check_cancelled(self) -> None:
+        if self._stop_event.is_set() or self.state in {"stopped", "failed"}:
+            raise SessionCancelled()
+
+    def _request_failure(self, error: Exception) -> None:
+        with self._stop_request_lock:
+            if not self._stop_event.is_set():
+                self._provision_error = str(error)
+                self.error = str(error)
+                self._stop_event.set()
+
+    @contextmanager
+    def _lifecycle_operation(self):
+        try:
+            with self._lifecycle_lock:
+                with self._lock:
+                    self._check_cancelled()
+                    self._lifecycle_depth += 1
+                try:
+                    yield
+                finally:
+                    self._lifecycle_depth -= 1
+        finally:
+            # This is outside the lifecycle lock. It covers reset and reattach
+            # as well as provisioning; no caller has to retry a pending stop.
+            if not self._lifecycle_depth and self._stop_event.is_set() and not self._stop_complete.is_set():
+                try:
+                    self.stop()
+                except Exception:
+                    # stop persisted the cleanup failure; the janitor retries
+                    # without freeing capacity or claiming a terminal result.
+                    pass
+
+    def _pending_stop_snapshot(self) -> dict:
+        # QMP startup may hold _lock for its entire handshake. Cancellation
+        # acknowledgement must not wait for it or pretend teardown finished.
+        return {
+            "session_id": self.id,
+            "device_id": self.spec.id,
+            "state": "stopping",
+            "stop_pending": True,
+            "runtime": self.runtime,
+            "firmware_id": self.firmware_id,
+            "firmware_sha256": self.firmware_sha,
+            "error": self.error,
+            "units": self.units,
+            "display": self.spec.display,
+            "created_at": self.created_at,
+            "completed_at": None,
+            "expires_at": datetime.fromtimestamp(self.expires_at, timezone.utc).isoformat(),
+            "worker": {
+                "worker_id": self.worker_id,
+                "generation": self.worker_generation,
+                "lease_active": self._worker_lease_active,
+            },
+        }
+
     def _set_state(self, state: str) -> None:
         with self._lock:
-            previous = self.state
-            self.state = state
+            with self._stop_request_lock:
+                self._check_cancelled()
+                previous = self.state
+                self.state = state
             self._record_event("state", **{"from": previous, "to": state})
             self._persist_session()
 
@@ -4516,90 +4617,97 @@ class DeviceSession:
 
     def _provision(self) -> None:
         try:
-            self._set_state("flashing")
-            prepared = self.service.prepare_flash(
-                self.spec,
-                self.firmware_path,
-                self.firmware_sha,
-                runtime=self.runtime,
-            )
-            self.virtual_flash = self.dir / "virtual-flash.bin"
-            shutil.copyfile(prepared["path"], self.virtual_flash)
-            self.flash_info = {
-                **prepared["info"],
-                "session_isolated_copy": True,
-            }
-            self._record_event("flash_prepared", **self.flash_info)
-            if self.storage_config:
-                artifact_id = self.storage_config["sd_image_artifact_id"]
-                source = self.service.artifacts.path(artifact_id)
-                shutil.copyfile(source, self.sd_card_image)
-                storage_sha = hashlib.sha256(
-                    self.sd_card_image.read_bytes()
-                ).hexdigest()
-                if storage_sha != artifact_id:
-                    raise RuntimeError(
-                        "session-isolated SD image checksum changed"
-                    )
-                self.storage_info = {
-                    "interface": "sdmmc",
-                    "format": "raw",
-                    "artifact_id": artifact_id,
-                    "sha256": storage_sha,
-                    "bytes": self.sd_card_image.stat().st_size,
-                    "session_isolated_copy": True,
-                    "writable": True,
-                }
-                atomic_write_json(
-                    self.storage_summary_path,
-                    self.storage_info,
+            with self._lifecycle_operation():
+                try:
+                    self._provision_runtime()
+                except SessionCancelled:
+                    pass
+                except Exception as error:
+                    self._request_failure(error)
+        except SessionCancelled:
+            # Stop before this thread starts is cancellation, not a failure.
+            pass
+
+    def _terminate_runtime(self) -> None:
+        self._terminate_process()
+
+    def _provision_runtime(self) -> None:
+        self._set_state("flashing")
+        prepared = self.service.prepare_flash(
+            self.spec,
+            self.firmware_path,
+            self.firmware_sha,
+            runtime=self.runtime,
+        )
+        self._check_cancelled()
+        self.virtual_flash = self.dir / "virtual-flash.bin"
+        shutil.copyfile(prepared["path"], self.virtual_flash)
+        self._check_cancelled()
+        self.flash_info = {
+            **prepared["info"],
+            "session_isolated_copy": True,
+        }
+        self._record_event("flash_prepared", **self.flash_info)
+        if self.storage_config:
+            artifact_id = self.storage_config["sd_image_artifact_id"]
+            source = self.service.artifacts.path(artifact_id)
+            shutil.copyfile(source, self.sd_card_image)
+            self._check_cancelled()
+            storage_sha = hashlib.sha256(
+                self.sd_card_image.read_bytes()
+            ).hexdigest()
+            if storage_sha != artifact_id:
+                raise RuntimeError(
+                    "session-isolated SD image checksum changed"
                 )
-                self._record_event("storage_prepared", **self.storage_info)
-            if (
-                self.nvs_config
-                and self.runtime not in QEMU_RADIO_RUNTIMES
-            ):
-                self._apply_nvs_fixture()
-            self._persist_session()
-            self._set_state("booting")
-            if self.runtime in QEMU_RADIO_RUNTIMES:
-                self._provision_qemu_radio(prepared["path"])
-            else:
-                self._launch()
-                if self.ready_conditions:
-                    self.wait_ready(
-                        {
-                            "timeout_seconds": self.ready_timeout,
-                            **self.ready_conditions,
-                        }
-                    )
-                elif self.ready_marker:
-                    self.wait_for_marker(self.ready_marker, self.ready_timeout)
-            self._set_state("running")
-        except Exception as error:
-            with self._lock:
-                self.error = str(error)
-                self.state = "failed"
-                self.completed_at = self.completed_at or iso_now()
-                self._record_event("failed", error=str(error))
-                self._persist_session()
-            self._terminate_process()
-            if self.runtime in QEMU_RADIO_RUNTIMES:
-                self._finalize_network_capture()
-            self._release_worker_lease(
-                state="failed",
-                error=str(error),
+            self.storage_info = {
+                "interface": "sdmmc",
+                "format": "raw",
+                "artifact_id": artifact_id,
+                "sha256": storage_sha,
+                "bytes": self.sd_card_image.stat().st_size,
+                "session_isolated_copy": True,
+                "writable": True,
+            }
+            atomic_write_json(
+                self.storage_summary_path,
+                self.storage_info,
             )
+            self._record_event("storage_prepared", **self.storage_info)
+        if (
+            self.nvs_config
+            and self.runtime not in QEMU_RADIO_RUNTIMES
+        ):
+            self._apply_nvs_fixture()
+        self._persist_session()
+        self._set_state("booting")
+        if self.runtime in QEMU_RADIO_RUNTIMES:
+            self._provision_qemu_radio(prepared["path"])
+        else:
+            self._launch()
+            if self.ready_conditions:
+                self.wait_ready(
+                    {
+                        "timeout_seconds": self.ready_timeout,
+                        **self.ready_conditions,
+                    }
+                )
+            elif self.ready_marker:
+                self.wait_for_marker(self.ready_marker, self.ready_timeout)
+        self._set_state("running")
 
     def _provision_qemu_radio(self, clean_flash: Path) -> None:
         attempts = int(self.network_config.get("attempts", 5))
         last_error: ServiceError | None = None
         for attempt in range(1, attempts + 1):
+            self._check_cancelled()
             if attempt > 1:
                 if self.virtual_flash is None:
                     self.virtual_flash = self.dir / "virtual-flash.bin"
                 shutil.copyfile(clean_flash, self.virtual_flash)
+                self._check_cancelled()
             self._apply_nvs_fixture()
+            self._check_cancelled()
             try:
                 self._launch()
                 if self.ready_conditions:
@@ -4631,7 +4739,10 @@ class DeviceSession:
                     status="PASS",
                 )
                 return
+            except SessionCancelled:
+                raise
             except ServiceError as error:
+                self._check_cancelled()
                 last_error = error
                 self._record_event(
                     "qemu_radio_attempt",
@@ -4672,6 +4783,7 @@ class DeviceSession:
         # single-cycle budget. The session's ready timeout bounds the wait.
         deadline = time.time() + max(1.0, timeout)
         while time.time() < deadline:
+            self._check_cancelled()
             text = (
                 self.hci_probe_log.read_text(errors="replace")
                 if self.hci_probe_log.is_file()
@@ -4692,7 +4804,7 @@ class DeviceSession:
                     "external BLE peer exited before GATT completion",
                     409,
                 )
-            time.sleep(0.1)
+            self._stop_event.wait(0.1)
         raise ServiceError(
             "ble_peer_failed",
             "timed out waiting for external BLE peer completion",
@@ -4796,9 +4908,11 @@ class DeviceSession:
         return command, env
 
     def _launch_hci_probe(self) -> None:
+        self._check_cancelled()
         command, env = self._hci_probe_command()
         output = self.hci_probe_log.open("wb")
         try:
+            self._check_cancelled()
             self._hci_probe = subprocess.Popen(
                 command,
                 cwd=ROOT,
@@ -4807,10 +4921,12 @@ class DeviceSession:
                 stderr=subprocess.STDOUT,
                 start_new_session=True,
             )
+            self._check_cancelled()
         finally:
             output.close()
         deadline = time.time() + 10
         while time.time() < deadline:
+            self._check_cancelled()
             if (
                 self.hci_probe_log.is_file()
                 and "BLE_PROBE_READY"
@@ -4865,7 +4981,7 @@ class DeviceSession:
                     "external BLE peer exited during startup",
                     503,
                 )
-            time.sleep(0.05)
+            self._stop_event.wait(0.05)
         raise ServiceError(
             "ble_peer_failed",
             "external BLE peer did not become ready",
@@ -4873,6 +4989,7 @@ class DeviceSession:
         )
 
     def _launch_native_vhci_gdb(self) -> None:
+        self._check_cancelled()
         if self.hci_port is None or self.gdb_port is None:
             raise RuntimeError("native VHCI ports are not allocated")
         elf_artifact_id = self.network_config.get("elf_artifact_id")
@@ -4919,6 +5036,7 @@ class DeviceSession:
         )
         output = self.native_vhci_log.open("wb")
         try:
+            self._check_cancelled()
             self._native_vhci_gdb = subprocess.Popen(
                 command,
                 cwd=ROOT,
@@ -4927,10 +5045,12 @@ class DeviceSession:
                 stderr=subprocess.STDOUT,
                 start_new_session=True,
             )
+            self._check_cancelled()
         finally:
             output.close()
         deadline = time.time() + 10
         while time.time() < deadline:
+            self._check_cancelled()
             if (
                 self.native_vhci_log.is_file()
                 and "NATIVE_VHCI_BRIDGE_READY"
@@ -4947,7 +5067,7 @@ class DeviceSession:
                     "native VHCI GDB bridge exited during startup",
                     503,
                 )
-            time.sleep(0.05)
+            self._stop_event.wait(0.05)
         raise ServiceError(
             "native_bt_backend_unavailable",
             "native VHCI GDB bridge did not become ready",
@@ -4955,6 +5075,7 @@ class DeviceSession:
         )
 
     def _launch_http_fixture(self, *, recover: bool = False) -> None:
+        self._check_cancelled()
         profile = self.network_config.get("profile")
         body = UNIFIED_HTTP_BODIES.get(profile)
         port = UNIFIED_HTTP_PORTS.get(profile)
@@ -4983,6 +5104,7 @@ class DeviceSession:
             seed_requests = []
             generation = 1
         try:
+            self._check_cancelled()
             self._http_fixture = UnifiedHttpFixture(
                 self.http_fixture_log,
                 body=body,
@@ -4990,6 +5112,7 @@ class DeviceSession:
                 seed_requests=seed_requests,
                 generation=generation,
             )
+            self._check_cancelled()
         except OSError as error:
             raise ServiceError(
                 "http_fixture_failed",
@@ -5130,6 +5253,7 @@ class DeviceSession:
     ) -> None:
         deadline = time.time() + 20
         while time.time() < deadline:
+            self._check_cancelled()
             serial = (
                 self.serial0.read_text(errors="replace")
                 if self.serial0.is_file()
@@ -5143,7 +5267,7 @@ class DeviceSession:
                     f"device exited before marker {marker!r}",
                     409,
                 )
-            time.sleep(0.05)
+            self._stop_event.wait(0.05)
         else:
             raise ServiceError(
                 "qom_timeout",
@@ -5271,6 +5395,7 @@ class DeviceSession:
         )
 
     def _launch(self) -> None:
+        self._check_cancelled()
         assert self.virtual_flash is not None
         efuse = self.dir / "efuse.bin"
         efuse_data = bytearray(4096)
@@ -5678,6 +5803,7 @@ class DeviceSession:
         stdout = self.stdout_path.open("wb")
         stderr = self.stderr_path.open("wb")
         try:
+            self._check_cancelled()
             self._proc = subprocess.Popen(
                 launch_command,
                 cwd=ROOT,
@@ -5685,6 +5811,7 @@ class DeviceSession:
                 stdout=stdout,
                 stderr=stderr,
             )
+            self._check_cancelled()
         finally:
             stdout.close()
             stderr.close()
@@ -5704,6 +5831,7 @@ class DeviceSession:
                 # Booting frame/state requests may already own the connection.
                 if self._qmp is None:
                     self._qmp = wait_qmp(self.qmp_path, timeout=QMP_START_TIMEOUT)
+                self._check_cancelled()
             except RuntimeError as error:
                 raise ServiceError(
                     "qmp_timeout",
@@ -5814,9 +5942,11 @@ class DeviceSession:
     def wait_for_marker(self, marker: str, timeout: float) -> dict:
         deadline = time.time() + max(0.1, timeout)
         while time.time() < deadline:
+            self._check_cancelled()
             if self.serial0.exists() and marker in self.serial0.read_text(
                 errors="replace"
             ):
+                self._check_cancelled()
                 self._record_event("serial_marker", marker=marker)
                 return self.snapshot()
             if self._proc and self._proc.poll() is not None:
@@ -5825,7 +5955,7 @@ class DeviceSession:
                     f"device exited before marker {marker!r}",
                     409,
                 )
-            time.sleep(0.1)
+            self._stop_event.wait(0.1)
         raise ServiceError(
             "ready_timeout",
             f"timed out waiting for serial marker {marker!r}",
@@ -5867,6 +5997,7 @@ class DeviceSession:
         first_frame_at: str | None = None
         last_frame: dict | None = None
         while time.time() < deadline:
+            self._check_cancelled()
             if serial_markers:
                 serial_text = (
                     self.serial0.read_text(errors="replace")
@@ -5920,6 +6051,7 @@ class DeviceSession:
                 else bool(criteria)
             )
             if ready:
+                self._check_cancelled()
                 self._record_event("application_ready", criteria=criteria)
                 return {
                     **self.snapshot(),
@@ -5944,7 +6076,7 @@ class DeviceSession:
                     "device exited before application readiness",
                     409,
                 )
-            time.sleep(0.75)
+            self._stop_event.wait(0.75)
         raise ServiceError(
             "ready_timeout",
             "application did not satisfy the requested readiness conditions",
@@ -6139,6 +6271,7 @@ class DeviceSession:
         return result
 
     def unit_input(self, payload: dict) -> dict:
+        self._check_cancelled()
         if self.state != "running":
             raise ServiceError("session_not_running", f"session state is {self.state}", 409)
         if not isinstance(payload, dict) or set(payload) != {"id", "values"}:
@@ -6247,6 +6380,7 @@ class DeviceSession:
         return response
 
     def inject(self, payload: dict) -> dict:
+        self._check_cancelled()
         if self.state != "running":
             raise ServiceError(
                 "session_not_running", f"session state is {self.state}", 409
@@ -6320,6 +6454,7 @@ class DeviceSession:
         }
 
     def qom_set(self, payload: dict) -> dict:
+        self._check_cancelled()
         path = payload.get("path")
         prop = payload.get("property")
         if not isinstance(path, str) or not isinstance(prop, str):
@@ -6335,6 +6470,7 @@ class DeviceSession:
         return {"session_id": self.id, "qom_set": result}
 
     def network_fault(self, payload: dict) -> dict:
+        self._check_cancelled()
         action = payload.get("action")
         if action not in {"down", "up"}:
             raise ServiceError(
@@ -6822,6 +6958,7 @@ class DeviceSession:
         if isinstance(network_dir, Path) and network_dir.is_dir():
             for name, path in (
                 ("network/evidence.json", network_dir / "evidence.json"),
+                ("network/lifecycle.json", network_dir / "lifecycle.json"),
                 ("network/serial.log", network_dir / "serial.log"),
                 ("network/ble-probe.log", network_dir / "ble-probe.log"),
             ):
@@ -6884,6 +7021,7 @@ class DeviceSession:
         return output.getvalue()
 
     def reset(self) -> dict:
+        self._check_cancelled()
         with self._lock:
             self._qmp_call("system_reset")
             self._record_event("reset")
@@ -6956,6 +7094,8 @@ class DeviceSession:
                 deadline = time.time() + 5
                 while time.time() < deadline and owned():
                     time.sleep(0.05)
+            if owned():
+                raise ServiceError("session_cleanup_pending", "owned BLE peer did not terminate", 503)
         self._external_hci_probe_pid = None
         self._external_hci_probe_start_token = None
         self._external_hci_probe_command_sha256 = None
@@ -7030,6 +7170,8 @@ class DeviceSession:
                     deadline = time.time() + 5
                     while time.time() < deadline and owns_external_process():
                         time.sleep(0.05)
+                if owns_external_process():
+                    raise ServiceError("session_cleanup_pending", "owned QEMU process did not terminate", 503)
             self._reattached_process = False
             self.pid = None
         self._close_http_fixture()
@@ -7060,6 +7202,58 @@ class DeviceSession:
     def stop(
         self, purge: bool = False, *, retain_flash: bool | None = None
     ) -> dict:
+        with self._stop_request_lock:
+            self._stop_event.set()
+            previous = (self._stop_purge, self._stop_retain_flash)
+            self._stop_purge = self._stop_purge or purge
+            retain = (
+                self.service.storage_policy.retain_session_flash
+                if retain_flash is None else bool(retain_flash)
+            )
+            if self._stop_retain_flash is None:
+                self._stop_retain_flash = retain
+            elif retain_flash is not None:
+                self._stop_retain_flash = self._stop_retain_flash and retain
+            if previous != (self._stop_purge, self._stop_retain_flash):
+                self._stop_intent_version += 1
+                self._stop_complete.clear()
+        if not self._lifecycle_lock.acquire(timeout=SESSION_STOP_WAIT_SECONDS):
+            return self._pending_stop_snapshot()
+        try:
+            if self._purged_snapshot is not None:
+                with self._stop_request_lock:
+                    self._stop_complete.set()
+                return dict(self._purged_snapshot)
+            while True:
+                with self._stop_request_lock:
+                    purge = self._stop_purge
+                    retain = self._stop_retain_flash
+                    version = self._stop_intent_version
+                result = self._finish_stop(purge=purge, retain_flash=retain)
+                with self._stop_request_lock:
+                    if purge:
+                        self._purged_snapshot = dict(result)
+                    if version == self._stop_intent_version or purge:
+                        self._stop_complete.set()
+                        return result
+                    # A second request tightened cleanup while teardown was
+                    # busy. Consume it before completing this transaction.
+                    self._stop_complete.clear()
+        except Exception as error:
+            with self._lock:
+                self._stop_complete.clear()
+                self.state = "stopping"
+                self.completed_at = None
+                self.error = self._provision_error or str(error)
+                self._record_event("stop_cleanup_pending", error=str(error))
+                self._persist_session()
+            raise
+        finally:
+            self._lifecycle_lock.release()
+
+    def _finish_stop(
+        self, purge: bool = False, *, retain_flash: bool | None = None
+    ) -> dict:
         retain_flash = (
             self.service.storage_policy.retain_session_flash
             if retain_flash is None
@@ -7067,18 +7261,25 @@ class DeviceSession:
         )
         with self._lock:
             if self.state in {"stopped", "failed"}:
-                self._terminate_process()
+                if self.state == "failed" and self._provision_error is None:
+                    self._provision_error = self.error or "session failed"
+                self._terminate_runtime()
                 if self.runtime in QEMU_RADIO_RUNTIMES:
                     self._finalize_network_capture()
-                self._release_worker_lease(
+                release_error = self._release_worker_lease(
                     state=self.state,
                     error=self.error,
                 )
+                if release_error:
+                    raise ServiceError("worker_lease_release_pending", release_error, 503)
                 if not purge and not retain_flash:
                     self._release_virtual_flash()
+                self._persist_session()
+                self._stop_complete.set()
                 result = self.snapshot()
                 if purge:
                     shutil.rmtree(self.dir, ignore_errors=True)
+                    result["flash_retained"] = False
                 return result
             if self.state == "running" and self.spec.has_display:
                 try:
@@ -7106,7 +7307,7 @@ class DeviceSession:
                     self._qmp.cmd("quit")
                 except (OSError, RuntimeError):
                     pass
-            self._terminate_process()
+            self._terminate_runtime()
             if self.runtime in QEMU_RADIO_RUNTIMES:
                 self._finalize_network_capture()
                 self.network_result = self.network_evidence()
@@ -7117,7 +7318,11 @@ class DeviceSession:
             network_status = str(
                 (self.network_result or {}).get("status", "RUNNING")
             )
-            if self.runtime == "network" and network_status not in {
+            if self._provision_error is not None:
+                self.state = "failed"
+                self.error = self._provision_error
+                self._record_event("failed", error=self.error)
+            elif self.runtime == "network" and network_status not in {
                 "PASS",
                 "PARTIAL",
                 "RUNNING",
@@ -7130,16 +7335,20 @@ class DeviceSession:
                 self.state = "stopped"
             self.completed_at = iso_now()
             self._record_event("stopped", purge=purge)
-            self._release_worker_lease(
+            release_error = self._release_worker_lease(
                 state=self.state,
                 error=self.error,
             )
+            if release_error:
+                raise ServiceError("worker_lease_release_pending", release_error, 503)
             if not purge and not retain_flash:
                 self._release_virtual_flash()
+            self._stop_complete.set()
             result = self.snapshot()
             self._persist_session()
         if purge:
             shutil.rmtree(self.dir, ignore_errors=True)
+            result["flash_retained"] = False
         return result
 
 
@@ -7154,35 +7363,29 @@ class NetworkDeviceSession(DeviceSession):
         self.serial1 = self.network_dir / "serial1.log"
         self.stdout_path = self.dir / "network-runner.stdout"
         self.stderr_path = self.dir / "network-runner.stderr"
+        self._network_runner_command_sha256: str | None = None
         self._persist_session()
 
-    def _provision(self) -> None:
-        try:
-            self._set_state("flashing")
-            self.virtual_flash = self.dir / "virtual-flash.bin"
-            shutil.copyfile(self.firmware_path, self.virtual_flash)
-            self.flash_info = {
-                "transport": "network-direct-image",
-                "verified": self.virtual_flash.stat().st_size == self.spec.flash_size,
-                "flash_size": self.spec.flash_size,
-                "firmware_sha256": self.firmware_sha,
-                "session_isolated_copy": True,
-            }
-            self._record_event("flash_prepared", **self.flash_info)
-            self._persist_session()
-            self._set_state("booting")
-            self._launch()
-            self._set_state("running")
-        except Exception as error:
-            with self._lock:
-                self.error = str(error)
-                self.state = "failed"
-                self.completed_at = self.completed_at or iso_now()
-                self._record_event("failed", error=str(error))
-                self._persist_session()
-            self._terminate_process()
+    def _provision_runtime(self) -> None:
+        self._set_state("flashing")
+        self.virtual_flash = self.dir / "virtual-flash.bin"
+        shutil.copyfile(self.firmware_path, self.virtual_flash)
+        self._check_cancelled()
+        self.flash_info = {
+            "transport": "network-direct-image",
+            "verified": self.virtual_flash.stat().st_size == self.spec.flash_size,
+            "flash_size": self.spec.flash_size,
+            "firmware_sha256": self.firmware_sha,
+            "session_isolated_copy": True,
+        }
+        self._record_event("flash_prepared", **self.flash_info)
+        self._persist_session()
+        self._set_state("booting")
+        self._launch()
+        self._set_state("running")
 
     def _launch(self) -> None:
+        self._check_cancelled()
         assert self.virtual_flash is not None
         chip = self.network_config.get("chip")
         if not chip:
@@ -7265,6 +7468,7 @@ class NetworkDeviceSession(DeviceSession):
         stdout = self.stdout_path.open("wb")
         stderr = self.stderr_path.open("wb")
         try:
+            self._check_cancelled()
             self._proc = subprocess.Popen(
                 command,
                 cwd=ROOT,
@@ -7273,10 +7477,18 @@ class NetworkDeviceSession(DeviceSession):
                 stderr=stderr,
                 start_new_session=True,
             )
+            self._check_cancelled()
         finally:
             stdout.close()
             stderr.close()
         self.pid = self._proc.pid
+        identity = inspect_process(self.pid)
+        self.process_start_token = identity.get("start_token")
+        command_text = identity.get("command")
+        self._network_runner_command_sha256 = (
+            hashlib.sha256(command_text.encode()).hexdigest()
+            if command_text else None
+        )
         self._persist_session()
         self._record_event(
             "network_started",
@@ -7322,6 +7534,16 @@ class NetworkDeviceSession(DeviceSession):
 
     def _handle_process_exit(self, returncode: int | None) -> None:
         with self._lock:
+            if self._lifecycle_depth or self._stop_event.is_set():
+                return
+            try:
+                self._verify_network_cleanup()
+            except ServiceError as error:
+                self._request_failure(error)
+                self.state = "stopping"
+                self._record_event("stop_cleanup_pending", error=str(error))
+                self._persist_session()
+                return
             if self.state not in ACTIVE_STATES:
                 return
             evidence_path = self._network_evidence_path()
@@ -7353,6 +7575,11 @@ class NetworkDeviceSession(DeviceSession):
             )
             if not self.service.storage_policy.retain_session_flash:
                 self._release_virtual_flash()
+            release_error = self._release_worker_lease(state=self.state, error=self.error)
+            if release_error:
+                self.state = "stopping"
+                self.completed_at = None
+                self._stop_event.set()
             self._persist_session()
 
     def _terminate_process(self) -> None:
@@ -7366,7 +7593,9 @@ class NetworkDeviceSession(DeviceSession):
             except (OSError, ProcessLookupError):
                 proc.terminate()
             try:
-                proc.wait(timeout=8)
+                # Runner cleanup can terminate two independent process groups,
+                # each with TERM/KILL grace. Do not kill it mid-finally at 8s.
+                proc.wait(timeout=30)
             except subprocess.TimeoutExpired:
                 try:
                     if os.name == "posix":
@@ -7376,6 +7605,50 @@ class NetworkDeviceSession(DeviceSession):
                 except (OSError, ProcessLookupError):
                     proc.kill()
                 proc.wait(timeout=5)
+        self._verify_network_cleanup()
+
+    def _verify_network_cleanup(self) -> None:
+        proc = self._proc
+        if proc is None:
+            return
+        path = self.network_dir / "lifecycle.json"
+        if not path.is_file() and proc.poll() in {-signal.SIGTERM, -signal.SIGINT}:
+            # The runner atomically journals before its first child creation.
+            # A default-signal exit without a receipt is the pre-child path.
+            return
+        try:
+            receipt = json.loads(path.read_text())
+        except (OSError, ValueError):
+            receipt = {}
+        if not isinstance(receipt, dict):
+            receipt = {}
+        runner = receipt.get("runner") or {}
+        if not isinstance(runner, dict):
+            runner = {}
+        children = receipt.get("children")
+        complete = (
+            receipt.get("schema_version") == 1
+            and proc.poll() is not None
+            and receipt.get("kind") == "m5stack-network-lane-lifecycle"
+            and receipt.get("state") == "cleanup-complete"
+            and receipt.get("cleanup_complete") is True
+            and runner.get("pid") == proc.pid
+            and (not self.process_start_token or runner.get("start_token") == self.process_start_token)
+            and (not self._network_runner_command_sha256 or runner.get("command_sha256") == self._network_runner_command_sha256)
+            and isinstance(children, dict)
+            and set(children) == {"ble", "emulator"}
+            and all(child is None or (
+                isinstance(child, dict)
+                and child.get("state") == "exited"
+                and type(child.get("returncode")) is int
+            ) for child in children.values())
+        )
+        if not complete:
+            raise ServiceError(
+                "session_cleanup_pending",
+                "network runner child cleanup is unconfirmed; lease and ownership retained",
+                503,
+            )
 
     def _unavailable(self, feature: str):
         raise ServiceError(
@@ -7394,9 +7667,11 @@ class NetworkDeviceSession(DeviceSession):
         self._unavailable("board device state")
 
     def inject(self, payload: dict):
+        self._check_cancelled()
         self._unavailable("input injection")
 
     def qom_set(self, payload: dict):
+        self._check_cancelled()
         self._unavailable("QOM")
 
     def qom_get(self, path: str, prop: str):
@@ -7414,6 +7689,7 @@ class NetworkDeviceSession(DeviceSession):
         self._unavailable("QOM")
 
     def reset(self):
+        self._check_cancelled()
         self._unavailable("network session reset")
 
 
@@ -7426,42 +7702,36 @@ class Tab5DeviceSession(DeviceSession):
         self._gdb_port: int | None = None
         self._hosted_socket = Path("/tmp") / f"m5-service-tab5-{self.id}.sock"
 
-    def _provision(self) -> None:
-        try:
-            self._set_state("flashing")
-            prepared = self.service.prepare_flash(
-                self.spec, self.firmware_path, self.firmware_sha
+    def _provision_runtime(self) -> None:
+        self._set_state("flashing")
+        prepared = self.service.prepare_flash(
+            self.spec, self.firmware_path, self.firmware_sha
+        )
+        self._check_cancelled()
+        self.virtual_flash = self.dir / "virtual-flash.bin"
+        shutil.copyfile(prepared["path"], self.virtual_flash)
+        self._check_cancelled()
+        self.flash_info = {
+            **prepared["info"],
+            "session_isolated_copy": True,
+        }
+        self._record_event("flash_prepared", **self.flash_info)
+        self._persist_session()
+        self._set_state("booting")
+        self._launch_tab5()
+        if self.ready_conditions:
+            self.wait_ready(
+                {
+                    "timeout_seconds": self.ready_timeout,
+                    **self.ready_conditions,
+                }
             )
-            self.virtual_flash = self.dir / "virtual-flash.bin"
-            shutil.copyfile(prepared["path"], self.virtual_flash)
-            self.flash_info = {
-                **prepared["info"],
-                "session_isolated_copy": True,
-            }
-            self._record_event("flash_prepared", **self.flash_info)
-            self._persist_session()
-            self._set_state("booting")
-            self._launch_tab5()
-            if self.ready_conditions:
-                self.wait_ready(
-                    {
-                        "timeout_seconds": self.ready_timeout,
-                        **self.ready_conditions,
-                    }
-                )
-            elif self.ready_marker:
-                self.wait_for_marker(self.ready_marker, self.ready_timeout)
-            self._set_state("running")
-        except Exception as error:
-            with self._lock:
-                self.error = str(error)
-                self.state = "failed"
-                self.completed_at = self.completed_at or iso_now()
-                self._record_event("failed", error=str(error))
-                self._persist_session()
-            self._terminate_tab5()
+        elif self.ready_marker:
+            self.wait_for_marker(self.ready_marker, self.ready_timeout)
+        self._set_state("running")
 
     def _launch_tab5(self) -> None:
+        self._check_cancelled()
         assert self.virtual_flash is not None
         assert self.spec.emulator is not None
         assert self.spec.elf is not None
@@ -7475,23 +7745,23 @@ class Tab5DeviceSession(DeviceSession):
         launch_env = os.environ.copy()
         launch_env.update(self.spec.env)
         launch_env.update(self.runtime_env)
-        c6_stdout = (self.dir / "c6.log").open("wb")
-        self._c6_proc = subprocess.Popen(
-            [
-                str(self.spec.emulator),
-                "--chip", "esp32c6",
-                "--firmware", str(self.spec.c6_firmware),
-                "--hosted", f"bridge:slave:{self._hosted_socket}",
-            ],
-            cwd=ROOT,
-            env=launch_env,
-            stdout=c6_stdout,
-            stderr=subprocess.STDOUT,
-        )
-        try:
+        with (self.dir / "c6.log").open("wb") as c6_stdout:
+            self._check_cancelled()
+            self._c6_proc = subprocess.Popen(
+                [
+                    str(self.spec.emulator),
+                    "--chip", "esp32c6",
+                    "--firmware", str(self.spec.c6_firmware),
+                    "--hosted", f"bridge:slave:{self._hosted_socket}",
+                ],
+                cwd=ROOT,
+                env=launch_env,
+                stdout=c6_stdout,
+                stderr=subprocess.STDOUT,
+            )
+            self._check_cancelled()
             wait_for_fs_path(self._hosted_socket, self._c6_proc, 25)
-        finally:
-            c6_stdout.close()
+            self._check_cancelled()
         self._gdb_port = free_tcp_port()
         p4_stdout = self.serial0.open("wb")
         p4_stderr = self.stderr_path.open("wb")
@@ -7513,6 +7783,7 @@ class Tab5DeviceSession(DeviceSession):
         for i2c_device in TAB5_I2C_DEVICES:
             command.extend(["--i2c-dev", i2c_device])
         try:
+            self._check_cancelled()
             self._proc = subprocess.Popen(
                 command,
                 cwd=ROOT,
@@ -7520,12 +7791,14 @@ class Tab5DeviceSession(DeviceSession):
                 stdout=p4_stdout,
                 stderr=p4_stderr,
             )
+            self._check_cancelled()
         finally:
             p4_stdout.close()
             p4_stderr.close()
         self.pid = self._proc.pid
         self._persist_session()
         wait_for_tcp_port(self._gdb_port, self._proc, 25)
+        self._check_cancelled()
 
     def _terminate_tab5(self) -> None:
         for proc in (self._proc, self._c6_proc):
@@ -7602,6 +7875,7 @@ class Tab5DeviceSession(DeviceSession):
         return metrics["png"], metrics["width"], metrics["height"]
 
     def inject(self, payload: dict) -> dict:
+        self._check_cancelled()
         if self.state != "running" or self._gdb_port is None:
             raise ServiceError(
                 "session_not_running", f"session state is {self.state}", 409
@@ -7656,6 +7930,7 @@ class Tab5DeviceSession(DeviceSession):
         }
 
     def qom_set(self, payload: dict) -> dict:
+        self._check_cancelled()
         raise ServiceError(
             "qom_not_supported",
             "Tab5 esp-emu sessions do not expose QMP QOM",
@@ -7670,51 +7945,26 @@ class Tab5DeviceSession(DeviceSession):
         )
 
     def reset(self) -> dict:
-        if self.state != "running":
-            raise ServiceError(
-                "session_not_running", f"session state is {self.state}", 409
-            )
-        self._set_state("booting")
-        self.serial0.write_bytes(b"")
-        self._terminate_tab5()
-        self._launch_tab5()
-        self._set_state("running")
-        self._record_event("reset")
-        return {"session_id": self.id, "state": self.state, "reset": True}
+        self._check_cancelled()
+        with self._lifecycle_operation():
+            if self.state != "running":
+                raise ServiceError(
+                    "session_not_running", f"session state is {self.state}", 409
+                )
+            try:
+                self._set_state("booting")
+                self.serial0.write_bytes(b"")
+                self._terminate_tab5()
+                self._launch_tab5()
+                self._set_state("running")
+                self._record_event("reset")
+                return {"session_id": self.id, "state": self.state, "reset": True}
+            except Exception as error:
+                self._request_failure(error)
+                raise
 
-    def stop(
-        self, purge: bool = False, *, retain_flash: bool | None = None
-    ) -> dict:
-        retain_flash = (
-            self.service.storage_policy.retain_session_flash
-            if retain_flash is None
-            else bool(retain_flash)
-        )
-        with self._lock:
-            if self.state in {"stopped", "failed"}:
-                if not purge and not retain_flash:
-                    self._release_virtual_flash()
-                result = self.snapshot()
-                if purge:
-                    shutil.rmtree(self.dir, ignore_errors=True)
-                return result
-            if self.state == "running" and self.spec.has_display:
-                try:
-                    self.frame_metrics(force_persist=True)
-                except ServiceError:
-                    pass
-            self.state = "stopping"
-            self._terminate_tab5()
-            self.state = "stopped"
-            self.completed_at = iso_now()
-            self._record_event("stopped", purge=purge)
-            if not purge and not retain_flash:
-                self._release_virtual_flash()
-            result = self.snapshot()
-            self._persist_session()
-        if purge:
-            shutil.rmtree(self.dir, ignore_errors=True)
-        return result
+    def _terminate_runtime(self) -> None:
+        self._terminate_tab5()
 
 
 class DeviceService:
@@ -7833,6 +8083,9 @@ class DeviceService:
             self.worker.close()
             raise
         self._stop = threading.Event()
+        self._shutdown_lock = threading.Lock()
+        self._shutdown_thread: threading.Thread | None = None
+        self._worker_closed = False
         self._janitor = threading.Thread(
             target=self._janitor_loop,
             name="m5-session-janitor",
@@ -8630,6 +8883,8 @@ class DeviceService:
                 shutil.rmtree(work_dir, ignore_errors=True)
 
     def create_session(self, payload: dict) -> dict:
+        if self._stop.is_set():
+            raise ServiceError("service_stopping", "device service is shutting down", 503)
         device_id = payload.get("device_id")
         if not isinstance(device_id, str):
             raise ServiceError("invalid_request", "device_id is required", 400)
@@ -8664,6 +8919,8 @@ class DeviceService:
             self._session_idempotency_fields(payload)
         )
         with self._lock:
+            if self._stop.is_set():
+                raise ServiceError("service_stopping", "device service is shutting down", 503)
             replayed = self._session_idempotency_replay_locked(
                 idempotency_key_hash,
                 idempotency_request_hash,
@@ -8898,6 +9155,8 @@ class DeviceService:
 
         self._ensure_storage_capacity(spec.flash_size)
         with self._lock:
+            if self._stop.is_set():
+                raise ServiceError("service_stopping", "device service is shutting down", 503)
             replayed = self._session_idempotency_replay_locked(
                 idempotency_key_hash,
                 idempotency_request_hash,
@@ -8909,7 +9168,7 @@ class DeviceService:
             active = [
                 session
                 for session in self._sessions.values()
-                if session.state in ACTIVE_STATES
+                if session.state in OCCUPIED_STATES
             ]
             if len(active) >= self.max_sessions:
                 raise ServiceError(
@@ -9084,7 +9343,7 @@ class DeviceService:
             sessions = [
                 session
                 for session in self._sessions.values()
-                if include_stopped or session.state in ACTIVE_STATES
+                if include_stopped or session.state in OCCUPIED_STATES
             ]
         return {"sessions": [session.snapshot() for session in sessions]}
 
@@ -9097,7 +9356,7 @@ class DeviceService:
     ) -> dict:
         session = self.get_session(session_id)
         result = session.stop(purge=purge, retain_flash=retain_flash)
-        if purge:
+        if purge and result["state"] in {"stopped", "failed"}:
             with self._lock:
                 self._sessions.pop(session_id, None)
         return result
@@ -9165,7 +9424,7 @@ class DeviceService:
         with self._lock:
             sessions = list(self._sessions.values())
             active = [
-                session for session in sessions if session.state in ACTIVE_STATES
+                session for session in sessions if session.state in OCCUPIED_STATES
             ]
             history = [
                 session
@@ -9530,7 +9789,7 @@ class DeviceService:
         with self._lock:
             active = [
                 session for session in self._sessions.values()
-                if session.state in ACTIVE_STATES
+                if session.state in OCCUPIED_STATES
             ]
             by_device: dict[str, int] = {}
             for session in active:
@@ -9681,7 +9940,7 @@ class DeviceService:
                     ).isoformat(),
                 }
                 for session in self._sessions.values()
-                if session.state in ACTIVE_STATES
+                if session.state in OCCUPIED_STATES
             ]
         return {"worker": worker, "active_sessions": active}
 
@@ -9924,14 +10183,18 @@ class DeviceService:
         last_storage_prune = 0.0
         while not self._stop.wait(2):
             now = time.time()
-            expired = []
             with self._lock:
-                for session in self._sessions.values():
-                    if (
-                        session.state in ACTIVE_STATES
-                        and session._proc is not None
-                        and session._proc.poll() is not None
-                    ):
+                sessions = list(self._sessions.values())
+            # No service-wide lock while process/companion teardown or a
+            # bounded pending-stop retry may wait on a session transaction.
+            for session in sessions:
+                if session._purged_snapshot is not None:
+                    with self._lock:
+                        if self._sessions.get(session.id) is session:
+                            self._sessions.pop(session.id, None)
+                    continue
+                try:
+                    if session.state in ACTIVE_STATES and session._proc is not None and session._proc.poll() is not None:
                         session._handle_process_exit(session._proc.returncode)
                     elif (
                         session.state in ACTIVE_STATES
@@ -9945,11 +10208,10 @@ class DeviceService:
                                 "or changed identity"
                             ),
                         )
-                    if session.state in ACTIVE_STATES and session.expires_at <= now:
-                        expired.append(session)
-            for session in expired:
-                try:
-                    session.stop(retain_flash=False)
+                    if session._stop_event.is_set() and not session._stop_complete.is_set():
+                        session.stop()
+                    elif session.state in ACTIVE_STATES and session.expires_at <= now:
+                        session.stop(retain_flash=False)
                 except Exception:
                     pass
             try:
@@ -9968,22 +10230,66 @@ class DeviceService:
                 except Exception:
                     pass
 
-    def close_all(self) -> None:
+    def _finish_shutdown(self, sessions: list[DeviceSession]) -> None:
+        # Cache pruning can already be in flight when _stop is set. Keep the
+        # registry ownership until the old janitor can no longer mutate state.
+        self._janitor.join()
+        pending = list(sessions)
+        while pending or self.worker.snapshot().get("active_lease_count", 0):
+            remaining = []
+            for session in pending:
+                try:
+                    result = session.stop()
+                    if result.get("stop_pending") or session._worker_lease_active:
+                        remaining.append(session)
+                except Exception:
+                    remaining.append(session)
+            pending = remaining
+            if pending or self.worker.snapshot().get("active_lease_count", 0):
+                time.sleep(0.05)
+        with self._shutdown_lock:
+            if not self._worker_closed:
+                self.worker.close()
+                self._worker_closed = True
+
+    def close_all(self) -> dict:
         self._stop.set()
+        if not self.worker.started:
+            # A crash/restart handoff may already have released this registry
+            # lock. Do not mutate resources or records adopted by its successor.
+            return {"state": "ownership_released", "pending_sessions": []}
+        if self._janitor is not threading.current_thread():
+            self._janitor.join(timeout=SESSION_STOP_WAIT_SECONDS)
         with self._lock:
             sessions = list(self._sessions.values())
+        pending = []
         for session in sessions:
-            if session.state in {"stopped", "failed"}:
-                try:
-                    session._terminate_process()
-                except Exception:
-                    pass
-                continue
             try:
-                session.stop()
+                result = session.stop(
+                    retain_flash=True if session.state in {"stopped", "failed"} else None,
+                )
+                if result.get("stop_pending") or session._worker_lease_active:
+                    pending.append(session)
             except Exception:
-                pass
-        self.worker.close()
+                pending.append(session)
+        with self._shutdown_lock:
+            if not pending and not self._janitor.is_alive() and not self.worker.snapshot().get("active_lease_count", 0):
+                if not self._worker_closed:
+                    self.worker.close()
+                    self._worker_closed = True
+                return {"state": "stopped", "pending_sessions": []}
+            if self._shutdown_thread is None:
+                # Interpreter shutdown must wait for the transaction owner.
+                # Keep the worker registry lock/heartbeat until cleanup is real.
+                self.worker.drain()
+                self._shutdown_thread = threading.Thread(
+                    target=self._finish_shutdown,
+                    args=(pending,),
+                    name="m5-service-shutdown",
+                    daemon=False,
+                )
+                self._shutdown_thread.start()
+        return {"state": "draining", "pending_sessions": [s.id for s in pending]}
 
 
 def _padded(data: bytes, size: int) -> bytes:

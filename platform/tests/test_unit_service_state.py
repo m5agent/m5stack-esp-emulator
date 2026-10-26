@@ -23,6 +23,7 @@ class UnitServiceStateTests(unittest.TestCase):
         self.session.unit_contract = registry.freeze(["button"])
         self.session.unit_state_path = Path(self.tmp.name) / "units-state.json"
         self.session._lock = threading.RLock()
+        self.session._stop_event = threading.Event()
         self.session._record_event = lambda *args, **kwargs: None
         self.writes = []
         self.commands = []

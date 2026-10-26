@@ -1,0 +1,164 @@
+............................................................................127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/artifacts HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/firmware HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "GET /api/v1/firmware/1a90cd56bfcceb773020032623c28eb30eecdcb2f8053a39341efe2e4a293d03 HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:22] "GET /api/v1/sessions/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/device-state HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:22] "GET /api/v1/openapi.yaml HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/workers HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/jobs HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/jobs/claim HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/jobs/claim HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/jobs/job-cd226b79629641fca656/result HTTP/1.1" 409 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/jobs/job-cd226b79629641fca656/result HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/workers/fence-bb6930b9760d/stop HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/workers HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "GET /api/v1/workers HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/jobs HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/jobs HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/jobs/claim HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/jobs/job-05f3abc98ef94b39a821/heartbeat HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/jobs/job-05f3abc98ef94b39a821/result HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "GET /api/v1/jobs?status=completed&limit=10 HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/jobs HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/jobs/job-8d240e48739b4937a32b/cancel HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/workers/remote-deef884bad75/heartbeat HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/workers/remote-deef884bad75/results HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/workers/remote-deef884bad75/drain HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/workers/remote-deef884bad75/stop HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/workers/remote-deef884bad75/heartbeat HTTP/1.1" 409 -
+.127.0.0.1 - - [26/Oct/2026 15:49:22] "GET /api/v1/storage HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/storage/prune?include_cache=0 HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/artifact-uploads HTTP/1.1" 202 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/artifact-uploads/b153ab26dc5649608daf8d1a734a0563/chunks HTTP/1.1" 202 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "GET /api/v1/artifact-uploads/b153ab26dc5649608daf8d1a734a0563 HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/artifact-uploads/b153ab26dc5649608daf8d1a734a0563/chunks HTTP/1.1" 202 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/artifact-uploads/b153ab26dc5649608daf8d1a734a0563/complete HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "GET /api/v1/artifacts/446e0eba25b871b7836d4ead0932b972024758b5fcaf8c1d9c60eadd2ec3cb57 HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/artifact-uploads HTTP/1.1" 202 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "DELETE /api/v1/artifact-uploads/4c79d7ecfa6444c595decd015b3042c3 HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:22] "GET /api/v1/devices HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "GET /api/v1/capacity HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/worker/drain HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/worker/resume HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:22] "POST /api/v1/artifacts HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:23] "POST /api/v1/firmware/import HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:23] "POST /api/v1/firmware/import HTTP/1.1" 409 -
+127.0.0.1 - - [26/Oct/2026 15:49:23] "POST /api/v1/firmware/import HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:23] "POST /api/v1/firmware/import HTTP/1.1" 400 -
+................................................................................................127.0.0.1 - - [26/Oct/2026 15:49:28] "GET /api/devices HTTP/1.1" 401 -
+127.0.0.1 - - [26/Oct/2026 15:49:28] "GET /api/devices HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:28] "GET /api/v1/workers HTTP/1.1" 401 -
+127.0.0.1 - - [26/Oct/2026 15:49:28] "POST /api/v1/workers HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:49:28] "POST /api/v1/workers/auth-worker/heartbeat HTTP/1.1" 401 -
+127.0.0.1 - - [26/Oct/2026 15:49:28] "POST /api/v1/workers/auth-worker/heartbeat HTTP/1.1" 200 -
+...........................................................F..............................................................................................................................................................................................................................................................................127.0.0.1 - - [26/Oct/2026 15:49:57] "GET /api/peripherals HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:57] "GET /api/v1/units?device_id=cores3 HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:57] "GET /api/peripheral-interfaces HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:57] "GET /api/peripheral-interfaces/bmi270 HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:57] "GET /api/peripherals/stackchan HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:57] "GET /api/peripherals/tab5 HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:57] "GET /api/v1/units/env-iii HTTP/1.1" 200 -
+....127.0.0.1 - - [26/Oct/2026 15:49:57] "GET /api/health HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:49:58] "GET /api/health HTTP/1.1" 200 -
+.generated 14 devices -> devices/catalog.json
+security configuration drain started
+security configuration reload canceled: request drain timed out
+.security configuration drain started
+security configuration reloaded
+....................127.0.0.1 - - [26/Oct/2026 15:50:01] "POST /api/v1/firmware/uiflow HTTP/1.1" 400 -
+.127.0.0.1 - - [26/Oct/2026 15:50:01] "POST /api/v1/firmware/uiflow HTTP/1.1" 413 -
+.127.0.0.1 - - [26/Oct/2026 15:50:01] "POST /api/v1/firmware/uiflow HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:50:01] "POST /api/v1/firmware HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 15:50:01] "GET /api/v1/firmware/0f6a64d82ce7aba6dac9a4a3b479e10e13232992bed4763147418530bbead18b HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 15:50:01] "POST /api/v1/firmware/uiflow HTTP/1.1" 401 -
+..........................................................................EE.EEE................................worker credentials reloaded fingerprint=1c00539e92a4c36bd10307b4568965dd5a88f411be77b7afe667ab8d5c57fabb
+worker credential reload failed: invalid staged token
+.worker credentials reloaded fingerprint=3e4f80b5f43be670b318e1a4d8822e60568da16e7fc02fd12a158e827b050112
+....worker runtime service unavailable; retrying
+worker runtime service reconnected
+worker runtime service unavailable; retrying
+worker runtime service reconnected
+worker runtime service unavailable; retrying
+worker runtime service reconnected
+...worker control plane unavailable; retrying
+worker control plane reconnected
+...........................127.0.0.1 - - [26/Oct/2026 15:50:50] "GET /worker-discovery/v1/beacon HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 15:50:50] "GET /worker-discovery/v1/beacon HTTP/1.1" 200 -
+.................
+======================================================================
+ERROR: test_invalid_multi_field_input_performs_no_qom_writes (test_unit_service_state.UnitServiceStateTests.test_invalid_multi_field_input_performs_no_qom_writes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_unit_service_state.py", line 52, in test_invalid_multi_field_input_performs_no_qom_writes
+    self.session.unit_input({"id": "button1", "values": {"pressed": True, "input-level": False}})
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6274, in unit_input
+    self._check_cancelled()
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 3751, in _check_cancelled
+    if self._stop_event.is_set() or self.state in {"stopped", "failed"}:
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'DeviceSession' object has no attribute '_stop_event'
+
+======================================================================
+ERROR: test_live_definitions_and_input_use_the_session_contract (test_unit_service_state.UnitServiceStateTests.test_live_definitions_and_input_use_the_session_contract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_unit_service_state.py", line 45, in test_live_definitions_and_input_use_the_session_contract
+    result = self.session.unit_input({"id": "button1", "values": {"pressed": True}})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6274, in unit_input
+    self._check_cancelled()
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 3751, in _check_cancelled
+    if self._stop_event.is_set() or self.state in {"stopped", "failed"}:
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'DeviceSession' object has no attribute '_stop_event'
+
+======================================================================
+ERROR: test_unrecorded_or_invalid_contract_never_reads_current_catalog_or_writes (test_unit_service_state.UnitServiceStateTests.test_unrecorded_or_invalid_contract_never_reads_current_catalog_or_writes) (expected='unrecorded')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_unit_service_state.py", line 93, in test_unrecorded_or_invalid_contract_never_reads_current_catalog_or_writes
+    self.session.unit_input({"id": "button1", "values": {"pressed": False}})
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6274, in unit_input
+    self._check_cancelled()
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 3751, in _check_cancelled
+    if self._stop_event.is_set() or self.state in {"stopped", "failed"}:
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'DeviceSession' object has no attribute '_stop_event'
+
+======================================================================
+ERROR: test_unrecorded_or_invalid_contract_never_reads_current_catalog_or_writes (test_unit_service_state.UnitServiceStateTests.test_unrecorded_or_invalid_contract_never_reads_current_catalog_or_writes) (expected='invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_unit_service_state.py", line 93, in test_unrecorded_or_invalid_contract_never_reads_current_catalog_or_writes
+    self.session.unit_input({"id": "button1", "values": {"pressed": False}})
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6274, in unit_input
+    self._check_cancelled()
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 3751, in _check_cancelled
+    if self._stop_event.is_set() or self.state in {"stopped", "failed"}:
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'DeviceSession' object has no attribute '_stop_event'
+
+======================================================================
+ERROR: test_unrecorded_or_invalid_contract_never_reads_current_catalog_or_writes (test_unit_service_state.UnitServiceStateTests.test_unrecorded_or_invalid_contract_never_reads_current_catalog_or_writes) (expected='invalid')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_unit_service_state.py", line 93, in test_unrecorded_or_invalid_contract_never_reads_current_catalog_or_writes
+    self.session.unit_input({"id": "button1", "values": {"pressed": False}})
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6274, in unit_input
+    self._check_cancelled()
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 3751, in _check_cancelled
+    if self._stop_event.is_set() or self.state in {"stopped", "failed"}:
+       ^^^^^^^^^^^^^^^^
+AttributeError: 'DeviceSession' object has no attribute '_stop_event'
+
+======================================================================
+FAIL: test_current_status_snapshot_matches_contract (test_docs_current_state_contract.DocsCurrentStateContractTests.test_current_status_snapshot_matches_contract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_docs_current_state_contract.py", line 79, in test_current_status_snapshot_matches_contract
+    self.assertLessEqual(len(status.splitlines()), 450)
+AssertionError: 474 not less than or equal to 450
+
+----------------------------------------------------------------------
+Ran 709 tests in 88.951s
+
+FAILED (failures=1, errors=5)

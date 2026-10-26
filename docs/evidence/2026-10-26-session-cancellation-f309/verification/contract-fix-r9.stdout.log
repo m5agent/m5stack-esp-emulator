@@ -1,0 +1,24 @@
+test_contract_is_available_before_the_first_runtime_snapshot (test_unit_service_state.UnitServiceStateTests.test_contract_is_available_before_the_first_runtime_snapshot) ... ok
+test_controller_rejection_is_a_conflict_but_transport_failure_is_unavailable (test_unit_service_state.UnitServiceStateTests.test_controller_rejection_is_a_conflict_but_transport_failure_is_unavailable) ... ok
+test_invalid_multi_field_input_performs_no_qom_writes (test_unit_service_state.UnitServiceStateTests.test_invalid_multi_field_input_performs_no_qom_writes) ... ok
+test_live_definitions_and_input_use_the_session_contract (test_unit_service_state.UnitServiceStateTests.test_live_definitions_and_input_use_the_session_contract) ... ok
+test_terminal_legacy_snapshot_receives_frozen_definitions (test_unit_service_state.UnitServiceStateTests.test_terminal_legacy_snapshot_receives_frozen_definitions) ... ok
+test_unrecorded_or_invalid_contract_never_reads_current_catalog_or_writes (test_unit_service_state.UnitServiceStateTests.test_unrecorded_or_invalid_contract_never_reads_current_catalog_or_writes) ... ok
+test_api_versions_match (test_docs_current_state_contract.DocsCurrentStateContractTests.test_api_versions_match) ... ok
+test_current_status_snapshot_matches_contract (test_docs_current_state_contract.DocsCurrentStateContractTests.test_current_status_snapshot_matches_contract) ... FAIL
+test_documented_platform_test_count_is_current (test_docs_current_state_contract.DocsCurrentStateContractTests.test_documented_platform_test_count_is_current) ... ok
+test_engineering_handoff_stays_a_current_navigation_summary (test_docs_current_state_contract.DocsCurrentStateContractTests.test_engineering_handoff_stays_a_current_navigation_summary) ... ok
+test_workstreams_and_platform_tool_inventory_are_current (test_docs_current_state_contract.DocsCurrentStateContractTests.test_workstreams_and_platform_tool_inventory_are_current) ... ok
+
+======================================================================
+FAIL: test_current_status_snapshot_matches_contract (test_docs_current_state_contract.DocsCurrentStateContractTests.test_current_status_snapshot_matches_contract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_docs_current_state_contract.py", line 88, in test_current_status_snapshot_matches_contract
+    self.assertIsNone(
+AssertionError: <re.Match object; span=(14854, 14864), match='67/67 case'> is not None : project-status.md must route run counts to validation-ledger.md
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.118s
+
+FAILED (failures=1)

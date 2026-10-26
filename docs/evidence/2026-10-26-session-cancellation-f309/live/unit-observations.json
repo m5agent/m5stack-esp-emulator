@@ -1,0 +1,58 @@
+[
+  {
+    "motion": true,
+    "serial_start_offset": 562,
+    "fresh_serial": "IO_PIR_CALLBACK 1 1\r\nIO_PIR 1 1 0 ",
+    "unit": {
+      "id": "external1",
+      "unit_id": "pir",
+      "port_id": "custom",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {},
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "motion": true,
+        "input-level": true,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 1,
+        "output-transitions": 0
+      },
+      "errors": {}
+    }
+  },
+  {
+    "motion": false,
+    "serial_start_offset": 599,
+    "fresh_serial": "HOST_IO_INTERNAL loop 36 142\r\nIO_PIR 1 1 0 0\r\nIO_PIR_CALLBACK 0 1\r\nIO_PIR_DISABLED 1 1\r\nIO_PIR 0 1 1 1\r\n",
+    "unit": {
+      "id": "external1",
+      "unit_id": "pir",
+      "port_id": "custom",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {},
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "motion": false,
+        "input-level": true,
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 2,
+        "output-transitions": 0
+      },
+      "errors": {}
+    }
+  }
+]

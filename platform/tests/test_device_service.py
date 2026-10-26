@@ -48,6 +48,22 @@ from test_firmware_analysis import build_flash
 from worker_auth import sign_worker_request
 
 
+NETWORK_LIFECYCLE_FIXTURE = """
+import hashlib,os,subprocess
+def _write_lifecycle(out_dir):
+    def probe(field):
+        return subprocess.check_output(
+            ['ps','-ww','-p',str(os.getpid()),'-o',field+'='],text=True
+        ).strip()
+    receipt={'schema_version':1,'kind':'m5stack-network-lane-lifecycle',
+        'state':'cleanup-complete','cleanup_complete':True,
+        'runner':{'pid':os.getpid(),'start_token':probe('lstart'),
+            'command_sha256':hashlib.sha256(probe('command').encode()).hexdigest()},
+        'children':{'ble':None,'emulator':None}}
+    (out_dir/'lifecycle.json').write_text(json.dumps(receipt))
+"""
+
+
 def hermetic_flash_preparer(
     spec: device_service_module.DeviceSpec,
     image: Path,
@@ -2847,7 +2863,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_network_session_runs_isolated_lane_and_retains_evidence(self):
         fake_lane = Path(self.tmp.name) / "fake-network-lane.py"
         fake_lane.write_text(
-            "#!/usr/bin/env python3\n"
+            NETWORK_LIFECYCLE_FIXTURE + "#!/usr/bin/env python3\n"
             "import argparse,json,pathlib,sys\n"
             "p=argparse.ArgumentParser()\n"
             "p.add_argument('--out-dir',type=pathlib.Path,required=True)\n"
@@ -2857,6 +2873,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "(a.out_dir/'serial.log').write_text('LANE_DONE\\n')\n"
             "e={'status':'PASS','checks':{'wifi_dhcp':True}}\n"
             "(a.out_dir/'evidence.json').write_text(json.dumps(e))\n"
+            '_write_lifecycle(a.out_dir)\n'
             "print(json.dumps(e))\n"
         )
         fake_lane.chmod(0o755)
@@ -2937,7 +2954,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_generic_network_session_passes_restricted_backend(self):
         fake_lane = Path(self.tmp.name) / "fake-network-lane.py"
         fake_lane.write_text(
-            "#!/usr/bin/env python3\n"
+            NETWORK_LIFECYCLE_FIXTURE + "#!/usr/bin/env python3\n"
             "import argparse,json,pathlib,sys\n"
             "p=argparse.ArgumentParser()\n"
             "p.add_argument('--out-dir',type=pathlib.Path,required=True)\n"
@@ -2946,6 +2963,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "(a.out_dir/'argv.json').write_text(json.dumps(sys.argv[1:]))\n"
             "e={'status':'PARTIAL','checks':{}}\n"
             "(a.out_dir/'evidence.json').write_text(json.dumps(e))\n"
+            '_write_lifecycle(a.out_dir)\n'
             "print(json.dumps(e))\n"
         )
         fake_lane.chmod(0o755)
@@ -3052,7 +3070,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
     def test_network_session_stop_collects_runner_evidence(self):
         fake_lane = Path(self.tmp.name) / "graceful-network-lane.py"
         fake_lane.write_text(
-            "#!/usr/bin/env python3\n"
+            NETWORK_LIFECYCLE_FIXTURE + "#!/usr/bin/env python3\n"
             "import argparse,json,pathlib,signal,sys,time\n"
             "p=argparse.ArgumentParser()\n"
             "p.add_argument('--out-dir',type=pathlib.Path,required=True)\n"
@@ -3061,6 +3079,7 @@ class DeviceServiceUnitTests(unittest.TestCase):
             "def stop(_signum,_frame):\n"
             "    e={'status':'PARTIAL','checks':{},'stop_requested':True}\n"
             "    (a.out_dir/'evidence.json').write_text(json.dumps(e))\n"
+            '    _write_lifecycle(a.out_dir)\n'
             "    sys.exit(0)\n"
             "signal.signal(signal.SIGTERM,stop)\n"
             "while True: time.sleep(0.1)\n"
@@ -3455,8 +3474,8 @@ class DeviceServiceUnitTests(unittest.TestCase):
                 side_effect=lambda: clock["now"],
             ),
             mock.patch.object(
-                device_service_module.time,
-                "sleep",
+                session._stop_event,
+                "wait",
                 side_effect=sleep_and_complete,
             ),
         ):
