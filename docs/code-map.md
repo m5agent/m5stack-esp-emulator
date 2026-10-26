@@ -141,6 +141,8 @@ Device Service 固件探针；`run_live_unit_batch.py` 验证同guest多Unit连�
 `test_model_shell.mjs`及`model_shell_probe_helpers.mjs`以有界context/PNG decode核固定vendor、全部printed-artwork种类和公开LED/joint输出；默认配置、census、明确变体和真实guest证据分别标记，不从新增视觉壳子继承Unit协议准入。
 `arrayLedFeedback`在默认无binding时只映射全N灯同色，非对称/不可用状态撤回旧颜色并标unknown；`test_uniform_unit_led_feedback.mjs`核真实mounted材质与销毁/失败fixture，`test_live_uniform_led_service_browser.mjs`经可见session核原I2C/RMT驱动、同VM四阶段与默认网页反馈。`device_service._public_device`的`program_features`显式发布入口/字节码/namespace/清理边界；[固定源码与真实guest研究](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)不等于二进制入口已实现。
 `scroll_protocol_probe.py`/`run_live_scroll.py`经同guest原ScrollUnit与raw I2C验证Scroll限定协议；`test_live_scroll_service_browser.mjs`验证真实Web按键、RGB灯与屏幕，`test_scroll_visual_mapping.mjs`另做无guest的可信pointer/零回声/销毁fixture。`0043-unit-scroll-controller.patch`为独立部分C模型；RGB队列、回绕、bootloader/持久化与机械角度不能继承PASS。证据见[Scroll](evidence/2026-10-26-scroll-controller/README.md)。
+`0044-unit-2relay-gpio.patch`在独立冷构建中添加U131双GPIO pad观察与下拉，两个通道各自计数且只读；`relay2_preview_probe.py`和`test_live_relay2_preview_service_browser.mjs`核官方驱动原字节、同VM七Run、主机输入/两灯、帧和历史清理。`preview_controls_probe.py`和`test_live_preview_controls_service_browser.mjs`核HUB控制组的托管Web输入、全灯同色、包保留编辑和取消恢复；二者默认离线，显式execute才调用8787。证据和失败层级见[本块索引](evidence/2026-10-27-preview-controls-and-2relay/README.md)。
+`ModelDeviceShell.installAssemblyCamera/fitAssembly`只包装该实例公开fit/resize与render(dt)，按主机/Unit/线缆world bounds构图；`test_model_camera_fit.mjs`保留旧窄屏与长RAF阻塞负控、四断点、用户视角与无回声回归，不修改共享vendor。
 `scripts/bootstrap-unit-runtime.py` 和
 `patches/qemu-unit-runtime/README.md` 固定公开源码、依赖与补丁顺序；
 `platform/tests/test_unit_runtime.py` 校验冻结 schema、拓扑和输入准入，

@@ -6,6 +6,7 @@ import {dirname, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {CARDKB_KEY_IDS, arrayLedFeedback, physicalInput, visualCommands, visualMappingCoverage} from '../web/unit-visual-mappings.js';
 import {KEYS as visualKeys} from '../web/vendor/m5stack-models/src/units/cardkb/dimensions.js';
+import {spec as relay2Spec} from '../web/vendor/m5stack-models/src/units/2relay/dimensions.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const catalog = JSON.parse(await readFile(resolve(root, 'platform/units/catalog.json'), 'utf8'));
@@ -13,6 +14,29 @@ const keymap = JSON.parse(await readFile(resolve(root, 'platform/units/fixtures/
 const snapshot = (unit_id, properties, extra = {}) => ({unit_id, available: true, properties, errors: {}, ...extra});
 const input = (unit_id, id, action, options = {}) => physicalInput({kind: 'button', id: `grove/${id}`, action, source: 'pointer'}, {unit_id}, {port: 'grove', ...options});
 const checks = [];
+
+const relay2Binding = JSON.parse(await readFile(resolve(root, 'platform/units/fixtures/2relay-binding.json'), 'utf8'));
+assert.equal(relay2Spec.sku, relay2Binding.sku);
+for (const channel of relay2Binding.channels) {
+  const visual = relay2Spec.channels.find(row => row.number === channel.number);
+  assert.equal(visual.led[1], channel.model_spec_led_y);
+  assert.equal(channel.visual_led, `led-${channel.number}`);
+  assert.equal(channel.wire, channel.number === 1 ? 'white' : 'yellow');
+}
+for (const a of [false, true]) for (const b of [false, true]) {
+  assert.deepEqual(visualCommands(snapshot('2relay', {'output-1-level': a, 'output-2-level': b}), 'grove'), [
+    {type: 'led', target: 'grove/led-1', color: 0x247CFF, on: a},
+    {type: 'led', target: 'grove/led-2', color: 0x247CFF, on: b},
+  ]);
+}
+const unknownRelay2 = [1, 2].map(channel => ({type: 'led', target: `grove/led-${channel}`, known: false}));
+for (const unit of [snapshot('2relay', {}), snapshot('2relay', {'output-1-level': 1, 'output-2-level': 0}),
+  snapshot('2relay', {'output-1-level': true, 'output-2-level': false}, {available: false}),
+  snapshot('2relay', {'output-1-level': true, 'output-2-level': false}, {errors: {read: 'failed'}})]) {
+  assert.deepEqual(visualCommands(unit, 'grove'), unknownRelay2);
+}
+assert.equal(input('2relay', 'led-1', 'down'), null, 'Indicators are not writable Unit inputs');
+checks.push('u131-two-independent-pad-indicators-exact-asset-numbering-and-unknown-withdrawal');
 
 assert.deepEqual(CARDKB_KEY_IDS, keymap.keys.map(key => key.id), 'matrix order must match the official-table fixture');
 assert.deepEqual(CARDKB_KEY_IDS, visualKeys.map(key => key.id), 'all 50 visual controls must match the matrix IDs');
@@ -116,7 +140,7 @@ assert.deepEqual(input('joystick-v11', 'press', 'up', {bindings: joystickBinding
 checks.push('evidence-required-calibration-permutation-range-and-detent-validation');
 
 const report = visualMappingCoverage(catalog);
-assert.equal(catalog.units.length, 28);
+assert.equal(catalog.units.length, 29);
 assert.deepEqual([...report.registered_unit_ids].sort(), catalog.units.map(unit => unit.id).sort());
 assert.equal(report.units.some(unit => unit.status === 'unregistered'), false);
 for (const unit of catalog.units) {
@@ -128,7 +152,7 @@ for (const unit of catalog.units) {
 assert.equal(report.units.find(unit => unit.unit_id === '8encoder').status, 'requires-binding');
 assert.equal(report.units.find(unit => unit.unit_id === 'fan').status, 'activity-only');
 assert.equal(report.units.find(unit => unit.unit_id === 'hub').status, 'passive');
-checks.push('all-28-products-and-every-catalog-field-audited');
+checks.push('all-29-products-and-every-catalog-field-audited');
 report.checks = checks;
 report.status = 'PASS';
 report.source_sha256 = Object.fromEntries(await Promise.all([

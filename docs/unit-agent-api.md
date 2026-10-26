@@ -1,11 +1,13 @@
 # 外部 Agent：UIFlow 实时编程与 Unit 会话
 
-日期：`2026-10-26`。API 契约：`1.41.0`。
+日期：`2026-10-27`。API 契约：`1.43.0`。
 
 实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
-串口及 Unit 状态”的路径。每次改源码调用 `/sessions/{id}/program`，不重刷
-固件、不重启虚拟设备。下方原 composer 流程用于首次初始化、完整文件准备和
-兼容执行；连续编辑不再重复走这条路径。
+串口及 Unit 状态”的路径。AIFlow/外部 Agent 推荐创建一次 `/previews`，将完整
+程序保存到 `/program-revisions` 后反复提交 `/previews/{id}/runs`；后续通过 UART
+REPL 在同一 VM 部署运行，不重刷固件或重启虚拟设备。下方 composer 流程用于
+首次初始化、完整文件准备和兼容执行；固定探针镜像是回归入口，不是每次编辑
+程序的产品流程。旧 `/sessions/{id}/program` 继续用于普通非托管会话。
 
 先读`GET /devices`的`program_features`：当前入口仅`main.py`，纯字节码`.mpy`
 可作依赖，二进制入口和native emitter为false，cleanup仍是interrupt-only。
@@ -15,9 +17,26 @@
 
 默认网页对RGB/Encoder/8Encoder的全灯同色和全灭显示真实3D灯反馈；非对称颜色因物理灯位未确认而标unknown，仍可查看原始电气数组。读取失败会撤回旧颜色，恢复后重新显示。该范围不包含旋转角度，见[证据与限制](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
 
-## 同一设备实时运行程序
+## AIFlow/Agent 的实时预览入口
 
-推荐直接创建 `program_mode="uiflow-live"` 会话。后端从缓存的 UIFlow2 reference
+1. 从 `/devices`、`/units?device_id=...` 取得能力和确认接线，创建带 Units 的
+   Preview，带稳定 `Idempotency-Key` 并轮询到 ready。
+2. 将完整 `main.py`、模块、字节码依赖和资源保存为不可变 checkpoint；编辑既有
+   包时先读 `/program-revisions/{revision_id}/files`，保留未修改的文件。
+3. 用当前 owner epoch/generation 提交 Run，快速连续编辑由协调器处理较新意图、
+   取消与执行归属。查询 Run 收据后，以应用 READY、当前 Run 帧和 Unit 读回
+   确认效果。START 只代表开始执行。
+4. 通过 Preview 的 input/renew/close 路由控制；关闭前取 evidence ZIP。保留
+   历史和末帧，释放 guest、可变 Flash 与 lease。
+
+完整请求字段、幂等/取消/错误和帧身份契约见
+[Preview/Run API](device-service-api.md#stable-preview-and-asynchronous-runs)。
+同 VM UART REPL 是执行基础；Preview 是面向实时编辑的协调层。SSE、AIFlow
+调用侧、独立 main.mpy 入口、保存开机和运行中热插拔仍未完成。
+
+## 普通非托管会话的实时程序接口
+
+普通非托管调用可直接创建 `program_mode="uiflow-live"` 会话。后端从缓存的 UIFlow2 reference
 初始化 UART REPL 一次，自动设置 source pin、串口传输与 bootstrap READY；之后
 只调用 `/program`。该模式只准入 `runtime=qemu` 和 CoreS3、AtomS3R、StickS3、
 StopWatch，且拒绝同时传入 `firmware_id`、`uiflow_source_sha256` 或应用 ready
@@ -110,7 +129,7 @@ CoreS3 另有真实网页创建、输入、程序替换、画面进入模型屏�
 相同文件bytes使用utf8/base64均得到同ID，重复POST仍201且保留原created_at。
 `GET /api/v1/program-revisions/{revision_id}`核验存储完整性并返回metadata；保存成功还没有运行程序。
 
-在已初始化session中，将返回的ID放入`POST /api/v1/sessions/{id}/program`的`revision_id`，
+在已初始化的普通非托管session中，将返回的ID放入`POST /api/v1/sessions/{id}/program`的`revision_id`，
 同时带当前`expected_execution_id`（首次null）和可选1..120秒timeout。该请求只能有这三个字段，
 不能混入source/files/entrypoint/source_kind。服务端读取既有完整包并在同VM部署/执行，不再create revision。
 未知或旧python-only ID返回404，stale为409，混用/坏ID为400；格式已知不合法/native MPY在分配execution前拒绝。
@@ -163,11 +182,48 @@ with open("assets/pixel.png", "rb") as stream:
 [实际六格实验与固定源码](evidence/2026-10-26-live-package-and-detent/image-path-research/audit.md)。
 
 
+## U131 2Relay 的同 VM 控制
+
+`unit_id="2relay"` 已有四款主机的独立 Preview 验收：CoreS3、AtomS3R、StickS3、
+StopWatch。创建 Preview 时连接一个 U131，白线是通道1、黄线是通道2，
+GPIO 从返回会话的冻结 `units[].pins` 取得。该 Unit 没有外部输入字段；
+`output-1-level`、`output-2-level` 和两路 transition 均只读，禁止反向写结果。
+
+完整包可携带固定官方 `relay2.py` 原字节并命名为 `relay2_official.py`：
+
+```python
+import M5
+from relay2_official import Relay2Unit
+
+M5.begin()
+relay = Relay2Unit((WHITE_GPIO, YELLOW_GPIO))
+relay.set_relay_cntrl(1, 1)
+relay.set_relay_cntrl(2, 0)
+print(relay.get_relay_status(1), relay.get_relay_status(2))
+```
+
+将两个 GPIO 占位符替换为冻结接线。原方法名 `set_relay_cntrl` 保留其官方拼写。
+源码 SHA 为 `db05e974f2cd558c4fbaef85958b82730a9bcae1b21eb9646371bea7e6f273c5`，
+大小1512字节。验收实际核对 guest 文件路径/大小/SHA、独立 Pin/GPIO/QOM、
+mounted 两蓝灯和当前 Run 帧；内置 `from unit import Relay2Unit` 只另做 import/
+method 兼容 smoke，不冒称 frozen bytecode 逐字节身份已被证明。
+
+四主机各七Run，包含四组合、重复写、主机按键/触摸、取消后再跑和精确历史帧
+SHA，见[分层证据](evidence/2026-10-27-preview-controls-and-2relay/README.md)。
+蓝灯只是额定供电假设下的 GPIO 功能指示；触点/线圈时序、负载和电气行为未
+模拟。transition 仅用于连续未重启区间，跨 hard-reset 的通知缺口仍 OPEN。
+默认离线计划与显式执行入口见
+[`test_live_relay2_preview_service_browser.mjs`](../platform/tests/test_live_relay2_preview_service_browser.mjs)。
+
 ## 多 Unit 的同设备连续程序
 
 四款准入主机现分别验证了两组被动 HUB 装配：ENV III + NCIR + TVOC，以及
 Encoder + 8Encoder + Joystick v1.1。每组创建一次会话，A/B 两段源码在同一
 guest 中分别验证三片叶子的输入与原驱动读回；编码器组另核对 LED 输出。
+这组控制类另完成四主机托管 Preview/Web 验收：每主机四Run、可信按住/释放、
+Joystick raw表单、guest原I2C驱动、2+9全灯同色、Web保留完整包编辑和取消恢复，
+见[本块证据](evidence/2026-10-27-preview-controls-and-2relay/README.md)。
+本组停止后只核末帧保留元数据；精确历史帧字节由独立2Relay组验证。
 精确固件、串口窗口、控制器与源码见
 [多 Unit 与共享预览证据](evidence/2026-10-26-live-unit-preview/README.md)。
 

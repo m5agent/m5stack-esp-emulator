@@ -1,0 +1,446 @@
+// Offline plan by default. --execute opts into the local Device Service only;
+// this runner never launches QEMU itself or writes physical hardware.
+import assert from 'node:assert/strict';
+import {createHash, randomUUID} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
+import {dirname, resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {setTimeout as delay} from 'node:timers/promises';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+const python = process.env.M5_PREVIEW_PYTHON || '/opt/miniconda3/bin/python3.12';
+const helper = 'tests/units/relay2_preview_probe.py';
+const args = process.argv.slice(2), options = {device: 'cores3', execute: false};
+for (let i = 0; i < args.length; i += 1) {
+  const arg = args[i];
+  if (arg === '--execute') { assert.equal(options.execute, false); options.execute = true; }
+  else if (['--device', '--out-dir', '--base-url', '--expected-runtime-sha256', '--token-file'].includes(arg)) {
+    assert.ok(args[i + 1] && !args[i + 1].startsWith('--'), `Missing ${arg} value`);
+    const key = arg.slice(2).replaceAll('-', '_');
+    assert.equal(Object.hasOwn(options, key) && key !== 'device', false, `Duplicate ${arg}`);
+    options[key] = args[++i];
+  } else throw new Error(`Unknown argument ${arg}`);
+}
+assert.ok(['cores3', 'atoms3r', 'sticks3', 'stopwatch'].includes(options.device), 'Unadmitted host');
+const pure = (action, input = null) => JSON.parse(execFileSync(python, ['-B', helper, action, '--device', options.device],
+  {cwd: root, encoding: 'utf8', input: input === null ? undefined : JSON.stringify(input), maxBuffer: 12 * 1024 * 1024}));
+const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+let plan;
+if (isMain) {
+  plan = pure('plan');
+  if (!options.execute) console.log(JSON.stringify(plan, null, 2));
+  else await execute();
+}
+
+function rememberOwned(state, receipt) {
+  assert.match(receipt.preview_id || '', /^[0-9a-f]{32}$/);
+  if (state.previewId) assert.equal(receipt.preview_id, state.previewId);
+  state.previewId = receipt.preview_id;
+  assert.match(receipt.owner_epoch || '', /^[0-9a-f]{32}$/);
+  if (state.ownerEpoch) assert.equal(receipt.owner_epoch, state.ownerEpoch);
+  state.ownerEpoch = receipt.owner_epoch;
+  if (receipt.session_id) {
+    if (state.sessionId) assert.equal(receipt.session_id, state.sessionId);
+    state.sessionId = receipt.session_id;
+  }
+}
+
+// Only the original allocation intent can be replayed, with its exact key/body,
+// to recover an unknown response for cleanup. No Run or input is replayed.
+export async function createOwnedPreview(state, intent, send) {
+  state.creation = {intent: structuredClone(intent), outcome: 'unknown'};
+  try {
+    const receipt = await send('previews', 'POST', state.creation.intent.body, state.creation.intent.key);
+    rememberOwned(state, receipt); state.creation.outcome = 'confirmed'; return receipt;
+  } catch (error) {
+    if (error.responseComplete && error.status >= 400 && error.status < 500 && error.status !== 408) state.creation.outcome = 'rejected';
+    throw error;
+  }
+}
+
+export async function closeOwnedPreview(state, {send, wait, captureZip, pidGone, historyFrame, verify}) {
+  state.cleanupWarnings ||= [];
+  if ((!state.previewId || !state.ownerEpoch) && state.creation?.outcome === 'unknown') {
+    const {body, key} = state.creation.intent;
+    rememberOwned(state, await send('previews', 'POST', body, key));
+    state.creation.recovered_for_cleanup = true;
+  }
+  if (!state.previewId) return null;
+  const warn = (step, error) => state.cleanupWarnings.push({step, error: String(error)});
+  try { rememberOwned(state, await send(`previews/${state.previewId}`)); }
+  catch (error) { warn('preview-read', error); }
+  assert.ok(state.ownerEpoch, 'Owned Preview epoch unavailable');
+  if (state.sessionId && !state.session) {
+    try { state.session = await send(`sessions/${state.sessionId}`); }
+    catch (error) { warn('session-read', error); }
+  }
+  if (state.sessionId && !state.zipBeforeClose) {
+    try { await captureZip(state.sessionId); state.zipBeforeClose = true; }
+    catch (error) { warn('evidence-before-close', error); }
+  }
+  // A read, ZIP or lost close receipt must never skip the owned release.
+  try { await send(`previews/${state.previewId}/close`, 'POST', {expected_owner_epoch: state.ownerEpoch}); }
+  catch (error) { warn('close-receipt', error); }
+  const closed = await wait(async () => {
+    try { return await send(`previews/${state.previewId}`); }
+    catch (error) { warn('close-observation', error); return null; }
+  }, value => value?.state === 'closed', 120000);
+  rememberOwned(state, closed);
+  if (!state.sessionId) return {preview: closed, session_allocation: 'not published'};
+  // Preserve observations before any optional frame/contract verification can
+  // throw. Failed application/frame acceptance must not erase release proof.
+  const value = {preview: closed, session_id: state.sessionId, zip_before_close: state.zipBeforeClose === true,
+    last_frame_sha256: state.lastFrameSHA ?? null, full_frame_identity: 'NOT VERIFIED'};
+  state.rawCleanup = value;
+  try {
+    value.session = await send(`sessions/${state.sessionId}`);
+    value.capacity = await send('capacity');
+    const pid = state.session?.pid ?? value.session.pid;
+    value.pid_gone = Number.isInteger(pid) && pid > 0 ? await pidGone(pid) : false;
+    value.pid_source = state.session ? 'before-close-owned-session' : 'retained-stopped-session';
+    value.history_frame_sha256 = await historyFrame(state.sessionId);
+    value.contract = verify(value);
+    if (value.contract?.status === 'PASS') value.full_frame_identity = 'VERIFIED';
+    return value;
+  } catch (error) {
+    value.verification_error = error.stack || String(error);
+    value.contract = {status: 'FAIL', full_frame_identity: 'NOT VERIFIED'};
+    error.rawCleanup = value;
+    throw error;
+  }
+}
+
+async function execute() {
+  const base = (options.base_url || process.env.M5_DEVICE_SERVICE_URL || 'http://127.0.0.1:8787').replace(/\/$/, '');
+  const parsed = new URL(base);
+  assert.ok(parsed.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(parsed.hostname)
+    && !parsed.username && !parsed.password && parsed.pathname === '/' && !parsed.search && !parsed.hash, 'Loopback Device Service root required');
+  const expectedRuntime = options.expected_runtime_sha256 || process.env.M5_EXPECTED_RUNTIME_SHA256;
+  assert.match(expectedRuntime || '', /^[0-9a-f]{64}$/, 'Expected runtime binary SHA256 required');
+  const token = (await readFile(options.token_file || process.env.M5_CONTROL_TOKEN_FILE, 'utf8')).trim();
+  assert.ok(token, 'Control token required');
+  // All source/pin gates and offline negative controls run before the first API call.
+  const nonce = randomUUID().replaceAll('-', '');
+  const packages = Object.fromEntries(['00', '10', '01', '11', 'interactive'].map(phase => {
+    const payload = pure('package', {nonce, pins: plan.pins, phase});
+    pure('package-check', {payload, nonce, pins: plan.pins, phase}); return [phase, payload];
+  }));
+  const negative = structuredClone(packages['00']); delete negative.files['relay2_official.py'];
+  assert.throws(() => pure('package-check', {payload: negative, nonce, pins: plan.pins, phase: '00'}));
+  const output = resolve(options.out_dir || process.env.M5_PREVIEW_RELAY2_OUT || `/tmp/m5-preview-relay2-${options.device}-${Date.now()}`);
+  await mkdir(output, {recursive: false});
+  const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+  const sources = ['platform/tests/test_live_relay2_preview_service_browser.mjs', helper, 'tests/units/test_relay2_preview_probe.py',
+    'platform/web/sessions.js', 'platform/web/sessions.html', 'platform/web/preview-client.js', 'platform/web/program-panel.js',
+    'platform/web/unit-panel.js', 'platform/web/unit-visual-mappings.js', 'platform/web/model-shell.js', 'platform/tools/preview_service.py',
+    'platform/tools/preview_store.py', 'platform/tools/device_service.py', 'platform/tools/program_packages.py', 'platform/tools/unit_runtime.py',
+    'platform/units/catalog.json', 'platform/units/runtime-profiles.json', 'platform/units/host-ports.json',
+    'platform/units/fixtures/2relay-binding.json', 'patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch',
+    'platform/web/vendor/m5stack-models/src/units/2relay/assembly.js', 'platform/web/vendor/m5stack-models/src/units/2relay/dimensions.js'];
+  const fingerprints = async () => Object.fromEntries(await Promise.all(sources.map(async path => [path, sha(await readFile(resolve(root, path)))])));
+  const report = {schema_version: 1, category: 'virtual-device-managed-preview-2relay-web', status: 'FAIL', plan, hardware: 'NOT RUN',
+    device_id: options.device, nonce, source_sha256: await fingerprints(), http: [], browser_http: [], page_errors: [], runs: [], packages: {},
+    observations: [], input_scope: 'public Preview host-input API -> actual board QMP/controller -> original packaged driver -> GPIO -> mounted Web indicators'};
+  const save = (name, value) => writeFile(resolve(output, name), JSON.stringify(value, null, 2) + '\n');
+  let browser, page, previewId, ownerEpoch, sessionId, session;
+  const owned = {zipBeforeClose: false};
+  const browserTasks = [];
+  async function api(path, method = 'GET', body = null, key = null, expectedStatuses = null) {
+    const index = report.http.length, row = {path, method}; report.http.push(row);
+    if (body !== null) await save(`http-${index}.request.json`, body);
+    const response = await fetch(`${base}/api/v1/${path}`, {method, redirect: 'error', signal: AbortSignal.timeout(30000),
+      headers: {Authorization: `Bearer ${token}`, ...(body === null ? {} : {'Content-Type': 'application/json'}), ...(key ? {'Idempotency-Key': key} : {})},
+      ...(body === null ? {} : {body: JSON.stringify(body)})});
+    const bytes = Buffer.from(await response.arrayBuffer());
+    Object.assign(row, {status: response.status, sha256: sha(bytes), bytes: bytes.length, headers: Object.fromEntries(response.headers)});
+    await writeFile(resolve(output, `http-${index}.response`), bytes);
+    if (!(expectedStatuses ? expectedStatuses.includes(response.status) : response.ok)) {
+      throw Object.assign(new Error(`HTTP ${response.status} for ${path}`), {status: response.status, responseComplete: true});
+    }
+    return {body: path.includes('frame.png') || path.endsWith('/evidence') ? bytes : JSON.parse(bytes), headers: response.headers, index};
+  }
+  const json = async (...args) => (await api(...args)).body;
+  async function until(read, predicate, timeout = 60000) {
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) { const value = await read(); if (predicate(value)) return value; await delay(150); }
+    throw new Error('Managed 2Relay observation deadline exceeded');
+  }
+  function runtimeIdentity(pid) {
+    return JSON.parse(execFileSync(python, ['-B', '-c', `import ctypes,hashlib,json,pathlib,sys
+p=int(sys.argv[1])
+if sys.platform=='darwin':
+ b=ctypes.create_string_buffer(4096)
+ assert ctypes.CDLL('/usr/lib/libproc.dylib').proc_pidpath(p,b,len(b))>0
+ f=pathlib.Path(b.value.decode())
+else:
+ f=pathlib.Path('/proc')/str(p)/'exe'
+print(json.dumps({'pid':p,'executable_name':f.resolve().name,'sha256':hashlib.sha256(f.read_bytes()).hexdigest()}))`, String(pid)], {encoding: 'utf8'}));
+  }
+  async function sameVM() {
+    const current = await json(`sessions/${sessionId}`);
+    for (const field of ['session_id', 'pid', 'firmware_sha256', 'worker']) assert.deepEqual(current[field], session[field]);
+    assert.equal(current.state, 'running'); assert.deepEqual(runtimeIdentity(current.pid), report.runtime); return current;
+  }
+  async function currentRun(run) {
+    const p = await json(`previews/${previewId}`), value = await json(`previews/${previewId}/runs/${run.run_id}`);
+    assert.equal(p.active_run_id, run.run_id); assert.equal(p.owner_epoch, ownerEpoch);
+    for (const field of ['preview_id', 'run_id', 'execution_id', 'revision_id']) assert.equal(value[field], run[field]);
+    assert.equal(value.state, 'running'); return value;
+  }
+  const serial = offset => json(`sessions/${sessionId}/serial?offset=${offset}&limit=1048576`);
+  async function application(run, freshOffset = null, predicate = () => true) {
+    return until(async () => {
+      await currentRun(run);
+      const complete = await serial(run.serialOffset), fresh = freshOffset === null ? null : await serial(freshOffset);
+      if (fresh) assert.ok(fresh.offset >= run.serialOffset, 'Fresh cursor precedes this execution');
+      const parsed = pure('parse', {text: complete.data, execution: run.execution_id, nonce, phase: run.phase,
+        revision: run.revision_id, require_ready: true, ...(fresh ? {fresh_text: fresh.data} : {})});
+      return {complete, fresh, parsed};
+    }, value => !!value.parsed && predicate(value.parsed.sample));
+  }
+  async function apiRun(payload, phase, label = phase) {
+    if (phase !== 'seed') pure('package-check', {payload, nonce, pins: plan.pins, phase});
+    const localRevision = pure('revision', payload).revision_id;
+    const offset = (await serial(0)).next_offset;
+    const checkpoint = await json('program-revisions', 'POST', payload), p = await json(`previews/${previewId}`);
+    assert.equal(checkpoint.revision.revision_id, localRevision);
+    report.packages[localRevision] = payload;
+    const receipt = await json(`previews/${previewId}/runs`, 'POST', {revision_id: localRevision, expected_owner_epoch: ownerEpoch,
+      expected_generation: p.generation, client_generation: `relay2-${nonce}-${label}`, timeout_seconds: 120}, randomUUID());
+    assert.equal(receipt.preview_id, previewId); assert.equal(receipt.revision_id, localRevision);
+    for (const field of ['run_id', 'execution_id']) assert.match(receipt[field], /^[0-9a-f]{32}$/);
+    const run = await until(() => json(`previews/${previewId}/runs/${receipt.run_id}`), row => ['running', 'completed', 'failed', 'unknown'].includes(row.state), 120000);
+    for (const field of ['preview_id', 'run_id', 'execution_id', 'revision_id']) assert.equal(run[field], receipt[field]);
+    Object.assign(run, {serialOffset: offset, phase, label}); report.runs.push(run);
+    if (phase === 'seed') {
+      assert.ok(['running', 'completed'].includes(run.state));
+      await until(() => serial(offset), value => {
+        const marker = `__M5_EXEC_${run.execution_id}__:START`, position = value.data.indexOf(marker);
+        return position >= 0 && value.data.slice(position + marker.length).split(/\r?\n/).some(line => {
+          if (!line.startsWith('PREVIEW_RELAY2 ')) return false;
+          try { const row = JSON.parse(line.slice('PREVIEW_RELAY2 '.length)); return row.kind === 'seed' && row.nonce === nonce && row.builtin_compatible === true && row.builtin_source_attested === false; }
+          catch { return false; }
+        });
+      });
+    } else { assert.equal(run.state, 'running'); await application(run); }
+    await sameVM(); return run;
+  }
+  async function raw(property) {
+    const path = '/machine/units/relay2';
+    const row = await json(`sessions/${sessionId}/qom?path=${encodeURIComponent(path)}&property=${encodeURIComponent(property)}`);
+    assert.equal(row.session_id, sessionId); assert.equal(row.path, path); assert.equal(row.property, property); return row;
+  }
+  async function counters() {
+    const rows = {}, values = {};
+    for (const field of ['output-1-transitions', 'output-2-transitions', 'output-transitions']) {
+      rows[field] = await raw(field); values[field] = rows[field].value; assert.ok(Number.isSafeInteger(values[field]) && values[field] >= 0);
+    }
+    assert.equal(values['output-transitions'], values['output-1-transitions'] + values['output-2-transitions']);
+    return {rows, values};
+  }
+  async function visual() {
+    return page.evaluate(id => {
+      const v = window.__relay2Preview.state.visuals.get(id), panel = v?.unitPanel;
+      const mounted = panel?.mounted.get('relay2');
+      if (!mounted) return null;
+      const module = v.shell.model.port(mounted.port).module, state = panel.states.get('relay2');
+      return {available: state?.available, errors: state?.errors || {}, properties: state?.properties,
+        bindings: structuredClone(panel.bindingsByUnit), mountedPort: mounted.port,
+        controls: document.querySelector(`[data-session-id="${id}"] [data-unit-id="relay2"]`)?.querySelectorAll('input,button[data-press-field]').length,
+        joints: module.list('joint').map(joint => joint.getState()), leds: [1, 2].map(channel => {
+          const led = v.shell.model.find(`${mounted.port}/led-${channel}`, 'led');
+          return {id: led.id, channel: led.meta.channel, attached: module.components.get(led.id) === led,
+            known: led.runtimeKnown, userDataKnown: led.object3d.userData.runtimeKnown, state: led.getState(),
+            emissive: led.lensMaterial.emissive.toArray(), glow: led.glow.visible, opacity: led.glow.material.opacity,
+            glowColor: '#' + led.glow.material.color.getHexString()};
+        })};
+    }, sessionId);
+  }
+  async function observe(run, label, wanted, offset = null, minEvents = null) {
+    const observed = await application(run, offset, sample => JSON.stringify(sample.levels) === JSON.stringify(wanted)
+      && (minEvents === null || sample.events >= minEvents));
+    const levels = {}, c = await counters();
+    for (let channel = 1; channel <= 2; channel += 1) {
+      const field = `output-${channel}-level`; levels[field] = await raw(field); assert.equal(levels[field].value, wanted[channel - 1]);
+    }
+    const mounted = await until(visual, value => value?.available && [1, 2].every(channel =>
+      value.properties[`output-${channel}-level`] === wanted[channel - 1]
+      && value.leds[channel - 1].known && value.leds[channel - 1].state.brightness === Number(wanted[channel - 1])));
+    assert.deepEqual(mounted.errors, {}); assert.deepEqual(mounted.bindings, {}); assert.equal(mounted.controls, 0);
+    assert.equal(mounted.leds.length, 2); assert.deepEqual(mounted.joints, []);
+    for (let i = 0; i < 2; i += 1) {
+      const led = mounted.leds[i], brightness = Number(wanted[i]);
+      assert.equal(led.channel, i + 1); assert.equal(led.attached, true); assert.equal(led.userDataKnown, true);
+      assert.deepEqual(led.state, {color: '#247cff', brightness}); assert.equal(led.glow, wanted[i]);
+      assert.equal(led.opacity, .85 * brightness); assert.equal(led.glowColor, '#247cff');
+      const expected = [0x24, 0x7c, 0xff].map(n => (n / 255 <= .04045 ? n / 255 / 12.92 : ((n / 255 + .055) / 1.055) ** 2.4) * 2.2 * brightness);
+      led.emissive.forEach((value, n) => assert.ok(Math.abs(value - expected[n]) < 1e-6));
+    }
+    const result = {label, run_id: run.run_id, execution_id: run.execution_id, revision_id: run.revision_id,
+      wanted, serial: observed, qom: {...levels, ...c.rows}, counters: c.values, mounted};
+    report.observations.push(result); return result;
+  }
+  async function repeatStable(run, wanted, before) {
+    const cursor = (await serial(0)).next_offset;
+    const after = await observe(run, 'repeated-original-driver-writes', wanted, cursor);
+    assert.ok(after.serial.parsed.sample.sequence > before.serial.parsed.sample.sequence);
+    report.observations.push({label: 'unchanged-pads-do-not-transition', run_id: run.run_id,
+      contract: pure('counters', {before: before.counters, after: after.counters})});
+    return after;
+  }
+  async function frame(run, wanted, label) {
+    // A failed newer frame must never borrow a previously accepted hash.
+    owned.lastFrameSHA = null;
+    await currentRun(run);
+    const {body: bytes, headers} = await api(`previews/${previewId}/runs/${run.run_id}/frame.png?max_age_ms=0`);
+    const expected = {preview_id: previewId, run_id: run.run_id, execution_id: run.execution_id, revision_id: run.revision_id};
+    const contract = pure('frame', {bytes: bytes.toString('base64'), headers: Object.fromEntries(headers), expected});
+    await currentRun(run); await writeFile(resolve(output, `${label}-frame.png`), bytes);
+    const pixel = await page.evaluate(async encoded => {
+      const bitmap = await createImageBitmap(new Blob([Uint8Array.from(atob(encoded), c => c.charCodeAt(0))], {type: 'image/png'}));
+      try {
+        const canvas = document.createElement('canvas'); canvas.width = bitmap.width; canvas.height = bitmap.height;
+        const ctx = canvas.getContext('2d'); ctx.drawImage(bitmap, 0, 0);
+        const x = Math.floor(bitmap.width / 2), y = Math.floor(bitmap.height / 2);
+        return {x, y, width: bitmap.width, height: bitmap.height, value: [...ctx.getImageData(x, y, 1, 1).data]};
+      } finally { bitmap.close(); }
+    }, bytes.toString('base64'));
+    const color = pure('frame-color', {levels: wanted}).rgb;
+    assert.deepEqual(pixel.value.slice(0, 3), color);
+    await page.waitForFunction(({id, run, pixel, color}) => {
+      const v = window.__relay2Preview.state.visuals.get(id), actual = v?.shell?.display?.getPixel(pixel.x, pixel.y);
+      return v?.frameBlob && v.frameMetadata?.['x-frame-execution-id'] === run.execution_id && v.frameMetadata?.['x-frame-revision-id'] === run.revision_id
+        && actual && color.every((n, i) => actual[i] === n);
+    }, {id: sessionId, run, pixel, color});
+    owned.lastFrameSHA = sha(bytes);
+    report.observations.push({label: `frame-${label}`, run_id: run.run_id, contract, headers: Object.fromEntries(headers), selected_pixel: pixel});
+    return pixel;
+  }
+  async function hostInput(run, command) {
+    await currentRun(run); const cursor = (await serial(0)).next_offset;
+    const receipt = await json(`previews/${previewId}/input`, 'POST', {expected_owner_epoch: ownerEpoch, expected_run_id: run.run_id, input: command});
+    for (const field of ['preview_id', 'run_id', 'execution_id', 'revision_id']) assert.equal(receipt[field], run[field]);
+    assert.equal(receipt.result.session_id, sessionId);
+    report.observations.push({label: 'public-host-input', run_id: run.run_id, command, receipt, serial_offset: cursor});
+    return cursor;
+  }
+  async function exerciseHost(run) {
+    let before = await observe(run, 'host-loop-initial-00', [false, false]);
+    const size = await frame(run, [false, false], `${run.label}-initial`);
+    const gray = options.device === 'atoms3r';
+    const wantedStates = gray ? [[true, false], [true, true], [false, true], [false, false]]
+      : [[true, false], [true, true], [false, true], [false, false]];
+    const changedChannels = [1, 2, 1, 2];
+    for (let i = 0; i < wantedStates.length; i += 1) {
+      const changed = changedChannels[i]; let cursor;
+      if (plan.host_control === 'touch-halves') {
+        cursor = await hostInput(run, {kind: 'longpress', x: Math.floor(size.width * (changed === 1 ? .25 : .75)),
+          y: Math.floor(size.height * .65), hold_seconds: .5, settle_seconds: .35});
+      } else {
+        const key = gray || changed === 1 ? 'a' : 'b';
+        cursor = await hostInput(run, {kind: 'key', key, action: 'down', settle_seconds: .4});
+        await hostInput(run, {kind: 'key', key, action: 'up', settle_seconds: .4});
+      }
+      const after = await observe(run, `host-channel-${changed}-event-${i + 1}`, wantedStates[i], cursor, i + 1);
+      report.observations.push({label: 'independent-single-channel-transition', run_id: run.run_id,
+        contract: pure('counters', {before: before.counters, after: after.counters, changed})});
+      before = await repeatStable(run, wantedStates[i], after);
+      await frame(run, wantedStates[i], `${run.label}-${i + 1}`);
+    }
+    return before;
+  }
+  async function rejectReverseInputs(run) {
+    const before = await counters();
+    for (const field of ['output-1-level', 'output-2-level', 'output-1-transitions', 'output-2-transitions']) {
+      const {body: rejection, index} = await api(`previews/${previewId}/input`, 'POST', {expected_owner_epoch: ownerEpoch,
+        expected_run_id: run.run_id, unit_input: {id: 'relay2', values: {[field]: field.endsWith('-level') ? true : 1}}}, null, [400]);
+      assert.ok(rejection.error); report.observations.push({label: 'readonly-unit-input-rejected', field, http_index: index, rejection});
+    }
+    pure('counters', {before: before.values, after: (await counters()).values});
+    await observe(run, 'reverse-input-did-not-mutate-pads', [false, false]);
+  }
+  async function closeOwned() {
+    return closeOwnedPreview(owned, {send: json, wait: until,
+      captureZip: async id => { const zip = await json(`sessions/${id}/evidence`); await writeFile(resolve(output, 'failure-evidence.zip'), zip); },
+      pidGone: pid => { try { process.kill(pid, 0); return false; } catch (error) { if (error.code === 'ESRCH') return true; throw error; } },
+      historyFrame: async id => {
+        const bytes = await json(`sessions/${id}/frame.png`);
+        await writeFile(resolve(output, 'history-last-frame.png'), bytes); return sha(bytes);
+      }, verify: value => pure('cleanup', value)});
+  }
+  try {
+    const health = await json('health'); assert.equal(health.capacity.active_sessions, 0, 'Root-owned idle service required');
+    const devices = await json('devices'); assert.ok(devices.devices.find(d => d.device_id === options.device)?.program_modes.includes('uiflow-live'));
+    const inventory = await json(`units?device_id=${options.device}`); report.inventory_sha256 = sha(JSON.stringify(inventory));
+    const createIntent = {key: randomUUID(), body: {device_id: options.device, runtime: 'qemu', ttl_seconds: 900, units: plan.attachments}};
+    await save('create-intent.json', createIntent);
+    const created = await createOwnedPreview(owned, createIntent, json);
+    previewId = created.preview_id; ownerEpoch = created.owner_epoch; assert.match(previewId, /^[0-9a-f]{32}$/);
+    const p = await until(() => json(`previews/${previewId}`), value => ['ready', 'failed'].includes(value.state), 120000);
+    assert.equal(p.state, 'ready'); ownerEpoch = p.owner_epoch; sessionId = p.session_id;
+    session = await json(`sessions/${sessionId}`); Object.assign(owned, {sessionId, session});
+    report.runtime = runtimeIdentity(session.pid); assert.equal(report.runtime.sha256, expectedRuntime);
+    Object.assign(report, {preview_id: previewId, owner_epoch: ownerEpoch, session_id: sessionId, pid: session.pid,
+      firmware_sha256: session.firmware_sha256, worker: session.worker, frozen_attachments: session.units});
+    assert.equal(session.units.length, 1); assert.equal(session.units[0].id, 'relay2'); assert.equal(session.units[0].unit_id, '2relay');
+    assert.deepEqual(session.units[0].pins, plan.pins); assert.equal(session.units[0].port_id, plan.attachments[0].port_id);
+    const {chromium} = await import('playwright');
+    browser = await chromium.launch({executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      headless: true, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader']});
+    page = await browser.newPage({viewport: {width: 1440, height: 1080}}); page.on('pageerror', error => report.page_errors.push(error.message));
+    page.on('response', response => {
+      if (!response.url().startsWith(base + '/api/v1/')) return;
+      const index = report.browser_http.length, row = {path: new URL(response.url()).pathname, method: response.request().method(), status: response.status()};
+      report.browser_http.push(row);
+      if (row.method !== 'GET') row.body = response.request().postDataJSON();
+      browserTasks.push(response.body().then(async bytes => {
+        Object.assign(row, {bytes: bytes.length, sha256: sha(bytes), headers: await response.allHeaders()});
+        await writeFile(resolve(output, `browser-${index}.response`), bytes);
+      }).catch(error => { row.observation_error = error.message; }));
+    });
+    await page.route('**/platform/web/sessions.js*', async route => {
+      const response = await route.fetch(), text = await response.text(); assert.equal(sha(text), report.source_sha256['platform/web/sessions.js']);
+      await route.fulfill({response, body: text + '\nwindow.__relay2Preview={state,SessionVisual};\n'});
+    });
+    await page.goto(`${base}/platform/web/sessions.html`, {waitUntil: 'domcontentloaded'});
+    await page.fill('#tokenInput', token); await page.click('#saveTokenBtn');
+    const card = page.locator(`[data-session-id="${sessionId}"]`); await card.waitFor();
+    await page.waitForFunction(id => window.__relay2Preview.state.visuals.get(id)?.unitPanel?.mounted.has('relay2'), sessionId);
+    await apiRun(pure('seed', {nonce}), 'seed');
+    for (const phase of ['00', '10', '01', '11']) {
+      const run = await apiRun(packages[phase], phase), wanted = phase.split('').map(n => n === '1');
+      const before = await observe(run, `fixed-${phase}`, wanted); await repeatStable(run, wanted, before); await frame(run, wanted, `fixed-${phase}`);
+    }
+    const interactive = await apiRun(packages.interactive, 'interactive');
+    await rejectReverseInputs(interactive); await exerciseHost(interactive);
+    await json(`previews/${previewId}/runs/${interactive.run_id}/cancel`, 'POST', {expected_owner_epoch: ownerEpoch});
+    report.cancelled = await until(() => json(`previews/${previewId}/runs/${interactive.run_id}`), value => value.state === 'cancelled');
+    assert.equal(report.cancelled.interrupt_ack, 'confirmed');
+    const resumed = await apiRun(packages.interactive, 'interactive', 'interactive-after-cancel');
+    await exerciseHost(resumed); await sameVM();
+    for (const width of [390, 768, 1024, 1440]) {
+      await page.setViewportSize({width, height: 1080}); await page.evaluate(() => scrollTo(0, 0)); await delay(200);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      await page.screenshot({path: resolve(output, `relay2-${width}.png`), fullPage: true});
+    }
+    const zip = await json(`sessions/${sessionId}/evidence`); await writeFile(resolve(output, 'evidence-before-close.zip'), zip); owned.zipBeforeClose = true;
+    report.zip = pure('zip', {bytes: zip.toString('base64'), expected: {session_id: sessionId, device_id: options.device,
+      firmware_sha256: session.firmware_sha256, pid: session.pid, runs: report.runs, packages: report.packages}});
+    // Freeze the same current Run's last stable image immediately before close.
+    await frame(resumed, [false, false], 'before-close');
+    report.cleanup = await closeOwned(); assert.equal(report.cleanup.preview.close_evidence.status, 'captured');
+    assert.equal(report.cleanup.contract.status, 'PASS');
+    await Promise.all(browserTasks); assert.deepEqual(report.page_errors, []);
+    assert.deepEqual(report.browser_http.filter(row => row.method !== 'GET' && /\/sessions\/[^/]+\/(program|input|unit-input|renew|reset)$/.test(row.path)), []);
+    assert.deepEqual(await fingerprints(), report.source_sha256); report.status = 'PASS';
+  } catch (error) { report.error = error.stack || String(error); }
+  finally {
+    if (!report.cleanup) { try { report.failure_cleanup = await closeOwned(); } catch (error) { report.cleanup_error = error.stack || String(error); } }
+    report.creation = owned.creation; report.cleanup_warnings = owned.cleanupWarnings;
+    report.raw_cleanup = owned.rawCleanup;
+    await browser?.close(); await Promise.all(browserTasks); await save('report.json', report);
+  }
+  console.log(`LIVE_PREVIEW_RELAY2_${report.status} ${options.device}`);
+  if (report.status !== 'PASS') process.exitCode = 1;
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "category": "official-source-visual-binding",
+  "product": "Unit 2Relay",
+  "sku": "U131",
+  "status": "Source binding only; runtime acceptance is separate",
+  "bus": "gpio",
+  "i2c_address": null,
+  "register_map": null,
+  "channels": [
+    {
+      "number": 1,
+      "wire": "white",
+      "cores3_gpio": 1,
+      "original_driver_member": "_relay1",
+      "original_driver_port_index": 0,
+      "visual_led": "led-1",
+      "visual_color": "fixed-blue",
+      "model_spec_relay_y": 20.9,
+      "model_spec_led_y": 12.4
+    },
+    {
+      "number": 2,
+      "wire": "yellow",
+      "cores3_gpio": 2,
+      "original_driver_member": "_relay2",
+      "original_driver_port_index": 1,
+      "visual_led": "led-2",
+      "visual_color": "fixed-blue",
+      "model_spec_relay_y": 0.3,
+      "model_spec_led_y": -8.2
+    }
+  ],
+  "source_commits": [
+    "50e440780492aa847378c7d3477ab912f7063bac",
+    "3a86d8f611b3639cca755a933e01a5a829771ef1"
+  ],
+  "driver_sha256": "db05e974f2cd558c4fbaef85958b82730a9bcae1b21eb9646371bea7e6f273c5",
+  "schematic_url": "https://static-cdn.m5stack.com/resource/docs/products/unit/2relay/2relay_sch_01.webp",
+  "schematic_sha256": "d2fa75fa6126915d7c2b7a26248b08e4416ce2a801a1771add49b94bef524b73",
+  "nominal_powered_logic": {
+    "high": "SS8050 low-side transistor conducting, corresponding coil and blue LED energized",
+    "low": "low-side transistor off, corresponding LED off"
+  },
+  "external_unit_inputs": [],
+  "readback_scope": "Guest-driven GPIO pad levels and nominal-powered functional LED indication; not mechanical contacts/load/physical measurements",
+  "binary_provenance": {
+    "reference_firmware_version": "v2.5.3",
+    "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+    "base_size": 16121856,
+    "unit_relay2_literal_count": 2,
+    "Relay2Unit_literal_count": 1,
+    "claim": "Fixed source and build-manifest availability plus binary literal presence. Frozen bytecode identity is not independently attested; a live import/method probe is still required."
+  },
+  "digital_input_bias": {
+    "white": "R3 10K to GND",
+    "yellow": "R6 10K to GND"
+  }
+}

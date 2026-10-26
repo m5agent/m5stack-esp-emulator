@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "reviewer": "independent read-only peer",
+  "status": "PASS WITH EXPLICIT REPORT REDACTION",
+  "methods": [
+    "UTF-8 text",
+    "JSON base64 text decoding",
+    "recursive ZIP/PK response text",
+    "PNG SHA deduplication and tesseract psm11 OCR"
+  ],
+  "coverage": {
+    "utf8_payloads": 4062,
+    "base64_text_payloads": 53,
+    "zip_payloads": 4,
+    "png_payloads": 44,
+    "unique_pngs_ocr": 13,
+    "ocr_errors": 0,
+    "nontext_fixtures": 16
+  },
+  "original_sensitive_path_occurrences": 12,
+  "authorized_redactions": {
+    "file": "r1/raw/report.json",
+    "replacement_count": 12,
+    "replacement": "<repo>",
+    "dual_sha_record": "redactions.json"
+  },
+  "other_sensitive_hits": {
+    "raw_http_zip_user_paths": 0,
+    "source_user_paths": 0,
+    "credentials_tokens_private_keys_jwt": 0,
+    "email": 0,
+    "mac_physical_serial": 0,
+    "private_ip_hostname": 0,
+    "png_ocr": 0
+  },
+  "allowed_urls": {
+    "official_upstream": 16626,
+    "m5stack_public_oss": 4558,
+    "local_device_service": 2,
+    "unknown_hosts": 0
+  },
+  "original_bytes_modified": false,
+  "limits": [
+    "Nontext fixtures have no text-only privacy claim.",
+    "Automatic PASS in r2 is preserved as original data but root classification remains INCOMPLETE."
+  ]
+}

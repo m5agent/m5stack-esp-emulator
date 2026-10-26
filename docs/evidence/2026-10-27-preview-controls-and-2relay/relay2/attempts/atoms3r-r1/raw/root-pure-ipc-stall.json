@@ -1,0 +1,17 @@
+{
+  "category": "pure-helper-stdin-stall-recovery",
+  "status": "INCOMPLETE_PENDING_NORMAL_FAILURE_CLEANUP",
+  "time": "2026-10-26T19:32:26.528379+00:00",
+  "helper_pid": 73498,
+  "runner_pid": 72962,
+  "helper": "relay2_preview_probe.py parse --device atoms3r",
+  "sample_sha256": "29cd5f8f4dc6090ca64ba1ac043994fbcd3317d5eb0978e8b87ab457ec36be09",
+  "sample_conclusion": "Python TextIOWrapper.read/readall blocked on stdin; no CPU loop",
+  "action": "SIGTERM owned parse child only; allow runner exception/finally to retain failure and close owned Preview",
+  "last_http_response": "http-1016.response",
+  "source_sha256": {
+    "platform/tests/test_live_relay2_preview_service_browser.mjs": "069f4ca12e9c1a566187376b837f624b7368feb74a0e567217f42cd4631f56d0",
+    "tests/units/relay2_preview_probe.py": "98bf561e16bc8b3a9289f9642766124b8fc05e74511a4a3b40b8832e09facdec",
+    "tests/units/test_relay2_preview_probe.py": "847a212d263fb73f29f2787b8ad7326b66dbfbe3f5f7c7b1ca004b0504a0cc75"
+  }
+}

@@ -1,0 +1,181 @@
+#!/usr/bin/env python3
+"""Read-only audit of failed/incomplete historical U131 attempts.
+
+This never promotes an automatic report status into acceptance, contacts a
+service, starts a guest, controls a process, or writes files.
+"""
+from collections import defaultdict
+import hashlib
+from importlib.machinery import SourceFileLoader
+from importlib.util import module_from_spec, spec_from_loader
+import io
+import json
+from pathlib import Path
+import zipfile
+
+from PIL import Image
+
+HERE = Path(__file__).resolve().parents[1]
+
+
+def sha(value):
+    return hashlib.sha256(value).hexdigest()
+
+
+def expect(value, message):
+    if not value:
+        raise AssertionError(message)
+
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(',', ':'))
+
+
+def audit(attempt):
+    folder = HERE / attempt
+    report = json.loads((folder / 'raw/report.json').read_bytes())
+    with zipfile.ZipFile(folder / 'raw-evidence.zip') as compressed:
+        expect(compressed.testzip() is None, 'compressed raw evidence CRC')
+        raw_names = set(compressed.namelist())
+        expect('report.json' not in raw_names and len(raw_names) == len(compressed.namelist()), 'no original report or duplicate raw members')
+        compressed_values = {name: compressed.read(name) for name in raw_names}
+
+    def read_raw(name):
+        path = folder / 'raw' / name
+        return path.read_bytes() if path.exists() else compressed_values[name]
+    sources = folder / 'sources'
+    manifest = json.loads((sources / 'manifest.json').read_bytes())
+    source_checks = []
+    helper_path = None
+    for source in manifest['files']:
+        original_path = source.get('path', source.get('source'))
+        path = sources / (original_path + '.txt')
+        if not path.exists():
+            path = sources / (Path(original_path).name + '.txt')
+        value = path.read_bytes()
+        expect(sha(value) == report['source_sha256'][original_path], 'historical source fingerprint')
+        expect(sha(value) == source.get('reconstructed_sha256', source.get('sha256')), 'source manifest fingerprint')
+        source_checks.append({'repository_path': original_path, 'archive_path': str(path.relative_to(HERE)), 'sha256': sha(value),
+                              'source_evidence': 'EXACT RECONSTRUCTION, not captured' if attempt == 'r1' else 'captured after recovered attempt, exact fingerprint'})
+        if original_path.endswith('/relay2_preview_probe.py'):
+            helper_path = path
+    loader = SourceFileLoader('historical_' + attempt, str(helper_path))
+    spec = spec_from_loader(loader.name, loader)
+    helper = module_from_spec(spec)
+    loader.exec_module(helper)
+    raw, lookup = [], defaultdict(list)
+    for index, row in enumerate(report['http']):
+        value = read_raw(f'http-{index}.response')
+        expect(len(value) == row['bytes'] and sha(value) == row['sha256'], 'raw HTTP response size/SHA')
+        if row['method'] != 'GET':
+            json.loads(read_raw(f'http-{index}.request.json'))
+        try:
+            decoded = json.loads(value)
+            lookup[canonical(decoded)].append(index)
+        except (UnicodeError, ValueError):
+            decoded = None
+        raw.append((row, value, decoded))
+    browser_saved = browser_missing = 0
+    for index, row in enumerate(report['browser_http']):
+        name = f'browser-{index}.response'
+        if name in raw_names:
+            value = read_raw(name)
+            expect(row['bytes'] == len(value) and row['sha256'] == sha(value), 'browser body size/SHA')
+            browser_saved += 1
+        else:
+            expect('observation_error' in row, 'missing browser body must remain explicit')
+            browser_missing += 1
+    runs = report['runs']
+    run_map = {run['run_id']: run for run in runs}
+    for run in runs:
+        observation = run['last_observation']
+        expect(observation['pid'] == report['pid'] and observation['firmware_sha256'] == report['firmware_sha256'], 'recorded same VM identity')
+    serial_checks = frame_checks = 0
+    for item in report['observations']:
+        if item['label'].startswith('frame-'):
+            run = run_map[item['run_id']]
+            value = (folder / 'raw' / (item['label'].removeprefix('frame-') + '-frame.png')).read_bytes()
+            expect(any(blob == value and '/runs/' + run['run_id'] + '/frame.png' in row['path'] for row, blob, _ in raw), 'frame saved bytes/raw HTTP')
+            helper.frame_contract(value, item['headers'], {key: run[key] for key in ('preview_id', 'run_id', 'execution_id', 'revision_id')})
+            frame_checks += 1
+        if 'serial' not in item:
+            continue
+        run = run_map[item['run_id']]
+        serial = item['serial']
+        expect(canonical(serial['complete']) in lookup, 'serial observation backed by raw HTTP')
+        fresh = serial['fresh']
+        if fresh:
+            expect(canonical(fresh) in lookup and fresh['offset'] >= run['serialOffset'], 'fresh UART bytes backed by raw HTTP')
+        parsed = helper.parse_window(serial['complete']['data'], run['execution_id'], report['nonce'], run['phase'], report['device_id'], run['revision_id'],
+                                     require_ready=True, fresh_text=fresh['data'] if fresh else None)
+        expect(parsed == serial['parsed'] and parsed['ready'], 'historical source typed UART parser')
+        expect(parsed['sample']['levels'] == item['wanted'], 'guest actual relay levels')
+        for field, value in item['qom'].items():
+            expect(canonical(value) in lookup and value['property'] == field and value['path'] == '/machine/units/relay2', 'independent raw relay QOM')
+        for channel in (1, 2):
+            expect(item['qom'][f'output-{channel}-level']['value'] == item['wanted'][channel - 1], 'QOM agrees with original-driver sample')
+            led = item['mounted']['leds'][channel - 1]
+            expect(led['attached'] is led['known'] is led['userDataKnown'] is True and led['channel'] == channel, 'actual mounted indicator/channel')
+            expect(led['state'] == {'color': '#247cff', 'brightness': int(item['wanted'][channel - 1])}, 'mounted relay level')
+        expect(item['mounted']['controls'] == 0 and item['mounted']['bindings'] == {}, 'no invented Unit input controls')
+        helper.counter_contract(item['counters'], item['counters'])
+        serial_checks += 1
+    zip_name = 'failure-evidence.zip' if attempt == 'r1' else 'evidence-before-close.zip'
+    archive_bytes = (folder / 'raw' / zip_name).read_bytes()
+    zip_check = helper.inspect_zip(archive_bytes, {**report, 'packages': report['packages']})
+    evidence_indices = [i for i, (row, value, _) in enumerate(raw) if row['path'].endswith('/evidence') and value == archive_bytes]
+    close_indices = [i for i, (row, _, _) in enumerate(raw) if row['method'] == 'POST' and row['path'].endswith('/close')]
+    expect(evidence_indices and close_indices and evidence_indices[0] < close_indices[0], 'original ZIP before owned close')
+    with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
+        expect(archive.testzip() is None, 'ZIP CRC')
+        meta = json.loads(archive.read('manifest.json'))
+        expect(meta['session']['pid'] == report['pid'] and meta['session']['firmware_sha256'] == report['firmware_sha256'], 'ZIP exact VM')
+    frames = []
+    for path in sorted((folder / 'raw').glob('*.png')):
+        with Image.open(path) as image:
+            image.load()
+            frames.append({'path': path.name, 'width': image.width, 'height': image.height,
+                           'center_rgb': list(image.convert('RGB').getpixel((image.width // 2, image.height // 2)))})
+    if attempt == 'r1':
+        root = json.loads((folder / 'raw/root-resource-cleanup.json').read_bytes())
+        expect(report['status'] == 'FAIL' and len(runs) == 2 and len(report['observations']) == 3, 'r1 failed attempt boundary')
+        expect(manifest['captured'] is False and manifest['status'] == 'EXACT RECONSTRUCTION', 'r1 reconstruction provenance')
+        expect(root['preview_state'] == 'closed' and root['session_state'] == 'stopped' and root['flash_retained'] is False and root['pid_gone'] is True
+               and root['active_sessions'] == root['active_leases'] == 0 and root['full_frame_identity'] == 'NOT VERIFIED', 'r1 independent resource-only proof')
+        original_sha = json.loads((HERE / 'redactions.json').read_bytes())['files']['r1/raw/report.json']['original_sha256']
+        expect(root['source_report_sha256'] == manifest['source_report_sha256'] == original_sha, 'r1 original report binding survives explicit redaction')
+        expect(next(row for row in frames if row['path'] == 'fixed-00-frame.png')['center_rgb'] == [32, 32, 32], 'r1 actual RGB565 center pixel')
+        classification, level = 'FAIL', 'partial functional observations plus independently verified resource cleanup only'
+        reasons = ['RGB565 display quantizes the requested 34 gray to 32; r1 oracle wrongly expected exact 34.',
+                   'Frame verification failed before lastFrameSHA was assigned; cleanup verifier then failed.',
+                   'Root resource-only cleanup proves closed/stopped/Flash/PID/lease release. Full frame identity remains NOT VERIFIED.']
+        resource = {key: root[key] for key in ('preview_state', 'session_state', 'flash_retained', 'pid_gone', 'active_sessions', 'active_leases', 'history_frame_retained', 'zip_before_close', 'full_frame_identity')}
+    else:
+        root = json.loads((folder / 'raw/root-browser-drain-recovery.json').read_bytes())
+        expect(report['status'] == 'PASS' and len(runs) == 7 and len(report['observations']) == 74, 'r2 automatic report boundary')
+        expect(root['report_existed_before'] is False and root['guest_already_stopped'] is True
+               and root['active_sessions_before_recovery'] == root['active_leases_before_recovery'] == 0, 'r2 stalled collector recovery boundary')
+        helper.cleanup_contract(report['cleanup'])
+        expect(report['cancelled']['state'] == 'cancelled' and report['cancelled']['interrupt_ack'] == 'confirmed', 'r2 confirmed cancellation')
+        expect(browser_missing == 124, 'r2 failed browser body reads remain explicit')
+        classification, level = 'INCOMPLETE', 'recorded functional/cleanup checks; browser evidence collector required external recovery'
+        reasons = ['Automatic report PASS is retained as original data, not accepted as final acceptance.',
+                   'After 7 Runs / 74 observations and guest cleanup, unbounded browserTasks waited indefinitely.',
+                   'Root SIGTERM targeted the runner-owned Chrome so pending reads rejected and Node could preserve the report.',
+                   'This attempt requires a later independently completed collector run for formal PASS.']
+        resource = {key: report['cleanup'][key] for key in ('pid_gone', 'zip_before_close', 'last_frame_sha256', 'history_frame_sha256')}
+    return {'attempt': attempt, 'device_id': report['device_id'], 'attempt_status': classification, 'automatic_report_status': report['status'],
+            'root_classification': classification, 'formal_acceptance': False, 'evidence_level': level, 'reasons': reasons,
+            'hardware': 'NOT RUN', 'runtime': report['runtime'], 'worker': report['worker'], 'session_id': report['session_id'],
+            'preview_id': report['preview_id'], 'firmware_sha256': report['firmware_sha256'], 'sources': source_checks,
+            'checks': {'raw_http_responses_size_sha_verified': len(raw), 'saved_browser_response_bodies_verified': browser_saved,
+                       'explicit_browser_body_errors_without_saved_body': browser_missing, 'runs': len(runs), 'observations': len(report['observations']),
+                       'typed_uart_raw_qom_mounted_observations_verified': serial_checks, 'recorded_five_header_frame_cases_verified': frame_checks,
+                       'zip': zip_check, 'pngs_decoded': frames},
+            'resource_cleanup': resource, 'limits': ['Virtual-device evidence only.', 'No current service or process-table query is part of this archive audit.',
+                       'Historical source is audited against its original report fingerprint, not relabeled as current source.']}
+
+
+if __name__ == '__main__':
+    print(json.dumps({'schema_version': 1, 'category': 'historical-failed-incomplete-2relay-attempts',
+                      'formal_acceptance': False, 'attempts': [audit(name) for name in ('r1', 'r2')]}, ensure_ascii=False, indent=2))

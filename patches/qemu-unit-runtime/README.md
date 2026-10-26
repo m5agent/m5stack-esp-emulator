@@ -7,7 +7,8 @@ published executable. This directory supplies the missing source prelude; the
 new Unit implementation stays in `qemu-m5stack-peripherals/0033` through `0035`,
 followed by the narrow classic-I2C compatibility fix in `0036` and the scoped
 S3 LEDC duty-register readback fix in `0037` and the GPIO-route observation
-candidate in `0038`, then the independent bounded Scroll controller in `0043`.
+candidate in `0038`, then the independent bounded Scroll controller in `0043`
+and dual GPIO 2Relay in `0044`.
 No firmware, ROM, executable or credential is added by these patches.
 
 ## Exact source and order
@@ -24,7 +25,8 @@ No firmware, ROM, executable or credential is added by these patches.
    `0036-core2-soft-i2c-handoff-compat.patch`, then
    `0037-s3-ledc-duty-readback.patch`, then
    `0038-unit-pwm-route-refresh.patch`, then
-   `0043-unit-scroll-controller.patch`.
+   `0043-unit-scroll-controller.patch`, then
+   `0044-unit-2relay-gpio.patch`.
 6. Build `xtensa-softmmu`. These instructions do not rebuild the separate C6
    branch or the P4/Linux backends.
 
@@ -66,8 +68,8 @@ hardware synonyms. The fixed-source references are Espressif IDF commit
 Source replay and static/fragment contract checks do not establish a firmware
 or hardware PASS. A new runtime needs a cold source build, the same diagnostic
 guest with its exact firmware SHA, and the shared-controller regression gate.
-Use a fresh `--source-dir` for the current nine-patch stack; the bootstrap intentionally
-rejects an existing eight-patch source receipt instead of resetting it.
+Use a fresh `--source-dir` for the current patch stack; the bootstrap intentionally
+rejects an older source receipt instead of resetting it.
 
 `0038` is a GPIO-route observation candidate for `UNIT-HOST-20`. An actual
 GPIO matrix OUT_SEL mutation notifies realized LEDC instances of the same SoC

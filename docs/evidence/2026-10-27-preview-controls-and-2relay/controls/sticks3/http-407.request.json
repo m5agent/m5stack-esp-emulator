@@ -1,0 +1,22 @@
+{
+  "source_kind": "uiflow2-package",
+  "entrypoint": "main.py",
+  "files": {
+    "main.py": {
+      "encoding": "utf8",
+      "data": "_preview_phase='C'\nimport sys,json,time,binascii\nimport M5\nfrom machine import I2C, Pin\nfrom unit import EncoderUnit, Encoder8Unit, JoystickUnit\nfrom logic import feedback\nassert '/m5-preview-controls-450fde130f684860928a17790c531ac1' in sys.path, 'MicroPython VM nonce lost'\nwith open('settings.json') as stream:\n config = json.load(stream)\nwith open('assets/state.bin', 'rb') as stream:\n resource = stream.read()\nassert resource == b'\\x00\\xff\\x01\\x80\\r\\nM5', 'resource bytes changed'\nresource_hex = binascii.hexlify(resource).decode()\nphase = globals().get('_preview_phase', config['phase'])\nM5.begin()\nscreen = M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0)\nscreen.setTextSize(1)\nscreen.setTextColor(0xFFFFFF, 0)\nbus = I2C(0, scl=Pin(10), sda=Pin(9), freq=100000)\nscan = sorted(bus.scan())\nassert scan == [64,65,82], 'HUB bus leaked or wrong addresses'\nencoder = EncoderUnit(bus, 0x40)\neight = Encoder8Unit(bus, 0x41)\njoystick = JoystickUnit(bus, 0x52)\nprint('PREVIEW_CONTROLS '+json.dumps({'kind':'ready','nonce':config['nonce'],'phase':phase,'scan':scan,'resource_hex':resource_hex}))\nsequence = 0\nlast_colors = None\nwhile True:\n M5.update()\n e = {'counter':encoder.get_rotary_value(),'pressed':bool(encoder.get_button_status())}\n b = {'counters':[eight.get_counter_value(i) for i in range(1,9)],'pressed':[bool(eight.get_button_status(i)) for i in range(1,9)],'switch_on':bool(eight.get_switch_status())}\n j = {'x_raw':joystick.get_x_raw(),'y_raw':joystick.get_y_raw(),'button_raw':int(joystick.get_button_status())}\n colors = feedback(phase,e['pressed'],b['pressed'])\n if colors != last_colors:\n  encoder.fill_color(colors[0])\n  for channel in range(1,9):\n   eight.set_led_rgb(channel,colors[1])\n  # Original public register helper reaches the separate ninth LED triplet.\n  eight.write_reg_data(0x88,list(colors[1].to_bytes(3,'big')))\n  last_colors = colors\n sequence += 1\n screen.fillRect(0,0,screen.width(),48,0)\n screen.setCursor(4,4)\n screen.print('ENC %d %d' % (e['counter'],int(e['pressed'])))\n screen.setCursor(4,18)\n screen.print('8ENC %d %d' % (b['counters'][0],int(b['pressed'][0])))\n screen.setCursor(4,32)\n screen.print('JOY %d %d' % (j['x_raw'],j['y_raw']))\n screen.fillRect(screen.width()//2-4,screen.height()//2-4,8,8,{'A':0xFF0000,'B':0x00FF00,'C':0x0000FF}[phase])\n print('PREVIEW_CONTROLS '+json.dumps({'kind':'sample','nonce':config['nonce'],'phase':phase,'sequence':sequence,'resource_hex':resource_hex,'encoder':e,'eight':b,'joystick':j,'written':{'encoder':[colors[0]]*2,'eight':[colors[1]]*9}}))\n time.sleep_ms(200)\n"
+    },
+    "logic.py": {
+      "encoding": "utf8",
+      "data": "def feedback(phase, encoder_pressed, buttons):\n color = {'A':0xFF0000,'B':0x00FF00,'C':0x0000FF}[phase]\n return (color if encoder_pressed else 0,color if any(buttons) else 0)\n"
+    },
+    "settings.json": {
+      "encoding": "utf8",
+      "data": "{\"nonce\": \"450fde130f684860928a17790c531ac1\", \"phase\": \"A\"}"
+    },
+    "assets/state.bin": {
+      "encoding": "base64",
+      "data": "AP8BgA0KTTU="
+    }
+  }
+}

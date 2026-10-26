@@ -75,7 +75,7 @@ Scroll限定原驱动与按键/RGB闭环、公共完整checkpoint及同步revisi
 运行时不可中断、native/IRQ/thread 清理及重连缺口须保守处理，不承诺低秒级 SLA。验收见
 [AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
 checkpoint/artifact snapshot/virtual target也需衔接；Preview服务端与限定Web消费者已实现，SSE与AIFlow消费者未接。
-Live sessions托管消费者已有CoreS3 PIR/Relay的[限定Web验收](evidence/2026-10-27-preview-web-consumer/README.md)，不转授其它Unit/主机或AIFlow；继续补其它组合与UNIT-HOST-35窄屏默认构图裁切，共享Bearer仍不等于多租户控制权。后续按既有Unit队列推进，并衔接AIFlow checkpoint/虚拟目标、SSE与revision有界回收。
+Live sessions托管消费者已有CoreS3 PIR/Relay的[限定Web验收](evidence/2026-10-27-preview-web-consumer/README.md)，不转授其它Unit/主机或AIFlow；四主机HUB控制组和U131双GPIO/蓝灯、UNIT-HOST-35窄屏/长dt构图已完成[限定验收](evidence/2026-10-27-preview-controls-and-2relay/README.md)；继续补未验Unit/主机与AIFlow调用侧，共享Bearer仍不等于多租户控制权。后续按既有Unit队列推进，并衔接AIFlow checkpoint/虚拟目标、SSE与revision有界回收。
 初始picker的跨主机竞态已修复并保留失败负控；范围见[新实时程序证据](evidence/2026-10-26-live-program-web-and-hosts/README.md)。
 三主机HUB数字token换行按`UNIT-HOST-23`单独改善，保留既有controller PASS。
 

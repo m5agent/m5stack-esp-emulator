@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-27T03:12:45.269762+08:00",
+  "out_dir": ".work/2relay-core2-imu-diagnostic-20261027",
+  "results": {
+    "core2-imu": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+        "declared": {
+          "offset": 8519680,
+          "size": 8253440
+        },
+        "effective": {
+          "offset": 8519680,
+          "size": 8253440
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "<repo>/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "<repo>/platform/.cache/firmware/core2/uiflow2.bin",
+        "--machine",
+        "m5core2",
+        "--files-dir",
+        "<repo>/tests/uiflow2/core2_imu",
+        "--vfs-offset",
+        "0x820000",
+        "--vfs-size",
+        "0x7df000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "13",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "none",
+        "--qemu",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/pc-bios",
+        "--out-dir",
+        ".work/2relay-core2-imu-diagnostic-20261027/core2-imu",
+        "--memory",
+        "0",
+        "--deterministic",
+        "--input",
+        "touch:160,183",
+        "--qom-set",
+        "/machine/mpu6886",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/mpu6886",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/mpu6886",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/mpu6886",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/mpu6886",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/mpu6886",
+        "gyro-z",
+        "30",
+        "--allow-static-frame"
+      ],
+      "output": ".work/2relay-core2-imu-diagnostic-20261027/core2-imu",
+      "before": ".work/2relay-core2-imu-diagnostic-20261027/core2-imu/before.png",
+      "after": ".work/2relay-core2-imu-diagnostic-20261027/core2-imu/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "mpu6886_identity",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_accel",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mpu6886_gyro",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "imu_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS Core2 IMU marker rgb=(0,255,0)\n",
+      "reason": "Core2 MPU6886 accel/gyro values are injected through QOM and read through the official UIFlow2 Imu API and ESP32 I2C0 path."
+    }
+  }
+}

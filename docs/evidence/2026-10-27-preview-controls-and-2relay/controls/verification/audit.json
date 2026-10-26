@@ -1,0 +1,1335 @@
+{
+  "schema_version": 1,
+  "category": "independent-recorded-controls-evidence-audit",
+  "status": "PASS",
+  "hosts": [
+    {
+      "status": "PASS",
+      "device_id": "cores3",
+      "preview_id": "27bebcd57a7e423699cdd58c59b7dcb3",
+      "session_id": "084a1ce5d90c493cb97ce92bfdd6c345",
+      "pid": 67107,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime": {
+        "pid": 67107,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 36,
+        "lease_active": true
+      },
+      "runs": [
+        {
+          "phase": "seed",
+          "run_id": "a2744cdbd2154eb2943030358f636783",
+          "execution_id": "81687cbb28284fac9b2e3bb2f95b3d92",
+          "revision_id": "3c70c23707ccedddca7db4db5662333a6be78109f05c8b66bb0e95bf6d9daf44",
+          "serialOffset": 444
+        },
+        {
+          "phase": "A",
+          "run_id": "d941d2e9f378498fa467e7885afd8baf",
+          "execution_id": "f9665b9f242c4c099da9fb51d9a0f28f",
+          "revision_id": "a8a8dfe447c62f0e9fa1f91a1f5ae0b3d1d6e7b4e66e6153d9b4ebe1bca11e8f",
+          "serialOffset": 1545
+        },
+        {
+          "phase": "B",
+          "run_id": "fdd8c23a5983482fa5b33d0fe5c834ad",
+          "execution_id": "5eca3a2301a2480db72c6ab2ba703811",
+          "revision_id": "680f14ad69c0a51bf3252bc8346738e7979736bd40ede2c77bf350b8129c09fc",
+          "serialOffset": 17962
+        },
+        {
+          "phase": "C",
+          "run_id": "cb3551ba4d1547d0b0ffae5dbd078763",
+          "execution_id": "1fd9de09058c4353a931895fee360a93",
+          "revision_id": "53aff0a6c5766355fbaa9c027ea67eaf3cd87099e7911676130235ae12bd021c",
+          "serialOffset": 24333
+        }
+      ],
+      "checks": {
+        "source_fingerprints": 18,
+        "raw_http_responses": 548,
+        "same_vm_running_snapshots": 6,
+        "uart_qom_mounted_observations": [
+          {
+            "label": "initial",
+            "phase": "A",
+            "sequence": 1,
+            "last_raw_qom_index": 113,
+            "fresh_input_cursor": null,
+            "leaf_transactions": {
+              "encoder": 11,
+              "eight": 47,
+              "joystick": 10
+            }
+          },
+          {
+            "label": "encoder-hold",
+            "phase": "A",
+            "sequence": 3,
+            "last_raw_qom_index": 137,
+            "fresh_input_cursor": 4385,
+            "leaf_transactions": {
+              "encoder": 20,
+              "eight": 124,
+              "joystick": 22
+            }
+          },
+          {
+            "label": "encoder-release",
+            "phase": "A",
+            "sequence": 8,
+            "last_raw_qom_index": 165,
+            "fresh_input_cursor": 6745,
+            "leaf_transactions": {
+              "encoder": 41,
+              "eight": 303,
+              "joystick": 52
+            }
+          },
+          {
+            "label": "eight-hold",
+            "phase": "A",
+            "sequence": 12,
+            "last_raw_qom_index": 189,
+            "fresh_input_cursor": 8123,
+            "leaf_transactions": {
+              "encoder": 58,
+              "eight": 448,
+              "joystick": 76
+            }
+          },
+          {
+            "label": "eight-release",
+            "phase": "A",
+            "sequence": 15,
+            "last_raw_qom_index": 217,
+            "fresh_input_cursor": 10149,
+            "leaf_transactions": {
+              "encoder": 71,
+              "eight": 559,
+              "joystick": 94
+            }
+          },
+          {
+            "label": "counter-123-no-axis-motion",
+            "phase": "A",
+            "sequence": 18,
+            "last_raw_qom_index": 241,
+            "fresh_input_cursor": 11529,
+            "leaf_transactions": {
+              "encoder": 83,
+              "eight": 661,
+              "joystick": 112
+            }
+          },
+          {
+            "label": "counter-0-no-axis-motion",
+            "phase": "A",
+            "sequence": 20,
+            "last_raw_qom_index": 261,
+            "fresh_input_cursor": 12453,
+            "leaf_transactions": {
+              "encoder": 91,
+              "eight": 729,
+              "joystick": 124
+            }
+          },
+          {
+            "label": "joystick-x-raw",
+            "phase": "A",
+            "sequence": 21,
+            "last_raw_qom_index": 281,
+            "fresh_input_cursor": 12913,
+            "leaf_transactions": {
+              "encoder": 95,
+              "eight": 763,
+              "joystick": 130
+            }
+          },
+          {
+            "label": "joystick-y-raw",
+            "phase": "A",
+            "sequence": 24,
+            "last_raw_qom_index": 309,
+            "fresh_input_cursor": 13831,
+            "leaf_transactions": {
+              "encoder": 107,
+              "eight": 865,
+              "joystick": 148
+            }
+          },
+          {
+            "label": "joystick-button-raw",
+            "phase": "A",
+            "sequence": 26,
+            "last_raw_qom_index": 337,
+            "fresh_input_cursor": 15208,
+            "leaf_transactions": {
+              "encoder": 115,
+              "eight": 933,
+              "joystick": 160
+            }
+          },
+          {
+            "label": "eight-hold",
+            "phase": "B",
+            "sequence": 3,
+            "last_raw_qom_index": 410,
+            "fresh_input_cursor": 20597,
+            "leaf_transactions": {
+              "encoder": 155,
+              "eight": 1227,
+              "joystick": 212
+            }
+          },
+          {
+            "label": "after-cancel-new-run",
+            "phase": "C",
+            "sequence": 1,
+            "last_raw_qom_index": 476,
+            "fresh_input_cursor": null,
+            "leaf_transactions": {
+              "encoder": 190,
+              "eight": 1446,
+              "joystick": 252
+            }
+          },
+          {
+            "label": "encoder-hold",
+            "phase": "C",
+            "sequence": 7,
+            "last_raw_qom_index": 504,
+            "fresh_input_cursor": 29010,
+            "leaf_transactions": {
+              "encoder": 215,
+              "eight": 1659,
+              "joystick": 288
+            }
+          },
+          {
+            "label": "encoder-release",
+            "phase": "C",
+            "sequence": 11,
+            "last_raw_qom_index": 536,
+            "fresh_input_cursor": 30393,
+            "leaf_transactions": {
+              "encoder": 234,
+              "eight": 1818,
+              "joystick": 312
+            }
+          }
+        ],
+        "frame_headers_sha_and_pixels": [
+          {
+            "phase": "A",
+            "http_index": 338,
+            "sha256": "608c55b76290ff180e06bb0657e3473c9aa80df3ec50e683f8e7681e044d11dc",
+            "center_pixel_rgba": [
+              255,
+              0,
+              0,
+              255
+            ]
+          },
+          {
+            "phase": "B",
+            "http_index": 411,
+            "sha256": "558cdcce24334360eaccf1208677d2e74e65adf88e360896d44a674e789890e6",
+            "center_pixel_rgba": [
+              0,
+              255,
+              0,
+              255
+            ]
+          },
+          {
+            "phase": "C",
+            "http_index": 537,
+            "sha256": "b12c99b4561db2f8e1916493edc7922c469f16a788946c6290410e8045d12c05",
+            "center_pixel_rgba": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        ],
+        "browser_input_count": 12,
+        "old_release_not_targeting_C": true,
+        "non_main_resources_preserved": true,
+        "cancel_B_http_index": 415,
+        "evidence_http_index": 539,
+        "close_http_index": 541,
+        "zip": {
+          "status": "PASS",
+          "members": 36,
+          "sha256": "67ea6ab7902c1f038fe5970531380101c4635def02194334f452c588098ecdbc"
+        },
+        "pngs_decoded": [
+          {
+            "path": "controls-1024.png",
+            "width": 1024,
+            "height": 4844,
+            "mode": "RGB"
+          },
+          {
+            "path": "controls-1440.png",
+            "width": 1440,
+            "height": 4194,
+            "mode": "RGB"
+          },
+          {
+            "path": "controls-390.png",
+            "width": 390,
+            "height": 6016,
+            "mode": "RGB"
+          },
+          {
+            "path": "controls-768.png",
+            "width": 768,
+            "height": 5581,
+            "mode": "RGB"
+          },
+          {
+            "path": "phase-A-frame.png",
+            "width": 320,
+            "height": 240,
+            "mode": "RGB"
+          },
+          {
+            "path": "phase-B-frame.png",
+            "width": 320,
+            "height": 240,
+            "mode": "RGB"
+          },
+          {
+            "path": "phase-C-frame.png",
+            "width": 320,
+            "height": 240,
+            "mode": "RGB"
+          }
+        ]
+      },
+      "cleanup": {
+        "preview_state": "closed",
+        "session_state": "stopped",
+        "history_last_frame_metadata": true,
+        "flash_retained": false,
+        "pid_gone_recorded": true,
+        "active_sessions": 0,
+        "active_lease_count": 0
+      },
+      "limits": [
+        "no implicit inheritance across hosts",
+        "no physical angle/tilt or asymmetric LED binding",
+        "main.py only; fresh globals and interrupt-only",
+        "no native/IRQ/thread cleanup guarantee",
+        "Offline audit verifies recorded PID disappearance; it does not query the current process table.",
+        "Controls runner retains last-frame metadata; it does not fetch a stopped-history frame for exact byte comparison.",
+        "Browser DOM/material observations are recorded by the frozen genuine-page runner; this archive audit opens no browser or service.",
+        "Virtual-device evidence only; physical hardware and AIFlow consumer integration remain NOT RUN."
+      ]
+    },
+    {
+      "status": "PASS",
+      "device_id": "atoms3r",
+      "preview_id": "59e45b9f7323441cb94cad5f704dbfb5",
+      "session_id": "fb9aedb562194da0b6de72b47bf9c16a",
+      "pid": 67750,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "runtime": {
+        "pid": 67750,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 36,
+        "lease_active": true
+      },
+      "runs": [
+        {
+          "phase": "seed",
+          "run_id": "967910bc5c6b466f9bdc3725eeb3d732",
+          "execution_id": "ba69ae7ec0d74b7cac8da072a7ba80aa",
+          "revision_id": "76370225fdab828474cfbc6d20c692a2249df9b168b6e949f8baa9463392b8d4",
+          "serialOffset": 453
+        },
+        {
+          "phase": "A",
+          "run_id": "244e6c63a7eb428aac326d8b18171416",
+          "execution_id": "59c38562f396457fa61b8f4fadab7a21",
+          "revision_id": "e1bc7a9ff809c23cce5c0cf3f458a30f5e57687c62eef19c9c71514b13f5a919",
+          "serialOffset": 1554
+        },
+        {
+          "phase": "B",
+          "run_id": "2c3f4db613054cf2b790b0037811f83b",
+          "execution_id": "b1b4fb88171e4e48bb9c71f6a6006331",
+          "revision_id": "fdf2a630e894e4ea83fbffa706862e40fa6c801eca1fd610337a4115c42857b9",
+          "serialOffset": 18428
+        },
+        {
+          "phase": "C",
+          "run_id": "8f4a9dce71e54ff1a4bdcbea6853ebc5",
+          "execution_id": "54759fa3b35940c79caf094e49d75e65",
+          "revision_id": "505214a76d272f829685d046c9078280aa7b0c5e313e6fb794eafe337773ff11",
+          "serialOffset": 26103
+        }
+      ],
+      "checks": {
+        "source_fingerprints": 18,
+        "raw_http_responses": 546,
+        "same_vm_running_snapshots": 6,
+        "uart_qom_mounted_observations": [
+          {
+            "label": "initial",
+            "phase": "A",
+            "sequence": 1,
+            "last_raw_qom_index": 113,
+            "fresh_input_cursor": null,
+            "leaf_transactions": {
+              "encoder": 15,
+              "eight": 69,
+              "joystick": 10
+            }
+          },
+          {
+            "label": "encoder-hold",
+            "phase": "A",
+            "sequence": 3,
+            "last_raw_qom_index": 141,
+            "fresh_input_cursor": 4394,
+            "leaf_transactions": {
+              "encoder": 20,
+              "eight": 124,
+              "joystick": 22
+            }
+          },
+          {
+            "label": "encoder-release",
+            "phase": "A",
+            "sequence": 8,
+            "last_raw_qom_index": 169,
+            "fresh_input_cursor": 6282,
+            "leaf_transactions": {
+              "encoder": 41,
+              "eight": 303,
+              "joystick": 52
+            }
+          },
+          {
+            "label": "eight-hold",
+            "phase": "A",
+            "sequence": 12,
+            "last_raw_qom_index": 197,
+            "fresh_input_cursor": 8132,
+            "leaf_transactions": {
+              "encoder": 58,
+              "eight": 448,
+              "joystick": 76
+            }
+          },
+          {
+            "label": "eight-release",
+            "phase": "A",
+            "sequence": 15,
+            "last_raw_qom_index": 225,
+            "fresh_input_cursor": 9636,
+            "leaf_transactions": {
+              "encoder": 71,
+              "eight": 559,
+              "joystick": 94
+            }
+          },
+          {
+            "label": "counter-123-no-axis-motion",
+            "phase": "A",
+            "sequence": 18,
+            "last_raw_qom_index": 253,
+            "fresh_input_cursor": 11078,
+            "leaf_transactions": {
+              "encoder": 83,
+              "eight": 661,
+              "joystick": 112
+            }
+          },
+          {
+            "label": "counter-0-no-axis-motion",
+            "phase": "A",
+            "sequence": 19,
+            "last_raw_qom_index": 273,
+            "fresh_input_cursor": 12000,
+            "leaf_transactions": {
+              "encoder": 87,
+              "eight": 695,
+              "joystick": 118
+            }
+          },
+          {
+            "label": "joystick-x-raw",
+            "phase": "A",
+            "sequence": 21,
+            "last_raw_qom_index": 293,
+            "fresh_input_cursor": 12920,
+            "leaf_transactions": {
+              "encoder": 99,
+              "eight": 797,
+              "joystick": 136
+            }
+          },
+          {
+            "label": "joystick-y-raw",
+            "phase": "A",
+            "sequence": 23,
+            "last_raw_qom_index": 313,
+            "fresh_input_cursor": 13838,
+            "leaf_transactions": {
+              "encoder": 103,
+              "eight": 831,
+              "joystick": 142
+            }
+          },
+          {
+            "label": "joystick-button-raw",
+            "phase": "A",
+            "sequence": 25,
+            "last_raw_qom_index": 341,
+            "fresh_input_cursor": 14756,
+            "leaf_transactions": {
+              "encoder": 111,
+              "eight": 899,
+              "joystick": 154
+            }
+          },
+          {
+            "label": "eight-hold",
+            "phase": "B",
+            "sequence": 6,
+            "last_raw_qom_index": 415,
+            "fresh_input_cursor": 22437,
+            "leaf_transactions": {
+              "encoder": 171,
+              "eight": 1363,
+              "joystick": 236
+            }
+          },
+          {
+            "label": "after-cancel-new-run",
+            "phase": "C",
+            "sequence": 1,
+            "last_raw_qom_index": 483,
+            "fresh_input_cursor": null,
+            "leaf_transactions": {
+              "encoder": 202,
+              "eight": 1580,
+              "joystick": 276
+            }
+          },
+          {
+            "label": "encoder-hold",
+            "phase": "C",
+            "sequence": 7,
+            "last_raw_qom_index": 511,
+            "fresh_input_cursor": 30780,
+            "leaf_transactions": {
+              "encoder": 227,
+              "eight": 1793,
+              "joystick": 312
+            }
+          },
+          {
+            "label": "encoder-release",
+            "phase": "C",
+            "sequence": 11,
+            "last_raw_qom_index": 535,
+            "fresh_input_cursor": 32163,
+            "leaf_transactions": {
+              "encoder": 244,
+              "eight": 1938,
+              "joystick": 336
+            }
+          }
+        ],
+        "frame_headers_sha_and_pixels": [
+          {
+            "phase": "A",
+            "http_index": 342,
+            "sha256": "0c0a2bf02e7e10ddf8e7187800452a1dfbd4be86066610cee6b99f6af5b1bd21",
+            "center_pixel_rgba": [
+              255,
+              0,
+              0,
+              255
+            ]
+          },
+          {
+            "phase": "B",
+            "http_index": 416,
+            "sha256": "ab0e20f3fcd2ec48f01d519a94cd436395eff761d672c3ea116ee1e2ae1883ca",
+            "center_pixel_rgba": [
+              0,
+              255,
+              0,
+              255
+            ]
+          },
+          {
+            "phase": "C",
+            "http_index": 536,
+            "sha256": "dd01f62e87103e477bd68bfb42ca2afb4a14eb81bb158f1f71a642d419a313e7",
+            "center_pixel_rgba": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        ],
+        "browser_input_count": 12,
+        "old_release_not_targeting_C": true,
+        "non_main_resources_preserved": true,
+        "cancel_B_http_index": 420,
+        "evidence_http_index": 538,
+        "close_http_index": 540,
+        "zip": {
+          "status": "PASS",
+          "members": 36,
+          "sha256": "3007b55cb2bae142a9e821debeeb2022ac3218528083713647e764042b0b8fe2"
+        },
+        "pngs_decoded": [
+          {
+            "path": "controls-1024.png",
+            "width": 1024,
+            "height": 7200,
+            "mode": "RGB"
+          },
+          {
+            "path": "controls-1440.png",
+            "width": 1440,
+            "height": 6183,
+            "mode": "RGB"
+          },
+          {
+            "path": "controls-390.png",
+            "width": 390,
+            "height": 8612,
+            "mode": "RGB"
+          },
+          {
+            "path": "controls-768.png",
+            "width": 768,
+            "height": 7949,
+            "mode": "RGB"
+          },
+          {
+            "path": "phase-A-frame.png",
+            "width": 128,
+            "height": 128,
+            "mode": "RGB"
+          },
+          {
+            "path": "phase-B-frame.png",
+            "width": 128,
+            "height": 128,
+            "mode": "RGB"
+          },
+          {
+            "path": "phase-C-frame.png",
+            "width": 128,
+            "height": 128,
+            "mode": "RGB"
+          }
+        ]
+      },
+      "cleanup": {
+        "preview_state": "closed",
+        "session_state": "stopped",
+        "history_last_frame_metadata": true,
+        "flash_retained": false,
+        "pid_gone_recorded": true,
+        "active_sessions": 0,
+        "active_lease_count": 0
+      },
+      "limits": [
+        "no implicit inheritance across hosts",
+        "no physical angle/tilt or asymmetric LED binding",
+        "main.py only; fresh globals and interrupt-only",
+        "no native/IRQ/thread cleanup guarantee",
+        "Offline audit verifies recorded PID disappearance; it does not query the current process table.",
+        "Controls runner retains last-frame metadata; it does not fetch a stopped-history frame for exact byte comparison.",
+        "Browser DOM/material observations are recorded by the frozen genuine-page runner; this archive audit opens no browser or service.",
+        "Virtual-device evidence only; physical hardware and AIFlow consumer integration remain NOT RUN."
+      ]
+    },
+    {
+      "status": "PASS",
+      "device_id": "sticks3",
+      "preview_id": "77a67b381661450496b0121aeb2a004b",
+      "session_id": "03430281705c413194cc74f109979c50",
+      "pid": 68082,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "runtime": {
+        "pid": 68082,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 36,
+        "lease_active": true
+      },
+      "runs": [
+        {
+          "phase": "seed",
+          "run_id": "515080bebe144644bf2e79198158b0a1",
+          "execution_id": "b1b689765afa4362af44fc879977107e",
+          "revision_id": "8d33a5626f18664e383bfc0b2bb0196b0fc71f928f4297b2a5c7a78708e88340",
+          "serialOffset": 452
+        },
+        {
+          "phase": "A",
+          "run_id": "c3255757e30c4c3f8078d29efb0f63d8",
+          "execution_id": "69c3e21e1e1c4dd4a1d48a1cc7844e56",
+          "revision_id": "eacc919191ed4e088fb881677edc89ee423cad5f8f92829ccae9e3eba5bd4105",
+          "serialOffset": 1553
+        },
+        {
+          "phase": "B",
+          "run_id": "05650d66540546e3b44ac21af5a4e645",
+          "execution_id": "fa3d2612049844018c865a3de4b09783",
+          "revision_id": "29b449515a5c1e741901b73dbaf033141351fc951bfab4c3f50eba428e668725",
+          "serialOffset": 16056
+        },
+        {
+          "phase": "C",
+          "run_id": "76c72f001ad54dac83fe3c7ab9450b6a",
+          "execution_id": "343b2f760cb0447d8a90890a036142c5",
+          "revision_id": "4fdf9caf7d0bbadbb7c3f080da419ab0b4270fed4e063f7e8d655f8aefd9682e",
+          "serialOffset": 21829
+        }
+      ],
+      "checks": {
+        "source_fingerprints": 18,
+        "raw_http_responses": 526,
+        "same_vm_running_snapshots": 6,
+        "uart_qom_mounted_observations": [
+          {
+            "label": "initial",
+            "phase": "A",
+            "sequence": 1,
+            "last_raw_qom_index": 114,
+            "fresh_input_cursor": null,
+            "leaf_transactions": {
+              "encoder": 15,
+              "eight": 81,
+              "joystick": 16
+            }
+          },
+          {
+            "label": "encoder-hold",
+            "phase": "A",
+            "sequence": 3,
+            "last_raw_qom_index": 138,
+            "fresh_input_cursor": 4393,
+            "leaf_transactions": {
+              "encoder": 20,
+              "eight": 124,
+              "joystick": 22
+            }
+          },
+          {
+            "label": "encoder-release",
+            "phase": "A",
+            "sequence": 7,
+            "last_raw_qom_index": 162,
+            "fresh_input_cursor": 6281,
+            "leaf_transactions": {
+              "encoder": 37,
+              "eight": 269,
+              "joystick": 46
+            }
+          },
+          {
+            "label": "eight-hold",
+            "phase": "A",
+            "sequence": 11,
+            "last_raw_qom_index": 186,
+            "fresh_input_cursor": 7658,
+            "leaf_transactions": {
+              "encoder": 54,
+              "eight": 414,
+              "joystick": 70
+            }
+          },
+          {
+            "label": "eight-release",
+            "phase": "A",
+            "sequence": 13,
+            "last_raw_qom_index": 210,
+            "fresh_input_cursor": 9162,
+            "leaf_transactions": {
+              "encoder": 63,
+              "eight": 491,
+              "joystick": 82
+            }
+          },
+          {
+            "label": "counter-123-no-axis-motion",
+            "phase": "A",
+            "sequence": 15,
+            "last_raw_qom_index": 238,
+            "fresh_input_cursor": 9622,
+            "leaf_transactions": {
+              "encoder": 71,
+              "eight": 559,
+              "joystick": 94
+            }
+          },
+          {
+            "label": "counter-0-no-axis-motion",
+            "phase": "A",
+            "sequence": 17,
+            "last_raw_qom_index": 266,
+            "fresh_input_cursor": 11006,
+            "leaf_transactions": {
+              "encoder": 79,
+              "eight": 627,
+              "joystick": 106
+            }
+          },
+          {
+            "label": "joystick-x-raw",
+            "phase": "A",
+            "sequence": 18,
+            "last_raw_qom_index": 286,
+            "fresh_input_cursor": 11466,
+            "leaf_transactions": {
+              "encoder": 83,
+              "eight": 661,
+              "joystick": 112
+            }
+          },
+          {
+            "label": "joystick-y-raw",
+            "phase": "A",
+            "sequence": 19,
+            "last_raw_qom_index": 310,
+            "fresh_input_cursor": 11925,
+            "leaf_transactions": {
+              "encoder": 87,
+              "eight": 695,
+              "joystick": 118
+            }
+          },
+          {
+            "label": "joystick-button-raw",
+            "phase": "A",
+            "sequence": 22,
+            "last_raw_qom_index": 330,
+            "fresh_input_cursor": 12384,
+            "leaf_transactions": {
+              "encoder": 99,
+              "eight": 797,
+              "joystick": 136
+            }
+          },
+          {
+            "label": "eight-hold",
+            "phase": "B",
+            "sequence": 2,
+            "last_raw_qom_index": 400,
+            "fresh_input_cursor": 19609,
+            "leaf_transactions": {
+              "encoder": 143,
+              "eight": 1125,
+              "joystick": 194
+            }
+          },
+          {
+            "label": "after-cancel-new-run",
+            "phase": "C",
+            "sequence": 1,
+            "last_raw_qom_index": 467,
+            "fresh_input_cursor": null,
+            "leaf_transactions": {
+              "encoder": 166,
+              "eight": 1274,
+              "joystick": 222
+            }
+          },
+          {
+            "label": "encoder-hold",
+            "phase": "C",
+            "sequence": 7,
+            "last_raw_qom_index": 491,
+            "fresh_input_cursor": 26506,
+            "leaf_transactions": {
+              "encoder": 191,
+              "eight": 1487,
+              "joystick": 258
+            }
+          },
+          {
+            "label": "encoder-release",
+            "phase": "C",
+            "sequence": 10,
+            "last_raw_qom_index": 515,
+            "fresh_input_cursor": 27428,
+            "leaf_transactions": {
+              "encoder": 204,
+              "eight": 1598,
+              "joystick": 276
+            }
+          }
+        ],
+        "frame_headers_sha_and_pixels": [
+          {
+            "phase": "A",
+            "http_index": 331,
+            "sha256": "5f6c452385726f7f80fe5add1c75c5d7e19f35649a852bf36b2fedd7b47d8e4a",
+            "center_pixel_rgba": [
+              255,
+              0,
+              0,
+              255
+            ]
+          },
+          {
+            "phase": "B",
+            "http_index": 401,
+            "sha256": "0faa6fdeff691b94f131ae3b68556737aff7a34332ea7e018e6827601831bf88",
+            "center_pixel_rgba": [
+              0,
+              255,
+              0,
+              255
+            ]
+          },
+          {
+            "phase": "C",
+            "http_index": 516,
+            "sha256": "a2a913bc8004fb0d7ca4719cdd144866e7750c53d8526e8ea27069adc890a165",
+            "center_pixel_rgba": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        ],
+        "browser_input_count": 12,
+        "old_release_not_targeting_C": true,
+        "non_main_resources_preserved": true,
+        "cancel_B_http_index": 405,
+        "evidence_http_index": 518,
+        "close_http_index": 520,
+        "zip": {
+          "status": "PASS",
+          "members": 36,
+          "sha256": "d5df29ba7f9d490d4bed7df96776f6d5e08ccdf1252008fcee525b432c6e7807"
+        },
+        "pngs_decoded": [
+          {
+            "path": "controls-1024.png",
+            "width": 1024,
+            "height": 9556,
+            "mode": "RGB"
+          },
+          {
+            "path": "controls-1440.png",
+            "width": 1440,
+            "height": 8171,
+            "mode": "RGB"
+          },
+          {
+            "path": "controls-390.png",
+            "width": 390,
+            "height": 11188,
+            "mode": "RGB"
+          },
+          {
+            "path": "controls-768.png",
+            "width": 768,
+            "height": 10317,
+            "mode": "RGB"
+          },
+          {
+            "path": "phase-A-frame.png",
+            "width": 135,
+            "height": 240,
+            "mode": "RGB"
+          },
+          {
+            "path": "phase-B-frame.png",
+            "width": 135,
+            "height": 240,
+            "mode": "RGB"
+          },
+          {
+            "path": "phase-C-frame.png",
+            "width": 135,
+            "height": 240,
+            "mode": "RGB"
+          }
+        ]
+      },
+      "cleanup": {
+        "preview_state": "closed",
+        "session_state": "stopped",
+        "history_last_frame_metadata": true,
+        "flash_retained": false,
+        "pid_gone_recorded": true,
+        "active_sessions": 0,
+        "active_lease_count": 0
+      },
+      "limits": [
+        "no implicit inheritance across hosts",
+        "no physical angle/tilt or asymmetric LED binding",
+        "main.py only; fresh globals and interrupt-only",
+        "no native/IRQ/thread cleanup guarantee",
+        "Offline audit verifies recorded PID disappearance; it does not query the current process table.",
+        "Controls runner retains last-frame metadata; it does not fetch a stopped-history frame for exact byte comparison.",
+        "Browser DOM/material observations are recorded by the frozen genuine-page runner; this archive audit opens no browser or service.",
+        "Virtual-device evidence only; physical hardware and AIFlow consumer integration remain NOT RUN."
+      ]
+    },
+    {
+      "status": "PASS",
+      "device_id": "stopwatch",
+      "preview_id": "a8fe9d0ee8ed49aaaa93a5e0d3c6a6c2",
+      "session_id": "edb1dc568fa0498695ee805adde794f6",
+      "pid": 68669,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "runtime": {
+        "pid": 68669,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 36,
+        "lease_active": true
+      },
+      "runs": [
+        {
+          "phase": "seed",
+          "run_id": "dda16016d7864599a3a6c34c845b8ea7",
+          "execution_id": "5d7d7a341a5d40e88258513d18299c44",
+          "revision_id": "525b726d3f7f2db936835cbdcc44d16d1a9ffe907b3c2f017ccc1763bfc6fae9",
+          "serialOffset": 449
+        },
+        {
+          "phase": "A",
+          "run_id": "20a56de123c04c999d5b03fa5339a284",
+          "execution_id": "33fc0befff244febbfb121f06498a806",
+          "revision_id": "cc7bc713184dff0c3181f6f889ecec0059c70e06af1e1e724906f156c42f7e2a",
+          "serialOffset": 1550
+        },
+        {
+          "phase": "B",
+          "run_id": "657dc914681241319144506097430cf8",
+          "execution_id": "a686edb07b41446ea9eebdafd2b98e6d",
+          "revision_id": "8ebeaf719d4373326e0cf13400bb4be3fdf1e272dc6c2b5e03cf881da56d1a5e",
+          "serialOffset": 21681
+        },
+        {
+          "phase": "C",
+          "run_id": "128f60cc7bc943b387f596e0c8361716",
+          "execution_id": "6ffc7aaa977f44b196f16fbd3cbc2025",
+          "revision_id": "6430b1ba386f948bca4efbe0c678a53f7f0b84c28d460f3173cbb5d50452b9ea",
+          "serialOffset": 29920
+        }
+      ],
+      "checks": {
+        "source_fingerprints": 18,
+        "raw_http_responses": 534,
+        "same_vm_running_snapshots": 6,
+        "uart_qom_mounted_observations": [
+          {
+            "label": "initial",
+            "phase": "A",
+            "sequence": 1,
+            "last_raw_qom_index": 113,
+            "fresh_input_cursor": null,
+            "leaf_transactions": {
+              "encoder": 11,
+              "eight": 47,
+              "joystick": 10
+            }
+          },
+          {
+            "label": "encoder-hold",
+            "phase": "A",
+            "sequence": 3,
+            "last_raw_qom_index": 137,
+            "fresh_input_cursor": 4390,
+            "leaf_transactions": {
+              "encoder": 20,
+              "eight": 124,
+              "joystick": 22
+            }
+          },
+          {
+            "label": "encoder-release",
+            "phase": "A",
+            "sequence": 11,
+            "last_raw_qom_index": 165,
+            "fresh_input_cursor": 7694,
+            "leaf_transactions": {
+              "encoder": 53,
+              "eight": 405,
+              "joystick": 70
+            }
+          },
+          {
+            "label": "eight-hold",
+            "phase": "A",
+            "sequence": 15,
+            "last_raw_qom_index": 189,
+            "fresh_input_cursor": 10007,
+            "leaf_transactions": {
+              "encoder": 70,
+              "eight": 550,
+              "joystick": 94
+            }
+          },
+          {
+            "label": "eight-release",
+            "phase": "A",
+            "sequence": 18,
+            "last_raw_qom_index": 209,
+            "fresh_input_cursor": 11573,
+            "leaf_transactions": {
+              "encoder": 83,
+              "eight": 661,
+              "joystick": 112
+            }
+          },
+          {
+            "label": "counter-123-no-axis-motion",
+            "phase": "A",
+            "sequence": 24,
+            "last_raw_qom_index": 233,
+            "fresh_input_cursor": 13873,
+            "leaf_transactions": {
+              "encoder": 107,
+              "eight": 865,
+              "joystick": 148
+            }
+          },
+          {
+            "label": "counter-0-no-axis-motion",
+            "phase": "A",
+            "sequence": 25,
+            "last_raw_qom_index": 257,
+            "fresh_input_cursor": 14795,
+            "leaf_transactions": {
+              "encoder": 111,
+              "eight": 899,
+              "joystick": 154
+            }
+          },
+          {
+            "label": "joystick-x-raw",
+            "phase": "A",
+            "sequence": 26,
+            "last_raw_qom_index": 281,
+            "fresh_input_cursor": 15255,
+            "leaf_transactions": {
+              "encoder": 115,
+              "eight": 933,
+              "joystick": 160
+            }
+          },
+          {
+            "label": "joystick-y-raw",
+            "phase": "A",
+            "sequence": 27,
+            "last_raw_qom_index": 305,
+            "fresh_input_cursor": 15714,
+            "leaf_transactions": {
+              "encoder": 119,
+              "eight": 967,
+              "joystick": 166
+            }
+          },
+          {
+            "label": "joystick-button-raw",
+            "phase": "A",
+            "sequence": 28,
+            "last_raw_qom_index": 329,
+            "fresh_input_cursor": 16173,
+            "leaf_transactions": {
+              "encoder": 123,
+              "eight": 1001,
+              "joystick": 172
+            }
+          },
+          {
+            "label": "eight-hold",
+            "phase": "B",
+            "sequence": 3,
+            "last_raw_qom_index": 403,
+            "fresh_input_cursor": 24775,
+            "leaf_transactions": {
+              "encoder": 191,
+              "eight": 1533,
+              "joystick": 266
+            }
+          },
+          {
+            "label": "after-cancel-new-run",
+            "phase": "C",
+            "sequence": 1,
+            "last_raw_qom_index": 470,
+            "fresh_input_cursor": null,
+            "leaf_transactions": {
+              "encoder": 234,
+              "eight": 1852,
+              "joystick": 324
+            }
+          },
+          {
+            "label": "encoder-hold",
+            "phase": "C",
+            "sequence": 8,
+            "last_raw_qom_index": 498,
+            "fresh_input_cursor": 34597,
+            "leaf_transactions": {
+              "encoder": 263,
+              "eight": 2099,
+              "joystick": 366
+            }
+          },
+          {
+            "label": "encoder-release",
+            "phase": "C",
+            "sequence": 11,
+            "last_raw_qom_index": 522,
+            "fresh_input_cursor": 35977,
+            "leaf_transactions": {
+              "encoder": 276,
+              "eight": 2210,
+              "joystick": 384
+            }
+          }
+        ],
+        "frame_headers_sha_and_pixels": [
+          {
+            "phase": "A",
+            "http_index": 330,
+            "sha256": "f123284673c8aa8529df2a9ddb396f6f49407109bff9788e44970447958a6bfc",
+            "center_pixel_rgba": [
+              255,
+              0,
+              0,
+              255
+            ]
+          },
+          {
+            "phase": "B",
+            "http_index": 404,
+            "sha256": "3b833e15ef7146aea6d181893f1bfb6017ada064c943b94d9c9e5ab922323936",
+            "center_pixel_rgba": [
+              0,
+              255,
+              0,
+              255
+            ]
+          },
+          {
+            "phase": "C",
+            "http_index": 523,
+            "sha256": "2f9cb909daf485210c89a1b6a8500757d6c4c08bc4f69b4101e8a35924aa786b",
+            "center_pixel_rgba": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        ],
+        "browser_input_count": 12,
+        "old_release_not_targeting_C": true,
+        "non_main_resources_preserved": true,
+        "cancel_B_http_index": 408,
+        "evidence_http_index": 525,
+        "close_http_index": 527,
+        "zip": {
+          "status": "PASS",
+          "members": 36,
+          "sha256": "f3c640dae76417d655a14a1f648de1f9a982120e3cc8772a450fdb27dd8fc940"
+        },
+        "pngs_decoded": [
+          {
+            "path": "controls-1024.png",
+            "width": 1024,
+            "height": 11942,
+            "mode": "RGB"
+          },
+          {
+            "path": "controls-1440.png",
+            "width": 1440,
+            "height": 10160,
+            "mode": "RGB"
+          },
+          {
+            "path": "controls-390.png",
+            "width": 390,
+            "height": 13763,
+            "mode": "RGB"
+          },
+          {
+            "path": "controls-768.png",
+            "width": 768,
+            "height": 12686,
+            "mode": "RGB"
+          },
+          {
+            "path": "phase-A-frame.png",
+            "width": 466,
+            "height": 466,
+            "mode": "RGB"
+          },
+          {
+            "path": "phase-B-frame.png",
+            "width": 466,
+            "height": 466,
+            "mode": "RGB"
+          },
+          {
+            "path": "phase-C-frame.png",
+            "width": 466,
+            "height": 466,
+            "mode": "RGB"
+          }
+        ]
+      },
+      "cleanup": {
+        "preview_state": "closed",
+        "session_state": "stopped",
+        "history_last_frame_metadata": true,
+        "flash_retained": false,
+        "pid_gone_recorded": true,
+        "active_sessions": 0,
+        "active_lease_count": 0
+      },
+      "limits": [
+        "no implicit inheritance across hosts",
+        "no physical angle/tilt or asymmetric LED binding",
+        "main.py only; fresh globals and interrupt-only",
+        "no native/IRQ/thread cleanup guarantee",
+        "Offline audit verifies recorded PID disappearance; it does not query the current process table.",
+        "Controls runner retains last-frame metadata; it does not fetch a stopped-history frame for exact byte comparison.",
+        "Browser DOM/material observations are recorded by the frozen genuine-page runner; this archive audit opens no browser or service.",
+        "Virtual-device evidence only; physical hardware and AIFlow consumer integration remain NOT RUN."
+      ]
+    }
+  ]
+}

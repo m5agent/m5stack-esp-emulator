@@ -1,0 +1,146 @@
+m5-docs
+Solution
+Store
+Software
+Documentation
+About Us
+Contact
+English  English 简体中文 日本語
+CONTENTS
+No Results Found Hot Searches
+Camera
+WiFi
+RS485
+RS232
+Relay
+LoRaWAN
+GPS
+NB-IoT
+LTE
+GSM
+Zigbee
+Servo
+StepMotor
+Ethernet
+E-Paper
+Product
+Contents
+Search
+Unit 2Relay
+SKU:U131
+Description
+Unit 2Relay is a dual-channel relay-controlled high-voltage driver unit. It integrates two normally open (NO) mechanical relays, which are directly controlled via GPIO logic levels, supporting AC 250V / DC 28V high-voltage switching with a rated current of 8A per channel. The unit communicates through a Grove HY2.0-4P interface, features physical isolation and status indicator LEDs, and adopts a LEGO-compatible mounting hole design, enabling flexible integration with LEGO structures or screw mounting. It is suitable for smart home applications, appliance control, and safe power management in industrial equipment scenarios.
+Features
+Channel Count: 2 independently controlled relay channels
+Load Capacity: AC 250V@8A or DC 28V@8A
+Status Indication: Independent LED indicator for each channel
+Control Method: Direct GPIO logic-level drive
+Communication Interface: Grove HY2.0-4P
+2 x LEGO-compatible mounting holes
+Development Platform
+UiFlow1
+UiFlow2
+Arduino IDE
+Includes
+1 x Unit 2Relay
+1 x HY2.0-4P Grove connection cable (20cm)
+2 x HT3.96-4P terminals
+Applications
+AC/DC signal switching
+Power on/off for digital devices
+Specifications
+Specification Parameter
+Max Switching Voltage AC 250V / DC 28V
+Rated Current 8A
+Coil Control Voltage DC 5V
+Coil Power Consumption 5V@154mA
+Coil Action Time ≤ 8ms
+Coil Release Time ≤ 5ms
+Contact Form Normally Open (NO)
+Contact Material AgSnO2
+Relay Indicator Light Blue x2
+Product Size 56.0 x 24.0 x 19.0mm
+Product Weight 20.0g
+Package Size 138.0 x 93.0 x 17.0mm
+Gross Weight 31.2g
+Learn
+This relay is driven by IO output high/low level signals, so before connecting to the main controller, ensure that the connected port IO supports configuration as output mode. (Note: ESP32's G36 does not allow configuration as output mode, so PORT.B will not be able to drive properly)
+Schematics
+PinMap
+Unit 2Relay
+HY2.0-4P Black Red Yellow White
+PORT.A GND 5V RELAY-2 RELAY-1
+Model Size
+Structure
+Unit 2Relay Structure Files
+Softwares
+Arduino
+Unit 2Relay Arduino Tutorial
+Unit 2Relay Example with M5Atom
+Unit 2Relay Example with M5Core
+Unit 2Relay Example with M5Core2
+Unit 2Relay Example with M5StickC
+Unit 2Relay Example with M5StickC-Plus
+UiFlow1
+Unit 2Relay UiFlow1 Docs
+UiFlow2
+Unit 2Relay UiFlow2 Docs
+Page Tools  PDF  Copy page
+About Us
+About M5Stack
+News
+Blog
+Events
+Contact Us
+Where to buy
+Distributors
+Official Store
+AliExpress
+Amazon
+Taobao
+Solution
+For Business
+For Developers
+Software
+UiFlow1
+UiFlow2
+M5Burner
+Block Designer
+EzData 2.0
+EasyLoader Packer
+VLW Font Creator
+Device USB Driver
+Documentation
+Product Documents
+UiFlow1
+UiFlow2
+Arduino
+ESP-IDF
+Linux & Edge AI
+StackFlow AI
+Home Assistant
+nanoFramework
+Product Guides
+Product Certifications
+I2C Table
+Product Selector
+Hardware Design Files
+Release History
+Stack Compatibility
+Stack Screw Length
+Stay in the Loop
+Weekly updates on new products, innovations, and announcements.
+Subscribe
+Email is invalid!
+Thanks for subscribing
+M5Stack Technology Co., Ltd
+Address:
+Block A10, Expo Bay South Coast, Fuhai Street, Bao'an District, Shenzhen, China
+TEL:
++86 755 8657 5379
+Email:
+support@m5stack.com
+Copyright ©
+M5Stack Technology Co., Ltd.
+All rights reserved.
+Privacy Policy| Terms of Service| Shipping Policy| Refund Policy| Payment Method 粤ICP备16010631号

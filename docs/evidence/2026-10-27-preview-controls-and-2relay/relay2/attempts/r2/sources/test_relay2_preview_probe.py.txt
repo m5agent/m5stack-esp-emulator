@@ -1,0 +1,353 @@
+"""Host-only source and evidence rejection contracts for the U131 Preview probe."""
+import base64
+import copy
+import io
+import json
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import unittest
+import zipfile
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import relay2_preview_probe as probe
+
+
+class Relay2PreviewProbeTests(unittest.TestCase):
+    nonce = 'a' * 32
+    execution = 'b' * 32
+    device = 'cores3'
+    phase = '10'
+
+    def package(self):
+        return probe.build_package(self.nonce, self.device, probe.PINS[self.device], self.phase)
+
+    def sample(self, *, phase=None):
+        phase = phase or self.phase
+        payload = probe.build_package(self.nonce, self.device, probe.PINS[self.device], phase)
+        cwd = probe.GUEST_BASE + '/' + probe.revision_id(payload)
+        return {'kind': 'sample', 'nonce': self.nonce, 'phase': phase, 'device': self.device, 'pins': [1, 2],
+                'cwd': cwd, 'driver_file': cwd + '/relay2_official.py', 'driver_sha256': probe.DRIVER_SHA256,
+                'driver_size': probe.DRIVER_SIZE, 'resource_hex': probe.RESOURCE.hex(), 'sequence': 1, 'events': 0,
+                'levels': [True, False], 'statuses': [True, False], 'pads': [1, 0], 'initial_pads': [0, 0], 'written': [1, 0]}
+
+    def window(self, row=None, *, ready=True, execution=None):
+        row = row or self.sample()
+        rows = []
+        if ready:
+            rows.append({k: v for k, v in row.items() if k in ('nonce', 'phase', 'device', 'pins', 'cwd', 'driver_file', 'driver_sha256', 'driver_size', 'resource_hex')} | {'kind': 'ready'})
+        rows.append(row)
+        return '\x01\x04\x04__M5_EXEC_' + (execution or self.execution) + '__:START\r\n' + ''.join(probe.PREFIX + json.dumps(value) + '\r\n' for value in rows)
+
+    def parse(self, text, **kwargs):
+        return probe.parse_window(text, self.execution, self.nonce, self.phase, self.device, probe.revision_id(self.package()), **kwargs)
+
+    def test_four_plans_are_offline_exact_independent_host_contracts(self):
+        expected = {'cores3': ('port-a', [1, 2]), 'atoms3r': ('custom', [1, 2]), 'sticks3': ('custom', [10, 9]), 'stopwatch': ('port-a', [11, 10])}
+        for device, (port, pins) in expected.items():
+            with self.subTest(device=device):
+                plan = probe.plan(device)
+                self.assertEqual(plan['status'], 'NOT RUN'); self.assertFalse(plan['api_contacted'])
+                self.assertEqual(plan['guests_started'], 0); self.assertEqual(plan['hardware'], 'NOT RUN')
+                self.assertEqual(plan['attachments'], [{'id': 'relay2', 'unit_id': '2relay', 'port_id': port}])
+                self.assertEqual(plan['driver_port_tuple'], pins); self.assertEqual(plan['reverse_unit_inputs'], {})
+        with self.assertRaises(ValueError): probe.plan('tab5')
+
+    def test_default_cli_needs_no_input_service_or_output_directory(self):
+        result = subprocess.run([sys.executable, '-B', str(Path(probe.__file__))], capture_output=True, text=True, check=True)
+        self.assertEqual(json.loads(result.stdout)['status'], 'NOT RUN')
+        self.assertEqual(result.stderr, '')
+
+    @unittest.skipUnless(shutil.which('node'), 'Node unavailable')
+    def test_actual_js_owned_helpers_recover_unknown_create_and_release_after_read_zip_ack_failures(self):
+        runner = Path(__file__).resolve().parents[2] / 'platform/tests/test_live_relay2_preview_service_browser.mjs'
+        script = r'''
+import assert from 'node:assert/strict';
+const {createOwnedPreview,closeOwnedPreview} = await import(__RUNNER__);
+for (const mode of ['network','response-body','http500','http408','malformed-receipt']) {
+ const calls = [], receipt = {preview_id:'a'.repeat(32),owner_epoch:'b'.repeat(32),session_id:'owned'};
+ const intent = {key:'one-original-key',body:{device_id:'cores3',units:[{id:'relay2'}]}};
+ const original = structuredClone(intent), state = {zipBeforeClose:false};
+ let created = 0, firstRead = true, closed = false, sessionRead = 0;
+ const send = async (path,method='GET',body=null,key=null) => {
+  calls.push({path,method,body:structuredClone(body),key});
+  if (path==='previews' && method==='POST') {
+   created++;
+   assert.equal(key,original.key); assert.deepEqual(body,original.body);
+   if (created===1) {
+    if (mode==='malformed-receipt') return {preview_id:receipt.preview_id};
+    const error = mode==='response-body' ? new SyntaxError('body lost after allocation') : new Error('response lost');
+    if (mode==='http500'||mode==='http408') Object.assign(error,{status:mode==='http500'?500:408,responseComplete:true});
+    throw error;
+   }
+   return {...receipt};
+  }
+  if (path===`previews/${receipt.preview_id}`) {
+   if (firstRead) {firstRead=false;throw new Error('read unavailable');}
+   return {...receipt,state:closed?'closed':'ready'};
+  }
+  if (path===`previews/${receipt.preview_id}/close`) {
+   assert.equal(method,'POST'); assert.deepEqual(body,{expected_owner_epoch:receipt.owner_epoch});
+   closed=true; throw new Error('close ACK lost after release');
+  }
+  if (path==='sessions/owned') {
+   sessionRead++; if (sessionRead===1) throw new Error('pre-close session read lost');
+   return {state:'stopped',session_id:'owned',flash_retained:false,pid:42};
+  }
+  if (path==='capacity') return {active_sessions:0,worker:{active_lease_count:0}};
+  throw new Error('unexpected mutation/read '+path);
+ };
+ await assert.rejects(createOwnedPreview(state,intent,send));
+ intent.key='MUTATED'; intent.body.units[0].id='other';
+ const result=await closeOwnedPreview(state,{send,
+  wait:async(read,predicate)=>{const row=await read();assert.equal(predicate(row),true);return row;},
+  captureZip:async()=>{throw new Error('ZIP read lost');},
+  pidGone:async pid=>{assert.equal(pid,42);return true;},
+  historyFrame:async id=>{assert.equal(id,'owned');return 'f'.repeat(64);},
+  verify:value=>{assert.equal(value.preview.state,'closed');assert.equal(value.pid_gone,true);assert.equal(value.zip_before_close,false);return {status:'EXPECTED INCOMPLETE EVIDENCE'};}});
+ assert.equal(created,2);assert.equal(closed,true);assert.equal(state.creation.recovered_for_cleanup,true);
+ assert.equal(result.contract.status,'EXPECTED INCOMPLETE EVIDENCE');
+ assert.equal(calls.filter(c=>c.path.endsWith('/close')).length,1);
+ assert.deepEqual(calls.filter(c=>c.path==='previews').map(c=>({key:c.key,body:c.body})),[original,original]);
+ assert.deepEqual(state.cleanupWarnings.map(w=>w.step),['preview-read','session-read','evidence-before-close','close-receipt']);
+}
+for (const status of [400,403,409]) {
+ let attempts=0;
+ const state={};const send=async()=>{attempts++;throw Object.assign(new Error('rejected'),{status,responseComplete:true});};
+ await assert.rejects(createOwnedPreview(state,{key:'rejected-key',body:{}},send));
+ assert.equal(state.creation.outcome,'rejected');
+ assert.equal(await closeOwnedPreview(state,{send}),null);assert.equal(attempts,1);
+}
+console.log('8 owned lifecycle failure scenarios PASS');
+'''.replace('__RUNNER__', json.dumps(runner.as_uri()))
+        result = subprocess.run([shutil.which('node'), '--input-type=module', '-e', script], capture_output=True, text=True, check=True)
+        self.assertEqual(result.stdout.strip(), '8 owned lifecycle failure scenarios PASS')
+
+    @unittest.skipUnless(shutil.which('node'), 'Node unavailable')
+    def test_actual_js_cleanup_preserves_raw_release_proof_when_frame_or_verifier_fails(self):
+        runner = Path(__file__).resolve().parents[2] / 'platform/tests/test_live_relay2_preview_service_browser.mjs'
+        script = r'''
+import assert from 'node:assert/strict';
+const {closeOwnedPreview} = await import(__RUNNER__);
+for (const mode of ['history-frame-read','full-frame-verifier']) {
+ const receipt={preview_id:'a'.repeat(32),owner_epoch:'b'.repeat(32),session_id:'owned'};
+ const state={previewId:receipt.preview_id,ownerEpoch:receipt.owner_epoch,sessionId:'owned',session:{pid:42},zipBeforeClose:true};
+ let closed=false;
+ const send=async(path,method='GET')=>{
+  if(path===`previews/${receipt.preview_id}/close`){assert.equal(method,'POST');closed=true;return {...receipt,state:'closed'};}
+  if(path===`previews/${receipt.preview_id}`)return {...receipt,state:closed?'closed':'ready'};
+  if(path==='sessions/owned')return {session_id:'owned',state:closed?'stopped':'running',flash_retained:false,pid:42};
+  if(path==='capacity')return {active_sessions:0,worker:{active_lease_count:0}};
+  throw new Error('unexpected path '+path);
+ };
+ await assert.rejects(closeOwnedPreview(state,{send,
+  wait:async(read,predicate)=>{const value=await read();assert.equal(predicate(value),true);return value;},
+  captureZip:async()=>{throw new Error('evidence was already collected');},pidGone:async pid=>{assert.equal(pid,42);return true;},
+  historyFrame:async()=>{if(mode==='history-frame-read')throw new Error('history frame unavailable');return 'f'.repeat(64);},
+  verify:value=>{assert.equal(value.last_frame_sha256,null);throw new Error('full frame oracle was not accepted');}}),
+  error=>{
+   assert.equal(error.rawCleanup,state.rawCleanup);assert.equal(error.rawCleanup.contract.status,'FAIL');
+   assert.equal(error.rawCleanup.full_frame_identity,'NOT VERIFIED');return true;
+  });
+ assert.equal(closed,true);assert.equal(state.rawCleanup.preview.state,'closed');
+ assert.equal(state.rawCleanup.session.state,'stopped');assert.equal(state.rawCleanup.session.flash_retained,false);
+ assert.equal(state.rawCleanup.pid_gone,true);assert.equal(state.rawCleanup.capacity.active_sessions,0);
+ assert.equal(state.rawCleanup.capacity.worker.active_lease_count,0);assert.equal(state.rawCleanup.zip_before_close,true);
+ assert.equal(state.rawCleanup.last_frame_sha256,null);assert.ok(state.rawCleanup.verification_error);
+ if(mode==='full-frame-verifier')assert.equal(state.rawCleanup.history_frame_sha256,'f'.repeat(64));
+}
+console.log('2 raw cleanup preservation scenarios PASS');
+'''.replace('__RUNNER__', json.dumps(runner.as_uri()))
+        result = subprocess.run([shutil.which('node'), '--input-type=module', '-e', script], capture_output=True, text=True, check=True)
+        self.assertEqual(result.stdout.strip(), '2 raw cleanup preservation scenarios PASS')
+
+    def test_original_source_spdx_exact_bytes_and_hash_gate(self):
+        self.assertEqual(probe.attest_driver()['sha256'], probe.DRIVER_SHA256)
+        self.assertEqual(len(probe.OFFICIAL_DRIVER), 1512)
+        self.assertTrue(probe.OFFICIAL_DRIVER.startswith(b'# SPDX-FileCopyrightText: 2024 M5Stack Technology CO LTD\n'))
+        self.assertIn(b'# SPDX-License-Identifier: MIT', probe.OFFICIAL_DRIVER)
+        self.assertIn(b'def set_relay_cntrl(', probe.OFFICIAL_DRIVER)
+        for data, claimed in [(None, probe.DRIVER_SHA256), (b'', probe.DRIVER_SHA256),
+                              (probe.OFFICIAL_DRIVER[:-1] + b' ', probe.DRIVER_SHA256),
+                              (probe.OFFICIAL_DRIVER, '0' * 64)]:
+            with self.subTest(claimed=claimed), self.assertRaises(ValueError): probe.attest_driver(data, claimed)
+
+    def test_all_host_combinations_compile_and_exact_original_driver_is_packaged(self):
+        for device in probe.DEVICES:
+            for phase in probe.PHASES:
+                with self.subTest(device=device, phase=phase):
+                    payload = probe.build_package(self.nonce, device, probe.PINS[device], phase)
+                    result = probe.package_contract(payload, self.nonce, device, probe.PINS[device], phase)
+                    self.assertEqual(result['status'], 'PASS')
+                    files = probe.decoded_files(payload)
+                    self.assertEqual(files['relay2_official.py'], probe.OFFICIAL_DRIVER)
+                    self.assertEqual(files['assets/state.bin'], probe.RESOURCE)
+                    compile(files['main.py'], 'main.py', 'exec')
+                    self.assertIn(b'Pin(white).value()', files['main.py'])
+                    self.assertIn(b'relay2_official.__file__ == cwd', files['main.py'])
+                    self.assertIn(b'relay2_official.Relay2Unit((white,yellow))', files['main.py'])
+                    self.assertIn(b'statuses == [bool(n) for n in levels]', files['main.py'])
+
+    def test_pin_swap_cross_host_bool_unknown_and_nonce_fail_before_source_creation(self):
+        for pins in ({'white': 2, 'yellow': 1}, {'white': True, 'yellow': 2}, {'white': 10, 'yellow': 9}, {'white': 1}, {'white': 1, 'yellow': 1}):
+            with self.subTest(pins=pins), self.assertRaises(ValueError): probe.build_package(self.nonce, self.device, pins, '10')
+        for nonce in ('', 'a' * 31, 'g' * 32, "'injection'"):
+            with self.assertRaises(ValueError): probe.seed_package(nonce)
+        with self.assertRaises(ValueError): probe.build_package(self.nonce, self.device, probe.PINS[self.device], '01', driver=b'fake')
+        with self.assertRaises(ValueError): probe.build_package(self.nonce, self.device, probe.PINS[self.device], '01', driver_sha256='0' * 64)
+
+    def test_package_missing_driver_one_byte_source_pin_resource_and_fake_hash_fail(self):
+        mutations = [lambda p: p['files'].pop('relay2_official.py'),
+                     lambda p: p['files']['relay2_official.py'].update(data=base64.b64encode(probe.OFFICIAL_DRIVER[:-1] + b' ').decode()),
+                     lambda p: p['files']['main.py'].update(data=p['files']['main.py']['data'].replace('white,yellow', 'yellow,white', 1)),
+                     lambda p: p['files']['settings.json'].update(data=p['files']['settings.json']['data'].replace('"white":1', '"white":2')),
+                     lambda p: p['files']['assets/state.bin'].update(data='AA=='),
+                     lambda p: p['files']['main.py'].update(data=p['files']['main.py']['data'].replace(probe.DRIVER_SHA256, '0' * 64))]
+        for mutation in mutations:
+            payload = self.package(); mutation(payload)
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                probe.package_contract(payload, self.nonce, self.device, probe.PINS[self.device], self.phase)
+
+    def test_builtin_seed_is_explicitly_compatibility_only(self):
+        source = probe.seed_package(self.nonce)['files']['main.py']['data']
+        compile(source, 'main.py', 'exec')
+        self.assertIn('from unit import Relay2Unit', source)
+        self.assertIn("'builtin_source_attested':False", source)
+        self.assertIn(probe.nonce_path(self.nonce), source)
+        self.assertNotIn('Relay2Unit((', source)
+
+    def test_framed_current_execution_ready_and_partial_lines(self):
+        self.assertEqual(self.parse(self.window(), require_ready=True)['sample'], self.sample())
+        self.assertIsNone(self.parse(self.window(execution='c' * 32)))
+        self.assertIsNone(self.parse(self.window(ready=False), require_ready=True))
+        self.assertIsNone(self.parse(self.window().rstrip()))
+        with self.assertRaises(ValueError): self.parse(self.window().replace(':START\r\n', ':STARTX\r\n'))
+        self.assertIsNone(self.parse(probe.PREFIX + json.dumps(self.sample()) + '\n__M5_EXEC_' + self.execution + '__:START\n'))
+
+    def test_later_execution_old_phase_and_wrong_nonce_do_not_donate_sample(self):
+        for field, value in [('nonce', 'c' * 32), ('phase', '01')]:
+            row = self.sample(); row[field] = value
+            self.assertIsNone(self.parse(self.window(row, ready=False)))
+        marker = '__M5_EXEC_' + self.execution + '__:START\n'
+        self.assertIsNone(self.parse(marker + '__M5_EXEC_' + 'c' * 32 + '__:START\n' + probe.PREFIX + json.dumps(self.sample()) + '\n'))
+        with self.assertRaises(ValueError): self.parse(self.window(), fresh_text='__M5_EXEC_' + 'c' * 32 + '__:START\n')
+
+    def test_fresh_observation_requires_new_complete_sample(self):
+        row = self.sample(); row['sequence'] = 2
+        parsed = self.parse(self.window(), require_ready=True, fresh_text=probe.PREFIX + json.dumps(row) + '\n')
+        self.assertEqual(parsed['sample']['sequence'], 2)
+        self.assertIsNone(self.parse(self.window(), fresh_text=''))
+        self.assertIsNone(self.parse(self.window(), fresh_text=probe.PREFIX + json.dumps(row)))
+
+    def test_typed_source_identity_pads_channel_and_resource_cannot_be_spoofed(self):
+        mutations = [lambda r: r.update(sequence=True), lambda r: r.update(events=False), lambda r: r.update(driver_size=True),
+                     lambda r: r.update(driver_sha256='0' * 64), lambda r: r.update(driver_file='/frozen/relay2.py'),
+                     lambda r: r.update(cwd='/another/revision'), lambda r: r.update(pins=[2, 1]),
+                     lambda r: r.update(pins=[True, 2]), lambda r: r.update(levels=[1, False]),
+                     lambda r: r.update(pads=[True, 0]), lambda r: r.update(statuses=[False, True]),
+                     lambda r: r.update(written=[0, 1]), lambda r: r.update(resource_hex='00'),
+                     lambda r: r.update(initial_pads=[0, 2]), lambda r: r.update(device='sticks3')]
+        for mutation in mutations:
+            row = self.sample(); mutation(row)
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                probe.typed_sample(row, self.nonce, self.phase, self.device, probe.revision_id(self.package()))
+
+    def test_independent_counters_accept_single_channel_and_reject_repeat_cross_talk(self):
+        before = {'output-1-transitions': 3, 'output-2-transitions': 7, 'output-transitions': 10}
+        self.assertEqual(probe.counter_contract(before, before)['channel_delta'], [0, 0])
+        after = {'output-1-transitions': 4, 'output-2-transitions': 7, 'output-transitions': 11}
+        self.assertEqual(probe.counter_contract(before, after, changed=1)['channel_delta'], [1, 0])
+        after = {'output-1-transitions': 3, 'output-2-transitions': 8, 'output-transitions': 11}
+        self.assertEqual(probe.counter_contract(before, after, changed=2)['channel_delta'], [0, 1])
+        for after, changed in [({'output-1-transitions': 4, 'output-2-transitions': 8, 'output-transitions': 12}, 1),
+                               ({'output-1-transitions': 3, 'output-2-transitions': 7, 'output-transitions': 11}, None),
+                               ({'output-1-transitions': True, 'output-2-transitions': 7, 'output-transitions': 8}, None),
+                               ({'output-1-transitions': 4, 'output-2-transitions': 7, 'output-transitions': 11}, None)]:
+            with self.assertRaises(ValueError): probe.counter_contract(before, after, changed)
+
+    def frame(self):
+        raw = b'\x89PNG\r\n\x1a\nstandalone-byte-integrity-fixture'
+        expected = {'preview_id': 'a' * 32, 'run_id': 'b' * 32, 'execution_id': 'c' * 32, 'revision_id': 'd' * 64}
+        headers = {'X-Preview-ID': expected['preview_id'], 'X-Run-ID': expected['run_id'], 'X-Frame-Execution-ID': expected['execution_id'],
+                   'X-Frame-Revision-ID': expected['revision_id'], 'X-Frame-SHA256': probe.sha(raw)}
+        return raw, headers, expected
+
+    def test_each_frame_header_and_exact_png_bytes_are_required(self):
+        raw, headers, expected = self.frame()
+        self.assertEqual(probe.frame_contract(raw, headers, expected)['status'], 'PASS')
+        for key in headers:
+            changed = {**headers, key: 'wrong'}
+            with self.subTest(key=key), self.assertRaises(ValueError): probe.frame_contract(raw, changed, expected)
+        with self.assertRaises(ValueError): probe.frame_contract(raw + b'changed', headers, expected)
+        with self.assertRaises(ValueError): probe.frame_contract(b'not png', headers, expected)
+
+    def test_frame_colors_are_exact_rgb565_endpoints_with_black_for_both_off(self):
+        expected = [([False, False], [0, 0, 0], 0x000000), ([False, True], [0, 255, 0], 0x00FF00),
+                    ([True, False], [255, 0, 0], 0xFF0000), ([True, True], [0, 0, 255], 0x0000FF)]
+        for levels, rgb, color in expected:
+            with self.subTest(levels=levels):
+                self.assertEqual(probe.frame_color(levels), {'color_rgb888': color, 'rgb': rgb})
+                self.assertTrue(all(component in (0, 255) for component in rgb))
+        source = self.package()['files']['main.py']['data']
+        self.assertIn('color = (0, 65280, 16711680, 255)[', source)
+        self.assertNotIn('0x222222', source)
+        self.assertNotIn('__FRAME_COLORS__', source)
+        for levels in ([0, 0], [False], [False, False, False], '00'):
+            with self.assertRaises(ValueError): probe.frame_color(levels)
+
+    def cleanup(self):
+        return {'preview': {'state': 'closed', 'session_id': 'owned'},
+                'session': {'state': 'stopped', 'session_id': 'owned', 'flash_retained': False},
+                'capacity': {'active_sessions': 0, 'worker': {'active_lease_count': 0}},
+                'session_id': 'owned', 'pid_gone': True, 'zip_before_close': True,
+                'last_frame_sha256': 'f' * 64, 'history_frame_sha256': 'f' * 64}
+
+    def test_cleanup_requires_history_frame_flash_pid_order_and_leases(self):
+        self.assertEqual(probe.cleanup_contract(self.cleanup())['status'], 'PASS')
+        mutations = [lambda r: r['preview'].update(state='closing'), lambda r: r['session'].update(flash_retained=None),
+                     lambda r: r['session'].update(session_id='another'), lambda r: r.update(pid_gone=False),
+                     lambda r: r.update(zip_before_close=False), lambda r: r['capacity'].update(active_sessions=False),
+                     lambda r: r['capacity']['worker'].update(active_lease_count=1), lambda r: r.pop('history_frame_sha256'),
+                     lambda r: r.update(history_frame_sha256='e' * 64)]
+        for mutation in mutations:
+            value = self.cleanup(); mutation(value)
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError): probe.cleanup_contract(value)
+
+    def archive(self, *, change_member=None, change_manifest=None):
+        payload = self.package(); revision = probe.revision_id(payload); files = probe.decoded_files(payload)
+        run = {'execution_id': self.execution, 'revision_id': revision}
+        expected = {'session_id': 'owned', 'device_id': self.device, 'firmware_sha256': 'c' * 64, 'pid': 42,
+                    'runs': [run], 'packages': {revision: payload}}
+        prefix = 'programs/' + revision + '/'
+        members = {f'programs/{self.execution}.json': probe.canonical({**run, 'pid': 42, 'firmware_sha256': 'c' * 64}),
+                   'serial.log': b'actual serial', 'frames/current.png': b'PNG', 'qom/snapshot.json': b'{}',
+                   'units/contract.json': b'{}', 'units/state.json': b'{}', 'units/runtime.json': b'{}',
+                   prefix + 'source.json': probe.canonical({'entrypoint': 'main.py', 'files': {p: {'encoding': 'base64', 'data': base64.b64encode(v).decode()} for p, v in files.items()}}),
+                   prefix + 'revision.json': probe.canonical({'revision_id': revision, 'source_kind': 'uiflow2-package', 'files': [{'path': p, 'size': len(v), 'sha256': probe.sha(v)} for p, v in files.items()]})}
+        members.update({prefix + 'files/' + p: v for p, v in files.items()})
+        if change_member: change_member(members, prefix)
+        manifest = {'session': {k: expected[k] for k in ('session_id', 'device_id', 'firmware_sha256', 'pid')},
+                    'files': {p: {'size': len(v), 'sha256': probe.sha(v)} for p, v in members.items()}}
+        if change_manifest: change_manifest(manifest)
+        output = io.BytesIO()
+        with zipfile.ZipFile(output, 'w') as archive:
+            for path, value in members.items(): archive.writestr(path, value)
+            archive.writestr('manifest.json', json.dumps(manifest))
+        return output.getvalue(), expected
+
+    def test_zip_binds_vm_each_run_entire_original_package_and_runtime_evidence(self):
+        data, expected = self.archive(); self.assertEqual(probe.inspect_zip(data, expected)['status'], 'PASS')
+        with self.assertRaises(ValueError): probe.inspect_zip(data, {**expected, 'pid': 99})
+        mutations = [lambda m, p: m.__setitem__(p + 'files/relay2_official.py', probe.OFFICIAL_DRIVER[:-1] + b' '),
+                     lambda m, p: m.__setitem__(p + 'source.json', b'{}'),
+                     lambda m, p: m.pop('qom/snapshot.json'),
+                     lambda m, p: m.__setitem__('../escape', b'unsafe'),
+                     lambda m, p: m.__setitem__('programs/' + self.execution + '.json', b'{}')]
+        for mutation in mutations:
+            with self.subTest(mutation=mutation), self.assertRaises((ValueError, KeyError)): probe.inspect_zip(*self.archive(change_member=mutation))
+        with self.assertRaises(ValueError): probe.inspect_zip(*self.archive(change_manifest=lambda m: m['files']['serial.log'].update(sha256='0' * 64)))
+
+
+if __name__ == '__main__':
+    unittest.main()

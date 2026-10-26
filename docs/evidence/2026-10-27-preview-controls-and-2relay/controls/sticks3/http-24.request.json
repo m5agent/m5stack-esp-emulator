@@ -1,0 +1,10 @@
+{
+  "source_kind": "uiflow2-package",
+  "entrypoint": "main.py",
+  "files": {
+    "main.py": {
+      "encoding": "utf8",
+      "data": "import sys,json\nsys.path.append('/m5-preview-controls-450fde130f684860928a17790c531ac1')\nprint('PREVIEW_CONTROLS '+json.dumps({'kind':'seed','nonce':'450fde130f684860928a17790c531ac1'}))\n"
+    }
+  }
+}

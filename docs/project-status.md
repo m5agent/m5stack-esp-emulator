@@ -12,7 +12,7 @@
 
 ## 一页结论
 
-UIFlow 的 `program_mode=uiflow-live` 与 `/program` 在原 MicroPython VM 传输、编译、运行和替换源码，首次准备 UART REPL 后不重复刷固件。四款准入主机的
+UIFlow 实时执行在原 MicroPython VM 经UART REPL部署运行，首次初始化后不重复刷固件；AIFlow/Agent使用Preview/checkpoint/Run协调，普通非托管会话保留`/program`。四款准入主机的
 PIR/Relay 已验证同 PID/固件/VM、原驱动、应用帧、循环替换与 SyntaxError 恢复。
 真实 CoreS3 Web 编辑器另验证双向输入/输出和实际帧像素送达屏幕，见[既有程序证据](evidence/2026-10-26-live-program-web-and-hosts/README.md)。
 CoreS3/AtomS3R/StickS3/StopWatch 的 HUB 下 ENV III/NCIR/TVOC 与
@@ -23,7 +23,7 @@ evidence、wait 与 stop 仍采集新帧。无后台采样或固定FPS保证，T
 独立有界帧请求与owner/decode隔离、CoreS3 PIR/Relay共享帧与双向控制已验；六leaf另有CoreS3真实网页输入/DOM读回。RGB/Encoder/8Encoder默认全灯同色反馈按排列不变性实现，非对称/不可用时撤色并标unknown；逐灯与旋转binding仍为UNIT-HOST-29 OPEN，范围见[本块证据](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
 `/program`支持完整文件/资源和纯字节码`.mpy`依赖，同guest校验发布与托管模块替换；公共完整checkpoint保存/查询及同步revision引用已实现，串口按offset只读有界窗口。program_features明确main.py/fresh-globals/interrupt-only；普通导入不运行if-main，独立main.mpy入口为UNIT-HOST-33 OPEN，见[入口研究](evidence/2026-10-26-uniform-led-and-program-capabilities/main-mpy/README.md)、[文件包证据](evidence/2026-10-26-live-package-and-detent/README.md)和[当前块](evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)。
 Scroll新增独立partial控制器：四主机同guest原驱动与CoreS3真实Web按键/RGB/屏幕已验；RGB队列、轴角、回绕、bootloader/持久化未完成，见[限定证据](evidence/2026-10-26-scroll-controller/README.md)。其它Unit、二进制入口、保存开机、Preview后续恢复/GC、SSE与AIFlow目标仍开放，见[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。
-1.42稳定Preview/异步Run、持久化幂等/latest-wins、真实prompt独立取消、输入drain/帧门禁与保留保护已有[限定验收](evidence/2026-10-27-preview-run-control/README.md)，含PIR包writing中取消后同VM恢复；1.43接通Live sessions托管消费者和完整文件读取，CoreS3 PIR/Relay外部完整包→Web保留MPY/资源编辑→同VM Run/输入输出/选定帧像素、取消恢复/续租关闭/ZIP与清理已验，见[Web验收](evidence/2026-10-27-preview-web-consumer/README.md)。重启恢复/并发仅有宿主负控，窄屏3D构图裁切为UNIT-HOST-35 OPEN；不继承其它guest/AIFlow/硬件PASS。
+1.42稳定Preview/异步Run、持久化幂等/latest-wins、真实prompt独立取消、输入drain/帧门禁与保留保护已有[限定验收](evidence/2026-10-27-preview-run-control/README.md)，含PIR包writing中取消后同VM恢复；1.43接通Live sessions托管消费者和完整文件读取，CoreS3 PIR/Relay外部完整包→Web保留MPY/资源编辑→同VM Run/输入输出/选定帧像素、取消恢复/续租关闭/ZIP与清理已验，见[Web验收](evidence/2026-10-27-preview-web-consumer/README.md)。重启恢复/并发仅有宿主负控。新增四主机HUB控制组与U131 2Relay的托管Preview限定验收，原驱动、按键/触摸、双GPIO/蓝灯、取消恢复和清理已通过；2Relay另核精确历史帧SHA。窄屏/长dt构图UNIT-HOST-35限定修复，见[本块证据](evidence/2026-10-27-preview-controls-and-2relay/README.md)；不继承其它guest/AIFlow/硬件PASS。
 interrupt-only 不保证清空 native/定时器/IRQ/线程，断流/重连缺口保持 unknown。
 启动取消已有生命周期事务、pending自动收尾、停止意图版本、Network child收据和draining所有权门禁，见[取消回归](evidence/2026-10-26-session-cancellation-f309/README.md)。
 Unit客户端旧请求/队列和装配污染已有[响应隔离](evidence/2026-10-26-preview-client-fencing/README.md)；
@@ -191,8 +191,8 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 
 `UNIT-01` 外壳固定更新至公开 `3681a6482aff96501d44659ba5a1603246f1fe1f`：
 14主机/113视觉Unit及287张许可PNG通过独立完整浏览器检查，默认配置不外推83项变体；
-85款仅视觉；内部协议库仍28种，Scroll以明确partial模型准入四主机，不能继承完整STM32或机械等价结论。
-见[外壳与checkpoint证据](evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)及[Scroll证据](evidence/2026-10-26-scroll-controller/README.md)：新pin下同色灯/Scroll实际Web复测与原I2C/RMT驱动分层验收；九patch冷构建和四主机同VM程序属于前轮控制器证据。上一独立完整矩阵66/67，Core2 IMU偶发marker缺失仍UNIT-HOST-21 OPEN，本块无C变更故完整矩阵NOT RUN。28款控制器可从固定QEMU基线重建，视觉和协议保留独立来源范围。
+84款仅视觉；内部协议登记29种，新增U131双GPIO/蓝灯，Scroll及2Relay均保留partial边界；不得继承MCU完整行为、机械或电气等价结论。
+见[外壳与checkpoint证据](evidence/2026-10-26-visual-refresh-and-checkpoints/README.md)及[Scroll证据](evidence/2026-10-26-scroll-controller/README.md)：新pin下同色灯/Scroll实际Web复测与原I2C/RMT驱动分层验收；九patch冷构建和四主机同VM程序属于前轮控制器证据。新10-patch独立冷构建850426下CoreS3定向7PASS、完整矩阵66/67；Core2 IMU相同marker黑、UART正确，独立单例PASS不回写完整轮，UNIT-HOST-21仍OPEN。29款协议登记可从固定源码栈重建，精确范围见[本块证据](evidence/2026-10-27-preview-controls-and-2relay/README.md)；视觉和协议保留独立来源。
 
 CoreS3 的逐型号功能证据现已通过严格三层汇总：同 guest/controller、真实
 浏览器和全型号桥契约分别核对；每个运行例都有实际 PID→QEMU SHA、同固件、

@@ -1,0 +1,106 @@
+diff --git a/hw/m5stopwatch/m5_unit_runtime.c b/hw/m5stopwatch/m5_unit_runtime.c
+--- a/hw/m5stopwatch/m5_unit_runtime.c
++++ b/hw/m5stopwatch/m5_unit_runtime.c
+@@ -128,10 +128,35 @@
+         unit->previous_output = level;
+         unit->output_transitions++;
+     }
+ }
+ 
++/* U131: white is Relay1, yellow is Relay2. Both have 10K input pull-downs.
++ * Observe the actual pad; no host-settable relay state or contact/load model.
++ */
++static void get_relay2_output(Object *obj, Visitor *v, const char *name,
++                              void *opaque, Error **errp)
++{
++    bool value = esp32_gpio_get_line(*(int *)opaque);
++    visit_type_bool(v, name, &value, errp);
++}
++
++static void relay2_output_changed(void *opaque, int pin, int level)
++{
++    M5Unit *unit = opaque;
++    unsigned channel;
++    if (pin == unit->white) { channel = 0; }
++    else if (pin == unit->yellow) { channel = 1; }
++    else { return; }
++    level = !!level;
++    if (unit->relay2_previous[channel] != level) {
++        unit->relay2_previous[channel] = level;
++        unit->relay2_transitions[channel]++;
++        unit->output_transitions++;
++    }
++}
++
+ static uint8_t sht_crc(const uint8_t *bytes, size_t count)
+ {
+     uint8_t crc = 0xff;
+     for (size_t i = 0; i < count; i++) {
+         crc ^= bytes[i];
+@@ -313,10 +338,25 @@
+         esp32_gpio_set_input(u->white, !u->pressed);
+     } else if (u->kind == UNIT_RELAY) {
+         object_property_add(OBJECT(u), "output-level", "bool", get_output, NULL, NULL, NULL);
+         u->previous_output = esp32_gpio_get_line(u->yellow);
+         esp32_gpio_add_out_listener(u->yellow, output_changed, u);
++    } else if (u->kind == UNIT_RELAY2) {
++        /* Schematic R3/R6 bias undriven inputs low. Digital bias only. */
++        esp32_gpio_set_input(u->white, 0);
++        esp32_gpio_set_input(u->yellow, 0);
++        int *pins[2] = { &u->white, &u->yellow };
++        const char *levels[2] = { "output-1-level", "output-2-level" };
++        const char *counts[2] = { "output-1-transitions", "output-2-transitions" };
++        for (unsigned channel = 0; channel < 2; channel++) {
++            object_property_add(OBJECT(u), levels[channel], "bool",
++                                get_relay2_output, NULL, NULL, pins[channel]);
++            object_property_add(OBJECT(u), counts[channel], "uint64",
++                                get_u64, NULL, NULL, &u->relay2_transitions[channel]);
++            u->relay2_previous[channel] = esp32_gpio_get_line(*pins[channel]);
++            esp32_gpio_add_out_listener(*pins[channel], relay2_output_changed, u);
++        }
+     } else if (u->kind == UNIT_GPIO) {
+         m5_unit_gpio_realize(u, u->s3, errp);
+     } else {
+         for (unsigned i = 0; i < port_count; i++) {
+             if (ports[i].sda == u->yellow && ports[i].scl == u->white) { u->bus = ports[i].bus; }
+@@ -388,10 +428,11 @@
+             u->white >= (s3 ? 49 : 40) || u->yellow == u->white) {
+             error_report("Unit pins are outside the selected SoC"); exit(1);
+         }
+         if (!strcmp(unit_id, "button")) { u->kind = UNIT_BUTTON; }
+         else if (!strcmp(unit_id, "relay")) { u->kind = UNIT_RELAY; }
++        else if (!strcmp(unit_id, "2relay")) { u->kind = UNIT_RELAY2; }
+         else if (!strcmp(unit_id, "env-iii")) { u->kind = UNIT_ENV_III; }
+         else if (m5_unit_gpio_supported(unit_id)) { u->kind = UNIT_GPIO; }
+         else if (m5_unit_extra_supported(unit_id)) { u->kind = UNIT_EXTRA; }
+         else { error_report("Unit model is unavailable: %s", unit_id); exit(1); }
+         u->unit_id = g_strdup(unit_id); u->s3 = s3;
+diff --git a/hw/m5stopwatch/m5_unit_runtime.h b/hw/m5stopwatch/m5_unit_runtime.h
+--- a/hw/m5stopwatch/m5_unit_runtime.h
++++ b/hw/m5stopwatch/m5_unit_runtime.h
+@@ -5,11 +5,11 @@
+ #include "qapi/error.h"
+ #define TYPE_M5_UNIT "m5-unit-attachment"
+ #define TYPE_M5_UNIT_I2C "m5-unit-i2c"
+ #define MAX_UNIT_PORTS 8
+ 
+-typedef enum { UNIT_BUTTON, UNIT_RELAY, UNIT_ENV_III, UNIT_EXTRA, UNIT_GPIO } UnitKind;
++typedef enum { UNIT_BUTTON, UNIT_RELAY, UNIT_ENV_III, UNIT_EXTRA, UNIT_GPIO, UNIT_RELAY2 } UnitKind;
+ typedef struct M5Unit {
+     DeviceState parent_obj;
+     UnitKind kind;
+     char *unit_id;
+     int yellow, white;
+@@ -17,10 +17,12 @@
+     bool s3;
+     double temperature_c, humidity_pct, pressure_pa;
+     uint64_t transactions, read_bytes, written_bytes, input_events;
+     uint64_t output_transitions;
+     int previous_output;
++    int relay2_previous[2];
++    uint64_t relay2_transitions[2];
+     I2CBus *bus;
+ } M5Unit;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5Unit, M5_UNIT)
+ 
+ 

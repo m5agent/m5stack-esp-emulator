@@ -1,0 +1,834 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-27T02:54:37.791360+08:00",
+  "out_dir": ".work/2relay-regression-targeted-r2-20261027",
+  "results": {
+    "cores3-peripherals": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "<repo>/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "<repo>/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "<repo>/tests/uiflow2/cores3_peripherals",
+        "--vfs-offset",
+        "0xaa0000",
+        "--vfs-size",
+        "0x4c0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "6",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/pc-bios",
+        "--out-dir",
+        ".work/2relay-regression-targeted-r2-20261027/cores3-peripherals",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "touch:160,183",
+        "--input",
+        "key:p",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-x",
+        "0.25",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-y",
+        "-0.50",
+        "--qom-set",
+        "/machine/bmi270",
+        "accel-z",
+        "0.75",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-x",
+        "10",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmi270",
+        "gyro-z",
+        "30",
+        "--qom-set",
+        "/machine/bmm150",
+        "mag-x",
+        "30",
+        "--qom-set",
+        "/machine/bmm150",
+        "mag-y",
+        "-20",
+        "--qom-set",
+        "/machine/bmm150",
+        "mag-z",
+        "45",
+        "--qom-set",
+        "/machine/ltr553",
+        "light-level",
+        "640",
+        "--qom-set",
+        "/machine/ltr553",
+        "proximity-level",
+        "321",
+        "--serial-expect",
+        "CORES3_IMU_TYPE 6",
+        "--serial-expect",
+        "CORES3_POWER 87 4000 1",
+        "--serial-expect",
+        "CORES3_ALS 640 321",
+        "--serial-expect",
+        "CORES3_MAG",
+        "--serial-expect",
+        "CORES3_TOUCH",
+        "--serial-expect",
+        "CORES3_BTN_PWR 1",
+        "--serial-expect",
+        "CORES3_IMU 0.250 -0.500 0.750",
+        "--serial-expect",
+        "CORES3_RTC 2026-10-22 06:07:08"
+      ],
+      "output": ".work/2relay-regression-targeted-r2-20261027/cores3-peripherals",
+      "before": ".work/2relay-regression-targeted-r2-20261027/cores3-peripherals/before.png",
+      "after": ".work/2relay-regression-targeted-r2-20261027/cores3-peripherals/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "imu_identity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "imu_values",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "magnetometer",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "ambient_light",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "proximity",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "touch",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "btn_pwr",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "power",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "rtc",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: CORES3_IMU_TYPE 6, CORES3_POWER 87 4000 1, CORES3_ALS 640 321, CORES3_MAG, CORES3_TOUCH, CORES3_BTN_PWR 1, CORES3_IMU 0.250 -0.500 0.750, CORES3_RTC 2026-10-22 06:07:08\n",
+      "reason": "IMU, magnetometer, touch, PWR, power, RTC and LTR553 ambient light/proximity all pass through their real buses."
+    },
+    "cores3-power-transitions": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "<repo>/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "<repo>/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "<repo>/tests/uiflow2/cores3_power_transitions",
+        "--vfs-offset",
+        "0xaa0000",
+        "--vfs-size",
+        "0x4c0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "4",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/pc-bios",
+        "--out-dir",
+        ".work/2relay-regression-targeted-r2-20261027/cores3-power-transitions",
+        "--efuse-pkg-version",
+        "0",
+        "--qom-step",
+        "0.8",
+        "/machine/axp2101",
+        "battery-level",
+        "64",
+        "--qom-step",
+        "0",
+        "/machine/axp2101",
+        "vbat-mv",
+        "3600",
+        "--qom-step",
+        "0",
+        "/machine/axp2101",
+        "vin-mv",
+        "0",
+        "--qom-step",
+        "0",
+        "/machine/axp2101",
+        "charging",
+        "false",
+        "--qom-step",
+        "2.0",
+        "/machine/axp2101",
+        "battery-level",
+        "93",
+        "--qom-step",
+        "0",
+        "/machine/axp2101",
+        "vbat-mv",
+        "4200",
+        "--qom-step",
+        "0",
+        "/machine/axp2101",
+        "vin-mv",
+        "5000",
+        "--qom-step",
+        "0",
+        "/machine/axp2101",
+        "charging",
+        "true",
+        "--serial-expect",
+        "CORES3_POWER_TRANS 87 4000 1",
+        "--serial-expect",
+        "CORES3_POWER_TRANS 64 3600 0",
+        "--serial-expect",
+        "CORES3_POWER_TRANS 93 4200 1",
+        "--serial-expect",
+        "CORES3_POWER_TRANS_DONE PASS",
+        "--qom-sequence-settle",
+        "2.0",
+        "--allow-static-frame"
+      ],
+      "output": ".work/2relay-regression-targeted-r2-20261027/cores3-power-transitions",
+      "before": ".work/2relay-regression-targeted-r2-20261027/cores3-power-transitions/before.png",
+      "after": ".work/2relay-regression-targeted-r2-20261027/cores3-power-transitions/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "axp2101_initial_power_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_runtime_discharge_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "axp2101_runtime_charge_state",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "power_runtime_sequence_complete",
+          "status": "PASS",
+          "evidence": [
+            "serial.log",
+            "qom",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log",
+        "qom",
+        "frame-marker"
+      ],
+      "validation": "PASS serial markers: CORES3_POWER_TRANS 87 4000 1, CORES3_POWER_TRANS 64 3600 0, CORES3_POWER_TRANS 93 4200 1, CORES3_POWER_TRANS_DONE PASS\nPASS CoreS3 PMIC transitions marker rgb=(0,255,0)\n",
+      "reason": "The UIFlow2 application remains running while AXP2101 battery level, voltage, VBUS and charging state change through a QOM runtime sequence; the official Power API observes every state."
+    },
+    "cores3-usb-hid": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "<repo>/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "<repo>/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "<repo>/tests/uiflow2/cores3_usb_hid",
+        "--vfs-offset",
+        "0xaa0000",
+        "--vfs-size",
+        "0x4c0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "14",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/pc-bios",
+        "--out-dir",
+        ".work/2relay-regression-targeted-r2-20261027/cores3-usb-hid",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "touch:160,183",
+        "--qom-set-boot",
+        "/machine/max3421e-usb",
+        "mouse-x",
+        "5",
+        "--qom-set-boot",
+        "/machine/max3421e-usb",
+        "mouse-y",
+        "-3",
+        "--qom-set-boot",
+        "/machine/max3421e-usb",
+        "mouse-buttons",
+        "1",
+        "--qom-expect",
+        "/machine/max3421e-usb",
+        "enumerated",
+        "1",
+        "--qom-expect",
+        "/machine/max3421e-usb",
+        "last-report",
+        "1",
+        "--allow-static-frame"
+      ],
+      "output": ".work/2relay-regression-targeted-r2-20261027/cores3-usb-hid",
+      "before": ".work/2relay-regression-targeted-r2-20261027/cores3-usb-hid/before.png",
+      "after": ".work/2relay-regression-targeted-r2-20261027/cores3-usb-hid/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "max3421e_config",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_chapter9_enumeration",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_hid_report_descriptor",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        },
+        {
+          "name": "usb_hid_interrupt_in_report",
+          "status": "PASS",
+          "evidence": [
+            "qom"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "qom"
+      ],
+      "reason": "The official module.USBModule enumerates a MAX3421E HID device over the CoreS3 M-Bus SPI register/FIFO path and returns the QOM-injected mouse report."
+    },
+    "cores3-camera": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "<repo>/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "<repo>/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "<repo>/tests/uiflow2/cores3_camera",
+        "--vfs-offset",
+        "0xaa0000",
+        "--vfs-size",
+        "0x4c0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "3.0",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/pc-bios",
+        "--out-dir",
+        ".work/2relay-regression-targeted-r2-20261027/cores3-camera",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:p",
+        "--qom-set-boot",
+        "/machine/m5-lcd-cam",
+        "auto-increment",
+        "true",
+        "--serial-expect",
+        "CORES3_CAMERA_PASS 320x240 153600 bytes",
+        "--serial-expect",
+        "CORES3_CAMERA_FRAMESTREAM PASS 1",
+        "--allow-static-frame"
+      ],
+      "output": ".work/2relay-regression-targeted-r2-20261027/cores3-camera",
+      "before": ".work/2relay-regression-targeted-r2-20261027/cores3-camera/before.png",
+      "after": ".work/2relay-regression-targeted-r2-20261027/cores3-camera/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "camera_init",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_snapshot",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_display",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_runtime_frame_change",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        },
+        {
+          "name": "camera_runtime_frame_stream",
+          "status": "PASS",
+          "evidence": [
+            "serial.log"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "serial.log"
+      ],
+      "validation": "PASS serial markers: CORES3_CAMERA_PASS 320x240 153600 bytes, CORES3_CAMERA_FRAMESTREAM PASS 1\n",
+      "reason": "GC0308 init, ESP32-S3 LCD_CAM capture, GDMA frame delivery, camera.snapshot(), and camera image display all pass."
+    },
+    "cores3-audio": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "<repo>/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "<repo>/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "<repo>/tests/uiflow2/cores3_audio",
+        "--vfs-offset",
+        "0xaa0000",
+        "--vfs-size",
+        "0x4c0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "4",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/pc-bios",
+        "--out-dir",
+        ".work/2relay-regression-targeted-r2-20261027/cores3-audio",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": ".work/2relay-regression-targeted-r2-20261027/cores3-audio",
+      "before": ".work/2relay-regression-targeted-r2-20261027/cores3-audio/before.png",
+      "after": ".work/2relay-regression-targeted-r2-20261027/cores3-audio/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "aw88298_configure",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_tone",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_gdma_capture",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "speaker_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "pcm",
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "pcm",
+        "frame-marker"
+      ],
+      "validation": "PCM bytes=32768 samples=16384 nonzero=16356 peak_to_peak=11523\nPASS CoreS3 audio marker rgb=(0,255,0)\n",
+      "reason": "Speaker.begin(), AW88298 setup, I2S TX, cyclic GDMA descriptor completion and host PCM capture all pass."
+    },
+    "cores3-mic": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "<repo>/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "<repo>/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "<repo>/tests/uiflow2/cores3_mic",
+        "--vfs-offset",
+        "0xaa0000",
+        "--vfs-size",
+        "0x4c0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "6",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/pc-bios",
+        "--out-dir",
+        ".work/2relay-regression-targeted-r2-20261027/cores3-mic",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "key:a",
+        "--allow-static-frame"
+      ],
+      "output": ".work/2relay-regression-targeted-r2-20261027/cores3-mic",
+      "before": ".work/2relay-regression-targeted-r2-20261027/cores3-mic/before.png",
+      "after": ".work/2relay-regression-targeted-r2-20261027/cores3-mic/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "es7210_configure",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_record",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "i2s_rx_pcm_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "mic_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS CoreS3 mic marker rgb=(0,255,0)\n",
+      "reason": "The official Mic API records through ES7210, I2S RX and cyclic GDMA; deterministic host PCM injection reaches the buffer."
+    },
+    "cores3-aw9523-full": {
+      "status": "PASS",
+      "reference_layout": {
+        "source": "reference-partition-table",
+        "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "declared": {
+          "offset": 11141120,
+          "size": 4980736
+        },
+        "effective": {
+          "offset": 11141120,
+          "size": 4980736
+        }
+      },
+      "exit_code": 0,
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "<repo>/tests/uiflow2/run_profile_ui_test.py",
+        "--base",
+        "<repo>/platform/.cache/firmware/cores3/uiflow2.bin",
+        "--machine",
+        "m5cores3",
+        "--files-dir",
+        "<repo>/tests/uiflow2/cores3_aw9523_full",
+        "--vfs-offset",
+        "0xaa0000",
+        "--vfs-size",
+        "0x4c0000",
+        "--flash-size",
+        "0x1000000",
+        "--expected-size",
+        "320x240",
+        "--wait",
+        "10",
+        "--post-input-wait",
+        "1",
+        "--efuse-driver",
+        "nvram.esp32s3.efuse",
+        "--qemu",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/build/qemu-system-xtensa",
+        "--rom-dir",
+        "<repo>/.work/unit-runtime-source-2relay-final/qemu/pc-bios",
+        "--out-dir",
+        ".work/2relay-regression-targeted-r2-20261027/cores3-aw9523-full",
+        "--efuse-pkg-version",
+        "0",
+        "--input",
+        "touch:160,183",
+        "--qom-set",
+        "/machine/aw9523",
+        "input-bits",
+        "61439",
+        "--allow-static-frame"
+      ],
+      "output": ".work/2relay-regression-targeted-r2-20261027/cores3-aw9523-full",
+      "before": ".work/2relay-regression-targeted-r2-20261027/cores3-aw9523-full/before.png",
+      "after": ".work/2relay-regression-targeted-r2-20261027/cores3-aw9523-full/after.png",
+      "attempts": 1,
+      "retry_used": false,
+      "checks": [
+        {
+          "name": "aw9523_output_readback",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_input_injection",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        },
+        {
+          "name": "aw9523_ui_marker",
+          "status": "PASS",
+          "evidence": [
+            "frame-marker"
+          ]
+        }
+      ],
+      "evidence_sources": [
+        "frame-marker"
+      ],
+      "validation": "PASS CoreS3 AW9523 marker rgb=(0,255,0)\n",
+      "reason": "The official AW9523 driver exercises output direction and readback plus a QOM-injected input on the CoreS3 system bus."
+    }
+  }
+}

@@ -15,8 +15,12 @@ For the reproducible external-Unit Xtensa source, follow
 base and two prelude patches are followed by `0033`, `0034`, `0035`,
 `0036-core2-soft-i2c-handoff-compat.patch`, then
 `0037-s3-ledc-duty-readback.patch`, then `0038-unit-pwm-route-refresh.patch`,
-then `0043-unit-scroll-controller.patch`. The intervening `0039`–`0042` files
+then `0043-unit-scroll-controller.patch` and `0044-unit-2relay-gpio.patch`. The intervening `0039`–`0042` files
 belong to the separate Core2 diagnostic branch and are not part of this Unit stack.
+`0044` adds U131's two independent GPIO pad observers and schematic R3/R6
+digital pull-downs. White is channel 1, yellow channel 2; each transition
+counter is independent. Outputs are read-only. This is nominal-powered
+functional indication, not relay contact/load or electrical validation.
 `0043` adds an independent, explicitly partial Scroll controller; the prelude
 README and [Scroll audit](../../docs/unit-research/scroll-roller485.md) define
 its bounded ticks, snapshot semantics and RGB queue/bootloader/persistence gaps.

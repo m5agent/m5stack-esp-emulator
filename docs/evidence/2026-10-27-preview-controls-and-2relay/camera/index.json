@@ -1,0 +1,873 @@
+{
+  "schema_version": 1,
+  "category": "browser-camera-fit-evidence-archive",
+  "archived_at": "2026-10-26T19:03:09.271206+00:00",
+  "validation_levels": {
+    "browser_geometry_and_input": "PASS",
+    "device_service_session": "NOT RUN",
+    "guest_firmware_execution": "NOT RUN",
+    "physical_hardware": "NOT RUN",
+    "full_peripheral_matrix": "NOT RUN"
+  },
+  "final_result": {
+    "status": "PASS",
+    "report": "final/report.json",
+    "sources": [
+      {
+        "repository_path": "platform/web/model-shell.js",
+        "snapshot": "sources/model-shell.js.txt",
+        "sha256": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+        "bytes": 24899
+      },
+      {
+        "repository_path": "platform/tests/test_model_camera_fit.mjs",
+        "snapshot": "sources/test_model_camera_fit.mjs.txt",
+        "sha256": "f9d4814d4eda6711d9915dcc8709757af47177d81719a52dc869353160d250bd",
+        "bytes": 18592
+      }
+    ],
+    "breakpoints": [
+      1440,
+      1024,
+      768,
+      390
+    ],
+    "assemblies": [
+      "CoreS3 + PIR",
+      "CoreS3 + Relay",
+      "CoreS3 + HUB + ENV III + TOF + Button"
+    ],
+    "checks": [
+      "direct-and-hub-assembly-attach-detach-fit",
+      "blocked-raf-old-clock-negative-control-and-final-pose-fit",
+      "pointer-orbit-wheel-zoom-pan-retained-on-resize",
+      "frame-state-poll-does-not-fit-or-echo",
+      "animated-reset-fits-final-pose",
+      "focused-keyboard-resize-matching-release",
+      "unit-pointer-exactly-once-no-camera-echo",
+      "reset-view-and-dispose"
+    ],
+    "human_visual_inspection": {
+      "status": "PASS",
+      "scope": "All 12 unique final assembly/breakpoint screenshots and both final long-dt comparison screenshots were viewed in the agent tools"
+    },
+    "fit_ndc_abs_xy_max": 0.8695652173913045
+  },
+  "layers": [
+    {
+      "id": "original-resize-baseline",
+      "status": "BASELINE_CLIPPING_REPRODUCED",
+      "report": "baseline/report.json",
+      "role": "Expected negative control: original vendor fit/resize crops PIR and Relay after wide-to-390 viewport change",
+      "source_sha256": {
+        "platform/web/model-shell.js": "1cfee042e184fc936da1b9eaef142cf08b7f82daa5fbcbbdd7c150718e5a1876",
+        "platform/tests/test_model_camera_fit.mjs": "f138f61a221a75f5d92ebb1464914a1602128ed8dd5cda2a5710c71a1e33a5b7"
+      }
+    },
+    {
+      "id": "initial-complete-bounds-fix",
+      "status": "PASS",
+      "report": "initial-fix/report.json",
+      "role": "Initial browser checks passed; superseded after long-dt reset regression was found",
+      "source_sha256": {
+        "platform/web/model-shell.js": "9c4e6a95ce4eebc9b7507bd928b0008a5496b7466e52856bc761e1d86e899f89",
+        "platform/tests/test_model_camera_fit.mjs": "a33ae6e336e07d7b1e49d093734f2d2a5f7b3f0da29097a7781b1aed0707f950"
+      }
+    },
+    {
+      "id": "initial-fix-long-dt-regression",
+      "status": "EXPECTED FAIL",
+      "raw_report_status": "FAIL",
+      "report": "long-dt-negative-control/report.json",
+      "role": "Blocked RAF 1200ms exposes wall-clock fit finishing before capped-delta vendor rotation; old wall-clock control clips final front pose and the initial product fails camera-pending assertion",
+      "source_sha256": {
+        "platform/web/model-shell.js": "9c4e6a95ce4eebc9b7507bd928b0008a5496b7466e52856bc761e1d86e899f89",
+        "platform/tests/test_model_camera_fit.mjs": "f9d4814d4eda6711d9915dcc8709757af47177d81719a52dc869353160d250bd"
+      }
+    },
+    {
+      "id": "render-clock-final-fix",
+      "status": "PASS",
+      "report": "final/report.json",
+      "role": "Final product shares public viewer render dt; old-algorithm negative controls remain executable alongside positive final-bounds assertions",
+      "source_sha256": {
+        "platform/web/model-shell.js": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+        "platform/tests/test_model_camera_fit.mjs": "f9d4814d4eda6711d9915dcc8709757af47177d81719a52dc869353160d250bd"
+      }
+    }
+  ],
+  "negative_control_relationships": [
+    {
+      "failure": "viewport-horizontal-cropping",
+      "baseline_report": "baseline/report.json",
+      "final_control_report": "final/report.json",
+      "final_control_field": "negative_controls",
+      "expected_negative_result": "clipping_reproduced=true",
+      "positive_result": "all final breakpoint envelopes fit; deliberate user zoom/pan cropping is preserved"
+    },
+    {
+      "failure": "wall-clock-fit-vs-capped-rotation",
+      "baseline_report": "long-dt-negative-control/report.json",
+      "final_report": "final/report.json",
+      "field": "long_dt_reset",
+      "blocked_ms": 1200,
+      "duration_ms": 400,
+      "negative_control_result": "final pose clips; camera clock already complete after stall",
+      "fixed_result": "camera remains pending after stall and final pose fits"
+    }
+  ],
+  "regressions": [
+    {
+      "phase": "initial",
+      "category": "mount",
+      "status": "PASS",
+      "report": "regressions/initial/mount/report.json",
+      "scope": "detached mount and resize ownership"
+    },
+    {
+      "phase": "initial",
+      "category": "frame",
+      "status": "PASS",
+      "report": "regressions/initial/frame/report.json",
+      "scope": "22 frame transport/lifecycle groups"
+    },
+    {
+      "phase": "initial",
+      "category": "model",
+      "status": "PASS",
+      "report": "regressions/initial/model/report.json",
+      "scope": "explicit CoreS3, PIR, Relay and interactions; no full model census"
+    },
+    {
+      "phase": "final",
+      "category": "mount",
+      "status": "PASS",
+      "report": "regressions/final/mount/report.json",
+      "scope": "detached mount and resize ownership"
+    },
+    {
+      "phase": "final",
+      "category": "frame",
+      "status": "PASS",
+      "report": "regressions/final/frame/report.json",
+      "scope": "22 frame transport/lifecycle groups"
+    },
+    {
+      "phase": "final",
+      "category": "model",
+      "status": "PASS",
+      "report": "regressions/final/model/report.json",
+      "scope": "explicit CoreS3, PIR, Relay and interactions; no full model census"
+    }
+  ],
+  "provenance": {
+    "historical_source_snapshots": "Historical source hashes are retained in original reports; sources/*.txt are final snapshots only",
+    "artifact_policy": "Only JSON reports, PNG browser evidence and the two requested UTF-8 source snapshots; no firmware, runtime executable, raw Flash or credentials copied",
+    "redactions": [
+      {
+        "path": "long-dt-negative-control/report.json",
+        "kind": "local-checkout-prefix",
+        "count": 1
+      }
+    ],
+    "inventory_excludes_self": true
+  },
+  "files": [
+    {
+      "path": "baseline/negative-pir-390.png",
+      "origin": ".work/model-camera-fit-baseline-20261027/negative-pir-390.png",
+      "bytes": 47872,
+      "sha256": "c8c9a9ec5fdb79df58ecaef3a1a0254c6fbf98b3b3291368886fb303e7f715ab",
+      "origin_sha256": "c8c9a9ec5fdb79df58ecaef3a1a0254c6fbf98b3b3291368886fb303e7f715ab",
+      "redacted": false
+    },
+    {
+      "path": "baseline/negative-relay-390.png",
+      "origin": ".work/model-camera-fit-baseline-20261027/negative-relay-390.png",
+      "bytes": 47562,
+      "sha256": "c58b33fecd435a0cc34364a7d285d83829f274263cf38f11b44b210d00962209",
+      "origin_sha256": "c58b33fecd435a0cc34364a7d285d83829f274263cf38f11b44b210d00962209",
+      "redacted": false
+    },
+    {
+      "path": "baseline/report.json",
+      "origin": ".work/model-camera-fit-baseline-20261027/report.json",
+      "bytes": 4920,
+      "sha256": "a8046526dd9e090026108093ff8858f94a0a6d065c93091d0c00552cb4733740",
+      "origin_sha256": "a8046526dd9e090026108093ff8858f94a0a6d065c93091d0c00552cb4733740",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/hub-1024.png",
+      "origin": ".work/model-camera-fit-20261027/hub-1024.png",
+      "bytes": 62393,
+      "sha256": "bd9503cef2538961618e6c6aea3bb0c894e1006b14d53e6f2d51ee5416536519",
+      "origin_sha256": "bd9503cef2538961618e6c6aea3bb0c894e1006b14d53e6f2d51ee5416536519",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/hub-1440.png",
+      "origin": ".work/model-camera-fit-20261027/hub-1440.png",
+      "bytes": 66994,
+      "sha256": "2950fab9245734b11d8fbec6827bccfc4fe04423426d60cfc86e40369ded82cf",
+      "origin_sha256": "2950fab9245734b11d8fbec6827bccfc4fe04423426d60cfc86e40369ded82cf",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/hub-390.png",
+      "origin": ".work/model-camera-fit-20261027/hub-390.png",
+      "bytes": 70982,
+      "sha256": "9b6aa7f6ef49c842de5929c9a9871b8414955802240ba1c8fd052c7a6184cbf5",
+      "origin_sha256": "9b6aa7f6ef49c842de5929c9a9871b8414955802240ba1c8fd052c7a6184cbf5",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/hub-768.png",
+      "origin": ".work/model-camera-fit-20261027/hub-768.png",
+      "bytes": 92793,
+      "sha256": "6df63f061afc7685c1bcd74e0f41187c8b36d9759f1b7d720a2ef0dabb457afe",
+      "origin_sha256": "6df63f061afc7685c1bcd74e0f41187c8b36d9759f1b7d720a2ef0dabb457afe",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/negative-pir-390.png",
+      "origin": ".work/model-camera-fit-20261027/negative-pir-390.png",
+      "bytes": 47872,
+      "sha256": "c8c9a9ec5fdb79df58ecaef3a1a0254c6fbf98b3b3291368886fb303e7f715ab",
+      "origin_sha256": "c8c9a9ec5fdb79df58ecaef3a1a0254c6fbf98b3b3291368886fb303e7f715ab",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/negative-relay-390.png",
+      "origin": ".work/model-camera-fit-20261027/negative-relay-390.png",
+      "bytes": 47562,
+      "sha256": "c58b33fecd435a0cc34364a7d285d83829f274263cf38f11b44b210d00962209",
+      "origin_sha256": "c58b33fecd435a0cc34364a7d285d83829f274263cf38f11b44b210d00962209",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/pir-1024.png",
+      "origin": ".work/model-camera-fit-20261027/pir-1024.png",
+      "bytes": 39853,
+      "sha256": "c4d04553e78ae014557f08170cbfd60cb082eb29fb6378e499f0fc4c91de8b07",
+      "origin_sha256": "c4d04553e78ae014557f08170cbfd60cb082eb29fb6378e499f0fc4c91de8b07",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/pir-1440-return.png",
+      "origin": ".work/model-camera-fit-20261027/pir-1440-return.png",
+      "bytes": 48348,
+      "sha256": "f57da48db23599503727af027adf1ec99f6d5c9bb1c67aee482cedaa6bd630dd",
+      "origin_sha256": "f57da48db23599503727af027adf1ec99f6d5c9bb1c67aee482cedaa6bd630dd",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/pir-1440.png",
+      "origin": ".work/model-camera-fit-20261027/pir-1440.png",
+      "bytes": 48348,
+      "sha256": "f57da48db23599503727af027adf1ec99f6d5c9bb1c67aee482cedaa6bd630dd",
+      "origin_sha256": "f57da48db23599503727af027adf1ec99f6d5c9bb1c67aee482cedaa6bd630dd",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/pir-390.png",
+      "origin": ".work/model-camera-fit-20261027/pir-390.png",
+      "bytes": 46191,
+      "sha256": "1770712d2f33a2651c91293664c2ef29e458f780ca523f73d7118ef94f8f3ae2",
+      "origin_sha256": "1770712d2f33a2651c91293664c2ef29e458f780ca523f73d7118ef94f8f3ae2",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/pir-768.png",
+      "origin": ".work/model-camera-fit-20261027/pir-768.png",
+      "bytes": 76848,
+      "sha256": "538489e660314e70f84d8005ea667df68eeb85437558f11d3cb9ca649149945d",
+      "origin_sha256": "538489e660314e70f84d8005ea667df68eeb85437558f11d3cb9ca649149945d",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/relay-1024.png",
+      "origin": ".work/model-camera-fit-20261027/relay-1024.png",
+      "bytes": 39856,
+      "sha256": "ed66c6f0bf534f0cc6a73682d6e7c9a44b2be4b12d444e2757b4bf27c6962293",
+      "origin_sha256": "ed66c6f0bf534f0cc6a73682d6e7c9a44b2be4b12d444e2757b4bf27c6962293",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/relay-1440-return.png",
+      "origin": ".work/model-camera-fit-20261027/relay-1440-return.png",
+      "bytes": 47801,
+      "sha256": "92a53fa49f6c775358a1882c0470d482a5067cf5c9d3ca28469341df971c2fc0",
+      "origin_sha256": "92a53fa49f6c775358a1882c0470d482a5067cf5c9d3ca28469341df971c2fc0",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/relay-1440.png",
+      "origin": ".work/model-camera-fit-20261027/relay-1440.png",
+      "bytes": 47801,
+      "sha256": "92a53fa49f6c775358a1882c0470d482a5067cf5c9d3ca28469341df971c2fc0",
+      "origin_sha256": "92a53fa49f6c775358a1882c0470d482a5067cf5c9d3ca28469341df971c2fc0",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/relay-390.png",
+      "origin": ".work/model-camera-fit-20261027/relay-390.png",
+      "bytes": 45697,
+      "sha256": "fea7f595353a0437de3e9fb591c47581a3e2b8b100eb29bdae284f87ebdbc519",
+      "origin_sha256": "fea7f595353a0437de3e9fb591c47581a3e2b8b100eb29bdae284f87ebdbc519",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/relay-768.png",
+      "origin": ".work/model-camera-fit-20261027/relay-768.png",
+      "bytes": 74460,
+      "sha256": "5291c6e8f4666be19c138f3fe9bf4b59fd4d391882a34a9fe83865657e3e4ad9",
+      "origin_sha256": "5291c6e8f4666be19c138f3fe9bf4b59fd4d391882a34a9fe83865657e3e4ad9",
+      "redacted": false
+    },
+    {
+      "path": "initial-fix/report.json",
+      "origin": ".work/model-camera-fit-20261027/report.json",
+      "bytes": 21868,
+      "sha256": "eed009e8706581feee7ec61727b63b3ead74776572dddc8f5263de6d57445dc9",
+      "origin_sha256": "eed009e8706581feee7ec61727b63b3ead74776572dddc8f5263de6d57445dc9",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/hub-1024.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/hub-1024.png",
+      "bytes": 62393,
+      "sha256": "bd9503cef2538961618e6c6aea3bb0c894e1006b14d53e6f2d51ee5416536519",
+      "origin_sha256": "bd9503cef2538961618e6c6aea3bb0c894e1006b14d53e6f2d51ee5416536519",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/hub-1440.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/hub-1440.png",
+      "bytes": 66994,
+      "sha256": "2950fab9245734b11d8fbec6827bccfc4fe04423426d60cfc86e40369ded82cf",
+      "origin_sha256": "2950fab9245734b11d8fbec6827bccfc4fe04423426d60cfc86e40369ded82cf",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/hub-390.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/hub-390.png",
+      "bytes": 70982,
+      "sha256": "9b6aa7f6ef49c842de5929c9a9871b8414955802240ba1c8fd052c7a6184cbf5",
+      "origin_sha256": "9b6aa7f6ef49c842de5929c9a9871b8414955802240ba1c8fd052c7a6184cbf5",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/hub-768.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/hub-768.png",
+      "bytes": 92793,
+      "sha256": "6df63f061afc7685c1bcd74e0f41187c8b36d9759f1b7d720a2ef0dabb457afe",
+      "origin_sha256": "6df63f061afc7685c1bcd74e0f41187c8b36d9759f1b7d720a2ef0dabb457afe",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/negative-pir-390.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/negative-pir-390.png",
+      "bytes": 47872,
+      "sha256": "c8c9a9ec5fdb79df58ecaef3a1a0254c6fbf98b3b3291368886fb303e7f715ab",
+      "origin_sha256": "c8c9a9ec5fdb79df58ecaef3a1a0254c6fbf98b3b3291368886fb303e7f715ab",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/negative-relay-390.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/negative-relay-390.png",
+      "bytes": 47562,
+      "sha256": "c58b33fecd435a0cc34364a7d285d83829f274263cf38f11b44b210d00962209",
+      "origin_sha256": "c58b33fecd435a0cc34364a7d285d83829f274263cf38f11b44b210d00962209",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/negative-reset-long-dt.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/negative-reset-long-dt.png",
+      "bytes": 34791,
+      "sha256": "6db7b21f9f22ad01e6b892263a9059aad887b65b949861c2a2d4369d9f6a94d1",
+      "origin_sha256": "6db7b21f9f22ad01e6b892263a9059aad887b65b949861c2a2d4369d9f6a94d1",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/pir-1024.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/pir-1024.png",
+      "bytes": 39853,
+      "sha256": "c4d04553e78ae014557f08170cbfd60cb082eb29fb6378e499f0fc4c91de8b07",
+      "origin_sha256": "c4d04553e78ae014557f08170cbfd60cb082eb29fb6378e499f0fc4c91de8b07",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/pir-1440-return.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/pir-1440-return.png",
+      "bytes": 48348,
+      "sha256": "f57da48db23599503727af027adf1ec99f6d5c9bb1c67aee482cedaa6bd630dd",
+      "origin_sha256": "f57da48db23599503727af027adf1ec99f6d5c9bb1c67aee482cedaa6bd630dd",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/pir-1440.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/pir-1440.png",
+      "bytes": 48348,
+      "sha256": "f57da48db23599503727af027adf1ec99f6d5c9bb1c67aee482cedaa6bd630dd",
+      "origin_sha256": "f57da48db23599503727af027adf1ec99f6d5c9bb1c67aee482cedaa6bd630dd",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/pir-390.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/pir-390.png",
+      "bytes": 46191,
+      "sha256": "1770712d2f33a2651c91293664c2ef29e458f780ca523f73d7118ef94f8f3ae2",
+      "origin_sha256": "1770712d2f33a2651c91293664c2ef29e458f780ca523f73d7118ef94f8f3ae2",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/pir-768.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/pir-768.png",
+      "bytes": 76848,
+      "sha256": "538489e660314e70f84d8005ea667df68eeb85437558f11d3cb9ca649149945d",
+      "origin_sha256": "538489e660314e70f84d8005ea667df68eeb85437558f11d3cb9ca649149945d",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/relay-1024.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/relay-1024.png",
+      "bytes": 39856,
+      "sha256": "ed66c6f0bf534f0cc6a73682d6e7c9a44b2be4b12d444e2757b4bf27c6962293",
+      "origin_sha256": "ed66c6f0bf534f0cc6a73682d6e7c9a44b2be4b12d444e2757b4bf27c6962293",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/relay-1440-return.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/relay-1440-return.png",
+      "bytes": 47801,
+      "sha256": "92a53fa49f6c775358a1882c0470d482a5067cf5c9d3ca28469341df971c2fc0",
+      "origin_sha256": "92a53fa49f6c775358a1882c0470d482a5067cf5c9d3ca28469341df971c2fc0",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/relay-1440.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/relay-1440.png",
+      "bytes": 47801,
+      "sha256": "92a53fa49f6c775358a1882c0470d482a5067cf5c9d3ca28469341df971c2fc0",
+      "origin_sha256": "92a53fa49f6c775358a1882c0470d482a5067cf5c9d3ca28469341df971c2fc0",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/relay-390.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/relay-390.png",
+      "bytes": 45697,
+      "sha256": "fea7f595353a0437de3e9fb591c47581a3e2b8b100eb29bdae284f87ebdbc519",
+      "origin_sha256": "fea7f595353a0437de3e9fb591c47581a3e2b8b100eb29bdae284f87ebdbc519",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/relay-768.png",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/relay-768.png",
+      "bytes": 74460,
+      "sha256": "5291c6e8f4666be19c138f3fe9bf4b59fd4d391882a34a9fe83865657e3e4ad9",
+      "origin_sha256": "5291c6e8f4666be19c138f3fe9bf4b59fd4d391882a34a9fe83865657e3e4ad9",
+      "redacted": false
+    },
+    {
+      "path": "long-dt-negative-control/report.json",
+      "origin": ".work/model-camera-fit-long-dt-baseline-20261027/report.json",
+      "bytes": 21219,
+      "sha256": "ddd255aa4cb05b049f2fe4a17b7e885102408a072c43bb377fdd636af53e3aaa",
+      "origin_sha256": "e0f84d2ea99cd50df825f56d55a82573029cda2dda2ebeb6f7aa3d4bb16420b9",
+      "redacted": true
+    },
+    {
+      "path": "final/fixed-reset-long-dt.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/fixed-reset-long-dt.png",
+      "bytes": 46191,
+      "sha256": "1770712d2f33a2651c91293664c2ef29e458f780ca523f73d7118ef94f8f3ae2",
+      "origin_sha256": "1770712d2f33a2651c91293664c2ef29e458f780ca523f73d7118ef94f8f3ae2",
+      "redacted": false
+    },
+    {
+      "path": "final/hub-1024.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/hub-1024.png",
+      "bytes": 62393,
+      "sha256": "bd9503cef2538961618e6c6aea3bb0c894e1006b14d53e6f2d51ee5416536519",
+      "origin_sha256": "bd9503cef2538961618e6c6aea3bb0c894e1006b14d53e6f2d51ee5416536519",
+      "redacted": false
+    },
+    {
+      "path": "final/hub-1440.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/hub-1440.png",
+      "bytes": 66994,
+      "sha256": "2950fab9245734b11d8fbec6827bccfc4fe04423426d60cfc86e40369ded82cf",
+      "origin_sha256": "2950fab9245734b11d8fbec6827bccfc4fe04423426d60cfc86e40369ded82cf",
+      "redacted": false
+    },
+    {
+      "path": "final/hub-390.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/hub-390.png",
+      "bytes": 70982,
+      "sha256": "9b6aa7f6ef49c842de5929c9a9871b8414955802240ba1c8fd052c7a6184cbf5",
+      "origin_sha256": "9b6aa7f6ef49c842de5929c9a9871b8414955802240ba1c8fd052c7a6184cbf5",
+      "redacted": false
+    },
+    {
+      "path": "final/hub-768.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/hub-768.png",
+      "bytes": 92793,
+      "sha256": "6df63f061afc7685c1bcd74e0f41187c8b36d9759f1b7d720a2ef0dabb457afe",
+      "origin_sha256": "6df63f061afc7685c1bcd74e0f41187c8b36d9759f1b7d720a2ef0dabb457afe",
+      "redacted": false
+    },
+    {
+      "path": "final/negative-pir-390.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/negative-pir-390.png",
+      "bytes": 47872,
+      "sha256": "c8c9a9ec5fdb79df58ecaef3a1a0254c6fbf98b3b3291368886fb303e7f715ab",
+      "origin_sha256": "c8c9a9ec5fdb79df58ecaef3a1a0254c6fbf98b3b3291368886fb303e7f715ab",
+      "redacted": false
+    },
+    {
+      "path": "final/negative-relay-390.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/negative-relay-390.png",
+      "bytes": 47562,
+      "sha256": "c58b33fecd435a0cc34364a7d285d83829f274263cf38f11b44b210d00962209",
+      "origin_sha256": "c58b33fecd435a0cc34364a7d285d83829f274263cf38f11b44b210d00962209",
+      "redacted": false
+    },
+    {
+      "path": "final/negative-reset-long-dt.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/negative-reset-long-dt.png",
+      "bytes": 34470,
+      "sha256": "dbc02ecbd24bf041f0d9bf524c3ff9826293e96efc837d432222ffabee9059cf",
+      "origin_sha256": "dbc02ecbd24bf041f0d9bf524c3ff9826293e96efc837d432222ffabee9059cf",
+      "redacted": false
+    },
+    {
+      "path": "final/pir-1024.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/pir-1024.png",
+      "bytes": 39853,
+      "sha256": "c4d04553e78ae014557f08170cbfd60cb082eb29fb6378e499f0fc4c91de8b07",
+      "origin_sha256": "c4d04553e78ae014557f08170cbfd60cb082eb29fb6378e499f0fc4c91de8b07",
+      "redacted": false
+    },
+    {
+      "path": "final/pir-1440-return.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/pir-1440-return.png",
+      "bytes": 48348,
+      "sha256": "f57da48db23599503727af027adf1ec99f6d5c9bb1c67aee482cedaa6bd630dd",
+      "origin_sha256": "f57da48db23599503727af027adf1ec99f6d5c9bb1c67aee482cedaa6bd630dd",
+      "redacted": false
+    },
+    {
+      "path": "final/pir-1440.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/pir-1440.png",
+      "bytes": 48348,
+      "sha256": "f57da48db23599503727af027adf1ec99f6d5c9bb1c67aee482cedaa6bd630dd",
+      "origin_sha256": "f57da48db23599503727af027adf1ec99f6d5c9bb1c67aee482cedaa6bd630dd",
+      "redacted": false
+    },
+    {
+      "path": "final/pir-390.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/pir-390.png",
+      "bytes": 46191,
+      "sha256": "1770712d2f33a2651c91293664c2ef29e458f780ca523f73d7118ef94f8f3ae2",
+      "origin_sha256": "1770712d2f33a2651c91293664c2ef29e458f780ca523f73d7118ef94f8f3ae2",
+      "redacted": false
+    },
+    {
+      "path": "final/pir-768.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/pir-768.png",
+      "bytes": 76848,
+      "sha256": "538489e660314e70f84d8005ea667df68eeb85437558f11d3cb9ca649149945d",
+      "origin_sha256": "538489e660314e70f84d8005ea667df68eeb85437558f11d3cb9ca649149945d",
+      "redacted": false
+    },
+    {
+      "path": "final/relay-1024.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/relay-1024.png",
+      "bytes": 39856,
+      "sha256": "ed66c6f0bf534f0cc6a73682d6e7c9a44b2be4b12d444e2757b4bf27c6962293",
+      "origin_sha256": "ed66c6f0bf534f0cc6a73682d6e7c9a44b2be4b12d444e2757b4bf27c6962293",
+      "redacted": false
+    },
+    {
+      "path": "final/relay-1440-return.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/relay-1440-return.png",
+      "bytes": 47801,
+      "sha256": "92a53fa49f6c775358a1882c0470d482a5067cf5c9d3ca28469341df971c2fc0",
+      "origin_sha256": "92a53fa49f6c775358a1882c0470d482a5067cf5c9d3ca28469341df971c2fc0",
+      "redacted": false
+    },
+    {
+      "path": "final/relay-1440.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/relay-1440.png",
+      "bytes": 47801,
+      "sha256": "92a53fa49f6c775358a1882c0470d482a5067cf5c9d3ca28469341df971c2fc0",
+      "origin_sha256": "92a53fa49f6c775358a1882c0470d482a5067cf5c9d3ca28469341df971c2fc0",
+      "redacted": false
+    },
+    {
+      "path": "final/relay-390.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/relay-390.png",
+      "bytes": 45697,
+      "sha256": "fea7f595353a0437de3e9fb591c47581a3e2b8b100eb29bdae284f87ebdbc519",
+      "origin_sha256": "fea7f595353a0437de3e9fb591c47581a3e2b8b100eb29bdae284f87ebdbc519",
+      "redacted": false
+    },
+    {
+      "path": "final/relay-768.png",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/relay-768.png",
+      "bytes": 74460,
+      "sha256": "5291c6e8f4666be19c138f3fe9bf4b59fd4d391882a34a9fe83865657e3e4ad9",
+      "origin_sha256": "5291c6e8f4666be19c138f3fe9bf4b59fd4d391882a34a9fe83865657e3e4ad9",
+      "redacted": false
+    },
+    {
+      "path": "final/report.json",
+      "origin": ".work/model-camera-fit-long-dt-fixed-20261027/report.json",
+      "bytes": 26466,
+      "sha256": "e7959dc349e2e2eb03b93deb86359b96a117530a92bffecde2b48b691789bc0e",
+      "origin_sha256": "e7959dc349e2e2eb03b93deb86359b96a117530a92bffecde2b48b691789bc0e",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/frame/renderers.png",
+      "origin": ".work/model-camera-fit-regression-20261027/frame/renderers.png",
+      "bytes": 40409,
+      "sha256": "fcfb100f5d25b45915c890bb7d7233a664c399d41204864bf4a375a5cae0211c",
+      "origin_sha256": "fcfb100f5d25b45915c890bb7d7233a664c399d41204864bf4a375a5cae0211c",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/frame/report.json",
+      "origin": ".work/model-camera-fit-regression-20261027/frame/report.json",
+      "bytes": 2181,
+      "sha256": "e0f0238868e1d2e18779877f89abe7d1f3f87e8e2140dab5e8fc3f7143c9db8f",
+      "origin_sha256": "e0f0238868e1d2e18779877f89abe7d1f3f87e8e2140dab5e8fc3f7143c9db8f",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/model/cores3-back.png",
+      "origin": ".work/model-camera-fit-regression-20261027/model/cores3-back.png",
+      "bytes": 240748,
+      "sha256": "647eafb4562f37e01cfc8cab2970deeba7b6fc58e4c2bfb1d160ec236fc24b1a",
+      "origin_sha256": "647eafb4562f37e01cfc8cab2970deeba7b6fc58e4c2bfb1d160ec236fc24b1a",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/model/cores3.png",
+      "origin": ".work/model-camera-fit-regression-20261027/model/cores3.png",
+      "bytes": 63379,
+      "sha256": "65460c0e17b5c19b3d47640664eb026b8281b525867564ef6c8c42b0f62f10cb",
+      "origin_sha256": "65460c0e17b5c19b3d47640664eb026b8281b525867564ef6c8c42b0f62f10cb",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/model/report.json",
+      "origin": ".work/model-camera-fit-regression-20261027/model/report.json",
+      "bytes": 65894,
+      "sha256": "1638beaef38cbe1b14fa352804c9d4f3c876c9df1f8d55c1b1acb068fc00085e",
+      "origin_sha256": "1638beaef38cbe1b14fa352804c9d4f3c876c9df1f8d55c1b1acb068fc00085e",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/model/unit-button.png",
+      "origin": ".work/model-camera-fit-regression-20261027/model/unit-button.png",
+      "bytes": 145108,
+      "sha256": "768bf12b81e45c73a4a478fedeb05bdb58e575793ac778a386e6c64bd2692624",
+      "origin_sha256": "768bf12b81e45c73a4a478fedeb05bdb58e575793ac778a386e6c64bd2692624",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/model/unit-encoder.png",
+      "origin": ".work/model-camera-fit-regression-20261027/model/unit-encoder.png",
+      "bytes": 148663,
+      "sha256": "4fbd6fcb26fb0dd0cd61f42cbbccd354b5919a607b5fdebd960785bf4c84aa68",
+      "origin_sha256": "4fbd6fcb26fb0dd0cd61f42cbbccd354b5919a607b5fdebd960785bf4c84aa68",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/model/unit-env-iii.png",
+      "origin": ".work/model-camera-fit-regression-20261027/model/unit-env-iii.png",
+      "bytes": 145108,
+      "sha256": "30368f0636a2dc0c64169c1e995957725c6794888cbecd834eea9f0e6c0a298e",
+      "origin_sha256": "30368f0636a2dc0c64169c1e995957725c6794888cbecd834eea9f0e6c0a298e",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/model/unit-fan.png",
+      "origin": ".work/model-camera-fit-regression-20261027/model/unit-fan.png",
+      "bytes": 146174,
+      "sha256": "5e1ec1e3a666b5b853b1b9897171c7c35a22e855180d3d4b05188a01e0f5911b",
+      "origin_sha256": "5e1ec1e3a666b5b853b1b9897171c7c35a22e855180d3d4b05188a01e0f5911b",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/model/unit-pir.png",
+      "origin": ".work/model-camera-fit-regression-20261027/model/unit-pir.png",
+      "bytes": 143254,
+      "sha256": "17a7eb09bc5309b45571c254eedf7b58473e819b66bb421a4e9bc5aa580751fb",
+      "origin_sha256": "17a7eb09bc5309b45571c254eedf7b58473e819b66bb421a4e9bc5aa580751fb",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/model/unit-relay.png",
+      "origin": ".work/model-camera-fit-regression-20261027/model/unit-relay.png",
+      "bytes": 144021,
+      "sha256": "5ff10b0b916f384a470726847b957965f8b3f74e7c7669bc1491bf385382f4bc",
+      "origin_sha256": "5ff10b0b916f384a470726847b957965f8b3f74e7c7669bc1491bf385382f4bc",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/mount/mount-initial.png",
+      "origin": ".work/model-camera-fit-regression-20261027/mount/mount-initial.png",
+      "bytes": 28532,
+      "sha256": "9d59fc38171d985ed2967ebf5297225264b6d012544fc61d6534a760506e3b92",
+      "origin_sha256": "9d59fc38171d985ed2967ebf5297225264b6d012544fc61d6534a760506e3b92",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/mount/mount-resized.png",
+      "origin": ".work/model-camera-fit-regression-20261027/mount/mount-resized.png",
+      "bytes": 24083,
+      "sha256": "92bd1ae23d8f7d82473b14478778e271f25d4b19f4164ec148e71a0a94469aed",
+      "origin_sha256": "92bd1ae23d8f7d82473b14478778e271f25d4b19f4164ec148e71a0a94469aed",
+      "redacted": false
+    },
+    {
+      "path": "regressions/initial/mount/report.json",
+      "origin": ".work/model-camera-fit-regression-20261027/mount/report.json",
+      "bytes": 803,
+      "sha256": "1da7f48f35ec98f98937d4ea3b73f9e19356ca45eabaede194e1a8a86298580d",
+      "origin_sha256": "1da7f48f35ec98f98937d4ea3b73f9e19356ca45eabaede194e1a8a86298580d",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/frame/renderers.png",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/frame/renderers.png",
+      "bytes": 40409,
+      "sha256": "fcfb100f5d25b45915c890bb7d7233a664c399d41204864bf4a375a5cae0211c",
+      "origin_sha256": "fcfb100f5d25b45915c890bb7d7233a664c399d41204864bf4a375a5cae0211c",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/frame/report.json",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/frame/report.json",
+      "bytes": 2181,
+      "sha256": "3c8eb711678e131889d6a07d26681ddde7e973f32b465794694744d2769d759a",
+      "origin_sha256": "3c8eb711678e131889d6a07d26681ddde7e973f32b465794694744d2769d759a",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/model/cores3-back.png",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/model/cores3-back.png",
+      "bytes": 240748,
+      "sha256": "647eafb4562f37e01cfc8cab2970deeba7b6fc58e4c2bfb1d160ec236fc24b1a",
+      "origin_sha256": "647eafb4562f37e01cfc8cab2970deeba7b6fc58e4c2bfb1d160ec236fc24b1a",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/model/cores3.png",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/model/cores3.png",
+      "bytes": 63379,
+      "sha256": "65460c0e17b5c19b3d47640664eb026b8281b525867564ef6c8c42b0f62f10cb",
+      "origin_sha256": "65460c0e17b5c19b3d47640664eb026b8281b525867564ef6c8c42b0f62f10cb",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/model/report.json",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/model/report.json",
+      "bytes": 65881,
+      "sha256": "7aee3e0170e575e78ba23aabab7090820cc21339d79ab1d3312b82a4c6abd9d9",
+      "origin_sha256": "7aee3e0170e575e78ba23aabab7090820cc21339d79ab1d3312b82a4c6abd9d9",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/model/unit-button.png",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/model/unit-button.png",
+      "bytes": 145108,
+      "sha256": "768bf12b81e45c73a4a478fedeb05bdb58e575793ac778a386e6c64bd2692624",
+      "origin_sha256": "768bf12b81e45c73a4a478fedeb05bdb58e575793ac778a386e6c64bd2692624",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/model/unit-encoder.png",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/model/unit-encoder.png",
+      "bytes": 148663,
+      "sha256": "4fbd6fcb26fb0dd0cd61f42cbbccd354b5919a607b5fdebd960785bf4c84aa68",
+      "origin_sha256": "4fbd6fcb26fb0dd0cd61f42cbbccd354b5919a607b5fdebd960785bf4c84aa68",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/model/unit-env-iii.png",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/model/unit-env-iii.png",
+      "bytes": 145108,
+      "sha256": "30368f0636a2dc0c64169c1e995957725c6794888cbecd834eea9f0e6c0a298e",
+      "origin_sha256": "30368f0636a2dc0c64169c1e995957725c6794888cbecd834eea9f0e6c0a298e",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/model/unit-fan.png",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/model/unit-fan.png",
+      "bytes": 146174,
+      "sha256": "5e1ec1e3a666b5b853b1b9897171c7c35a22e855180d3d4b05188a01e0f5911b",
+      "origin_sha256": "5e1ec1e3a666b5b853b1b9897171c7c35a22e855180d3d4b05188a01e0f5911b",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/model/unit-pir.png",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/model/unit-pir.png",
+      "bytes": 143254,
+      "sha256": "17a7eb09bc5309b45571c254eedf7b58473e819b66bb421a4e9bc5aa580751fb",
+      "origin_sha256": "17a7eb09bc5309b45571c254eedf7b58473e819b66bb421a4e9bc5aa580751fb",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/model/unit-relay.png",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/model/unit-relay.png",
+      "bytes": 144021,
+      "sha256": "5ff10b0b916f384a470726847b957965f8b3f74e7c7669bc1491bf385382f4bc",
+      "origin_sha256": "5ff10b0b916f384a470726847b957965f8b3f74e7c7669bc1491bf385382f4bc",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/mount/mount-initial.png",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/mount/mount-initial.png",
+      "bytes": 28532,
+      "sha256": "9d59fc38171d985ed2967ebf5297225264b6d012544fc61d6534a760506e3b92",
+      "origin_sha256": "9d59fc38171d985ed2967ebf5297225264b6d012544fc61d6534a760506e3b92",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/mount/mount-resized.png",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/mount/mount-resized.png",
+      "bytes": 24083,
+      "sha256": "92bd1ae23d8f7d82473b14478778e271f25d4b19f4164ec148e71a0a94469aed",
+      "origin_sha256": "92bd1ae23d8f7d82473b14478778e271f25d4b19f4164ec148e71a0a94469aed",
+      "redacted": false
+    },
+    {
+      "path": "regressions/final/mount/report.json",
+      "origin": ".work/model-camera-fit-long-dt-regression-20261027/mount/report.json",
+      "bytes": 803,
+      "sha256": "1da7f48f35ec98f98937d4ea3b73f9e19356ca45eabaede194e1a8a86298580d",
+      "origin_sha256": "1da7f48f35ec98f98937d4ea3b73f9e19356ca45eabaede194e1a8a86298580d",
+      "redacted": false
+    },
+    {
+      "path": "sources/model-shell.js.txt",
+      "origin": "platform/web/model-shell.js",
+      "bytes": 24899,
+      "sha256": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+      "origin_sha256": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+      "redacted": false
+    },
+    {
+      "path": "sources/test_model_camera_fit.mjs.txt",
+      "origin": "platform/tests/test_model_camera_fit.mjs",
+      "bytes": 18592,
+      "sha256": "f9d4814d4eda6711d9915dcc8709757af47177d81719a52dc869353160d250bd",
+      "origin_sha256": "f9d4814d4eda6711d9915dcc8709757af47177d81719a52dc869353160d250bd",
+      "redacted": false
+    }
+  ]
+}

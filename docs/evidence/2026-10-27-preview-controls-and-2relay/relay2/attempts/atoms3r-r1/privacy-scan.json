@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "reviewer": "independent read-only peer",
+  "status": "PASS WITH EXPLICIT REPORT REDACTION",
+  "coverage": {
+    "utf8_text_payloads": 4124,
+    "base64_text_payloads": 42,
+    "zip_payloads": 2,
+    "png_payloads": 14,
+    "unique_pngs_ocr": 5,
+    "ocr_errors": 0,
+    "nontext_fixtures": 12
+  },
+  "sensitive_matches": {
+    "report_repository_prefix": 6,
+    "sample_user_paths": 0,
+    "raw_http_zip_user_paths": 0,
+    "credentials_tokens_jwt_private_keys": 0,
+    "email": 0,
+    "mac_physical_serial": 0,
+    "private_ip_hostname": 0,
+    "png_ocr": 0,
+    "unknown_url_hosts": 0
+  },
+  "allowed_urls": {
+    "official_upstream": 6641,
+    "m5stack_public_oss": 1188
+  },
+  "redactions": "provenance.json: redactions",
+  "original_work_modified": false,
+  "raw_zip_member_bytes_modified": false
+}

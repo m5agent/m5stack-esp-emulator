@@ -1259,6 +1259,64 @@
           "batch_selection_sha256": "2c951c86988f4d55493b01427e88dda4021da22068bdc7b5a406e0789810c130",
           "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/strict-selected-aggregate.json"
         }
+      },
+      "preview_validation": {
+        "cores3": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "session_id": "084a1ce5d90c493cb97ce92bfdd6c345",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/cores3/report.json",
+          "report_sha256": "fe735ed0a851e31959756709664ec1b5722eb8f6155ea27fa909dc6d2684aafa",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        },
+        "atoms3r": {
+          "status": "PASS",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+          "session_id": "fb9aedb562194da0b6de72b47bf9c16a",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/atoms3r/report.json",
+          "report_sha256": "27623e3b09bbd2d8f14f0425c230aa658c2fca2f995da3fd6fbe332cec60cefe",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        },
+        "sticks3": {
+          "status": "PASS",
+          "device_id": "sticks3",
+          "runtime": "qemu",
+          "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+          "session_id": "03430281705c413194cc74f109979c50",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/sticks3/report.json",
+          "report_sha256": "9b72ac05c199eaee2f3244c5c74a62b3693d0b2ed16f1bd548e129d3b7125994",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        },
+        "stopwatch": {
+          "status": "PASS",
+          "device_id": "stopwatch",
+          "runtime": "qemu",
+          "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+          "session_id": "edb1dc568fa0498695ee805adde794f6",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/stopwatch/report.json",
+          "report_sha256": "91db2b68bcec22394b3f963eff9ae1c8c2bbb1e7b9ebaee1f5b84b4b0bf36806",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        }
       }
     },
     "dual-button": {
@@ -1963,6 +2021,64 @@
           "batch_selection_sha256": "2c951c86988f4d55493b01427e88dda4021da22068bdc7b5a406e0789810c130",
           "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/strict-selected-aggregate.json"
         }
+      },
+      "preview_validation": {
+        "cores3": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "session_id": "084a1ce5d90c493cb97ce92bfdd6c345",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/cores3/report.json",
+          "report_sha256": "fe735ed0a851e31959756709664ec1b5722eb8f6155ea27fa909dc6d2684aafa",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        },
+        "atoms3r": {
+          "status": "PASS",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+          "session_id": "fb9aedb562194da0b6de72b47bf9c16a",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/atoms3r/report.json",
+          "report_sha256": "27623e3b09bbd2d8f14f0425c230aa658c2fca2f995da3fd6fbe332cec60cefe",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        },
+        "sticks3": {
+          "status": "PASS",
+          "device_id": "sticks3",
+          "runtime": "qemu",
+          "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+          "session_id": "03430281705c413194cc74f109979c50",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/sticks3/report.json",
+          "report_sha256": "9b72ac05c199eaee2f3244c5c74a62b3693d0b2ed16f1bd548e129d3b7125994",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        },
+        "stopwatch": {
+          "status": "PASS",
+          "device_id": "stopwatch",
+          "runtime": "qemu",
+          "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+          "session_id": "edb1dc568fa0498695ee805adde794f6",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/stopwatch/report.json",
+          "report_sha256": "91db2b68bcec22394b3f963eff9ae1c8c2bbb1e7b9ebaee1f5b84b4b0bf36806",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        }
       }
     },
     "thermal": {
@@ -2393,6 +2509,64 @@
           "live_browser": "NOT RUN",
           "hardware": "NOT RUN",
           "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+        }
+      },
+      "preview_validation": {
+        "cores3": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "session_id": "084a1ce5d90c493cb97ce92bfdd6c345",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/cores3/report.json",
+          "report_sha256": "fe735ed0a851e31959756709664ec1b5722eb8f6155ea27fa909dc6d2684aafa",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        },
+        "atoms3r": {
+          "status": "PASS",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+          "session_id": "fb9aedb562194da0b6de72b47bf9c16a",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/atoms3r/report.json",
+          "report_sha256": "27623e3b09bbd2d8f14f0425c230aa658c2fca2f995da3fd6fbe332cec60cefe",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        },
+        "sticks3": {
+          "status": "PASS",
+          "device_id": "sticks3",
+          "runtime": "qemu",
+          "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+          "session_id": "03430281705c413194cc74f109979c50",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/sticks3/report.json",
+          "report_sha256": "9b72ac05c199eaee2f3244c5c74a62b3693d0b2ed16f1bd548e129d3b7125994",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        },
+        "stopwatch": {
+          "status": "PASS",
+          "device_id": "stopwatch",
+          "runtime": "qemu",
+          "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+          "session_id": "edb1dc568fa0498695ee805adde794f6",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/stopwatch/report.json",
+          "report_sha256": "91db2b68bcec22394b3f963eff9ae1c8c2bbb1e7b9ebaee1f5b84b4b0bf36806",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
         }
       }
     },
@@ -3356,6 +3530,64 @@
           "batch_selection_sha256": "2c951c86988f4d55493b01427e88dda4021da22068bdc7b5a406e0789810c130",
           "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/strict-selected-aggregate.json"
         }
+      },
+      "preview_validation": {
+        "cores3": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "session_id": "084a1ce5d90c493cb97ce92bfdd6c345",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/cores3/report.json",
+          "report_sha256": "fe735ed0a851e31959756709664ec1b5722eb8f6155ea27fa909dc6d2684aafa",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        },
+        "atoms3r": {
+          "status": "PASS",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+          "session_id": "fb9aedb562194da0b6de72b47bf9c16a",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/atoms3r/report.json",
+          "report_sha256": "27623e3b09bbd2d8f14f0425c230aa658c2fca2f995da3fd6fbe332cec60cefe",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        },
+        "sticks3": {
+          "status": "PASS",
+          "device_id": "sticks3",
+          "runtime": "qemu",
+          "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+          "session_id": "03430281705c413194cc74f109979c50",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/sticks3/report.json",
+          "report_sha256": "9b72ac05c199eaee2f3244c5c74a62b3693d0b2ed16f1bd548e129d3b7125994",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        },
+        "stopwatch": {
+          "status": "PASS",
+          "device_id": "stopwatch",
+          "runtime": "qemu",
+          "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+          "session_id": "edb1dc568fa0498695ee805adde794f6",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/controls/stopwatch/report.json",
+          "report_sha256": "91db2b68bcec22394b3f963eff9ae1c8c2bbb1e7b9ebaee1f5b84b4b0bf36806",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "worker_generation": 36,
+          "evidence_contract": "managed-preview-hub-controls-v1",
+          "hardware": "NOT RUN",
+          "scope": "HUB+Encoder+8Encoder+Joystick cohort; trusted Web input, current Run UART/I2C/QOM and uniform 2+9 mounted LEDs, cancel/resume and cleanup; stopped frame metadata only."
+        }
       }
     },
     "scroll": {
@@ -3521,6 +3753,141 @@
           "hardware": "NOT RUN",
           "scope": "22 finite same-guest programs; bounded non-rollover source and signed arithmetic, original API/partial-register/TX-snapshot subset. RGB quiescent latest-value only; no MCU queue/scheduling, bootloader/persistence, zero-address unicast or mechanical angle equivalence.",
           "evidence_contract": "same-guest-scroll-protocol-v1"
+        }
+      }
+    },
+    "2relay": {
+      "status": "implemented",
+      "hosts": [
+        "cores3",
+        "atoms3r",
+        "sticks3",
+        "stopwatch"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Selected four-host UIFlow2 same-VM Preview paths have device-local evidence. This remains a partial nominal-powered GPIO/LED model: no coil/contact/load/electrical/hardware equivalence; hard-reset transition notifications remain UNIT-HOST-36.",
+      "inputs": {},
+      "state": {
+        "output-1-level": {
+          "property": "output-1-level"
+        },
+        "output-1-transitions": {
+          "property": "output-1-transitions"
+        },
+        "output-2-level": {
+          "property": "output-2-level"
+        },
+        "output-2-transitions": {
+          "property": "output-2-transitions"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "program_validation": {
+        "cores3": {
+          "status": "PASS",
+          "validation": "virtual-device validation",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "session_id": "6a897bf5b6c143ffb9d1ff95a51e1b6b",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/relay2/hosts/cores3/report.json",
+          "report_sha256": "ccb95d182df20452d60403e95b34bd50fddd064e94c5f5a89f0f0dae45813ca8",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 36,
+          "live_browser": "PASS",
+          "hardware": "NOT RUN",
+          "evidence_contract": "same-guest-preview-u131-gpio-v1",
+          "program_runs": 7,
+          "driver_source_sha256": "db05e974f2cd558c4fbaef85958b82730a9bcae1b21eb9646371bea7e6f273c5",
+          "driver_source_size": 1512,
+          "frozen_driver_bytecode_attested": false,
+          "input_scope": "Preview host-input API; actual mounted Web indicators and selected Run framebuffer pixels",
+          "browser_response_capture": "INCOMPLETE",
+          "browser_response_capture_scope": "Optional bodies/headers; errors and timeouts disclosed, mandatory direct HTTP/Run/GPIO/frame/mounted evidence independently checked."
+        },
+        "atoms3r": {
+          "status": "PASS",
+          "validation": "virtual-device validation",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "session_id": "8b8c0a14d5d142429d42109523f66d24",
+          "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/relay2/hosts/atoms3r/report.json",
+          "report_sha256": "a16e1ff679ca500f2dcae23d71ea92c5582268ecb695fb556985691ca30b49ce",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 36,
+          "live_browser": "PASS",
+          "hardware": "NOT RUN",
+          "evidence_contract": "same-guest-preview-u131-gpio-v1",
+          "program_runs": 7,
+          "driver_source_sha256": "db05e974f2cd558c4fbaef85958b82730a9bcae1b21eb9646371bea7e6f273c5",
+          "driver_source_size": 1512,
+          "frozen_driver_bytecode_attested": false,
+          "input_scope": "Preview host-input API; actual mounted Web indicators and selected Run framebuffer pixels",
+          "browser_response_capture": "INCOMPLETE",
+          "browser_response_capture_scope": "Optional bodies/headers; errors and timeouts disclosed, mandatory direct HTTP/Run/GPIO/frame/mounted evidence independently checked."
+        },
+        "sticks3": {
+          "status": "PASS",
+          "validation": "virtual-device validation",
+          "device_id": "sticks3",
+          "runtime": "qemu",
+          "session_id": "05b66ad637e34aa5821874fe62a04095",
+          "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/relay2/hosts/sticks3/report.json",
+          "report_sha256": "e37c5b2301d7f3758e0475a1c5ee977ac31463c6191c13758be90c719d59468a",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 36,
+          "live_browser": "PASS",
+          "hardware": "NOT RUN",
+          "evidence_contract": "same-guest-preview-u131-gpio-v1",
+          "program_runs": 7,
+          "driver_source_sha256": "db05e974f2cd558c4fbaef85958b82730a9bcae1b21eb9646371bea7e6f273c5",
+          "driver_source_size": 1512,
+          "frozen_driver_bytecode_attested": false,
+          "input_scope": "Preview host-input API; actual mounted Web indicators and selected Run framebuffer pixels",
+          "browser_response_capture": "INCOMPLETE",
+          "browser_response_capture_scope": "Optional bodies/headers; errors and timeouts disclosed, mandatory direct HTTP/Run/GPIO/frame/mounted evidence independently checked."
+        },
+        "stopwatch": {
+          "status": "PASS",
+          "validation": "virtual-device validation",
+          "device_id": "stopwatch",
+          "runtime": "qemu",
+          "session_id": "dcd53d5fb00e4dc2983c7c9009f8d350",
+          "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+          "report": "docs/evidence/2026-10-27-preview-controls-and-2relay/relay2/hosts/stopwatch/report.json",
+          "report_sha256": "a0bf434120492f6183156823579326f64a7c17e92953f0b3e3f2e3c771ec4f12",
+          "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 36,
+          "live_browser": "PASS",
+          "hardware": "NOT RUN",
+          "evidence_contract": "same-guest-preview-u131-gpio-v1",
+          "program_runs": 7,
+          "driver_source_sha256": "db05e974f2cd558c4fbaef85958b82730a9bcae1b21eb9646371bea7e6f273c5",
+          "driver_source_size": 1512,
+          "frozen_driver_bytecode_attested": false,
+          "input_scope": "Preview host-input API; actual mounted Web indicators and selected Run framebuffer pixels",
+          "browser_response_capture": "INCOMPLETE",
+          "browser_response_capture_scope": "Optional bodies/headers; errors and timeouts disclosed, mandatory direct HTTP/Run/GPIO/frame/mounted evidence independently checked."
         }
       }
     }

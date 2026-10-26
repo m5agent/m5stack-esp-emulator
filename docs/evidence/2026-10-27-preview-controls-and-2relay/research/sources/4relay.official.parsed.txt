@@ -1,0 +1,171 @@
+m5-docs
+Solution
+Store
+Software
+Documentation
+About Us
+Contact
+English  English 简体中文 日本語
+CONTENTS
+No Results Found Hot Searches
+Camera
+WiFi
+RS485
+RS232
+Relay
+LoRaWAN
+GPS
+NB-IoT
+LTE
+GSM
+Zigbee
+Servo
+StepMotor
+Ethernet
+E-Paper
+Product
+Contents
+Search
+Unit 4Relay
+SKU:U097
+Description
+Unit 4Relay is a high-voltage drive unit that integrates 4-channel relay control. It is based on the STM32F030F4P6 microcontroller and uses the I2C bus to independently control four mechanical relays, supporting high-voltage switching of AC 250V / DC 28V. The unit communicates via a Grove HY2.0-4P interface and features physical isolation, programmable status indicator LEDs, and overload capability. It also adopts a LEGO-compatible mounting hole design, making it easy to integrate with LEGO structures or secure using screws. This unit is suitable for high-voltage load switching scenarios such as smart home applications, industrial control, and power management of high-power equipment.
+Features
+Channel Count: 4-channel independent relay control
+Load Capacity: AC 250V@10A or DC 28V@10A
+Status Indication: Independent programmable LED indicator for each channel
+Isolation Feature: Physical isolation between high-voltage and low-voltage sides
+2 x LEGO-compatible mounting holes
+Development Platform
+UiFlow1
+UiFlow2
+Arduino IDE
+Includes
+1 x Unit 4Relay
+1 x HY2.0-4P Grove connection cable (20cm)
+4 x HT3.96-4P terminals
+Applications
+DC signal switching
+Power on/off for digital devices
+Specifications
+Specification Parameter
+MCU STM32F030F4P6
+Max Input Voltage AC 250V / DC 28V
+Rated Current 10A
+Max Instantaneous Current 16A
+Communication Interface I2C @0x26
+Product Size 112.0 x 23.0 x 18.0mm
+Product Weight 40.0g
+Package Size 163.0 x 100.0 x 20.0mm
+Gross Weight 84.0g
+Schematics
+Unit 4Relay Schematics PDF
+1/1
+PinMap
+Unit 4Relay
+HY2.0-4P Black Red Yellow White
+PORT.A GND 5V SDA SCL
+Model Size
+Structure
+Unit 4Relay Structure Files
+Softwares
+Arduino
+Unit 4Relay Arduino Tutorial
+UiFlow1
+Unit 4Relay UiFlow1 Docs
+UiFlow2
+Unit 4Relay UiFlow2 Docs
+Home Assistant
+Unit 4Relay Home Assistant Integration
+Protocol
+Protocol Type: I2C
+I2C Address: 0x26
+Mode control Reg 0x10
+Bit Desc R/W
+7 R R/W
+6 R R/W
+5 R R/W
+4 R R/W
+3 R R/W
+2 R R/W
+1 R R/W
+0 LED Sync Mode 0:Manual 1:Auto R/W
+Working Mode Explanation Manual: LED lights support independent control
+Auto: LED follows Relay status changes, lights up when Relay is ON, turns off when OFF.
+RELAY control Reg 0x11
+Bit Desc R/W
+7 LED1 / 1: ON 0:OFF R/W
+6 LED2 / 1: ON 0:OFF R/W
+5 LED3 / 1: ON 0:OFF R/W
+4 LED4 / 1: ON 0:OFF R/W
+3 RELAY1 / 1: ON 0:OFF R/W
+2 RELAY2 / 1: ON 0:OFF R/W
+1 RELAY3 / 1: ON 0:OFF R/W
+0 RELAY4 / 1: ON 0:OFF R/W
+EasyLoader
+Easyloader Download Link Remarks
+Unit 4Relay Example with M5Core download A key switches relay number, B key switches LED sync/async, C key controls all relays
+Video
+Unit 4Relay Test with M5Core
+UiFlow2 Unit 4Relay
+Bilibili
+Youtube
+Page Tools  PDF  Copy page
+About Us
+About M5Stack
+News
+Blog
+Events
+Contact Us
+Where to buy
+Distributors
+Official Store
+AliExpress
+Amazon
+Taobao
+Solution
+For Business
+For Developers
+Software
+UiFlow1
+UiFlow2
+M5Burner
+Block Designer
+EzData 2.0
+EasyLoader Packer
+VLW Font Creator
+Device USB Driver
+Documentation
+Product Documents
+UiFlow1
+UiFlow2
+Arduino
+ESP-IDF
+Linux & Edge AI
+StackFlow AI
+Home Assistant
+nanoFramework
+Product Guides
+Product Certifications
+I2C Table
+Product Selector
+Hardware Design Files
+Release History
+Stack Compatibility
+Stack Screw Length
+Stay in the Loop
+Weekly updates on new products, innovations, and announcements.
+Subscribe
+Email is invalid!
+Thanks for subscribing
+M5Stack Technology Co., Ltd
+Address:
+Block A10, Expo Bay South Coast, Fuhai Street, Bao'an District, Shenzhen, China
+TEL:
++86 755 8657 5379
+Email:
+support@m5stack.com
+Copyright ©
+M5Stack Technology Co., Ltd.
+All rights reserved.
+Privacy Policy| Terms of Service| Shipping Policy| Refund Policy| Payment Method 粤ICP备16010631号

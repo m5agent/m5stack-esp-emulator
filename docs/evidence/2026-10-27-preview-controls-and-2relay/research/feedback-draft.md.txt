@@ -1,0 +1,9 @@
+# 官方资料反馈草案 — 未提交
+
+状态：NOT SUBMITTED。当前 runtime 没有注册 `knowledge_feedback`；技能的 CLI 只封装搜索，未假装完成反馈，未获得 feedback_id。
+
+1. Unit 4Relay U097：官方产品 0x11 表格把 LED1/Relay1 放 bit7/bit3，但固定 UIFlow `relay4.py` 将 n=1 放 bit4/bit0，Arduino `M5Unit-RELAY` 也按 bit0/bit4。需要 exact MCU 固件或修正后的官方物理通道编号表。证据与固定 source SHA 见 report.md / sources。
+2. Unit ADC V1.1 U013-V11：产品 ADS1110/ADS1100、8/16/32/128 与 15/30/60/240 SPS 文字不一致；`driver/ads1110.py` 又含 EXT.IO2 的复制注释。请统一实际芯片、rate bit code 与采样时间参数，不把文档名称当器件测量。
+3. Unit DAC2 U012-B：原 `DAC2Unit.set_voltage` 默认 channel=2，常量 CHANNEL_BOTH=(2,) 等为 tuple，默认调用不进入任意 channel 写分支；技能文档 API 标题又为 camelCase，源码是 snake_case；产品页地址范围 0x58~0x65 与八种硬件位组合缺确切对应。请确认默认参数和 GP8413 地址/数据位对齐表。
+
+无客户信息、真实设备身份或凭据。若后续官方反馈工具可用，须实际调用并保留返回 feedback_id 才能改写为已提交。

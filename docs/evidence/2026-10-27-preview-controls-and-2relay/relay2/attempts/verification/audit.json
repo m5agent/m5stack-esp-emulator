@@ -1,0 +1,383 @@
+{
+  "schema_version": 1,
+  "category": "historical-failed-incomplete-2relay-attempts",
+  "formal_acceptance": false,
+  "attempts": [
+    {
+      "attempt": "r1",
+      "device_id": "cores3",
+      "attempt_status": "FAIL",
+      "automatic_report_status": "FAIL",
+      "root_classification": "FAIL",
+      "formal_acceptance": false,
+      "evidence_level": "partial functional observations plus independently verified resource cleanup only",
+      "reasons": [
+        "RGB565 display quantizes the requested 34 gray to 32; r1 oracle wrongly expected exact 34.",
+        "Frame verification failed before lastFrameSHA was assigned; cleanup verifier then failed.",
+        "Root resource-only cleanup proves closed/stopped/Flash/PID/lease release. Full frame identity remains NOT VERIFIED."
+      ],
+      "hardware": "NOT RUN",
+      "runtime": {
+        "pid": 68966,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 36,
+        "lease_active": true
+      },
+      "session_id": "de36ea8983d44974bb7393e8f02f12bd",
+      "preview_id": "4e0b67312643404c8649d69b3829afa9",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "sources": [
+        {
+          "repository_path": "tests/units/relay2_preview_probe.py",
+          "archive_path": "r1/sources/tests/units/relay2_preview_probe.py.txt",
+          "sha256": "43412ff0894f87189075e7850ab821d9c13014feff4859023594dddf5d06321d",
+          "source_evidence": "EXACT RECONSTRUCTION, not captured"
+        },
+        {
+          "repository_path": "tests/units/test_relay2_preview_probe.py",
+          "archive_path": "r1/sources/tests/units/test_relay2_preview_probe.py.txt",
+          "sha256": "3f42d5f3346085ba3aa5cbd490a7b716e310f17f4522ac6cf68eb9cd36c5495a",
+          "source_evidence": "EXACT RECONSTRUCTION, not captured"
+        },
+        {
+          "repository_path": "platform/tests/test_live_relay2_preview_service_browser.mjs",
+          "archive_path": "r1/sources/platform/tests/test_live_relay2_preview_service_browser.mjs.txt",
+          "sha256": "93545590a5d7d6675a543adc5a64d03d4178f5ac06b2d5f17a8a245f5455995b",
+          "source_evidence": "EXACT RECONSTRUCTION, not captured"
+        }
+      ],
+      "checks": {
+        "raw_http_responses_size_sha_verified": 112,
+        "saved_browser_response_bodies_verified": 87,
+        "explicit_browser_body_errors_without_saved_body": 6,
+        "runs": 2,
+        "observations": 3,
+        "typed_uart_raw_qom_mounted_observations_verified": 2,
+        "recorded_five_header_frame_cases_verified": 0,
+        "zip": {
+          "status": "PASS",
+          "members": 22,
+          "sha256": "00e2c043cc9585947f634b371f83c200343cbc9c8d3ebc52a252fa1429e4d78a"
+        },
+        "pngs_decoded": [
+          {
+            "path": "fixed-00-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              32,
+              32,
+              32
+            ]
+          },
+          {
+            "path": "history-last-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              32,
+              32,
+              32
+            ]
+          }
+        ]
+      },
+      "resource_cleanup": {
+        "preview_state": "closed",
+        "session_state": "stopped",
+        "flash_retained": false,
+        "pid_gone": true,
+        "active_sessions": 0,
+        "active_leases": 0,
+        "history_frame_retained": true,
+        "zip_before_close": true,
+        "full_frame_identity": "NOT VERIFIED"
+      },
+      "limits": [
+        "Virtual-device evidence only.",
+        "No current service or process-table query is part of this archive audit.",
+        "Historical source is audited against its original report fingerprint, not relabeled as current source."
+      ]
+    },
+    {
+      "attempt": "r2",
+      "device_id": "cores3",
+      "attempt_status": "INCOMPLETE",
+      "automatic_report_status": "PASS",
+      "root_classification": "INCOMPLETE",
+      "formal_acceptance": false,
+      "evidence_level": "recorded functional/cleanup checks; browser evidence collector required external recovery",
+      "reasons": [
+        "Automatic report PASS is retained as original data, not accepted as final acceptance.",
+        "After 7 Runs / 74 observations and guest cleanup, unbounded browserTasks waited indefinitely.",
+        "Root SIGTERM targeted the runner-owned Chrome so pending reads rejected and Node could preserve the report.",
+        "This attempt requires a later independently completed collector run for formal PASS."
+      ],
+      "hardware": "NOT RUN",
+      "runtime": {
+        "pid": 70098,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 36,
+        "lease_active": true
+      },
+      "session_id": "2ebb3c437c4945b1b43443aae6a23a0e",
+      "preview_id": "84d7605d25cc42209031f55729e1d850",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "sources": [
+        {
+          "repository_path": "platform/tests/test_live_relay2_preview_service_browser.mjs",
+          "archive_path": "r2/sources/test_live_relay2_preview_service_browser.mjs.txt",
+          "sha256": "38bd9886a051cbdd7227b4049f521343f31bf99b0921ab0825c10389949a527f",
+          "source_evidence": "captured after recovered attempt, exact fingerprint"
+        },
+        {
+          "repository_path": "tests/units/relay2_preview_probe.py",
+          "archive_path": "r2/sources/relay2_preview_probe.py.txt",
+          "sha256": "98bf561e16bc8b3a9289f9642766124b8fc05e74511a4a3b40b8832e09facdec",
+          "source_evidence": "captured after recovered attempt, exact fingerprint"
+        },
+        {
+          "repository_path": "tests/units/test_relay2_preview_probe.py",
+          "archive_path": "r2/sources/test_relay2_preview_probe.py.txt",
+          "sha256": "9f51c1fc6c6de6c253253845182746aeb96032ce927fe593d306d567cda0b9cc",
+          "source_evidence": "captured after recovered attempt, exact fingerprint"
+        }
+      ],
+      "checks": {
+        "raw_http_responses_size_sha_verified": 716,
+        "saved_browser_response_bodies_verified": 2991,
+        "explicit_browser_body_errors_without_saved_body": 124,
+        "runs": 7,
+        "observations": 74,
+        "typed_uart_raw_qom_mounted_observations_verified": 27,
+        "recorded_five_header_frame_cases_verified": 15,
+        "zip": {
+          "status": "PASS",
+          "members": 51,
+          "sha256": "c023494ca5b893c0734092a06510fc8890965d18dafcd1ba440c5524c7d64e95"
+        },
+        "pngs_decoded": [
+          {
+            "path": "before-close-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "path": "fixed-00-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "path": "fixed-01-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "path": "fixed-10-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              255,
+              0,
+              0
+            ]
+          },
+          {
+            "path": "fixed-11-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              0,
+              255
+            ]
+          },
+          {
+            "path": "history-last-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "path": "interactive-1-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              255,
+              0,
+              0
+            ]
+          },
+          {
+            "path": "interactive-2-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              0,
+              255
+            ]
+          },
+          {
+            "path": "interactive-3-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "path": "interactive-4-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "path": "interactive-after-cancel-1-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              255,
+              0,
+              0
+            ]
+          },
+          {
+            "path": "interactive-after-cancel-2-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              0,
+              255
+            ]
+          },
+          {
+            "path": "interactive-after-cancel-3-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "path": "interactive-after-cancel-4-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "path": "interactive-after-cancel-initial-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "path": "interactive-initial-frame.png",
+            "width": 320,
+            "height": 240,
+            "center_rgb": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "path": "relay2-1024.png",
+            "width": 1024,
+            "height": 13019,
+            "center_rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "path": "relay2-1440.png",
+            "width": 1440,
+            "height": 11056,
+            "center_rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "path": "relay2-390.png",
+            "width": 390,
+            "height": 15405,
+            "center_rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "path": "relay2-768.png",
+            "width": 768,
+            "height": 14259,
+            "center_rgb": [
+              16,
+              23,
+              32
+            ]
+          }
+        ]
+      },
+      "resource_cleanup": {
+        "pid_gone": true,
+        "zip_before_close": true,
+        "last_frame_sha256": "0a95e81b9b90030e71cc7174e5257db0a435599c10c2c078934ade26abed5d3d",
+        "history_frame_sha256": "0a95e81b9b90030e71cc7174e5257db0a435599c10c2c078934ade26abed5d3d"
+      },
+      "limits": [
+        "Virtual-device evidence only.",
+        "No current service or process-table query is part of this archive audit.",
+        "Historical source is audited against its original report fingerprint, not relabeled as current source."
+      ]
+    }
+  ]
+}

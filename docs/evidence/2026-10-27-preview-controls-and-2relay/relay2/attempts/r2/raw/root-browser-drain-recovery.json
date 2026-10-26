@@ -1,0 +1,61 @@
+{
+  "category": "harness-browser-drain-stall-recovery",
+  "original_attempt": "INCOMPLETE, do not accept automatic PASS as final acceptance",
+  "node_pid": 70071,
+  "chrome_pid": 70159,
+  "owned_process_tree": [
+    {
+      "pid": 70071,
+      "ppid": 61910,
+      "command_sha256": "b028729189a99a8fffd68dfe812389901423cfee37d0c7213829d24fef2636f6",
+      "kind": "runner Node"
+    },
+    {
+      "pid": 70159,
+      "ppid": 70071,
+      "command_sha256": "3ad41952dc254645ac962b971ef4cc092400d1b6fbf4359e7029df5daf2e6ec8",
+      "kind": "headless Chrome"
+    },
+    {
+      "pid": 70165,
+      "ppid": 70159,
+      "command_sha256": "d8833b53225e2b231cc8ffbb7c08b1702f1ef4466a122509269085413e93622c",
+      "kind": "headless Chrome"
+    },
+    {
+      "pid": 70166,
+      "ppid": 70159,
+      "command_sha256": "64f06e0cd214d36b401869bce622d85b41668d2a05eb08782daed99d45106f94",
+      "kind": "headless Chrome"
+    },
+    {
+      "pid": 70167,
+      "ppid": 70159,
+      "command_sha256": "06b88c53e01aa7d59521f18f4c007d178d68bd370d159d6988173b20ee6476af",
+      "kind": "headless Chrome"
+    },
+    {
+      "pid": 70171,
+      "ppid": 70159,
+      "command_sha256": "4f4d2a41ab7fe3a76f9f7fdd8d522c6786ef6c2353d04fba7b22f1f47ffde64b",
+      "kind": "headless Chrome"
+    },
+    {
+      "pid": 70172,
+      "ppid": 70159,
+      "command_sha256": "93d56c0b021e24b45fd94f4e1aea418892e9dc4d58a8c81bc57e47b3681fc5d3",
+      "kind": "headless Chrome"
+    },
+    {
+      "pid": 70173,
+      "ppid": 70159,
+      "command_sha256": "caac0906ebc90c43013fc62fa8bf7a3d891de2d6f8e23625400f308852b8ef2e",
+      "kind": "headless Chrome"
+    }
+  ],
+  "guest_already_stopped": true,
+  "active_sessions_before_recovery": 0,
+  "active_leases_before_recovery": 0,
+  "action": "SIGTERM exact runner child headless Chrome; allow pending Playwright body reads to reject and runner to preserve report",
+  "report_existed_before": false
+}

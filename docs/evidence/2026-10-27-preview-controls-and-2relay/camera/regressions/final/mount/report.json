@@ -1,0 +1,30 @@
+{
+  "category": "browser-session-mount-contract",
+  "status": "PASS",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "browser_version": "156.0.8078.48",
+  "source_sha256": {
+    "platform/web/sessions.js": "2bdfb9a18c448eac5e450162cb4497bbc6920dbdcb8cc0a67fa491e583d19675"
+  },
+  "checks": {
+    "constructed_in_detached_owned_mount": true,
+    "valid_generation_committed": true,
+    "initial_dimensions": {
+      "mountWidth": 440,
+      "mountHeight": 420,
+      "stageWidth": 440,
+      "stageHeight": 420,
+      "canvasWidth": 440,
+      "canvasHeight": 420
+    },
+    "resize_observer_dimensions": {
+      "mountWidth": 320,
+      "stageWidth": 320,
+      "canvasWidth": 320,
+      "canvasHeight": 420
+    },
+    "dispose_removes_owned_canvas": true
+  },
+  "errors": []
+}

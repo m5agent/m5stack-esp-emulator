@@ -1,0 +1,96 @@
+{
+  "checks": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "runtime_coverage",
+        "cmd": "PYTHONPATH=platform/tools:platform/tests:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 platform/tools/runtime_coverage.py --check",
+        "chunk_id": "2d98f8",
+        "wall_time_seconds": 0.000004208,
+        "exit_code": 0,
+        "original_token_count": 5,
+        "output": "RUNTIME_COVERAGE_OK\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "peripheral_catalog",
+        "cmd": "PYTHONPATH=platform/tools:platform/tests:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 platform/tools/peripheral_catalog.py --check",
+        "chunk_id": "076475",
+        "wall_time_seconds": 0.000005666,
+        "exit_code": 0,
+        "original_token_count": 6,
+        "output": "PERIPHERAL_CATALOG_OK\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "qemu_profiles",
+        "cmd": "PYTHONPATH=platform/tools:platform/tests:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 platform/tools/qemu_profiles.py --check",
+        "chunk_id": "647184",
+        "wall_time_seconds": 0.000006166,
+        "exit_code": 0,
+        "original_token_count": 5,
+        "output": "QEMU_PROFILES_OK\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "project_snapshot",
+        "cmd": "PYTHONPATH=platform/tools:platform/tests:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 platform/tools/project_snapshot.py --check",
+        "chunk_id": "cadebb",
+        "wall_time_seconds": 0.00001075,
+        "session_id": 42768,
+        "original_token_count": 20,
+        "output": "PROJECT_SNAPSHOT_STALE: run python3 platform/tools/project_snapshot.py --write\n",
+        "exit_code": 1
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "probe_contracts",
+        "cmd": "PYTHONPATH=platform/tools:platform/tests:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 -m unittest test_relay2_preview_probe test_preview_controls_probe",
+        "chunk_id": "f9a9b0",
+        "wall_time_seconds": 0.000006917,
+        "session_id": 78098,
+        "original_token_count": 32,
+        "output": ".................................\n----------------------------------------------------------------------\nRan 33 tests in 1.997s\n\nOK\n",
+        "exit_code": 0
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "visual_mappings",
+        "cmd": "/opt/homebrew/bin/node platform/tests/test_unit_visual_mappings.mjs",
+        "chunk_id": "1fee6b",
+        "wall_time_seconds": 0.000005791,
+        "exit_code": 0,
+        "original_token_count": 26,
+        "output": "UNIT_VISUAL_MAPPING_OK {\"mapped\":6,\"requires-binding\":6,\"activity-only\":1,\"panel-only\":15,\"passive\":1}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "diff_check",
+        "cmd": "git diff --check",
+        "chunk_id": "26041f",
+        "wall_time_seconds": 0.000005375,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    }
+  ],
+  "snapshot_repair": {
+    "reason": "Final documentation changed after previous generated snapshot. Original stale check retained above.",
+    "command": "PYTHONPATH=platform/tools:platform/tests:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 platform/tools/project_snapshot.py --write && PYTHONPATH=platform/tools:platform/tests:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 platform/tools/project_snapshot.py --check",
+    "exit_code": 0,
+    "output": "wrote docs/project-snapshot.md\nPROJECT_SNAPSHOT_OK\n"
+  }
+}

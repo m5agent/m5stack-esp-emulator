@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "reviewer": "independent read-only peer",
+  "original_bytes_modified": false,
+  "methods": [
+    "UTF-8 text scan",
+    "recursive ZIP and ZIP HTTP response scan",
+    "recognizable JSON base64 text decoding",
+    "PNG SHA deduplication and tesseract stdin/stdout psm11 OCR",
+    "manual classification of allowed generic runtime paths and official public assets"
+  ],
+  "coverage": {
+    "source_files": 2234,
+    "zip_payloads_including_http_copies": 8,
+    "utf8_text_payloads_including_owned_sources": 2437,
+    "base64_text_payloads": 100,
+    "png_payloads": 48,
+    "unique_pngs_ocr": 28,
+    "ocr_errors": 0,
+    "non_utf8_payloads_not_claimed_as_text": 32
+  },
+  "sensitive_hits": {
+    "absolute_user_paths": 0,
+    "credentials_tokens_keys_private_keys": 0,
+    "email": 0,
+    "private_endpoints": 0,
+    "mac_serial_identifiers": 0,
+    "png_ocr": 0
+  },
+  "allowed_items": {
+    "generic_runtime_path_occurrences_in_owned_sources": 4,
+    "loopback_ip_references_in_runner_source": 2,
+    "loopback_device_service_url_in_runner_source": 1,
+    "official_upstream_public_urls": 5073,
+    "m5stack_official_public_oss_asset_urls": 1788,
+    "unknown_hosts": 0
+  },
+  "limits": [
+    "Non-UTF8 payloads have no text-only privacy claim. PNG payloads were OCR scanned; ZIP bytes were preserved exactly.",
+    "Virtual session/Run/execution UUIDs, nonce values, worker identities and local PIDs are test evidence, not physical-device serial or MAC identifiers."
+  ]
+}

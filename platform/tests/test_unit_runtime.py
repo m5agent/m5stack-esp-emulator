@@ -18,7 +18,7 @@ class UnitRuntimeContractTests(unittest.TestCase):
 
     def test_full_visual_batch_has_explicit_runtime_boundaries(self):
         inventory = self.registry.inventory()
-        self.assertEqual(len(inventory["units"]), 28)
+        self.assertEqual(len(inventory["units"]), 29)
         self.assertEqual(len(inventory["hosts"]), 14)
         for unit in inventory["units"]:
             self.assertIsInstance(unit["inputs"], dict)

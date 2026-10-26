@@ -1,0 +1,716 @@
+请忽略以下参考资料的语种信息。以下是参考资料：
+文档属性:产品信息
+产品名:uiflow2-docs unit relay4
+分段标题:Relay4 Unit
+分段内容:4-Relay unit is an integrated 4-way relay module which can be controlled by I2C
+protocol. The maximum control voltage of each relay is AC-250V/DC-28V, the rated
+current is 10A and the instantaneous current can hold up to 16A. Each relay can
+be controlled independently, each on it's own. Each relay has status (LED)
+indictor as well to show the state of the relay at any given time.
+
+Support the following products:
+
+    Relay4Unit
+
+Micropython Example:
+
+```python
+import os, sys, io
+import M5
+from M5 import *
+from hardware import *
+from unit import Relay4Unit
+import time
+
+i2c0 = None
+relay4_0 = None
+
+def setup():
+    global i2c0, relay4_0
+
+    M5.begin()
+    Widgets.fillScreen(0x222222)
+
+    i2c0 = I2C(0, scl=Pin(1), sda=Pin(2), freq=100000)
+    relay4_0 = Relay4Unit(i2c0, 0x26)
+
+def loop():
+    global i2c0, relay4_0
+    M5.update()
+    relay4_0.set_relay_all(1)
+    time.sleep(1)
+    relay4_0.set_relay_all(0)
+    time.sleep(1)
+
+if __name__ == "__main__":
+    try:
+        setup()
+        while True:
+            loop()
+    except (Exception, KeyboardInterrupt) as e:
+        try:
+            from utility import print_error_msg
+
+            print_error_msg(e)
+        except ImportError:
+            print("please update to latest firmware")
+```
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit relay4
+分段标题:Relay4 Unit Constructors `class Relay4Unit(i2c: I2C, address: int  list  tuple = 0x26)` & int)`
+分段内容:Initialize the Relay4Unit object.
+
+    - Parameter `i2c` (`I2C`): I2C port to use.
+    - Parameter `address` (`int`): I2C address of the Relay4Unit.
+
+Set the mode of the relay.
+
+    - Parameter `mode` (`int`): The mode of the relay
+
+        Options:
+        - `Relay4Unit.ASYNC_MODE`: async
+        - `Relay4Unit.SYNC_MODE`: sync
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit relay4
+分段标题:Relay4 Unit Methods `Relay4Unit.get_mode() -> int` & int`
+分段内容:Get the mode of the relay.
+
+    - Returns: The mode of the relay
+
+        Options:
+        - `Relay4Unit.ASYNC_MODE`: async
+        - `Relay4Unit.SYNC_MODE`: sync
+
+Get the state of the LED.
+
+    - Parameter `n` (`int`): The number of the LED.
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit relay4
+分段标题:Relay4 Unit Methods `Relay4Unit.set_led_state(n: int, state: int) -> None` & int`
+分段内容:Set the state of the LED.
+
+    - Parameter `n` (`int`): The number of the LED.
+    - Parameter `state` (`int`): The state of the LED.
+
+Get the state of the relay.
+
+    - Parameter `n` (`int`): The number of the relay.
+
+    - Returns: The state of the relay.
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit relay4
+分段标题:Relay4 Unit Methods `Relay4Unit.set_relay_state(n: int, state: int) -> None` & None`
+分段内容:Set the state of the relay.
+
+    - Parameter `n` (`int`): The number of the relay.
+    - Parameter `state` (`int`): The state of the relay.
+
+Set the state of all the relay.
+
+    - Parameter `state` (`int`): The state of the relay.
+---
+文档属性:产品信息
+产品名:github uiflow-micropython 2.2-module-library
+分段标题:Module Library Communication Patterns I2C Register-Based Communication PPSModule Example (Programmable Power Supply)
+分段内容:The PPSModule demonstrates typical I2C register-based control for a 30V/5A programmable power supply:
+
+```mermaid
+graph TB
+    subgraph "PPSModule Register Map"
+        REG00["0x00-0x01<br/>Module ID"]
+        REG04["0x04<br/>Output Enable"]
+        REG05["0x05<br/>Running Mode"]
+        REG08["0x08-0x0B<br/>Output Voltage<br/>(float, 4 bytes)"]
+        REG0C["0x0C-0x0F<br/>Output Current<br/>(float, 4 bytes)"]
+        REG10["0x10-0x13<br/>MCU Temperature"]
+        REG14["0x14-0x17<br/>Input Voltage"]
+        REG18["0x18-0x1B<br/>Set Voltage"]
+        REG1C["0x1C-0x1F<br/>Set Current"]
+        REG5F["0x5F<br/>I2C Address"]
+    end
+    
+    subgraph "PPSModule Methods"
+        SETV["set_output_voltage(voltage)<br/>Write to 0x18"]
+        SETI["set_output_current(current)<br/>Write to 0x1C"]
+        READV["read_output_voltage()<br/>Read from 0x08"]
+        READI["read_output_current()<br/>Read from 0x0C"]
+        MODE["read_psu_running_mode()<br/>Read from 0x05"]
+    end
+    
+    SETV --> REG18
+    SETI --> REG1C
+    READV --> REG08
+    READI --> REG0C
+    MODE --> REG05
+```
+
+**Figure 3: PPSModule Register Interface**
+
+Key implementation details from [m5stack/libs/module/pps.py]():
+- Constructor at [m5stack/libs/module/pps.py:47-58]() initializes I2C from `mbus.i2c1` and validates device presence
+- Voltage setting at [m5stack/libs/module/pps.py:96-111]() uses `struct.pack("<f", voltage)` to convert float to 4-byte little-endian format
+- Current setting at [m5stack/libs/module/pps.py:113-125]() follows identical pattern with range validation (0.0A to 5.0A)
+- Readback operations at [m5stack/libs/module/pps.py:139-173]() use `struct.unpack("<f", data)` to convert raw bytes back to floats
+- Running mode constants at [m5stack/libs/module/pps.py:43-45]() define `OUT_DISABLED=0`, `OUT_CV_MODE=1`, `OUT_CC_MODE=2`
+
+Sources: [m5stack/libs/module/pps.py:1-243](https://github.com/m5stack/uiflow-micropython/blob/7af4551a/m5stack/libs/module/pps.py#L1-L243), [docs/en/module/pps.rst:1-190](https://github.com/m5stack/uiflow-micropython/blob/7af4551a/docs/en/module/pps.rst#L1-L190)
+---
+文档属性:产品信息
+产品名:github uiflow-micropython 2.2-module-library
+分段标题:Module Library Communication Patterns I2C Register-Based Communication Relay4Module Example (Digital I/O Control)
+分段内容:The Relay4Module uses a simpler bit-mask register approach for controlling four relay channels:
+
+```mermaid
+graph TB
+    subgraph "Relay4Module Registers"
+        REG10["0x10 RELAY_REG<br/>Bit 0: Relay 1<br/>Bit 1: Relay 2<br/>Bit 2: Relay 3<br/>Bit 3: Relay 4"]
+        REG20["0x20 ADC_8BIT_REG<br/>8-bit ADC value"]
+        REG30["0x30 ADC_16BIT_REG<br/>12-bit ADC value"]
+        REGFF["0xFF I2C_ADDR_REG<br/>I2C address config"]
+    end
+    
+    subgraph "Relay4Module Operations"
+        SETONE["set_relay_state(num, state)<br/>Read-modify-write"]
+        SETALL["set_all_relay_state(state)<br/>Direct write 0x0F or 0x00"]
+        GETONE["get_relay_status(num)<br/>Read and extract bit"]
+        ADC["get_adc_12bit_value(volt)<br/>Read 16-bit, convert"]
+    end
+    
+    SETONE --> REG10
+    SETALL --> REG10
+    GETONE --> REG10
+    ADC --> REG30
+```
+
+**Figure 4: Relay4Module Bit-Mask Interface**
+
+Implementation at [m5stack/libs/module/relay_4.py:36-49]() shows read-modify-write pattern:
+1. Read current register value: `data = i2c.readfrom_mem(addr, RELAY_REG, 1)[0]`
+2. Modify specific bit: `data |= 0x01 << (num - 1)` or `data &= ~(0x01 << (num - 1))`
+3. Write back: `i2c.writeto_mem(addr, RELAY_REG, bytes([data]))`
+
+The module also includes 8-bit and 12-bit ADC inputs at [m5stack/libs/module/relay_4.py:62-83]() for reading analog voltages (0-3.3V input scaled to 0-26.4V range with factor of 8).
+
+Sources: [m5stack/libs/module/relay_4.py:1-104](https://github.com/m5stack/uiflow-micropython/blob/7af4551a/m5stack/libs/module/relay_4.py#L1-L104)
+---
+文档属性:产品信息
+产品名:github uiflow-micropython 2.2-module-library
+分段标题:Module Library Communication Patterns UART Command-Based Communication
+分段内容:Modules requiring higher bandwidth or specific protocol support use UART communication with AT commands or binary protocols.
+
+```mermaid
+graph TB
+    subgraph "UART Module Pattern"
+        MODULE["Module Class<br/>e.g., LTEModule"]
+        UART["machine.UART<br/>Hardware UART"]
+        PINMAP["Board-Specific Pins<br/>tx, rx from iomap"]
+        ATCMD["AT Command<br/>Text protocol"]
+        BINARY["Binary Protocol<br/>Struct-based"]
+    end
+    
+    MODULE --> UART
+    MODULE --> PINMAP
+    MODULE --> ATCMD
+    MODULE --> BINARY
+    
+    UART --> ATCMD
+    UART --> BINARY
+```
+
+**Figure 5: UART Communication Pattern**
+---
+文档属性:操作过程
+产品名:uiflow1 blockly module 4relay
+分段标题:[Module13.2 4Relay](/zh_CN/module/Module13.2_4Relay) 案例程序
+分段内容:间隔一秒闭合和断开继电器
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/4relay/uiflow1_block_4relay_demo1.svg">
+
+```python
+from m5stack import *
+from m5ui import *
+from uiflow1 import *
+import module
+
+import time
+
+setScreenColor(0x222222)
+
+relay4 = module.get(module.RELAY4)
+
+relay4_0 = relay4.init_i2c_address(0x26)
+while True:
+  relay4_0.set_all_relay_state(1)
+  wait(1)
+  relay4_0.set_all_relay_state(0)
+  wait(1)
+  wait_ms(2)
+```
+---
+文档属性:操作过程
+产品名:uiflow1 blockly module 4relay
+分段标题:[Module13.2 4Relay](/zh_CN/module/Module13.2_4Relay) 功能说明
+分段内容:<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/4relay/uiflow1_block_module_relay4_get_12bit_raw_value.svg">
+
+```python
+relay4_0.get_adc_12bit_value(0)
+```
+
+- 获取12位 ADC 原始值，返回范围为0到4095的整数。这是从指定模块的 ADC 读取的未处理电压数据
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/4relay/uiflow1_block_module_relay4_get_12bit_voltage_value.svg">
+
+```python
+relay4_0.get_adc_12bit_value(1)
+```
+
+- 获取12位 ADC 的电压值，返回范围为0到26的电压值(单位：伏特)
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/4relay/uiflow1_block_module_relay4_get_8bit_raw_value.svg">
+
+```python
+relay4_0.get_adc_8bit_value(0)
+```
+
+- 获取8位 ADC 原始值，返回范围为0到255的整数。这是从指定模块的 ADC 读取的未处理电压数据
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/4relay/uiflow1_block_module_relay4_get_8bit_voltage_value.svg">
+
+```python
+relay4_0.get_adc_8bit_value(1)
+```
+
+- 获取8位 ADC 的电压值，返回范围为0到26的电压值(单位：伏特)
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/4relay/uiflow1_block_module_relay4_get_status.svg">
+
+```python
+relay4_0.get_relay_status(1)
+```
+
+- 获取继电器模块的状态，返回值为0或1
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/4relay/uiflow1_block_module_relay4_init_i2c_address.svg">
+
+```python
+relay4.init_i2c_address(0x26)
+```
+
+- 初始化设备的 I2C 地址
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/4relay/uiflow1_block_module_relay4_set_all_relay_state.svg">
+
+```python
+relay4_0.set_all_relay_state(1)
+```
+
+- 设置所有继电器的状态
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/4relay/uiflow1_block_module_relay4_set_i2c_address.svg">
+
+```python
+relay4_0.set_i2c_address(0x26)
+```
+
+- 设置设备的 I2C 从属地址
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/modules/4relay/uiflow1_block_module_relay4_set_state.svg">
+
+```python
+relay4_0.set_relay_state(1, 1)
+```
+
+- 设置继电器1的状态
+  - 参数1：第1-4个继电器
+  - 参数2："ON":闭合继电器， "OFF":断开继电器
+---
+文档属性:操作过程
+产品名:uiflow1 blockly unit 4relay
+分段标题:[Unit 4Relay](/zh_CN/unit/Unit_4Relay) 案例程序
+分段内容:> 设置指定通道继电器状态
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/4relay/uiflow1_block_relay4_example.svg">
+
+```python
+from m5stack import *
+from m5ui import *
+from uiflow1 import *
+import time
+import unit
+
+setScreenColor(0x222222)
+relay4_0 = unit.get(unit.RELAY4, unit.PORTA)
+
+relay4_0.set_mode(1)
+while True:
+  relay4_0.set_relay_status(1, 1)
+  relay4_0.set_relay_status(2, 1)
+  relay4_0.set_relay_status(3, 1)
+  relay4_0.set_relay_status(4, 1)
+  wait(1)
+  relay4_0.set_relay_status(1, 0)
+  relay4_0.set_relay_status(2, 0)
+  relay4_0.set_relay_status(3, 0)
+  relay4_0.set_relay_status(4, 0)
+  wait(1)
+  wait_ms(2)
+```
+---
+文档属性:操作过程
+产品名:uiflow1 blockly unit 4relay
+分段标题:[Unit 4Relay](/zh_CN/unit/Unit_4Relay) 功能说明
+分段内容:<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/4relay/uiflow1_block_relay4_set_mode.svg">
+
+```python
+relay4_0.set_mode(1)
+```
+
+- 设置 Relay LED 跟随模式：
+  - 1:LED 跟随 Relay 状态变化
+  - 0:LED 不跟随 Relay 状态变化
+
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/4relay/uiflow1_block_relay4_set_status.svg">
+
+```python
+relay4_0.set_relay_status(ch, status)
+```
+
+- 设置 Relay 状态：
+  - ch:
+    - 1-4
+  - status:
+    - 1:on
+    - 0:off
+
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/4relay/uiflow1_block_relay4_set_led_status.svg">
+
+```python
+relay4_0.set_led_status(ch, status)
+```
+
+- 设置 LED 状态：
+  - ch:
+    - 1-4
+  - status:
+    - 1:on
+    - 0:off
+
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/4relay/uiflow1_block_relay4_get_mode.svg">
+
+```python
+relay4_0.get_mode()
+```
+
+- 读取 Relay LED 跟随模式状态：
+  - 1:LED 跟随 Relay 状态变化
+  - 0:LED 不跟随 Relay 状态变化
+
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/4relay/uiflow1_block_relay4_get_status.svg">
+
+```python
+relay4_0.get_relay_status(ch)
+```
+
+- 读取继电器状态：
+  - ch:
+    - 1-4
+- 返回值 status:
+  - 1:on
+  - 0:off
+
+
+<img class="blockly_svg" src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/uiflow1/blockly/unit/4relay/uiflow1_block_relay4_get_led_status.svg">
+
+```python
+relay4_0.get_led_status(ch)
+```
+
+- 读取 LED 状态：
+  - ch:
+    - 1-4
+- 返回值 status:
+  - 1:on
+  - 0:off
+---
+文档属性:产品信息
+产品名:uiflow2-docs controllers stamplc
+分段标题:StamPLC
+分段内容:`StamPLC` is the board-level helper for the built-in PLC I/O on StamPLC.
+
+Supported Products:
+
+    StamPLC
+
+Create one `StamPLC` object, then access relay outputs, digital inputs, and the
+built-in RGB LED from that object.
+
+Channels are 1-based:
+
+- `relay[1]` to `relay[4]` control the four relay outputs.
+- `input[1]` to `input[8]` read the eight digital inputs.
+- `led.red`, `led.green`, and `led.blue` control the built-in RGB LED.
+---
+文档属性:产品信息
+产品名:uiflow2-docs controllers stamplc
+分段标题:StamPLC MicroPython Examples Relay control
+分段内容:This example uses button A to toggle relay output 1 and turns on the built-in blue LED.
+
+```python
+import os, sys, io
+import M5
+from M5 import *
+from stamplc import StamPLC
+
+title0 = None
+label_tip = None
+label_state = None
+stamplc_0 = None
+
+def btna_was_clicked_event(state):
+    global title0, label_tip, label_state, stamplc_0
+    stamplc_0.relay[1].toggle()
+    if stamplc_0.relay[1].value():
+        label_state.setText(str("Realy1: ON"))
+        label_state.setCursor(x=55, y=53)
+        label_state.setColor(0x009900, 0x000000)
+    else:
+        label_state.setText(str("Realy1: OFF"))
+        label_state.setCursor(x=50, y=53)
+        label_state.setColor(0xFFFFFF, 0x000000)
+
+def setup():
+    global title0, label_tip, label_state, stamplc_0
+
+    M5.begin()
+    Widgets.fillScreen(0x000000)
+    title0 = Widgets.Title("Relay Control", 3, 0xFFFFFF, 0x0000FF, Widgets.FONTS.Montserrat24)
+    label_tip = Widgets.Label(
+        "BtnA control relay1", 33, 103, 1.0, 0xFFFFFF, 0x000000, Widgets.FONTS.Montserrat18
+    )
+    label_state = Widgets.Label(
+        "Realy1: OFF", 50, 53, 1.0, 0xFFFFFF, 0x000000, Widgets.FONTS.Montserrat24
+    )
+
+    BtnA.setCallback(type=BtnA.CB_TYPE.WAS_CLICKED, cb=btna_was_clicked_event)
+
+    stamplc_0 = StamPLC()
+    stamplc_0.led.blue.on()
+
+def loop():
+    global title0, label_tip, label_state, stamplc_0
+    M5.update()
+
+if __name__ == "__main__":
+    try:
+        setup()
+        while True:
+            loop()
+    except (Exception, KeyboardInterrupt) as e:
+        try:
+            from utility import print_error_msg
+
+            print_error_msg(e)
+        except ImportError:
+            print("please update to latest firmware")
+```
+---
+文档属性:产品信息
+产品名:uiflow2-docs controllers stamplc
+分段标题:StamPLC MicroPython Examples Digital input control
+分段内容:This example reads digital inputs 1-3 and uses them to control relay outputs 1-3.
+
+```python
+import os, sys, io
+import M5
+from M5 import *
+import time
+from stamplc import StamPLC
+
+title0 = None
+label_relay1_state = None
+label_relay2_state = None
+label_relay3_state = None
+stamplc_0 = None
+
+last_time = None
+state1 = None
+laste_state1 = None
+state2 = None
+last_state2 = None
+state3 = None
+last_state3 = None
+
+def setup():
+    global \
+        title0, \
+        label_relay1_state, \
+        label_relay2_state, \
+        label_relay3_state, \
+        stamplc_0, \
+        last_time, \
+        state1, \
+        laste_state1, \
+        state2, \
+        last_state2, \
+        state3, \
+        last_state3
+
+    M5.begin()
+    Widgets.fillScreen(0x000000)
+    title0 = Widgets.Title(
+        "Input control relay", 3, 0xFFFFFF, 0x0000FF, Widgets.FONTS.Montserrat24
+    )
+    label_relay1_state = Widgets.Label(
+        "Relay1: OFF", 10, 35, 1.0, 0xFFFFFF, 0x000000, Widgets.FONTS.Montserrat18
+    )
+    label_relay2_state = Widgets.Label(
+        "Relay2: OFF", 10, 65, 1.0, 0xFFFFFF, 0x000000, Widgets.FONTS.Montserrat18
+    )
+    label_relay3_state = Widgets.Label(
+        "Relay3: OFF", 10, 95, 1.0, 0xFFFFFF, 0x000000, Widgets.FONTS.Montserrat18
+    )
+
+    stamplc_0 = StamPLC()
+    stamplc_0.led.red.value(1)
+
+def loop():
+    global \
+        title0, \
+        label_relay1_state, \
+        label_relay2_state, \
+        label_relay3_state, \
+        stamplc_0, \
+        last_time, \
+        state1, \
+        laste_state1, \
+        state2, \
+        last_state2, \
+        state3, \
+        last_state3
+    M5.update()
+    if (time.ticks_diff((time.ticks_ms()), last_time)) >= 200:
+        last_time = time.ticks_ms()
+        state1 = stamplc_0.input[1].value()
+        if state1 != laste_state1:
+            laste_state1 = state1
+            if state1:
+                stamplc_0.relay[1].value(1)
+                label_relay1_state.setText(str("Relay1: ON"))
+                label_relay1_state.setColor(0x009900, 0x000000)
+            else:
+                stamplc_0.relay[1].value(0)
+                label_relay1_state.setText(str("Relay1: OFF"))
+                label_relay1_state.setColor(0xFFFFFF, 0x000000)
+        state2 = stamplc_0.input[2].value()
+        if state2 != last_state2:
+            last_state2 = state2
+            if state2:
+                stamplc_0.relay[2].value(1)
+                label_relay2_state.setText(str("Relay2: ON"))
+                label_relay2_state.setColor(0x009900, 0x000000)
+            else:
+                stamplc_0.relay[2].value(0)
+                label_relay2_state.setText(str("Relay2: OFF"))
+                label_relay2_state.setColor(0xFFFFFF, 0x000000)
+        state3 = stamplc_0.input[3].value()
+        if state3 != last_state3:
+            last_state3 = last_state3
+            if state3:
+                stamplc_0.relay[3].value(1)
+                label_relay3_state.setText(str("Relay3: ON"))
+                label_relay3_state.setColor(0x009900, 0x000000)
+            else:
+                stamplc_0.relay[3].value(0)
+                label_relay3_state.setText(str("Relay3: OFF"))
+                label_relay3_state.setColor(0xFFFFFF, 0x000000)
+
+if __name__ == "__main__":
+    try:
+        setup()
+        while True:
+            loop()
+    except (Exception, KeyboardInterrupt) as e:
+        try:
+            from utility import print_error_msg
+
+            print_error_msg(e)
+        except ImportError:
+            print("please update to latest firmware")
+```
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit relay
+分段标题:Relay Unit
+分段内容:Support the following products:
+
+    RELAY
+
+Micropython Example:
+
+```python
+import os, sys, io
+import M5
+from M5 import *
+from unit import RelayUnit
+import time
+
+relay_0 = None
+
+def setup():
+    global relay_0
+
+    M5.begin()
+    Widgets.fillScreen(0x222222)
+
+    relay_0 = RelayUnit((36, 26))
+    print(relay_0.get_status())
+    relay_0.on()
+    time.sleep(1)
+    relay_0.off()
+    time.sleep(1)
+    relay_0.set_status(True)
+    time.sleep(1)
+
+def loop():
+    global relay_0
+    M5.update()
+
+if __name__ == "__main__":
+    try:
+        setup()
+        while True:
+            loop()
+    except (Exception, KeyboardInterrupt) as e:
+        try:
+            from utility import print_error_msg
+
+            print_error_msg(e)
+        except ImportError:
+            print("please update to latest firmware")
+```
+---
+文档属性:产品信息
+产品名:uiflow2-docs unit relay
+分段标题:Relay Unit Constructors `class RelayUnit(io)` & `RealyUnit.set_status()`
+分段内容:Create a RelayUnit object.
+
+    The parameters is:
+        - `io` Define the control pin.
+
+Gets the relay switch status.
+
+turn on the relay.
+
+Turn off the relay.
+
+Set the relay status (True or false).
+---
+请忽略以上参考资料的语种信息。回复用户问题时需要首先判断用户的语种，以相同语种进行回复。

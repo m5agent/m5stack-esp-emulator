@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "category": "final-2relay-runtime-source-snapshot",
+  "source_fingerprints": {
+    "platform/tests/test_live_relay2_preview_service_browser.mjs": "47d29135eb45cb7f371fe7377770ab9173fcaf4d680b2ca84e7438913b48f493",
+    "tests/units/relay2_preview_probe.py": "263c12632f04fad792110bb6f9a523e7dd7b53c7656716b907aa8de9c2f3fcf9",
+    "tests/units/test_relay2_preview_probe.py": "a875258ef77c09a6e41037102aa520f09c46f51adbbd646e8f549b5171868491",
+    "platform/web/sessions.js": "2bdfb9a18c448eac5e450162cb4497bbc6920dbdcb8cc0a67fa491e583d19675",
+    "platform/web/sessions.html": "dcc24c94e12a20b22a4905b6d8599261fb1b8d7b2b10c400a8c1676d3628d3f9",
+    "platform/web/preview-client.js": "dc16770cc67dcdb6fd8612adf1dcad3b9e091935952539d81bc7150f2062e2a7",
+    "platform/web/program-panel.js": "3cf1ae392dff086d07b6cae26742c1fa0d9db129aa391dec7974633ec8235bf0",
+    "platform/web/unit-panel.js": "7049d4f5ccbd45fc14e44af31e2c4b32ec1f3bcbefb63dcc33ec2aab114c7c78",
+    "platform/web/unit-visual-mappings.js": "74303443c3d7fca279dde772d43f4fc63db33d21f753bdd582c01fd0eae7d087",
+    "platform/web/model-shell.js": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+    "platform/tools/preview_service.py": "74b4defc7768d6f39542961b46dc2185655af8660f041af21ac4a5fec4707fff",
+    "platform/tools/preview_store.py": "4765415dde87382308dbc76a87415922f2dca8e5019d388d66fd08992177f2fb",
+    "platform/tools/device_service.py": "a4be4bebe1f05248b0590226a5b2716c87d24124a316f13761b3549f2d5d57b9",
+    "platform/tools/program_packages.py": "b8180b3846ac23ef5a085e49d539d238c4bf42d114c02d4804a39420e07eddac",
+    "platform/tools/unit_runtime.py": "d3b190147488c21a320d6b9c4be56c753a090b0610ba863e388b39f207dde600",
+    "platform/units/catalog.json": "51e6ce1e8552f163c94926fa761ff9117ff802424075529fc36e641eecbf2298",
+    "platform/units/runtime-profiles.json": "237208261fa11e9999d47c5d72470565e9c86b22e0e2d1e29516626d775a34af",
+    "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "platform/units/fixtures/2relay-binding.json": "d54b15091a7d3870d15a7c6f4e7a264a8e06c0291703da8019b6572fcd07e47f",
+    "patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch": "bc7547ae74b3ac85ff65cf3780b4b6a77632b435fca463646d53faaa15acf517",
+    "platform/web/vendor/m5stack-models/src/units/2relay/assembly.js": "b029e8b2c0a337cafeb7b54db226e595c8dca5cdd561981a44b4828bc801a871",
+    "platform/web/vendor/m5stack-models/src/units/2relay/dimensions.js": "2cae8f26dcab88017594505e9402f6f54417867fc3b88c6d69ec853d2eccba57"
+  },
+  "sources": [
+    {
+      "repository_path": "platform/tests/test_live_relay2_preview_service_browser.mjs",
+      "snapshot": "sources/platform__tests__test_live_relay2_preview_service_browser.mjs.txt",
+      "size": 37028,
+      "sha256": "47d29135eb45cb7f371fe7377770ab9173fcaf4d680b2ca84e7438913b48f493",
+      "owned_probe_or_runner": true
+    },
+    {
+      "repository_path": "tests/units/relay2_preview_probe.py",
+      "snapshot": "sources/tests__units__relay2_preview_probe.py.txt",
+      "size": 23788,
+      "sha256": "263c12632f04fad792110bb6f9a523e7dd7b53c7656716b907aa8de9c2f3fcf9",
+      "owned_probe_or_runner": true
+    },
+    {
+      "repository_path": "tests/units/test_relay2_preview_probe.py",
+      "snapshot": "sources/tests__units__test_relay2_preview_probe.py.txt",
+      "size": 33658,
+      "sha256": "a875258ef77c09a6e41037102aa520f09c46f51adbbd646e8f549b5171868491",
+      "owned_probe_or_runner": true
+    },
+    {
+      "repository_path": "platform/web/sessions.js",
+      "snapshot": "sources/platform__web__sessions.js.txt",
+      "size": 54938,
+      "sha256": "2bdfb9a18c448eac5e450162cb4497bbc6920dbdcb8cc0a67fa491e583d19675",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/web/sessions.html",
+      "snapshot": "sources/platform__web__sessions.html.txt",
+      "size": 4927,
+      "sha256": "dcc24c94e12a20b22a4905b6d8599261fb1b8d7b2b10c400a8c1676d3628d3f9",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/web/preview-client.js",
+      "snapshot": "sources/platform__web__preview-client.js.txt",
+      "size": 27111,
+      "sha256": "dc16770cc67dcdb6fd8612adf1dcad3b9e091935952539d81bc7150f2062e2a7",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/web/program-panel.js",
+      "snapshot": "sources/platform__web__program-panel.js.txt",
+      "size": 33274,
+      "sha256": "3cf1ae392dff086d07b6cae26742c1fa0d9db129aa391dec7974633ec8235bf0",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/web/unit-panel.js",
+      "snapshot": "sources/platform__web__unit-panel.js.txt",
+      "size": 50147,
+      "sha256": "7049d4f5ccbd45fc14e44af31e2c4b32ec1f3bcbefb63dcc33ec2aab114c7c78",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/web/unit-visual-mappings.js",
+      "snapshot": "sources/platform__web__unit-visual-mappings.js.txt",
+      "size": 13741,
+      "sha256": "74303443c3d7fca279dde772d43f4fc63db33d21f753bdd582c01fd0eae7d087",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/web/model-shell.js",
+      "snapshot": "sources/platform__web__model-shell.js.txt",
+      "size": 24899,
+      "sha256": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/tools/preview_service.py",
+      "snapshot": "sources/platform__tools__preview_service.py.txt",
+      "size": 42230,
+      "sha256": "74b4defc7768d6f39542961b46dc2185655af8660f041af21ac4a5fec4707fff",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/tools/preview_store.py",
+      "snapshot": "sources/platform__tools__preview_store.py.txt",
+      "size": 26631,
+      "sha256": "4765415dde87382308dbc76a87415922f2dca8e5019d388d66fd08992177f2fb",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/tools/device_service.py",
+      "snapshot": "sources/platform__tools__device_service.py.txt",
+      "size": 446617,
+      "sha256": "a4be4bebe1f05248b0590226a5b2716c87d24124a316f13761b3549f2d5d57b9",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/tools/program_packages.py",
+      "snapshot": "sources/platform__tools__program_packages.py.txt",
+      "size": 17355,
+      "sha256": "b8180b3846ac23ef5a085e49d539d238c4bf42d114c02d4804a39420e07eddac",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/tools/unit_runtime.py",
+      "snapshot": "sources/platform__tools__unit_runtime.py.txt",
+      "size": 16504,
+      "sha256": "d3b190147488c21a320d6b9c4be56c753a090b0610ba863e388b39f207dde600",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/units/catalog.json",
+      "snapshot": "sources/platform__units__catalog.json.txt",
+      "size": 162242,
+      "sha256": "51e6ce1e8552f163c94926fa761ff9117ff802424075529fc36e641eecbf2298",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/units/runtime-profiles.json",
+      "snapshot": "sources/platform__units__runtime-profiles.json.txt",
+      "size": 173958,
+      "sha256": "237208261fa11e9999d47c5d72470565e9c86b22e0e2d1e29516626d775a34af",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/units/host-ports.json",
+      "snapshot": "sources/platform__units__host-ports.json.txt",
+      "size": 16710,
+      "sha256": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/units/fixtures/2relay-binding.json",
+      "snapshot": "sources/platform__units__fixtures__2relay-binding.json.txt",
+      "size": 2170,
+      "sha256": "d54b15091a7d3870d15a7c6f4e7a264a8e06c0291703da8019b6572fcd07e47f",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch",
+      "snapshot": "sources/patches__qemu-m5stack-peripherals__0044-unit-2relay-gpio.patch.txt",
+      "size": 4585,
+      "sha256": "bc7547ae74b3ac85ff65cf3780b4b6a77632b435fca463646d53faaa15acf517",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/web/vendor/m5stack-models/src/units/2relay/assembly.js",
+      "snapshot": "sources/platform__web__vendor__m5stack-models__src__units__2relay__assembly.js.txt",
+      "size": 7487,
+      "sha256": "b029e8b2c0a337cafeb7b54db226e595c8dca5cdd561981a44b4828bc801a871",
+      "owned_probe_or_runner": false
+    },
+    {
+      "repository_path": "platform/web/vendor/m5stack-models/src/units/2relay/dimensions.js",
+      "snapshot": "sources/platform__web__vendor__m5stack-models__src__units__2relay__dimensions.js.txt",
+      "size": 1247,
+      "sha256": "2cae8f26dcab88017594505e9402f6f54417867fc3b88c6d69ec853d2eccba57",
+      "owned_probe_or_runner": false
+    }
+  ],
+  "matches_completed_hosts": [
+    "cores3",
+    "atoms3r",
+    "sticks3"
+  ],
+  "note": "Snapshot frozen by original report SHA before authority/evidence metadata updates; no later metadata substitution."
+}

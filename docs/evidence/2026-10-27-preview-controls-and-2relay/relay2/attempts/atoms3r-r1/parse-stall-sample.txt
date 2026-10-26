@@ -1,0 +1,111 @@
+Analysis of sampling python3.12 (pid 73498) every 1 millisecond
+Process:         python3.12 [73498]
+Path:            /opt/miniconda3/*/python3.12
+Load Address:    0x102c80000
+Identifier:      python3.12
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  node [72962]
+Target Type:     live task
+
+Date/Time:       2026-10-27 03:31:30.606 +0800
+Launch Time:     2026-10-27 03:26:50.668 +0800
+OS Version:      macOS 26.6.2 (25G83)
+Report Version:  7
+Analysis Tool:   /usr/bin/sample
+
+Physical footprint:         11.4M
+Physical footprint (peak):  11.4M
+Idle exit:                  untracked
+----
+
+Call graph:
+    795 Thread_33436304   DispatchQueue_1: com.apple.main-thread  (serial)
+      795 start  (in dyld) + 6992  [0x1838084e4]
+        795 main  (in python3.12) + 56  [0x102c87aa8]
+          795 pymain_main  (in python3.12) + 552  [0x102f0dcd8]
+            795 Py_RunMain  (in python3.12) + 1124  [0x102f0c974]
+              795 pymain_run_file  (in python3.12) + 72  [0x102f0d330]
+                795 pymain_run_file_obj  (in python3.12) + 180  [0x102f0d96c]
+                  795 _PyRun_AnyFileObject  (in python3.12) + 80  [0x102ee1550]
+                    795 _PyRun_SimpleFileObject  (in python3.12) + 288  [0x102ee1c6c]
+                      795 pyrun_file  (in python3.12) + 156  [0x102ee22a0]
+                        795 run_mod  (in python3.12) + 288  [0x102ee2524]
+                          795 PyEval_EvalCode  (in python3.12) + 260  [0x102e311b4]
+                            795 _PyEval_EvalFrameDefault  (in python3.12) + 225236  [0x102e6aaf4]
+                              795 method_vectorcall_FASTCALL  (in python3.12) + 112  [0x102d0b3f4]
+                                795 _io_TextIOWrapper_read  (in python3.12) + 268  [0x102f4b6b4]
+                                  795 _PyObject_VectorcallTstate.780  (in python3.12) + 88  [0x102cf7adc]
+                                    795 method_vectorcall_FASTCALL  (in python3.12) + 112  [0x102d0b3f4]
+                                      795 _io__Buffered_read  (in python3.12) + 492  [0x102f42040]
+                                        795 cfunction_vectorcall_NOARGS  (in python3.12) + 104  [0x102d611c0]
+                                          795 _io_FileIO_readall_impl  (in python3.12) + 348  [0x102f3d2ec]
+                                            795 _Py_read  (in python3.12) + 132  [0x102f0a878]
+                                              795 read  (in libsystem_kernel.dylib) + 8  [0x183b9091c]
+
+Total number in stack (recursive counted multiple, when >=5):
+
+Sort by top of stack, same collapsed (when >= 5):
+        read  (in libsystem_kernel.dylib)        795
+
+Binary Images:
+       0x102c80000 -        0x10307bff3 +python3.12 (0) <4FA1A5BF-523A-3000-BFBF-68EA3B84F78B> /opt/miniconda3/*/python3.12
+       0x103498000 -        0x1034a3fff +_struct.cpython-312-darwin.so (0) <F4D78E8C-2050-3B09-B195-B49A299B297A> /opt/miniconda3/*/_struct.cpython-312-darwin.so
+       0x1034b0000 -        0x1034b7fff +binascii.cpython-312-darwin.so (0) <EB2EAACB-0D26-3EDB-B3CE-FDD07F7F219B> /opt/miniconda3/*/binascii.cpython-312-darwin.so
+       0x103738000 -        0x103743fff +_hashlib.cpython-312-darwin.so (0) <263BA282-D5E3-34A5-9562-1667CAC31C3C> /opt/miniconda3/*/_hashlib.cpython-312-darwin.so
+       0x10375c000 -        0x103773fff +libz.1.2.13.dylib (0) <BB5557FA-69AC-3834-9573-F8F0E376AB1C> /opt/miniconda3/*/libz.1.2.13.dylib
+       0x103780000 -        0x10378bffb +_blake2.cpython-312-darwin.so (0) <035FCB75-84AB-3C80-9BE1-585828B998AA> /opt/miniconda3/*/_blake2.cpython-312-darwin.so
+       0x103798000 -        0x1037a3fff +_json.cpython-312-darwin.so (0) <FED80BED-76A0-323C-90A5-9E25A7BFAD81> /opt/miniconda3/*/_json.cpython-312-darwin.so
+       0x1037b0000 -        0x1037bbfff +zlib.cpython-312-darwin.so (0) <63982281-9379-3DC1-B200-5195CF7EB0F3> /opt/miniconda3/*/zlib.cpython-312-darwin.so
+       0x1037cc000 -        0x1037dbfff +math.cpython-312-darwin.so (0) <0C869A8A-DAFC-3BF7-A149-FCF1CC5F5CFB> /opt/miniconda3/*/math.cpython-312-darwin.so
+       0x1038e8000 -        0x1038efff7 +_bz2.cpython-312-darwin.so (0) <B631816F-85DD-3C2D-901E-AB34ACD94CA9> /opt/miniconda3/*/_bz2.cpython-312-darwin.so
+       0x1038fc000 -        0x103907ff3 +_lzma.cpython-312-darwin.so (0) <09F8C35C-45BD-3458-B699-CC2B059E3D3D> /opt/miniconda3/*/_lzma.cpython-312-darwin.so
+       0x10391c000 -        0x10392fff3 +libbz2.1.0.8.dylib (0) <0F29847C-5689-38AA-A8FB-D9A99A2AE679> /opt/miniconda3/*/libbz2.1.0.8.dylib
+       0x103974000 -        0x10399bff3 +liblzma.5.dylib (0) <6BCC184A-B4A9-3683-93E3-4F1932098AC8> /opt/miniconda3/*/liblzma.5.dylib
+       0x103ae8000 -        0x103d3b86b +libcrypto.3.dylib (0) <41328E28-8880-34A0-B671-1B390E5FF16F> /opt/miniconda3/*/libcrypto.3.dylib
+       0x183760000 -        0x1837b2b4b  libobjc.A.dylib (951.7) <03BD9E32-CF0A-37B0-898A-3CE8DE06D842> /usr/lib/libobjc.A.dylib
+       0x1837b3000 -        0x1837e7d58  libdyld.dylib (1387) <957F93B3-8805-39C7-9C51-EDD1715F550E> /usr/lib/system/libdyld.dylib
+       0x1837e8000 -        0x18389b4ff  dyld (1.0.0 - 1387) <74E52480-C2BD-3C8D-812D-95FE2B74A096> /usr/lib/dyld
+       0x18389c000 -        0x18389f228  libsystem_blocks.dylib (96) <E0AC1231-27AA-3A13-8FAC-41D5802B1F3C> /usr/lib/system/libsystem_blocks.dylib
+       0x1838a0000 -        0x1838f455f  libxpc.dylib (3102.160.5) <33E44C2D-D65E-37A6-B85F-1A4CF524A050> /usr/lib/system/libxpc.dylib
+       0x1838f5000 -        0x1839159ff  libsystem_trace.dylib (1861.160.4) <93F1DD8C-6CD9-32B9-B222-D23DA5D161B4> /usr/lib/system/libsystem_trace.dylib
+       0x183916000 -        0x1839c45f7  libcorecrypto.dylib (1922.160.10) <0642DDAD-4771-3C82-805C-E7C6701C1461> /usr/lib/system/libcorecrypto.dylib
+       0x1839c5000 -        0x183a15257  libsystem_malloc.dylib (812.160.5) <D969A907-3E43-3951-9365-8C2DB3812E9D> /usr/lib/system/libsystem_malloc.dylib
+       0x183a16000 -        0x183a5d23f  libdispatch.dylib (1542.160.2) <B2000CD5-F580-314A-A141-E036719D854E> /usr/lib/system/libdispatch.dylib
+       0x183a5e000 -        0x183a60ffb  libsystem_featureflags.dylib (103) <FEE12F9C-344B-33B3-8EDD-283580EF1C67> /usr/lib/system/libsystem_featureflags.dylib
+       0x183a61000 -        0x183ae21e7  libsystem_c.dylib (1752.160.4) <D77CEB62-AFF6-3CEC-BA9B-4F057FBE2EB5> /usr/lib/system/libsystem_c.dylib
+       0x183ae3000 -        0x183b73ae7  libc++.1.dylib (2100.43) <F0FD393C-15BC-3C75-A19D-897F7B225C78> /usr/lib/libc++.1.dylib
+       0x183b74000 -        0x183b8e75f  libc++abi.dylib (2100.43) <F38A9C58-22AB-3798-BBAE-8DCD9CC0CE27> /usr/lib/libc++abi.dylib
+       0x183b8f000 -        0x183bcc2e7  libsystem_kernel.dylib (12377.161.14) <C6A4A4CB-92E6-3BAF-AAE0-E8306259209A> /usr/lib/system/libsystem_kernel.dylib
+       0x183bcd000 -        0x183bd9b3b  libsystem_pthread.dylib (539.100.4) <A373F0B0-9880-326A-88B4-DD8BE4E33072> /usr/lib/system/libsystem_pthread.dylib
+       0x183bda000 -        0x183be2963  libsystem_platform.dylib (375.120.2) <EDB83A19-EC17-32DE-9350-6145970A85D6> /usr/lib/system/libsystem_platform.dylib
+       0x183be3000 -        0x183c126eb  libsystem_info.dylib (600) <9B5FB84B-31AD-3EA7-8F89-8C700D369DC8> /usr/lib/system/libsystem_info.dylib
+       0x187bb0000 -        0x187bb9e5f  libsystem_darwin.dylib (1752.160.4) <8E07D22E-CE5A-38A0-B091-5B0338C326F5> /usr/lib/system/libsystem_darwin.dylib
+       0x18801b000 -        0x18802d1b6  libsystem_notify.dylib (348.160.3) <15799128-6CBD-30D6-A2BB-B9D02B4470C0> /usr/lib/system/libsystem_notify.dylib
+       0x18a2ec000 -        0x18a306f7b  libsystem_networkextension.dylib (2226.161.1) <9C7B1EEB-47BE-3791-93A9-CFC693CB9417> /usr/lib/system/libsystem_networkextension.dylib
+       0x18a389000 -        0x18a3a0fdf  libsystem_asl.dylib (406) <54439739-33EE-3273-839F-CBA67D7F5CB1> /usr/lib/system/libsystem_asl.dylib
+       0x18bf42000 -        0x18bf4a387  libsystem_symptoms.dylib (2169.160.3) <229122B9-B8B1-3F2F-870E-8650AE3C4FB5> /usr/lib/system/libsystem_symptoms.dylib
+       0x1901e7000 -        0x19021f5b7  libsystem_containermanager.dylib (725.160.3) <14B2A47F-19C8-392F-8FDB-FE8AE375DD41> /usr/lib/system/libsystem_containermanager.dylib
+       0x1915f9000 -        0x1915fd5d7  libsystem_configuration.dylib (1405.160.3) <D8D6280B-783D-3550-BDBA-2861AE40604F> /usr/lib/system/libsystem_configuration.dylib
+       0x1915fe000 -        0x19160499f  libsystem_sandbox.dylib (2680.160.6) <54688162-B50D-3D31-A1E8-7B9766D3530D> /usr/lib/system/libsystem_sandbox.dylib
+       0x192c59000 -        0x192c5c1fb  libquarantine.dylib (196.160.2) <EEE5AADB-52E1-3C4C-881A-70405770B1F1> /usr/lib/system/libquarantine.dylib
+       0x1933f8000 -        0x1933fed03  libsystem_coreservices.dylib (191.5.1) <D4ACD2AC-5702-3C45-85A0-300B2C2D19E1> /usr/lib/system/libsystem_coreservices.dylib
+       0x193987000 -        0x1939c4a77  libsystem_m.dylib (3312.100.1) <B54FBE99-DB0B-32C7-ABDD-C2206DF606A4> /usr/lib/system/libsystem_m.dylib
+       0x1939c6000 -        0x1939c9527  libmacho.dylib (1387) <949131E5-BDA2-39BA-AA50-62651BB51802> /usr/lib/system/libmacho.dylib
+       0x1939e3000 -        0x1939f03a7  libcommonCrypto.dylib (600035) <3B110564-5278-3CB0-85F1-2CE8431FF935> /usr/lib/system/libcommonCrypto.dylib
+       0x1939f1000 -        0x1939faca3  libunwind.dylib (2100.2) <05FD0014-55B1-3B8A-A6BA-6C7A389C4123> /usr/lib/system/libunwind.dylib
+       0x193a03000 -        0x193a0dbef  libcopyfile.dylib (240.160.2.0.1) <D0009B8A-8ECC-3D56-9206-7E1839707F93> /usr/lib/system/libcopyfile.dylib
+       0x193a0e000 -        0x193a11987  libcompiler_rt.dylib (103.3) <6FB345CA-7F5C-3263-A23F-143F7539FD8A> /usr/lib/system/libcompiler_rt.dylib
+       0x193a12000 -        0x193a1678b  libsystem_collections.dylib (1752.160.4) <C8160BD2-5941-3DC0-BB40-F8C2B8156EC4> /usr/lib/system/libsystem_collections.dylib
+       0x193a17000 -        0x193a1a4cf  libsystem_secinit.dylib (168.100.7) <ECABC024-8F02-374A-BB7E-29437CEA2ABD> /usr/lib/system/libsystem_secinit.dylib
+       0x193a1b000 -        0x193a1dbf7  libremovefile.dylib (85.100.6) <7460B5AE-469A-36A0-A7EC-6C7D69628E86> /usr/lib/system/libremovefile.dylib
+       0x193a1e000 -        0x193a1ef27  libkeymgr.dylib (31) <7E863FCA-F3FF-32C7-8A8C-F983E946AFC3> /usr/lib/system/libkeymgr.dylib
+       0x193a1f000 -        0x193a27e37  libsystem_dnssd.dylib (2881.160.4) <305F4398-E688-3384-B351-02D865EC8A04> /usr/lib/system/libsystem_dnssd.dylib
+       0x193a28000 -        0x193a2d09b  libcache.dylib (95) <9CD7B1E1-3E47-339C-A193-2392E3E0ED23> /usr/lib/system/libcache.dylib
+       0x193a2e000 -        0x193a2fce3  libSystem.B.dylib (1356) <4FED5EE2-5D3E-35B1-A170-9859C4B683BB> /usr/lib/libSystem.B.dylib
+       0x2879f1000 -        0x2879f8349  libRosetta.dylib (367.9) <0C7397C6-D747-31F2-8BC1-4096213BDE5C> /usr/lib/libRosetta.dylib
+       0x289604000 -        0x289607a4b  libsystem_darwindirectory.dylib (122) <971A4F65-493D-39F3-846D-0D33FA2769FD> /usr/lib/system/libsystem_darwindirectory.dylib
+       0x289608000 -        0x28961239b  libsystem_eligibility.dylib (319.160.17) <750CA446-92EA-3A56-9A7B-CC0841686C50> /usr/lib/system/libsystem_eligibility.dylib
+       0x289613000 -        0x28961a88b  libsystem_sanitizers.dylib (26.1) <D88EC709-9AA8-3083-B22B-D3CB39678D71> /usr/lib/system/libsystem_sanitizers.dylib
+       0x28961b000 -        0x28961bbb7  libsystem_trial.dylib (474.2.18.2) <7194FF5B-A6C5-3D67-B00A-90209F10D603> /usr/lib/system/libsystem_trial.dylib

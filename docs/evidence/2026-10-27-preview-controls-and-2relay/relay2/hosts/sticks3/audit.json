@@ -1,0 +1,1041 @@
+{
+  "schema_version": 1,
+  "device_id": "sticks3",
+  "mandatory_status": "PASS",
+  "hardware": "NOT RUN",
+  "runtime": {
+    "pid": 76427,
+    "executable_name": "qemu-system-xtensa",
+    "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+  },
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 36,
+    "lease_active": true
+  },
+  "preview_id": "4504b839ce414053acdd9c8b714672a4",
+  "session_id": "05b66ad637e34aa5821874fe62a04095",
+  "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+  "runs": [
+    {
+      "run_id": "8f877cfe80ff4488ba9af85d8a749322",
+      "execution_id": "6410a3751ae0471cb3c89773b3486fdb",
+      "revision_id": "59202d9183e635194384f44de2d591870f8f511fa2c5cd481b6ee15edbdc81b7",
+      "phase": "seed",
+      "label": "seed"
+    },
+    {
+      "run_id": "c8717037b24a4e049581c36085b051aa",
+      "execution_id": "534e223c5cc64f0696c135038e012e33",
+      "revision_id": "34c7ac8bf76d93de367870e6d7ed13fee4c21811772a36c6905123061a33f138",
+      "phase": "00",
+      "label": "00"
+    },
+    {
+      "run_id": "4ebb004db9d141e18c8cb8b9e8aba7ba",
+      "execution_id": "cd9a5e49b3da4732a29dd2849f0b8bda",
+      "revision_id": "0cec8c992ae873a5ba5183c44d0b5cac620b07e4b18a316216185e661ccecc6e",
+      "phase": "10",
+      "label": "10"
+    },
+    {
+      "run_id": "9a97188856b84ade9caf886f12b74996",
+      "execution_id": "3dd8034ca8514c418f170f98523afbb7",
+      "revision_id": "ae7fcba82268ee63ea02b91d4090e462bac7d8a423a142dc92327e994d7b6955",
+      "phase": "01",
+      "label": "01"
+    },
+    {
+      "run_id": "9d8c26430cf14c3cb22cbd21246a5c6b",
+      "execution_id": "b35915979c4741ce8a6363477fa13a66",
+      "revision_id": "09912542a39e0c8e236c520768d736910a2fc796e221a642245ffc4168df56a1",
+      "phase": "11",
+      "label": "11"
+    },
+    {
+      "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+      "execution_id": "b29bc2f152244c02a3de938618f690fe",
+      "revision_id": "33c17367f6d8e1f5e93d1ed9e860870caf51e6c0f408f1bcda3cf59a83fc37a8",
+      "phase": "interactive",
+      "label": "interactive"
+    },
+    {
+      "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+      "execution_id": "cc6164c7c6cb4c449377cc61287ac833",
+      "revision_id": "33c17367f6d8e1f5e93d1ed9e860870caf51e6c0f408f1bcda3cf59a83fc37a8",
+      "phase": "interactive",
+      "label": "interactive-after-cancel"
+    }
+  ],
+  "checks": {
+    "source_snapshots": 22,
+    "mandatory_direct_http": 848,
+    "running_vm_snapshots": 9,
+    "typed_uart_driver_pad_qom_mounted": [
+      {
+        "label": "fixed-00",
+        "run_id": "c8717037b24a4e049581c36085b051aa",
+        "sequence": 1,
+        "events": 0,
+        "last_raw_http_index": 81,
+        "counters": {
+          "output-1-transitions": 0,
+          "output-2-transitions": 0,
+          "output-transitions": 0
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "c8717037b24a4e049581c36085b051aa",
+        "sequence": 3,
+        "events": 0,
+        "last_raw_http_index": 99,
+        "counters": {
+          "output-1-transitions": 0,
+          "output-2-transitions": 0,
+          "output-transitions": 0
+        }
+      },
+      {
+        "label": "fixed-10",
+        "run_id": "4ebb004db9d141e18c8cb8b9e8aba7ba",
+        "sequence": 1,
+        "events": 0,
+        "last_raw_http_index": 153,
+        "counters": {
+          "output-1-transitions": 1,
+          "output-2-transitions": 0,
+          "output-transitions": 1
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "4ebb004db9d141e18c8cb8b9e8aba7ba",
+        "sequence": 3,
+        "events": 0,
+        "last_raw_http_index": 167,
+        "counters": {
+          "output-1-transitions": 1,
+          "output-2-transitions": 0,
+          "output-transitions": 1
+        }
+      },
+      {
+        "label": "fixed-01",
+        "run_id": "9a97188856b84ade9caf886f12b74996",
+        "sequence": 1,
+        "events": 0,
+        "last_raw_http_index": 220,
+        "counters": {
+          "output-1-transitions": 2,
+          "output-2-transitions": 1,
+          "output-transitions": 3
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9a97188856b84ade9caf886f12b74996",
+        "sequence": 3,
+        "events": 0,
+        "last_raw_http_index": 230,
+        "counters": {
+          "output-1-transitions": 2,
+          "output-2-transitions": 1,
+          "output-transitions": 3
+        }
+      },
+      {
+        "label": "fixed-11",
+        "run_id": "9d8c26430cf14c3cb22cbd21246a5c6b",
+        "sequence": 2,
+        "events": 0,
+        "last_raw_http_index": 288,
+        "counters": {
+          "output-1-transitions": 3,
+          "output-2-transitions": 1,
+          "output-transitions": 4
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9d8c26430cf14c3cb22cbd21246a5c6b",
+        "sequence": 3,
+        "events": 0,
+        "last_raw_http_index": 298,
+        "counters": {
+          "output-1-transitions": 3,
+          "output-2-transitions": 1,
+          "output-transitions": 4
+        }
+      },
+      {
+        "label": "reverse-input-did-not-mutate-pads",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 2,
+        "events": 0,
+        "last_raw_http_index": 367,
+        "counters": {
+          "output-1-transitions": 4,
+          "output-2-transitions": 2,
+          "output-transitions": 6
+        }
+      },
+      {
+        "label": "host-loop-initial-00",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 2,
+        "events": 0,
+        "last_raw_http_index": 375,
+        "counters": {
+          "output-1-transitions": 4,
+          "output-2-transitions": 2,
+          "output-transitions": 6
+        }
+      },
+      {
+        "label": "host-key-a-held-1",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 5,
+        "events": 1,
+        "last_raw_http_index": 393,
+        "counters": {
+          "output-1-transitions": 5,
+          "output-2-transitions": 2,
+          "output-transitions": 7
+        }
+      },
+      {
+        "label": "host-key-a-released-1",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 7,
+        "events": 1,
+        "last_raw_http_index": 410,
+        "counters": {
+          "output-1-transitions": 5,
+          "output-2-transitions": 2,
+          "output-transitions": 7
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 8,
+        "events": 1,
+        "last_raw_http_index": 424,
+        "counters": {
+          "output-1-transitions": 5,
+          "output-2-transitions": 2,
+          "output-transitions": 7
+        }
+      },
+      {
+        "label": "host-key-b-held-2",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 10,
+        "events": 2,
+        "last_raw_http_index": 446,
+        "counters": {
+          "output-1-transitions": 5,
+          "output-2-transitions": 3,
+          "output-transitions": 8
+        }
+      },
+      {
+        "label": "host-key-b-released-2",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 12,
+        "events": 2,
+        "last_raw_http_index": 463,
+        "counters": {
+          "output-1-transitions": 5,
+          "output-2-transitions": 3,
+          "output-transitions": 8
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 14,
+        "events": 2,
+        "last_raw_http_index": 481,
+        "counters": {
+          "output-1-transitions": 5,
+          "output-2-transitions": 3,
+          "output-transitions": 8
+        }
+      },
+      {
+        "label": "host-key-a-held-3",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 16,
+        "events": 3,
+        "last_raw_http_index": 503,
+        "counters": {
+          "output-1-transitions": 6,
+          "output-2-transitions": 3,
+          "output-transitions": 9
+        }
+      },
+      {
+        "label": "host-key-a-released-3",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 18,
+        "events": 3,
+        "last_raw_http_index": 520,
+        "counters": {
+          "output-1-transitions": 6,
+          "output-2-transitions": 3,
+          "output-transitions": 9
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 19,
+        "events": 3,
+        "last_raw_http_index": 530,
+        "counters": {
+          "output-1-transitions": 6,
+          "output-2-transitions": 3,
+          "output-transitions": 9
+        }
+      },
+      {
+        "label": "host-key-b-held-4",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 20,
+        "events": 4,
+        "last_raw_http_index": 548,
+        "counters": {
+          "output-1-transitions": 6,
+          "output-2-transitions": 4,
+          "output-transitions": 10
+        }
+      },
+      {
+        "label": "host-key-b-released-4",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 22,
+        "events": 4,
+        "last_raw_http_index": 565,
+        "counters": {
+          "output-1-transitions": 6,
+          "output-2-transitions": 4,
+          "output-transitions": 10
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sequence": 24,
+        "events": 4,
+        "last_raw_http_index": 583,
+        "counters": {
+          "output-1-transitions": 6,
+          "output-2-transitions": 4,
+          "output-transitions": 10
+        }
+      },
+      {
+        "label": "host-loop-initial-00",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 1,
+        "events": 0,
+        "last_raw_http_index": 631,
+        "counters": {
+          "output-1-transitions": 6,
+          "output-2-transitions": 4,
+          "output-transitions": 10
+        }
+      },
+      {
+        "label": "host-key-a-held-1",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 3,
+        "events": 1,
+        "last_raw_http_index": 653,
+        "counters": {
+          "output-1-transitions": 7,
+          "output-2-transitions": 4,
+          "output-transitions": 11
+        }
+      },
+      {
+        "label": "host-key-a-released-1",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 5,
+        "events": 1,
+        "last_raw_http_index": 666,
+        "counters": {
+          "output-1-transitions": 7,
+          "output-2-transitions": 4,
+          "output-transitions": 11
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 6,
+        "events": 1,
+        "last_raw_http_index": 680,
+        "counters": {
+          "output-1-transitions": 7,
+          "output-2-transitions": 4,
+          "output-transitions": 11
+        }
+      },
+      {
+        "label": "host-key-b-held-2",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 8,
+        "events": 2,
+        "last_raw_http_index": 702,
+        "counters": {
+          "output-1-transitions": 7,
+          "output-2-transitions": 5,
+          "output-transitions": 12
+        }
+      },
+      {
+        "label": "host-key-b-released-2",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 10,
+        "events": 2,
+        "last_raw_http_index": 715,
+        "counters": {
+          "output-1-transitions": 7,
+          "output-2-transitions": 5,
+          "output-transitions": 12
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 11,
+        "events": 2,
+        "last_raw_http_index": 729,
+        "counters": {
+          "output-1-transitions": 7,
+          "output-2-transitions": 5,
+          "output-transitions": 12
+        }
+      },
+      {
+        "label": "host-key-a-held-3",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 13,
+        "events": 3,
+        "last_raw_http_index": 751,
+        "counters": {
+          "output-1-transitions": 8,
+          "output-2-transitions": 5,
+          "output-transitions": 13
+        }
+      },
+      {
+        "label": "host-key-a-released-3",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 15,
+        "events": 3,
+        "last_raw_http_index": 764,
+        "counters": {
+          "output-1-transitions": 8,
+          "output-2-transitions": 5,
+          "output-transitions": 13
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 16,
+        "events": 3,
+        "last_raw_http_index": 778,
+        "counters": {
+          "output-1-transitions": 8,
+          "output-2-transitions": 5,
+          "output-transitions": 13
+        }
+      },
+      {
+        "label": "host-key-b-held-4",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 18,
+        "events": 4,
+        "last_raw_http_index": 800,
+        "counters": {
+          "output-1-transitions": 8,
+          "output-2-transitions": 6,
+          "output-transitions": 14
+        }
+      },
+      {
+        "label": "host-key-b-released-4",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 20,
+        "events": 4,
+        "last_raw_http_index": 813,
+        "counters": {
+          "output-1-transitions": 8,
+          "output-2-transitions": 6,
+          "output-transitions": 14
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sequence": 21,
+        "events": 4,
+        "last_raw_http_index": 827,
+        "counters": {
+          "output-1-transitions": 8,
+          "output-2-transitions": 6,
+          "output-transitions": 14
+        }
+      }
+    ],
+    "independent_counter_checks": [
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "c8717037b24a4e049581c36085b051aa",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "4ebb004db9d141e18c8cb8b9e8aba7ba",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9a97188856b84ade9caf886f12b74996",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9d8c26430cf14c3cb22cbd21246a5c6b",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-key-a-held-1",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "changed_channel": 1
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-key-b-held-2",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "changed_channel": 2
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-key-a-held-3",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "changed_channel": 1
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-key-b-held-4",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "changed_channel": 2
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-key-a-held-1",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "changed_channel": 1
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-key-b-held-2",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "changed_channel": 2
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-key-a-held-3",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "changed_channel": 1
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-key-b-held-4",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "changed_channel": 2
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "delta": [
+          0,
+          0
+        ]
+      }
+    ],
+    "key_hold_release_checks": [
+      {
+        "label": "host-key-a-held-1",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "events": 1
+      },
+      {
+        "label": "host-key-a-released-1",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "events": 1
+      },
+      {
+        "label": "host-key-b-held-2",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "events": 2
+      },
+      {
+        "label": "host-key-b-released-2",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "events": 2
+      },
+      {
+        "label": "host-key-a-held-3",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "events": 3
+      },
+      {
+        "label": "host-key-a-released-3",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "events": 3
+      },
+      {
+        "label": "host-key-b-held-4",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "events": 4
+      },
+      {
+        "label": "host-key-b-released-4",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "events": 4
+      },
+      {
+        "label": "host-key-a-held-1",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "events": 1
+      },
+      {
+        "label": "host-key-a-released-1",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "events": 1
+      },
+      {
+        "label": "host-key-b-held-2",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "events": 2
+      },
+      {
+        "label": "host-key-b-released-2",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "events": 2
+      },
+      {
+        "label": "host-key-a-held-3",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "events": 3
+      },
+      {
+        "label": "host-key-a-released-3",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "events": 3
+      },
+      {
+        "label": "host-key-b-held-4",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "events": 4
+      },
+      {
+        "label": "host-key-b-released-4",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "events": 4
+      }
+    ],
+    "five_header_frames_and_pixels": [
+      {
+        "label": "frame-fixed-00",
+        "run_id": "c8717037b24a4e049581c36085b051aa",
+        "sha256": "228c633a59baba6cf7abe15fa7069829b6c69959d9aaf0e950446d311fa74a87",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-fixed-10",
+        "run_id": "4ebb004db9d141e18c8cb8b9e8aba7ba",
+        "sha256": "9d2967cdfddd382b931c26f6ce64d92dd83071bc09f32b03e6f5ffa5ed8c6034",
+        "selected_pixel_rgba": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-fixed-01",
+        "run_id": "9a97188856b84ade9caf886f12b74996",
+        "sha256": "9d8076e72e9c135a3d8c0fa05e559bb447b99ef6edce3884054fe0873a090cbf",
+        "selected_pixel_rgba": [
+          0,
+          255,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-fixed-11",
+        "run_id": "9d8c26430cf14c3cb22cbd21246a5c6b",
+        "sha256": "2c5c4ce817c6cd3c29d03ccfe33121163dccba7922426e247aabd841ffa6f71e",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          255,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-initial",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sha256": "4d9fc239b540a1bdb286e372f9f6e76b6042e293cf093bc035b461715c149f9e",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-1",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sha256": "9025039b866d37edbdf61dc4c6b733f3ce253b2db2cafd0de427957a25b40292",
+        "selected_pixel_rgba": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-2",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sha256": "414314a021de1284e5bcc06a6fd184953c50901d2e092e089aeab786585343d7",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          255,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-3",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sha256": "b08cb305f83ccbb1541f8f0e34e9bcaf87cc3ff7f9972f20aa828916d2ce219d",
+        "selected_pixel_rgba": [
+          0,
+          255,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-4",
+        "run_id": "9b9c74f925ba46b5aa347df0d709218d",
+        "sha256": "4d9fc239b540a1bdb286e372f9f6e76b6042e293cf093bc035b461715c149f9e",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-after-cancel-initial",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sha256": "4d9fc239b540a1bdb286e372f9f6e76b6042e293cf093bc035b461715c149f9e",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-after-cancel-1",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sha256": "9025039b866d37edbdf61dc4c6b733f3ce253b2db2cafd0de427957a25b40292",
+        "selected_pixel_rgba": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-after-cancel-2",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sha256": "414314a021de1284e5bcc06a6fd184953c50901d2e092e089aeab786585343d7",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          255,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-after-cancel-3",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sha256": "b08cb305f83ccbb1541f8f0e34e9bcaf87cc3ff7f9972f20aa828916d2ce219d",
+        "selected_pixel_rgba": [
+          0,
+          255,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-after-cancel-4",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sha256": "4d9fc239b540a1bdb286e372f9f6e76b6042e293cf093bc035b461715c149f9e",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-before-close",
+        "run_id": "7aa9577c08ab4c639986996b9e15d32f",
+        "sha256": "4d9fc239b540a1bdb286e372f9f6e76b6042e293cf093bc035b461715c149f9e",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          0,
+          255
+        ]
+      }
+    ],
+    "readonly_output_rejections": 4,
+    "zip": {
+      "status": "PASS",
+      "members": 51,
+      "sha256": "ed9090fd9e032880c66f56f913a7a0679c121595ae3a26c8d9bfbe4a85b1e07d"
+    },
+    "pngs_decoded": [
+      {
+        "path": "before-close-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "fixed-00-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "fixed-01-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "fixed-10-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "fixed-11-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "history-last-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "interactive-1-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "interactive-2-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "interactive-3-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "interactive-4-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "interactive-after-cancel-1-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "interactive-after-cancel-2-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "interactive-after-cancel-3-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "interactive-after-cancel-4-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "interactive-after-cancel-initial-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "interactive-initial-frame.png",
+        "width": 135,
+        "height": 240
+      },
+      {
+        "path": "relay2-1024.png",
+        "width": 1024,
+        "height": 8423
+      },
+      {
+        "path": "relay2-1440.png",
+        "width": 1440,
+        "height": 7447
+      },
+      {
+        "path": "relay2-390.png",
+        "width": 390,
+        "height": 11553
+      },
+      {
+        "path": "relay2-768.png",
+        "width": 768,
+        "height": 10664
+      }
+    ]
+  },
+  "cleanup": {
+    "status": "PASS",
+    "zip_before_close": true,
+    "history_exact_sha256": "4d9fc239b540a1bdb286e372f9f6e76b6042e293cf093bc035b461715c149f9e",
+    "flash_retained": false,
+    "pid_gone_recorded": true,
+    "active_sessions": 0,
+    "active_lease_count": 0
+  },
+  "optional_browser_observer": {
+    "status": "INCOMPLETE",
+    "scope": "browser responses admitted before shutdown cutoff; bounded optional body/header recording",
+    "sealed_at": "2026-10-26T19:40:57.927Z",
+    "responses": 1251,
+    "bodies_saved": 1081,
+    "complete": 1081,
+    "observer_errors": 170,
+    "timeouts": 7,
+    "pending": 0
+  },
+  "browser_shutdown": {
+    "pre_close": {
+      "status": "settled"
+    },
+    "browser_close": {
+      "status": "settled"
+    },
+    "final_drain": {
+      "status": "settled"
+    },
+    "observer": {
+      "status": "INCOMPLETE",
+      "scope": "browser responses admitted before shutdown cutoff; bounded optional body/header recording",
+      "sealed_at": "2026-10-26T19:40:57.927Z",
+      "responses": 1251,
+      "bodies_saved": 1081,
+      "complete": 1081,
+      "observer_errors": 170,
+      "timeouts": 7,
+      "pending": 0
+    }
+  },
+  "limits": [
+    "Optional browser bodies may be INCOMPLETE or time out; mandatory direct HTTP and Device Service evidence are independently required.",
+    "Browser-close/final-drain settled and pending zero do not mean every optional body was captured.",
+    "Virtual nominal powered GPIO/LED state only; no physical relay NO/NC/load/coil timing or electrical measurement.",
+    "Offline audit rechecks recorded guest/DOM/material/PID evidence; it does not reopen the service or query current processes.",
+    "Interrupt-only program cleanup does not guarantee arbitrary native/IRQ/thread cleanup."
+  ]
+}

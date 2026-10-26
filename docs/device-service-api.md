@@ -181,9 +181,9 @@ Runs per Preview. Preview/package GC is disabled. Ledger reference/package pins,
 managed history and allocation barriers protect cache/history roots, including
 bulk/manual/TTL/pressure deletion. Unresolved allocation or corrupt retention
 metadata fails closed. This does not implement SSE, background sampling, an
-AIFlow editor target, main.mpy, save-to-boot or hotplug. The current Live sessions
-UI reads a managed session but has not adapted its mutation controls or Run
-frame fence; use Preview endpoints directly until UNIT-HOST-34 is closed.
+AIFlow editor target, main.mpy, save-to-boot or hotplug. The Live sessions UI
+uses Preview-aware mutation controls and Run-bound frames within the bounded
+UNIT-HOST-34 acceptance above; other Unit/host combinations need their own evidence.
 Manual artifact deletion also protects recorded legacy session source artifacts
 with 409 instead of deleting an evidence dependency.
 

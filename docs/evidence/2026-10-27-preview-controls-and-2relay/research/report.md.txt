@@ -1,0 +1,69 @@
+# 新增 Unit 候选与 2Relay 原始协议证据
+
+日期：2026-10-27。范围：只读代码/官方资料研究；本审计未改 C、JSON 或产品代码，未操作 8787，未启动 guest，未提交。当前选择为 **Unit 2Relay / U131**。所有候选的本机运行验证均为 NOT RUN。
+
+## 检索和可复现来源
+
+本 runtime 未注册 `knowledge_search` / `knowledge_answer` / `knowledge_feedback` 工具。按 `m5stack-assistant` 技能文档实际调用其 `m5-search.mjs`，通过官方 MCP SSE 完成产品/驱动检索；原始成功输出保存在 `sources/official-mcp-*.txt`，解析正文另存 `.info.md`。这是真实 CLI 查询，不冒充注册工具调用。反馈尚未提交，未获得 feedback_id；已确认文档冲突保存在 `feedback-draft.md`。
+
+官方产品 HTML、解析文本、固定 GitHub commit 驱动和原理图均保存在 `sources/`。`official-web-index.json`、`github-driver-index.json`、`uiflow-2.5.3-driver-index.json`、`frozen-manifest-index.json` 和 `relay-arduino-index.json` 记录 URL、HTTP 状态、大小和 SHA-256；总文件哈希见 `source-file-hashes.json`。公共旧 m5-docs 仓库三个候选路径返回 404，已保留；后续使用官方在线产品页，未把 404 解释成产品资料不存在。
+
+本机相关只读文件快照和哈希见 `local-source-index.json` / `local-snapshot/`。研究开始时 catalog 与 runtime-profiles 各含 28 项，四个候选均未接入；只有单路 `relay`，不能把它的实现与芯片身份继承到新 SKU。
+
+## 候选比较
+
+| 候选 | 官方产品 / 原驱动路径 | 已有视觉能力 | 当前 C 路径与主要缺口 | 判断 |
+| --- | --- | --- | --- | --- |
+| 2relay | U131；两路离散 SS8050 Y1 低侧驱动，无板载 MCU/I2C/寄存器；`Relay2Unit` 使用两个 `machine.Pin(..., OUT)` | `led-1` / `led-2`，独立固定蓝色外驱；密封继电器无运动 joint；端子与 Grove 仅外观 | GPIO pad getter / output listener 已存在；需新增双路状态、各自 previous/transition、真实外部下拉；不能复用单 relay 的 yellow-only getter | 最有根据、最小真实控制器扩展 |
+| 4relay | U097；STM32F030F4P6，I2C 0x26；0x10 bit0 同步模式，0x11 上/下半字节 LED/relay，驱动 `scan` + `writeto` + `readfrom_into` | 四个 `led-1..4` 固定绿色外驱，端子触点语义未确认 | 可接现有 routed `I2CSlave` 控制器框架，但尚无该种类；官方文档编号与原驱动位序反向，不能猜物理通道排列 | 保留研究，先解决编号冲突 |
+| adc-v11 | U013-V11；ADS1110 + LM358DR2G + HT7533；I2C 0x48；直接写配置字节，再无指针读两个大端有符号字节 | 无 LED/joint，只有外观 anchor 和模拟输入端子 | routed I2C 可新增 converter；不能套用“首写字节都是 register pointer”的现有控制模板；需量化/饱和/ready/采样模型 | 后续模拟量候选，当前视觉主要是读数 |
+| dac2 | **Unit U012-B**，不是 Hat U068-B；GP8413；默认 0x59；0x01 量程，0x02/0x04 通道数据小端写入 | 无 LED/joint，只有端子/外观 anchor | routed I2C 可新增 DAC；需 GP8413 位对齐/满量程与可选地址确认；原驱动默认 channel int 与 tuple 常量不匹配 | 后续模拟输出候选，先保留驱动原语义和文档缺口 |
+
+ADC V1.1 原驱动配置位为 START bit7、single bit4、rate bits3:2、gain bits1:0；其常量命名 15/30/60/240 与 UIFlow 文档 8/16/32/128 SPS、产品 ADS1110/ADS1100 及参数文字存在冲突，未用宿主常数替代转换器。DAC2 原驱动 `set_voltage` 默认 `channel=2`，而 `CHANNEL_BOTH=(2,)`，默认分支不会执行写入；显式传常量可走其原有分支。未修改原驱动或宣称问题已修复。
+
+4Relay 产品页将 0x11 的 LED1/Relay1 标为 bit7/bit3，而固定 UIFlow 源码将 n=1 读写 bit4/bit0；官方 Arduino `M5Unit-RELAY` 又以零起始 channel 操作 bit0 / bit4。寄存器交易本身明确，物理编号映射仍不应推断。
+
+## U131 的 exact-SKU 绑定
+
+机器可读绑定：`2relay-binding-evidence.json`。
+
+| 通道 | 官方 Grove 颜色 | 原 Relay2Unit | CoreS3 PORT.A | 冻结视觉组件 |
+| --- | --- | --- | --- | --- |
+| Relay1 | White | `_relay1 = Pin(port[0], Pin.OUT)` | GPIO1 | `led-1`，channel=1 |
+| Relay2 | Yellow | `_relay2 = Pin(port[1], Pin.OUT)` | GPIO2 | `led-2`，channel=2 |
+
+因此 CoreS3 原驱动 tuple 是 **(white, yellow) = (1, 2)**。单路 U023 `relay` 的控制线是 yellow，不能照搬其通道定义。其它主机必须从 host-ports 获取各自确切 white/yellow，不能继承 CoreS3 数字引脚。
+
+官方产品页：<https://docs.m5stack.com/en/unit/2relay>；HTML SHA-256 `73397360b82434548aa9f37efad1387f54613e84926ad84298b45da3b4326dc3`。解析文本 `sources/2relay.official.parsed.txt:69-72` 保留 PinMap 和 White/Yellow 标题。
+
+原理图：<https://static-cdn.m5stack.com/resource/docs/products/unit/2relay/2relay_sch_01.webp>；SHA-256 **`d2fa75fa6126915d7c2b7a26248b08e4416ce2a801a1771add49b94bef524b73`**。本审计已实际打开图像核对，而非只保存链接：
+
+- Relay A → R2 1KΩ → Q1 SS8050 Y1；Relay A 同时通过 **R3 10KΩ 下拉到 GND**。Q1 emitter 接 GND、collector 接 K1 线圈低侧。
+- Relay B → R5 1KΩ → Q2 SS8050 Y1；Relay B 同时通过 **R6 10KΩ 下拉到 GND**。Q2 emitter 接 GND、collector 接 K2 线圈低侧。
+- D1 蓝灯0603 / R1 1KΩ 的高侧接 +5VIN、低侧接 Q1 collector/K1；D3 蓝灯0603 / R4 1KΩ 同理接 Q2/K2。
+- 在额定供电功能模型中，输入 high 使对应低侧导通，线圈与蓝灯得电；low 时对应蓝灯熄灭。外部 R3/R6 支持未驱动输入的数字低默认，不能沿用通用 GPIO 的默认上拉产生假亮。该结论不包含电阻竞争、阈值、电流、线圈动作时间或实测亮度。
+- 图纸端子为 C/A/B/C，符号写 Relay-DPDT；不据此推断接点 NO/NC 真值、负载导通、隔离或高压安全结论。
+
+MCP 对应原理图解析正文 `sources/official-mcp-2relay.txt.info.md:155-166` 独立列出 R3/R6、D1/D3、Q1/Q2 及其连接。
+
+视觉位置证据是 exact U131 模型本身：`platform/web/vendor/m5stack-models/src/units/2relay/dimensions.js` 的 `channels` 逐项列出 number=1/2 的 relay/terminal/LED 坐标；`assembly.js:52` 以同一个 `item.number` 生成 `id:led-${item.number}` 和 channel metadata，`:55` 从同一 channel 列表创建 relay、terminal 和 LED。不使用其它 SKU 的颜色/排列，不让密封封装产生不存在的机械动画。
+
+## 固定 UIFlow 版本与实际 BIN 边界
+
+官方 UIFlow2 **V2.5.3** 固定 commit `50e440780492aa847378c7d3477ab912f7063bac`：
+
+- `sources/relay2-2.5.3.py` 1512 B，SHA-256 **`db05e974f2cd558c4fbaef85958b82730a9bcae1b21eb9646371bea7e6f273c5`**，与当前另一个已固定研究 commit `3a86d8f611b3639cca755a933e01a5a829771ef1` 的文件逐字节相同。
+- 构造在 lines25-27；写入 lines29-45；读回 lines47-64。真实路径为 `machine.Pin`，没有 host API、I2C mock 或额外状态缓存。
+- `cores3-manifest-2.5.3.py:8` include unit manifest；`unit-manifest-2.5.3.py:105` 明确列 `relay2.py`；`unit-init-2.5.3.py:109` 导出 Relay2Unit；`version-2.5.3.txt` 为 V2.5.3。
+- 当前设备元数据 `devices/esp32-s3/cores3/firmware.json` 指定官方 v2.5.3 下载；本机 reference BIN 实际 SHA-256 **`1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264`**、16121856 B，与 r4 的 `uiflow-source.json` base 一致。二进制包含 `unit/relay2.py` 两次及 `Relay2Unit` 一次。
+
+以上证明固定版本源码与构建清单具备该模块，并提供 BIN 字面 presence；**没有独立证明此 BIN 的 frozen bytecode 恰对应该源文件 SHA**。现场需要先记录 builtin import/可用方法兼容性，再按明确来源的完整 package 携带未改字节 `relay2_official.py`，核 `__file__`、源/包 inventory 哈希并执行；不能将 builtin import 成功写成 source attestation。
+
+## 后续实现/验证门槛（本审计均未执行）
+
+- 控制器观察真实 GPIO 输出与各自前值，分别统计通道 transition；QOM 和 API 只读，不新增 host relay Unit input。
+- 固定原驱动 package 执行 00/10/01/11、重复写、单通道变化，独立 `machine.Pin` pad 与 QOM/两颗 mounted 蓝 LED 对照；错误 white/yellow、错 driver bytes、跨通道 counter、host 反向写为负控。
+- Web → guest 控制回路采用确切主机 touch/key 输入，由 guest 调用原驱动；Unit 本身没有可凭空增加的开关。
+- Preview/Run identity、同 VM nonce/PID/firmware、取消再跑和 evidence-before-close、历史帧/Flash/PID/lease 按现有服务门槛验证。
+
+候选研究不是 simulated、guest PASS、Web PASS 或 hardware PASS。

@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "reviewer": "independent read-only peer",
+  "redactions_required": false,
+  "methods": [
+    "UTF-8 text scan",
+    "recognizable JSON base64 text decoding",
+    "recursive ZIP/PK text",
+    "PNG SHA deduplication plus tesseract psm11 OCR",
+    "manual classification of synthetic network constants"
+  ],
+  "groups": [
+    {
+      "scope": [
+        "CoreS3 r3 superseded",
+        "CoreS3 r4 final",
+        "final owned three sources"
+      ],
+      "utf8_payloads": 6021,
+      "base64_text_payloads": 86,
+      "zip_payloads": 4,
+      "png_payloads": 76,
+      "unique_pngs_ocr": 16,
+      "ocr_errors": 0,
+      "nontext_fixtures": 24,
+      "official_upstream_urls": 9459,
+      "m5stack_public_oss_urls": 1636,
+      "loopback_device_service_urls": 1
+    },
+    {
+      "scope": [
+        "AtomS3R r2 final"
+      ],
+      "utf8_payloads": 3142,
+      "base64_text_payloads": 43,
+      "zip_payloads": 2,
+      "png_payloads": 38,
+      "unique_pngs_ocr": 12,
+      "ocr_errors": 0,
+      "nontext_fixtures": 12,
+      "official_upstream_urls": 4109,
+      "m5stack_public_oss_urls": 434
+    },
+    {
+      "scope": [
+        "StickS3 r1 final",
+        "frozen 22 source snapshots plus manifest"
+      ],
+      "utf8_payloads": 3313,
+      "base64_text_payloads": 43,
+      "zip_payloads": 2,
+      "png_payloads": 38,
+      "unique_pngs_ocr": 12,
+      "ocr_errors": 0,
+      "nontext_fixtures": 12,
+      "official_upstream_urls": 4163,
+      "m5stack_public_oss_urls": 298,
+      "loopback_device_service_urls": 1
+    },
+    {
+      "scope": [
+        "StopWatch r1 final"
+      ],
+      "utf8_payloads": 3082,
+      "base64_text_payloads": 43,
+      "zip_payloads": 2,
+      "png_payloads": 38,
+      "unique_pngs_ocr": 8,
+      "ocr_errors": 0,
+      "nontext_fixtures": 12,
+      "official_upstream_urls": 3829,
+      "m5stack_public_oss_urls": 234
+    }
+  ],
+  "sensitive_hits": {
+    "user_absolute_paths": 0,
+    "credentials_tokens_private_keys_jwt": 0,
+    "email": 0,
+    "mac_physical_serial": 0,
+    "private_endpoints": 0,
+    "unknown_url_hosts": 0,
+    "png_ocr": 0
+  },
+  "allowed_source_candidates": {
+    "snapshot": "sources/platform__tools__device_service.py.txt",
+    "count": 9,
+    "classification": "QEMU SLiRP synthetic network and fixture address constants, not private endpoints",
+    "lines": [
+      389,
+      407,
+      714,
+      722,
+      723,
+      743,
+      5740,
+      5851,
+      5856
+    ]
+  },
+  "limits": [
+    "Payload counts include recursive copies and group overlaps; they are not counts of unique archive files.",
+    "Nontext fixtures have no text-only privacy claim.",
+    "Optional browser collection completeness is separate from privacy clearance."
+  ]
+}

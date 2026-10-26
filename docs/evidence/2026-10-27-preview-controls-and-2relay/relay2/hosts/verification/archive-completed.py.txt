@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""Archive an explicitly completed local run; never contacts a device service."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import zipfile
+
+HERE = Path(__file__).resolve().parents[1]
+REPO = Path.cwd()
+
+
+def sha(value):
+    return hashlib.sha256(value).hexdigest()
+
+
+def archive(source, target):
+    report = json.loads((source / 'report.json').read_bytes())
+    assert report['status'] == 'PASS'
+    assert report['browser_shutdown']['browser_close']['status'] == 'settled'
+    assert report['browser_shutdown']['final_drain']['status'] == 'settled'
+    assert report['browser_observer']['pending'] == 0
+    snapshots = json.loads((HERE / 'sources/index.json').read_bytes())['source_fingerprints']
+    assert report['source_sha256'] == snapshots
+    target.mkdir()
+    (target / 'raw').mkdir()
+    source_files = [path for path in sorted(source.rglob('*')) if path.is_file()]
+    assert all(not path.is_symlink() for path in source_files)
+    compressed = [path for path in source_files if path.name.startswith(('http-', 'browser-')) or path.name == 'create-intent.json']
+    origins, members = {}, {}
+    raw_zip = target / 'raw-evidence.zip'
+    with zipfile.ZipFile(raw_zip, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as output:
+        for path in compressed:
+            value = path.read_bytes()
+            assert str(REPO).encode() not in value
+            name = str(path.relative_to(source))
+            info = zipfile.ZipInfo(name, date_time=(2026, 10, 27, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o100644 << 16
+            output.writestr(info, value, compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
+    with zipfile.ZipFile(raw_zip) as output:
+        assert output.testzip() is None and len(output.namelist()) == len(compressed)
+        assert 'report.json' not in output.namelist()
+        for path in compressed:
+            name = str(path.relative_to(source))
+            value = output.read(name)
+            assert value == path.read_bytes()
+            row = {'archive': 'raw-evidence.zip', 'member': name, 'source': str(path.relative_to(REPO)),
+                   'size': len(value), 'original_size': len(value), 'sha256': sha(value), 'original_sha256': sha(value),
+                   'crc32': output.getinfo(name).CRC, 'original_bytes_preserved': True}
+            members[name] = row
+            origins['raw-evidence.zip!' + name] = row
+    for path in source_files:
+        if path in compressed:
+            continue
+        value = path.read_bytes()
+        assert str(REPO).encode() not in value, 'Report/log redaction requires an explicit provenance entry'
+        relative = path.relative_to(source)
+        assert path.suffix.lower() not in ('.rom', '.elf', '.md')
+        saved = target / relative if str(relative) == 'report.json' else target / 'raw' / relative
+        saved.parent.mkdir(parents=True, exist_ok=True)
+        saved.write_bytes(value)
+        assert saved.read_bytes() == value
+        origins[str(saved.relative_to(target))] = {'source': str(path.relative_to(REPO)), 'size': len(value), 'original_size': len(value),
+                                                  'sha256': sha(value), 'original_sha256': sha(value), 'original_bytes_preserved': True}
+    result = {'schema_version': 1, 'source_directory': str(source.relative_to(REPO)), 'device_id': report['device_id'],
+              'status': 'PASS', 'raw_original_bytes_modified': False, 'redactions': [], 'source_file_count': len(source_files),
+              'raw_members': members, 'files': origins, 'source_snapshot_index': '../sources/index.json'}
+    (target / 'provenance.json').write_text(json.dumps(result, indent=2) + '\n')
+    return {'device_id': report['device_id'], 'source_files': len(source_files), 'compressed_members': len(members), 'compressed_bytes': raw_zip.stat().st_size}
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--device', choices=('cores3', 'atoms3r', 'sticks3', 'stopwatch'), required=True)
+    parser.add_argument('--source', required=True)
+    args = parser.parse_args()
+    source = REPO / args.source
+    assert json.loads((source / 'report.json').read_bytes())['device_id'] == args.device
+    print(json.dumps(archive(source, HERE / args.device), indent=2))

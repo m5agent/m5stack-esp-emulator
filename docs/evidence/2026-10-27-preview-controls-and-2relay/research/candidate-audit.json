@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "category": "new-unit-protocol-research",
+  "date": "2026-10-27",
+  "selected": "2relay",
+  "official_mcp_cli_queries": 6,
+  "registered_knowledge_tools": false,
+  "feedback_status": "NOT SUBMITTED - no registered feedback tool; CLI search only",
+  "initial_catalog_observation": {
+    "count": 28,
+    "all_four_candidates_absent": true
+  },
+  "all_four_visual_assets_present": true,
+  "candidates": [
+    {
+      "id": "2relay",
+      "sku": "U131",
+      "bus": "GPIO",
+      "i2c_address": null,
+      "chip": "SS8050 Y1 discrete drivers, no MCU",
+      "original_driver": "Relay2Unit",
+      "recommendation": "selected for exact two-channel GPIO/controller+blue LED functional model"
+    },
+    {
+      "id": "4relay",
+      "sku": "U097",
+      "bus": "I2C",
+      "address": "0x26",
+      "chip": "STM32F030F4P6",
+      "registers": {
+        "0x10": "mode bit0",
+        "0x11": "LED high nibble / relay low nibble"
+      },
+      "blocker": "official table and original driver physical channel ordering disagree"
+    },
+    {
+      "id": "adc-v11",
+      "sku": "U013-V11",
+      "bus": "I2C",
+      "address": "0x48",
+      "chip": "ADS1110; LM358DR2G frontend",
+      "protocol": "write one config byte, read big-endian signed ADC word without register pointer",
+      "blocker": "part/SPS docs conflict and converter timing/quantization model required; visual anchor has no dynamic control"
+    },
+    {
+      "id": "dac2",
+      "sku": "U012-B",
+      "excluded_product": "Hat DAC2 U068-B",
+      "bus": "I2C",
+      "address": "0x59 default",
+      "chip": "GP8413",
+      "registers": {
+        "0x01": "output range",
+        "0x02": "channel0 / both, little endian",
+        "0x04": "channel1, little endian"
+      },
+      "blocker": "default channel integer versus tuple constants; datasheet alignment/address review required; no dynamic shell component"
+    }
+  ],
+  "validation": {
+    "guest": "NOT RUN",
+    "physical_hardware": "NOT RUN",
+    "service_8787": "NOT TOUCHED",
+    "product_mutations": "NONE",
+    "status": "RESEARCH ONLY"
+  }
+}

@@ -1,4 +1,5 @@
 import { DeviceViewer } from './vendor/m5stack-models/src/core/DeviceViewer.js';
+import * as THREE from 'three';
 import {UnitAnnotations} from './unit-annotations.js';
 import {layoutHubAttachments} from './unit-assembly-layout.js';
 import { loadModel, loadGroveModule } from './vendor/m5stack-models/src/loaders.js';
@@ -102,6 +103,7 @@ export class ModelDeviceShell {
         keyboard: 'focused', background: null, fov: 25,
         minDistance: 25, maxDistance: 2500,
       });
+      this.installAssemblyCamera();
       this.viewer.mount(model);
       this.unitAnnotations = new UnitAnnotations({container: this.stage, root: this.root, viewer: this.viewer, model});
       this.installButtonFeedback(model);
@@ -113,11 +115,91 @@ export class ModelDeviceShell {
       this.viewer.fit({ padding: 1.15, duration: 0 });
       this.setViewMode(!live && device.shell?.reference_image ? 'photo' : 'shell');
     } catch (error) {
+      this.cancelCameraAnimation();
       this.unitAnnotations?.dispose();
       this.viewer?.dispose();
       this.root.remove();
       throw error;
     }
+  }
+
+  installAssemblyCamera() {
+    const viewer = this.viewer, resize = viewer.resize.bind(viewer);
+    this.cameraPadding = 1.15;
+    // Reuse the viewer's existing ResizeObserver. Only viewport changes and
+    // explicit assembly fits alter framing; frame/state readback never does.
+    viewer.fit = options => this.fitAssembly(options);
+    viewer.resize = () => {
+      const width = this.stage.clientWidth, height = this.stage.clientHeight;
+      const previous = this.assemblyCameraFrame(this.cameraPadding, viewer.camera.aspect);
+      const ratio = previous ? viewer.distance / previous.distance : 1;
+      const offset = previous ? viewer.target.clone().sub(previous.target) : new THREE.Vector3();
+      const aspect = viewer.camera.aspect;
+      resize();
+      if (!width || !height || Math.abs(viewer.camera.aspect - aspect) < 1e-9) return;
+      const next = this.assemblyCameraFrame(this.cameraPadding);
+      if (!next) return;
+      // Orbit belongs to the model quaternion. Keep that orientation, the
+      // user's zoom relative to fit, and their pan offset across FOV changes.
+      this.applyAssemblyCamera(next.target.add(offset), next.distance * ratio);
+    };
+  }
+
+  cancelCameraAnimation() {
+    this.cameraAnimation?.();
+    this.cameraAnimation = null;
+  }
+
+  assemblyCameraFrame(padding = this.cameraPadding, aspect = this.viewer.camera.aspect) {
+    const viewer = this.viewer, bounds = new THREE.Box3();
+    for (const device of viewer.devices) bounds.expandByObject(device.root);
+    if (bounds.isEmpty()) return null;
+    const size = bounds.getSize(new THREE.Vector3());
+    const vertical = Math.tan(THREE.MathUtils.degToRad(viewer.camera.fov) / 2);
+    const horizontal = vertical * aspect;
+    // Fit the entire host/Unit/cable world envelope in both axes, measured
+    // from its nearest face. A center-only/sphere estimate can crop deep Units.
+    const distance = size.z / 2 + Math.max(size.x * padding / (2 * horizontal), size.y * padding / (2 * vertical));
+    return {target: bounds.getCenter(new THREE.Vector3()),
+      distance: THREE.MathUtils.clamp(distance, viewer.opts.minDistance, viewer.opts.maxDistance)};
+  }
+
+  applyAssemblyCamera(target, distance) {
+    const viewer = this.viewer;
+    viewer.target.copy(target);
+    viewer.distance = THREE.MathUtils.clamp(distance, viewer.opts.minDistance, viewer.opts.maxDistance);
+    viewer.camera.position.set(target.x, target.y, target.z + viewer.distance);
+    viewer.camera.lookAt(target);
+    viewer.camera.near = Math.max(0.5, viewer.distance * 0.05);
+    viewer.camera.far = viewer.distance + 2000;
+    viewer.camera.updateProjectionMatrix();
+    viewer.requestRender();
+  }
+
+  fitAssembly({padding = 1.15, duration = 0} = {}) {
+    this.cameraPadding = padding;
+    this.cancelCameraAnimation();
+    const fit = this.assemblyCameraFrame(padding);
+    if (!fit) return;
+    if (!duration) {this.applyAssemblyCamera(fit.target, fit.distance); return;}
+    const target = this.viewer.target.clone(), distance = this.viewer.distance;
+    let elapsed = 0;
+    this.cameraAnimation = this.viewer.on('render', dt => {
+      if (this.disposed) {this.cancelCameraAnimation(); return;}
+      // Use the public render delta, after the viewer's rotation tweens have
+      // advanced. Its capped clock survives background/CPU RAF stalls; a
+      // performance.now() clock can finish fit while rotation is still pending.
+      elapsed += dt * 1000;
+      const progress = Math.min(1, elapsed / duration);
+      const eased = progress < 0.5 ? 4 * progress ** 3 : 1 - (-2 * progress + 2) ** 3 / 2;
+      // resetView animates the model orientation concurrently. Recompute the
+      // envelope so the final fit belongs to its final pose, not the old pose.
+      const current = this.assemblyCameraFrame(padding);
+      if (!current) {this.cancelCameraAnimation(); return;}
+      this.applyAssemblyCamera(target.clone().lerp(current.target, eased), distance + (current.distance - distance) * eased);
+      if (progress === 1) this.cancelCameraAnimation();
+    });
+    this.viewer.requestRender();
   }
 
   on(type, callback) {
@@ -436,6 +518,7 @@ export class ModelDeviceShell {
 
   dispose() {
     if (this.disposed) return;
+    this.cancelCameraAnimation();
     // Viewer cancellation emits matching releases before removing subscriptions.
     this.unitAnnotations?.dispose();
     this.viewer.dispose();

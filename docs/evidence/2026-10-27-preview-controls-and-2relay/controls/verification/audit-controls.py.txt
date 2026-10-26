@@ -1,0 +1,249 @@
+#!/usr/bin/env python3
+"""Read-only audit of preserved managed Preview controls evidence.
+
+Run from the repository root. No HTTP, guest, process control or file writes.
+"""
+import base64
+from collections import defaultdict
+import hashlib
+import importlib.util
+import io
+import json
+import math
+from pathlib import Path
+import re
+import sys
+from urllib.parse import parse_qs, urlsplit
+import zipfile
+
+from PIL import Image
+
+REPO = Path.cwd()
+HERE = Path(__file__).resolve().parents[1]
+DEVICES = ('cores3', 'atoms3r', 'sticks3', 'stopwatch')
+RUNTIME = '850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75'
+spec = importlib.util.spec_from_file_location('controls_probe', REPO / 'tests/units/preview_controls_probe.py')
+probe = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(probe)
+
+
+def digest(value):
+    return hashlib.sha256(value).hexdigest()
+
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False)
+
+
+def expect(value, message):
+    if not value:
+        raise AssertionError(message)
+
+
+def json_bytes(value):
+    return json.loads(value.decode('utf8'))
+
+
+def audit(device, folder=None):
+    folder = folder or HERE / device
+    report = json_bytes((folder / 'report.json').read_bytes())
+    expect(report['device_id'] == device and report['hardware'] == 'NOT RUN', 'host/evidence category')
+    expect(report['runtime']['sha256'] == RUNTIME and report['runtime']['pid'] == report['pid'], 'runtime binary identity')
+    expect(report['worker']['generation'] == 36, 'worker generation')
+    for path, sha in report['source_sha256'].items():
+        expect(digest((REPO / path).read_bytes()) == sha, 'source fingerprint mismatch: ' + path)
+    runs = report['runs']
+    expect([run['phase'] for run in runs] == ['seed', 'A', 'B', 'C'], 'four exact Run phases')
+    expect(len({run['run_id'] for run in runs}) == len({run['execution_id'] for run in runs}) == 4, 'unique Runs/executions')
+    run_map = {run['run_id']: run for run in runs}
+    phases = {run['phase']: run for run in runs}
+    for run in runs:
+        expect(run['preview_id'] == report['preview_id'] and run['state'] in ('running', 'completed'), 'Run receipt identity')
+        execution = run['last_observation']
+        expect(execution['pid'] == report['pid'] and execution['firmware_sha256'] == report['firmware_sha256'], 'same VM per Run')
+        expect(execution['execution_id'] == run['execution_id'] and execution['revision_id'] == run['revision_id'], 'Run observation binding')
+
+    # Re-open original response bytes and bind every recorded sample/QOM value
+    # to the raw response which actually supplied it, in request order.
+    raw, lookup = [], defaultdict(list)
+    for index, row in enumerate(report['http']):
+        value = (folder / f'http-{index}.response').read_bytes()
+        expect(len(value) == row['bytes'] and digest(value) == row['sha256'], 'raw HTTP byte integrity')
+        expect(200 <= row['status'] < 300, 'HTTP success')
+        if row['method'] != 'GET':
+            json_bytes((folder / f'http-{index}.request.json').read_bytes())
+        try:
+            decoded = json_bytes(value)
+        except (UnicodeError, ValueError):
+            decoded = None
+        raw.append((row, value, decoded))
+        if decoded is not None:
+            lookup[canonical(decoded)].append(index)
+    expect(len(list(folder.glob('http-*.response'))) == len(raw), 'all HTTP response files accounted')
+
+    def match(value, after=-1):
+        values = [index for index in lookup[canonical(value)] if index > after]
+        expect(values, 'observation absent from ordered raw responses')
+        return values[0]
+
+    running_snapshots = 0
+    for row, _, value in raw:
+        if row['path'] == 'sessions/' + report['session_id'] and value['state'] == 'running':
+            running_snapshots += 1
+            for key in ('session_id', 'pid', 'firmware_sha256', 'worker'):
+                expect(value[key] == report[key], 'running session identity changed')
+    expect(running_snapshots >= 5, 'same-VM snapshots before/after all Runs')
+    traffic, observations, frame_checks, last_index = {}, [], [], -1
+    for item in report['observations']:
+        run = run_map[item['run_id']]
+        if 'serial' not in item:
+            phase = item['label'].removeprefix('frame-')
+            value = (folder / f'phase-{phase}-frame.png').read_bytes()
+            expect(digest(value) == item['sha256'], 'saved frame SHA')
+            headers = {key.lower(): value for key, value in item['headers'].items()}
+            for key, wanted in {'x-preview-id': report['preview_id'], 'x-run-id': run['run_id'],
+                                'x-frame-execution-id': run['execution_id'], 'x-frame-revision-id': run['revision_id'],
+                                'x-frame-sha256': digest(value)}.items():
+                expect(headers[key] == wanted, 'frame header ' + key)
+            indices = [i for i, (row, blob, _) in enumerate(raw) if row['path'].endswith('/' + run['run_id'] + '/frame.png') and blob == value]
+            expect(len(indices) == 1 and indices[0] > last_index, 'raw frame response/order')
+            with Image.open(io.BytesIO(value)) as image:
+                image.load()
+                point = (image.width // 2, image.height // 2)
+                pixel = list(image.convert('RGBA').getpixel(point))
+            expect(pixel == item['selected_pixel']['value'], 'recorded center pixel matches PNG bytes')
+            expect(pixel[:3] == {'A': [255, 0, 0], 'B': [0, 255, 0], 'C': [0, 0, 255]}[phase], 'phase center pixel')
+            frame_checks.append({'phase': phase, 'http_index': indices[0], 'sha256': digest(value), 'center_pixel_rgba': pixel})
+            continue
+        serial = item['serial']
+        cursor = match(serial['complete'], last_index)
+        prefix = raw[cursor][0]['path']
+        expect(prefix.startswith('sessions/' + report['session_id'] + '/serial?'), 'raw UART route')
+        expect(serial['complete']['offset'] == run['serialOffset'], 'execution cursor')
+        fresh = serial['fresh']
+        if fresh is not None:
+            cursor = match(fresh, cursor)
+            expect(fresh['offset'] >= run['serialOffset'] and fresh['session_id'] == report['session_id'], 'fresh input cursor')
+        parsed = probe.parse_window(serial['complete']['data'], run['execution_id'], report['nonce'], run['phase'],
+                                    require_ready=True, fresh_text=fresh['data'] if fresh else None)
+        expect(parsed == serial['parsed'] and parsed['ready'] is True, 'independently parsed current execution READY/SAMPLE')
+        sample = parsed['sample']
+        wanted = {'encoder': {'counter': sample['encoder']['counter'], 'pressed': sample['encoder']['pressed'], 'led-rgb': sample['written']['encoder']},
+                  'eight': {'counters': sample['eight']['counters'], 'pressed': sample['eight']['pressed'], 'switch-on': sample['eight']['switch_on'], 'led-rgb': sample['written']['eight']},
+                  'joystick': {'x-raw': sample['joystick']['x_raw'], 'y-raw': sample['joystick']['y_raw'], 'button-raw': sample['joystick']['button_raw']}}
+        counts = {}
+        for instance, fields in wanted.items():
+            for field, expected in fields.items():
+                qom = item['qom'][instance][field]
+                expect(qom == {'session_id': report['session_id'], 'path': '/machine/units/' + instance, 'property': field, 'value': expected}, 'leaf QOM sample agreement')
+                cursor = match(qom, cursor)
+                query = parse_qs(urlsplit(raw[cursor][0]['path']).query)
+                expect(query['path'] == ['/machine/units/' + instance] and query['property'] == [field], 'independent raw QOM route')
+            qom = item['qom'][instance]['transactions']
+            cursor = match(qom, cursor)
+            count, previous = qom['value'], traffic.get(instance, 0)
+            expect(type(count) is int and count > previous and item['qom'][instance]['transaction_delta'] == count - previous, 'fresh per-leaf I2C transactions')
+            traffic[instance] = counts[instance] = count
+        mounted = item['mounted']
+        expect(mounted['bindings'] == {}, 'no guessed mechanical/tilt binding')
+        for instance, unit in mounted['units'].items():
+            expect(unit['available'] is True and unit['colors'] == sample['written'][instance], 'mounted runtime state')
+            expect(len(unit['leds']) == (2 if instance == 'encoder' else 9), 'all mounted LEDs')
+            expect(all(joint['angleDeg'] == joint['targetAngleDeg'] == joint['rpm'] == 0 for joint in unit['joints']), 'logical counter does not invent motion')
+            color = sample['written'][instance][0]
+            hexcolor, brightness = '#' + format(color, '06x'), 1 if color else 0
+            expected_emissive = [((n / 255 / 12.92) if n / 255 <= .04045 else ((n / 255 + .055) / 1.055) ** 2.4) * 2.2 for n in (color >> 16 & 255, color >> 8 & 255, color & 255)]
+            for led in unit['leds']:
+                expect(led['attached'] is led['known'] is led['userDataKnown'] is True, 'actual mounted/known LED')
+                expect(led['state'] == {'color': hexcolor, 'brightness': brightness}, 'mounted color/brightness')
+                expect(led['glow'] is bool(brightness) and led['opacity'] == .85 * brightness and led['glowColor'] == hexcolor, 'actual glow')
+                expect(len(led['emissive']) == 3 and all(math.isclose(a, b, abs_tol=1e-6) for a, b in zip(led['emissive'], expected_emissive)), 'actual emissive material')
+        observations.append({'label': item['label'], 'phase': run['phase'], 'sequence': sample['sequence'], 'last_raw_qom_index': cursor,
+                             'fresh_input_cursor': fresh['offset'] if fresh else None, 'leaf_transactions': counts})
+        last_index = cursor
+    expect(len(observations) == 14 and len(frame_checks) == 3, 'all control observations/frames')
+    a = [o for o in report['observations'] if o['run_id'] == phases['A']['run_id'] and 'serial' in o]
+    expect([o['label'] for o in a] == ['initial', 'encoder-hold', 'encoder-release', 'eight-hold', 'eight-release',
+        'counter-123-no-axis-motion', 'counter-0-no-axis-motion', 'joystick-x-raw', 'joystick-y-raw', 'joystick-button-raw'], 'all trusted inputs')
+    expect(a[5]['serial']['parsed']['sample']['encoder']['counter'] == 123 and a[6]['serial']['parsed']['sample']['encoder']['counter'] == 0, 'logical counter test')
+    expect(a[-1]['serial']['parsed']['sample']['joystick'] == {'x_raw': 31, 'y_raw': 240, 'button_raw': 1}, 'raw Joystick form vectors')
+
+    cancelled = report['cancelled']
+    expect(cancelled['run_id'] == phases['B']['run_id'] and cancelled['state'] == 'cancelled' and cancelled['interrupt_ack'] == 'confirmed', 'B cancellation acknowledgement')
+    cancel_index = match(cancelled)
+    expect(phases['C']['created_at'] > cancelled['updated_at'], 'C after confirmed B cancel')
+    browser_inputs = []
+    for row in report['browser_http']:
+        if row['method'] == 'POST' and row['path'].endswith('/input'):
+            request, receipt = row['body'], row['response']
+            run = run_map[request['expected_run_id']]
+            expect(row['status'] == 200 and request['expected_owner_epoch'] == report['owner_epoch'], 'Web input receipt')
+            expect(all(receipt[k] == run[k] for k in ('preview_id', 'run_id', 'execution_id', 'revision_id')), 'Web input Run binding')
+            browser_inputs.append({'phase': run['phase'], 'input': request['unit_input']})
+    c_inputs = [item['input'] for item in browser_inputs if item['phase'] == 'C']
+    expect(c_inputs == [{'id': 'encoder', 'values': {'pressed': True}}, {'id': 'encoder', 'values': {'pressed': False}}], 'old eight release did not target C')
+    expect(not any(row['method'] != 'GET' and re.search(r'/sessions/[^/]+/(program|input|unit-input|renew|reset)$', row['path']) for row in report['browser_http']), 'no legacy managed mutations')
+
+    archive_bytes = (folder / 'evidence-before-close.zip').read_bytes()
+    zip_indices = [i for i, (row, value, _) in enumerate(raw) if row['path'] == 'sessions/' + report['session_id'] + '/evidence' and value == archive_bytes]
+    close_indices = [i for i, (row, _, _) in enumerate(raw) if row['path'] == 'previews/' + report['preview_id'] + '/close' and row['method'] == 'POST']
+    expect(len(zip_indices) == len(close_indices) == 1 and cancel_index < zip_indices[0] < close_indices[0], 'raw evidence ZIP before close')
+    zip_check = probe.inspect_zip(archive_bytes, {**report, 'runs': runs})
+    with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
+        manifest = json_bytes(archive.read('manifest.json'))
+        expect(archive.testzip() is None, 'ZIP CRC')
+        current = phases['C']
+        for scope in (manifest['session']['program'], manifest['frame']):
+            expect(scope['execution_id'] == current['execution_id'] and scope['revision_id'] == current['revision_id'], 'ZIP current Run/frame binding')
+        expect(manifest['session']['program']['state'] == 'running', 'ZIP captured current running C')
+        archive_serial = archive.read('serial.log').decode('utf8', errors='replace')
+        for phase in ('A', 'B', 'C'):
+            parsed = probe.parse_window(archive_serial, phases[phase]['execution_id'], report['nonce'], phase, require_ready=True)
+            expect(parsed and parsed['ready'], 'ZIP UART current execution typed READY/SAMPLE')
+        with Image.open(io.BytesIO(archive.read('frames/current.png'))) as image:
+            image.load()
+            expect(image.convert('RGB').getpixel((image.width // 2, image.height // 2)) == (0, 0, 255), 'ZIP current C framebuffer pixel')
+        packages = {}
+        for run in runs:
+            prefix = 'programs/' + run['revision_id'] + '/'
+            source = json_bytes(archive.read(prefix + 'source.json'))
+            files = {path: base64.b64decode(row['data'], validate=True) for path, row in source['files'].items()}
+            for path, value in files.items():
+                expect(archive.read(prefix + 'files/' + path) == value, 'ZIP package source/file agreement')
+            packages[run['phase']] = files
+        for phase in ('B', 'C'):
+            expect({p: b for p, b in packages[phase].items() if p != 'main.py'} == {p: b for p, b in packages['A'].items() if p != 'main.py'}, 'non-main resources preserved')
+            expect(packages[phase]['main.py'] == ("_preview_phase='%s'\n" % phase).encode() + packages['A']['main.py'], 'only phase prefix edited')
+        expect(packages['A']['assets/state.bin'] == probe.RESOURCE, 'binary resource exact bytes')
+    cleanup = report['cleanup']
+    probe.cleanup_contract(cleanup)
+    expect(match(cleanup['preview']) > close_indices[0] and match(cleanup['session']) > close_indices[0] and match(cleanup['capacity']) > close_indices[0], 'cleanup backed by raw responses')
+    expect(cleanup['session']['pid'] == report['pid'] and cleanup['session']['last_frame_available'] is True, 'retained session PID/last frame metadata')
+    expect(cleanup['session']['worker']['lease_active'] is False and cleanup['capacity']['worker']['active_lease_ids'] == [], 'worker lease released')
+    expect(report['creation']['outcome'] == 'confirmed' and report['cleanup_warnings'] == [] and report['page_errors'] == [], 'no lifecycle/page errors')
+    pngs = []
+    for image_path in sorted(folder.glob('*.png')):
+        with Image.open(image_path) as image:
+            image.load()
+            pngs.append({'path': image_path.name, 'width': image.width, 'height': image.height, 'mode': image.mode})
+    return {'status': 'PASS', 'device_id': device, 'preview_id': report['preview_id'], 'session_id': report['session_id'],
+            'pid': report['pid'], 'firmware_sha256': report['firmware_sha256'], 'runtime': report['runtime'], 'worker': report['worker'],
+            'runs': [{key: run[key] for key in ('phase', 'run_id', 'execution_id', 'revision_id', 'serialOffset')} for run in runs],
+            'checks': {'source_fingerprints': len(report['source_sha256']), 'raw_http_responses': len(raw), 'same_vm_running_snapshots': running_snapshots,
+                       'uart_qom_mounted_observations': observations, 'frame_headers_sha_and_pixels': frame_checks,
+                       'browser_input_count': len(browser_inputs), 'old_release_not_targeting_C': True, 'non_main_resources_preserved': True,
+                       'cancel_B_http_index': cancel_index, 'evidence_http_index': zip_indices[0], 'close_http_index': close_indices[0],
+                       'zip': zip_check, 'pngs_decoded': pngs},
+            'cleanup': {'preview_state': cleanup['preview']['state'], 'session_state': cleanup['session']['state'],
+                        'history_last_frame_metadata': cleanup['session']['last_frame_available'], 'flash_retained': cleanup['session']['flash_retained'],
+                        'pid_gone_recorded': cleanup['pid_gone'], 'active_sessions': cleanup['capacity']['active_sessions'],
+                        'active_lease_count': cleanup['capacity']['worker']['active_lease_count']},
+            'limits': report['plan']['limits'] + ['Offline audit verifies recorded PID disappearance; it does not query the current process table.',
+                       'Controls runner retains last-frame metadata; it does not fetch a stopped-history frame for exact byte comparison.',
+                       'Browser DOM/material observations are recorded by the frozen genuine-page runner; this archive audit opens no browser or service.',
+                       'Virtual-device evidence only; physical hardware and AIFlow consumer integration remain NOT RUN.']}
+
+
+if __name__ == '__main__':
+    print(json.dumps({'schema_version': 1, 'category': 'independent-recorded-controls-evidence-audit',
+                      'status': 'PASS', 'hosts': [audit(device) for device in DEVICES]}, ensure_ascii=False, indent=2))

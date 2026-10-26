@@ -1,0 +1,177 @@
+请忽略以下参考资料的语种信息。以下是参考资料：
+文档属性:产品信息
+产品名:Unit 2Relay (SKU:U131)
+分段标题:Unit 2Relay
+分段内容:<span class="product-sku">SKU:U131</span>
+
+<PictureViewer>
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/2relay/2relay_01.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/2relay/2relay_02.webp">
+<img src="https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/783/U131-package.jpg">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/2relay/2relay_03.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/2relay/2relay_04.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/2relay/2relay_05.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/2relay/2relay_07.webp">
+</PictureViewer>
+---
+文档属性:产品信息
+产品名:Unit 2Relay (SKU:U131)
+分段标题:Unit 2Relay 描述
+分段内容:**Unit 2Relay** 是一款双路继电器控制的高压驱动单元。它集成 2 路常开型（NO）机械继电器，通过 GPIO 电平直接控制，支持 AC 250V / DC 28V 高压通断，每路额定电流为 8A。该单元通过 Grove HY2.0-4P 接口通信，具备物理隔离与状态指示灯，并采用 LEGO 兼容孔设计，便于灵活对接 LEGO 结构或使用螺丝固定。适用于智能家居、电器控制及工业设备的安全电源管理场景。
+---
+文档属性:产品信息
+产品名:Unit 2Relay (SKU:U131)
+分段标题:Unit 2Relay 产品特性 & 规格参数
+分段内容:- 通道数量： 2 路继电器独立控制
+- 负载能力： AC 250V@8A 或 DC 28V@8A
+- 状态指示： 每路独立 LED 指示灯
+- 控制方式： GPIO 电平直接驱动
+- 通信接口： Grove HY2.0-4P
+- 2 x LEGO 兼容孔
+- 开发平台
+  - UiFlow1
+  - UiFlow2
+  - Arduino IDE
+
+- 1 x Unit 2Relay
+- 1 x HY2.0-4P Grove 连接线 (20cm)
+- 2 x HT3.96-4P 端子
+
+- 交流 / 直流信号切换
+- 数字设备电源通断
+
+| 规格         | 参数                  |
+| ------------ | --------------------- |
+| 最大通断电压 | AC 250V / DC 28V      |
+| 额定电流     | 8A                    |
+| 线圈控制电压 | DC 5V                 |
+| 线圈功耗     | 5V@154mA              |
+| 线圈动作时间 | ≤ 8ms                 |
+| 线圈释放时间 | ≤ 5ms                 |
+| 触点形式     | A 常开型              |
+| 触点材料     | AgSnO2                |
+| 继电器指示灯 | 蓝色 x2               |
+| 产品尺寸     | 56.0 x 24.0 x 19.0mm  |
+| 产品重量     | 20.0g                 |
+| 包装尺寸     | 138.0 x 93.0 x 17.0mm |
+| 毛重         | 31.2g                 |
+---
+文档属性:产品信息
+产品名:Unit 2Relay (SKU:U131)
+分段标题:Unit 2Relay 操作说明 & 原理图
+分段内容:\#> 该继电器通过 IO 输出高低电平信号驱动，因此在连接主控前，请确保连接的端口 IO 支持配置为输出模式。(注: ESP32 的 G36 不允许配置为输出模式，因此 PORT.B 将无法正常驱动)
+
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/2relay/2relay_sch_01.webp" width="80%">
+---
+文档属性:产品信息
+产品名:Unit 2Relay (SKU:U131)
+分段标题:Unit 2Relay 管脚映射 Unit 2Relay & 尺寸图
+分段内容:::grove-table
+| HY2.0-4P | Black | Red | Yellow  | White   |
+| -------- | ----- | --- | ------- | ------- |
+| PORT.A   | GND   | 5V  | RELAY-2 | RELAY-1 |
+::
+
+<img src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/2relay/model%20size.png" width="100%">
+---
+文档属性:产品信息
+产品名:Unit 2Relay (SKU:U131)
+分段标题:Unit 2Relay 结构文件 & Arduino
+分段内容:- [Unit 2Relay 结构文件](https://github.com/m5stack/M5_Hardware/tree/master/Products/U131_Unit_2Relay/Structures)
+
+- [Unit 2Relay Arduino 使用文档](/zh_CN/arduino/projects/unit/unit_2relay)
+- [Unit 2Relay Example with M5Atom](https://github.com/m5stack/M5Unit-RELAY/blob/master/examples/Unit_2RELAY_M5Atom/Unit_2RELAY_M5Atom.ino)
+- [Unit 2Relay Example with M5Core](https://github.com/m5stack/M5Unit-RELAY/blob/master/examples/Unit_2RELAY_M5Core/Unit_2RELAY_M5Core.ino)
+- [Unit 2Relay Example with M5Core2](https://github.com/m5stack/M5Unit-RELAY/blob/master/examples/Unit_2RELAY_M5Core2/Unit_2RELAY_M5Core2.ino)
+- [Unit 2Relay Example with M5StickC](https://github.com/m5stack/M5Unit-RELAY/blob/master/examples/Unit_2RELAY_M5StickC/Unit_2RELAY_M5StickC.ino)
+- [Unit 2Relay Example with M5StickC-Plus](https://github.com/m5stack/M5Unit-RELAY/blob/master/examples/Unit_2RELAY_M5StickCPlus/Unit_2RELAY_M5StickCPlus.ino)
+---
+文档属性:产品信息
+产品名:Unit 2Relay (SKU:U131)
+分段标题:Unit 2Relay 软件开发 UiFlow1 & UiFlow2
+分段内容:- [Unit 2Relay UiFlow1 文档](/zh_CN/uiflow/blockly/unit/2relay)
+
+- [Unit 2Relay UiFlow2 文档](https://uiflow-micropython.readthedocs.io/zh-cn/latest/unit/relay.html)
+---
+文档属性:产品信息
+产品名:schematic Unit 2Relay
+分段标题:Unit 2Relay 原理图描述 快速信息 & 概述
+分段内容:| 项目 | 内容 |
+| --- | --- |
+| 产品 | Unit 2Relay |
+| SKU | U131 |
+| 产品 ID | `unit-2relay-082cac04e142` |
+| 源文档 | `zh_CN/unit/2relay.md` |
+
+Unit 2Relay 由两个对称的离散晶体管继电器驱动通道构成，没有板载主控、协处理器、存储器或通信 IC。J1 将 Relay A、Relay B、+5VIN 和 GND 引入，两路控制分别经 1KΩ 基极电阻驱动 Q1/Q2（SS8050 Y1），低侧控制 K1/K2（Relay-DPDT）线圈。每路具有 10KΩ 输入下拉、蓝色 0603 LED 指示支路和线圈并联二极管，负载触点通过 P1/P2 的 C/A/B/C 四端引出。
+---
+文档属性:产品信息
+产品名:schematic Unit 2Relay
+分段标题:Unit 2Relay 原理图描述 检索关键词
+分段内容:`Unit 2Relay`、`U131`、`2Relay`、`J1`、`HY-2.0_IO`、`Relay A`、`Relay B`、`+5VIN`、`GND`、`K1`、`K2`、`Relay-DPDT`、`Q1`、`Q2`、`SS8050 Y1`、`D1`、`D2`、`D3`、`D4`、`蓝灯 0603`、`R1`、`R2`、`R3`、`R4`、`R5`、`R6`、`1KΩ`、`10KΩ`、`P1`、`P2`、`HDR_4P_relay`、`C/A/B/C`、`low-side drive`、`flyback diode`、`GPIO relay control`、`relay indicator LED`
+---
+文档属性:产品信息
+产品名:schematic Unit 2Relay
+分段标题:Unit 2Relay 原理图描述 主要器件
+分段内容:| 位号 | 型号 | 作用 | 证据 |
+| --- | --- | --- | --- |
+| J1 | HY-2.0_IO | 四针控制与供电接口，引入 Relay A、Relay B、+5VIN 和 GND。 | 图 d2fa75fa6126 / 第 1 页 / 页面左侧 J1（HY-2.0_IO），1-4 脚及 Relay A/Relay B/+5VIN/GND 标注 |
+| K1 | Relay-DPDT | A 通道继电器，线圈由 +5VIN 与 Q1 低侧节点驱动，触点连接 P1。 | 图 d2fa75fa6126 / 第 1 页 / 页面右上 K1（Relay-DPDT）、线圈与 P1 连接 |
+| K2 | Relay-DPDT | B 通道继电器，线圈由 +5VIN 与 Q2 低侧节点驱动，触点连接 P2。 | 图 d2fa75fa6126 / 第 1 页 / 页面右下 K2（Relay-DPDT）、线圈与 P2 连接 |
+| P1 | HDR_4P_relay | K1 负载触点四端连接器，图中从上到下标注 C、A、B、C。 | 图 d2fa75fa6126 / 第 1 页 / 页面右上 P1（HDR_4P_relay），端子文字 C/A/B/C |
+| P2 | HDR_4P_relay | K2 负载触点四端连接器，图中从上到下标注 C、A、B、C。 | 图 d2fa75fa6126 / 第 1 页 / 页面右下 P2（HDR_4P_relay），端子文字 C/A/B/C |
+| Q1 | SS8050 Y1 | A 通道低侧继电器线圈驱动晶体管，发射极接 GND。 | 图 d2fa75fa6126 / 第 1 页 / 页面上半部 Q1（SS8050 Y1），基极 R2、集电极 K1、发射极 GND |
+| Q2 | SS8050 Y1 | B 通道低侧继电器线圈驱动晶体管，发射极接 GND。 | 图 d2fa75fa6126 / 第 1 页 / 页面下半部 Q2（SS8050 Y1），基极 R5、集电极 K2、发射极 GND |
+| D1,D3 | 蓝灯 0603 | A、B 两路继电器动作指示 LED，分别��过 R1、R4 连接到低侧驱动节点。 | 图 d2fa75fa6126 / 第 1 页 / 页面上半部 D1 蓝灯 0603/R1 与下半部 D3 蓝灯 0603/R4 |
+| D2,D4 | 未标注 | 分别反向并联在 K1、K2 线圈两端的续流保护二极管。 | 图 d2fa75fa6126 / 第 1 页 / 页面上半部 D2 跨接 +5VIN/K1 低侧节点；下半部 D4 跨接 +5VIN/K2 低侧节点 |
+| R1,R2,R4,R5 | 1KΩ | R1/R4 为 LED 串联限流电阻，R2/R5 为 Q1/Q2 基极串联电阻。 | 图 d2fa75fa6126 / 第 1 页 / D1-R1、Relay A-R2-Q1、D3-R4、Relay B-R5-Q2 支路，均标注 1KΩ |
+| R3,R6 | 10KΩ | Relay A 与 Relay B 输入到 GND 的下拉电阻。 | 图 d2fa75fa6126 / 第 1 页 / 页面中部 Relay A-R3-GND 与下部 Relay B-R6-GND，均标注 10KΩ |
+---
+文档属性:产品信息
+产品名:schematic Unit 2Relay
+分段标题:Unit 2Relay 原理图描述 系统结构 双路继电器架构
+分段内容:整板由 A、B 两个相互镜像的离散继电器驱动通道组成：J1 提供控制与供电，Q1/Q2 低侧驱动 K1/K2，P1/P2 引出负载触点；原理图未显示板载主控、存储器、时钟或数字通信 IC。
+
+- 参数与网络：`channels=2`；`channel_a=Relay A,Q1,K1,P1`；`channel_b=Relay B,Q2,K2,P2`；`controller=原理图未显示`；`storage=原理图未显示`；`clock=原理图未显示`
+- 证据：图 d2fa75fa6126 / 第 1 页 / 第 1 页全图，J1、上方 K1/Q1/P1 与下方 K2/Q2/P2 镜像电路
+---
+文档属性:产品信息
+产品名:schematic Unit 2Relay
+分段标题:Unit 2Relay 原理图描述 关键网络 K2 线圈低侧节点
+分段内容:K2 线圈低侧、Q2 集电极、D4 阳极以及 R4 指示支路低端连接在同一节点。
+
+- 参数与网络：`connections=K2 coil low,Q2 collector,D4 anode,R4 low`；`channel=B`；`high_side=+5VIN`
+- 证据：图 d2fa75fa6126 / 第 1 页 / 页面下半部 K2 线圈下端、Q2 集电极、D4 下端、R4 右端的连接点
+---
+文档属性:产品信息
+产品名:schematic Unit 2Relay
+分段标题:Unit 2Relay 原理图描述 参数与信号索引
+分段内容:| 分类 | 对象 | 参数 |
+| --- | --- | --- |
+| 系统结构 | 双路继电器架构 | `channels=2`；`channel_a=Relay A,Q1,K1,P1`；`channel_b=Relay B,Q2,K2,P2`；`controller=原理图未显示`；`storage=原理图未显示`；`clock=原理图未显示` |
+| 接口 | J1 HY-2.0_IO | `reference=J1`；`part_number=HY-2.0_IO`；`pin_1_function=A`；`pin_1_net=Relay A`；`pin_2_function=B`；`pin_2_net=Relay B`；`pin_3_function=VCC`；`pin_3_net=+5VIN`；`pin_4_function=GND`；`pin_4_net=GND` |
+| 电源 | +5VIN 电源路径 | `rail=+5VIN`；`input=J1.3`；`relay_coils=K1,K2`；`indicator_leds=D1,D3`；`flyback_diodes=D2,D4`；`conversion=原理图未显示`；`decoupling=原理图未显示` |
+| 电源 | GND 回路 | `input_ground=J1.4`；`transistor_emitters=Q1,Q2`；`pulldown_resistors=R3,R6`；`net=GND` |
+| GPIO 与控制信号 | Relay A 控制输入 | `connector_pin=J1.1`；`net=Relay A`；`base_resistor=R2 1KΩ`；`pulldown=R3 10KΩ`；`driver=Q1 SS8050 Y1`；`direction=J1 到 Q1` |
+| GPIO 与控制信号 | Relay B 控制输入 | `connector_pin=J1.2`；`net=Relay B`；`base_resistor=R5 1KΩ`；`pulldown=R6 10KΩ`；`driver=Q2 SS8050 Y1`；`direction=J1 到 Q2` |
+| 核心器件 | Q1/K1 驱动 | `transistor=Q1 SS8050 Y1`；`relay=K1 Relay-DPDT`；`base_path=Relay A -> R2 1KΩ -> Q1`；`collector=K1 coil low side`；`emitter=GND`；`coil_high_side=+5VIN` |
+| 核心器件 | Q2/K2 驱动 | `transistor=Q2 SS8050 Y1`；`relay=K2 Relay-DPDT`；`base_path=Relay B -> R5 1KΩ -> Q2`；`collector=K2 coil low side`；`emitter=GND`；`coil_high_side=+5VIN` |
+| 核心器件 | A 通道指示灯 | `led=D1 蓝灯 0603`；`resistor=R1 1KΩ`；`high_side=+5VIN`；`low_side=Q1 collector/K1 coil low side` |
+| 核心器件 | B 通道指示灯 | `led=D3 蓝灯 0603`；`resistor=R4 1KΩ`；`high_side=+5VIN`；`low_side=Q2 collector/K2 coil low side` |
+| 保护电路 | K1/K2 线圈续流保护 | `channel_a_diode=D2`；`channel_a_coil=K1`；`channel_b_diode=D4`；`channel_b_coil=K2`；`high_side=+5VIN`；`part_number=未标注` |
+| 接口 | P1 负载端子 | `reference=P1`；`part_number=HDR_4P_relay`；`relay=K1`；`top_to_bottom=C,A,B,C`；`terminal_count=4` |
+| 接口 | P2 负载端子 | `reference=P2`；`part_number=HDR_4P_relay`；`relay=K2`；`top_to_bottom=C,A,B,C`；`terminal_count=4` |
+| 关键网络 | K1 线圈低侧节点 | `connections=K1 coil low,Q1 collector,D2 anode,R1 low`；`channel=A`；`high_side=+5VIN` |
+| 关键网络 | K2 线圈低侧节点 | `connections=K2 coil low,Q2 collector,D4 anode,R4 low`；`channel=B`；`high_side=+5VIN` |
+| 接口 | P1/P2 触点定义与额定值 | `connectors=P1,P2`；`visible_labels=C,A,B,C`；`no_mapping=未标注`；`nc_mapping=未标注`；`com_mapping=未标注`；`contact_rating=未标注` |
+| GPIO 与控制信号 | Relay A/Relay B 输入电气阈值 | `inputs=Relay A,Relay B`；`series_resistors=R2 1KΩ,R5 1KΩ`；`pulldowns=R3 10KΩ,R6 10KΩ`；`logic_threshold=未标注`；`input_voltage_range=未标注`；`required_drive_current=未标注` |
+---
+文档属性:产品信息
+产品名:schematic Unit 2Relay
+分段标题:Unit 2Relay 原理图描述 待确认事项
+分段内容:- `interface.contact-functions-ratings-undetermined`：原理图将 P1/P2 四个负载端标为 C/A/B/C，但未给出这些字母与 NO、NC、COM 的逐端对应，也未标注触点额定电压、电流或端子编号。（证据：图 d2fa75fa6126 / 第 1 页 / 页面右侧 K1/P1 与 K2/P2，继电器标注 Relay-DPDT，端子仅标 C/A/B/C）
+- `gpio.input-threshold-undetermined`：原理图显示 Relay A/Relay B 通过 1KΩ 电阻驱动 SS8050 Y1 基极并由 10KΩ 下拉，但未给出逻辑高低阈值、允许输入电压范围或所需 GPIO 驱动电流。（证据：图 d2fa75fa6126 / 第 1 页 / Relay A-R2/R3-Q1 与 Relay B-R5/R6-Q2 输入网络，页面无阈值或电压范围文字）
+- `review.contact-functions-ratings`：P1/P2 的 C/A/B/C 四端分别对应哪些 NO、NC、COM 触点，且触点额定电压和电流是多少？；原因：当前原理图没有端子编号、NO/NC/COM 文字或触点额定参数，不能仅凭符号和产品正文补全。
+- `review.input-threshold`：Relay A/Relay B 的保证吸合/释放逻辑阈值、允许输入电压和 GPIO 驱动电流是多少？；原因：原理图只给出 SS8050 Y1、1KΩ 基极电阻和 10KΩ 下拉，未给出继电器线圈参数或逻辑电气规格。
+---
+请忽略以上参考资料的语种信息。回复用户问题时需要首先判断用户的语种，以相同语种进行回复。

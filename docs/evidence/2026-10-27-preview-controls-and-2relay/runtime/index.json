@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "category": "cold-source-build-and-host-checks",
+  "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+  "no_binaries_archived": true,
+  "source_status": "verified",
+  "source_files": 106,
+  "patches": 10,
+  "reverse_patch_check": "PASS",
+  "build_environment": {
+    "dependency_reuse": "new work directory links the prior owned pinned venv/downloads/static dependencies; new QEMU checkout and build directory",
+    "shared_static_sha256": {
+      "libslirp.a": "9c0161da10e1b9e8ddadc238bd621fb30b0d2d6db7c94452f953c08a30bbab01",
+      "libgcrypt.a": "a310b6dc04a8e9bc205400ef3480a4cc6dbbaa151b4b97c0947eedd8c6598b8b",
+      "libgpg-error.a": "7a445ca56fe371eed07ef4aea349bd0b0423dc460774aa9a342a0e79ce575bc4"
+    }
+  },
+  "platform_first": {
+    "tests": 1112,
+    "failures": 3,
+    "cause": "two stale generated snapshot assertions and old Unit count assertion; 27 targeted repair checks PASS"
+  },
+  "files": [
+    {
+      "path": "build-manifest.json",
+      "source_path": ".work/unit-runtime-build-2relay-final/build-manifest.json",
+      "bytes": 12687,
+      "sha256": "3fe1363b2111cd094772383d6b055d6f397b04fae1a8e7f03e108082170c02c6",
+      "original_sha256": "3caf84a94ac6229201fc616d49ec02859b0f8e715c0e119dd9133d7ca238b74b",
+      "path_redactions": 1,
+      "raw_bytes_preserved": false
+    },
+    {
+      "path": "source-receipt.json",
+      "source_path": ".work/unit-runtime-source-2relay-final/qemu/.m5-unit-runtime-source.json",
+      "bytes": 12413,
+      "sha256": "abb5f9698e65721c154e57901e27471b2300d3579c92a526fbee0d3bc613b590",
+      "original_sha256": "abb5f9698e65721c154e57901e27471b2300d3579c92a526fbee0d3bc613b590",
+      "path_redactions": 0,
+      "raw_bytes_preserved": true
+    },
+    {
+      "path": "source-check.json",
+      "source_path": ".work/2relay-final-source-check.json",
+      "bytes": 1549,
+      "sha256": "5102582b1fcfd8b4501a97ad9f1958f46f7053bb8a5c67adc6b1b1b3157d6667",
+      "original_sha256": "5102582b1fcfd8b4501a97ad9f1958f46f7053bb8a5c67adc6b1b1b3157d6667",
+      "path_redactions": 0,
+      "raw_bytes_preserved": true
+    },
+    {
+      "path": "build.log",
+      "source_path": ".work/2relay-final-build.log",
+      "bytes": 158961,
+      "sha256": "ffbb94dce0bdb0a177bb5075e4ac25071f8600473ee73291774befe5af1243f8",
+      "original_sha256": "5d4d1567b7cea1452133474907fdd21c10788ba66849b10c899ed5c5ae292dc4",
+      "path_redactions": 99,
+      "raw_bytes_preserved": false
+    },
+    {
+      "path": "service-start.json",
+      "source_path": ".work/2relay-service-freeze-20261027/start.json",
+      "bytes": 61081,
+      "sha256": "09f300a1dc3e979ba2c37268053497b9c1d2ae9d170459cb8b4e8f83a0869ff1",
+      "original_sha256": "d2dae4d39e8994bba6ba695245a4f16ddbccae4787ffeb51b56f926aa22afa40",
+      "path_redactions": 2,
+      "raw_bytes_preserved": false
+    },
+    {
+      "path": "m5_unit_runtime.c.txt",
+      "source_path": ".work/unit-runtime-source-2relay-final/qemu/hw/m5stopwatch/m5_unit_runtime.c",
+      "bytes": 18332,
+      "sha256": "57cbc747a6df694935a70567b836eb54488f6c5dc462a1c5a4078a979c915d4a",
+      "original_sha256": "57cbc747a6df694935a70567b836eb54488f6c5dc462a1c5a4078a979c915d4a",
+      "path_redactions": 0,
+      "raw_bytes_preserved": true
+    },
+    {
+      "path": "m5_unit_runtime.h.txt",
+      "source_path": ".work/unit-runtime-source-2relay-final/qemu/hw/m5stopwatch/m5_unit_runtime.h",
+      "bytes": 1755,
+      "sha256": "0923b0c03a97e05795eba8d90a860240a438b3a906b2fbfc325a631622e8f0fa",
+      "original_sha256": "0923b0c03a97e05795eba8d90a860240a438b3a906b2fbfc325a631622e8f0fa",
+      "path_redactions": 0,
+      "raw_bytes_preserved": true
+    },
+    {
+      "path": "bootstrap-unit-runtime.py.txt",
+      "source_path": "scripts/bootstrap-unit-runtime.py",
+      "bytes": 12347,
+      "sha256": "2589f6c4d5a0c88a44a65b719eabfbd2df84ccf18fc8d41ce1debbf4c70a12f0",
+      "original_sha256": "2589f6c4d5a0c88a44a65b719eabfbd2df84ccf18fc8d41ce1debbf4c70a12f0",
+      "path_redactions": 0,
+      "raw_bytes_preserved": true
+    },
+    {
+      "path": "0044-unit-2relay-gpio.patch.txt",
+      "source_path": "patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch",
+      "bytes": 4585,
+      "sha256": "bc7547ae74b3ac85ff65cf3780b4b6a77632b435fca463646d53faaa15acf517",
+      "original_sha256": "bc7547ae74b3ac85ff65cf3780b4b6a77632b435fca463646d53faaa15acf517",
+      "path_redactions": 0,
+      "raw_bytes_preserved": true
+    },
+    {
+      "path": "platform-first.log",
+      "source_path": ".work/2relay-platform-all-20261027.log",
+      "bytes": 30289,
+      "sha256": "096debacea57e41321c79d961feaac92c87e3820361e513d0181b58d23432c24",
+      "original_sha256": "72505354d6e26265d6f41e8a352480e3a50991c32c7ef5f0aaa15a2779adfba9",
+      "path_redactions": 3,
+      "raw_bytes_preserved": false
+    },
+    {
+      "path": "platform-repair.log",
+      "source_path": ".work/2relay-platform-repair-20261027.log",
+      "bytes": 713,
+      "sha256": "b5a5c164f643e9fb8c0a3f96d00453cebcc809c05eca042781d5956c46b1b781",
+      "original_sha256": "b5a5c164f643e9fb8c0a3f96d00453cebcc809c05eca042781d5956c46b1b781",
+      "path_redactions": 0,
+      "raw_bytes_preserved": true
+    },
+    {
+      "path": "host-targeted.log",
+      "source_path": ".work/2relay-host-targeted-20261027.log",
+      "bytes": 188,
+      "sha256": "1b145f12aa0a018e8e1ec4b2fd689984d52332015933158c2bdc24ba7ffaea9d",
+      "original_sha256": "1b145f12aa0a018e8e1ec4b2fd689984d52332015933158c2bdc24ba7ffaea9d",
+      "path_redactions": 0,
+      "raw_bytes_preserved": true
+    },
+    {
+      "path": "invalid-matrix-case-control.log",
+      "source_path": ".work/2relay-regression-targeted-20261027.log",
+      "bytes": 36,
+      "sha256": "bde9195a441602a9c940e555f0ef77a7ad44461f2a1eab6339298c12ecd8f253",
+      "original_sha256": "bde9195a441602a9c940e555f0ef77a7ad44461f2a1eab6339298c12ecd8f253",
+      "path_redactions": 0,
+      "raw_bytes_preserved": true
+    }
+  ]
+}

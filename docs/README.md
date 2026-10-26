@@ -104,7 +104,7 @@
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-27` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Core2 的下一门禁是修 SPI completion/`lv_disp_flush_ready`、matching ELF/MAP 和同 SHA 非空应用帧 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-27` | 当前源码、FirmwareManifest/Secure Boot、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core、CIDR/domain/CNAME、multicast/unicast discovery、worker-local QEMU 与 `qemu-unified` partition fencing、namespace/container-local execution、Unit、测试/evidence/文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-27` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-27` | `1.41.0`；公共完整checkpoint与同步revision引用、同guest程序/字节码依赖和program_features；保留Unit准入、冻结schema、lease/evidence及网络契约；Preview/Run协调仍未实现 |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-27` | `1.43.0`；公共完整checkpoint、同guest程序/字节码依赖、Preview/Run协调和限定Web消费者；保留Unit准入、冻结schema、lease/evidence及网络契约，SSE/AIFlow调用侧仍开放 |
 | [外部 Agent Unit API](unit-agent-api.md) | 调用指南 | `2026-10-27` | UIFlow2 源码提交、caller-source pin、可见 session、Unit 配置和取证；CoreS3 选定场景的源码请求与原驱动/custom 边界，硬件 NOT RUN |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-26` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop 和当前容量门禁；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |
@@ -138,9 +138,11 @@
 | [三主机 Unit 源码 API](evidence/2026-10-26-unit-source-hosts-29d8/README.md) | 历史证据 | `2026-10-26` | 提交并同步主线后全新准备；AtomS3R、StickS3、StopWatch 各 Button/Relay/ENV III，同 guest 原 host probe、内部总线隔离、真实 Web/源码 pin/取证与清理，其它 Unit 不继承 |
 | [PWM 初始化路由与完整回归](evidence/2026-10-26-unit-pwm-route-d1ba/README.md) | 历史证据 | `2026-10-26` | 同固件无后续setter的八窗A/B、独立冷构建/八patch重放；新单次完整矩阵67/67、274/274与652平台测试通过，不外推60秒soak/完整PWM/硬件，取证限制单列 |
 | [三主机八种 Unit 源码IO](evidence/2026-10-26-unit-source-host-io-d1ba/README.md) | 历史证据 | `2026-10-26` | 新增24源码组合，Fan3在同步前、其余21在同步后；GPIO/RMT/LEDC/UART/HUB多leaf及原host oracle、真实Web/source/PID/取证清理，两准确HEAD与精确源码omission分列，不转授其它组合/硬件 |
-| [AIFlow实时预览API评估计划](plans/2026-10-26-aiflow-live-preview-api.md) | 实现/设计 | `2026-10-27` | UIFlow同guest程序、QEMU按需共享帧和1.42 Preview/Run基础已实现；Web托管消费者、SSE与AIFlow完整接入仍待做，继承Unit/服务Backlog |
-| [同VM Preview/Run控制面](plans/2026-10-27-preview-run-control.md) | 实施计划 | `2026-10-27` | 持久化身份/幂等/latest-wins、真实prompt取消、managed session与输入/帧fence；CoreS3 PIR/Relay限定实际会话与宿主负控已验，PIR部署事务取消已验，AIFlow/Web/GC仍开放 |
-| [Preview Web消费者](plans/2026-10-27-preview-web-consumer.md) | 实施计划 | `2026-10-27` | 共享Preview身份、完整包保留编辑、主机/Unit输入、Run帧与生命周期；CoreS3 PIR/Relay限定真实Web验收完成，AIFlow/SSE与窄屏构图仍开放 |
+| [AIFlow实时预览API评估计划](plans/2026-10-26-aiflow-live-preview-api.md) | 实现/设计 | `2026-10-27` | UIFlow同guest程序、QEMU按需共享帧和1.42 Preview/Run基础已实现；限定Web托管消费者已验，SSE与AIFlow完整接入仍待做，继承Unit/服务Backlog |
+| [同VM Preview/Run控制面](plans/2026-10-27-preview-run-control.md) | 实施计划 | `2026-10-27` | 持久化身份/幂等/latest-wins、真实prompt取消、managed session与输入/帧fence；CoreS3 PIR/Relay限定实际会话与宿主负控已验，PIR部署事务取消已验，AIFlow/其它Web组合/GC仍开放 |
+| [Preview Web消费者](plans/2026-10-27-preview-web-consumer.md) | 实施计划 | `2026-10-27` | 共享Preview身份、完整包保留编辑、主机/Unit输入、Run帧与生命周期；CoreS3 PIR/Relay限定真实Web验收完成，AIFlow/SSE仍开放；构图限定修复见下一块 |
+| [Preview 控制组与 2Relay](plans/2026-10-27-preview-controls-and-2relay.md) | 实施计划 | `2026-10-27` | 四主机同VM丰富HUB控制组、U131双GPIO/蓝灯和限定窄屏/长dt相机已验；新运行时定向7PASS、完整矩阵66/67，边界保留 |
+| [Preview 控制组与 2Relay 证据](evidence/2026-10-27-preview-controls-and-2relay/README.md) | 验收证据 | `2026-10-27` | 官方U131研究、相机负控、四主机HUB与2Relay最终会话、失败/不完整尝试及清理；完整矩阵66/67独立保留，硬件NOT RUN |
 | [Preview Web与完整包验收](evidence/2026-10-27-preview-web-consumer/README.md) | 历史证据 | `2026-10-27` | 同VM外部完整包→Web保留MPY/资源编辑、PIR/Relay控制与Run选定像素、取消恢复/ZIP与清理；首次Token与raw-paste oracle失败、取消/松键独审负控保留 |
 | [同VM Preview/Run验收](evidence/2026-10-27-preview-run-control/README.md) | 历史证据 | `2026-10-27` | CoreS3 PIR/Relay同VM公共包/字节码、pending覆盖、真实prompt运行取消、帧/输入fence、ZIP及清理；宿主并发/恢复/保留独审与失败负控分别归档 |
 | [UIFlow同guest实时程序验证](evidence/2026-10-26-uiflow-live-program/README.md) | 历史证据 | `2026-10-26` | AtomS3R同固件/VM程序替换、PIR原驱动、应用帧与语法错误恢复；其它主机、AIFlow接入和硬件不继承 |

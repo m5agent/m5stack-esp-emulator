@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "category": "2relay-r1-source-reconstruction",
+  "source_report": ".work/preview-2relay-cores3-r1-20261027/report.json",
+  "source_report_sha256": "861067bad3ed999ce4ab28fd1880077e391f78f24c1b42cea4e3b5086467c0ff",
+  "method": "Reverse only the narrow post-r1 oracle/rawcleanup changes in the frozen current files; exact SHA256 must match the original raw r1 report before saving any reconstructed source.",
+  "captured": false,
+  "files": [
+    {
+      "path": "tests/units/relay2_preview_probe.py",
+      "expected_r1_sha256": "43412ff0894f87189075e7850ab821d9c13014feff4859023594dddf5d06321d",
+      "reconstructed_sha256": "43412ff0894f87189075e7850ab821d9c13014feff4859023594dddf5d06321d",
+      "status": "reconstructed",
+      "reconstructed_from_current_sha256": "98bf561e16bc8b3a9289f9642766124b8fc05e74511a4a3b40b8832e09facdec",
+      "size": 22682
+    },
+    {
+      "path": "tests/units/test_relay2_preview_probe.py",
+      "expected_r1_sha256": "3f42d5f3346085ba3aa5cbd490a7b716e310f17f4522ac6cf68eb9cd36c5495a",
+      "reconstructed_sha256": "3f42d5f3346085ba3aa5cbd490a7b716e310f17f4522ac6cf68eb9cd36c5495a",
+      "status": "reconstructed",
+      "reconstructed_from_current_sha256": "9f51c1fc6c6de6c253253845182746aeb96032ce927fe593d306d567cda0b9cc",
+      "size": 20996
+    },
+    {
+      "path": "platform/tests/test_live_relay2_preview_service_browser.mjs",
+      "expected_r1_sha256": "93545590a5d7d6675a543adc5a64d03d4178f5ac06b2d5f17a8a245f5455995b",
+      "reconstructed_sha256": "93545590a5d7d6675a543adc5a64d03d4178f5ac06b2d5f17a8a245f5455995b",
+      "status": "reconstructed",
+      "reconstructed_from_current_sha256": "38bd9886a051cbdd7227b4049f521343f31bf99b0921ab0825c10389949a527f",
+      "size": 31113
+    }
+  ],
+  "status": "EXACT RECONSTRUCTION"
+}

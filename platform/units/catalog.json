@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-26",
+  "checked_at": "2026-10-27",
   "scope": "External visual Unit products; official protocol contracts and runtime status are independent.",
   "units": [
     {
@@ -1259,6 +1259,162 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "2relay",
+      "name": "2Relay",
+      "sku": "U131",
+      "visual_asset": {
+        "entry": "src/units/2relay/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/2relay",
+      "checked_at": "2026-10-27",
+      "chips": [
+        {
+          "part": "SS8050 x2; no MCU",
+          "status": "official-schematic"
+        }
+      ],
+      "interface": {
+        "bus": "gpio",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "Relay2",
+            "direction": "host-to-unit",
+            "active_level": 1,
+            "external_bias": "10K pull-down R6"
+          },
+          "white": {
+            "signal": "Relay1",
+            "direction": "host-to-unit",
+            "active_level": 1,
+            "external_bias": "10K pull-down R3"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "Two independent GPIO inputs, white=Relay1 and yellow=Relay2. No MCU, I2C address or registers. Under nominal powered functional assumptions high activates the matching transistor stage and fixed-blue indicator; undriven digital inputs are biased low by R3/R6.",
+        "registers": [],
+        "gaps": [
+          "No coil timing, contact bounce, NO/NC switching, load, current, voltage, isolation or power-loss simulation. GPIO pad levels are not contact measurements."
+        ]
+      },
+      "inputs": {},
+      "outputs": {
+        "output-1-level": {
+          "type": "boolean",
+          "label": "第1路GPIO驱动电平",
+          "default": false,
+          "default_source": "schematic-digital-pull-down",
+          "readOnly": true
+        },
+        "output-1-transitions": {
+          "type": "integer",
+          "label": "第1路已观察电平变化次数",
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "output-2-level": {
+          "type": "boolean",
+          "label": "第2路GPIO驱动电平",
+          "default": false,
+          "default_source": "schematic-digital-pull-down",
+          "readOnly": true
+        },
+        "output-2-transitions": {
+          "type": "integer",
+          "label": "第2路已观察电平变化次数",
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/2relay",
+          "checked_at": "2026-10-27",
+          "claims": [
+            "SKU U131, two independent GPIO channels; white Relay1, yellow Relay2"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/50e440780492aa847378c7d3477ab912f7063bac/m5stack/libs/unit/relay2.py",
+          "sha256": "db05e974f2cd558c4fbaef85958b82730a9bcae1b21eb9646371bea7e6f273c5",
+          "checked_at": "2026-10-27",
+          "claims": [
+            "Relay2Unit uses Pin(port[0],OUT) and Pin(port[1],OUT); set_relay_cntrl spelling and boolean get_relay_status"
+          ]
+        },
+        {
+          "kind": "official-schematic",
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/2relay/2relay_sch_01.webp",
+          "sha256": "d2fa75fa6126915d7c2b7a26248b08e4416ce2a801a1771add49b94bef524b73",
+          "checked_at": "2026-10-27",
+          "claims": [
+            "R3/R6 10K input pull-downs; SS8050 low-side drivers; corresponding blue LEDs; nominal 5V functional high/low polarity"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "output-1-level": {
+            "property": "output-1-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "output-1-transitions": {
+            "property": "output-1-transitions",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "output-2-level": {
+            "property": "output-2-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "output-2-transitions": {
+            "property": "output-2-transitions",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC GPIO OUT/ENABLE and pad readback, two independent output listeners"
+      },
+      "blocker": "Official contract documented. Runtime admission and device-local firmware/Web evidence are owned by runtime-profiles.json; physical switching and loads remain unmodeled.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Read-only GPIO pad levels and per-channel transition counters; nominal-powered blue indication only, never contact state.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog alone does not authorize a simulated or functional-PASS claim.",
+        "Transition counters count observed listener notifications in a continuous, non-reset execution interval. Shared GPIO hard-reset notification/Unit counter semantics remain open as UNIT-HOST-36."
       ]
     },
     {

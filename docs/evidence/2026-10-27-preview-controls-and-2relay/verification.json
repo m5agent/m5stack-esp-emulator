@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "category": "final-host-and-artifact-verification",
+  "date": "2026-10-27",
+  "status": "PASS",
+  "scope": "Host checks and bounded virtual-device acceptance; no whole-matrix or hardware PASS.",
+  "platform_suite": {
+    "status": "PASS",
+    "tests": 1112,
+    "seconds": 109.176,
+    "log": "platform-final.log",
+    "source_path": ".work/2relay-platform-final-20261027.log",
+    "original_sha256": "f90d763ff658d8cbd50515b1810d892f48e28da8421bbdaca18b6adb027998b8",
+    "archive_sha256": "f90d763ff658d8cbd50515b1810d892f48e28da8421bbdaca18b6adb027998b8",
+    "path_redaction": false,
+    "raw_bytes_preserved": true
+  },
+  "final_command_results": "final-command-results.json",
+  "probe_contracts": {
+    "relay2": 22,
+    "controls": 11,
+    "total": 33,
+    "status": "PASS"
+  },
+  "matrix": {
+    "targeted": {
+      "pass": 7,
+      "fail": 0
+    },
+    "full_original": {
+      "pass": 66,
+      "fail": 1,
+      "failing_case": "core2-imu"
+    },
+    "independent_core2_imu": {
+      "pass": 1,
+      "does_not_replace_full_original": true
+    },
+    "hardware": "NOT RUN"
+  },
+  "independent_reviews": {
+    "documentation": {
+      "status": "PASS",
+      "same_vm_runtime_path_confirmed": true,
+      "host_metadata_entries": 20,
+      "final_runs": 44,
+      "status_lines": 450,
+      "new_markdown_freshness_registered": true,
+      "legacy_index_summary_corrected": true
+    },
+    "archive": {
+      "status": "PASS",
+      "file_hashes_checked": 2482,
+      "controls_index_files": 2240,
+      "controls_bytes": 43697840,
+      "relay2_raw_members": 12156,
+      "relay2_sampled_members_sha256_checked": 136,
+      "raw_zip_central_directory_size_crc": "PASS",
+      "device_service_zip_crc": "PASS",
+      "files_larger_than_25MB": 0,
+      "small_bin_resource_members": 48,
+      "small_bin_resource_bytes_each": 8
+    }
+  },
+  "final_product_sources_sha256": {
+    "patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch": "bc7547ae74b3ac85ff65cf3780b4b6a77632b435fca463646d53faaa15acf517",
+    "patches/qemu-m5stack-peripherals/README.md": "7f93690656eb5ea9fe03b7f15232b78451ed1006f56533b974a65d00772ecd55",
+    "patches/qemu-unit-runtime/README.md": "b11b7169e2f87f26443374f8174d87ab67ecf00f30fd8e9ef6212e2e96c6a9de",
+    "platform/tests/test_live_preview_controls_service_browser.mjs": "d3fa362a7673c217dd43190487f9a6ff8f468577b9cdef3ca313f801f1a6d0ce",
+    "platform/tests/test_live_relay2_preview_service_browser.mjs": "47d29135eb45cb7f371fe7377770ab9173fcaf4d680b2ca84e7438913b48f493",
+    "platform/tests/test_model_camera_fit.mjs": "f9d4814d4eda6711d9915dcc8709757af47177d81719a52dc869353160d250bd",
+    "platform/tests/test_serve_api.py": "e64f34ccce04cd7e93a825d1bdf30922b535a974865a319062446434a2f43f90",
+    "platform/tests/test_unit_relay2_patch.py": "ea6665078f69960d5ba6283b3685b9408311fd4e514b1af785bb2cc23d90efe9",
+    "platform/tests/test_unit_runtime.py": "1c80d2de0c63c8642077b566545bb13a49357b8cfce8cba27cf2569a6df18bef",
+    "platform/tests/test_unit_visual_mappings.mjs": "c1bea964813cf6ac5ccf43e1a4af968e4fd220cb389a9351a4744e81bbccf2bf",
+    "platform/units/catalog.json": "51e6ce1e8552f163c94926fa761ff9117ff802424075529fc36e641eecbf2298",
+    "platform/units/fixtures/2relay-binding.json": "d54b15091a7d3870d15a7c6f4e7a264a8e06c0291703da8019b6572fcd07e47f",
+    "platform/units/runtime-profiles.json": "3e050e6d0f2ff1bf8a175f7f83ec90d3c1d3d340e8c9a5b69b1e8607a882879d",
+    "platform/web/model-shell.js": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+    "platform/web/unit-visual-mappings.js": "74303443c3d7fca279dde772d43f4fc63db33d21f753bdd582c01fd0eae7d087",
+    "scripts/bootstrap-unit-runtime.py": "2589f6c4d5a0c88a44a65b719eabfbd2df84ccf18fc8d41ce1debbf4c70a12f0",
+    "tests/units/preview_controls_probe.py": "efb9af7b1df20053630e3b7da36de26e21224cbc30d76f16d5dcda61df444e1f",
+    "tests/units/relay2_preview_probe.py": "263c12632f04fad792110bb6f9a523e7dd7b53c7656716b907aa8de9c2f3fcf9",
+    "tests/units/test_preview_controls_probe.py": "1c4575efb31b8c42d45f577092d23d79168a20297e9d772139e5388b1efa33b1",
+    "tests/units/test_relay2_preview_probe.py": "a875258ef77c09a6e41037102aa520f09c46f51adbbd646e8f549b5171868491"
+  },
+  "service_idle_before_commit": {
+    "pid": 67059,
+    "generation": 36,
+    "active_sessions": 0,
+    "active_lease_count": 0
+  },
+  "privacy": "privacy-final.json",
+  "limits": [
+    "Optional browser body/header collection remains INCOMPLETE for all final relay2 hosts.",
+    "Full original matrix remains 66/67; standalone Core2 IMU PASS is separate.",
+    "Independent main.mpy, AIFlow consumer integration, SSE, save-at-boot and full native/IRQ/thread cleanup remain open."
+  ],
+  "staged_diff_check": {
+    "product_and_authority_docs": "PASS",
+    "raw_evidence_whitespace": "Preserved original source bytes; full staged whitespace check reports only archived upstream text and patch snapshots. Their hashes are verified, not whitespace-normalized.",
+    "raw_paths": [
+      "docs/evidence/2026-10-27-preview-controls-and-2relay/relay2/hosts/sources/patches__qemu-m5stack-peripherals__0044-unit-2relay-gpio.patch.txt",
+      "docs/evidence/2026-10-27-preview-controls-and-2relay/research/sources/2relay.official.html",
+      "docs/evidence/2026-10-27-preview-controls-and-2relay/research/sources/4relay.official.html",
+      "docs/evidence/2026-10-27-preview-controls-and-2relay/research/sources/4relay.product.md.txt",
+      "docs/evidence/2026-10-27-preview-controls-and-2relay/research/sources/adc-v11.official.html",
+      "docs/evidence/2026-10-27-preview-controls-and-2relay/research/sources/dac2.official.html",
+      "docs/evidence/2026-10-27-preview-controls-and-2relay/research/sources/official-mcp-relay4-driver.info.md.txt",
+      "docs/evidence/2026-10-27-preview-controls-and-2relay/runtime/0044-unit-2relay-gpio.patch.txt",
+      "docs/evidence/2026-10-27-preview-controls-and-2relay/sources/patches__qemu-m5stack-peripherals__0044-unit-2relay-gpio.patch.txt"
+    ]
+  }
+}

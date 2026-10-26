@@ -1,0 +1,30 @@
+{
+  "device_id": "sticks3",
+  "runtime": "qemu",
+  "ttl_seconds": 900,
+  "units": [
+    {
+      "id": "hub1",
+      "unit_id": "hub",
+      "port_id": "custom"
+    },
+    {
+      "id": "encoder",
+      "unit_id": "encoder",
+      "parent_id": "hub1",
+      "port_id": "grove-1"
+    },
+    {
+      "id": "eight",
+      "unit_id": "8encoder",
+      "parent_id": "hub1",
+      "port_id": "grove-2"
+    },
+    {
+      "id": "joystick",
+      "unit_id": "joystick-v11",
+      "parent_id": "hub1",
+      "port_id": "grove-3"
+    }
+  ]
+}

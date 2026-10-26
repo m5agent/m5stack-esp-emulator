@@ -1,0 +1,865 @@
+{
+  "schema_version": 1,
+  "device_id": "stopwatch",
+  "mandatory_status": "PASS",
+  "hardware": "NOT RUN",
+  "runtime": {
+    "pid": 77136,
+    "executable_name": "qemu-system-xtensa",
+    "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+  },
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 36,
+    "lease_active": true
+  },
+  "preview_id": "5eed23af90ca4a92bcf6dc54d82d918d",
+  "session_id": "dcd53d5fb00e4dc2983c7c9009f8d350",
+  "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+  "runs": [
+    {
+      "run_id": "ea64b4c5371c486c8d1a20a927f9fd48",
+      "execution_id": "7a02e560d1684ea98e57d21dfc56237f",
+      "revision_id": "cfcf3611949e142afc2a789b483ddc5827daf75dfb0a0002c2461f20d2e3a980",
+      "phase": "seed",
+      "label": "seed"
+    },
+    {
+      "run_id": "952ad22427234d929a638c149d2773d0",
+      "execution_id": "99964caf28dc4fb0b3897583956a42f5",
+      "revision_id": "9ca804e6acdcbdffaef5ec1feb9b20efb4c21d090ef0d2714b17d64de3abf22d",
+      "phase": "00",
+      "label": "00"
+    },
+    {
+      "run_id": "9be035e7c62f4fbf98c7dcfadc083125",
+      "execution_id": "f198d41bfcd942caa2db80ca41bc61e9",
+      "revision_id": "5349d45792628027431c4b4e9edb06c2b4f065822c70f719c1ef64e2317409d3",
+      "phase": "10",
+      "label": "10"
+    },
+    {
+      "run_id": "5b0ae90dbf744eefb4a0c585a04cdc64",
+      "execution_id": "ccf4683624db4ccb9f1095687c12db71",
+      "revision_id": "872cd8a2235fee38b17ec3085d3499764d60f669430c97431a775e8eabf47dbb",
+      "phase": "01",
+      "label": "01"
+    },
+    {
+      "run_id": "c0ec2fd9b7184b0db99d9229fa89dd31",
+      "execution_id": "97b476355f984822bbbad45a7fc47268",
+      "revision_id": "38a2b37249becff6cfdfd1c0d09d6e3362b6af7a43b9ff38f4f299e58b86bafb",
+      "phase": "11",
+      "label": "11"
+    },
+    {
+      "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+      "execution_id": "baaf6ab3ef754d758598635d0717a539",
+      "revision_id": "a1e0e5ff04f8b7e99170d7db1d5cae401823658acbdef7d451fd19af9fcd44ac",
+      "phase": "interactive",
+      "label": "interactive"
+    },
+    {
+      "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+      "execution_id": "03714358f9654b7d9391743e22d4bcef",
+      "revision_id": "a1e0e5ff04f8b7e99170d7db1d5cae401823658acbdef7d451fd19af9fcd44ac",
+      "phase": "interactive",
+      "label": "interactive-after-cancel"
+    }
+  ],
+  "checks": {
+    "source_snapshots": 22,
+    "mandatory_direct_http": 699,
+    "running_vm_snapshots": 9,
+    "typed_uart_driver_pad_qom_mounted": [
+      {
+        "label": "fixed-00",
+        "run_id": "952ad22427234d929a638c149d2773d0",
+        "sequence": 1,
+        "events": 0,
+        "last_raw_http_index": 83,
+        "counters": {
+          "output-1-transitions": 0,
+          "output-2-transitions": 0,
+          "output-transitions": 0
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "952ad22427234d929a638c149d2773d0",
+        "sequence": 2,
+        "events": 0,
+        "last_raw_http_index": 93,
+        "counters": {
+          "output-1-transitions": 0,
+          "output-2-transitions": 0,
+          "output-transitions": 0
+        }
+      },
+      {
+        "label": "fixed-10",
+        "run_id": "9be035e7c62f4fbf98c7dcfadc083125",
+        "sequence": 1,
+        "events": 0,
+        "last_raw_http_index": 149,
+        "counters": {
+          "output-1-transitions": 1,
+          "output-2-transitions": 0,
+          "output-transitions": 1
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9be035e7c62f4fbf98c7dcfadc083125",
+        "sequence": 7,
+        "events": 0,
+        "last_raw_http_index": 163,
+        "counters": {
+          "output-1-transitions": 1,
+          "output-2-transitions": 0,
+          "output-transitions": 1
+        }
+      },
+      {
+        "label": "fixed-01",
+        "run_id": "5b0ae90dbf744eefb4a0c585a04cdc64",
+        "sequence": 1,
+        "events": 0,
+        "last_raw_http_index": 219,
+        "counters": {
+          "output-1-transitions": 2,
+          "output-2-transitions": 1,
+          "output-transitions": 3
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "5b0ae90dbf744eefb4a0c585a04cdc64",
+        "sequence": 3,
+        "events": 0,
+        "last_raw_http_index": 233,
+        "counters": {
+          "output-1-transitions": 2,
+          "output-2-transitions": 1,
+          "output-transitions": 3
+        }
+      },
+      {
+        "label": "fixed-11",
+        "run_id": "c0ec2fd9b7184b0db99d9229fa89dd31",
+        "sequence": 1,
+        "events": 0,
+        "last_raw_http_index": 289,
+        "counters": {
+          "output-1-transitions": 3,
+          "output-2-transitions": 1,
+          "output-transitions": 4
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "c0ec2fd9b7184b0db99d9229fa89dd31",
+        "sequence": 3,
+        "events": 0,
+        "last_raw_http_index": 303,
+        "counters": {
+          "output-1-transitions": 3,
+          "output-2-transitions": 1,
+          "output-transitions": 4
+        }
+      },
+      {
+        "label": "reverse-input-did-not-mutate-pads",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sequence": 1,
+        "events": 0,
+        "last_raw_http_index": 370,
+        "counters": {
+          "output-1-transitions": 4,
+          "output-2-transitions": 2,
+          "output-transitions": 6
+        }
+      },
+      {
+        "label": "host-loop-initial-00",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sequence": 2,
+        "events": 0,
+        "last_raw_http_index": 378,
+        "counters": {
+          "output-1-transitions": 4,
+          "output-2-transitions": 2,
+          "output-transitions": 6
+        }
+      },
+      {
+        "label": "host-channel-1-event-1",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sequence": 8,
+        "events": 1,
+        "last_raw_http_index": 396,
+        "counters": {
+          "output-1-transitions": 5,
+          "output-2-transitions": 2,
+          "output-transitions": 7
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sequence": 9,
+        "events": 1,
+        "last_raw_http_index": 410,
+        "counters": {
+          "output-1-transitions": 5,
+          "output-2-transitions": 2,
+          "output-transitions": 7
+        }
+      },
+      {
+        "label": "host-channel-2-event-2",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sequence": 15,
+        "events": 2,
+        "last_raw_http_index": 428,
+        "counters": {
+          "output-1-transitions": 5,
+          "output-2-transitions": 3,
+          "output-transitions": 8
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sequence": 17,
+        "events": 2,
+        "last_raw_http_index": 442,
+        "counters": {
+          "output-1-transitions": 5,
+          "output-2-transitions": 3,
+          "output-transitions": 8
+        }
+      },
+      {
+        "label": "host-channel-1-event-3",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sequence": 22,
+        "events": 3,
+        "last_raw_http_index": 460,
+        "counters": {
+          "output-1-transitions": 6,
+          "output-2-transitions": 3,
+          "output-transitions": 9
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sequence": 24,
+        "events": 3,
+        "last_raw_http_index": 474,
+        "counters": {
+          "output-1-transitions": 6,
+          "output-2-transitions": 3,
+          "output-transitions": 9
+        }
+      },
+      {
+        "label": "host-channel-2-event-4",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sequence": 29,
+        "events": 4,
+        "last_raw_http_index": 492,
+        "counters": {
+          "output-1-transitions": 6,
+          "output-2-transitions": 4,
+          "output-transitions": 10
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sequence": 31,
+        "events": 4,
+        "last_raw_http_index": 506,
+        "counters": {
+          "output-1-transitions": 6,
+          "output-2-transitions": 4,
+          "output-transitions": 10
+        }
+      },
+      {
+        "label": "host-loop-initial-00",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sequence": 1,
+        "events": 0,
+        "last_raw_http_index": 554,
+        "counters": {
+          "output-1-transitions": 6,
+          "output-2-transitions": 4,
+          "output-transitions": 10
+        }
+      },
+      {
+        "label": "host-channel-1-event-1",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sequence": 6,
+        "events": 1,
+        "last_raw_http_index": 572,
+        "counters": {
+          "output-1-transitions": 7,
+          "output-2-transitions": 4,
+          "output-transitions": 11
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sequence": 8,
+        "events": 1,
+        "last_raw_http_index": 586,
+        "counters": {
+          "output-1-transitions": 7,
+          "output-2-transitions": 4,
+          "output-transitions": 11
+        }
+      },
+      {
+        "label": "host-channel-2-event-2",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sequence": 13,
+        "events": 2,
+        "last_raw_http_index": 604,
+        "counters": {
+          "output-1-transitions": 7,
+          "output-2-transitions": 5,
+          "output-transitions": 12
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sequence": 15,
+        "events": 2,
+        "last_raw_http_index": 614,
+        "counters": {
+          "output-1-transitions": 7,
+          "output-2-transitions": 5,
+          "output-transitions": 12
+        }
+      },
+      {
+        "label": "host-channel-1-event-3",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sequence": 21,
+        "events": 3,
+        "last_raw_http_index": 632,
+        "counters": {
+          "output-1-transitions": 8,
+          "output-2-transitions": 5,
+          "output-transitions": 13
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sequence": 22,
+        "events": 3,
+        "last_raw_http_index": 646,
+        "counters": {
+          "output-1-transitions": 8,
+          "output-2-transitions": 5,
+          "output-transitions": 13
+        }
+      },
+      {
+        "label": "host-channel-2-event-4",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sequence": 30,
+        "events": 4,
+        "last_raw_http_index": 664,
+        "counters": {
+          "output-1-transitions": 8,
+          "output-2-transitions": 6,
+          "output-transitions": 14
+        }
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sequence": 31,
+        "events": 4,
+        "last_raw_http_index": 678,
+        "counters": {
+          "output-1-transitions": 8,
+          "output-2-transitions": 6,
+          "output-transitions": 14
+        }
+      }
+    ],
+    "independent_counter_checks": [
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "952ad22427234d929a638c149d2773d0",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "9be035e7c62f4fbf98c7dcfadc083125",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "5b0ae90dbf744eefb4a0c585a04cdc64",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "c0ec2fd9b7184b0db99d9229fa89dd31",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-channel-1-event-1",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "changed_channel": 1
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-channel-2-event-2",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "changed_channel": 2
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-channel-1-event-3",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "changed_channel": 1
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-channel-2-event-4",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "changed_channel": 2
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-channel-1-event-1",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "changed_channel": 1
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-channel-2-event-2",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "changed_channel": 2
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-channel-1-event-3",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "changed_channel": 1
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "delta": [
+          0,
+          0
+        ]
+      },
+      {
+        "label": "host-channel-2-event-4",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "changed_channel": 2
+      },
+      {
+        "label": "repeated-original-driver-writes",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "delta": [
+          0,
+          0
+        ]
+      }
+    ],
+    "key_hold_release_checks": [],
+    "five_header_frames_and_pixels": [
+      {
+        "label": "frame-fixed-00",
+        "run_id": "952ad22427234d929a638c149d2773d0",
+        "sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-fixed-10",
+        "run_id": "9be035e7c62f4fbf98c7dcfadc083125",
+        "sha256": "f123284673c8aa8529df2a9ddb396f6f49407109bff9788e44970447958a6bfc",
+        "selected_pixel_rgba": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-fixed-01",
+        "run_id": "5b0ae90dbf744eefb4a0c585a04cdc64",
+        "sha256": "3b833e15ef7146aea6d181893f1bfb6017ada064c943b94d9c9e5ab922323936",
+        "selected_pixel_rgba": [
+          0,
+          255,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-fixed-11",
+        "run_id": "c0ec2fd9b7184b0db99d9229fa89dd31",
+        "sha256": "2f9cb909daf485210c89a1b6a8500757d6c4c08bc4f69b4101e8a35924aa786b",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          255,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-initial",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-1",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sha256": "f123284673c8aa8529df2a9ddb396f6f49407109bff9788e44970447958a6bfc",
+        "selected_pixel_rgba": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-2",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sha256": "2f9cb909daf485210c89a1b6a8500757d6c4c08bc4f69b4101e8a35924aa786b",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          255,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-3",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sha256": "3b833e15ef7146aea6d181893f1bfb6017ada064c943b94d9c9e5ab922323936",
+        "selected_pixel_rgba": [
+          0,
+          255,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-4",
+        "run_id": "135c1ba21b69456bae60de8f5abcc8e5",
+        "sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-after-cancel-initial",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-after-cancel-1",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sha256": "f123284673c8aa8529df2a9ddb396f6f49407109bff9788e44970447958a6bfc",
+        "selected_pixel_rgba": [
+          255,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-after-cancel-2",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sha256": "2f9cb909daf485210c89a1b6a8500757d6c4c08bc4f69b4101e8a35924aa786b",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          255,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-after-cancel-3",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sha256": "3b833e15ef7146aea6d181893f1bfb6017ada064c943b94d9c9e5ab922323936",
+        "selected_pixel_rgba": [
+          0,
+          255,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-interactive-after-cancel-4",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          0,
+          255
+        ]
+      },
+      {
+        "label": "frame-before-close",
+        "run_id": "71d9ae51b8ee4ae8b14a65c04f7eee07",
+        "sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+        "selected_pixel_rgba": [
+          0,
+          0,
+          0,
+          255
+        ]
+      }
+    ],
+    "readonly_output_rejections": 4,
+    "zip": {
+      "status": "PASS",
+      "members": 51,
+      "sha256": "16414277a926d2e742476b258b361728a81ed888cc27549c11c12f20c91b50b4"
+    },
+    "pngs_decoded": [
+      {
+        "path": "before-close-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "fixed-00-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "fixed-01-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "fixed-10-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "fixed-11-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "history-last-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "interactive-1-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "interactive-2-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "interactive-3-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "interactive-4-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "interactive-after-cancel-1-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "interactive-after-cancel-2-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "interactive-after-cancel-3-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "interactive-after-cancel-4-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "interactive-after-cancel-initial-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "interactive-initial-frame.png",
+        "width": 466,
+        "height": 466
+      },
+      {
+        "path": "relay2-1024.png",
+        "width": 1024,
+        "height": 9624
+      },
+      {
+        "path": "relay2-1440.png",
+        "width": 1440,
+        "height": 8512
+      },
+      {
+        "path": "relay2-390.png",
+        "width": 390,
+        "height": 13047
+      },
+      {
+        "path": "relay2-768.png",
+        "width": 768,
+        "height": 12074
+      }
+    ]
+  },
+  "cleanup": {
+    "status": "PASS",
+    "zip_before_close": true,
+    "history_exact_sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+    "flash_retained": false,
+    "pid_gone_recorded": true,
+    "active_sessions": 0,
+    "active_lease_count": 0
+  },
+  "optional_browser_observer": {
+    "status": "INCOMPLETE",
+    "scope": "browser responses admitted before shutdown cutoff; bounded optional body/header recording",
+    "sealed_at": "2026-10-26T19:42:12.107Z",
+    "responses": 1203,
+    "bodies_saved": 1078,
+    "complete": 1078,
+    "observer_errors": 125,
+    "timeouts": 6,
+    "pending": 0
+  },
+  "browser_shutdown": {
+    "pre_close": {
+      "status": "timeout",
+      "error": "observer-pre-close-drain exceeded 2000ms"
+    },
+    "browser_close": {
+      "status": "settled"
+    },
+    "final_drain": {
+      "status": "settled"
+    },
+    "observer": {
+      "status": "INCOMPLETE",
+      "scope": "browser responses admitted before shutdown cutoff; bounded optional body/header recording",
+      "sealed_at": "2026-10-26T19:42:12.107Z",
+      "responses": 1203,
+      "bodies_saved": 1078,
+      "complete": 1078,
+      "observer_errors": 125,
+      "timeouts": 6,
+      "pending": 0
+    }
+  },
+  "limits": [
+    "Optional browser bodies may be INCOMPLETE or time out; mandatory direct HTTP and Device Service evidence are independently required.",
+    "Browser-close/final-drain settled and pending zero do not mean every optional body was captured.",
+    "Virtual nominal powered GPIO/LED state only; no physical relay NO/NC/load/coil timing or electrical measurement.",
+    "Offline audit rechecks recorded guest/DOM/material/PID evidence; it does not reopen the service or query current processes.",
+    "Interrupt-only program cleanup does not guarantee arbitrary native/IRQ/thread cleanup."
+  ]
+}

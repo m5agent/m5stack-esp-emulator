@@ -125,6 +125,17 @@ function calibratedJoints(unitId, state, port, bindings) {
 
 export function visualCommands(unit, port, {bindings, running = true} = {}) {
   if (typeof port !== 'string' || !port) return [];
+  if (unit?.unit_id === '2relay') {
+    // U131 schematic + fixed asset channel numbering, recorded in
+    // platform/units/fixtures/2relay-binding.json. Nominal powered indication
+    // follows each observed GPIO pad; this is not a contact/load measurement.
+    return [1, 2].map(channel => {
+      const value = unit.properties?.[`output-${channel}-level`];
+      return observed(unit) && typeof value === 'boolean'
+        ? {...ledCommand(port, `led-${channel}`, 0x247CFF), on: value}
+        : {type: 'led', target: path(port, `led-${channel}`), known: false};
+    });
+  }
   if (unit?.unit_id === 'fan') {
     const duty = unit.properties?.['duty-pct'];
     return [{type: 'drive-activity', target: path(port, 'rotor'), active: running && observed(unit) && Number.isFinite(duty) && duty > 0 && duty <= 100}];
@@ -164,6 +175,7 @@ const AUDIT = {
   rgb: {binding: {'led-rgb': 'Uniform colors map by permutation invariance; distinct electrical LED colors require physical-location evidence.'}},
   angle: {binding: {'voltage-mv': 'Potentiometer mechanical travel, zero, direction and voltage/angle calibration are unconfirmed.'}},
   color: {}, tof: {}, light: {}, relay: {},
+  '2relay': {readback: ['output-1-level', 'output-2-level'], note: 'U131 white=Relay1=led-1, yellow=Relay2=led-2. Fixed-blue nominal powered indication; GPIO pads are not contacts or load measurements.'},
   'joystick-v11': {binding: {'x-raw': 'Raw axis to tilt joint orientation/range requires calibration.', 'y-raw': 'Raw axis to tilt joint orientation/range requires calibration.', 'button-raw': 'Catalog preserves raw button byte; pressed polarity is unconfirmed.'}},
   'dual-button': {input: ['red-pressed', 'blue-pressed'], readback: ['red-pressed', 'blue-pressed']},
   button: {input: ['pressed'], readback: ['pressed']}, ncir: {}, heart: {},
