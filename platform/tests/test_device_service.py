@@ -42,6 +42,7 @@ from device_service import (
     effective_session_ready_timeout,
 )
 from nvs_image import PAGE_SIZE, build_string_nvs_image
+from network_egress import EgressEndpoint
 from serve import Handler, _wait_for_session
 from test_firmware_analysis import build_flash
 from worker_auth import sign_worker_request
@@ -1785,6 +1786,36 @@ class DeviceServiceUnitTests(unittest.TestCase):
             ],
         )
         self.assertTrue(parsed["policy"]["controlled_resolver"])
+
+    def test_controlled_dns_requires_resolved_allowed_endpoint(self):
+        with self.assertRaises(ServiceError) as no_endpoint:
+            device_service_module.parse_network_policy(
+                {
+                    "isolation": "namespace",
+                    "egress": "allowlist",
+                    "dns": "controlled",
+                    "allowed_hosts": ["allowed.lab.test"],
+                }
+            )
+        self.assertEqual(
+            no_endpoint.exception.code,
+            "invalid_network_policy",
+        )
+        parsed = device_service_module.parse_network_policy(
+            {
+                "isolation": "namespace",
+                "egress": "allowlist",
+                "dns": "controlled",
+                "allowed_hosts": ["allowed.lab.test"],
+            },
+            implicit_endpoints=(
+                EgressEndpoint("tcp", "10.0.2.2", 18443),
+            ),
+        )
+        self.assertEqual(
+            parsed.allowed_endpoints,
+            (EgressEndpoint("tcp", "10.0.2.2", 18443),),
+        )
 
     def test_controlled_dns_cname_records_require_bounded_policy(self):
         request = {

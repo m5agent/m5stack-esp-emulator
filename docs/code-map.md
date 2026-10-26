@@ -97,7 +97,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/network_policy.py` | isolation/egress/DNS/TLS/pcap 策略校验 | Device Service |
 | `platform/tools/network_egress.py` | 精确 IPv4/IPv6 地址/协议/端口、双栈 veth/route/NAT、IPv6 neighbor control 和清理 | Device Service、隔离测试 |
 | `platform/tools/network_fabric.py` | private namespace、双 TAP/bridge DHCP primitive 和双 guest QEMU socket L2 switch | lab-fabric runner、CI |
-| `platform/tools/network_sandbox.py` | Linux private net/mount namespace、controlled DNS A/AAAA、domain suffix 和 bounded CNAME chain | 隔离 runner、worker |
+| `platform/tools/network_sandbox.py` | Linux private net/mount namespace、controlled DNS A/AAAA、exact/domain/CNAME answer binding、严格 Host authority 和 bounded CNAME chain | 隔离 runner、worker |
 | `platform/tools/network_lane.py` | `esp-emu` 网络诊断与 SoftAP provisioning lane | CLI、Device Service |
 | `platform/tools/unified_http_guestfwd.py` | QEMU user-net `guestfwd` 的 per-connection HTTP fixture；避免并发 session 共享宿主 18089 端口 | Device Service、Core2 concurrent runner |
 | `platform/tools/pcap_summary.py` | pcap flow/DNS/DHCP/ARP 和 payload hash 摘要 | Device Service、测试 |
@@ -262,7 +262,7 @@ M5Burner / WebBurner / ESP-IDF / merged / segmented
 | `platform/tools/network_policy.py` | `isolation`、`egress`、controlled DNS、exact Host/domain suffix 和 pcap 策略 |
 | `platform/tools/network_egress.py` | 有界 IPv4/IPv6 地址或 CIDR/协议/端口、nftables、per-session 双栈 veth/NAT、IPv6 neighbor control 和清理 |
 | `platform/tools/network_fabric.py` | private namespace、双 guest QEMU socket switch、DHCP reservation、TAP/bridge primitive |
-| `platform/tools/network_sandbox.py` | Linux net/mount namespace、controlled A/AAAA + label-boundary domain suffix resolver、explicit answer binding、lab-only 无路由、allowlist nft 执行和 fail-closed 启动 |
+| `platform/tools/network_sandbox.py` | Linux net/mount namespace、controlled A/AAAA + label-boundary domain suffix resolver、exact/domain/CNAME explicit answer binding、严格 Host authority、lab-only 无路由、allowlist nft 执行和 fail-closed 启动 |
 | `platform/tools/network_lane.py` | `esp-emu` 诊断/Provisioning 网络 lane |
 | `platform/tools/pcap_summary.py` | flow、DNS、DHCP message/transaction/renewal、ARP、egress scope 和 payload hash |
 | `platform/tools/ble_probe.py` | 外部 BLE peer / GATT 验证；默认一轮，可要求同一 peer 进程连续多轮 |
@@ -382,7 +382,8 @@ PASS 比例、轮次、资源数值和哈希都只属于所链接的 evidence；
 | DNS + TLS/Host allowlist | `tests/network/tls_allowlist/`、QEMU patch `0027` | Linux namespace 下允许域名 A/拒绝 NXDOMAIN、TLS CA、允许 200/拒绝 403 和 pcap PASS |
 | UIFlow2 guest IPv6 lifecycle | `tests/network/ipv6_end_to_end/`；test-only patch；`evidence-2026-10-24-guest-ipv6-direct-test-build-pass.json`；`evidence-2026-10-25-ipv6-namespace-aaaa-http-pass.json` | Direct run 在同一 StickS3 guest 创建 link-local 并完成 IPv6 HTTP；Linux namespace run 进一步由同一 test-build guest 完成 controlled AAAA、allowed HTTP、denied-port、pcap、namespace/QEMU cleanup。原厂 UIFlow2 仍未默认启用 IPv6，结果不等于公网 IPv6 或 RF |
 | Bounded CIDR/dual-stack egress | `tests/network/egress_allowlist/` | nftables 默认 drop、IPv4 CIDR 与 IPv6 exact 地址的允许/拒绝端口/地址、worker→upstream 双栈 veth/NAT、源地址转换、IPv6 neighbor control、namespace/NAT 清理 |
-| Controlled domain set | `network_policy.py`；`network_sandbox.py`；`test_network_policy.py`；`test_network_sandbox.py` | suffix 只在 DNS label boundary 匹配；exact 优先、最长 suffix 优先；每个受控 answer 必须被 allowed endpoint 地址/CIDR 覆盖；`evilallowy.test` 不匹配 `allowy.test` |
+| Controlled domain set | `network_policy.py`；`network_sandbox.py`；`test_network_policy.py`；`test_network_sandbox.py` | suffix 只在 DNS label boundary 匹配；exact 优先、最长 suffix 优先；每个 exact/domain/CNAME terminal answer 必须被 allowed endpoint 地址/CIDR 覆盖；IPv4-mapped IPv6 record 拒绝；`evilallowy.test` 不匹配 `allowy.test` |
+| HTTP Host authority | `network_sandbox.normalize_http_authority()`；`ControlledHttp`；`test_network_sandbox.py`；`evidence-2026-10-26-host-authority-exact-dns-namespace-pass.json` | 只接受单一 Host header、可选数字端口、origin-form target 和严格 DNS label；拒绝 userinfo、逗号/multi-colon、越界端口、absolute-form 和重复 Host；Linux namespace 下同一 StickS3 guest 完成 DNS/TLS/DHCP/pcap |
 | Controlled CNAME lifecycle | `network_sandbox.py`；`device_service.py`；`tests/network/dns_cname_chain/`；`tests/network/cname_guest_lifecycle/` | resolver 覆盖最多 8 跳、cycle/权限/冲突；三个独立 lease 由同一 stock UIFlow2 guest 完成 CNAME→terminal A→HTTP、denied-name/port、pcap、namespace cleanup。evidence ZIP 同时带 DNS/HTTP fixture 和 isolation 文件 |
 | DHCP renewal | `tests/network/idf_dhcp_renewal/` | guest 调用 renew API；pcap 区分初次 DORA 与后续 REQUEST/ACK，lease/地址/HTTP 联合 PASS |
 | 双设备 lab fabric | `tests/network/lab_fabric/`、patches `0028` | private namespace 内两台 QEMU guest 完成 DORA、A→B TCP 和双侧 pcap；宿主、公网、metadata、默认路由不可达并按预期清理。QEMU 运行路径是 socket switch；TAP/bridge 是独立 primitive |

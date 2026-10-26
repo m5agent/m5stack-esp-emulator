@@ -336,6 +336,8 @@ Evidence:
 - `evidence-2026-10-25-core2-concurrent-8x120-fixed-icount-pass-b.json`
 - `evidence-2026-10-26-core2-concurrent-8x120-fixed-icount-pass-a.json`
 - `evidence-2026-10-26-core2-concurrent-8x120-fixed-icount-pass-b.json`
+- `evidence-2026-10-26-core2-concurrent-8x120-network-hardening-pass-a.json`
+- `evidence-2026-10-26-core2-concurrent-8x120-network-hardening-pass-b.json`
 - `../evidence-2026-10-25-core2-0009-device-group.json`
 
 The historical failures are retained. Two, three and four instances pass two
@@ -352,10 +354,12 @@ checks passed and no guest panicked. After calibrating the sustained floor to
 service per-device cap of 8. More than eight instances, sustained throughput,
 teardown modes beyond active-stop, physical controller timing and RF remain
 separate boundaries.
-The `2026-10-26` A/B runs rebind that same `16/16` gate to the current
-`device_service.py` after manifest identity and unknown-required-capability
-semantics changed. The earlier `2026-10-25` evidence remains as the historical
-tool-hash checkpoint.
+The first `2026-10-26` A/B runs rebind the `16/16` gate after manifest
+identity and unknown-required-capability semantics changed. After network
+Host/DNS hardening changed `device_service.py` and `network_policy.py`, a
+second independent A/B pair passes `8/8` each (`16/16`) against the new tool
+hashes. The earlier `2026-10-25` and first `2026-10-26` pairs remain as
+historical tool-hash checkpoints.
 
 The `0009` source build also passes the Core2 six-case UIFlow2 peripheral
 group (`6/6`, `24/24` checks) with one attempt per case and no retry.

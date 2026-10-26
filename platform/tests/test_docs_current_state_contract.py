@@ -296,6 +296,18 @@ class DocsCurrentStateContractTests(DocsContractBase):
         self.assertIn("network.cname_records", markdown)
         self.assertIn("allowed_endpoints", openapi)
         self.assertIn("controlled", openapi)
+        self.assertIn("strict ASCII DNS labels", markdown)
+        self.assertIn("requires at least one allowed endpoint", markdown)
+        self.assertIn("duplicate Host headers", markdown)
+        self.assertIn("requires at least one allowed endpoint", openapi)
+        self.assertIn(
+            "CNAME terminal answers must be covered by that endpoint",
+            openapi,
+        )
+        self.assertIn(
+            "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?",
+            openapi,
+        )
         self.assertIn("two simultaneous cold starts", markdown)
         self.assertIn("preallocated while CPU0 is idle", markdown)
         self.assertIn("gates pass `8/8`", markdown)

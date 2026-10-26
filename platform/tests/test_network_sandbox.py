@@ -67,6 +67,8 @@ class NetworkSandboxTests(unittest.TestCase):
             {"invalid.test": ["not-an-address"]},
             {"invalid.test": ["0.0.0.0"]},
             {"invalid.test": ["ff02::1"]},
+            {"invalid.test": ["::ffff:203.0.113.10"]},
+            {"bad..test": ["203.0.113.10"]},
             {"invalid.test": ["127.0.0.1"] * 9},
         ):
             with self.subTest(records=records), self.assertRaises(
@@ -143,14 +145,21 @@ class NetworkSandboxTests(unittest.TestCase):
         fixture.start()
         port = fixture.server.server_address[1]
 
-        def request(host: str) -> int:
+        def request(
+            host: str,
+            *,
+            path: str = "/",
+            duplicate_host: bool = False,
+        ) -> int:
             connection = http.client.HTTPConnection(
                 "127.0.0.1",
                 port,
                 timeout=2,
             )
-            connection.putrequest("GET", "/", skip_host=True)
+            connection.putrequest("GET", path, skip_host=True)
             connection.putheader("Host", host)
+            if duplicate_host:
+                connection.putheader("Host", host)
             connection.endheaders()
             response = connection.getresponse()
             response.read()
@@ -160,12 +169,57 @@ class NetworkSandboxTests(unittest.TestCase):
 
         try:
             self.assertEqual(request("exact.test"), 200)
+            self.assertEqual(request("exact.test:8080"), 200)
             self.assertEqual(request("allowy.test"), 200)
             self.assertEqual(request("api.allowy.test"), 200)
             self.assertEqual(request("evilallowy.test"), 403)
             self.assertEqual(request("allowy.test.evil"), 403)
+            self.assertEqual(request("exact.test:not-a-port"), 403)
+            self.assertEqual(request("exact.test:0"), 403)
+            self.assertEqual(request("exact.test:65536"), 403)
+            self.assertEqual(request("exact.test:443,evil"), 403)
+            self.assertEqual(request("user@exact.test"), 403)
+            self.assertEqual(request("exact.test:443:evil"), 403)
+            self.assertEqual(
+                request(
+                    "exact.test",
+                    path="http://exact.test/",
+                ),
+                403,
+            )
+            self.assertEqual(
+                request("exact.test", duplicate_host=True),
+                403,
+            )
         finally:
             fixture.close()
+
+    def test_http_host_authority_accepts_bracket_ipv6_and_rejects_ambiguity(
+        self,
+    ):
+        self.assertEqual(
+            network_sandbox.normalize_http_authority("[2001:db8::1]:443"),
+            "2001:db8::1",
+        )
+        self.assertEqual(
+            network_sandbox.normalize_http_authority("Allowed.Lab.Test."),
+            "allowed.lab.test",
+        )
+        for value in (
+            "",
+            "allowed.lab.test:",
+            "allowed.lab.test:-1",
+            "allowed.lab.test:65536",
+            "allowed.lab.test..",
+            " allowed.lab.test",
+            "[2001:db8::1",
+            "[2001:db8::1]junk",
+            "2001:db8::1",
+        ):
+            with self.subTest(value=value), self.assertRaises(
+                network_sandbox.SandboxError
+            ):
+                network_sandbox.normalize_http_authority(value)
 
     def test_controlled_dns_uses_exact_then_longest_domain_suffix(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -464,6 +518,31 @@ class NetworkSandboxTests(unittest.TestCase):
             network_sandbox.validate_domain_record_bindings(
                 {"other.test": ["10.0.2.2"]},
                 ("allowy.test",),
+                endpoints,
+            )
+
+    def test_exact_records_must_be_covered_by_allowed_endpoint(self):
+        endpoints = (
+            network_sandbox.EgressEndpoint(
+                protocol="tcp",
+                address="10.0.2.2",
+                port=18443,
+            ),
+        )
+        records = network_sandbox.validate_exact_record_bindings(
+            {"allowed.lab.test": ["10.0.2.2"]},
+            endpoints,
+        )
+        self.assertEqual(
+            records["allowed.lab.test"],
+            (ipaddress.ip_address("10.0.2.2"),),
+        )
+        with self.assertRaisesRegex(
+            network_sandbox.SandboxError,
+            "not covered",
+        ):
+            network_sandbox.validate_exact_record_bindings(
+                {"allowed.lab.test": ["203.0.113.10"]},
                 endpoints,
             )
 

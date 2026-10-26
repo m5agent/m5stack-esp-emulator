@@ -18,8 +18,9 @@
   pcap、evidence、历史恢复和 worker 生命周期；
 - S3/C6/Core2 的规范整机路径是 `qemu-unified`，同一 lease 和同一 guest
   内组合板级、WiFi、BLE 与 evidence；Core2 使用 `core2-native-hci`；
-- 网络路径包含 controlled DNS/TLS、CNAME、有界 IPv4/IPv6 egress、WPA2、
-  断线恢复、双 guest fabric、namespace/container worker 和 pcap。
+- 网络路径包含 controlled DNS/TLS、exact/domain/CNAME answer binding、
+  严格 Host authority、有界 IPv4/IPv6 egress、WPA2、断线恢复、双 guest
+  fabric、namespace/container worker 和 pcap。
   同 guest CNAME→HTTP 与专用测试构建的 IPv6 TCP/HTTP 已覆盖，原厂 UIFlow2 默认未启用
   IPv6 link-local；`RUNTIME-05` 的 S3 WPA2-PSK 成对密钥路径已关闭；
 - 固件入口包含 FirmwareManifest、WebBurner/M5Burner/ESP-IDF、capability、

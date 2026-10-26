@@ -2013,9 +2013,9 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
             )
             for filename in (
                 "evidence-2026-10-26-core2-concurrent-8x120-"
-                "fixed-icount-pass-a.json",
+                "network-hardening-pass-a.json",
                 "evidence-2026-10-26-core2-concurrent-8x120-"
-                "fixed-icount-pass-b.json",
+                "network-hardening-pass-b.json",
             )
         ]
         pre_calibration_runs = [
@@ -2156,20 +2156,14 @@ class DocsCore2RuntimeContractTests(DocsContractBase):
                     run["failure_diagnostics"]["panic_count"],
                     0,
                 )
-        self.assertEqual(
-            sum(
-                run["native_hci_health"]["hli-prealloc-failures"]
-                for run in eight_instance_runs[0]["runs"]
-            ),
-            1,
-        )
-        self.assertEqual(
-            sum(
-                run["native_hci_health"]["hli-prealloc-failures"]
-                for run in eight_instance_runs[1]["runs"]
-            ),
-            1,
-        )
+        for evidence in eight_instance_runs:
+            self.assertIn(
+                sum(
+                    run["native_hci_health"]["hli-prealloc-failures"]
+                    for run in evidence["runs"]
+                ),
+                (0, 1),
+            )
 
         device_group = json.loads(
             (

@@ -20,8 +20,9 @@ MicroPython 和其他完整 Flash 固件。
 - Device Service 提供 lease、虚拟烧录、串口、frame/input/QOM、worker job、
   网络故障、pcap 和 evidence；普通 Agent 功能测试统一走 `/api/v1`，并在
   Live sessions 中保留可观察历史。
-- 网络路径已有 controlled DNS/CNAME、有界 IPv4/IPv6 egress、WPA2 正误
-  密码、断线恢复、双 guest fabric 和 pcap。Worker 路径已有 durable queue、
+- 网络路径已有 controlled DNS/CNAME、exact/domain/CNAME answer binding、
+  严格 HTTP Host authority、有界 IPv4/IPv6 egress、WPA2 正误密码、
+  断线恢复、双 guest fabric 和 pcap。Worker 路径已有 durable queue、
   HMAC、HTTPS/mTLS、rotation、discovery、restart/reattach、
   control/runtime 分离、跨容器 QEMU 和 partition fence。
 - Core2 已具备 native-HCI、WiFi/公网/GATT、重连、长稳、active-stop、

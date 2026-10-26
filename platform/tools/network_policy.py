@@ -25,12 +25,46 @@ SANDBOX_RUNNER = ROOT / "platform/tools/network_sandbox.py"
 ISOLATION_MODES = {"trusted-host", "namespace"}
 EGRESS_MODES = {"native", "deny-all", "lab-only", "allowlist"}
 DNS_MODES = {"slirp", "deny", "controlled"}
-HOST_PATTERN = re.compile(r"^[a-z0-9.-]{1,253}$")
 MAC_PATTERN = re.compile(r"^(?:[0-9a-f]{2}:){5}[0-9a-f]{2}$")
 
 
 class NetworkPolicyError(ValueError):
     pass
+
+
+def normalize_host_name(value: str) -> str:
+    host = value.strip().lower()
+    if not host:
+        raise NetworkPolicyError(
+            "network.policy.allowed_hosts contains an empty host"
+        )
+    if host.endswith("."):
+        host = host[:-1]
+        if not host or host.endswith("."):
+            raise NetworkPolicyError(
+                "network.policy.allowed_hosts contains an invalid trailing dot"
+            )
+    if len(host) > 253:
+        raise NetworkPolicyError(
+            "network.policy.allowed_hosts contains an overlong host"
+        )
+    labels = host.split(".")
+    if any(
+        not label
+        or len(label) > 63
+        or label.startswith("-")
+        or label.endswith("-")
+        or not all(
+            character.isascii()
+            and (character.isalnum() or character == "-")
+            for character in label
+        )
+        for label in labels
+    ):
+        raise NetworkPolicyError(
+            "network.policy.allowed_hosts contains an invalid host"
+        )
+    return host
 
 
 def valid_domain_suffix(value: str) -> bool:
@@ -98,16 +132,11 @@ class NetworkPolicy:
         allowed_hosts = tuple(
             sorted(
                 {
-                    host.strip().lower()
+                    normalize_host_name(host)
                     for host in raw_allowed_hosts
-                    if host.strip()
                 }
             )
         )
-        if any(not HOST_PATTERN.fullmatch(host) for host in allowed_hosts):
-            raise NetworkPolicyError(
-                "network.policy.allowed_hosts contains an invalid host"
-            )
         if len(allowed_hosts) > 32:
             raise NetworkPolicyError(
                 "network.policy.allowed_hosts exceeds 32 entries"
@@ -125,7 +154,6 @@ class NetworkPolicy:
                 {
                     domain.strip().lower().rstrip(".")
                     for domain in raw_allowed_domains
-                    if domain.strip()
                 }
             )
         )
@@ -134,8 +162,7 @@ class NetworkPolicy:
                 "network.policy.allowed_domains exceeds 32 entries"
             )
         if any(
-            not HOST_PATTERN.fullmatch(domain)
-            or not valid_domain_suffix(domain)
+            not valid_domain_suffix(domain)
             for domain in allowed_domains
         ):
             raise NetworkPolicyError(

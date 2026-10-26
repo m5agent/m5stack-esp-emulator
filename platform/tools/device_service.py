@@ -613,6 +613,10 @@ def parse_network_policy(
         policy = NetworkPolicy.from_mapping(value)
         if policy.egress == "allowlist" and implicit_endpoints:
             policy = policy.with_allowed_endpoints(implicit_endpoints)
+        if policy.dns == "controlled" and not policy.allowed_endpoints:
+            raise NetworkPolicyError(
+                "dns=controlled requires at least one allowed endpoint"
+            )
         return policy
     except NetworkPolicyError as error:
         raise ServiceError(

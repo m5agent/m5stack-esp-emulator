@@ -67,8 +67,14 @@ HCI boundary 也是功能级模型；PHY-ready 日志不等于应用联网。
 - controlled DNS、exact A/AAAA records、domain suffix 的 label-boundary
   匹配、最多 8 跳 exact-name CNAME chain、测试 CA、DNS/TLS allowlist、
   Host 决策和 pcap 摘要；
+- `allowed_hosts` 经过小写化、单一尾点归一和 DNS label 校验；HTTP Host
+  authority 只接受一个 Host header、可选数字端口和 origin-form request
+  target，拒绝 userinfo、多重冒号、逗号拼接、越界端口和 absolute-form
+  歧义；
 - domain suffix 必须显式绑定受控 resolver answer，且 answer 必须落在
   `allowed_endpoints` 的地址/CIDR 内；域名不直接授权外部解析出的任意地址；
+- exact A/AAAA 与 CNAME terminal answer 也必须绑定到
+  `allowed_endpoints`；IPv4-mapped IPv6 DNS record 在解析前 fail closed；
 - CNAME alias 和 terminal 都必须受 policy 覆盖；A/AAAA response 返回
   chain+terminal record，CNAME query 返回 chain；cycle、uncontrolled
   terminal、越权 alias、与 exact A/AAAA 或 domain-suffix answer 冲突和
@@ -147,7 +153,7 @@ external evidence 流、没有 reachable seed 时的任意 NAT traversal 和不�
 | --- | --- |
 | Scan/associate | guest 看见目标 SSID，并记录预期安全模式或明确仅使用开放测试 AP |
 | DHCP | guest 获得 address、gateway 和 DNS |
-| DNS | 允许/拒绝查询到达受控 resolver，并有 pcap 或结构化 query log |
+| DNS | 允许/拒绝查询到达受控 resolver，并有 pcap 或结构化 query log；exact、suffix 和 CNAME terminal answer 均受 allowed endpoint 约束 |
 | TCP/UDP | guest 与 namespace 内 peer 完成请求/响应或 datagram |
 | Wrong credential | 认证失败、重试、无 DHCP/HTTP 和明确失败 marker 同时成立 |
 | WPA2-PSK | 正确密码完成 RSN、M1-M4、CCMP RX、DHCP/DNS/TCP；错误密码在 M2 MIC 拒绝且无 DHCP |
@@ -156,6 +162,7 @@ external evidence 流、没有 reachable seed 时的任意 NAT traversal 和不�
 | Multi-device | 两台 guest 只能通过预期 lab fabric 通信 |
 | Core egress | 允许/拒绝 IP 或 CIDR+protocol+port 可重复，不能被 user-net 旁路 |
 | Domain/CNAME | suffix 只在 DNS label boundary 匹配；exact/longest suffix 顺序稳定；CNAME chain 有界、无 cycle、alias/terminal 受 policy 覆盖；同一 guest 使用 terminal address 完成 TCP/HTTP，未允许名称/端口被拒绝 |
+| Host authority | Host header 数量、DNS label、端口、userinfo/分隔符和 request-target form 无歧义；错误 authority 返回 403 |
 | Worker transport | 认证、TLS/mTLS、rotation、drain、replay 防护、network-partition runtime fence 和 fail-closed 有同次证据 |
 | Evidence | 只保存允许的网络元数据和 payload hash，artifact 可复现 |
 

@@ -65,24 +65,24 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`40` 个 Python 模块，`34274` 行；规模最大的模块如下。
+- `platform/tools`：`40` 个 Python 模块，`34430` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 9862 |
+| `device_service.py` | 9866 |
 | `firmware_manifest.py` | 3246 |
 | `user_firmware_matrix.py` | 2069 |
-| `network_sandbox.py` | 1556 |
+| `network_sandbox.py` | 1681 |
 | `firmware_filesystems.py` | 1469 |
 | `worker_agent.py` | 1429 |
 
-- `tests/`：`72` 个可执行 Python 测试文件，分布在 `52` 个目录；`212` 个 evidence JSON。
+- `tests/`：`72` 个可执行 Python 测试文件，分布在 `52` 个目录；`215` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`70` 个 patch 文件。
-- 文档：`218` 个 Markdown 页面；除本生成页外共 `20571` 行。
+- 文档：`218` 个 Markdown 页面；除本生成页外共 `20621` 行。
 
 ## 文档与测试
 
-- 平台测试：`531` 项。
+- 平台测试：`534` 项。
 - Docs 新鲜度登记：`33` 行；其中非历史页 `26` 行，历史固定页 `7` 行。
 - 文档职责分布：待办 `3`，契约 `6`，历史固定 `7`，实现/设计 `6`，参考 `7`，工作流/导航 `4`。
 - 全量文档盘点：`218` 个 Markdown 页面；职责分布：权威/专题页 `33`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `11`，平台说明 `3`，仓内历史记录 `5`，测试/用例说明 `141`，第三方来源说明 `2`。

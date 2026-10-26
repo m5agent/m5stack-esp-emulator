@@ -116,6 +116,12 @@ denied-port、pcap、cleanup 和 QEMU reap。`0027` QEMU patch 修复了 AES/GDM
 访问外部内存时的读失败。Host allowlist 与网络
 destination policy 分开记录；精确 IPv4/IPv6 地址、协议和端口由
 `tests/network/egress_allowlist/` 的双栈 veth/NAT 与 nftables 路径验证。
+Host authority 现在单独拒绝非数字/越界端口、userinfo、多重冒号、逗号拼接、
+重复 Host header 和 absolute-form 歧义；exact A/AAAA 与 CNAME terminal
+answer 也必须落在 allowed endpoint 内，IPv4-mapped IPv6 DNS record 直接
+拒绝。2026-10-26 的同一 StickS3 Linux namespace lease 已完成 controlled
+DNS、TLS 200/403、DHCP、pcap、namespace/QEMU cleanup：
+[`host-authority evidence`](../tests/network/tls_allowlist/evidence-2026-10-26-host-authority-exact-dns-namespace-pass.json)。
 
 Controlled DNS 的 CNAME resolver fixture 位于
 [`tests/network/dns_cname_chain/`](../tests/network/dns_cname_chain/README.md)。

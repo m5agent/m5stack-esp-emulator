@@ -104,7 +104,7 @@
 | [项目 Backlog](project-backlog.md) | 待办 | `2026-10-26` | 先列出已完成里程碑和“局部完成不扩大结论”的解释，再只保留尚未达到验收条件的任务、依赖、并行条件和验收；Core2 的下一门禁是识别约 44 秒后的 CPU1 flag/object wait、matching ELF/MAP 和同 SHA 非空应用帧 |
 | [代码与验证入口地图](code-map.md) | 实现地图 | `2026-10-26` | 当前源码、FirmwareManifest/Secure Boot 入口、runtime priority、Core2 flash-IPC/timer/stateful-SSI/cross-core 探针、网络/worker 路径、测试、evidence 和文档生成入口；包含 `SVC-03` 的低风险拆分顺序 |
 | [验证证据台账](validation-ledger.md) | 证据历史 | `2026-10-26` | 按日期追加当时结论、检查项和 evidence，不反向定义当前能力 |
-| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-26` | `1.33.0`；API、对象、状态机、错误码、worker lease ownership fence、8 MiB Core2 PSRAM/MMU、有界地址/CIDR、controlled domain suffix/CNAME chain、同 guest CNAME 网络证据和 transport 契约 |
+| [Device Service API](device-service-api.md) / [OpenAPI](device-service.openapi.yaml) | 契约 | `2026-10-26` | `1.34.0`；API、对象、状态机、错误码、worker lease ownership fence、8 MiB Core2 PSRAM/MMU、有界地址/CIDR、controlled exact/domain/CNAME answer binding、严格 Host authority、同 guest CNAME 网络证据和 transport 契约 |
 | [统一设备运行时契约](unified-device-runtime.md) | 契约 | `2026-10-26` | 单 lease、单 guest、单固件、单 evidence bundle 的不变量和状态语义 |
 | [Core2 native HCI backend](core2-native-hci-backend.md) | 设计 / 验证专题 | `2026-10-26` | native-HCI 数据面、PSRAM/MMU、长稳、重连、active-stop 和当前容量门禁；轮次与哈希只在该专题的日期化证据中，旧失败 control 保留为历史 |
 | [FirmwareManifest](firmware-manifest.md) | 契约 | `2026-10-26` | 导入、规范化、WebBurner 分段 size/digest 复算、Secure Boot v2 签名/包内 eFuse 摘要与 anti-rollback version 对照、security evidence fail-closed、文件系统、许可策略、sdkconfig detected / image observed capability、unknown required capability fail-closed、WebBurner 来源展示和 evidence 分层 |

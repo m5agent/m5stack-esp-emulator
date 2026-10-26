@@ -13,7 +13,7 @@ capability and open tasks remain in
 | Fixture | What it executes | What it does not prove |
 | --- | --- | --- |
 | [`linux_isolation`](linux_isolation/README.md) | Guest boot and route isolation inside a private Linux namespace | production malicious-firmware sandbox |
-| [`tls_allowlist`](tls_allowlist/README.md) | Test CA, controlled DNS, Host decision, TLS 200/403 and pcap | arbitrary public services or certificate pinning |
+| [`tls_allowlist`](tls_allowlist/README.md) | Test CA, controlled DNS, strict Host authority, TLS 200/403 and pcap | arbitrary public services or certificate pinning |
 | [`dns_cname_chain`](dns_cname_chain/README.md) | Bounded CNAME resolution, A/AAAA-chain encoding, CNAME-query encoding, NXDOMAIN and invalid graph rejection | guest firmware lifecycle or public DNS |
 | [`cname_guest_lifecycle`](cname_guest_lifecycle/README.md) | Three Device Service leases with guest CNAME→terminal A→HTTP, denied name/port, pcap and namespace cleanup | public DNS/DNSSEC or physical RF |
 | [`egress_allowlist`](egress_allowlist/README.md) | Bounded IPv4 CIDR plus exact IPv6 destination, protocol and port policy with cleanup | Arbitrary broad/special CIDRs or unbound public-domain resolution |
