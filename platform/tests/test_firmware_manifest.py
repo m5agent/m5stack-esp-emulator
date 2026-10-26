@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import stat
 import sys
 import tempfile
 import unittest
@@ -1995,6 +1996,308 @@ class FirmwareManifestTests(unittest.TestCase):
                 archive.writestr("../escape.bin", b"bad")
             with self.assertRaisesRegex(ManifestError, "escapes root"):
                 import_package(archive_path, root / "out")
+
+    def test_archive_rejects_colliding_or_nonportable_paths(self):
+        cases = (
+            (
+                ("A.bin", b"a"),
+                ("a.bin", b"b"),
+                "collide after normalization",
+            ),
+            (
+                ("\u00e9.bin", b"a"),
+                ("e\u0301.bin", b"b"),
+                "collide after normalization",
+            ),
+            (
+                ("dir/../A.bin", b"a"),
+                None,
+                "escapes root",
+            ),
+            (
+                ("./firmware.bin", b"a"),
+                None,
+                "ambiguous",
+            ),
+            (
+                ("dir//firmware.bin", b"a"),
+                None,
+                "ambiguous",
+            ),
+            (
+                ("CON.bin", b"a"),
+                None,
+                "reserved name",
+            ),
+            (
+                ("folder./firmware.bin", b"a"),
+                None,
+                "not portable",
+            ),
+            (
+                ("A/file.bin", b"a"),
+                ("a/other.bin", b"b"),
+                "directory paths collide",
+            ),
+            (
+                ("firmware.bin", b"a"),
+                ("firmware.bin/sub.bin", b"b"),
+                "nested below a file",
+            ),
+            (
+                (r"dir\\firmware.bin", b"a"),
+                None,
+                "invalid path",
+            ),
+            (
+                ("C:/firmware.bin", b"a"),
+                None,
+                "not portable",
+            ),
+        )
+        for first, second, expected in cases:
+            with self.subTest(first=first, second=second), tempfile.TemporaryDirectory() as tmp:
+                archive_path = Path(tmp) / "firmware.zip"
+                with zipfile.ZipFile(archive_path, "w") as archive:
+                    archive.writestr(first[0], first[1])
+                    if second is not None:
+                        archive.writestr(second[0], second[1])
+                with self.assertRaisesRegex(ManifestError, expected):
+                    import_package(archive_path, Path(tmp) / "out")
+
+    def test_archive_rejects_symlink_entries(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            archive_path = Path(tmp) / "firmware.zip"
+            entry = zipfile.ZipInfo("firmware.bin")
+            entry.external_attr = (stat.S_IFLNK | 0o777) << 16
+            with zipfile.ZipFile(archive_path, "w") as archive:
+                archive.writestr(entry, "target.bin")
+            with self.assertRaisesRegex(
+                ManifestError,
+                "symlink entries",
+            ):
+                import_package(archive_path, Path(tmp) / "out")
+
+    def test_webburner_selects_exactly_one_target_build(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = build_flash()
+            parts = {
+                "bootloader.bin": image[:0x8000],
+                "partition-table.bin": image[0x8000:0x10000],
+                "application.bin": image[0x10000:],
+            }
+            offsets = {
+                "bootloader.bin": 0,
+                "partition-table.bin": 0x8000,
+                "application.bin": 0x10000,
+            }
+            for name, data in parts.items():
+                (root / name).write_bytes(data)
+            base_build = {
+                "parts": [
+                    {
+                        "path": name,
+                        "offset": offsets[name],
+                    }
+                    for name in parts
+                ]
+            }
+            (root / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "name": "Multi Build Probe",
+                        "version": "1.0.0",
+                        "builds": [
+                            {"chipFamily": "ESP32-S3", **base_build},
+                            {"chipFamily": "ESP32-C3", **base_build},
+                        ],
+                    }
+                )
+            )
+            result = import_package(
+                root,
+                root / "out-s3",
+                device_id="sticks3",
+                flash_size=8 << 20,
+            )
+            self.assertEqual(result["manifest"]["target"]["soc"], "esp32s3")
+            with self.assertRaisesRegex(
+                ManifestError,
+                "requires a target device",
+            ):
+                import_package(root, root / "out-no-device")
+            with self.assertRaisesRegex(
+                ManifestError,
+                "exactly one build",
+            ):
+                import_package(
+                    root,
+                    root / "out-c6",
+                    device_id="nesso-n1",
+                    flash_size=8 << 20,
+                )
+
+    def test_webburner_rejects_ambiguous_sources(self):
+        image = build_flash()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            for name in ("a", "b"):
+                case = root / name
+                case.mkdir()
+                (case / "sdkconfig").write_text(
+                    "CONFIG_SECURE_BOOT=n\n"
+                )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "multiple sdkconfig resources",
+            ):
+                import_package(root / "firmware.bin", root / "out-sdk")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            for name in ("a", "b"):
+                case = root / name
+                case.mkdir()
+                (case / "efuse-summary.json").write_text(
+                    json.dumps(
+                        {
+                            "ABS_DONE_1": {
+                                "value": False,
+                                "readable": True,
+                            },
+                            "SPI_BOOT_CRYPT_CNT": {
+                                "value": "Disable",
+                                "readable": True,
+                            },
+                        }
+                    )
+                )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "multiple eFuse summaries",
+            ):
+                import_package(root / "firmware.bin", root / "out-efuse")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name in ("manifest.json", "web-manifest.json"):
+                (root / name).write_text(
+                    json.dumps(
+                        {
+                            "builds": [
+                                {
+                                    "chipFamily": "ESP32-S3",
+                                    "parts": [
+                                        {
+                                            "path": "firmware.bin",
+                                            "offset": 0,
+                                        }
+                                    ],
+                                }
+                            ]
+                        }
+                    )
+                )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "multiple WebBurner manifests",
+            ):
+                import_package(
+                    root,
+                    root / "out-manifest",
+                    device_id="sticks3",
+                    flash_size=8 << 20,
+                )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            for name in ("a", "b"):
+                case = root / name
+                case.mkdir()
+                (case / "flasher_args.json").write_text(
+                    json.dumps({"flash_files": {"0x0": "../firmware.bin"}})
+                )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "multiple flasher_args.json",
+            ):
+                import_package(root, root / "out-flasher")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            (root / "manifest.json").write_text(
+                json.dumps(
+                    {
+                        "builds": [
+                            {
+                                "chipFamily": "ESP32-S3",
+                                "parts": [
+                                    {
+                                        "path": "firmware.bin",
+                                        "offset": True,
+                                    }
+                                ],
+                            }
+                        ]
+                    }
+                )
+            )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "has invalid offset",
+            ):
+                import_package(
+                    root,
+                    root / "out-boolean-offset",
+                    device_id="sticks3",
+                    flash_size=8 << 20,
+                )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            for name in ("sbom.json", "bom.json"):
+                (root / name).write_text(
+                    json.dumps({"bomFormat": "CycloneDX"})
+                )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "multiple sbom resources",
+            ):
+                import_package(root / "firmware.bin", root / "out-sbom")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            (root / "sdkconfig").write_text("CONFIG_SECURE_BOOT=n\n")
+            for name in ("a", "b"):
+                case = root / name
+                case.mkdir()
+                (case / "sdkconfig.defaults").write_text(
+                    "CONFIG_SECURE_BOOT=n\n"
+                )
+            with self.assertRaisesRegex(
+                ManifestError,
+                "multiple sdkconfig.defaults resources",
+            ):
+                import_package(
+                    root / "firmware.bin",
+                    root / "out-sdkconfig-defaults",
+                )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "firmware.bin").write_bytes(image)
+            (root / "sdkconfig").write_text("CONFIG_SECURE_BOOT=n\n")
+            (root / "sdkconfig.defaults").write_text(
+                "CONFIG_SECURE_BOOT=y\n"
+            )
+            result = import_package(
+                root / "firmware.bin",
+                root / "out-sdkconfig-precedence",
+            )
+            self.assertEqual(
+                result["manifest"]["resources"]["sdkconfig"]["file"],
+                "sdkconfig",
+            )
 
 
 if __name__ == "__main__":

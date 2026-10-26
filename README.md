@@ -42,7 +42,9 @@ MicroPython 和其他完整 Flash 固件。
   [项目当前状态](docs/project-status.md)和
   [验证证据台账](docs/validation-ledger.md)维护。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、
-  WebBurner/M5Burner、文件系统/NVS/SD fixture、静态和 capability 审查。
+  WebBurner/M5Burner、文件系统/NVS/SD fixture、静态和 capability 审查；
+  ZIP 路径/大小写冲突、symlink、歧义资源和多 build SoC 选择按 fail-closed
+  处理。
   `qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first 固件
   提供最小执行路径。
   Secure Boot v2 已有镜像数学与包内摘要对照；live trust root、生产 key、

@@ -73,6 +73,16 @@ mandatory, signed-image status cannot be understated while signature blocks
 remain, eFuse security fields use strict enums, key-digest mismatch and
 image secure-version rollback are rejected.
 
+WebBurner package selection and ZIP path policy are covered by
+[`webburner_import_policy/run_test.py`](webburner_import_policy/run_test.py) and
+[`evidence-2026-10-26-webburner-import-policy.json`](evidence-2026-10-26-webburner-import-policy.json):
+raw dot segments, duplicate/casefold-colliding ZIP entries, directory-prefix
+collisions and symlinks are rejected; ambiguous
+manifest/sdkconfig/eFuse/flasher/SBOM resources fail closed; an actual
+`sdkconfig` takes explicit precedence over `sdkconfig.defaults`; and
+multi-build WebBurner packages select exactly one build matching the target
+SoC.
+
 Image capability observations are recorded in
 [`evidence-2026-10-25-image-capability-observation.json`](evidence-2026-10-25-image-capability-observation.json).
 The public StickS3 Weather image contains low-confidence WiFi and display

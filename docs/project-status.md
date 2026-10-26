@@ -37,7 +37,7 @@
 | --- | --- | --- | --- |
 | 网络 namespace、DNS/egress、pcap、错误密码、断线和重连 | controlled DNS A/AAAA/CNAME、有界 IPv4/IPv6 egress、TLS/Host policy、pcap、WPA2-PSK 正确/错误密码、radio/AP 恢复、DHCP renewal、双 guest fabric 和 worker-local QEMU | `NET-04` 的物理跨主机 executor/reattach、跨主机幂等、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和外部 side-effect ownership | 核心虚拟设备路径可用，生产网络仍为 `PILOT` |
 | Core2 cache/PSRAM、原生 BT controller、DNS/公网 | QOM `8 MiB` PSRAM、upper-bank MMU、虚拟 PSRAM 压力、OpenMAC WiFi、公网 DNS/HTTP、native-HCI、外部 NUS GATT、重连、长稳和当前容量并发 | 物理 PSRAM/cache timing、bit-exact BT controller/baseband、更大规模和持续吞吐；legacy UIFlow 仍有 TG0 stage-1 reset、黑帧和 CPU1 late-loop | 功能级路径可用，物理/controller 等价性和 legacy 启动仍 `OPEN` |
-| FirmwareManifest、WebBurner、安全配置和 capability mismatch | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、mandatory capability policy、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学，以及 aggregate/image/eFuse understatement、key mismatch 和 secure-version rollback fail closed | 运行态 ACL/许可、live eFuse/trust root、生产 key、bootloader anti-rollback 执行、真实云端业务和更多固件族 | 导入与静态审查可用，运行态安全和通用兼容性仍为 `PILOT` |
+| FirmwareManifest、WebBurner、安全配置和 capability mismatch | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级和 multi-build SoC 选择 fail closed、mandatory capability policy、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学，以及 aggregate/image/eFuse understatement、key mismatch 和 secure-version rollback fail closed | 运行态 ACL/许可、live eFuse/trust root、生产 key、bootloader anti-rollback 执行、真实云端业务和更多固件族 | 导入与静态审查可用，运行态安全和通用兼容性仍为 `PILOT` |
 
 这三组能力已经串进同一个 Device Service lease/evidence 模型，但“同一 guest
 完成某条路径”只证明该固件、设备、profile、输入和观察窗口，不等于物理 RF、

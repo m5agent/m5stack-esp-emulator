@@ -22,7 +22,7 @@
 | --- | --- | --- | --- |
 | 网络、隔离与 worker | same-guest controlled DNS/CNAME、exact/domain/CNAME answer binding、严格 Host authority、有界 IPv4/IPv6 egress、pcap、WPA2 正误密码、radio/AP 恢复、DHCP renewal、双 guest fabric、worker-local QEMU、持久队列、TLS/mTLS、discovery、restart/reattach 和 process/companion fence | `NET-04` 的物理跨主机 executor/reattach、跨主机幂等、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | `PILOT`；单机和同 Docker daemon 的结果不能写成物理多机 PASS |
 | Core2 | native-HCI、WiFi/公网、外部 GATT、重连、active-BLE 长稳、active-stop、QOM `8 MiB` PSRAM、upper-bank MMU 和当前服务容量内并发 | `RUNTIME-03` legacy UIFlow normal-WDT reset 与约 44 秒后的 CPU1 late-loop；`CORE2-02` 物理 PSRAM/cache、bit-exact controller、更大规模、持续吞吐和其他 teardown | 功能级 `PILOT`；legacy UIFlow `PARTIAL`；不能从虚拟容量外推物理等价 |
-| FirmwareManifest 与固件审查 | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学和 security-evidence understatement fail closed | `FW-01/02/03` 的运行态 ACL、完整许可与法律审批、live eFuse/trust root、生产 key、真实云端业务和更多固件族 | `PILOT`；静态镜像与包内自报安全证据不能写成设备 trust root PASS |
+| FirmwareManifest 与固件审查 | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、ZIP path/casefold/symlink 与资源唯一性、显式 sdkconfig 优先级、多 build SoC 选择、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学和 security-evidence understatement fail closed | `FW-01/02/03` 的运行态 ACL、完整许可与法律审批、live eFuse/trust root、生产 key、真实云端业务和更多固件族 | `PILOT`；静态镜像与包内自报安全证据不能写成设备 trust root PASS |
 | Device Service 与服务池 | lease、虚拟 Flash、串口、frame/input/QOM、网络故障、pcap、evidence、历史恢复、本地/远程 worker 生命周期 | `SVC-01` 跨主机接管，`SVC-02` warm pool/配额/对象存储/审计，`SVC-03` 从 `device_service.py` 编排热区分步拆分 | `PILOT`；当前是可信主机服务，不是恶意多租户 VM 沙箱 |
 | 专项设备与表现层 | Tab5、CardputerZero 和逐设备外壳均有可用子集；StopWatch 是当前参考外壳 | `TAB5-01` 后端决策、`CZ-01` 长期回归、`UI-01` 视觉保真 | 均为独立边界，不能继承 S3/C6/Core2 的功能结论 |
 | 真机验证 | 已定义同固件 SHA、同输入、同关键路径的验收规则 | `HW-01` 代表设备 hardware validation | `NOT RUN`；仓库当前没有可继承的物理 RF、功耗、声学、光学或电气结论 |
@@ -82,7 +82,7 @@
 | 统一运行时 | S3/C6/Core2 在同一 lease/guest 中组合板级、WiFi、BLE 和 evidence；Core2 规范 BLE 路径为 `core2-native-hci` | 真机、RF、bit-exact controller、物理 PSRAM/cache | `platform/qemu/profiles.json`、`tests/uiflow2/` |
 | 网络 | controlled DNS/TLS、有界 IPv4/IPv6 egress、CNAME、WPA2、错误密码、断线恢复、双 guest fabric 和 pcap | 任意 NAT、跨物理主机、不可信固件 VM 沙箱 | `network_*.py`、`tests/network/` |
 | Worker | durable queue、HMAC、HTTPS/mTLS、轮换、发现、restart/reattach、跨容器 QEMU 和 process/companion fencing | 物理跨主机、迁移、外部 side effect ownership、生产调度 | `worker_*.py`、`transport_security.py` |
-| 固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF、capability、文件系统、SD/NVS fixture、静态审查和 Secure Boot v2 镜像分析 | 运行态 ACL/许可、live eFuse/trust root、生产 key、真实云端业务 | `firmware_*.py`、`user_firmware_matrix.py` |
+| 固件审查 | FirmwareManifest、WebBurner/M5Burner/ESP-IDF、ZIP/资源/build 选择策略、capability、文件系统、SD/NVS fixture、静态审查和 Secure Boot v2 镜像分析 | 运行态 ACL/许可、live eFuse/trust root、生产 key、真实云端业务 | `firmware_*.py`、`user_firmware_matrix.py` |
 | 设备差异 | ESP32 设备矩阵可由 Device Service 创建；Tab5 与 CardputerZero 是独立后端 | Tab5 外设、CardputerZero 长期回归、逐设备视觉保真 | `devices/`、`platform/peripherals/` |
 
 最近这一轮只改变调查边界，不改变产品结论：
@@ -109,8 +109,9 @@
   restart/reattach、跨容器 QEMU 和 side-effect fencing 已落地；
 - Core2：native-HCI、WiFi/公网/GATT、QOM PSRAM/MMU、长稳、重连、
   active-stop 和当前服务容量门禁已有虚拟设备证据；
-- 固件：Manifest/WebBurner、capability/security、文件系统、SD/NVS fixture
-  和 SHA-bound review expectation 已可执行；
+- 固件：Manifest/WebBurner 的 ZIP/资源/build 选择 fail-closed 规则、
+  capability/security、文件系统、SD/NVS fixture 和 SHA-bound review
+  expectation 已可执行；
 - 运行与分发：Device Service、Live sessions、WebBurner、macOS arm64 runtime
   bundle 和 generic ESP32-S3 observe 路径可用。
 
@@ -124,7 +125,7 @@
 | 网络与取证 | controlled DNS/CNAME、有界 CIDR、TLS Host 策略、pcap、重连、双 guest fabric、cross-subnet seed discovery | `PILOT` | 物理跨主机、无 reachable seed 的 NAT、任意公网解析 |
 | Worker 与恢复 | durable queue、409/network-partition fence、OS process + real QEMU PID reap、HMAC、HTTPS/mTLS、rotation、multicast/unicast discovery、restart/reattach、跨容器 QEMU | `PILOT` | 物理跨主机、生产调度、QEMU 内 guest/device-controller 和 worker 未拥有的外部 side effect |
 | Core2 | native-HCI、公网 WiFi、同 guest 重连、active-stop、bounded TCG/固定 icount、8 MiB PSRAM MMU、虚拟 PSRAM 压力和当前容量内并发 | `PILOT` | 大于当前服务容量、物理 PSRAM/cache timing、bit-exact controller、持续吞吐和其他 teardown |
-| 通用固件审查 | Manifest/WebBurner、capability/security、Secure Boot v2 image signature 结构/摘要/数学验证、包内 eFuse 摘要与 anti-rollback version 对照、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 包内 eFuse 来源与公钥 trust root、bootloader anti-rollback 执行、运行态权限/许可、真机 key、更多固件族 |
+| 通用固件审查 | Manifest/WebBurner 导入选择、capability/security、Secure Boot v2 image signature 结构/摘要/数学验证、包内 eFuse 摘要与 anti-rollback version 对照、文件系统、SD/NVS、公开矩阵 | `PARTIAL` | 包内 eFuse 来源与公钥 trust root、bootloader anti-rollback 执行、运行态权限/许可、真机 key、更多固件族 |
 | Tab5 P4 | 烧录、显示、触摸、RS-485、ESP-Hosted、部分 I2C | `PARTIAL` | CSI、I2S/PCM、USB Host、SDIO、动态 I2C、ST7123 |
 | CardputerZero | 独立 Linux ARM64 后端、显示、输入、音频、USB、摄像头帧回放 | `PARTIAL` | 完整系统回归、生产级时序和真机 |
 | 真机验证 | 已有测试入口和证据规则 | `NOT RUN` | 物理设备上的同固件路径验证 |
@@ -156,7 +157,7 @@ devices/catalog.source.json
 | QEMU/板级模型 | `patches/` | SoC 控制器、板级器件、DMA/FIFO/端点 |
 | Device Service | `platform/tools/serve.py`、`device_service.py` | lease、Flash、runtime、网络、输入、证据和生命周期 |
 | Worker | `worker_queue.py`、`worker_agent.py`、`worker_auth.py`、`transport_security.py`、`worker_discovery.py`、`worker_discovery_seed.py` | 排队、执行、认证、TLS、multicast/unicast 发现、恢复和结果回报 |
-| 固件审查 | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py` | 导入、规范化、capability/security、文件系统和静态审查 |
+| 固件审查 | `firmware_manifest.py`、`firmware_analysis.py`、`firmware_filesystems.py`、`firmware_static_review.py` | 导入/资源选择、规范化、capability/security、文件系统和静态审查 |
 | 网络 | `network_policy.py`、`network_egress.py`、`network_sandbox.py`、`network_fabric.py` | DNS/CNAME、nftables、namespace、veth/NAT、双 guest fabric |
 | Web | `platform/web/` | 设备目录、Live sessions、输入、WebBurner 和报告 |
 | 验证 | `platform/tests/`、`tests/uiflow2/`、`tests/network/`、`tests/firmware/` | 契约、设备本地数据面、网络/worker 和固件审查 |

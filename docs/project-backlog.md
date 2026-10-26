@@ -232,9 +232,10 @@ RSA-PSS/ECDSA 数学验证、包内公钥摘要和 secure-version 对照可执�
 
 ### FW-03 跨厂商回归
 
-已满足的前置基线：Manifest、WebBurner、公开 CDN 强制刷新、SHA-bound
-expectation、SD/NVS fixture、静态/文件系统审查和网络-first 执行路径可用的
-样本已进入状态页与台账。
+已满足的前置基线：Manifest、WebBurner ZIP path/casefold/symlink 与资源
+唯一性、显式 sdkconfig 优先级、多 build SoC 选择、公开 CDN 强制刷新、
+SHA-bound expectation、SD/NVS fixture、静态/文件系统审查和 network-first
+执行路径可用的样本已进入状态页与台账。
 
 开放范围：
 

@@ -388,6 +388,12 @@ def collect() -> dict:
         "pass": cross_status["PASS"] + core2_status["PASS"],
         "partial": cross_status["PARTIAL"] + core2_status["PARTIAL"],
         "fail": cross_status["FAIL"] + core2_status["FAIL"],
+        "source_dates": sorted(
+            {
+                str(cross_vendor.get("date") or "unknown"),
+                str(core2_firmware.get("date") or "unknown"),
+            }
+        ),
     }
 
     group_counts = Counter(device["group"] for device in source_devices)
@@ -488,11 +494,15 @@ def render_markdown(snapshot: dict) -> str:
         "## 通用固件审查",
         "",
         (
-            f"公开样本快照覆盖 `{firmware['devices']}` 台设备、"
+            "历史哈希绑定公开样本基线（来源日期 "
+            + "、".join(f"`{date}`" for date in firmware["source_dates"])
+            + f"）覆盖 `{firmware['devices']}` 台设备、"
             f"`{firmware['samples']}` 个固件："
             f"`{firmware['pass']}` PASS、`{firmware['partial']}` PARTIAL、"
             f"`{firmware['fail']}` FAIL。PARTIAL 不自动等于固件缺陷；"
-            "`runtime_model_gap` 必须保留模型边界。"
+            "`runtime_model_gap` 必须保留模型边界。之后刷新、专项 fixture、"
+            "安全与导入结果分别回查专题页和验证台账，不把新 evidence 自动并入"
+            "这份历史样本计数。"
         ),
         "",
         "## 运行时模型缺口",

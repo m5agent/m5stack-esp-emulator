@@ -102,6 +102,8 @@ class DocsCurrentStateContractTests(DocsContractBase):
         )
         self.assertIn(f"设备登记：`{device_count}` 台", snapshot)
         self.assertIn(f"Device Service 可创建：`{service_count}` 台", snapshot)
+        self.assertIn("历史哈希绑定公开样本基线", snapshot)
+        self.assertNotIn("公开样本快照覆盖", snapshot)
 
         current_tasks = {
             task["id"]: task

@@ -5,9 +5,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import posixpath
 import re
 import shutil
+import stat
 import tempfile
+import unicodedata
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -28,6 +31,14 @@ MAX_SOURCE_FILES = 2048
 MAX_SOURCE_SCAN_BYTES = 64 * 1024 * 1024
 MAX_SOURCE_FILE_BYTES = 2 * 1024 * 1024
 MAX_SOURCE_HEADER_BYTES = 64 * 1024
+WINDOWS_RESERVED_NAMES = {
+    "aux",
+    "con",
+    "nul",
+    "prn",
+    *(f"com{index}" for index in range(1, 10)),
+    *(f"lpt{index}" for index in range(1, 10)),
+}
 SOURCE_SUFFIXES = {
     ".c",
     ".cc",
@@ -572,6 +583,40 @@ def scan_source_licenses(root: Path) -> dict:
     }
 
 
+def _safe_archive_path(value: str) -> str | None:
+    if not value or "\x00" in value or "\\" in value:
+        raise ManifestError(f"archive entry has invalid path: {value!r}")
+    if any(ord(character) < 32 for character in value):
+        raise ManifestError(f"archive entry has control characters: {value!r}")
+    normalized = unicodedata.normalize("NFC", value)
+    if normalized in {"", ".", "./"}:
+        raise ManifestError(f"archive entry path is ambiguous: {value!r}")
+    if normalized.startswith("/") or posixpath.isabs(normalized):
+        raise ManifestError(f"archive entry escapes root: {value}")
+    body = normalized[:-1] if normalized.endswith("/") else normalized
+    parts = body.split("/")
+    if any(not part or part == "." for part in parts):
+        raise ManifestError(f"archive entry path is ambiguous: {value!r}")
+    if any(part == ".." for part in parts):
+        raise ManifestError(f"archive entry escapes root: {value}")
+    if any(part != part.strip() for part in parts):
+        raise ManifestError(f"archive entry path is not portable: {value!r}")
+    for part in parts:
+        if ":" in part or part.endswith((".", " ")):
+            raise ManifestError(
+                f"archive entry path is not portable: {value!r}"
+            )
+        reserved_stem = part.rstrip(" .").split(".", 1)[0].casefold()
+        if reserved_stem in WINDOWS_RESERVED_NAMES:
+            raise ManifestError(
+                f"archive entry path uses a reserved name: {value!r}"
+            )
+    normalized = "/".join(parts)
+    if normalized in {"", "."}:
+        return None
+    return normalized
+
+
 def _safe_extract(archive: zipfile.ZipFile, target: Path) -> None:
     files = archive.infolist()
     if len(files) > MAX_PACKAGE_FILES:
@@ -580,13 +625,54 @@ def _safe_extract(archive: zipfile.ZipFile, target: Path) -> None:
         )
     total = 0
     target_root = target.resolve()
+    seen: dict[str, tuple[str, bool]] = {}
+    directory_spellings: dict[str, str] = {}
     for entry in files:
         total += entry.file_size
         if total > MAX_PACKAGE_BYTES:
             raise ManifestError(
                 f"archive expands above {MAX_PACKAGE_BYTES} bytes"
             )
-        destination = (target / entry.filename).resolve()
+        normalized = _safe_archive_path(entry.filename)
+        if normalized is None:
+            continue
+        key = normalized.casefold()
+        previous = seen.get(key)
+        if previous is not None:
+            raise ManifestError(
+                "archive entries collide after normalization: "
+                f"{previous[0]!r} and {entry.filename!r}"
+            )
+        path_parts = normalized.split("/")
+        for index in range(1, len(path_parts)):
+            prefix = "/".join(path_parts[:index])
+            prefix_key = prefix.casefold()
+            previous_spelling = directory_spellings.get(prefix_key)
+            if previous_spelling is not None and previous_spelling != prefix:
+                raise ManifestError(
+                    "archive directory paths collide after normalization: "
+                    f"{previous_spelling!r} and {prefix!r}"
+                )
+            directory_spellings[prefix_key] = prefix
+            previous_parent = seen.get(prefix_key)
+            if previous_parent is not None and not previous_parent[1]:
+                raise ManifestError(
+                    "archive path is nested below a file: "
+                    f"{previous_parent[0]!r} and {entry.filename!r}"
+                )
+        for existing_key, (existing_name, _) in seen.items():
+            if not entry.is_dir() and existing_key.startswith(key + "/"):
+                raise ManifestError(
+                    "archive file path is a parent of another entry: "
+                    f"{entry.filename!r} and {existing_name!r}"
+                )
+        seen[key] = (entry.filename, entry.is_dir())
+        mode = (entry.external_attr >> 16) & 0xFFFF
+        if stat.S_ISLNK(mode):
+            raise ManifestError(
+                f"archive symlink entries are not supported: {entry.filename}"
+            )
+        destination = (target / normalized).resolve()
         try:
             destination.relative_to(target_root)
         except ValueError as error:
@@ -597,8 +683,13 @@ def _safe_extract(archive: zipfile.ZipFile, target: Path) -> None:
             destination.mkdir(parents=True, exist_ok=True)
             continue
         destination.parent.mkdir(parents=True, exist_ok=True)
-        with archive.open(entry) as source, destination.open("wb") as output:
-            shutil.copyfileobj(source, output)
+        try:
+            with archive.open(entry) as source, destination.open("wb") as output:
+                shutil.copyfileobj(source, output)
+        except (OSError, RuntimeError) as error:
+            raise ManifestError(
+                f"cannot extract archive entry {entry.filename!r}: {error}"
+            ) from error
 
 
 def _package_root(path: Path, temporary: Path) -> Path:
@@ -646,6 +737,7 @@ def _choose_web_manifest(root: Path) -> Path | None:
         "webburner.json",
         "web-burner.json",
     )
+    found: list[Path] = []
     for name in candidates:
         path = root / name
         if not path.is_file():
@@ -654,8 +746,13 @@ def _choose_web_manifest(root: Path) -> Path | None:
         if isinstance(value, dict) and (
             "builds" in value or "parts" in value
         ):
-            return path
-    return None
+            found.append(path)
+    if len(found) > 1:
+        raise ManifestError(
+            "multiple WebBurner manifests found: "
+            + ", ".join(path.name for path in found)
+        )
+    return found[0] if found else None
 
 
 def _resolve_package_file(root: Path, value: Any) -> Path:
@@ -772,12 +869,31 @@ def _web_part_integrity(
 def _segments_from_web_manifest(
     root: Path,
     document: dict,
+    *,
+    expected_soc: str | None = None,
 ) -> tuple[list[dict], dict]:
     builds = document.get("builds")
     if isinstance(builds, list):
         if not builds or any(not isinstance(item, dict) for item in builds):
             raise ManifestError("WebBurner builds must be a non-empty object list")
-        build = builds[0]
+        if len(builds) == 1:
+            build = builds[0]
+        else:
+            if expected_soc is None:
+                raise ManifestError(
+                    "multi-build WebBurner package requires a target device"
+                )
+            matching = [
+                item
+                for item in builds
+                if normalize_soc(item.get("chipFamily")) == expected_soc
+            ]
+            if len(matching) != 1:
+                raise ManifestError(
+                    "multi-build WebBurner package must have exactly one "
+                    f"build for target SoC {expected_soc}"
+                )
+            build = matching[0]
         chip = normalize_soc(build.get("chipFamily"))
         version = document.get("version")
         name = document.get("name")
@@ -799,6 +915,7 @@ def _segments_from_web_manifest(
             offset = (
                 raw_offset
                 if isinstance(raw_offset, int)
+                and not isinstance(raw_offset, bool)
                 else int(str(raw_offset), 0)
             )
         except (TypeError, ValueError) as error:
@@ -894,17 +1011,49 @@ def _find_resources(root: Path) -> dict:
         ),
     }
     for kind, names in patterns.items():
-        candidates = []
-        for pattern in names:
-            if "*" in pattern:
-                candidates.extend(root.rglob(pattern))
-            else:
-                candidates.extend(root.rglob(pattern))
-        if candidates:
-            resources[kind] = resource(
-                sorted(candidates, key=lambda item: item.as_posix())[0],
-                root=root,
+        candidates = {
+            path
+            for pattern in names
+            for path in root.rglob(pattern)
+            if path.is_file()
+        }
+        if kind == "sdkconfig":
+            exact = {
+                path for path in candidates if path.name == "sdkconfig"
+            }
+            defaults = {
+                path
+                for path in candidates
+                if path.name == "sdkconfig.defaults"
+            }
+            for label, paths in (
+                ("sdkconfig", exact),
+                ("sdkconfig.defaults", defaults),
+            ):
+                if len(paths) > 1:
+                    raise ManifestError(
+                        f"package contains multiple {label} resources: "
+                        + ", ".join(
+                            path.relative_to(root).as_posix()
+                            for path in sorted(
+                                paths,
+                                key=lambda item: item.as_posix(),
+                            )
+                        )
+                    )
+            candidates = exact or defaults
+        candidates = sorted(candidates, key=lambda item: item.as_posix())
+        if not candidates:
+            continue
+        if len(candidates) > 1:
+            raise ManifestError(
+                f"package contains multiple {kind} resources: "
+                + ", ".join(
+                    path.relative_to(root).as_posix()
+                    for path in candidates
+                )
             )
+        resources[kind] = resource(candidates[0], root=root)
     return resources
 
 
@@ -917,7 +1066,16 @@ def _find_efuse_summary(root: Path) -> Path | None:
     ]
     if not candidates:
         return None
-    return sorted(candidates, key=lambda item: item.as_posix())[0]
+    candidates = sorted(candidates, key=lambda item: item.as_posix())
+    if len(candidates) > 1:
+        raise ManifestError(
+            "package contains multiple eFuse summaries: "
+            + ", ".join(
+                path.relative_to(root).as_posix()
+                for path in candidates
+            )
+        )
+    return candidates[0]
 
 
 def _load_efuse_summary(path: Path) -> dict[str, Any]:
@@ -2138,22 +2296,32 @@ def import_package(
     )
     if resolved_device_id and device_profile is None:
         raise ManifestError(f"unknown device_id: {resolved_device_id}")
+    expected_soc = (
+        normalize_soc(device_profile.get("hardware", {}).get("soc"))
+        if isinstance(device_profile, dict)
+        else None
+    )
     temporary = Path(tempfile.mkdtemp(prefix="m5-firmware-package-"))
     try:
         root = _package_root(input_path, temporary)
         web_manifest = _choose_web_manifest(root)
-        flasher_args = next(
-            (
-                path
-                for path in root.rglob("flasher_args.json")
-                if path.is_file()
-            ),
-            None,
+        flasher_args_candidates = sorted(
+            path for path in root.rglob("flasher_args.json") if path.is_file()
+        )
+        if len(flasher_args_candidates) > 1:
+            raise ManifestError(
+                "package contains multiple flasher_args.json files"
+            )
+        flasher_args = (
+            flasher_args_candidates[0]
+            if flasher_args_candidates
+            else None
         )
         if web_manifest is not None:
             segments, package_meta = _segments_from_web_manifest(
                 root,
                 _load_json(web_manifest),
+                expected_soc=expected_soc,
             )
             source_format = package_meta["source_format"]
         elif flasher_args is not None:

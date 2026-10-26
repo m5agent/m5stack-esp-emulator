@@ -74,6 +74,25 @@ JSON 中不写宿主绝对路径；`file` 均为输出目录内相对文件名�
 
 ## WebBurner 分段完整性
 
+WebBurner/ZIP 选择和路径规则现在 fail closed：
+
+- ZIP entry 先做 Unicode NFC 与 POSIX 路径归一，拒绝绝对路径、反斜杠、
+  控制字符、空/`.`/`..` 路径段、Windows 保留名或非便携名称、symlink，
+  以及文件/目录在 casefold 后的冲突或父子歧义；
+- `manifest.json`、`web-manifest.json` 等多份 WebBurner manifest 同时存在
+  时拒绝；
+- `efuse-summary.json`、`flasher_args.json`、ELF、MAP 和 SBOM 等同角色
+  资源必须唯一，不能在多个文件之间静默选择排序第一份；
+- 多个同名/同级 `sdkconfig` 或 `sdkconfig.defaults` 会拒绝；两类同时存在时
+  明确选择实际 `sdkconfig`，不会把 defaults 当成已生效配置；
+- 多 build 包必须由目标设备 SoC 唯一选中一个 build；无目标设备、无匹配
+  build 或同 SoC 多个 build 均拒绝。
+
+相同内容仍通过规范化镜像 SHA 和 content-stable `manifest_id` 绑定；选择
+歧义不会因为输出文件名不同而形成第二套“稳定”身份。
+证据：
+[`webburner-import-policy.json`](../tests/firmware/evidence-2026-10-26-webburner-import-policy.json)。
+
 WebBurner `parts[]` 可在原有 `path`/`offset` 之外提供：
 
 - `size`；
