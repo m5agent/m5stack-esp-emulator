@@ -34,8 +34,10 @@
 - Core2 native-HCI、WiFi/公网/GATT、重连、active-stop、QOM `8 MiB` PSRAM、
   upper-bank MMU 和当前服务容量内并发；
 - FirmwareManifest/WebBurner、content-stable manifest、unknown required
-  capability fail closed、文件系统/SD/NVS fixture、静态审查、Secure Boot v2
-  镜像数学和 security-evidence understatement fail closed。
+  capability fail closed、mandatory capability policy、文件系统/SD/NVS
+  fixture、静态审查、Secure Boot v2 镜像数学，以及
+  aggregate/image/eFuse understatement、key mismatch 和 secure-version
+  rollback fail closed。
 
 “已完成”只关闭对应里程碑，不关闭更大范围。例如 WPA2 成对密钥路径完成，
 不关闭 WPA3/真实 RF；Core2 功能级 native-HCI 完成，不关闭 bit-exact

@@ -138,6 +138,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `tests/firmware/evidence-*.json` | 固件导入、静态 review、LittleFS/FAT/SPIFFS/NVS capability 证据 | manifest/filesystem/NVS/capability 改动 |
 | `tests/firmware/security_preflight/run_test.py` | 用 synthetic Secure Boot v2 image、sdkconfig、eFuse summary 和篡改 aggregate 对照 Device Service security preflight；任何已声明 enabled 但 profile 未建模的链均 fail closed | security fields、Secure Boot/Flash Encryption preflight 或 schema enum 改动 |
 | `tests/firmware/unknown_required_capability/run_test.py` | 对同一 public StickS3 SHA 同时跑 merged/WebBurner baseline、unknown required 和 unknown optional；验证 required 未知时 CLI/import fail closed，optional 仅 warning | capability policy、Manifest importer 或 WebBurner capability 输入改动 |
+| `tests/firmware/manifest_policy/run_test.py` | 验证根 `capabilities`/`required`/`optional` 必填、数组边界、signed-image status understatement、eFuse enum、key mismatch 和 secure-version rollback 都 fail closed | Manifest schema、capability policy 或 Security preflight 改动 |
 | `tests/firmware/openai_nvs_precondition/` | 对照空 NVS、Open/WPA2 正确密码和错误密码，绑定 NVS overlay、EAPOL/CCMP、DHCP/DNS/TCP 与 pcap | NVS fixture、generic S3 qemu-wifi、S3 WPA2 或该样本分类改动 |
 | `tests/firmware/core2_flash_ipc/run_test.py` | 通过独立 Device Service lease 执行 ESP-IDF CPU1 partition reads；默认校验已知 image/ELF SHA，按 first boot 分类 PASS、interrupt-WDT、spinlock assert，并保存 serial/evidence hash | Core2 flash/IPC、timer/WDT、flash-cache/DPORT 或 `RUNTIME-03` 探针改动 |
 | `tests/cardputer_zero/` | 独立 Linux ARM64 后端 | CardputerZero 改动 |

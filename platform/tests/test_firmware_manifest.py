@@ -1012,6 +1012,59 @@ class FirmwareManifestTests(unittest.TestCase):
             ),
         )
         self.assertIn(
+            "secure_boot_image_status_understated",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "unknown",
+                    "secure_boot_image": {
+                        **signed_image,
+                        "status": "not-found",
+                    },
+                }
+            ),
+        )
+        trust_root = json.loads(
+            json.dumps(manifest["security"]["trust_root"])
+        )
+        trust_root["comparison"] = "mismatch-unverified-source"
+        self.assertIn(
+            "secure_boot_efuse_key_mismatch",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "unknown",
+                    "secure_boot_image": {
+                        **signed_image,
+                        "status": "not-found",
+                    },
+                    "trust_root": trust_root,
+                }
+            ),
+        )
+        anti_rollback = json.loads(
+            json.dumps(manifest["security"]["anti_rollback"])
+        )
+        anti_rollback["comparison"] = (
+            "image-below-efuse-unverified-source"
+        )
+        anti_rollback["image_secure_version"] = 1
+        anti_rollback["efuse_secure_version"] = 2
+        self.assertIn(
+            "firmware_secure_version_below_efuse",
+            codes(
+                {
+                    "secure_boot": "unknown",
+                    "secure_boot_config": "unknown",
+                    "secure_boot_image": {
+                        **signed_image,
+                        "status": "not-found",
+                    },
+                    "anti_rollback": anti_rollback,
+                }
+            ),
+        )
+        self.assertIn(
             "flash_encryption_config_not_modeled",
             codes(
                 {
@@ -1044,6 +1097,26 @@ class FirmwareManifestTests(unittest.TestCase):
         )
         self.assertIn("secure_boot_efuse_not_modeled", efuse_codes)
         self.assertIn("flash_encryption_efuse_not_modeled", efuse_codes)
+        invalid_efuse_codes = codes(
+            {
+                "secure_boot": "unknown",
+                "secure_boot_config": "unknown",
+                "secure_boot_image": {
+                    **signed_image,
+                    "status": "not-found",
+                },
+                "flash_encryption": "unknown",
+                "flash_encryption_config": "unknown",
+                "efuse_summary": {
+                    "secure_boot": "enabled",
+                    "flash_encryption": "enabled-active",
+                },
+            }
+        )
+        self.assertIn(
+            "invalid_efuse_security_evidence",
+            invalid_efuse_codes,
+        )
 
     def test_security_shape_is_required_even_without_schema_validator(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -1066,6 +1139,40 @@ class FirmwareManifestTests(unittest.TestCase):
         self.assertIn(
             "manifest.security.flash_encryption is invalid",
             validate_manifest_structure(invalid),
+        )
+        missing_capabilities = json.loads(json.dumps(manifest))
+        missing_capabilities.pop("capabilities")
+        self.assertIn(
+            "manifest.capabilities is required",
+            validate_manifest_structure(missing_capabilities),
+        )
+        missing_capability_arrays = json.loads(json.dumps(manifest))
+        missing_capability_arrays["capabilities"].pop("required")
+        missing_capability_arrays["capabilities"].pop("optional")
+        structure_errors = validate_manifest_structure(
+            missing_capability_arrays
+        )
+        self.assertIn(
+            "manifest.capabilities.required is required",
+            structure_errors,
+        )
+        self.assertIn(
+            "manifest.capabilities.optional is required",
+            structure_errors,
+        )
+        invalid_efuse = json.loads(json.dumps(manifest))
+        invalid_efuse["security"]["efuse_summary"] = {
+            "secure_boot": "enabled",
+            "flash_encryption": "enabled-active",
+        }
+        efuse_errors = validate_manifest_structure(invalid_efuse)
+        self.assertIn(
+            "manifest.security.efuse_summary.secure_boot is invalid",
+            efuse_errors,
+        )
+        self.assertIn(
+            "manifest.security.efuse_summary.flash_encryption is invalid",
+            efuse_errors,
         )
         missing_validation_list = json.loads(json.dumps(manifest))
         missing_validation_list["validation"].pop("warnings")
@@ -1444,6 +1551,51 @@ class FirmwareManifestTests(unittest.TestCase):
                     required_capabilities=["wifi"],
                     optional_capabilities=["WIFI"],
                 )
+
+    def test_capability_section_is_required_and_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = root / "probe.bin"
+            image.write_bytes(build_flash())
+            manifest = import_package(
+                image,
+                root / "out",
+                device_id="sticks3",
+                flash_size=8 << 20,
+            )["manifest"]
+        device = load_device_profile("sticks3")
+        omitted = json.loads(json.dumps(manifest))
+        omitted.pop("capabilities")
+        self.assertIn(
+            "manifest.capabilities is required",
+            validate_manifest_structure(omitted),
+        )
+        result = validate_capabilities(omitted, device)
+        self.assertEqual(result["status"], "REJECTED")
+        self.assertIn(
+            "capabilities_required",
+            {issue["code"] for issue in result["errors"]},
+        )
+        missing_required = json.loads(json.dumps(manifest))
+        missing_required["capabilities"].pop("required")
+        result = validate_capabilities(missing_required, device)
+        self.assertEqual(result["status"], "REJECTED")
+        self.assertIn(
+            "invalid_capability_declarations",
+            {issue["code"] for issue in result["errors"]},
+        )
+        oversized = json.loads(json.dumps(manifest))
+        oversized["capabilities"]["required"] = ["wifi"] * 65
+        self.assertIn(
+            "manifest.capabilities.required exceeds 64 entries",
+            validate_manifest_structure(oversized),
+        )
+        result = validate_capabilities(oversized, device)
+        self.assertEqual(result["status"], "REJECTED")
+        self.assertIn(
+            "invalid_capability_declarations",
+            {issue["code"] for issue in result["errors"]},
+        )
 
     def test_capability_declarations_are_bounded_and_canonical(self):
         self.assertEqual(

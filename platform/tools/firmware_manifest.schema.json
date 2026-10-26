@@ -10,6 +10,7 @@
     "artifact",
     "target",
     "security",
+    "capabilities",
     "provenance",
     "validation"
   ],
@@ -416,7 +417,38 @@
           "type": [
             "object",
             "null"
-          ]
+          ],
+          "required": [
+            "secure_boot",
+            "flash_encryption"
+          ],
+          "properties": {
+            "secure_boot": {
+              "enum": [
+                "unknown",
+                "disabled",
+                "not-indicated",
+                "v1",
+                "v2",
+                "enabled-unspecified"
+              ]
+            },
+            "flash_encryption": {
+              "enum": [
+                "unknown",
+                "disabled",
+                "not-indicated",
+                "enabled"
+              ]
+            },
+            "secure_version": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            }
+          }
         },
         "secure_version": {
           "type": [
@@ -502,18 +534,28 @@
     "capabilities": {
       "type": "object",
       "additionalProperties": false,
+      "required": [
+        "required",
+        "optional"
+      ],
       "properties": {
         "required": {
           "type": "array",
+          "maxItems": 64,
           "items": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
           },
           "uniqueItems": true
         },
         "optional": {
           "type": "array",
+          "maxItems": 64,
           "items": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
           },
           "uniqueItems": true
         },

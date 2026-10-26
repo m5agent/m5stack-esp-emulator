@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "kind": "m5stack-firmware-manifest-policy-fail-closed",
+  "date": "2026-10-26",
+  "status": "PASS",
+  "validation": "static manifest capability and security policy",
+  "tool_hashes": {
+    "runner": "8fd9ef5eb49c0461f4586d2b0d9e5467b67ea0b675f0c987a7033e1814c875c2",
+    "firmware_manifest": "dd94c866b7d2376bfaa15fbf2458eabddd8cdc193b82ade501a21658b157ec54",
+    "manifest_schema": "252c734bc97f37b2d29703c09ba25dc6016fff84479d3a0bd97ee107b6d30170"
+  },
+  "input_assets_unchanged": true,
+  "checks": {
+    "baseline_pass": true,
+    "capabilities_required_in_schema": true,
+    "capability_arrays_required_in_schema": true,
+    "capabilities_omitted_structure_rejected": true,
+    "capabilities_omitted_validation_rejected": true,
+    "capability_arrays_omitted_structure_rejected": true,
+    "capability_arrays_omitted_validation_rejected": true,
+    "oversized_capability_array_rejected": true,
+    "signed_image_status_understatement_rejected": true,
+    "invalid_efuse_structure_rejected": true,
+    "invalid_efuse_validation_rejected": true,
+    "efuse_summary_enums_bounded": true,
+    "secure_boot_key_mismatch_rejected": true,
+    "secure_version_rollback_rejected": true
+  },
+  "cases": {
+    "baseline": {
+      "status": "PASS",
+      "device_id": "sticks3",
+      "errors": [],
+      "warnings": []
+    },
+    "missing_capabilities_structure": [
+      "manifest.capabilities is required"
+    ],
+    "missing_capabilities": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "capabilities_required",
+          "message": "manifest must include a capabilities object",
+          "path": "capabilities"
+        },
+        {
+          "code": "invalid_capability_declarations",
+          "message": "manifest.capabilities.required must be a string array",
+          "path": "capabilities.required"
+        },
+        {
+          "code": "invalid_capability_declarations",
+          "message": "manifest.capabilities.optional must be a string array",
+          "path": "capabilities.optional"
+        }
+      ],
+      "warnings": []
+    },
+    "missing_capability_arrays_structure": [
+      "manifest.capabilities.required is required",
+      "manifest.capabilities.optional is required"
+    ],
+    "missing_capability_arrays": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "invalid_capability_declarations",
+          "message": "manifest.capabilities.required must be a string array",
+          "path": "capabilities.required"
+        },
+        {
+          "code": "invalid_capability_declarations",
+          "message": "manifest.capabilities.optional must be a string array",
+          "path": "capabilities.optional"
+        }
+      ],
+      "warnings": []
+    },
+    "oversized_capabilities_structure": [
+      "manifest.capabilities.required exceeds 64 entries",
+      "manifest.capabilities.required exceeds 64 entries",
+      "manifest.capabilities.required exceeds 64 entries"
+    ],
+    "oversized_capabilities": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "invalid_capability_declarations",
+          "message": "manifest.capabilities.required must be a string array",
+          "path": "capabilities.required"
+        }
+      ],
+      "warnings": [
+        {
+          "code": "required_capability_not_observed",
+          "message": "required capability wifi is supported by the target, but its low-confidence image signature was not observed; verify the declaration or runtime path",
+          "requirement": "wifi",
+          "path": "capabilities.required"
+        }
+      ]
+    },
+    "signed_image_status_understatement": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "secure_boot_image_status_understated",
+          "message": "Secure Boot image evidence is present while status is not-found; the manifest is internally inconsistent",
+          "requirement": 2,
+          "available": "not-found",
+          "path": "security.secure_boot_image.status"
+        }
+      ],
+      "warnings": []
+    },
+    "invalid_efuse_structure": [
+      "manifest.security.efuse_summary.secure_boot is invalid",
+      "manifest.security.efuse_summary.flash_encryption is invalid"
+    ],
+    "invalid_efuse": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "invalid_efuse_security_evidence",
+          "message": "eFuse summary secure_boot state is invalid",
+          "requirement": "enabled",
+          "available": [
+            "disabled",
+            "enabled-unspecified",
+            "not-indicated",
+            "unknown",
+            "v1",
+            "v2"
+          ],
+          "path": "security.efuse_summary.secure_boot"
+        },
+        {
+          "code": "invalid_efuse_security_evidence",
+          "message": "eFuse summary Flash Encryption state is invalid",
+          "requirement": "enabled-active",
+          "available": [
+            "disabled",
+            "enabled",
+            "not-indicated",
+            "partition-encryption-marked",
+            "unknown"
+          ],
+          "path": "security.efuse_summary.flash_encryption"
+        }
+      ],
+      "warnings": []
+    },
+    "secure_boot_key_mismatch": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "secure_boot_image_status_understated",
+          "message": "Secure Boot image evidence is present while status is not-found; the manifest is internally inconsistent",
+          "requirement": 2,
+          "available": "not-found",
+          "path": "security.secure_boot_image.status"
+        },
+        {
+          "code": "secure_boot_efuse_key_mismatch",
+          "message": "Secure Boot image key digest does not match the package-provided eFuse summary",
+          "requirement": "matching key digest",
+          "available": "mismatch",
+          "path": "security.trust_root.comparison"
+        }
+      ],
+      "warnings": []
+    },
+    "secure_version_below_efuse": {
+      "status": "REJECTED",
+      "device_id": "sticks3",
+      "errors": [
+        {
+          "code": "secure_boot_image_status_understated",
+          "message": "Secure Boot image evidence is present while status is not-found; the manifest is internally inconsistent",
+          "requirement": 2,
+          "available": "not-found",
+          "path": "security.secure_boot_image.status"
+        },
+        {
+          "code": "firmware_secure_version_below_efuse",
+          "message": "image secure version is below the package-provided eFuse anti-rollback version",
+          "requirement": 2,
+          "available": 1,
+          "path": "security.anti_rollback.comparison"
+        }
+      ],
+      "warnings": []
+    }
+  },
+  "boundary": {
+    "boot": "NOT RUN",
+    "network": "NOT RUN",
+    "live_efuse": "NOT RUN",
+    "secure_boot_runtime": "NOT RUN",
+    "flash_encryption_runtime": "NOT RUN",
+    "physical_hardware": "NOT RUN"
+  },
+  "not_claimed": [
+    "package-provided eFuse summary authenticity",
+    "live eFuse state",
+    "bootloader trust-chain or anti-rollback execution",
+    "Flash Encryption runtime state",
+    "physical hardware validation"
+  ]
+}

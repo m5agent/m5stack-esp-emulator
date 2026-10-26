@@ -1024,6 +1024,37 @@ def _security_runtime_errors(security: dict) -> list[dict]:
     secure_boot_image = security.get("secure_boot_image")
     if isinstance(secure_boot_image, dict):
         status = secure_boot_image.get("status")
+        images = secure_boot_image.get("images")
+        signed_images = (
+            [
+                image
+                for image in images
+                if isinstance(image, dict)
+                and (
+                    image.get("status") != "not-found"
+                    or image.get("block_count")
+                    or image.get("blocks")
+                )
+            ]
+            if isinstance(images, list)
+            else []
+        )
+        if (
+            status == "not-found"
+            and signed_images
+        ):
+            errors.append(
+                _code_issues(
+                    "secure_boot_image_status_understated",
+                    (
+                        "Secure Boot image evidence is present while status "
+                        "is not-found; the manifest is internally inconsistent"
+                    ),
+                    requirement=len(signed_images),
+                    available=status,
+                    path="security.secure_boot_image.status",
+                )
+            )
         if status == "signed-image-observed":
             errors.append(
                 _code_issues(
@@ -1050,9 +1081,70 @@ def _security_runtime_errors(security: dict) -> list[dict]:
                     path="security.secure_boot_image.status",
                 )
             )
+    trust_root = security.get("trust_root")
+    if isinstance(trust_root, dict):
+        comparison = trust_root.get("comparison")
+        if comparison == "mismatch-unverified-source":
+            errors.append(
+                _code_issues(
+                    "secure_boot_efuse_key_mismatch",
+                    (
+                        "Secure Boot image key digest does not match the "
+                        "package-provided eFuse summary"
+                    ),
+                    requirement="matching key digest",
+                    available="mismatch",
+                    path="security.trust_root.comparison",
+                )
+            )
+        elif (
+            comparison == "match-unverified-source"
+            and isinstance(secure_boot_image, dict)
+            and secure_boot_image.get("status") != "signed-image-observed"
+        ):
+            errors.append(
+                _code_issues(
+                    "secure_boot_trust_evidence_inconsistent",
+                    (
+                        "trust-root evidence claims a key comparison while "
+                        "image status is not signed-image-observed"
+                    ),
+                    requirement=comparison,
+                    available=secure_boot_image.get("status"),
+                    path="security.trust_root.comparison",
+                )
+            )
+    anti_rollback = security.get("anti_rollback")
+    if (
+        isinstance(anti_rollback, dict)
+        and anti_rollback.get("comparison")
+        == "image-below-efuse-unverified-source"
+    ):
+        errors.append(
+            _code_issues(
+                "firmware_secure_version_below_efuse",
+                (
+                    "image secure version is below the package-provided "
+                    "eFuse anti-rollback version"
+                ),
+                requirement=anti_rollback.get("efuse_secure_version"),
+                available=anti_rollback.get("image_secure_version"),
+                path="security.anti_rollback.comparison",
+            )
+        )
     efuse_summary = security.get("efuse_summary")
     if isinstance(efuse_summary, dict):
         secure_boot = efuse_summary.get("secure_boot")
+        if secure_boot not in SECURE_BOOT_VALUES:
+            errors.append(
+                _code_issues(
+                    "invalid_efuse_security_evidence",
+                    "eFuse summary secure_boot state is invalid",
+                    requirement=secure_boot,
+                    available=sorted(SECURE_BOOT_VALUES),
+                    path="security.efuse_summary.secure_boot",
+                )
+            )
         if secure_boot in SECURE_BOOT_REQUIRED_VALUES:
             errors.append(
                 _code_issues(
@@ -1093,6 +1185,16 @@ def _security_runtime_errors(security: dict) -> list[dict]:
         )
     if isinstance(efuse_summary, dict):
         flash_encryption = efuse_summary.get("flash_encryption")
+        if flash_encryption not in FLASH_ENCRYPTION_VALUES:
+            errors.append(
+                _code_issues(
+                    "invalid_efuse_security_evidence",
+                    "eFuse summary Flash Encryption state is invalid",
+                    requirement=flash_encryption,
+                    available=sorted(FLASH_ENCRYPTION_VALUES),
+                    path="security.efuse_summary.flash_encryption",
+                )
+            )
         if flash_encryption == "enabled":
             errors.append(
                 _code_issues(
@@ -1115,6 +1217,38 @@ def validate_capabilities(
 ) -> dict:
     errors: list[dict] = []
     warnings: list[dict] = []
+    capabilities = manifest.get("capabilities")
+    if not isinstance(capabilities, dict):
+        errors.append(
+            _code_issues(
+                "capabilities_required",
+                "manifest must include a capabilities object",
+                path="capabilities",
+            )
+        )
+        capabilities = {}
+    for field in ("required", "optional"):
+        value = capabilities.get(field)
+        if (
+            not isinstance(value, list)
+            or len(value) > 64
+            or any(
+                not isinstance(item, str)
+                or not item.strip()
+                or len(item.strip()) > 64
+                for item in value
+            )
+        ):
+            errors.append(
+                _code_issues(
+                    "invalid_capability_declarations",
+                    (
+                        f"manifest.capabilities.{field} must be a string "
+                        "array"
+                    ),
+                    path=f"capabilities.{field}",
+                )
+            )
     hardware = device.get("hardware")
     if not isinstance(hardware, dict):
         raise ManifestError("device profile has no hardware object")
@@ -1177,8 +1311,12 @@ def validate_capabilities(
                 path="security.flash_encryption",
             )
         )
-    required = manifest.get("capabilities", {}).get("required", [])
-    optional = manifest.get("capabilities", {}).get("optional", [])
+    required = capabilities.get("required", [])
+    optional = capabilities.get("optional", [])
+    if not isinstance(required, list):
+        required = []
+    if not isinstance(optional, list):
+        optional = []
     required_set = {
         CAPABILITY_ALIASES.get(
             str(value).strip().lower(),
@@ -1257,7 +1395,10 @@ def validate_capabilities(
                     path="capabilities.optional",
                 )
             )
-    for detection in manifest.get("capabilities", {}).get("detected", []):
+    detected_capabilities = capabilities.get("detected", [])
+    if not isinstance(detected_capabilities, list):
+        detected_capabilities = []
+    for detection in detected_capabilities:
         if not isinstance(detection, dict):
             continue
         requirement = str(detection.get("capability") or "").strip().lower()
@@ -1280,7 +1421,10 @@ def validate_capabilities(
                 )
             )
     observed_set: set[str] = set()
-    for detection in manifest.get("capabilities", {}).get("observed", []):
+    observed_capabilities = capabilities.get("observed", [])
+    if not isinstance(observed_capabilities, list):
+        observed_capabilities = []
+    for detection in observed_capabilities:
         if not isinstance(detection, dict):
             continue
         requirement = str(detection.get("capability") or "").strip().lower()
@@ -2781,6 +2925,48 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
             errors.append(
                 "manifest.security.flash_encryption_config is invalid"
             )
+        efuse_summary = security.get("efuse_summary")
+        if efuse_summary is not None:
+            if not isinstance(efuse_summary, dict):
+                errors.append(
+                    "manifest.security.efuse_summary must be an object"
+                )
+            else:
+                for field in ("secure_boot", "flash_encryption"):
+                    if field not in efuse_summary:
+                        errors.append(
+                            "manifest.security.efuse_summary."
+                            f"{field} is required"
+                        )
+                if (
+                    efuse_summary.get("secure_boot")
+                    not in SECURE_BOOT_VALUES
+                ):
+                    errors.append(
+                        "manifest.security.efuse_summary.secure_boot "
+                        "is invalid"
+                    )
+                if (
+                    efuse_summary.get("flash_encryption")
+                    not in FLASH_ENCRYPTION_VALUES
+                ):
+                    errors.append(
+                        "manifest.security.efuse_summary.flash_encryption "
+                        "is invalid"
+                    )
+                secure_version = efuse_summary.get("secure_version")
+                if (
+                    secure_version is not None
+                    and (
+                        not isinstance(secure_version, int)
+                        or isinstance(secure_version, bool)
+                        or secure_version < 0
+                    )
+                ):
+                    errors.append(
+                        "manifest.security.efuse_summary.secure_version "
+                        "is invalid"
+                    )
         trust_root = security.get("trust_root")
         if trust_root is not None:
             if not isinstance(trust_root, dict):
@@ -2965,36 +3151,48 @@ def validate_manifest_structure(manifest: Any) -> list[str]:
                                 )
                                 break
     capabilities = manifest.get("capabilities")
-    if capabilities is not None:
-        if not isinstance(capabilities, dict):
-            errors.append("manifest.capabilities must be an object")
-        else:
-            unknown = set(capabilities) - {
-                "required",
-                "optional",
-                "detected",
-                "observed",
-                "observation",
-            }
-            if unknown:
-                errors.append("manifest.capabilities contains unknown fields")
-            for key in ("required", "optional", "detected"):
-                if key in capabilities and not isinstance(
-                    capabilities[key],
-                    list,
-                ):
-                    errors.append(
-                        f"manifest.capabilities.{key} must be an array"
-                    )
+    if not isinstance(capabilities, dict):
+        errors.append("manifest.capabilities is required")
+    else:
+        unknown = set(capabilities) - {
+            "required",
+            "optional",
+            "detected",
+            "observed",
+            "observation",
+        }
+        if unknown:
+            errors.append("manifest.capabilities contains unknown fields")
+        for key in ("required", "optional"):
+            if key not in capabilities:
+                errors.append(
+                    f"manifest.capabilities.{key} is required"
+                )
+        for key in ("required", "optional", "detected"):
+            if key in capabilities and not isinstance(
+                capabilities[key],
+                list,
+            ):
+                errors.append(
+                    f"manifest.capabilities.{key} must be an array"
+                )
             for key in ("required", "optional"):
                 values = capabilities.get(key, [])
-                if isinstance(values, list) and any(
-                    not isinstance(value, str) or not value
-                    for value in values
-                ):
-                    errors.append(
-                        f"manifest.capabilities.{key} must contain strings"
-                    )
+                if isinstance(values, list):
+                    if len(values) > 64:
+                        errors.append(
+                            f"manifest.capabilities.{key} exceeds 64 entries"
+                        )
+                    if any(
+                        not isinstance(value, str)
+                        or not value
+                        or len(value) > 64
+                        for value in values
+                    ):
+                        errors.append(
+                            f"manifest.capabilities.{key} must contain "
+                            "strings of 1 to 64 characters"
+                        )
             required_values = capabilities.get("required", [])
             optional_values = capabilities.get("optional", [])
             if isinstance(required_values, list) and isinstance(

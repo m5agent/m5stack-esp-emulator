@@ -65,6 +65,14 @@ from two differently named package roots and requires equal `manifest_id`
 while allowing the output artifact filenames to differ. The probe is
 [`unknown_required_capability/run_test.py`](unknown_required_capability/run_test.py).
 
+Hand-edited manifest policy is covered by
+[`manifest_policy/run_test.py`](manifest_policy/run_test.py) and
+[`evidence-2026-10-26-manifest-policy-fail-closed.json`](evidence-2026-10-26-manifest-policy-fail-closed.json):
+the root `capabilities` object and its `required`/`optional` arrays are
+mandatory, signed-image status cannot be understated while signature blocks
+remain, eFuse security fields use strict enums, key-digest mismatch and
+image secure-version rollback are rejected.
+
 Image capability observations are recorded in
 [`evidence-2026-10-25-image-capability-observation.json`](evidence-2026-10-25-image-capability-observation.json).
 The public StickS3 Weather image contains low-confidence WiFi and display
@@ -104,11 +112,14 @@ live eFuse read or ROM/bootloader verification executes.
 the summary's `SECURE_VERSION` and warns when the image is below the declared
 minimum. Both comparisons remain `not-verified`. This is static image
 self-consistency, not a hardware secure-boot PASS.
-The current tool-hash-bound run after security-preflight hardening is
-[`evidence-2026-10-26-secure-boot-image-security-preflight.json`](evidence-2026-10-26-secure-boot-image-security-preflight.json);
+The current tool-hash-bound run after mandatory capability and security
+evidence hardening is
+[`evidence-2026-10-26-secure-boot-image-manifest-policy-v2.json`](evidence-2026-10-26-secure-boot-image-manifest-policy-v2.json);
 the preceding
+[`evidence-2026-10-26-secure-boot-image-security-preflight.json`](evidence-2026-10-26-secure-boot-image-security-preflight.json)
+and
 [`evidence-2026-10-26-secure-boot-image.json`](evidence-2026-10-26-secure-boot-image.json)
-is retained for its earlier tool hash;
+are retained for their earlier tool hashes;
 the earlier
 [`evidence-2026-10-25-secure-boot-image.json`](evidence-2026-10-25-secure-boot-image.json)
 remains as a historical checkpoint.
