@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "category": "READ_ONLY_PRIVACY_AND_SCOPE_PATTERN_TRIAGE",
+  "status": "PASS_WITH_DOCUMENTED_FALSE_POSITIVES",
+  "finished_at": "2026-10-26T23:18:46.854858+00:00",
+  "scan_receipt": "receipt.json",
+  "triage_receipt": "triage.json",
+  "files_scanned": 2666,
+  "bytes_scanned": 39809913,
+  "archive_stable_during_scan": true,
+  "original_receipt_status_preserved": "REVIEW_REQUIRED",
+  "classified_pattern_findings": [
+    {
+      "file": "host/source-snapshots/gen45/platform/tools/network_lane.py.txt",
+      "line": 1219,
+      "reported_kind": "secret-literal",
+      "classification": "tracked-source-redaction-marker",
+      "reason": "The tracked network config presentation uses a redaction marker. The matched literal contains a redaction indicator; no value retained.",
+      "matches_tracked_HEAD_line": true,
+      "matches_current_source_line": true
+    },
+    {
+      "file": "host-followup/missing-marker-r1/source-snapshot/docs/device-service-api.md.txt",
+      "line": 2456,
+      "reported_kind": "bearer-literal",
+      "classification": "tracked-documentation-bearer-auth-prose",
+      "reason": "The regular expression matched natural-language Bearer auth discussion, not an authentication token.",
+      "matches_tracked_HEAD_line": true,
+      "matches_current_source_line": true
+    },
+    {
+      "file": "web/source-snapshot/platform/tests/test_preview_session_create.mjs",
+      "line": 32,
+      "reported_kind": "bearer-literal",
+      "classification": "tracked-local-js-auth-fixture",
+      "reason": "Local HTTP test harness equality against a tracked constant; exact archived source line matches tracked HEAD and current source.",
+      "matches_tracked_HEAD_line": true,
+      "matches_current_source_line": true
+    },
+    {
+      "file": "web/source-snapshot/platform/tests/test_preview_session_create.mjs",
+      "line": 51,
+      "reported_kind": "bearer-literal",
+      "classification": "tracked-local-js-auth-fixture",
+      "reason": "Local HTTP test harness equality against a tracked constant; exact archived source line matches tracked HEAD and current source.",
+      "matches_tracked_HEAD_line": true,
+      "matches_current_source_line": true
+    }
+  ],
+  "original_documented_false_positives": {
+    "tracked-local-test-bearer-fixture": 8,
+    "declared-fixed-passive-protocol-canary": 5
+  },
+  "unresolved_pattern_findings": 0,
+  "scope_checks": [
+    {
+      "check": "contract-r1-fail-r2-pass-kept-separate",
+      "status": "PASS"
+    },
+    {
+      "check": "host-r1-and-platform-r3-fail-preserved-r2-r4-pass-and-no-guest-inference",
+      "status": "PASS"
+    },
+    {
+      "check": "web-proof-remains-gen45-with-8-optional-partial",
+      "status": "PASS"
+    },
+    {
+      "check": "gen46-normal-followup-distinct-from-gen45-web-and-blocked-negative-guest",
+      "status": "PASS"
+    }
+  ],
+  "root_verify_run_by_this_agent": false,
+  "scope_limit": "Point-in-time content scan of the recorded 2666-file tree before owner adds archiver-diagnostics/rebuild. Owner already reported root verifier PASS separately. Does not assert a later archive remains byte-identical.",
+  "control_token_policy": "No actual control token/reference or actual token digest read, printed, calculated or compared. Owner performs exact check independently.",
+  "api_contacted": false,
+  "guest": "NOT RUN",
+  "hardware": "NOT RUN",
+  "mutations": "Only .work scan/triage/classification receipts. No product/docs/git mutation."
+}

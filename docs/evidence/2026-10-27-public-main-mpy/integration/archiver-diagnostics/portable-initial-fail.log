@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-27-public-main-mpy/restoration-followup/verify_archive.py", line 187, in <module>
+    detail=verify_followup()
+           ^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-27-public-main-mpy/restoration-followup/verify_archive.py", line 128, in verify_followup
+    assert report['status']=='PASS' and report['mode']==mode and report['worker']['generation']==46 and report['runtime']['sha256']==summary['runtime_sha256']
+                                                                                                                                     ~~~~~~~^^^^^^^^^^^^^^^^^^
+KeyError: 'runtime_sha256'

@@ -1,0 +1,109 @@
+
+def png_pixels(data, positions):
+ assert data.startswith(b'\x89PNG\r\n\x1a\n')
+ offset=8;header=None;compressed=bytearray()
+ while offset<len(data):
+  size=struct.unpack_from('>I',data,offset)[0];kind=data[offset+4:offset+8];body=data[offset+8:offset+8+size]
+  if kind==b'IHDR':header=struct.unpack('>IIBBBBB',body)
+  elif kind==b'IDAT':compressed.extend(body)
+  offset+=size+12
+ width,height,bits,color,compression,filtering,interlace=header
+ assert bits==8 and color in (2,6) and compression==filtering==interlace==0
+ channels=3 if color==2 else 4;stride=width*channels;raw=zlib.decompress(compressed)
+ assert len(raw)==height*(stride+1)
+ previous=bytearray(stride);result={}
+ for y in range(height):
+  at=y*(stride+1);mode=raw[at];row=bytearray(raw[at+1:at+1+stride]);assert 0<=mode<=4
+  for x in range(stride):
+   left=row[x-channels] if x>=channels else 0;up=previous[x];upper=previous[x-channels] if x>=channels else 0
+   if mode==1:value=left
+   elif mode==2:value=up
+   elif mode==3:value=(left+up)//2
+   elif mode==4:
+    p=left+up-upper;a,b,c=abs(p-left),abs(p-up),abs(p-upper);value=left if a<=b and a<=c else up if b<=c else upper
+   else:value=0
+   row[x]=(row[x]+value)&255
+  for name,(px,py) in positions.items():
+   assert 0<=px<width and 0<=py<height
+   if y==py:result[name]=list(row[px*channels:px*channels+3])
+  previous=row
+ assert set(result)==set(positions)
+ return {'size':[width,height],'pixels':result}
+
+def verify_followup():
+ index=json.loads((ROOT/'index.json').read_bytes());origins={row['original_source']:row for row in index['records'] if row['original_source']}
+ def origin(name):
+  row=origins[name];assert row['archive_path'] is not None,name
+  return read_document(ROOT/row['archive_path'])
+ top=origin('runtime/report.json');summary=read_document(ROOT/'result-summary.json')
+ assert top['status']=='PASS' and top['hardware']=='NOT RUN' and top['service_worker']['generation']==46
+ assert [(r['mode'],r['status']) for r in top['lanes']]==[('stock','PASS'),('candidate','PASS')]
+ assert summary['new_web_execution']=='NOT RUN' and summary['abnormal_mutation_guest']=='NOT RUN'
+ assert summary['missing_terminal_negative_evidence']=='HOST ONLY; see ../host-followup/'
+ assert top['product_source_sha256']['platform/tools/device_service.py']=='14a9dcee94d5eba9b5190a957d3dee53fce1de3601ed0eb46af9d2cf01e13fa2'
+ assert sha((ROOT/'runner/run_main_mpy_runtime.py').read_bytes())==top['runner_sha256']
+ assert origins['prepared/prepared.json']['original_sha256']==top['prepared_record_sha256']
+ pins=read_document(ROOT/'source-pin-verification.json');assert pins['source_sha256']==top['product_source_sha256'] and pins['all_sources_match_after_execution'] is True
+ pngs={row['original_sha256']:(ROOT/row['archive_path']).read_bytes() for row in index['records'] if row['classification']=='original' and row['archive_path'] and (ROOT/row['archive_path']).read_bytes().startswith(b'\x89PNG\r\n\x1a\n')}
+ executions=[];mpy=[];observations=0;zip_members=0;session_ids=[];pids=[];zip_sha={};frames={}
+ for mode in ('stock','candidate'):
+  report=origin('runtime/'+mode+'/report.json');sid=report['session_id'];session_ids.append(sid);pids.append(report['pid'])
+  assert report['status']=='PASS' and report['mode']==mode and report['worker']['generation']==46 and report['runtime']['sha256']==summary['runtime_sha256']
+  assert report['program_capabilities']['status']==('unsupported' if mode=='stock' else 'verified')
+  assert report['program_capabilities']['mpy_entrypoint'] is (mode=='candidate')
+  labels=[r['probe_label'] for r in report['runs']]
+  assert labels==(['seed'] if mode=='stock' else ['seed','v1-first','v1-repeat','dependency-only','top-level-exception','restore','loop','restore'])
+  lookup={r['execution_id']:r for r in report['runs']}
+  for run in report['runs']:
+   assert run['pid']==report['pid'] and run['firmware_sha256']==report['firmware_sha256']
+   executions.append(run['execution_id'])
+   if run['entrypoint']=='main.mpy':
+    mpy.append(run['execution_id']);assert run['application_started'] is None and run['application_ready'] is None and run['start_semantics']=='import-request-only'
+    if run['state'] in ('completed','failed'):assert run['owner_restored'] is True
+  assert all(row['nonce']==report['nonce'] and row['owner_restored'] is True and row['owner_id']==row['expected_owner_id'] for row in report['source_identity'])
+  for rejection in report['rejections']:
+   assert rejection['execution_allocation'] is False and rejection['old_program_and_history_unchanged'] is True and rejection['package_store_unchanged'] is True
+  assert [(r['label'],r['status'],r['code']) for r in report['rejections']]==([('stock-reference',409,'program_mpy_entrypoint_unsupported'),('stock-inline',409,'program_mpy_entrypoint_unsupported')] if mode=='stock' else [('bad-magic-inline',400,'invalid_program_package_mpy'),('truncated-container-inline',409,'program_mpy_invalid')])
+  for obs in report['observations']:
+   observations+=1;sample=obs['sample'];frame=obs['frame'];headers=frame['headers'];qom=obs['qom']
+   run=lookup[headers['x-frame-execution-id']]
+   assert headers['x-frame-revision-id']==run['revision_id'] and headers['x-frame-sha256']==frame['sha256']
+   assert qom['session_id']==sid and qom['path']=='/machine/units/pir' and qom['value'] is sample['motion']
+   assert sample['nonce']==report['nonce']
+   expected_center=([255,255,255] if sample['motion'] else [0,255,0]) if run['entrypoint']=='main.mpy' else [0,0,255]
+   expected_motion=[255,255,255] if sample['motion'] else [0,0,0]
+   pixels=png_pixels(pngs[frame['sha256']],frame['positions'])
+   assert pixels['size']==frame['size'] and pixels['pixels']['phase']==frame['center']==expected_center and pixels['pixels']['motion']==frame['motion']==expected_motion
+  cleanup=report['cleanup'];stopped=cleanup['session']
+  assert cleanup['status']=='PASS' and cleanup['pid_gone'] is True and cleanup['zip_before_stop'] is True and cleanup['errors']==[]
+  assert stopped['state']=='stopped' and stopped['flash_retained'] is False and stopped['worker']['lease_active'] is False
+  assert cleanup['history_frame_sha256']==report['last_frame_sha256']
+  frames[mode]=report['last_frame_sha256'];container='runtime/'+mode+'/evidence-before-stop.zip';ziprow=origins[container]
+  assert ziprow['classification']=='hash-only' and ziprow['original_sha256']==report['evidence_zip']['sha256']
+  members=[row for name,row in origins.items() if name.startswith(container+'!')]
+  assert len(members)==report['evidence_zip']['members'];zip_members+=len(members);zip_sha[mode]=ziprow['original_sha256']
+  assert origins[container+'!frames/current.png']['original_sha256']==frames[mode]
+  http=origin('runtime/'+mode+'/http.json');accepted=[]
+  for ordinal,row in enumerate(http):
+   assert not row['path'].startswith('previews')
+   bodyrow=origins.get('runtime/'+mode+'/http-'+str(ordinal).zfill(4)+'.response')
+   if bodyrow:assert bodyrow['original_sha256']==row['sha256'] and bodyrow['original_bytes']==row['bytes']
+   if row['method']=='POST' and row['path'].endswith('/program') and row['status']==200:
+    accepted.append(origin('runtime/'+mode+'/http-'+str(ordinal).zfill(4)+'.response')['program']['execution_id'])
+  assert accepted==[r['execution_id'] for r in report['runs']]
+  if mode=='candidate':
+   assert [row['entry']['count'] for row in report['binary_identity']]==[1,2,3,4,5]
+   assert [row['entry']['dep_value'] for row in report['binary_identity']]==[17,17,29,29,29]
+   owner=report['source_identity'][0]['owner_id']
+   for row in report['binary_identity']:
+    entry=row['entry'];assert entry['guard'] is True and entry['name']=='__main__' and entry['main_id']==entry['sys_main_id']==entry['import_main_id']!=owner and entry['owner_id']==owner and entry['nonce']==report['nonce']
+   interruption=report['binary_loop_interruption'];history=interruption['history'];assert history['state']=='interrupted' and history['interruption_confirmed'] is True and interruption['restored_wrapper_error_marker'] is True and interruption['same_owner_recovery_source']['owner_restored'] is True
+   marker='__M5_EXEC_'+history['execution_id']+'__:ERROR'
+   windows=[origin('runtime/'+mode+'/http-'+str(i).zfill(4)+'.response') for i,row in enumerate(http) if row['path'].split('?',1)[0]=='sessions/'+sid+'/serial']
+   assert any(marker in window.get('data','') for window in windows)
+   assert [row['count'] for row in report['source_identity']]==[0,4,5]
+ assert len(session_ids)==len(set(session_ids))==2 and len(pids)==len(set(pids))==2
+ assert len(executions)==len(set(executions))==9 and len(mpy)==5 and observations==10 and zip_members==58
+ final=top['final_capacity'];assert final['active_sessions']==0 and final['worker']['active_lease_count']==0 and final['worker']['generation']==46
+ assert summary['ordinary_sessions']==2 and summary['executions']==9 and summary['mpy_executions']==5 and summary['zip_members']==58 and summary['input_observations']==10 and summary['final_history_frame_sha256']==frames
+ return {'status':'PASS','category':'GEN46_NORMAL_PATH_PORTABLE_ARCHIVE_NOT_NEW_EXECUTION','ordinary_sessions':2,'executions':9,'mpy_executions':5,'input_observations':10,'zip_members':58,'zip_sha256':zip_sha,'history_frame_sha256':frames,'final_active_sessions':0,'final_active_leases':0,'hardware':'NOT RUN','new_web_execution':'NOT RUN','abnormal_mutation_guest':'NOT RUN'}

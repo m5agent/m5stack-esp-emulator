@@ -1,0 +1,130 @@
+{
+  "category": "PATTERN_TRIAGE_WITHOUT_VALUES",
+  "findings": [
+    {
+      "file": "host/source-snapshots/gen45/platform/tools/network_lane.py.txt",
+      "kind": "secret-literal",
+      "line": 1219,
+      "matches": 1,
+      "source": "platform/tools/network_lane.py",
+      "matches_tracked_HEAD_line": true,
+      "matches_current_source_line": true,
+      "context": [
+        {
+          "line": 1217,
+          "sanitized": "                <QUOTED>: config.wifi,"
+        },
+        {
+          "line": 1218,
+          "sanitized": "                <QUOTED>: config.ssid,"
+        },
+        {
+          "line": 1219,
+          "sanitized": "                <QUOTED>: <QUOTED>,"
+        },
+        {
+          "line": 1220,
+          "sanitized": "                <QUOTED>: config.wifi_auth,"
+        },
+        {
+          "line": 1221,
+          "sanitized": "                <QUOTED>: ("
+        }
+      ]
+    },
+    {
+      "file": "host-followup/missing-marker-r1/source-snapshot/docs/device-service-api.md.txt",
+      "kind": "bearer-literal",
+      "line": 2456,
+      "matches": 1,
+      "source": "docs/device-service-api.md",
+      "matches_tracked_HEAD_line": true,
+      "matches_current_source_line": true,
+      "context": [
+        {
+          "line": 2454,
+          "sanitized": "new execution produces identical pixels. Retain the displayed blob on 304 and"
+        },
+        {
+          "line": 2455,
+          "sanitized": "process its metadata separately. Headers are CORS-exposed; conditional access"
+        },
+        {
+          "line": 2456,
+          "sanitized": "keeps existing Bearer <REDACTED> and does not enable disk caching."
+        },
+        {
+          "line": 2457,
+          "sanitized": ""
+        },
+        {
+          "line": 2458,
+          "sanitized": "The Live Sessions page uses 125 ms shared sampling for QEMU and polls active framebuffers independently"
+        }
+      ]
+    },
+    {
+      "file": "web/source-snapshot/platform/tests/test_preview_session_create.mjs",
+      "kind": "bearer-literal",
+      "line": 32,
+      "matches": 1,
+      "source": "platform/tests/test_preview_session_create.mjs",
+      "matches_tracked_HEAD_line": true,
+      "matches_current_source_line": true,
+      "context": [
+        {
+          "line": 30,
+          "sanitized": "    const url = new URL(req.url, <QUOTED>), path = url.pathname;"
+        },
+        {
+          "line": 31,
+          "sanitized": "    if (path === <QUOTED>) { scenario.catalogReads += 1; return json(res, {devices: []}); }"
+        },
+        {
+          "line": 32,
+          "sanitized": "    const authorized = req.headers.authorization === <QUOTED>;"
+        },
+        {
+          "line": 33,
+          "sanitized": "    if (path === <QUOTED>) scenario.deviceReads.push({authorized, status: scenario.requireToken && !authorized ? 401 : 200});"
+        },
+        {
+          "line": 34,
+          "sanitized": "    if (path === <QUOTED>) scenario.unitReads.push({authorized, device_id: url.searchParams.get(<QUOTED>)});"
+        }
+      ]
+    },
+    {
+      "file": "web/source-snapshot/platform/tests/test_preview_session_create.mjs",
+      "kind": "bearer-literal",
+      "line": 51,
+      "matches": 1,
+      "source": "platform/tests/test_preview_session_create.mjs",
+      "matches_tracked_HEAD_line": true,
+      "matches_current_source_line": true,
+      "context": [
+        {
+          "line": 49,
+          "sanitized": "      let raw = <QUOTED>; for await (const part of req) raw += part;"
+        },
+        {
+          "line": 50,
+          "sanitized": "      const body = JSON.parse(raw), key = req.headers[<QUOTED>];"
+        },
+        {
+          "line": 51,
+          "sanitized": "      scenario.posts.push({key, raw, body, authorized: req.headers.authorization === <QUOTED>});"
+        },
+        {
+          "line": 52,
+          "sanitized": "      if (!scenario.ledger.has(key)) { scenario.allocations += 1; scenario.ledger.set(key, {body: raw, preview_id: `preview-fixture-${scenario.allocations}`}); }"
+        },
+        {
+          "line": 53,
+          "sanitized": "      const row = scenario.ledger.get(key);"
+        }
+      ]
+    }
+  ],
+  "no_matched_values_emitted": true
+}

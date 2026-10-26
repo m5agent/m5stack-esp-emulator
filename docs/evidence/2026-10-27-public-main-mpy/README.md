@@ -62,3 +62,6 @@ gen45的源码/服务receipt保持原字节；不能把最终修复反写成gen4
 历史帧SHA保持且PID/Flash/lease释放。见[最终运行复验](restoration-followup/index.json)。
 该轮未重跑Web；异常污染运行环境的额外guest场景被自动安全审查拦截（可能的网络安全风险），
 仅保留宿主负控证据，不作为guest PASS。gen45的六阶段Web与八个optional空体分类不变。
+
+工作块提交5be2687a后fetch/merge origin/main@f2061759，已同步且无代码变化；
+未push、未新跑guest或重载服务。同步/隐私复核及归档器原失败见[收尾记录](integration/index.json)。

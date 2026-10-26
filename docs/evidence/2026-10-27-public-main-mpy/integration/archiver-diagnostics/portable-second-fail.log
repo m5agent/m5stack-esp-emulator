@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-27-public-main-mpy/restoration-followup/verify_archive.py", line 187, in <module>
+    detail=verify_followup()
+           ^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-27-public-main-mpy/restoration-followup/verify_archive.py", line 178, in verify_followup
+    serialrow=origins[container+'!serial.log'];serial=(ROOT/serialrow['archive_path']).read_bytes();marker=('__M5_EXEC_'+history['execution_id']+'__:ERROR').encode();assert marker in serial
+                                                       ~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
+TypeError: unsupported operand type(s) for /: 'PosixPath' and 'NoneType'
