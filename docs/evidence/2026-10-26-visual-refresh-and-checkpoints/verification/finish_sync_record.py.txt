@@ -1,0 +1,20 @@
+import hashlib,json
+from pathlib import Path
+root=Path.cwd();work=root/'.work/visual-checkpoint-verification-20261026';dest=root/'docs/evidence/2026-10-26-visual-refresh-and-checkpoints'
+assert (work/'docs-post-sync.txt').read_text().endswith('OK\n')
+sha=lambda b:hashlib.sha256(b).hexdigest()
+p=dest/'file-manifest.json';m=json.loads(p.read_text());rows={r['archived']:r for r in m['files']}
+for name,target in [('integration.json','integration.json'),('docs-post-sync.txt','verification/docs-post-sync.txt'),('finish_sync_record.py','verification/finish_sync_record.py.txt')]:
+ src=work/name;b=src.read_bytes();out=dest/target;out.parent.mkdir(parents=True,exist_ok=True)
+ if out.exists():assert out.read_bytes()==b
+ else:out.write_bytes(b)
+ rows[target]={'original':str(src.relative_to(root)),'archived':target,'size':len(b),'sha256':sha(b)}
+m['files']=sorted(rows.values(),key=lambda r:r['archived']);p.write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n')
+index={'schema_version':1,'algorithm':'sha256','excludes':['artifact-index.json'],'files':[]}
+for p in sorted(dest.rglob('*')):
+ if p.is_file() and p.name!='artifact-index.json':
+  b=p.read_bytes();index['files'].append({'path':str(p.relative_to(dest)),'size':len(b),'sha256':sha(b)})
+p=dest/'artifact-index.json';p.write_text(json.dumps(index,ensure_ascii=False,indent=2)+'\n')
+for row in index['files']:
+ b=(dest/row['path']).read_bytes();assert len(b)==row['size'] and sha(b)==row['sha256']
+print(json.dumps({'status':'PASS','members':len(index['files']),'sha256':sha(p.read_bytes())}))

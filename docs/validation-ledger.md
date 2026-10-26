@@ -11,6 +11,12 @@
 一次 PASS 只覆盖对应 commit、固件 SHA、runtime/profile、设备和检查项；
 不能把同 SoC 的另一台设备、另一个安全模式或物理 RF 行为自动视为通过。
 
+## 2026-10-27
+
+| 工作流 | 结果 | 证据 |
+| --- | --- | --- |
+| `UNIT-01` / checkpoint块提交与主线同步 | 实现提交19f2bdeb后重新fetch/merge origin/main@f2061759，Already up to date；clean worktree、8份验证源码SHA保持。跨日索引日期不一致的原文档失败保留，修正后独立48项文档检查通过。整体Unit/AIFlow工作继续，不将本块或视觉新增数量当全部协议完成 | [同步收据](evidence/2026-10-26-visual-refresh-and-checkpoints/integration.json)、[本块范围](evidence/2026-10-26-visual-refresh-and-checkpoints/README.md) |
+
 ## 2026-10-26
 
 | 工作流 | 结果 | 证据 |

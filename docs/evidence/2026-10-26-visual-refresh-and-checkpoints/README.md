@@ -96,3 +96,9 @@ AIFlow 端接入、GC、hotplug、开机保存或 native/IRQ/thread 完整清场
 
 归档以 [file-manifest](file-manifest.json)保留原字节与来源；代码/原始 Markdown
 追加 `.txt`，不修改内容。仓内不包含固件、ROM 或 compiler 可执行文件。
+
+本块实现提交 `19f2bdeb23c26e039b8d4d2a8df582ebca723433` 后重新 fetch/merge
+`origin/main@f2061759897955e6017d4aa2a41bd5ba962c35b6`，结果 Already up to date，
+工作树干净、8份验证源码SHA保持，见[同步收据](integration.json)。跨日时索引首页日期
+未同步曾使文档检查失败，原48项轮次保留；修正日期后的独立48项文档检查通过。
+整体UNIT-01仍进行中，后续执行顺序只在Backlog维护。
