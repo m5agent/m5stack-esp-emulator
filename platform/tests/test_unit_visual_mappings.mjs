@@ -18,7 +18,7 @@ assert.deepEqual(CARDKB_KEY_IDS, keymap.keys.map(key => key.id), 'matrix order m
 assert.deepEqual(CARDKB_KEY_IDS, visualKeys.map(key => key.id), 'all 50 visual controls must match the matrix IDs');
 checks.push('cardkb-official-fixture-and-visual-key-identity');
 
-for (const unit of ['button', 'key', 'limit', 'encoder']) {
+for (const unit of ['button', 'key', 'limit', 'encoder', 'scroll']) {
   assert.deepEqual(input(unit, 'press', 'down'), {pressed: true});
   assert.deepEqual(input(unit, 'press', 'up'), {pressed: false});
   assert.deepEqual(input(unit, 'press', 'cancel'), {pressed: false});
@@ -100,7 +100,7 @@ assert.deepEqual(input('joystick-v11', 'press', 'up', {bindings: joystickBinding
 checks.push('evidence-required-calibration-permutation-range-and-detent-validation');
 
 const report = visualMappingCoverage(catalog);
-assert.equal(catalog.units.length, 27);
+assert.equal(catalog.units.length, 28);
 assert.deepEqual([...report.registered_unit_ids].sort(), catalog.units.map(unit => unit.id).sort());
 assert.equal(report.units.some(unit => unit.status === 'unregistered'), false);
 for (const unit of catalog.units) {
@@ -112,7 +112,7 @@ for (const unit of catalog.units) {
 assert.equal(report.units.find(unit => unit.unit_id === '8encoder').status, 'requires-binding');
 assert.equal(report.units.find(unit => unit.unit_id === 'fan').status, 'activity-only');
 assert.equal(report.units.find(unit => unit.unit_id === 'hub').status, 'passive');
-checks.push('all-27-products-and-every-catalog-field-audited');
+checks.push('all-28-products-and-every-catalog-field-audited');
 report.checks = checks;
 report.status = 'PASS';
 report.source_sha256 = Object.fromEntries(await Promise.all([

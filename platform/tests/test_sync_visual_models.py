@@ -138,7 +138,7 @@ class VisualSnapshotImportTests(unittest.TestCase):
                 with self.assertRaisesRegex(SystemExit, "inventory differs"):
                     sync.three_addon(files, check=True)
 
-    def test_vendored_snapshot_covers_every_reviewed_png_and_keeps_new_units_visual_only(self):
+    def test_vendored_snapshot_covers_reviewed_pngs_without_inferring_runtime_admission(self):
         manifest = json.loads((sync.DESTINATION / "vendor-manifest.json").read_text())
         files = {name: (sync.DESTINATION / name).read_bytes() for name in manifest["files"]}
         sync.reviewed_runtime_assets(manifest["source_commit"], list(files), files)
@@ -150,7 +150,10 @@ class VisualSnapshotImportTests(unittest.TestCase):
         units = json.loads((sync.ROOT / "platform/units/catalog.json").read_text())["units"]
         for visual in ("scroll", "roller485"):
             self.assertIn(visual, manifest["units"])
-            self.assertNotIn(visual, {unit["id"] for unit in units})
+        self.assertNotIn("roller485", {unit["id"] for unit in units})
+        scroll = next(unit for unit in units if unit['id'] == 'scroll')
+        self.assertEqual(scroll['model_status'], 'partial')
+        self.assertTrue(scroll['protocol']['gaps'])
 
 
 if __name__ == "__main__":

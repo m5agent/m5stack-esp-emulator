@@ -1,0 +1,676 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_AUDIT_COMPLETE",
+  "captured_at": "2026-10-26T12:46:07.984226+00:00",
+  "head_at_start": "662ca4e4",
+  "firmware_commit": "ae60717a4b9315cd12ac56389992fc2b7576d0aa",
+  "uiflow_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "guest_validation": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "official_mcp_query": {
+    "tool": "knowledge_search via m5stack-assistant/m5-search.mjs",
+    "query": "M5Stack Unit Scroll UIFlow2 ScrollUnit I2C register direction 0x50 0xFB",
+    "filter": "uiflow",
+    "result": "SUCCESS, official ScrollUnit APIs matched bundled docs"
+  },
+  "authority_paths": [
+    "docs/unit-research/scroll-roller485.md",
+    "docs/plans/2026-10-25-unit-runtime-integration.md",
+    "docs/evidence/2026-10-26-live-unit-preview/official-units/sources.json"
+  ],
+  "source_paths_and_receipts": [
+    {
+      "local_path": "/tmp/m5-new-units-protocol-audit/scroll_main.c",
+      "url": "https://raw.githubusercontent.com/m5stack/M5Unit-Scroll-Internal-FW/ae60717a4b9315cd12ac56389992fc2b7576d0aa/code/APP/Encoder_EVQ/Core/Src/main.c",
+      "bytes": 13303,
+      "sha256": "55e6e96254ff8456316f76218bef16391af5f8a6c8ab529248729aaca24b1579"
+    },
+    {
+      "local_path": "/tmp/m5-new-units-protocol-audit/scroll_i2c_ex.c",
+      "url": "https://raw.githubusercontent.com/m5stack/M5Unit-Scroll-Internal-FW/ae60717a4b9315cd12ac56389992fc2b7576d0aa/code/APP/Encoder_EVQ/Core/Src/i2c_ex.c",
+      "bytes": 5788,
+      "sha256": "68406b2f264c343c015e441b9ea514fb864cfc6761590b5a8780bfcd1b7a4a21"
+    },
+    {
+      "local_path": "/tmp/m5-new-units-protocol-audit/scroll_tim.c",
+      "url": "https://raw.githubusercontent.com/m5stack/M5Unit-Scroll-Internal-FW/ae60717a4b9315cd12ac56389992fc2b7576d0aa/code/APP/Encoder_EVQ/Core/Src/tim.c",
+      "bytes": 3678,
+      "sha256": "90b7c7031ad3d8747fb3e01b8c83d883ec2a05e0bd3f5ca75f942947b0592ad8"
+    },
+    {
+      "local_path": "/tmp/m5-new-units-protocol-audit/scroll.py",
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/scroll.py",
+      "bytes": 2839,
+      "sha256": "9ca3348afe65f14b1f12e1d3cab0876f43f6c8532d0159f1b99d3eb81c1b3f1d"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/m5stack/M5Unit-Scroll-Internal-FW/ae60717a4b9315cd12ac56389992fc2b7576d0aa/code/APP/Encoder_EVQ/Core/Src/ws2812.c",
+      "bytes": 3500,
+      "sha256": "56012a23c88de5f04fef2b962e526e8d777d072b7a2e5d0594b3464e61791d93",
+      "read_method": "fetched into memory, not saved"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/m5stack/M5Unit-Scroll-Internal-FW/ae60717a4b9315cd12ac56389992fc2b7576d0aa/code/APP/Encoder_EVQ/Core/Src/i2c.c",
+      "bytes": 4825,
+      "sha256": "447ede751e7814c2afdde7a26678fda3ff4acee29b6bbf4eb88f4f5c45d3ed7b",
+      "read_method": "fetched into memory, not saved"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/m5stack/M5Unit-Scroll-Internal-FW/ae60717a4b9315cd12ac56389992fc2b7576d0aa/code/APP/Encoder_EVQ/Core/Src/stm32f0xx_it.c",
+      "bytes": 4300,
+      "sha256": "b7d5a71fae0fd90440253dd15b8790b5c198be419f27c5ae98cf08ee14c5a517",
+      "read_method": "fetched into memory, not saved"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/m5stack/M5Unit-Scroll-Internal-FW/ae60717a4b9315cd12ac56389992fc2b7576d0aa/code/APP/Encoder_EVQ/Core/Src/stm32f0xx_hal_msp.c",
+      "bytes": 2148,
+      "sha256": "80e321d198dfccbcb2e4c55e56203bc3efbb035f6b21d4db15992faaf501ae60",
+      "read_method": "fetched into memory, not saved"
+    },
+    {
+      "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT-Scroll/ENCODER%20EC10E.pdf",
+      "bytes": 850302,
+      "sha256": "ba101447af5d233efb6be9ddf3347e5fbc1faa4daa24d7196ef30da1bdeb85fa",
+      "read_method": "independent subagent in-memory fetch and PDF read"
+    }
+  ],
+  "admitted_source_policy": {
+    "input": "absolute synthetic physical TIM count, not angle",
+    "source_count_min": -32768,
+    "source_count_max": 32767,
+    "timer_formula": "0x8000 + source_count",
+    "max_abs_delta_per_event": 32767,
+    "delta_math": "int64 new_source-old_source; apply FB sign only after range checks",
+    "direction": "last nonzero physical delta >0; static retains previous TIM DIR; UP initialization implies normal ready direction1",
+    "int32_counter_increment_overflow": "explicit error before any mutation",
+    "rejection_atomic": "source,counter,increment,direction,TX state unchanged"
+  },
+  "raw_transaction_oracles": [
+    {
+      "id": "count32",
+      "initial": {
+        "counter": "0x12345678"
+      },
+      "actions": [
+        "W 10",
+        "R 4"
+      ],
+      "expected": [
+        "78 56 34 12"
+      ]
+    },
+    {
+      "id": "finite-tx-partial",
+      "initial": {
+        "counter": "0x12345678"
+      },
+      "actions": [
+        "W 11",
+        "R 2; STOP",
+        "R 4; STOP"
+      ],
+      "expected": [
+        "56 34",
+        "12 56 34 12"
+      ],
+      "note": "No new pointer: continue the cyclic snapshot index."
+    },
+    {
+      "id": "snapshot-not-live",
+      "initial": {
+        "counter": 5
+      },
+      "actions": [
+        "W 10",
+        "physical source +1",
+        "R 4",
+        "W 10",
+        "R 4"
+      ],
+      "expected": [
+        "05 00 00 00",
+        "06 00 00 00"
+      ]
+    },
+    {
+      "id": "delta-select-clear",
+      "initial": {
+        "increments": "0x12345678"
+      },
+      "actions": [
+        "W 51; STOP, no read",
+        "physical source +5",
+        "R 4",
+        "W 50",
+        "R 4",
+        "W 50",
+        "R 4"
+      ],
+      "expected": [
+        "56 34 12 56",
+        "05 00 00 00",
+        "00 00 00 00"
+      ],
+      "note": "Selecting 51 snapshots only bytes1..3 and clears ALL int32 increment immediately."
+    },
+    {
+      "id": "unknown-pointer-preserves-snapshot",
+      "initial": {
+        "counter": "0x12345678"
+      },
+      "actions": [
+        "W 11",
+        "R 1",
+        "W 99; STOP",
+        "R 4"
+      ],
+      "expected": [
+        "56",
+        "34 12 56 34"
+      ]
+    },
+    {
+      "id": "reset-does-not-rebuild-tx",
+      "initial": {
+        "counter": 5,
+        "increments": 7
+      },
+      "actions": [
+        "W 10",
+        "W 40 01",
+        "R 4",
+        "W 10",
+        "R 4",
+        "W 50",
+        "R 4"
+      ],
+      "expected": [
+        "05 00 00 00",
+        "00 00 00 00",
+        "00 00 00 00"
+      ]
+    },
+    {
+      "id": "partial-count-write",
+      "initial": {
+        "counter": "0x12345678",
+        "increments": 7
+      },
+      "actions": [
+        "W 11 AB",
+        "W 10",
+        "R 4",
+        "W 50",
+        "R 4"
+      ],
+      "expected": [
+        "78 AB 34 12",
+        "07 00 00 00"
+      ],
+      "note": "Raw hardware count write changes no increment."
+    },
+    {
+      "id": "count-register-write",
+      "initial": {
+        "counter": 0
+      },
+      "actions": [
+        "W 10 FF FF FF FF",
+        "W 10",
+        "R 4"
+      ],
+      "expected": [
+        "FF FF FF FF"
+      ]
+    },
+    {
+      "id": "reset-conditional",
+      "initial": {
+        "counter": 5,
+        "increments": 7
+      },
+      "actions": [
+        "W 40 00",
+        "W 40 02"
+      ],
+      "expected_state": {
+        "counter": 5,
+        "increments": 7
+      }
+    },
+    {
+      "id": "button-finite-one-byte",
+      "initial": {
+        "pressed": true
+      },
+      "actions": [
+        "W 20",
+        "R 2"
+      ],
+      "expected": [
+        "00 00"
+      ],
+      "note": "Released returns 01 01; UIFlow reads2 but only inspects first byte."
+    },
+    {
+      "id": "rgb-word-and-output",
+      "actions": [
+        "W 31 12 34 56",
+        "W 30",
+        "R 6"
+      ],
+      "expected": [
+        "00 12 34 56 00 12"
+      ],
+      "expected_state": {
+        "rgb_word": "0x56341200",
+        "led_rgb": "0x123456"
+      }
+    },
+    {
+      "id": "rgb-partial",
+      "initial": {
+        "rgb_word": "0x56341200"
+      },
+      "actions": [
+        "W 32 AB",
+        "W 31",
+        "R 3"
+      ],
+      "expected": [
+        "12 AB 56"
+      ],
+      "expected_state": {
+        "led_rgb": "0x12AB56"
+      },
+      "precondition": "Quiescent synchronous consumption: previous write and next partial reuse slot0, whose content is latest_rgb_color. Not a burst/multi-slot oracle."
+    },
+    {
+      "id": "direction-positive",
+      "initial": {
+        "source_count": 0,
+        "ab_direction": 0
+      },
+      "actions": [
+        "source_count=1",
+        "W 60",
+        "R 2"
+      ],
+      "expected": [
+        "01 01"
+      ],
+      "expected_delta": 1
+    },
+    {
+      "id": "direction-positive-inverted",
+      "initial": {
+        "source_count": 0,
+        "ab_direction": 1
+      },
+      "actions": [
+        "source_count=1",
+        "W 60",
+        "R 1"
+      ],
+      "expected": [
+        "01"
+      ],
+      "expected_delta": -1
+    },
+    {
+      "id": "direction-negative-inverted",
+      "initial": {
+        "source_count": 0,
+        "ab_direction": 1
+      },
+      "actions": [
+        "source_count=-1",
+        "W 60",
+        "R 1"
+      ],
+      "expected": [
+        "00"
+      ],
+      "expected_delta": 1
+    },
+    {
+      "id": "fb-normalization",
+      "actions": [
+        "W FB 02",
+        "W FB",
+        "R 2"
+      ],
+      "expected": [
+        "01 01"
+      ],
+      "note": "Any nonzero payload maps to1, any extra payload ignored by fixed source."
+    },
+    {
+      "id": "fb-no-motion",
+      "initial": {
+        "source_count": 5,
+        "counter": 5,
+        "increments": 5,
+        "direction": 1
+      },
+      "actions": [
+        "W FB 01",
+        "source_count=5"
+      ],
+      "expected_state": {
+        "counter": 5,
+        "increments": 5,
+        "direction": 1,
+        "ab_direction": 1
+      }
+    },
+    {
+      "id": "version",
+      "actions": [
+        "W FE",
+        "R 3"
+      ],
+      "expected": [
+        "01 01 01"
+      ]
+    },
+    {
+      "id": "address-exact-length",
+      "initial": {
+        "address": "0x40"
+      },
+      "actions": [
+        "W FF 41 42"
+      ],
+      "expected_state": {
+        "address": "0x40"
+      },
+      "note": "Address setter accepts exactly2 bytes total."
+    },
+    {
+      "id": "address-reject-high",
+      "initial": {
+        "address": "0x40"
+      },
+      "actions": [
+        "W FF 80"
+      ],
+      "expected_state": {
+        "address": "0x40"
+      }
+    },
+    {
+      "id": "address-change",
+      "initial": {
+        "address": "0x40"
+      },
+      "actions": [
+        "W@40 FF 41; STOP",
+        "W@40 10",
+        "W@41 FF",
+        "R@41 1"
+      ],
+      "expected": [
+        "old40 NACK",
+        "41"
+      ],
+      "note": "FW accepted any7bit including0; model rejects0 as declared backend gap."
+    }
+  ],
+  "uiflow_api_oracles": [
+    {
+      "id": "low16",
+      "raw_counter": [
+        0,
+        1,
+        -1,
+        32767,
+        32768,
+        65535,
+        65536,
+        -32769,
+        305419896
+      ],
+      "expected_public_value": [
+        0,
+        1,
+        -1,
+        32767,
+        -32768,
+        -1,
+        0,
+        32767,
+        22136
+      ]
+    },
+    {
+      "id": "value-wrap",
+      "raw_counter_before": 32767,
+      "raw_counter_after": 32768,
+      "expected_public_delta": -65535
+    },
+    {
+      "id": "status-no-consume",
+      "actions": [
+        "counter=1",
+        "get_rotary_status()",
+        "get_rotary_status()",
+        "get_rotary_value()",
+        "get_rotary_status()"
+      ],
+      "expected": [
+        true,
+        true,
+        1,
+        false
+      ]
+    },
+    {
+      "id": "status-low16-alias",
+      "initial": {
+        "last_value": 0
+      },
+      "actions": [
+        "counter=65536",
+        "get_rotary_status()"
+      ],
+      "expected": [
+        false
+      ]
+    },
+    {
+      "id": "set-offset-only",
+      "initial": {
+        "counter": 100,
+        "zero_value": 0
+      },
+      "actions": [
+        "set_rotary_value(7)",
+        "get_rotary_value()"
+      ],
+      "expected": [
+        107
+      ],
+      "expected_i2c_count_writes": 0
+    },
+    {
+      "id": "set-offset-large",
+      "initial": {
+        "counter": 0
+      },
+      "actions": [
+        "set_rotary_value(70000)",
+        "get_rotary_value()"
+      ],
+      "expected": [
+        70000
+      ]
+    },
+    {
+      "id": "increment-low16",
+      "initial": {
+        "increments": 65538
+      },
+      "actions": [
+        "get_rotary_increments()",
+        "get_rotary_increments()"
+      ],
+      "expected": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "set-color-index-ignored",
+      "actions": [
+        "set_color(99,0x123456)"
+      ],
+      "expected_i2c_write": "31 12 34 56"
+    },
+    {
+      "id": "versions-return-str",
+      "actions": [
+        "get_firmware_version()"
+      ],
+      "expected": [
+        "1"
+      ],
+      "expected_type": "str"
+    }
+  ],
+  "admission_rejection_oracles": [
+    {
+      "id": "source-outside-range",
+      "initial_source": 0,
+      "target_source": 32768,
+      "expected": "explicit error; all state unchanged"
+    },
+    {
+      "id": "source-outside-negative-range",
+      "initial_source": 0,
+      "target_source": -32769,
+      "expected": "explicit error; all state unchanged"
+    },
+    {
+      "id": "single-event-too-large",
+      "initial_source": -20000,
+      "target_source": 20000,
+      "expected": "explicit error; all state unchanged"
+    },
+    {
+      "id": "single-event-negative-too-large",
+      "initial_source": 20000,
+      "target_source": -20000,
+      "expected": "explicit error; all state unchanged"
+    },
+    {
+      "id": "counter-overflow",
+      "initial": {
+        "source_count": 0,
+        "counter": 2147483647,
+        "ab_direction": 0
+      },
+      "target_source": 1,
+      "expected": "explicit error; counter/increments/source/direction all unchanged"
+    },
+    {
+      "id": "increment-overflow",
+      "initial": {
+        "source_count": 0,
+        "increments": 2147483647,
+        "ab_direction": 0
+      },
+      "target_source": 1,
+      "expected": "explicit error; counter/increments/source/direction all unchanged"
+    },
+    {
+      "id": "counter-underflow",
+      "initial": {
+        "source_count": 0,
+        "counter": -2147483648,
+        "ab_direction": 0
+      },
+      "target_source": -1,
+      "expected": "explicit error; all state unchanged"
+    },
+    {
+      "id": "inverted-overflow",
+      "initial": {
+        "source_count": 0,
+        "counter": 2147483647,
+        "ab_direction": 1
+      },
+      "target_source": -1,
+      "expected": "explicit error; all state unchanged"
+    },
+    {
+      "id": "address-zero-backend-gap",
+      "actions": [
+        "W FF 00"
+      ],
+      "expected": "reject; address and other slaves unchanged; not FW equivalence"
+    },
+    {
+      "id": "dynamic-address-collision",
+      "actions": [
+        "W FF occupied_address"
+      ],
+      "expected": "reject; old address remains; not physical wired-AND contention emulation"
+    },
+    {
+      "id": "bootloader-unsupported",
+      "actions": [
+        "W FD 01"
+      ],
+      "expected": "explicit unsupported/NACK boundary; do not simulate successful reset or claim bootloader implemented"
+    }
+  ],
+  "blockers": [
+    {
+      "id": "TIM3_IRQ_UNCLOSED",
+      "evidence": "tim.c128..131 defines period callback; inspected stm32f0xx_it.c has no TIM3_IRQHandler; tim.c MSP and hal_msp have no TIM3 NVIC enable. Fixed target link/IRQ behavior not proven.",
+      "impact": "Do not assert timer rollover behavior or repair it into ideal modulo arithmetic."
+    },
+    {
+      "id": "INVERTED_WRAP_COMPENSATION",
+      "evidence": "main.c142..151 flips encoder_change forFB but leaves ±65536 correction unchanged. Conditional on callback firing,65535->0 withFB1,cDirCnt=-1 gives+131071;0->65535 gives-131071. WithcDirCnt0 the deltas differ again.",
+      "impact": "Exclude16bit TIM rollover until exact firmware execution or binary analysis resolves IRQ path."
+    },
+    {
+      "id": "INT32_C_OVERFLOW",
+      "evidence": "main.c counter/increment are signedint32 and accumulated inC.",
+      "impact": "Fail closed at modelint32 limits; no claim of specified firmware modulo2^32."
+    },
+    {
+      "id": "PHYSICAL_WHEEL_DIRECTION",
+      "evidence": "VisualJoint uses+X right-hand angle. EC10E datasheet has CW phase diagram but assembled part variant/viewpoint/wiring-to-TI1/axis mapping not closed.",
+      "impact": "No automatic count-to-angle sign/count-per-revolution claim; require explicit synthetic fixture mapping."
+    },
+    {
+      "id": "BOOTLOADER_VALUE_AND_MODE",
+      "evidence": "FC reads byte at0x08000FFF; no matchedbootloader image evidence. FD01 disables I2C/timer then polls line levels and resets or recovers.",
+      "impact": "FC must identify fixture value; FD/real bootloader and persistence/reboot remain unsupported until separately modeled."
+    },
+    {
+      "id": "ADDRESS0_AND_COLLISION",
+      "evidence": "FW accepts address<128 including0. QEMU default I2C address0 is broadcast; shared dynamic collision not equivalent to physical multi-slave behavior.",
+      "impact": "Explicitly reject unsupported0/collisions and preserve old routing; do not claim full FW address domain."
+    },
+    {
+      "id": "SOURCE_MEMORY_UNDEFINED",
+      "evidence": "Fixed source copies unbounded received payload into16-byte local buffers and600-byte receive buffer has no visible bound check; Arduino int16 setter sends4 bytes fromparameter address.",
+      "impact": "Do not emulate source memory corruption; in-bounds protocol only, reject/limit overlong host inputs."
+    },
+    {
+      "id": "TX_HARDWARE_TIMING",
+      "evidence": "Callbacks prove snapshot/index semantics, not bit-exact STM32TX prefetch/NACK timing.",
+      "impact": "Finite cyclicTX is callback-level protocol coverage; actual silicon prefetch/timing remains hardware evidence."
+    },
+    {
+      "id": "NO_FUNCTIONAL_EVIDENCE",
+      "evidence": "This task read source and computed oracle only; no QEMU/guest/hardware was launched.",
+      "impact": "All oracle cases remain NOT RUN until root controller/guest/Web runs with evidence."
+    }
+  ],
+  "scope_correction_2026_10_26": "RGB controller candidate models synchronous latest-value/quiescent writes only. Vendor main.c248..266 merges the current queue slot and advances index; main.c380..386 consumes slots then resets index without clearing slot contents. Burst/cross-slot partials and LED scheduling remain model gaps."
+}

@@ -1,0 +1,106 @@
+{
+  "offset": 4753,
+  "prefix_sha256": "6130dc31e1afe99f1c8b076877e5eaa5c147b4bdc89b9dc328837d91498622cd",
+  "marker": "SCROLL_02_F35DCB1E",
+  "serial": {
+    "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+    "offset": 4753,
+    "next_offset": 6215,
+    "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_9b492927f9da4afd93488eba1a2117c1__:START\r\nSCROLL_02_F35DCB1E {\"source_count\": 123, \"ab_direction\": 0, \"kind\": \"ready\", \"expected_counter\": 123, \"phase\": \"driver-live\"}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-status-first\", \"observed\": true}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-status-second\", \"observed\": true}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-value\", \"observed\": 123}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-status-after-value\", \"observed\": false}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-increment\", \"observed\": 123}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-increment-consumed\", \"observed\": 0}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-physical-direction\", \"observed\": 1}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-ab-direction\", \"observed\": 0}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-button\", \"observed\": true}\r\nSCROLL_02_F35DCB1E {\"led_rgb\": 16711680, \"direction\": 1, \"counter\": 123, \"phase\": \"driver-live\", \"source_count\": 123, \"original_driver\": true, \"kind\": \"done\"}\r\n__M5_EXEC_9b492927f9da4afd93488eba1a2117c1__:DONE\r\n\u0004\u0004>",
+    "bytes": 1462
+  },
+  "events": [
+    {
+      "source_count": 123,
+      "ab_direction": 0,
+      "kind": "ready",
+      "expected_counter": 123,
+      "phase": "driver-live"
+    },
+    {
+      "phase": "driver-live",
+      "kind": "check",
+      "name": "live-status-first",
+      "observed": true
+    },
+    {
+      "phase": "driver-live",
+      "kind": "check",
+      "name": "live-status-second",
+      "observed": true
+    },
+    {
+      "phase": "driver-live",
+      "kind": "check",
+      "name": "live-original-value",
+      "observed": 123
+    },
+    {
+      "phase": "driver-live",
+      "kind": "check",
+      "name": "live-status-after-value",
+      "observed": false
+    },
+    {
+      "phase": "driver-live",
+      "kind": "check",
+      "name": "live-original-increment",
+      "observed": 123
+    },
+    {
+      "phase": "driver-live",
+      "kind": "check",
+      "name": "live-original-increment-consumed",
+      "observed": 0
+    },
+    {
+      "phase": "driver-live",
+      "kind": "check",
+      "name": "live-physical-direction",
+      "observed": 1
+    },
+    {
+      "phase": "driver-live",
+      "kind": "check",
+      "name": "live-ab-direction",
+      "observed": 0
+    },
+    {
+      "phase": "driver-live",
+      "kind": "check",
+      "name": "live-original-button",
+      "observed": true
+    },
+    {
+      "led_rgb": 16711680,
+      "direction": 1,
+      "counter": 123,
+      "phase": "driver-live",
+      "source_count": 123,
+      "original_driver": true,
+      "kind": "done"
+    }
+  ],
+  "state": {
+    "source-count": 123,
+    "pressed": true,
+    "counter": 123,
+    "increments": 0,
+    "direction": 1,
+    "ab-direction": 0,
+    "led-rgb": 16711680,
+    "transactions": 132,
+    "read-bytes": 182,
+    "written-bytes": 154,
+    "input-events": 3,
+    "output-transitions": 6,
+    "i2c-address": 64,
+    "source-step-limit": 32767,
+    "timer-rollover-supported": false,
+    "bootloader-supported": false,
+    "zero-address-unicast-supported": false,
+    "bootloader-requests": 0,
+    "command-errors": 1,
+    "rgb-word": 65280
+  }
+}

@@ -143,6 +143,9 @@
 | [UIFlow实时Web与四主机](evidence/2026-10-26-live-program-web-and-hosts/README.md) | 历史证据 | `2026-10-26` | 四主机×PIR/Relay八会话/40次预期提交；真实CoreS3两例Web像素、输入输出、同PID/固件替换与语法恢复；picker失败负控及13项fixture，非AIFlow/SSE/硬件结论 |
 | [同guest Unit与共享预览](evidence/2026-10-26-live-unit-preview/README.md) | 历史证据 | `2026-10-26` | 四主机限定HUB传感器/控制leaf原驱动、同guest程序替换与QEMU共享样本/ETag/304、默认fresh兼容；独立browser故障回归与真实CoreS3 PIR/Relay网页链路，非AIFlow/SSE/其它后端或硬件结论 |
 | [同guest文件包与detent事件](evidence/2026-10-26-live-package-and-detent/README.md) | 历史证据 | `2026-10-26` | 完整源码/纯字节码依赖/资源经真实UART部署、模块替换与完整性；detent位置事件fixture，不关闭整体动画或AIFlow集成 |
+| [Scroll限定控制器与真实Web](evidence/2026-10-26-scroll-controller/README.md) | 历史证据 | `2026-10-26` | 四主机同guest原驱动/快照语义、CoreS3按键/RGB/屏幕；九patch冷构建，完整轮66/67，Core2偶发marker仍OPEN；不授予RGB队列/轴角/bootloader/Flash持久化/硬件结论 |
+| [Scroll callback审计](evidence/2026-10-26-scroll-controller/build-and-audit/audit.md) | 历史证据 | `2026-10-26` | 固定内部固件callback与有条件RGB oracle；不替代任意burst或STM32完整模型 |
+| [Core2 IMU匹配A/B](evidence/2026-10-26-scroll-controller/regression/core2-imu-ab/report.md) | 历史证据 | `2026-10-26` | 原完整轮66/67保留，单例旧/新各一次绿帧不关闭偶发根因 |
 | [图片路径固定源码调查](evidence/2026-10-26-live-package-and-detent/image-path-research/audit.md) | 历史证据 | `2026-10-26` | 同guest六格bytes/路径差异与官方绑定/VFS源码；当前binary分支仍有证据边界 |
 | [显示绑定逐字节审计](evidence/2026-10-26-live-package-and-detent/image-path-research/cached-binding/audit.md) | 历史证据 | `2026-10-26` | 固定官方与缓存binding一致、boxed长度63/64分支推导，不等于binary符号级执行证明 |
 | [Encoder与8Encoder视觉绑定审计](evidence/2026-10-26-live-unit-preview/encoder-binding-research/README.md) | 历史证据 | `2026-10-26` | 固定官方电气链、物理光孔与计数资料；通道和角度映射仍缺证据，不改变生产绑定或授予动画PASS |
@@ -153,7 +156,7 @@
 | [S3 LEDC 读回与试听](evidence/2026-10-26-unit-ledc-audio-29d8/README.md)、[七层重放](evidence/2026-10-26-unit-ledc-audio-29d8/replay/README.md)、[getter独审](evidence/2026-10-26-unit-ledc-audio-29d8/replay/getter-independent-review/README.md) | 历史证据 | `2026-10-26` | 同 SHA getter/MMIO A/B、真实音频图与停止静音；完整回归66/67与独立复测分开，完整门禁仍OPEN |
 | [三主机六传感器实际证据](evidence/2026-10-26-unit-host-sensors-gen9-a8fe/README.md) | 历史证据 | `2026-10-26` | 18 个同 guest/Web 会话、原驱动负控、fresh 串口、直接 PID、三路非原子帧和保留历史；Heart 零值暂态与人工可读性分别记录 |
 | [Unit 官方协议](unit-research/official-protocols.md) | 参考依据 | `2026-10-26` | 官方芯片、驱动、物理端口、版本冲突与离线参考；不是 runtime PASS |
-| [Scroll与Roller485官方协议审计](unit-research/scroll-roller485.md) | 参考依据 | `2026-10-26` | 固定官方驱动与协议版本差异研究；仅为后续数据面实现准备，不改变visual-only或授予runtime准入 |
+| [Scroll与Roller485官方协议审计](unit-research/scroll-roller485.md) | 参考依据 | `2026-10-26` | 固定官方驱动/内部固件；Scroll独立partial模型与RGB队列/回绕/bootloader缺口，Roller485仍visual-only；来源存在不替代逐主机验证 |
 | [外壳浏览器集成证据](evidence/2026-10-26-visual-model-integration/README.md) | 历史证据 | `2026-10-26` | 固定提交的浏览器像素/输入/装配验证，不是固件或电气结论 |
 | [Encoder 协议冲突](unit-research/encoder-protocol-conflicts.md) | 参考依据 | `2026-10-26` | 官方文字与 executable driver 的按压极性冲突；保留原证据并按驱动路径验证 |
 | [Unit 首批运行证据](evidence/2026-10-26-unit-runtime/README.md) | 历史证据 | `2026-10-26` | CoreS3 Button/Relay/ENV III 同 guest 路径、固件/runtime hash、串口、画面、冻结契约与保留历史；不代表整批完成 |

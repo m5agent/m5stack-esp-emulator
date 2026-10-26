@@ -1,6 +1,6 @@
 # Scroll / Roller485 官方协议审计
 
-日期：2026-10-26。归属 `UNIT-01`。本页是实现依据，**两款仍仅视觉外壳，内部模型与功能准入未实现**。
+日期：2026-10-26。归属 `UNIT-01`。本页是实现依据。Scroll已有独立、明确部分模型的候选运行时，逐主机验证范围另记；Roller485仍只有视觉外壳，内部模型与功能准入未实现。
 不把官方驱动存在、寄存器文档或静态固件字符串称为 guest/controller PASS。
 固定来源、大小与 SHA256 见[官方来源清单](../evidence/2026-10-26-live-unit-preview/official-units/sources.json)，
 四款 reference 的[静态检查](../evidence/2026-10-26-live-unit-preview/official-units/reference-static-evidence.json)只证明模块/方法名存在，未运行这两款 Unit。
@@ -30,8 +30,8 @@ buffer长于格式大小，不能用CPython的长度异常推断驱动坏。Ardu
 int16；其setter读取int16参数地址的4字节存在源码越界风险，不应复制该内存行为。
 旧官方PDF另将多个系统寄存器误写成0xF0，并把计数描述为2字节；两种版本不可混算。
 
-未来数据面需覆盖原 `ScrollUnit` 的正负计数/低16位边界、增量快照副作用、按钮、
-RGB、reset、版本与动态地址。沿当前QEMU I2CSlave框架新增独立 `CONTROL_SCROLL`，
+Scroll数据面覆盖原 `ScrollUnit` 的正负计数/低16位边界、增量快照副作用、按钮、
+RGB、reset、版本与动态地址的限定子集。沿当前QEMU I2CSlave框架新增独立 `CONTROL_SCROLL`，
 经GPIO matrix、主机控制器及真实I2CBus执行，保留原始int32寄存器。
 
 ## Roller485
@@ -67,3 +67,24 @@ UIFlow RS485部分getter的read-command为None，不能发明额外查询命令�
 现有UART扩展入口是 `m5_unit_uart_tx()` 与实际RX FIFO/IRQ；新增帧解析不能绕过FIFO。
 
 执行队列只维护在[项目Backlog](../project-backlog.md)；本页不提供另一套优先顺序。
+
+### Scroll 当前候选的明确模型缺口
+
+RGB当前按每事务同步消费、最新值读回的静态子集实现。官方FW将写入合并到
+`rgb_color_buffer[index]`并推进index，main loop才依次显示并将index归0；
+槽内容没有被清空。因此连续burst、跨槽partial写和LED排队时序不能由当前
+latest-value模型推断。partial写探针只验证quiescent/slot0复用前提下的模型合同，
+不宣称任意合法RGB burst与STM32内部固件等价。
+
+固定源码`main.c:update_encoder`在AB反转后才加TIM wrap补偿；但同提交TIM3的
+IRQ handler/NVIC链尚未闭合，不能将理想化modulo计数冒称该固件实际行为。
+当前候选物理source-count限定[-32768,32767]，对应TIM16从0x8000起、不rollover，
+单事件差分不超过32767；逻辑count/increment的int32溢出也拒绝，不静默回绕。
+source与可写/reset的逻辑counter分开，不把寄存器操作解释成轴运动。
+
+FE版本1来自固定应用源码；FC读取的是STM32 Flash字节，缺匹配bootloader内容，
+当前不伪造版本。FD01不执行假bootloader，配置Flash持久化未实现。地址0虽为
+该FW允许值，但QEMU总线把它当broadcast并抑制读，当前变更拒绝并保留旧址；
+地址碰撞也明确拒绝。完整写完成时的callback error会增加command-errors，
+不等于已完成写帧收到wire NACK；后续read拒绝与旧地址保留需真实guest另验。
+超出官方局部缓冲区的未定义行为会有界早拒，不复制固件栈越界。

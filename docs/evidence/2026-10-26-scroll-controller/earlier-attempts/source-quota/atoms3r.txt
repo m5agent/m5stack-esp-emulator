@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/units/run_live_scroll.py", line 318, in <module>
+    main()
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/units/run_live_scroll.py", line 314, in main
+    run(args)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/units/run_live_scroll.py", line 294, in run
+    require(report['status'] == 'PASS', report.get('error') or report.get('cleanup_error') or report.get('evidence_error') or 'Scroll validation failed')
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/units/run_live_program.py", line 38, in require
+    raise RuntimeError(message)
+RuntimeError: POST sessions/8ebaf36ef29d4fcbbe17bd71eab1a223/program: HTTP 429 {"error": {"code": "program_revision_quota_exceeded", "message": "program revision count limit reached"}}

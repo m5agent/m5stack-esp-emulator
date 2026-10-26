@@ -1,0 +1,8 @@
+{
+  "classification": "PREPARATION_INFRASTRUCTURE_FAILURE",
+  "cases": 67,
+  "guest_executions": 0,
+  "cause": "runner prepended default .work/py with incompatible LittleFS ABI ahead of .work/py312; no QEMU execution reached",
+  "resolution": "explicit absolute M5_PYTHON_DEPS and PYTHONPATH to existing Python3.12 dependency directory; new output directory, same runtime",
+  "original_summary_retained": true
+}

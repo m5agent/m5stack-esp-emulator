@@ -1,0 +1,3336 @@
+{
+  "status": "PASS",
+  "schema_version": 1,
+  "captured_at": "2026-10-26T13:30:55.577798+00:00",
+  "device_id": "cores3",
+  "unit_id": "scroll",
+  "runtime": "qemu",
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "executions": {
+    "registers": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "27369f87723d43358f53c2b8f29e6240",
+        "revision_id": "3525153e841d1748faa167748d3f1b7bcdcf91a7eb26cac0e6b63198e596f652",
+        "source_sha256": "9fad8004c39d049c149b4fd41f657797318b641afbe56d36be6e609815254325",
+        "source_bytes": 4015,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:30:57.950889+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 491,
+        "next_offset": 582,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:30:59.104554+00:00"
+      },
+      "history_error": null
+    },
+    "versions": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "6c9a0915b6c7495ba38005f345f8ee06",
+        "revision_id": "c8067d84993ade20523a12da305591552cbb8e583bdd8192267126edbce12b50",
+        "source_sha256": "123c771ad1a46bbe393aa6bb1fa39e2682347703cc861d8d9050ae0cc8cd0475",
+        "source_bytes": 1941,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:30:59.116697+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 4243,
+        "next_offset": 4318,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:30:59.782299+00:00"
+      },
+      "history_error": null
+    },
+    "forward": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "9b492927f9da4afd93488eba1a2117c1",
+        "revision_id": "06e6b84918a9ad29e2bcfae54d1504612c54ce11035031eceb9b12480c848beb",
+        "source_sha256": "3e860313abceca8384b988608ec773e4146cd7eb9900cce9bb36fccde10c70fc",
+        "source_bytes": 2821,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:30:59.792902+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 4780,
+        "next_offset": 4862,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:00.706149+00:00"
+      },
+      "history_error": null
+    },
+    "backward": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "c19ad241fc4040e0bb14aede902ea9b1",
+        "revision_id": "56e5922f0875f523d751d4ea105b4a78fa78dc43e2662489f83d340646675355",
+        "source_sha256": "ebfb0d2dd1a40f186156295d5c0a336e996e7831627d43f5ef62b941879a2577",
+        "source_bytes": 2816,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:00.717542+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 6242,
+        "next_offset": 6324,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:01.643647+00:00"
+      },
+      "history_error": null
+    },
+    "reversed-ab": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "c5ae32fe8bf14e5faa67618aac3e3c3c",
+        "revision_id": "9d9904c85036d9650ccf80281d9e37bbf6da9c9615a1d0eeb22180382c9803e9",
+        "source_sha256": "1aebebeb018729ae629fe08f04a589c36e221a1c91c22465a13479ffe0519f77",
+        "source_bytes": 2811,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:01.654803+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 7702,
+        "next_offset": 7784,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:02.569652+00:00"
+      },
+      "history_error": null
+    },
+    "reset-baseline": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "05a332f891904466b59763b417841f80",
+        "revision_id": "0efadc3d5b90ee7c170683891c1074260d623368e572ec7e50aea136cc97759f",
+        "source_sha256": "591698d147ad4890a44bd9bf7adb3b2512bbcef603632eba78ee7e573a0c68c2",
+        "source_bytes": 4040,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:02.581697+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 9159,
+        "next_offset": 9251,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:03.649320+00:00"
+      },
+      "history_error": null
+    },
+    "increment-prime": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "77a99465a54040b980661b630ae99103",
+        "revision_id": "b39dd37e8fd0a07684f4beb85e7cbecf8560905e6cc5e385ea35e8e0fa44907b",
+        "source_sha256": "afad2825a0e345e175ce4dc9ba1d7450e4c79572e597696e60a1165c7e1f9e40",
+        "source_bytes": 1824,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:03.671397+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 12911,
+        "next_offset": 12985,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:04.327944+00:00"
+      },
+      "history_error": null
+    },
+    "increment-old-tx": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "3eeb54ec38654b4bb580d7eff0e75726",
+        "revision_id": "79210e019710adc02110d44dd39de34602f44376b4c3436c767ebf3faa4851f1",
+        "source_sha256": "c1a8e4bb9031666f3d7924c9387f8850aa5f87d37b04a0eb47324964c9566541",
+        "source_bytes": 1816,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:04.351848+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 13304,
+        "next_offset": 13378,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:05.001362+00:00"
+      },
+      "history_error": null
+    },
+    "increment-suffix-prime": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "36b136cec7e14b7cad1ef1767686bafe",
+        "revision_id": "319f2731a469de484304271de5a54bcaca033c71c5b282f1f097d6d3704756c2",
+        "source_sha256": "c2e65ef6e8d5919b56c92263c4a680ea2fd265464df3648957b3285fc839e004",
+        "source_bytes": 1828,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:05.013482+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 13702,
+        "next_offset": 13776,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:05.661147+00:00"
+      },
+      "history_error": null
+    },
+    "increment-suffix-old-tx": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "d2c0db09d7f546febd58b155cc2cf427",
+        "revision_id": "e2ca1417ae0fc8033b473638827941bee261fa4ee5090290bf3976ad0099b783",
+        "source_sha256": "8bf69c8255c9c7a5b82c13c31c55caabd1182638cc3bf5bc0d9e19b307129aac",
+        "source_bytes": 1816,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:05.693105+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 14097,
+        "next_offset": 14171,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:06.332148+00:00"
+      },
+      "history_error": null
+    },
+    "increment-next": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "f2332575dde74995915bb9892c2e2160",
+        "revision_id": "e93355518bd494557353cd4641aa9fe66e4b6c434f7c25aebf32d7ab23c0aa74",
+        "source_sha256": "794ec76f3cc08f6cd17ddc96d6209b62b9e85fcf886779caf9f4d0a2221ba169",
+        "source_bytes": 1836,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:06.343988+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 14495,
+        "next_offset": 14569,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:07.002494+00:00"
+      },
+      "history_error": null
+    },
+    "raw-counter": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "5cec1a440ac54b16a7de1c1ca3c5665e",
+        "revision_id": "dba994f2db6fb54373b2eeb8e214539c37a2a10915c2e8a556059deda2f5f7a7",
+        "source_sha256": "a6074589bec60439f35defffe292842f90ec26622ba452fc7ef43faa2ef0e95d",
+        "source_bytes": 1799,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:07.014744+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 14894,
+        "next_offset": 14967,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:07.648198+00:00"
+      },
+      "history_error": null
+    },
+    "counter-prime": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "96fb890680134621834eff8a3260d030",
+        "revision_id": "7be6f4a12daa081a135c746d536958fc26b37f8c3106cfe251e88099155af077",
+        "source_sha256": "31ed7142fb487cd3b437738276bff1d3d680a7cdb8c0ec56986e19fc768669a8",
+        "source_bytes": 1822,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:07.660339+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 15248,
+        "next_offset": 15322,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:08.304875+00:00"
+      },
+      "history_error": null
+    },
+    "counter-old-tx": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "0fd93e3b7396434da4cd26556b5d2e23",
+        "revision_id": "693bfc8438e664584a05f1ca68b1fea36bb4ffbfef3be7de9a06023b99c732ca",
+        "source_sha256": "a7fc1d2ae92bc40b8cd11270314de5c3214832ae1a9807f067a4a71735e70621",
+        "source_bytes": 1810,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:08.330487+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 15643,
+        "next_offset": 15719,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:09.140743+00:00"
+      },
+      "history_error": null
+    },
+    "counter-fresh": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "53a5065dabeb4a028addb991da8d33f1",
+        "revision_id": "c02b8ea723f8cc84c819b3aa0c7c7ec7fa6d1b56dfe35e572e7f5c85a028fd06",
+        "source_sha256": "b6388842ee4242be81677818169b14c81970015755f5b28715bf72d316636e2e",
+        "source_bytes": 1827,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:09.161507+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 16041,
+        "next_offset": 16115,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:09.811578+00:00"
+      },
+      "history_error": null
+    },
+    "overflow-counter": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "fd943b983e96433da62bda9690ac92e6",
+        "revision_id": "252570f667fd52d94bd5008fdcd7341e3106ec2282927e02f331794e51ab1e8e",
+        "source_sha256": "2390f119925851175d9944a272160ec91133d3c804d7195f7247d8bdd34bbb0a",
+        "source_bytes": 1802,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:09.857838+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 16440,
+        "next_offset": 16514,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:10.503297+00:00"
+      },
+      "history_error": null
+    },
+    "restore-after-overflow": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "b515a2c4aa8b4363b5a3825c2fd9ad73",
+        "revision_id": "b11af732b07980d31c0191815ec37e00e4cfb634d7310b50294f5d03956d10d8",
+        "source_sha256": "40f329b9f69a400856549bbc1d8133524277df10a497865bcea4f109091a0c92",
+        "source_bytes": 4040,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:10.544759+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 16797,
+        "next_offset": 16891,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:11.670388+00:00"
+      },
+      "history_error": null
+    },
+    "address-change": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "6e9c77d644c34735bc1f831a1c73de1f",
+        "revision_id": "7581e90323af1336b5731edaa29d94c5695ae9387e76715f7133c997802acb05",
+        "source_sha256": "2b644501c55b8704785b061ddb6f2fda49913e25752224dbf8a9fc9541a80f87",
+        "source_bytes": 2033,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:11.683583+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 20549,
+        "next_offset": 20624,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:12.389565+00:00"
+      },
+      "history_error": null
+    },
+    "address-restore": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "90aa526b03e4424793843c130695f61e",
+        "revision_id": "51f6dc5b1b118c4d6e205f8ee845020c10d8d234c1f5b92b06c39aa04077cd79",
+        "source_sha256": "cf7e6d39033d803b46e5ba2a301639922af27680e1c416f767d0b0cae27a2330",
+        "source_bytes": 1914,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:12.420088+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 21204,
+        "next_offset": 21278,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:13.082976+00:00"
+      },
+      "history_error": null
+    },
+    "address-zero-gap": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "7ee01dfb91294a1b98a09261ad90913a",
+        "revision_id": "99c2700e5fb450f26341d35d7daad6b80f25cf6de6597514f4d62f318576899e",
+        "source_sha256": "a77e7db703751835253717975c40091dc2cfdfa56a077393be34d1953f89ed0a",
+        "source_bytes": 2042,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:13.102229+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 21704,
+        "next_offset": 21780,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:13.786754+00:00"
+      },
+      "history_error": null
+    },
+    "bootloader-gap": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "c87425356d1a45a88b8f65e94edbe19e",
+        "revision_id": "13c09a5b373e8517128d2073dcdfcef5f09e022a366697e355a85a1ed997eaac",
+        "source_sha256": "769e78b6215e70fdc28007aab8faa912d8ad7f2894ddad7b63f4fe96cd6932bb",
+        "source_bytes": 1885,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:13.806604+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 22368,
+        "next_offset": 22444,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:14.553176+00:00"
+      },
+      "history_error": null
+    },
+    "final-recovery": {
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "173b57939559434d9a199daff7be6c81",
+        "revision_id": "03aca68e0919ef899ce1d8daa56f42eb509d08af76b27cd05f1aef55e427b328",
+        "source_sha256": "5258e83e615b8b0dbcf225212689acfa70eea1bf8e71b387b52c479f59ad729c",
+        "source_bytes": 4260,
+        "state": "completed",
+        "submitted_at": "2026-10-26T13:31:14.590838+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 53469,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 22895,
+        "next_offset": 22989,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T13:31:15.769859+00:00"
+      },
+      "history_error": null
+    }
+  },
+  "observations": {
+    "registers": {
+      "offset": 444,
+      "prefix_sha256": "c9ec51b90fed446b458e9981f80671c5e4cc4b59e39724224ff3cbfb0b4a69c6",
+      "marker": "SCROLL_00_625FCA7B",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 444,
+        "next_offset": 4216,
+        "data": "\r\n>>> \r\n>>> \r\n>>> \r\nraw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_27369f87723d43358f53c2b8f29e6240__:START\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"constructor-reset\", \"observed\": 0}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-initial\", \"observed\": false}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16\", \"observed\": 22136}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"partial-counter-write\", \"observed\": 305441656}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"partial-original-low16\", \"observed\": -21640}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"count-write-no-increment\", \"observed\": 0}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"finite-short-read\", \"observed\": \"5634\"}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"finite-continuation-after-stop\", \"observed\": \"12563412\"}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"unknown-pointer-preserves-tx\", \"observed\": \"56341256\"}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"reset-preserves-old-tx\", \"observed\": \"05000000\"}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"reset-clears-counter\", \"observed\": 0}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-0\", \"observed\": 0}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-1\", \"observed\": 1}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16--1\", \"observed\": -1}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-32767\", \"observed\": 32767}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-32768\", \"observed\": -32768}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-65535\", \"observed\": -1}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-65536\", \"observed\": 0}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16--32769\", \"observed\": 32767}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-first\", \"observed\": true}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-query-does-not-consume\", \"observed\": true}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"value-consumes-status\", \"observed\": 1}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-after-value\", \"observed\": false}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-software-offset\", \"observed\": 107}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-no-register-write\", \"observed\": 100}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-no-int16-truncation\", \"observed\": 70000}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"rgb-word-finite-tx\", \"observed\": \"001234560012\"}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"rgb-partial-quiescent-model\", \"observed\": \"12ab56\"}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"fb-nonzero-normalized\", \"observed\": \"010101\"}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-button\", \"observed\": false}\r\nSCROLL_00_625FCA7B {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-firmware-version-string\", \"observed\": \"1\"}\r\nSCROLL_00_625FCA7B {\"original_driver\": true, \"led_rgb\": 1193046, \"kind\": \"done\", \"phase\": \"registers\", \"counter\": 0}\r\n__M5_EXEC_27369f87723d43358f53c2b8f29e6240__:DONE\r\n\u0004\u0004>",
+        "bytes": 3772
+      },
+      "events": [
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "constructor-reset",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-initial",
+          "observed": false
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16",
+          "observed": 22136
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "partial-counter-write",
+          "observed": 305441656
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "partial-original-low16",
+          "observed": -21640
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "count-write-no-increment",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "finite-short-read",
+          "observed": "5634"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "finite-continuation-after-stop",
+          "observed": "12563412"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "unknown-pointer-preserves-tx",
+          "observed": "56341256"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "reset-preserves-old-tx",
+          "observed": "05000000"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "reset-clears-counter",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-0",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-1",
+          "observed": 1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16--1",
+          "observed": -1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-32767",
+          "observed": 32767
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-32768",
+          "observed": -32768
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-65535",
+          "observed": -1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-65536",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16--32769",
+          "observed": 32767
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-first",
+          "observed": true
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-query-does-not-consume",
+          "observed": true
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "value-consumes-status",
+          "observed": 1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-after-value",
+          "observed": false
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "setter-software-offset",
+          "observed": 107
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "setter-no-register-write",
+          "observed": 100
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "setter-no-int16-truncation",
+          "observed": 70000
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "rgb-word-finite-tx",
+          "observed": "001234560012"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "rgb-partial-quiescent-model",
+          "observed": "12ab56"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "fb-nonzero-normalized",
+          "observed": "010101"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-button",
+          "observed": false
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-firmware-version-string",
+          "observed": "1"
+        },
+        {
+          "original_driver": true,
+          "led_rgb": 1193046,
+          "kind": "done",
+          "phase": "registers",
+          "counter": 0
+        }
+      ],
+      "state": {
+        "source-count": 0,
+        "pressed": false,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 90,
+        "read-bytes": 125,
+        "written-bytes": 126,
+        "input-events": 1,
+        "output-transitions": 5,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 0,
+        "rgb-word": 1446253056
+      }
+    },
+    "versions": {
+      "offset": 4216,
+      "prefix_sha256": "d031b29d1af97243cc06f418cd5e107607f61c3ee72b59ba87f8b3b4cbbe1ddc",
+      "marker": "SCROLL_01_93163C08",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 4216,
+        "next_offset": 4753,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_6c9a0915b6c7495ba38005f345f8ee06__:START\r\nSCROLL_01_93163C08 {\"phase\": \"versions\", \"kind\": \"check\", \"name\": \"original-firmware-version-string\", \"observed\": \"1\"}\r\nSCROLL_01_93163C08 {\"name\": \"bootloader-version-no-fixture\", \"phase\": \"versions\", \"details\": \"259\", \"kind\": \"unsupported\", \"exception\": \"OSError\"}\r\nSCROLL_01_93163C08 {\"bootloader_fixture\": null, \"firmware_version\": \"1\", \"kind\": \"done\", \"phase\": \"versions\"}\r\n__M5_EXEC_6c9a0915b6c7495ba38005f345f8ee06__:DONE\r\n\u0004\u0004>",
+        "bytes": 537
+      },
+      "events": [
+        {
+          "phase": "versions",
+          "kind": "check",
+          "name": "original-firmware-version-string",
+          "observed": "1"
+        },
+        {
+          "name": "bootloader-version-no-fixture",
+          "phase": "versions",
+          "details": "259",
+          "kind": "unsupported",
+          "exception": "OSError"
+        },
+        {
+          "bootloader_fixture": null,
+          "firmware_version": "1",
+          "kind": "done",
+          "phase": "versions"
+        }
+      ],
+      "state": {
+        "source-count": 0,
+        "pressed": false,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 98,
+        "read-bytes": 130,
+        "written-bytes": 131,
+        "input-events": 1,
+        "output-transitions": 5,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "forward": {
+      "offset": 4753,
+      "prefix_sha256": "6130dc31e1afe99f1c8b076877e5eaa5c147b4bdc89b9dc328837d91498622cd",
+      "marker": "SCROLL_02_F35DCB1E",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 4753,
+        "next_offset": 6215,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_9b492927f9da4afd93488eba1a2117c1__:START\r\nSCROLL_02_F35DCB1E {\"source_count\": 123, \"ab_direction\": 0, \"kind\": \"ready\", \"expected_counter\": 123, \"phase\": \"driver-live\"}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-status-first\", \"observed\": true}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-status-second\", \"observed\": true}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-value\", \"observed\": 123}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-status-after-value\", \"observed\": false}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-increment\", \"observed\": 123}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-increment-consumed\", \"observed\": 0}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-physical-direction\", \"observed\": 1}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-ab-direction\", \"observed\": 0}\r\nSCROLL_02_F35DCB1E {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-button\", \"observed\": true}\r\nSCROLL_02_F35DCB1E {\"led_rgb\": 16711680, \"direction\": 1, \"counter\": 123, \"phase\": \"driver-live\", \"source_count\": 123, \"original_driver\": true, \"kind\": \"done\"}\r\n__M5_EXEC_9b492927f9da4afd93488eba1a2117c1__:DONE\r\n\u0004\u0004>",
+        "bytes": 1462
+      },
+      "events": [
+        {
+          "source_count": 123,
+          "ab_direction": 0,
+          "kind": "ready",
+          "expected_counter": 123,
+          "phase": "driver-live"
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-status-first",
+          "observed": true
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-status-second",
+          "observed": true
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-original-value",
+          "observed": 123
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-status-after-value",
+          "observed": false
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-original-increment",
+          "observed": 123
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-original-increment-consumed",
+          "observed": 0
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-physical-direction",
+          "observed": 1
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-ab-direction",
+          "observed": 0
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-original-button",
+          "observed": true
+        },
+        {
+          "led_rgb": 16711680,
+          "direction": 1,
+          "counter": 123,
+          "phase": "driver-live",
+          "source_count": 123,
+          "original_driver": true,
+          "kind": "done"
+        }
+      ],
+      "state": {
+        "source-count": 123,
+        "pressed": true,
+        "counter": 123,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 16711680,
+        "transactions": 132,
+        "read-bytes": 182,
+        "written-bytes": 154,
+        "input-events": 3,
+        "output-transitions": 6,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 65280
+      }
+    },
+    "backward": {
+      "offset": 6215,
+      "prefix_sha256": "5481305280729855286a816f251e0c0c510222d87340b58b53eecf55452d3306",
+      "marker": "SCROLL_03_27286186",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 6215,
+        "next_offset": 7675,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_c19ad241fc4040e0bb14aede902ea9b1__:START\r\nSCROLL_03_27286186 {\"source_count\": 100, \"ab_direction\": 0, \"kind\": \"ready\", \"expected_counter\": -23, \"phase\": \"driver-live\"}\r\nSCROLL_03_27286186 {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-status-first\", \"observed\": true}\r\nSCROLL_03_27286186 {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-status-second\", \"observed\": true}\r\nSCROLL_03_27286186 {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-value\", \"observed\": -23}\r\nSCROLL_03_27286186 {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-status-after-value\", \"observed\": false}\r\nSCROLL_03_27286186 {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-increment\", \"observed\": -23}\r\nSCROLL_03_27286186 {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-increment-consumed\", \"observed\": 0}\r\nSCROLL_03_27286186 {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-physical-direction\", \"observed\": 0}\r\nSCROLL_03_27286186 {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-ab-direction\", \"observed\": 0}\r\nSCROLL_03_27286186 {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-button\", \"observed\": false}\r\nSCROLL_03_27286186 {\"led_rgb\": 65280, \"direction\": 0, \"counter\": -23, \"phase\": \"driver-live\", \"source_count\": 100, \"original_driver\": true, \"kind\": \"done\"}\r\n__M5_EXEC_c19ad241fc4040e0bb14aede902ea9b1__:DONE\r\n\u0004\u0004>",
+        "bytes": 1460
+      },
+      "events": [
+        {
+          "source_count": 100,
+          "ab_direction": 0,
+          "kind": "ready",
+          "expected_counter": -23,
+          "phase": "driver-live"
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-status-first",
+          "observed": true
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-status-second",
+          "observed": true
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-original-value",
+          "observed": -23
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-status-after-value",
+          "observed": false
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-original-increment",
+          "observed": -23
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-original-increment-consumed",
+          "observed": 0
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-physical-direction",
+          "observed": 0
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-ab-direction",
+          "observed": 0
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-original-button",
+          "observed": false
+        },
+        {
+          "led_rgb": 65280,
+          "direction": 0,
+          "counter": -23,
+          "phase": "driver-live",
+          "source_count": 100,
+          "original_driver": true,
+          "kind": "done"
+        }
+      ],
+      "state": {
+        "source-count": 100,
+        "pressed": false,
+        "counter": -23,
+        "increments": 0,
+        "direction": 0,
+        "ab-direction": 0,
+        "led-rgb": 65280,
+        "transactions": 166,
+        "read-bytes": 234,
+        "written-bytes": 177,
+        "input-events": 5,
+        "output-transitions": 7,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 16711680
+      }
+    },
+    "reversed-ab": {
+      "offset": 7675,
+      "prefix_sha256": "1c5cc8c896fa0ad136d01904d13f58d4c949c7ea13bbc5a0ad2f4b0deabe6bda",
+      "marker": "SCROLL_04_DEADEA9C",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 7675,
+        "next_offset": 9132,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_c5ae32fe8bf14e5faa67618aac3e3c3c__:START\r\nSCROLL_04_DEADEA9C {\"source_count\": 110, \"ab_direction\": 1, \"kind\": \"ready\", \"expected_counter\": -10, \"phase\": \"driver-live\"}\r\nSCROLL_04_DEADEA9C {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-status-first\", \"observed\": true}\r\nSCROLL_04_DEADEA9C {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-status-second\", \"observed\": true}\r\nSCROLL_04_DEADEA9C {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-value\", \"observed\": -10}\r\nSCROLL_04_DEADEA9C {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-status-after-value\", \"observed\": false}\r\nSCROLL_04_DEADEA9C {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-increment\", \"observed\": -10}\r\nSCROLL_04_DEADEA9C {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-increment-consumed\", \"observed\": 0}\r\nSCROLL_04_DEADEA9C {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-physical-direction\", \"observed\": 1}\r\nSCROLL_04_DEADEA9C {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-ab-direction\", \"observed\": 1}\r\nSCROLL_04_DEADEA9C {\"phase\": \"driver-live\", \"kind\": \"check\", \"name\": \"live-original-button\", \"observed\": true}\r\nSCROLL_04_DEADEA9C {\"led_rgb\": 255, \"direction\": 1, \"counter\": -10, \"phase\": \"driver-live\", \"source_count\": 110, \"original_driver\": true, \"kind\": \"done\"}\r\n__M5_EXEC_c5ae32fe8bf14e5faa67618aac3e3c3c__:DONE\r\n\u0004\u0004>",
+        "bytes": 1457
+      },
+      "events": [
+        {
+          "source_count": 110,
+          "ab_direction": 1,
+          "kind": "ready",
+          "expected_counter": -10,
+          "phase": "driver-live"
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-status-first",
+          "observed": true
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-status-second",
+          "observed": true
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-original-value",
+          "observed": -10
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-status-after-value",
+          "observed": false
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-original-increment",
+          "observed": -10
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-original-increment-consumed",
+          "observed": 0
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-physical-direction",
+          "observed": 1
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-ab-direction",
+          "observed": 1
+        },
+        {
+          "phase": "driver-live",
+          "kind": "check",
+          "name": "live-original-button",
+          "observed": true
+        },
+        {
+          "led_rgb": 255,
+          "direction": 1,
+          "counter": -10,
+          "phase": "driver-live",
+          "source_count": 110,
+          "original_driver": true,
+          "kind": "done"
+        }
+      ],
+      "state": {
+        "source-count": 110,
+        "pressed": true,
+        "counter": -10,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 1,
+        "led-rgb": 255,
+        "transactions": 200,
+        "read-bytes": 286,
+        "written-bytes": 200,
+        "input-events": 7,
+        "output-transitions": 9,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 4278190080
+      }
+    },
+    "reset-baseline": {
+      "offset": 9132,
+      "prefix_sha256": "f3683bdced6e198e1d7f31f56133b495ed764d43d00369acc9e5d59d6d8fc622",
+      "marker": "SCROLL_05_4AAAE7C0",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 9132,
+        "next_offset": 12884,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_05a332f891904466b59763b417841f80__:START\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"constructor-reset\", \"observed\": 0}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-initial\", \"observed\": false}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16\", \"observed\": 22136}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"partial-counter-write\", \"observed\": 305441656}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"partial-original-low16\", \"observed\": -21640}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"count-write-no-increment\", \"observed\": 0}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"finite-short-read\", \"observed\": \"5634\"}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"finite-continuation-after-stop\", \"observed\": \"12563412\"}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"unknown-pointer-preserves-tx\", \"observed\": \"56341256\"}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"reset-preserves-old-tx\", \"observed\": \"05000000\"}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"reset-clears-counter\", \"observed\": 0}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-0\", \"observed\": 0}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-1\", \"observed\": 1}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16--1\", \"observed\": -1}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-32767\", \"observed\": 32767}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-32768\", \"observed\": -32768}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-65535\", \"observed\": -1}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-65536\", \"observed\": 0}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16--32769\", \"observed\": 32767}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-first\", \"observed\": true}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-query-does-not-consume\", \"observed\": true}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"value-consumes-status\", \"observed\": 1}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-after-value\", \"observed\": false}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-software-offset\", \"observed\": 107}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-no-register-write\", \"observed\": 100}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-no-int16-truncation\", \"observed\": 70000}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"rgb-word-finite-tx\", \"observed\": \"001234560012\"}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"rgb-partial-quiescent-model\", \"observed\": \"12ab56\"}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"fb-nonzero-normalized\", \"observed\": \"010101\"}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-button\", \"observed\": true}\r\nSCROLL_05_4AAAE7C0 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-firmware-version-string\", \"observed\": \"1\"}\r\nSCROLL_05_4AAAE7C0 {\"original_driver\": true, \"led_rgb\": 1193046, \"kind\": \"done\", \"phase\": \"registers\", \"counter\": 0}\r\n__M5_EXEC_05a332f891904466b59763b417841f80__:DONE\r\n\u0004\u0004>",
+        "bytes": 3752
+      },
+      "events": [
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "constructor-reset",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-initial",
+          "observed": false
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16",
+          "observed": 22136
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "partial-counter-write",
+          "observed": 305441656
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "partial-original-low16",
+          "observed": -21640
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "count-write-no-increment",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "finite-short-read",
+          "observed": "5634"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "finite-continuation-after-stop",
+          "observed": "12563412"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "unknown-pointer-preserves-tx",
+          "observed": "56341256"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "reset-preserves-old-tx",
+          "observed": "05000000"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "reset-clears-counter",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-0",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-1",
+          "observed": 1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16--1",
+          "observed": -1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-32767",
+          "observed": 32767
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-32768",
+          "observed": -32768
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-65535",
+          "observed": -1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-65536",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16--32769",
+          "observed": 32767
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-first",
+          "observed": true
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-query-does-not-consume",
+          "observed": true
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "value-consumes-status",
+          "observed": 1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-after-value",
+          "observed": false
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "setter-software-offset",
+          "observed": 107
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "setter-no-register-write",
+          "observed": 100
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "setter-no-int16-truncation",
+          "observed": 70000
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "rgb-word-finite-tx",
+          "observed": "001234560012"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "rgb-partial-quiescent-model",
+          "observed": "12ab56"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "fb-nonzero-normalized",
+          "observed": "010101"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-button",
+          "observed": true
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-firmware-version-string",
+          "observed": "1"
+        },
+        {
+          "original_driver": true,
+          "led_rgb": 1193046,
+          "kind": "done",
+          "phase": "registers",
+          "counter": 0
+        }
+      ],
+      "state": {
+        "source-count": 110,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 290,
+        "read-bytes": 411,
+        "written-bytes": 326,
+        "input-events": 7,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "increment-prime": {
+      "offset": 12884,
+      "prefix_sha256": "a00a332e4fbec6bf2cbe92b1aeef0ee1ef9a7071027e5a3cd5434fa0e6bdcf21",
+      "marker": "SCROLL_06_7E1E485F",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 12884,
+        "next_offset": 13277,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_77a99465a54040b980661b630ae99103__:START\r\nSCROLL_06_7E1E485F {\"phase\": \"snapshot-prime\", \"kind\": \"check\", \"name\": \"snapshot-read-0\", \"observed\": \"05\"}\r\nSCROLL_06_7E1E485F {\"register\": 80, \"pointer_written\": true, \"kind\": \"done\", \"phase\": \"snapshot-prime\", \"read_lengths\": [1]}\r\n__M5_EXEC_77a99465a54040b980661b630ae99103__:DONE\r\n\u0004\u0004>",
+        "bytes": 393
+      },
+      "events": [
+        {
+          "phase": "snapshot-prime",
+          "kind": "check",
+          "name": "snapshot-read-0",
+          "observed": "05"
+        },
+        {
+          "register": 80,
+          "pointer_written": true,
+          "kind": "done",
+          "phase": "snapshot-prime",
+          "read_lengths": [
+            1
+          ]
+        }
+      ],
+      "state": {
+        "source-count": 115,
+        "pressed": true,
+        "counter": 5,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 292,
+        "read-bytes": 412,
+        "written-bytes": 327,
+        "input-events": 8,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "increment-old-tx": {
+      "offset": 13277,
+      "prefix_sha256": "898dbef79a338270fb1b75452770f45595bf667b447f0a5f5dd4443da08641e1",
+      "marker": "SCROLL_07_F8E82951",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 13277,
+        "next_offset": 13675,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_3eeb54ec38654b4bb580d7eff0e75726__:START\r\nSCROLL_07_F8E82951 {\"phase\": \"snapshot-read\", \"kind\": \"check\", \"name\": \"snapshot-read-0\", \"observed\": \"00000005\"}\r\nSCROLL_07_F8E82951 {\"register\": 17, \"pointer_written\": false, \"kind\": \"done\", \"phase\": \"snapshot-read\", \"read_lengths\": [4]}\r\n__M5_EXEC_3eeb54ec38654b4bb580d7eff0e75726__:DONE\r\n\u0004\u0004>",
+        "bytes": 398
+      },
+      "events": [
+        {
+          "phase": "snapshot-read",
+          "kind": "check",
+          "name": "snapshot-read-0",
+          "observed": "00000005"
+        },
+        {
+          "register": 17,
+          "pointer_written": false,
+          "kind": "done",
+          "phase": "snapshot-read",
+          "read_lengths": [
+            4
+          ]
+        }
+      ],
+      "state": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 7,
+        "increments": 2,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 293,
+        "read-bytes": 416,
+        "written-bytes": 327,
+        "input-events": 9,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "increment-suffix-prime": {
+      "offset": 13675,
+      "prefix_sha256": "c8937ae6a6fb2a17855c53c4fd88853728724af1ca5b3fb0f5feed4d215f80cd",
+      "marker": "SCROLL_08_CF4CEB64",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 13675,
+        "next_offset": 14070,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_36b136cec7e14b7cad1ef1767686bafe__:START\r\nSCROLL_08_CF4CEB64 {\"phase\": \"snapshot-prime\", \"kind\": \"check\", \"name\": \"snapshot-read-0\", \"observed\": \"0000\"}\r\nSCROLL_08_CF4CEB64 {\"register\": 81, \"pointer_written\": true, \"kind\": \"done\", \"phase\": \"snapshot-prime\", \"read_lengths\": [2]}\r\n__M5_EXEC_36b136cec7e14b7cad1ef1767686bafe__:DONE\r\n\u0004\u0004>",
+        "bytes": 395
+      },
+      "events": [
+        {
+          "phase": "snapshot-prime",
+          "kind": "check",
+          "name": "snapshot-read-0",
+          "observed": "0000"
+        },
+        {
+          "register": 81,
+          "pointer_written": true,
+          "kind": "done",
+          "phase": "snapshot-prime",
+          "read_lengths": [
+            2
+          ]
+        }
+      ],
+      "state": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 7,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 295,
+        "read-bytes": 418,
+        "written-bytes": 328,
+        "input-events": 9,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "increment-suffix-old-tx": {
+      "offset": 14070,
+      "prefix_sha256": "06c3dec014b6c57e87d2a8c79d2c53b4ab2218d12c2b29762fb8733f475c6d78",
+      "marker": "SCROLL_09_8AB5426A",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 14070,
+        "next_offset": 14468,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_d2c0db09d7f546febd58b155cc2cf427__:START\r\nSCROLL_09_8AB5426A {\"phase\": \"snapshot-read\", \"kind\": \"check\", \"name\": \"snapshot-read-0\", \"observed\": \"00000000\"}\r\nSCROLL_09_8AB5426A {\"register\": 17, \"pointer_written\": false, \"kind\": \"done\", \"phase\": \"snapshot-read\", \"read_lengths\": [4]}\r\n__M5_EXEC_d2c0db09d7f546febd58b155cc2cf427__:DONE\r\n\u0004\u0004>",
+        "bytes": 398
+      },
+      "events": [
+        {
+          "phase": "snapshot-read",
+          "kind": "check",
+          "name": "snapshot-read-0",
+          "observed": "00000000"
+        },
+        {
+          "register": 17,
+          "pointer_written": false,
+          "kind": "done",
+          "phase": "snapshot-read",
+          "read_lengths": [
+            4
+          ]
+        }
+      ],
+      "state": {
+        "source-count": 116,
+        "pressed": true,
+        "counter": 6,
+        "increments": -1,
+        "direction": 0,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 296,
+        "read-bytes": 422,
+        "written-bytes": 328,
+        "input-events": 10,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "increment-next": {
+      "offset": 14468,
+      "prefix_sha256": "ae0be68ce4dd7f5360a0923491318dec2591aaa2f9e2249193fd5b1a63c1f3b7",
+      "marker": "SCROLL_10_AE6C944E",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 14468,
+        "next_offset": 14867,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_f2332575dde74995915bb9892c2e2160__:START\r\nSCROLL_10_AE6C944E {\"phase\": \"snapshot-prime\", \"kind\": \"check\", \"name\": \"snapshot-read-0\", \"observed\": \"ffffffff\"}\r\nSCROLL_10_AE6C944E {\"register\": 80, \"pointer_written\": true, \"kind\": \"done\", \"phase\": \"snapshot-prime\", \"read_lengths\": [4]}\r\n__M5_EXEC_f2332575dde74995915bb9892c2e2160__:DONE\r\n\u0004\u0004>",
+        "bytes": 399
+      },
+      "events": [
+        {
+          "phase": "snapshot-prime",
+          "kind": "check",
+          "name": "snapshot-read-0",
+          "observed": "ffffffff"
+        },
+        {
+          "register": 80,
+          "pointer_written": true,
+          "kind": "done",
+          "phase": "snapshot-prime",
+          "read_lengths": [
+            4
+          ]
+        }
+      ],
+      "state": {
+        "source-count": 116,
+        "pressed": true,
+        "counter": 6,
+        "increments": 0,
+        "direction": 0,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 298,
+        "read-bytes": 426,
+        "written-bytes": 329,
+        "input-events": 10,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "raw-counter": {
+      "offset": 14867,
+      "prefix_sha256": "432ec53be90aeae4eb04dd3852147b1b54232110a8a1a056e38deef3b892f2d9",
+      "marker": "SCROLL_11_0196F446",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 14867,
+        "next_offset": 15221,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_5cec1a440ac54b16a7de1c1ca3c5665e__:START\r\nSCROLL_11_0196F446 {\"phase\": \"set-counter\", \"kind\": \"check\", \"name\": \"raw-count-prepared\", \"observed\": 305419896}\r\nSCROLL_11_0196F446 {\"kind\": \"done\", \"counter\": 305419896, \"phase\": \"set-counter\"}\r\n__M5_EXEC_5cec1a440ac54b16a7de1c1ca3c5665e__:DONE\r\n\u0004\u0004>",
+        "bytes": 354
+      },
+      "events": [
+        {
+          "phase": "set-counter",
+          "kind": "check",
+          "name": "raw-count-prepared",
+          "observed": 305419896
+        },
+        {
+          "kind": "done",
+          "counter": 305419896,
+          "phase": "set-counter"
+        }
+      ],
+      "state": {
+        "source-count": 116,
+        "pressed": true,
+        "counter": 305419896,
+        "increments": 0,
+        "direction": 0,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 301,
+        "read-bytes": 430,
+        "written-bytes": 335,
+        "input-events": 10,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "counter-prime": {
+      "offset": 15221,
+      "prefix_sha256": "21749555367695a613d9225080f40ee725b44f6137630cc4d79e71d72c7c6b33",
+      "marker": "SCROLL_12_B7286C43",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 15221,
+        "next_offset": 15616,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_96fb890680134621834eff8a3260d030__:START\r\nSCROLL_12_B7286C43 {\"phase\": \"snapshot-prime\", \"kind\": \"check\", \"name\": \"snapshot-read-0\", \"observed\": \"5634\"}\r\nSCROLL_12_B7286C43 {\"register\": 17, \"pointer_written\": true, \"kind\": \"done\", \"phase\": \"snapshot-prime\", \"read_lengths\": [2]}\r\n__M5_EXEC_96fb890680134621834eff8a3260d030__:DONE\r\n\u0004\u0004>",
+        "bytes": 395
+      },
+      "events": [
+        {
+          "phase": "snapshot-prime",
+          "kind": "check",
+          "name": "snapshot-read-0",
+          "observed": "5634"
+        },
+        {
+          "register": 17,
+          "pointer_written": true,
+          "kind": "done",
+          "phase": "snapshot-prime",
+          "read_lengths": [
+            2
+          ]
+        }
+      ],
+      "state": {
+        "source-count": 116,
+        "pressed": true,
+        "counter": 305419896,
+        "increments": 0,
+        "direction": 0,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 303,
+        "read-bytes": 432,
+        "written-bytes": 336,
+        "input-events": 10,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "counter-old-tx": {
+      "offset": 15616,
+      "prefix_sha256": "5e283a0404fd7b03d6652d27ca6196f712166c2bae31424884c16afa5710005f",
+      "marker": "SCROLL_13_33E6AAA0",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 15616,
+        "next_offset": 16014,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_0fd93e3b7396434da4cd26556b5d2e23__:START\r\nSCROLL_13_33E6AAA0 {\"phase\": \"snapshot-read\", \"kind\": \"check\", \"name\": \"snapshot-read-0\", \"observed\": \"12563412\"}\r\nSCROLL_13_33E6AAA0 {\"register\": 17, \"pointer_written\": false, \"kind\": \"done\", \"phase\": \"snapshot-read\", \"read_lengths\": [4]}\r\n__M5_EXEC_0fd93e3b7396434da4cd26556b5d2e23__:DONE\r\n\u0004\u0004>",
+        "bytes": 398
+      },
+      "events": [
+        {
+          "phase": "snapshot-read",
+          "kind": "check",
+          "name": "snapshot-read-0",
+          "observed": "12563412"
+        },
+        {
+          "register": 17,
+          "pointer_written": false,
+          "kind": "done",
+          "phase": "snapshot-read",
+          "read_lengths": [
+            4
+          ]
+        }
+      ],
+      "state": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 305419897,
+        "increments": 1,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 304,
+        "read-bytes": 436,
+        "written-bytes": 336,
+        "input-events": 11,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "counter-fresh": {
+      "offset": 16014,
+      "prefix_sha256": "317e8f82f92f091ea4871edf5d08eb513f562e2777aa511f3efcd750cf8c1a27",
+      "marker": "SCROLL_14_DCAC7C8E",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 16014,
+        "next_offset": 16413,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_53a5065dabeb4a028addb991da8d33f1__:START\r\nSCROLL_14_DCAC7C8E {\"phase\": \"snapshot-prime\", \"kind\": \"check\", \"name\": \"snapshot-read-0\", \"observed\": \"79563412\"}\r\nSCROLL_14_DCAC7C8E {\"register\": 16, \"pointer_written\": true, \"kind\": \"done\", \"phase\": \"snapshot-prime\", \"read_lengths\": [4]}\r\n__M5_EXEC_53a5065dabeb4a028addb991da8d33f1__:DONE\r\n\u0004\u0004>",
+        "bytes": 399
+      },
+      "events": [
+        {
+          "phase": "snapshot-prime",
+          "kind": "check",
+          "name": "snapshot-read-0",
+          "observed": "79563412"
+        },
+        {
+          "register": 16,
+          "pointer_written": true,
+          "kind": "done",
+          "phase": "snapshot-prime",
+          "read_lengths": [
+            4
+          ]
+        }
+      ],
+      "state": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 305419897,
+        "increments": 1,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 306,
+        "read-bytes": 440,
+        "written-bytes": 337,
+        "input-events": 11,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "overflow-counter": {
+      "offset": 16413,
+      "prefix_sha256": "0133269d01905c6fb2831b9d2e5020c48f4ddaeb79530b6b4bd4fea9827f8fd4",
+      "marker": "SCROLL_15_2F3AFE28",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 16413,
+        "next_offset": 16770,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_fd943b983e96433da62bda9690ac92e6__:START\r\nSCROLL_15_2F3AFE28 {\"phase\": \"set-counter\", \"kind\": \"check\", \"name\": \"raw-count-prepared\", \"observed\": 2147483647}\r\nSCROLL_15_2F3AFE28 {\"kind\": \"done\", \"counter\": 2147483647, \"phase\": \"set-counter\"}\r\n__M5_EXEC_fd943b983e96433da62bda9690ac92e6__:DONE\r\n\u0004\u0004>",
+        "bytes": 357
+      },
+      "events": [
+        {
+          "phase": "set-counter",
+          "kind": "check",
+          "name": "raw-count-prepared",
+          "observed": 2147483647
+        },
+        {
+          "kind": "done",
+          "counter": 2147483647,
+          "phase": "set-counter"
+        }
+      ],
+      "state": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 2147483647,
+        "increments": 1,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 309,
+        "read-bytes": 444,
+        "written-bytes": 343,
+        "input-events": 11,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "restore-after-overflow": {
+      "offset": 16770,
+      "prefix_sha256": "d6c3750566ce5c8e17bef2f4dfaaa4dd4ff2c241fbb759f368919e038df86a0b",
+      "marker": "SCROLL_16_53B2B063",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 16770,
+        "next_offset": 20522,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_b515a2c4aa8b4363b5a3825c2fd9ad73__:START\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"constructor-reset\", \"observed\": 0}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-initial\", \"observed\": false}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16\", \"observed\": 22136}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"partial-counter-write\", \"observed\": 305441656}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"partial-original-low16\", \"observed\": -21640}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"count-write-no-increment\", \"observed\": 0}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"finite-short-read\", \"observed\": \"5634\"}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"finite-continuation-after-stop\", \"observed\": \"12563412\"}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"unknown-pointer-preserves-tx\", \"observed\": \"56341256\"}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"reset-preserves-old-tx\", \"observed\": \"05000000\"}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"reset-clears-counter\", \"observed\": 0}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-0\", \"observed\": 0}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-1\", \"observed\": 1}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16--1\", \"observed\": -1}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-32767\", \"observed\": 32767}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-32768\", \"observed\": -32768}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-65535\", \"observed\": -1}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-65536\", \"observed\": 0}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16--32769\", \"observed\": 32767}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-first\", \"observed\": true}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-query-does-not-consume\", \"observed\": true}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"value-consumes-status\", \"observed\": 1}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-after-value\", \"observed\": false}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-software-offset\", \"observed\": 107}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-no-register-write\", \"observed\": 100}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-no-int16-truncation\", \"observed\": 70000}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"rgb-word-finite-tx\", \"observed\": \"001234560012\"}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"rgb-partial-quiescent-model\", \"observed\": \"12ab56\"}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"fb-nonzero-normalized\", \"observed\": \"010101\"}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-button\", \"observed\": true}\r\nSCROLL_16_53B2B063 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-firmware-version-string\", \"observed\": \"1\"}\r\nSCROLL_16_53B2B063 {\"original_driver\": true, \"led_rgb\": 1193046, \"kind\": \"done\", \"phase\": \"registers\", \"counter\": 0}\r\n__M5_EXEC_b515a2c4aa8b4363b5a3825c2fd9ad73__:DONE\r\n\u0004\u0004>",
+        "bytes": 3752
+      },
+      "events": [
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "constructor-reset",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-initial",
+          "observed": false
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16",
+          "observed": 22136
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "partial-counter-write",
+          "observed": 305441656
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "partial-original-low16",
+          "observed": -21640
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "count-write-no-increment",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "finite-short-read",
+          "observed": "5634"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "finite-continuation-after-stop",
+          "observed": "12563412"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "unknown-pointer-preserves-tx",
+          "observed": "56341256"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "reset-preserves-old-tx",
+          "observed": "05000000"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "reset-clears-counter",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-0",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-1",
+          "observed": 1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16--1",
+          "observed": -1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-32767",
+          "observed": 32767
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-32768",
+          "observed": -32768
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-65535",
+          "observed": -1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-65536",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16--32769",
+          "observed": 32767
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-first",
+          "observed": true
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-query-does-not-consume",
+          "observed": true
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "value-consumes-status",
+          "observed": 1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-after-value",
+          "observed": false
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "setter-software-offset",
+          "observed": 107
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "setter-no-register-write",
+          "observed": 100
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "setter-no-int16-truncation",
+          "observed": 70000
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "rgb-word-finite-tx",
+          "observed": "001234560012"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "rgb-partial-quiescent-model",
+          "observed": "12ab56"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "fb-nonzero-normalized",
+          "observed": "010101"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-button",
+          "observed": true
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-firmware-version-string",
+          "observed": "1"
+        },
+        {
+          "original_driver": true,
+          "led_rgb": 1193046,
+          "kind": "done",
+          "phase": "registers",
+          "counter": 0
+        }
+      ],
+      "state": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 399,
+        "read-bytes": 569,
+        "written-bytes": 469,
+        "input-events": 11,
+        "output-transitions": 17,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "address-change": {
+      "offset": 20522,
+      "prefix_sha256": "58c8b1157ed285bdaef81ff4d384a8605a4ecd0ab975b600094eede22fdd6027",
+      "marker": "SCROLL_17_E46817D4",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 20522,
+        "next_offset": 21177,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_6e9c77d644c34735bc1f831a1c73de1f__:START\r\nSCROLL_17_E46817D4 {\"name\": \"old-address\", \"phase\": \"address-change\", \"details\": \"259\", \"kind\": \"unsupported\", \"exception\": \"OSError\"}\r\nSCROLL_17_E46817D4 {\"phase\": \"address-change\", \"kind\": \"check\", \"name\": \"new-address-register\", \"observed\": \"41\"}\r\nSCROLL_17_E46817D4 {\"phase\": \"address-change\", \"kind\": \"check\", \"name\": \"new-address-data-plane\", \"observed\": \"01\"}\r\nSCROLL_17_E46817D4 {\"phase\": \"address-change\", \"original_driver_address\": 64, \"kind\": \"done\", \"address\": 65, \"old_address\": 64}\r\n__M5_EXEC_6e9c77d644c34735bc1f831a1c73de1f__:DONE\r\n\u0004\u0004>",
+        "bytes": 655
+      },
+      "events": [
+        {
+          "name": "old-address",
+          "phase": "address-change",
+          "details": "259",
+          "kind": "unsupported",
+          "exception": "OSError"
+        },
+        {
+          "phase": "address-change",
+          "kind": "check",
+          "name": "new-address-register",
+          "observed": "41"
+        },
+        {
+          "phase": "address-change",
+          "kind": "check",
+          "name": "new-address-data-plane",
+          "observed": "01"
+        },
+        {
+          "phase": "address-change",
+          "original_driver_address": 64,
+          "kind": "done",
+          "address": 65,
+          "old_address": 64
+        }
+      ],
+      "state": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 408,
+        "read-bytes": 575,
+        "written-bytes": 476,
+        "input-events": 11,
+        "output-transitions": 17,
+        "i2c-address": 65,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "address-restore": {
+      "offset": 21177,
+      "prefix_sha256": "b0923d77277bfadb0b1355574ddbdfcca3ba3a240d9e57ca1280cd0db8df4c6f",
+      "marker": "SCROLL_18_F9A7FBF1",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 21177,
+        "next_offset": 21677,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_90aa526b03e4424793843c130695f61e__:START\r\nSCROLL_18_F9A7FBF1 {\"phase\": \"address-restore\", \"kind\": \"check\", \"name\": \"restored-address-register\", \"observed\": \"40\"}\r\nSCROLL_18_F9A7FBF1 {\"phase\": \"address-restore\", \"kind\": \"check\", \"name\": \"restored-address-data-plane\", \"observed\": \"01\"}\r\nSCROLL_18_F9A7FBF1 {\"old_address\": 65, \"kind\": \"done\", \"phase\": \"address-restore\", \"address\": 64}\r\n__M5_EXEC_90aa526b03e4424793843c130695f61e__:DONE\r\n\u0004\u0004>",
+        "bytes": 500
+      },
+      "events": [
+        {
+          "phase": "address-restore",
+          "kind": "check",
+          "name": "restored-address-register",
+          "observed": "40"
+        },
+        {
+          "phase": "address-restore",
+          "kind": "check",
+          "name": "restored-address-data-plane",
+          "observed": "01"
+        },
+        {
+          "old_address": 65,
+          "kind": "done",
+          "phase": "address-restore",
+          "address": 64
+        }
+      ],
+      "state": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 413,
+        "read-bytes": 577,
+        "written-bytes": 480,
+        "input-events": 11,
+        "output-transitions": 17,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "address-zero-gap": {
+      "offset": 21677,
+      "prefix_sha256": "98ae5bdf6315be53a2b8dc93c4388774ebabe317b16f2520b1130acddce70924",
+      "marker": "SCROLL_19_C85E39CE",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 21677,
+        "next_offset": 22341,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_7ee01dfb91294a1b98a09261ad90913a__:START\r\nSCROLL_19_C85E39CE {\"phase\": \"versions\", \"kind\": \"check\", \"name\": \"original-firmware-version-string\", \"observed\": \"1\"}\r\nSCROLL_19_C85E39CE {\"name\": \"bootloader-version-no-fixture\", \"phase\": \"versions\", \"details\": \"259\", \"kind\": \"unsupported\", \"exception\": \"OSError\"}\r\nSCROLL_19_C85E39CE {\"bootloader_fixture\": null, \"firmware_version\": \"1\", \"kind\": \"done\", \"phase\": \"versions\"}\r\nSCROLL_19_C85E39CE {\"phase\": \"versions\", \"kind\": \"check\", \"name\": \"zero-address-gap-keeps-old-data-plane\", \"observed\": \"01\"}\r\n__M5_EXEC_7ee01dfb91294a1b98a09261ad90913a__:DONE\r\n\u0004\u0004>",
+        "bytes": 664
+      },
+      "events": [
+        {
+          "phase": "versions",
+          "kind": "check",
+          "name": "original-firmware-version-string",
+          "observed": "1"
+        },
+        {
+          "name": "bootloader-version-no-fixture",
+          "phase": "versions",
+          "details": "259",
+          "kind": "unsupported",
+          "exception": "OSError"
+        },
+        {
+          "bootloader_fixture": null,
+          "firmware_version": "1",
+          "kind": "done",
+          "phase": "versions"
+        },
+        {
+          "phase": "versions",
+          "kind": "check",
+          "name": "zero-address-gap-keeps-old-data-plane",
+          "observed": "01"
+        }
+      ],
+      "state": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 424,
+        "read-bytes": 583,
+        "written-bytes": 488,
+        "input-events": 11,
+        "output-transitions": 17,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 3,
+        "rgb-word": 1446253056
+      }
+    },
+    "bootloader-gap": {
+      "offset": 22341,
+      "prefix_sha256": "15237eb87945144a27af2d3eb9b86f890696ea980481e9b2aa2a2546133d7614",
+      "marker": "SCROLL_20_E1BED286",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 22341,
+        "next_offset": 22868,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_c87425356d1a45a88b8f65e94edbe19e__:START\r\nSCROLL_20_E1BED286 {\"name\": \"bootloader-mode-unimplemented\", \"phase\": \"bootloader\", \"details\": \"259\", \"kind\": \"unsupported\", \"exception\": \"OSError\"}\r\nSCROLL_20_E1BED286 {\"phase\": \"bootloader\", \"kind\": \"check\", \"name\": \"bootloader-rejection-keeps-application\", \"observed\": \"01\"}\r\nSCROLL_20_E1BED286 {\"kind\": \"done\", \"phase\": \"bootloader\", \"bootloader_supported\": false}\r\n__M5_EXEC_c87425356d1a45a88b8f65e94edbe19e__:DONE\r\n\u0004\u0004>",
+        "bytes": 527
+      },
+      "events": [
+        {
+          "name": "bootloader-mode-unimplemented",
+          "phase": "bootloader",
+          "details": "259",
+          "kind": "unsupported",
+          "exception": "OSError"
+        },
+        {
+          "phase": "bootloader",
+          "kind": "check",
+          "name": "bootloader-rejection-keeps-application",
+          "observed": "01"
+        },
+        {
+          "kind": "done",
+          "phase": "bootloader",
+          "bootloader_supported": false
+        }
+      ],
+      "state": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 427,
+        "read-bytes": 584,
+        "written-bytes": 491,
+        "input-events": 11,
+        "output-transitions": 17,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 1,
+        "command-errors": 4,
+        "rgb-word": 1446253056
+      }
+    },
+    "final-recovery": {
+      "offset": 22868,
+      "prefix_sha256": "459b1f21757343f016b0776ac22e082b238a512d320eefbe227cf1589dd6c5cd",
+      "marker": "SCROLL_21_06F90E08",
+      "serial": {
+        "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+        "offset": 22868,
+        "next_offset": 26568,
+        "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_173b57939559434d9a199daff7be6c81__:START\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"constructor-reset\", \"observed\": 0}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-initial\", \"observed\": false}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16\", \"observed\": 22136}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"partial-counter-write\", \"observed\": 305441656}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"partial-original-low16\", \"observed\": -21640}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"count-write-no-increment\", \"observed\": 0}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"finite-short-read\", \"observed\": \"5634\"}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"finite-continuation-after-stop\", \"observed\": \"12563412\"}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"unknown-pointer-preserves-tx\", \"observed\": \"56341256\"}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"reset-preserves-old-tx\", \"observed\": \"05000000\"}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"reset-clears-counter\", \"observed\": 0}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-0\", \"observed\": 0}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-1\", \"observed\": 1}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16--1\", \"observed\": -1}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-32767\", \"observed\": 32767}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-32768\", \"observed\": -32768}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-65535\", \"observed\": -1}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-65536\", \"observed\": 0}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16--32769\", \"observed\": 32767}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-first\", \"observed\": true}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-query-does-not-consume\", \"observed\": true}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"value-consumes-status\", \"observed\": 1}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-after-value\", \"observed\": false}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-software-offset\", \"observed\": 107}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-no-register-write\", \"observed\": 100}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-no-int16-truncation\", \"observed\": 70000}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"rgb-word-finite-tx\", \"observed\": \"001234560012\"}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"rgb-partial-quiescent-model\", \"observed\": \"12ab56\"}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"fb-nonzero-normalized\", \"observed\": \"010101\"}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-button\", \"observed\": true}\r\nSCROLL_21_06F90E08 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-firmware-version-string\", \"observed\": \"1\"}\r\nSCROLL_21_06F90E08 {\"original_driver\": true, \"led_rgb\": 1193046, \"kind\": \"done\", \"phase\": \"registers\", \"counter\": 0}\r\n",
+        "bytes": 3700
+      },
+      "events": [
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "constructor-reset",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-initial",
+          "observed": false
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16",
+          "observed": 22136
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "partial-counter-write",
+          "observed": 305441656
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "partial-original-low16",
+          "observed": -21640
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "count-write-no-increment",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "finite-short-read",
+          "observed": "5634"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "finite-continuation-after-stop",
+          "observed": "12563412"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "unknown-pointer-preserves-tx",
+          "observed": "56341256"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "reset-preserves-old-tx",
+          "observed": "05000000"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "reset-clears-counter",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-0",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-1",
+          "observed": 1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16--1",
+          "observed": -1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-32767",
+          "observed": 32767
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-32768",
+          "observed": -32768
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-65535",
+          "observed": -1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16-65536",
+          "observed": 0
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-low16--32769",
+          "observed": 32767
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-first",
+          "observed": true
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-query-does-not-consume",
+          "observed": true
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "value-consumes-status",
+          "observed": 1
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "status-after-value",
+          "observed": false
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "setter-software-offset",
+          "observed": 107
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "setter-no-register-write",
+          "observed": 100
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "setter-no-int16-truncation",
+          "observed": 70000
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "rgb-word-finite-tx",
+          "observed": "001234560012"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "rgb-partial-quiescent-model",
+          "observed": "12ab56"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "fb-nonzero-normalized",
+          "observed": "010101"
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-button",
+          "observed": true
+        },
+        {
+          "phase": "registers",
+          "kind": "check",
+          "name": "original-firmware-version-string",
+          "observed": "1"
+        },
+        {
+          "original_driver": true,
+          "led_rgb": 1193046,
+          "kind": "done",
+          "phase": "registers",
+          "counter": 0
+        }
+      ],
+      "state": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 517,
+        "read-bytes": 709,
+        "written-bytes": 617,
+        "input-events": 11,
+        "output-transitions": 21,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 1,
+        "command-errors": 4,
+        "rgb-word": 1446253056
+      }
+    }
+  },
+  "inputs": [
+    {
+      "values": {
+        "pressed": true
+      },
+      "before": {
+        "source-count": 0,
+        "pressed": false,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 107,
+        "read-bytes": 142,
+        "written-bytes": 138,
+        "input-events": 1,
+        "output-transitions": 5,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      },
+      "after": {
+        "source-count": 0,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 107,
+        "read-bytes": 142,
+        "written-bytes": 138,
+        "input-events": 2,
+        "output-transitions": 5,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    {
+      "values": {
+        "source-count": 123
+      },
+      "before": {
+        "source-count": 0,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 108,
+        "read-bytes": 146,
+        "written-bytes": 139,
+        "input-events": 2,
+        "output-transitions": 5,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      },
+      "after": {
+        "source-count": 123,
+        "pressed": true,
+        "counter": 123,
+        "increments": 123,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 109,
+        "read-bytes": 146,
+        "written-bytes": 139,
+        "input-events": 3,
+        "output-transitions": 5,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    {
+      "values": {
+        "pressed": false
+      },
+      "before": {
+        "source-count": 123,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 16711680,
+        "transactions": 141,
+        "read-bytes": 194,
+        "written-bytes": 161,
+        "input-events": 3,
+        "output-transitions": 6,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 65280
+      },
+      "after": {
+        "source-count": 123,
+        "pressed": false,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 16711680,
+        "transactions": 141,
+        "read-bytes": 194,
+        "written-bytes": 161,
+        "input-events": 4,
+        "output-transitions": 6,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 65280
+      }
+    },
+    {
+      "values": {
+        "source-count": 100
+      },
+      "before": {
+        "source-count": 123,
+        "pressed": false,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 16711680,
+        "transactions": 143,
+        "read-bytes": 198,
+        "written-bytes": 162,
+        "input-events": 4,
+        "output-transitions": 6,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 65280
+      },
+      "after": {
+        "source-count": 100,
+        "pressed": false,
+        "counter": -23,
+        "increments": -23,
+        "direction": 0,
+        "ab-direction": 0,
+        "led-rgb": 16711680,
+        "transactions": 143,
+        "read-bytes": 198,
+        "written-bytes": 162,
+        "input-events": 5,
+        "output-transitions": 6,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 65280
+      }
+    },
+    {
+      "values": {
+        "pressed": true
+      },
+      "before": {
+        "source-count": 100,
+        "pressed": false,
+        "counter": 0,
+        "increments": 0,
+        "direction": 0,
+        "ab-direction": 1,
+        "led-rgb": 65280,
+        "transactions": 175,
+        "read-bytes": 246,
+        "written-bytes": 184,
+        "input-events": 5,
+        "output-transitions": 8,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 16711680
+      },
+      "after": {
+        "source-count": 100,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 0,
+        "ab-direction": 1,
+        "led-rgb": 65280,
+        "transactions": 177,
+        "read-bytes": 250,
+        "written-bytes": 185,
+        "input-events": 6,
+        "output-transitions": 8,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 16711680
+      }
+    },
+    {
+      "values": {
+        "source-count": 110
+      },
+      "before": {
+        "source-count": 100,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 0,
+        "ab-direction": 1,
+        "led-rgb": 65280,
+        "transactions": 177,
+        "read-bytes": 250,
+        "written-bytes": 185,
+        "input-events": 6,
+        "output-transitions": 8,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 16711680
+      },
+      "after": {
+        "source-count": 110,
+        "pressed": true,
+        "counter": -10,
+        "increments": -10,
+        "direction": 1,
+        "ab-direction": 1,
+        "led-rgb": 65280,
+        "transactions": 177,
+        "read-bytes": 250,
+        "written-bytes": 185,
+        "input-events": 7,
+        "output-transitions": 8,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 16711680
+      }
+    },
+    {
+      "values": {
+        "source-count": 115
+      },
+      "before": {
+        "source-count": 110,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 290,
+        "read-bytes": 411,
+        "written-bytes": 326,
+        "input-events": 7,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      },
+      "after": {
+        "source-count": 115,
+        "pressed": true,
+        "counter": 5,
+        "increments": 5,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 290,
+        "read-bytes": 411,
+        "written-bytes": 326,
+        "input-events": 8,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    {
+      "values": {
+        "source-count": 117
+      },
+      "before": {
+        "source-count": 115,
+        "pressed": true,
+        "counter": 5,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 292,
+        "read-bytes": 412,
+        "written-bytes": 327,
+        "input-events": 8,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      },
+      "after": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 7,
+        "increments": 2,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 292,
+        "read-bytes": 412,
+        "written-bytes": 327,
+        "input-events": 9,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    {
+      "values": {
+        "source-count": 116
+      },
+      "before": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 7,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 295,
+        "read-bytes": 418,
+        "written-bytes": 328,
+        "input-events": 9,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      },
+      "after": {
+        "source-count": 116,
+        "pressed": true,
+        "counter": 6,
+        "increments": -1,
+        "direction": 0,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 295,
+        "read-bytes": 418,
+        "written-bytes": 328,
+        "input-events": 10,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    {
+      "values": {
+        "source-count": 117
+      },
+      "before": {
+        "source-count": 116,
+        "pressed": true,
+        "counter": 305419896,
+        "increments": 0,
+        "direction": 0,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 303,
+        "read-bytes": 432,
+        "written-bytes": 336,
+        "input-events": 10,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      },
+      "after": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 305419897,
+        "increments": 1,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 303,
+        "read-bytes": 432,
+        "written-bytes": 336,
+        "input-events": 11,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    }
+  ],
+  "negative_controls": {
+    "unproven-large-timer-step": {
+      "response": {
+        "status": 409,
+        "response": {
+          "error": {
+            "code": "unit_input_rejected",
+            "message": "QMP qom-set failed: Scroll source-count requires no TIM16 rollover, step <=32767 and int32 logical results"
+          }
+        }
+      },
+      "before": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 305419897,
+        "increments": 1,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 306,
+        "read-bytes": 440,
+        "written-bytes": 337,
+        "input-events": 11,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      },
+      "after": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 305419897,
+        "increments": 1,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 306,
+        "read-bytes": 440,
+        "written-bytes": 337,
+        "input-events": 11,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "timer-rollover-domain": {
+      "response": {
+        "status": 400,
+        "response": {
+          "error": {
+            "code": "invalid_unit_input",
+            "message": "source-count is outside the supported range"
+          }
+        }
+      },
+      "before": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 305419897,
+        "increments": 1,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 306,
+        "read-bytes": 440,
+        "written-bytes": 337,
+        "input-events": 11,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      },
+      "after": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 305419897,
+        "increments": 1,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 306,
+        "read-bytes": 440,
+        "written-bytes": 337,
+        "input-events": 11,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "non-atomic-mixed-input": {
+      "response": {
+        "status": 400,
+        "response": {
+          "error": {
+            "code": "invalid_unit_input",
+            "message": "scroll accepts at most 1 live input field per request; submit separate requests"
+          }
+        }
+      },
+      "before": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 2147483647,
+        "increments": 1,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 309,
+        "read-bytes": 444,
+        "written-bytes": 343,
+        "input-events": 11,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      },
+      "after": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 2147483647,
+        "increments": 1,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 309,
+        "read-bytes": 444,
+        "written-bytes": 343,
+        "input-events": 11,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    },
+    "int32-overflow": {
+      "response": {
+        "status": 409,
+        "response": {
+          "error": {
+            "code": "unit_input_rejected",
+            "message": "QMP qom-set failed: Scroll source-count requires no TIM16 rollover, step <=32767 and int32 logical results"
+          }
+        }
+      },
+      "before": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 2147483647,
+        "increments": 1,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 309,
+        "read-bytes": 444,
+        "written-bytes": 343,
+        "input-events": 11,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      },
+      "after": {
+        "source-count": 117,
+        "pressed": true,
+        "counter": 2147483647,
+        "increments": 1,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 1193046,
+        "transactions": 309,
+        "read-bytes": 444,
+        "written-bytes": 343,
+        "input-events": 11,
+        "output-transitions": 13,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 1,
+        "rgb-word": 1446253056
+      }
+    }
+  },
+  "source_sha256": {
+    "tests/units/run_live_scroll.py": "901a57526e379ba311b7b9c1bba89cf140698659fc9e700b4f4dd0b36fc73403",
+    "tests/units/scroll_protocol_probe.py": "21b1368d863c64bbe2135acf751d51d1d6c2e0786f7bd871edd4b2a4466e7039"
+  },
+  "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+  "pid": 53469,
+  "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 28,
+    "lease_active": true
+  },
+  "pins": {
+    "yellow": 2,
+    "white": 1
+  },
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "scroll",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {
+        "source-count": 0,
+        "pressed": false
+      }
+    }
+  ],
+  "contract_hashes": {
+    "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+    "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "runtime-profiles.json": "637a3b26783dcaa82be71f4ed7a26f3e8041191bfe926e2246a0f699d438ea55"
+  },
+  "runtime_provenance": {
+    "schema_version": 1,
+    "status": "PASS",
+    "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+    "pid": 53469,
+    "method": "macOS-proc_pidpath",
+    "captured_at": "2026-10-26T13:30:57.947050+00:00",
+    "expected_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+    "observed_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+    "executable_name": "qemu-system-xtensa",
+    "hardware_validation": false
+  },
+  "rom_banners": 1,
+  "final_state": {
+    "source-count": 117,
+    "pressed": true,
+    "counter": 0,
+    "increments": 0,
+    "direction": 1,
+    "ab-direction": 0,
+    "led-rgb": 1193046,
+    "transactions": 517,
+    "read-bytes": 709,
+    "written-bytes": 617,
+    "input-events": 11,
+    "output-transitions": 21,
+    "i2c-address": 64,
+    "source-step-limit": 32767,
+    "timer-rollover-supported": false,
+    "bootloader-supported": false,
+    "zero-address-unicast-supported": false,
+    "bootloader-requests": 1,
+    "command-errors": 4,
+    "rgb-word": 1446253056
+  },
+  "final_frame": {
+    "sha256": "8ec47b89811f5f581470f31617be40134d3105fc2438a980dfb00bbe5ca90d0d",
+    "size": [
+      320,
+      240
+    ],
+    "application_color_pixels": 76478
+  },
+  "final_runtime_provenance": {
+    "schema_version": 1,
+    "status": "PASS",
+    "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+    "pid": 53469,
+    "method": "macOS-proc_pidpath",
+    "captured_at": "2026-10-26T13:31:15.829428+00:00",
+    "expected_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+    "observed_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+    "executable_name": "qemu-system-xtensa",
+    "hardware_validation": false
+  },
+  "evidence": {
+    "members": 77,
+    "sha256": "ebcfe380f0a9a1e38a69209252b9e7eb6a7bf8a2063393395c1dce469e0baf25",
+    "original_source_and_serial_byte_windows": true
+  },
+  "cleanup": {
+    "history_retained": true,
+    "flash_retained": false,
+    "last_frame_available": true
+  }
+}

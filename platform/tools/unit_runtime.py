@@ -154,7 +154,7 @@ class UnitRegistry:
             "contract": "one session, one guest, controller-backed Unit state",
         }
 
-    def input_values(self, unit_id: str, payload: Any) -> dict:
+    def input_values(self, unit_id: str, payload: Any, *, live: bool = False) -> dict:
         unit = self.unit(unit_id)
         fields = unit.get("inputs", {})
         if not isinstance(payload, dict):
@@ -165,6 +165,11 @@ class UnitRegistry:
         if unknown:
             raise UnitError("invalid_unit_input", f"unknown input fields: {', '.join(unknown)}")
         profile_fields = self.profiles.get(unit_id, {}).get("inputs", {})
+        limit = self.profiles.get(unit_id, {}).get("max_live_input_fields")
+        if live and limit is not None and len(payload) > limit:
+            raise UnitError(
+                "invalid_unit_input", f"{unit_id} accepts at most {limit} live input field per request; submit separate requests",
+            )
         values = {}
         for field, value in payload.items():
             if field not in profile_fields:

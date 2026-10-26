@@ -1,0 +1,2491 @@
+{
+  "schema_version": 1,
+  "category": "actual-scroll-web-guest-controller-frame-loop",
+  "status": "PASS",
+  "captured_at": "2026-10-26T13:35:14.076Z",
+  "device_id": "cores3",
+  "unit_id": "scroll",
+  "runtime": "qemu",
+  "hardware_validation": "NOT RUN",
+  "official_driver": "https://github.com/m5stack/uiflow-micropython/blob/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/scroll.py",
+  "official_api": "https://uiflow-micropython.readthedocs.io/en/latest/units/scroll.html",
+  "instrumentation": "Only append window.__scrollWebProbe={state,SessionVisual}; observe existing public components and real HTTP responses.",
+  "limits": [
+    "Stable latest RGB values only; firmware RGB queue/burst/slot behavior is not validated.",
+    "No calibrated count-to-angle binding, TIM rollover, bootloader, persistence or physical hardware claim."
+  ],
+  "source_sha256": {
+    "platform/tests/test_live_scroll_service_browser.mjs": "4f1f3872abb92e084a6825cbb1ed9aa5bb899cacd286d01e92246d99add8a472",
+    "platform/web/sessions.js": "1507dd7fd1e69d0fb10f741178623d487c2a92b8f2f5b36a66d749c808d5abc8",
+    "platform/web/sessions.html": "a53a4319aa57ddfa50fd1e27c32ee02a31be452a12ee56af0aeb9ece89a70c1b",
+    "platform/web/program-panel.js": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+    "platform/web/unit-panel.js": "9ae02a31aff57b31241f47c5a11f3683b1a174355be4c34174e7d6233f54644f",
+    "platform/web/model-shell.js": "5ff2860a3638207131a8d488ec102293e61c27f566300ba1b95a368c4b2c2129",
+    "platform/web/unit-visual-mappings.js": "4fa597e15dac3c37dd665389f218446e6f8e7f8fd0c38740060a250e5cf942d6",
+    "platform/units/catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+    "platform/units/runtime-profiles.json": "637a3b26783dcaa82be71f4ed7a26f3e8041191bfe926e2246a0f699d438ea55",
+    "platform/web/vendor/m5stack-models/vendor-manifest.json": "a26ae90cd9f4eef4c1379cc513911650253ef226070629d8001185a38dd5386a",
+    "platform/web/vendor/m5stack-models/src/units/scroll/index.js": "412c4887d3a34a2bff833d273fe4bc26df3be1be6b5377fc9195c090946d034c",
+    "tests/units/scroll_protocol_probe.py": "21b1368d863c64bbe2135acf751d51d1d6c2e0786f7bd871edd4b2a4466e7039"
+  },
+  "unit_posts": [
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/unit-input",
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": true
+        }
+      },
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/unit-input",
+      "request": {
+        "id": "external1",
+        "values": {
+          "pressed": false
+        }
+      },
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/unit-input",
+      "request": {
+        "id": "external1",
+        "values": {
+          "source-count": 3
+        }
+      },
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/unit-input",
+      "request": {
+        "id": "external1",
+        "values": {
+          "source-count": -2
+        }
+      },
+      "status": 200
+    }
+  ],
+  "samples": [
+    {
+      "offset": 444,
+      "prefix_sha256": "afc5def7e711090a983b44f78712a325b84fb67bc60481fa25ecec9035866e9a",
+      "window": {
+        "session_id": "28dd03d28a304e94b9f44e40ad412b93",
+        "offset": 444,
+        "next_offset": 849,
+        "data": "\r\n>>> \r\n>>> \r\n>>> \r\nraw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_37598bcfb9d6449185eaab437c56d482__:START\r\nSCROLL_WEB_54D7A89D6270 {\"kind\": \"ready\", \"nonce\": \"/m5-scroll-web-01141db21f964c89af9da988cdd04561\", \"firmware\": \"1\"}\r\nSCROLL_WEB_54D7A89D6270 {\"color\": 65280, \"pressed\": false, \"nonce\": \"/m5-scroll-web-01141db21f964c89af9da988cdd04561\", \"kind\": \"sample\", \"value\": 0, \"increment\": 0}\r\n",
+        "bytes": 405
+      },
+      "expected": {
+        "kind": "sample",
+        "nonce": "/m5-scroll-web-01141db21f964c89af9da988cdd04561",
+        "pressed": false,
+        "value": 0,
+        "color": 65280
+      },
+      "sample": {
+        "color": 65280,
+        "pressed": false,
+        "nonce": "/m5-scroll-web-01141db21f964c89af9da988cdd04561",
+        "kind": "sample",
+        "value": 0,
+        "increment": 0
+      }
+    },
+    {
+      "offset": 1181,
+      "prefix_sha256": "1084692ba27075945e15469ba99448e9eb1d026cdff8e40d9be058a77db48ab8",
+      "window": {
+        "session_id": "28dd03d28a304e94b9f44e40ad412b93",
+        "offset": 1181,
+        "next_offset": 1349,
+        "data": "SCROLL_WEB_54D7A89D6270 {\"color\": 16711680, \"pressed\": true, \"nonce\": \"/m5-scroll-web-01141db21f964c89af9da988cdd04561\", \"kind\": \"sample\", \"value\": 0, \"increment\": 0}\r\n",
+        "bytes": 168
+      },
+      "expected": {
+        "kind": "sample",
+        "nonce": "/m5-scroll-web-01141db21f964c89af9da988cdd04561",
+        "pressed": true,
+        "value": 0,
+        "color": 16711680
+      },
+      "sample": {
+        "color": 16711680,
+        "pressed": true,
+        "nonce": "/m5-scroll-web-01141db21f964c89af9da988cdd04561",
+        "kind": "sample",
+        "value": 0,
+        "increment": 0
+      }
+    },
+    {
+      "offset": 1853,
+      "prefix_sha256": "e82cf6ccea762f0a09ebefbdee7942a024900df236c230e6fcd5b42bbea88ab8",
+      "window": {
+        "session_id": "28dd03d28a304e94b9f44e40ad412b93",
+        "offset": 1853,
+        "next_offset": 2019,
+        "data": "SCROLL_WEB_54D7A89D6270 {\"color\": 65280, \"pressed\": false, \"nonce\": \"/m5-scroll-web-01141db21f964c89af9da988cdd04561\", \"kind\": \"sample\", \"value\": 0, \"increment\": 0}\r\n",
+        "bytes": 166
+      },
+      "expected": {
+        "kind": "sample",
+        "nonce": "/m5-scroll-web-01141db21f964c89af9da988cdd04561",
+        "pressed": false,
+        "value": 0,
+        "color": 65280
+      },
+      "sample": {
+        "color": 65280,
+        "pressed": false,
+        "nonce": "/m5-scroll-web-01141db21f964c89af9da988cdd04561",
+        "kind": "sample",
+        "value": 0,
+        "increment": 0
+      }
+    },
+    {
+      "offset": 2351,
+      "prefix_sha256": "0f03a219cfe76acbba8e780f1960ca88ab0f61668df65fc43f088040b0bda413",
+      "window": {
+        "session_id": "28dd03d28a304e94b9f44e40ad412b93",
+        "offset": 2351,
+        "next_offset": 2517,
+        "data": "SCROLL_WEB_54D7A89D6270 {\"color\": 65280, \"pressed\": false, \"nonce\": \"/m5-scroll-web-01141db21f964c89af9da988cdd04561\", \"kind\": \"sample\", \"value\": 3, \"increment\": 3}\r\n",
+        "bytes": 166
+      },
+      "expected": {
+        "kind": "sample",
+        "nonce": "/m5-scroll-web-01141db21f964c89af9da988cdd04561",
+        "pressed": false,
+        "value": 3,
+        "color": 65280
+      },
+      "sample": {
+        "color": 65280,
+        "pressed": false,
+        "nonce": "/m5-scroll-web-01141db21f964c89af9da988cdd04561",
+        "kind": "sample",
+        "value": 3,
+        "increment": 3
+      }
+    },
+    {
+      "offset": 2683,
+      "prefix_sha256": "9e2e924c7d113306f28f4a67e8d31c190852ac79002cfe93f8d884555577cb6f",
+      "window": {
+        "session_id": "28dd03d28a304e94b9f44e40ad412b93",
+        "offset": 2683,
+        "next_offset": 2851,
+        "data": "SCROLL_WEB_54D7A89D6270 {\"color\": 65280, \"pressed\": false, \"nonce\": \"/m5-scroll-web-01141db21f964c89af9da988cdd04561\", \"kind\": \"sample\", \"value\": -2, \"increment\": -5}\r\n",
+        "bytes": 168
+      },
+      "expected": {
+        "kind": "sample",
+        "nonce": "/m5-scroll-web-01141db21f964c89af9da988cdd04561",
+        "pressed": false,
+        "value": -2,
+        "color": 65280
+      },
+      "sample": {
+        "color": 65280,
+        "pressed": false,
+        "nonce": "/m5-scroll-web-01141db21f964c89af9da988cdd04561",
+        "kind": "sample",
+        "value": -2,
+        "increment": -5
+      }
+    }
+  ],
+  "checks": {
+    "original_scroll_api_running_in_same_guest": true,
+    "trusted_canvas_to_http_original_driver_and_gpio_i2c": true,
+    "guest_rgb_to_controller_http_and_real_led_material": true,
+    "actual_png_to_model_display_and_live_execution_metadata": true,
+    "web_source_count_to_original_low16_api_without_guessed_rotation": true,
+    "runtime_readback_zero_input_echo": true,
+    "same_vm_pid_firmware_source_uart_and_zip_evidence": true,
+    "evidence_before_stop_history_and_frame_retained_flash_released": true
+  },
+  "page_errors": [],
+  "resource_errors": [],
+  "shared_frames": [
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 200,
+      "headers": {
+        "x-frame-capture-seq": "1",
+        "x-request-id": "fe0b579a6da14aff84416312595d652a",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:32 GMT",
+        "content-type": "image/png",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:32.796857+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "content-length": "302",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "1",
+        "x-request-id": "2b7132ba95694c7d8267d486523dcb6d",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:32 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:32.796857+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "2",
+        "x-request-id": "40e864c9cd2544c3ada6f44482905492",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:33 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:33.549338+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "2",
+        "x-request-id": "7cd0974ec4324dff824b5e9148df48f1",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:33 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:33.549338+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "3",
+        "x-request-id": "fd8659883b4b475da329079a6a0e3e79",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:33 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:33.795299+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "3",
+        "x-request-id": "1cbf178cfe88496fb5daa2f5cebd8a8c",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:33 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:33.795299+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "4",
+        "x-request-id": "97c0dc1400c041a4a050022a19e325ca",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:34 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:34.045925+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "4",
+        "x-request-id": "6eb7c91fdb254121a77be94251683188",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:34 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:34.045925+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "5",
+        "x-request-id": "913683773b8d477e98daf57a6f5a5922",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:34 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:34.296146+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "6",
+        "x-request-id": "3227db0a4e274901875140b87ec00b91",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:34 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:34.422551+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "7",
+        "x-request-id": "7990996d4c2d4bc7a5086bccddfd5fa3",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:34 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:34.551424+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "7",
+        "x-request-id": "4855d4c2e9f14f33b35d228e32c77b60",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:34 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:34.551424+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "8",
+        "x-request-id": "7d9c876ee6f1498aae0bd3b417ca08c5",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:34 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:34.799895+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "9",
+        "x-request-id": "94a0ffb888d04667aef5077b9e2ef340",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:34 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:34.924533+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "submitting"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "10",
+        "x-request-id": "67dfc41b757b41ebbb569c91a8c8682f",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:35 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:35.050712+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "submitting"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "10",
+        "x-request-id": "d77c71a46f2c4b8a8b565120de3c0514",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:35 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:35.050712+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "submitting"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "11",
+        "x-request-id": "fc5565026f9b4aec8af1ee6339d01b74",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:35 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:35.302149+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "submitting"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "11",
+        "x-request-id": "63389e50c6a148d8941ae1d09eca1545",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:35 GMT",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:35.302149+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "submitting"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 200,
+      "headers": {
+        "x-frame-capture-seq": "12",
+        "x-request-id": "8ccec54ad37b436a8643050d09cb70e5",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:35 GMT",
+        "content-type": "image/png",
+        "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:35.553836+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "content-length": "1348",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "12",
+        "x-request-id": "825f5340f25d47bea1f47d4927da0427",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:35 GMT",
+        "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:35.553836+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "13",
+        "x-request-id": "438cc31b52a0454c87d7375d5716a9e2",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:35 GMT",
+        "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:35.805956+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "14",
+        "x-request-id": "1bd4c2de2e3f402faba7ea9731ca7d94",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:36 GMT",
+        "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:36.063693+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "14",
+        "x-request-id": "7b1d822f3c654d339dbd10d7ce7f4a82",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:36 GMT",
+        "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:36.063693+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 200,
+      "headers": {
+        "x-frame-capture-seq": "15",
+        "x-request-id": "273dd8b9130f4473aece75998d1c8b43",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"e2e7475ca7604826ce461e26f6c36dde6066aac093a9296e3dece5423c1febd3\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:36 GMT",
+        "content-type": "image/png",
+        "x-frame-sha256": "e2e7475ca7604826ce461e26f6c36dde6066aac093a9296e3dece5423c1febd3",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:36.333970+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "content-length": "579",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "15",
+        "x-request-id": "9025749546dd4d33b58f6a7bb48b9a0d",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"e2e7475ca7604826ce461e26f6c36dde6066aac093a9296e3dece5423c1febd3\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:36 GMT",
+        "x-frame-sha256": "e2e7475ca7604826ce461e26f6c36dde6066aac093a9296e3dece5423c1febd3",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:36.333970+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 200,
+      "headers": {
+        "x-frame-capture-seq": "16",
+        "x-request-id": "13b0b50de96e4a2eb6084b82d2b0c18d",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"8d9c8e3dec4a74d2e626dcf451fe5dec8f0aab5e5cce24c4009e24de853b9108\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:36 GMT",
+        "content-type": "image/png",
+        "x-frame-sha256": "8d9c8e3dec4a74d2e626dcf451fe5dec8f0aab5e5cce24c4009e24de853b9108",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:36.582436+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "content-length": "1287",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "17",
+        "x-request-id": "891ab7897f0f486db638fa5d7d699dad",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"8d9c8e3dec4a74d2e626dcf451fe5dec8f0aab5e5cce24c4009e24de853b9108\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:37 GMT",
+        "x-frame-sha256": "8d9c8e3dec4a74d2e626dcf451fe5dec8f0aab5e5cce24c4009e24de853b9108",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:36.997632+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "17",
+        "x-request-id": "e2304da6ee9a4f579d256db8c2292df7",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"8d9c8e3dec4a74d2e626dcf451fe5dec8f0aab5e5cce24c4009e24de853b9108\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:37 GMT",
+        "x-frame-sha256": "8d9c8e3dec4a74d2e626dcf451fe5dec8f0aab5e5cce24c4009e24de853b9108",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:36.997632+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 200,
+      "headers": {
+        "x-frame-capture-seq": "18",
+        "x-request-id": "50ac1738b7f84d758a4cfc0d07d93be9",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:37 GMT",
+        "content-type": "image/png",
+        "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:37.249440+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "content-length": "1348",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "19",
+        "x-request-id": "815a0743ec844578a8bae1b9b0d73be5",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:37 GMT",
+        "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:37.376492+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "19",
+        "x-request-id": "ede8cbbd18bd46689f616fb1ea5aed2a",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:37 GMT",
+        "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:37.376492+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "20",
+        "x-request-id": "bb0dcd7e12a74321a001980c8c8a5e13",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:37 GMT",
+        "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:37.630778+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "21",
+        "x-request-id": "7e1daf0f16e0429390613e3ec7ef8d1d",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:37 GMT",
+        "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:37.801605+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "21",
+        "x-request-id": "5b1333d0ff85433c80265774af139730",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:37 GMT",
+        "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:37.801605+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 200,
+      "headers": {
+        "x-frame-capture-seq": "22",
+        "x-request-id": "1c1dacd4a7f944f8adf85b47840d0e41",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"c7ff4a2e49c5d64955d6d7f229161ab4513297376351a636853610f3969e8274\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:38 GMT",
+        "content-type": "image/png",
+        "x-frame-sha256": "c7ff4a2e49c5d64955d6d7f229161ab4513297376351a636853610f3969e8274",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:38.123313+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "content-length": "1355",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "22",
+        "x-request-id": "50054827468142f5974495149f8c7584",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"c7ff4a2e49c5d64955d6d7f229161ab4513297376351a636853610f3969e8274\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:38 GMT",
+        "x-frame-sha256": "c7ff4a2e49c5d64955d6d7f229161ab4513297376351a636853610f3969e8274",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:38.123313+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 200,
+      "headers": {
+        "x-frame-capture-seq": "23",
+        "x-request-id": "ef04d0ac82294dd4b8ee3d52a0e63fd4",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:38 GMT",
+        "content-type": "image/png",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:38.374816+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "content-length": "1377",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "24",
+        "x-request-id": "4653c27e44814bf1955273c694b11553",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:38 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:38.571735+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "24",
+        "x-request-id": "9d7df9c1342945e1a845811198053060",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:38 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:38.571735+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "25",
+        "x-request-id": "0bfe0664dc46402082a26229cd7da56e",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:38 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:38.823924+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "25",
+        "x-request-id": "1b380fbb74ca4477a5f6d112e6bd42a1",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:38 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:38.823924+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "26",
+        "x-request-id": "c2aa90f286ef4558896f084aace612a3",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:39 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:39.077492+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "26",
+        "x-request-id": "ab84e88909fa4ca893f42d1073076678",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:39 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:39.077492+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "27",
+        "x-request-id": "7e29770c46674199b0ff3f4fa3403ebd",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:39 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:39.327302+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "27",
+        "x-request-id": "3a694aec451e49b294be90e6a50cbcd8",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:39 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:39.327302+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "28",
+        "x-request-id": "278e2463f2a44e159f74e93f2ae9e749",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:39 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:39.577343+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "28",
+        "x-request-id": "ef4bb10f5e1d4e7c9e887c35b316bdff",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:39 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:39.577343+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "29",
+        "x-request-id": "816877e779c54f17b1065384681247c9",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:39 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:39.827379+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "29",
+        "x-request-id": "bed8e24fa8ba46888e16ed87519b21f8",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:39 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:39.827379+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "30",
+        "x-request-id": "8c3aa05d313f4530a179405b22033972",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:40 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:40.078829+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "30",
+        "x-request-id": "dd3d045903694d3d85738e5103e369a7",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:40 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:40.078829+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    },
+    {
+      "path": "/api/v1/sessions/28dd03d28a304e94b9f44e40ad412b93/frame.png",
+      "query": "?max_age_ms=125",
+      "status": 304,
+      "headers": {
+        "x-frame-capture-seq": "31",
+        "x-request-id": "7e5580a9fc1f420baa75f8792c551722",
+        "access-control-expose-headers": "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
+        "etag": "\"682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e\"",
+        "access-control-allow-methods": "GET, POST, DELETE, OPTIONS",
+        "expires": "0",
+        "date": "Mon, 26 Oct 2026 13:35:40 GMT",
+        "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "access-control-allow-headers": "Authorization, Content-Type, If-None-Match, X-Artifact-Name, X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256",
+        "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "pragma": "no-cache",
+        "x-frame-captured-at": "2026-10-26T13:35:40.347182+00:00",
+        "x-frame-height": "240",
+        "access-control-allow-origin": "*",
+        "x-frame-width": "320",
+        "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+        "x-frame-source": "live",
+        "server": "SimpleHTTP/0.6 Python/3.12.8",
+        "x-frame-program-state": "running"
+      }
+    }
+  ],
+  "tooling": {
+    "node_version": "v22.22.2",
+    "node_sha256": "89546913a82aa855e1b1725909a4e4cf7177384b72765e2601d33514174f64a0",
+    "python_version": "Python 3.12.8",
+    "python_sha256": "607206129b8c94a0c981d66eb1a6ee4ad78e7aca8e1800d97c2ebf20b1f94fd8",
+    "zip_validator_sha256": "d4efdea2eacffd7feedae051a70282274c6c6686c1cb2506e89bfd3c04726962"
+  },
+  "service_start": {
+    "ok": true,
+    "service": "m5stack-device-service",
+    "api_version": "v1",
+    "capacity": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "a643f2cbcbe04c0384bce0b207b720de",
+        "generation": 28,
+        "state": "ready",
+        "pid": 53412,
+        "started_at": "2026-10-26T13:30:38.071098+00:00",
+        "heartbeat_at": "2026-10-26T13:35:13.507032+00:00",
+        "heartbeat_age_seconds": 0.58,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    }
+  },
+  "browser_version": "156.0.8078.48",
+  "creation_request": {
+    "device_id": "cores3",
+    "ttl_seconds": 600,
+    "program_mode": "uiflow-live",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "scroll",
+        "port_id": "port-a"
+      }
+    ]
+  },
+  "created": {
+    "session_id": "28dd03d28a304e94b9f44e40ad412b93",
+    "device_id": "cores3",
+    "state": "flashing",
+    "pid": null,
+    "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "firmware_source": "uploaded",
+    "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+    "source_artifacts": [
+      "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+    ],
+    "program_transport": "uart-repl",
+    "program": null,
+    "firmware_provenance": {
+      "kind": "uiflow",
+      "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+      "metadata": {
+        "schema_version": 1,
+        "kind": "uiflow2-source-composition",
+        "status": "COMPOSED_NOT_EXECUTED",
+        "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+        "entrypoint": "main.py",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "base_size": 16121856,
+        "flash_size": 16777216,
+        "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+        "files": [
+          {
+            "path": "boot.py",
+            "size": 245,
+            "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+            "origin": "caller"
+          },
+          {
+            "path": "main.py",
+            "size": 5,
+            "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+            "origin": "caller"
+          }
+        ],
+        "caller_file_count": 2,
+        "caller_source_bytes": 250,
+        "generated_files": [],
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "vfs": {
+          "label": "vfs",
+          "type": 1,
+          "subtype": 129,
+          "flags": 0,
+          "offset": 11141120,
+          "size": 4980736,
+          "partition_table_offset": 32768,
+          "source": "actual-base-partition-table",
+          "filesystem": "LittleFS",
+          "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+          "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+          "base_disk_version": 131072,
+          "derived_disk_version": 131073
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "toolchain": {
+          "builder": "uiflow_source/1",
+          "python": "3.12.8",
+          "python_abi": "cpython-312",
+          "littlefs_python": "0.19.0",
+          "littlefs_library": "(2, 11)",
+          "littlefs_disk": "(2, 1)",
+          "config": {
+            "block_size": 4096,
+            "read_size": 128,
+            "prog_size": 32,
+            "lookahead_size": 128,
+            "block_cycles": 100
+          }
+        }
+      }
+    },
+    "runtime_env": {},
+    "runtime": "qemu",
+    "runtime_memory": {
+      "requested_psram_mib": null,
+      "cli_requested_psram_mib": null,
+      "effective_psram_mib": null,
+      "effective_source": "qemu-cli-request",
+      "policy": "not-configured",
+      "claim": "qemu-memory-configuration-only",
+      "physical_cache_psram_timing": "NOT RUN"
+    },
+    "network": null,
+    "storage": null,
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "scroll",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {}
+      }
+    ],
+    "nvs": null,
+    "flash": null,
+    "flash_retained": false,
+    "serial_bytes": 0,
+    "created_at": "2026-10-26T13:35:28.151465+00:00",
+    "expires_at": "2026-10-26T13:45:28.151470+00:00",
+    "error": null,
+    "display": {
+      "driver": "ILI9342C / ILI9342E",
+      "width": 320,
+      "height": 240,
+      "shape": "rect",
+      "touch": true
+    },
+    "display_available": true,
+    "last_frame_available": false,
+    "last_frame_captured_at": null,
+    "device_state_supported": true,
+    "last_device_state_available": false,
+    "last_device_state_at": null,
+    "completed_at": null,
+    "event_count": 3,
+    "restored": false,
+    "interrupted": false,
+    "reattached_process": false,
+    "recovery_scope": null,
+    "companions": {
+      "http_fixture": {
+        "required": false
+      },
+      "ble_probe": {
+        "required": false
+      }
+    },
+    "worker": {
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 28,
+      "lease_active": true
+    },
+    "idempotent_replay": false
+  },
+  "session_id": "28dd03d28a304e94b9f44e40ad412b93",
+  "pid": 56914,
+  "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 28,
+    "lease_active": true
+  },
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "scroll",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {}
+    }
+  ],
+  "runtime_identity": {
+    "pid": 56914,
+    "executable_name": "qemu-system-xtensa",
+    "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+  },
+  "contract_hashes": {
+    "catalog.json": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+    "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "runtime-profiles.json": "637a3b26783dcaa82be71f4ed7a26f3e8041191bfe926e2246a0f699d438ea55"
+  },
+  "marker": "SCROLL_WEB_54D7A89D6270",
+  "vm_nonce": "/m5-scroll-web-01141db21f964c89af9da988cdd04561",
+  "submitted_source": "import sys, time, json\nimport M5\nfrom hardware import I2C, Pin\nfrom unit import ScrollUnit\nsys.path.append(\"/m5-scroll-web-01141db21f964c89af9da988cdd04561\")\nM5.begin()\ni2c=I2C(0,scl=Pin(1),sda=Pin(2),freq=100000)\nscroll=ScrollUnit(i2c,0x40)\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.setTextSize(2)\nprint(\"SCROLL_WEB_54D7A89D6270 \"+json.dumps({'kind':'ready','firmware':scroll.get_firmware_version(),'nonce':\"/m5-scroll-web-01141db21f964c89af9da988cdd04561\"}))\nprevious=None\nlast_sample=time.ticks_ms()\nwhile True:\n assert \"/m5-scroll-web-01141db21f964c89af9da988cdd04561\" in sys.path, 'MicroPython VM reset'\n M5.update()\n pressed=scroll.get_button_status()\n value=scroll.get_rotary_value()\n increment=scroll.get_rotary_increments()\n color=0xff0000 if pressed else 0x00ff00\n current=(pressed,value)\n changed=current!=previous\n if changed:\n  scroll.fill_color(color)\n  screen.fillScreen(color)\n  screen.setTextColor(0xffffff,color)\n  screen.setCursor(16,60)\n  screen.print('SCROLL '+str(value))\n  screen.setCursor(16,100)\n  screen.print('PRESSED' if pressed else 'RELEASED')\n now=time.ticks_ms()\n if changed or time.ticks_diff(now,last_sample)>=250:\n  print(\"SCROLL_WEB_54D7A89D6270 \"+json.dumps({'kind':'sample','pressed':pressed,'value':value,'increment':increment,'color':color,'nonce':\"/m5-scroll-web-01141db21f964c89af9da988cdd04561\"}))\n  last_sample=now\n previous=current\n time.sleep_ms(25)\n",
+  "submitted_source_sha256": "dc6bcbafcbe28021d51a265774416e4921d220b05568836d6528f7359d3b5d7a",
+  "program_request": {
+    "source": "import sys, time, json\nimport M5\nfrom hardware import I2C, Pin\nfrom unit import ScrollUnit\nsys.path.append(\"/m5-scroll-web-01141db21f964c89af9da988cdd04561\")\nM5.begin()\ni2c=I2C(0,scl=Pin(1),sda=Pin(2),freq=100000)\nscroll=ScrollUnit(i2c,0x40)\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.setTextSize(2)\nprint(\"SCROLL_WEB_54D7A89D6270 \"+json.dumps({'kind':'ready','firmware':scroll.get_firmware_version(),'nonce':\"/m5-scroll-web-01141db21f964c89af9da988cdd04561\"}))\nprevious=None\nlast_sample=time.ticks_ms()\nwhile True:\n assert \"/m5-scroll-web-01141db21f964c89af9da988cdd04561\" in sys.path, 'MicroPython VM reset'\n M5.update()\n pressed=scroll.get_button_status()\n value=scroll.get_rotary_value()\n increment=scroll.get_rotary_increments()\n color=0xff0000 if pressed else 0x00ff00\n current=(pressed,value)\n changed=current!=previous\n if changed:\n  scroll.fill_color(color)\n  screen.fillScreen(color)\n  screen.setTextColor(0xffffff,color)\n  screen.setCursor(16,60)\n  screen.print('SCROLL '+str(value))\n  screen.setCursor(16,100)\n  screen.print('PRESSED' if pressed else 'RELEASED')\n now=time.ticks_ms()\n if changed or time.ticks_diff(now,last_sample)>=250:\n  print(\"SCROLL_WEB_54D7A89D6270 \"+json.dumps({'kind':'sample','pressed':pressed,'value':value,'increment':increment,'color':color,'nonce':\"/m5-scroll-web-01141db21f964c89af9da988cdd04561\"}))\n  last_sample=now\n previous=current\n time.sleep_ms(25)\n",
+    "expected_execution_id": null
+  },
+  "program": {
+    "session_id": "28dd03d28a304e94b9f44e40ad412b93",
+    "program_transport": "uart-repl",
+    "program": {
+      "execution_id": "37598bcfb9d6449185eaab437c56d482",
+      "revision_id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+      "source_sha256": "5c0a33d60dd12051aed5b55da84d28efe8a00e1157b4420e2fae5ef2383b6ccf",
+      "source_bytes": 1405,
+      "state": "running",
+      "submitted_at": "2026-10-26T13:35:34.896344+00:00",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 56914,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 491,
+      "next_offset": 561,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T13:35:35.341658+00:00"
+    },
+    "history_error": null
+  },
+  "program_http_status": 200,
+  "framing": {
+    "width": 439,
+    "height": 420,
+    "points": [
+      {
+        "x": 85.62821148370543,
+        "y": 267.6701681511978,
+        "z": 0.9198327837893631
+      },
+      {
+        "x": 76.13146190447505,
+        "y": 271.7612402971218,
+        "z": 0.9129229063012342
+      },
+      {
+        "x": 85.62821148370543,
+        "y": 214.41875446949592,
+        "z": 0.9198327837893631
+      },
+      {
+        "x": 76.13146190447505,
+        "y": 214.73221711247692,
+        "z": 0.9129229063012342
+      },
+      {
+        "x": 236.1743714923141,
+        "y": 267.6701681511978,
+        "z": 0.9198327837893631
+      },
+      {
+        "x": 237.35723706995816,
+        "y": 271.7612402971218,
+        "z": 0.9129229063012342
+      },
+      {
+        "x": 236.1743714923141,
+        "y": 214.41875446949592,
+        "z": 0.9198327837893631
+      },
+      {
+        "x": 237.35723706995816,
+        "y": 214.73221711247692,
+        "z": 0.9129229063012342
+      }
+    ]
+  },
+  "frames": [
+    {
+      "name": "released-initial",
+      "path": "released-initial-frame.png",
+      "sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+      "metrics": {
+        "size": [
+          320,
+          240
+        ],
+        "matching_pixels": 74348,
+        "ratio": 0.9680729166666666,
+        "pixels": [
+          {
+            "x": 318,
+            "y": 238,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 2,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 318,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          }
+        ]
+      },
+      "state": {
+        "source-count": 0,
+        "pressed": false,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 65280,
+        "transactions": 91,
+        "read-bytes": 145,
+        "written-bytes": 50,
+        "input-events": 0,
+        "output-transitions": 1,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 0,
+        "rgb-word": 16711680
+      },
+      "visual": {
+        "led": {
+          "color": "#00ff00",
+          "brightness": 1
+        },
+        "glow": true,
+        "opacity": 0.85,
+        "emissive": [
+          0,
+          2.2,
+          0
+        ],
+        "pressed": false,
+        "joint": {
+          "angleDeg": 0,
+          "targetAngleDeg": 0,
+          "rpm": 0,
+          "transitioning": false,
+          "mode": "continuous",
+          "continuous": true,
+          "rangeDeg": null,
+          "visualRangeDeg": null,
+          "demoRpmMax": 60
+        },
+        "frameMetadata": {
+          "x-frame-capture-seq": "13",
+          "x-frame-captured-at": "2026-10-26T13:35:35.805956+00:00",
+          "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+          "x-frame-height": "240",
+          "x-frame-program-state": "running",
+          "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+          "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+          "x-frame-source": "live",
+          "x-frame-width": "320"
+        }
+      },
+      "screenshot": {
+        "path": "released-initial-browser.png",
+        "sha256": "fa6ec9ed81d09512099d7e059c33b94605833e34fe858ab6ea00cd08c4336a77"
+      }
+    },
+    {
+      "name": "pressed",
+      "path": "pressed-frame.png",
+      "sha256": "8d9c8e3dec4a74d2e626dcf451fe5dec8f0aab5e5cce24c4009e24de853b9108",
+      "metrics": {
+        "size": [
+          320,
+          240
+        ],
+        "matching_pixels": 74468,
+        "ratio": 0.9696354166666666,
+        "pixels": [
+          {
+            "x": 318,
+            "y": 238,
+            "rgb": [
+              255,
+              0,
+              0
+            ]
+          },
+          {
+            "x": 2,
+            "y": 2,
+            "rgb": [
+              255,
+              0,
+              0
+            ]
+          },
+          {
+            "x": 318,
+            "y": 2,
+            "rgb": [
+              255,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "state": {
+        "source-count": 0,
+        "pressed": true,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 16711680,
+        "transactions": 206,
+        "read-bytes": 335,
+        "written-bytes": 111,
+        "input-events": 1,
+        "output-transitions": 2,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 0,
+        "rgb-word": 65280
+      },
+      "visual": {
+        "led": {
+          "color": "#ff0000",
+          "brightness": 1
+        },
+        "glow": true,
+        "opacity": 0.85,
+        "emissive": [
+          2.2,
+          0,
+          0
+        ],
+        "pressed": true,
+        "joint": {
+          "angleDeg": 0,
+          "targetAngleDeg": 0,
+          "rpm": 0,
+          "transitioning": false,
+          "mode": "continuous",
+          "continuous": true,
+          "rangeDeg": null,
+          "visualRangeDeg": null,
+          "demoRpmMax": 60
+        },
+        "frameMetadata": {
+          "x-frame-capture-seq": "16",
+          "x-frame-captured-at": "2026-10-26T13:35:36.582436+00:00",
+          "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+          "x-frame-height": "240",
+          "x-frame-program-state": "running",
+          "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+          "x-frame-sha256": "8d9c8e3dec4a74d2e626dcf451fe5dec8f0aab5e5cce24c4009e24de853b9108",
+          "x-frame-source": "live",
+          "x-frame-width": "320"
+        }
+      },
+      "screenshot": {
+        "path": "pressed-browser.png",
+        "sha256": "921e6fe9327538389b0eb74c5870e8f4b43237ff331b655696d5abf6c5ebff04"
+      }
+    },
+    {
+      "name": "released",
+      "path": "released-frame.png",
+      "sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+      "metrics": {
+        "size": [
+          320,
+          240
+        ],
+        "matching_pixels": 74348,
+        "ratio": 0.9680729166666666,
+        "pixels": [
+          {
+            "x": 318,
+            "y": 238,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 2,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 318,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          }
+        ]
+      },
+      "state": {
+        "source-count": 0,
+        "pressed": false,
+        "counter": 0,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 65280,
+        "transactions": 399,
+        "read-bytes": 655,
+        "written-bytes": 211,
+        "input-events": 2,
+        "output-transitions": 3,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 0,
+        "rgb-word": 16711680
+      },
+      "visual": {
+        "led": {
+          "color": "#00ff00",
+          "brightness": 1
+        },
+        "glow": true,
+        "opacity": 0.85,
+        "emissive": [
+          0,
+          2.2,
+          0
+        ],
+        "pressed": false,
+        "joint": {
+          "angleDeg": 0,
+          "targetAngleDeg": 0,
+          "rpm": 0,
+          "transitioning": false,
+          "mode": "continuous",
+          "continuous": true,
+          "rangeDeg": null,
+          "visualRangeDeg": null,
+          "demoRpmMax": 60
+        },
+        "frameMetadata": {
+          "x-frame-capture-seq": "20",
+          "x-frame-captured-at": "2026-10-26T13:35:37.630778+00:00",
+          "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+          "x-frame-height": "240",
+          "x-frame-program-state": "running",
+          "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+          "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+          "x-frame-source": "live",
+          "x-frame-width": "320"
+        }
+      },
+      "screenshot": {
+        "path": "released-browser.png",
+        "sha256": "e152011f2ec1e0bb91887151b62be2557ae480ea671993d24dc9abb3309d61d4"
+      }
+    },
+    {
+      "name": "source-3",
+      "path": "source-3-frame.png",
+      "sha256": "c7ff4a2e49c5d64955d6d7f229161ab4513297376351a636853610f3969e8274",
+      "metrics": {
+        "size": [
+          320,
+          240
+        ],
+        "matching_pixels": 74368,
+        "ratio": 0.9683333333333334,
+        "pixels": [
+          {
+            "x": 318,
+            "y": 238,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 2,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 318,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          }
+        ]
+      },
+      "state": {
+        "source-count": 3,
+        "pressed": false,
+        "counter": 3,
+        "increments": 0,
+        "direction": 1,
+        "ab-direction": 0,
+        "led-rgb": 65280,
+        "transactions": 556,
+        "read-bytes": 915,
+        "written-bytes": 293,
+        "input-events": 3,
+        "output-transitions": 3,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 0,
+        "rgb-word": 16711680
+      },
+      "visual": {
+        "led": {
+          "color": "#00ff00",
+          "brightness": 1
+        },
+        "glow": true,
+        "opacity": 0.85,
+        "emissive": [
+          0,
+          2.2,
+          0
+        ],
+        "pressed": false,
+        "joint": {
+          "angleDeg": 0,
+          "targetAngleDeg": 0,
+          "rpm": 0,
+          "transitioning": false,
+          "mode": "continuous",
+          "continuous": true,
+          "rangeDeg": null,
+          "visualRangeDeg": null,
+          "demoRpmMax": 60
+        },
+        "frameMetadata": {
+          "x-frame-capture-seq": "21",
+          "x-frame-captured-at": "2026-10-26T13:35:37.801605+00:00",
+          "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+          "x-frame-height": "240",
+          "x-frame-program-state": "running",
+          "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+          "x-frame-sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+          "x-frame-source": "live",
+          "x-frame-width": "320"
+        }
+      },
+      "screenshot": {
+        "path": "source-3-browser.png",
+        "sha256": "ea2afa6e072aa681dc24bdd734cebc34c4318092b9fb622be8ba5ac7c89cfcc9"
+      }
+    },
+    {
+      "name": "source--2",
+      "path": "source--2-frame.png",
+      "sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+      "metrics": {
+        "size": [
+          320,
+          240
+        ],
+        "matching_pixels": 74336,
+        "ratio": 0.9679166666666666,
+        "pixels": [
+          {
+            "x": 318,
+            "y": 238,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 2,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 318,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          }
+        ]
+      },
+      "state": {
+        "source-count": -2,
+        "pressed": false,
+        "counter": -2,
+        "increments": 0,
+        "direction": 0,
+        "ab-direction": 0,
+        "led-rgb": 65280,
+        "transactions": 641,
+        "read-bytes": 1055,
+        "written-bytes": 339,
+        "input-events": 4,
+        "output-transitions": 3,
+        "i2c-address": 64,
+        "source-step-limit": 32767,
+        "timer-rollover-supported": false,
+        "bootloader-supported": false,
+        "zero-address-unicast-supported": false,
+        "bootloader-requests": 0,
+        "command-errors": 0,
+        "rgb-word": 16711680
+      },
+      "visual": {
+        "led": {
+          "color": "#00ff00",
+          "brightness": 1
+        },
+        "glow": true,
+        "opacity": 0.85,
+        "emissive": [
+          0,
+          2.2,
+          0
+        ],
+        "pressed": false,
+        "joint": {
+          "angleDeg": 0,
+          "targetAngleDeg": 0,
+          "rpm": 0,
+          "transitioning": false,
+          "mode": "continuous",
+          "continuous": true,
+          "rangeDeg": null,
+          "visualRangeDeg": null,
+          "demoRpmMax": 60
+        },
+        "frameMetadata": {
+          "x-frame-capture-seq": "23",
+          "x-frame-captured-at": "2026-10-26T13:35:38.374816+00:00",
+          "x-frame-execution-id": "37598bcfb9d6449185eaab437c56d482",
+          "x-frame-height": "240",
+          "x-frame-program-state": "running",
+          "x-frame-revision-id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+          "x-frame-sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+          "x-frame-source": "live",
+          "x-frame-width": "320"
+        }
+      },
+      "screenshot": {
+        "path": "source--2-browser.png",
+        "sha256": "fe163b2ab7fc267edc81ed916b9739e5333dd4735ccc7716c63a2b1d4fe446df"
+      }
+    }
+  ],
+  "zero_echo": {
+    "observed_ms": 1600,
+    "unit_posts_before": 4,
+    "unit_posts_after": 4,
+    "new_shared_frames": 13,
+    "physical_events_before": 3,
+    "physical_events_after": 3
+  },
+  "final_runtime_identity": {
+    "pid": 56914,
+    "executable_name": "qemu-system-xtensa",
+    "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+  },
+  "final_program": {
+    "session_id": "28dd03d28a304e94b9f44e40ad412b93",
+    "program_transport": "uart-repl",
+    "program": {
+      "execution_id": "37598bcfb9d6449185eaab437c56d482",
+      "revision_id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+      "source_sha256": "5c0a33d60dd12051aed5b55da84d28efe8a00e1157b4420e2fae5ef2383b6ccf",
+      "source_bytes": 1405,
+      "state": "running",
+      "submitted_at": "2026-10-26T13:35:34.896344+00:00",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 56914,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 491,
+      "next_offset": 561,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T13:35:35.341658+00:00"
+    },
+    "history_error": null
+  },
+  "evidence": {
+    "status": "PASS",
+    "members": 14,
+    "serial_windows": 5,
+    "original_source_and_revision_sha": true,
+    "identity_and_member_sha": true,
+    "zip_sha256": "7b93bfee36f32e525aed08e75f7bd890d49964e3dfa728d88650245d9cd20489"
+  },
+  "cleanup": {
+    "state": "stopped",
+    "flash_retained": false,
+    "history_retained": true,
+    "last_frame_available": true,
+    "retained_frame_sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+    "pid_gone": true
+  }
+}

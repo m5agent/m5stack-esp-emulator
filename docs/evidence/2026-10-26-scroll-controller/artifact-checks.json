@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "counts": {
+    "json": 254,
+    "png": 49,
+    "utf8": 315
+  },
+  "openapi": "PARSED",
+  "source_ast": "PASS",
+  "source_snapshot": "MATCH",
+  "credential_mac_scan": {
+    "findings": [],
+    "scope": "all new evidence plaintext plus ZIP textual members; PNG/PPM visual binaries excluded"
+  },
+  "final_staged_scope": {
+    "files": 432,
+    "counts": {
+      "json": 261,
+      "png": 49,
+      "zip": 13,
+      "text": 362
+    },
+    "patterns": [
+      "mac",
+      "private_key",
+      "api_key"
+    ],
+    "findings": []
+  }
+}

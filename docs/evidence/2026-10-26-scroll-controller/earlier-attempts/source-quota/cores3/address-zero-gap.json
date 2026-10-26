@@ -1,0 +1,61 @@
+{
+  "offset": 21644,
+  "prefix_sha256": "91494d43b6a641c4357d50d0571956303c9638745423bd545de4d09a5ac62a18",
+  "marker": "SCROLL_19_25DD088C",
+  "serial": {
+    "session_id": "31544b2409414824b1999c1a9979d0eb",
+    "offset": 21644,
+    "next_offset": 22308,
+    "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_1ead3239678e4e04820b90b0941e9dc0__:START\r\nSCROLL_19_25DD088C {\"phase\": \"versions\", \"kind\": \"check\", \"name\": \"original-firmware-version-string\", \"observed\": \"1\"}\r\nSCROLL_19_25DD088C {\"name\": \"bootloader-version-no-fixture\", \"phase\": \"versions\", \"details\": \"259\", \"kind\": \"unsupported\", \"exception\": \"OSError\"}\r\nSCROLL_19_25DD088C {\"bootloader_fixture\": null, \"firmware_version\": \"1\", \"kind\": \"done\", \"phase\": \"versions\"}\r\nSCROLL_19_25DD088C {\"phase\": \"versions\", \"kind\": \"check\", \"name\": \"zero-address-gap-keeps-old-data-plane\", \"observed\": \"01\"}\r\n__M5_EXEC_1ead3239678e4e04820b90b0941e9dc0__:DONE\r\n\u0004\u0004>",
+    "bytes": 664
+  },
+  "events": [
+    {
+      "phase": "versions",
+      "kind": "check",
+      "name": "original-firmware-version-string",
+      "observed": "1"
+    },
+    {
+      "name": "bootloader-version-no-fixture",
+      "phase": "versions",
+      "details": "259",
+      "kind": "unsupported",
+      "exception": "OSError"
+    },
+    {
+      "bootloader_fixture": null,
+      "firmware_version": "1",
+      "kind": "done",
+      "phase": "versions"
+    },
+    {
+      "phase": "versions",
+      "kind": "check",
+      "name": "zero-address-gap-keeps-old-data-plane",
+      "observed": "01"
+    }
+  ],
+  "state": {
+    "source-count": 117,
+    "pressed": true,
+    "counter": 0,
+    "increments": 0,
+    "direction": 1,
+    "ab-direction": 0,
+    "led-rgb": 1193046,
+    "transactions": 418,
+    "read-bytes": 571,
+    "written-bytes": 485,
+    "input-events": 11,
+    "output-transitions": 17,
+    "i2c-address": 64,
+    "source-step-limit": 32767,
+    "timer-rollover-supported": false,
+    "bootloader-supported": false,
+    "zero-address-unicast-supported": false,
+    "bootloader-requests": 0,
+    "command-errors": 3,
+    "rgb-word": 1446253056
+  }
+}

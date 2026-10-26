@@ -23,6 +23,7 @@ from uiflow_source import MAX_SOURCE_BYTES, UIFlowSourceError, _source_files
 
 
 MAX_REVISIONS = 256
+MAX_CONFIGURED_REVISIONS = 4096
 MAX_REVISION_BYTES = MAX_SOURCE_BYTES
 MAX_RECORD_BYTES = 2 * MAX_REVISION_BYTES
 SOURCE_KIND = "uiflow2-python"
@@ -97,8 +98,8 @@ def _unique_object(pairs: list[tuple[str, Any]]) -> dict:
 
 class ProgramRevisionStore:
     def __init__(self, root: Path, *, max_count: int = MAX_REVISIONS):
-        if type(max_count) is not int or not 1 <= max_count <= MAX_REVISIONS:
-            raise RevisionError("invalid_revision_quota", "max_count must be between 1 and 256")
+        if type(max_count) is not int or not 1 <= max_count <= MAX_CONFIGURED_REVISIONS:
+            raise RevisionError("invalid_revision_quota", "max_count must be between 1 and 4096")
         self.root = Path(root)
         self.max_count = max_count
         self._lock = threading.RLock()

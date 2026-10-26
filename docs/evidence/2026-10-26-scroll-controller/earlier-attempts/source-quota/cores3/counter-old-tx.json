@@ -1,0 +1,51 @@
+{
+  "offset": 15594,
+  "prefix_sha256": "984aa0b3be1da545bd9b3bd9a05e9d626059644346b84e85fad3baa6019f8177",
+  "marker": "SCROLL_13_ECEAF2C4",
+  "serial": {
+    "session_id": "31544b2409414824b1999c1a9979d0eb",
+    "offset": 15594,
+    "next_offset": 15992,
+    "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_5e239171e7044667a10018a2ee84b9f6__:START\r\nSCROLL_13_ECEAF2C4 {\"phase\": \"snapshot-read\", \"kind\": \"check\", \"name\": \"snapshot-read-0\", \"observed\": \"12563412\"}\r\nSCROLL_13_ECEAF2C4 {\"register\": 17, \"pointer_written\": false, \"kind\": \"done\", \"phase\": \"snapshot-read\", \"read_lengths\": [4]}\r\n__M5_EXEC_5e239171e7044667a10018a2ee84b9f6__:DONE\r\n\u0004\u0004>",
+    "bytes": 398
+  },
+  "events": [
+    {
+      "phase": "snapshot-read",
+      "kind": "check",
+      "name": "snapshot-read-0",
+      "observed": "12563412"
+    },
+    {
+      "register": 17,
+      "pointer_written": false,
+      "kind": "done",
+      "phase": "snapshot-read",
+      "read_lengths": [
+        4
+      ]
+    }
+  ],
+  "state": {
+    "source-count": 117,
+    "pressed": true,
+    "counter": 305419897,
+    "increments": 1,
+    "direction": 1,
+    "ab-direction": 0,
+    "led-rgb": 1193046,
+    "transactions": 298,
+    "read-bytes": 424,
+    "written-bytes": 333,
+    "input-events": 11,
+    "output-transitions": 13,
+    "i2c-address": 64,
+    "source-step-limit": 32767,
+    "timer-rollover-supported": false,
+    "bootloader-supported": false,
+    "zero-address-unicast-supported": false,
+    "bootloader-requests": 0,
+    "command-errors": 1,
+    "rgb-word": 1446253056
+  }
+}

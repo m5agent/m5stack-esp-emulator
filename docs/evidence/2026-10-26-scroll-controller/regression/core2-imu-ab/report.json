@@ -1,0 +1,550 @@
+{
+  "schema_version": 1,
+  "started_at": "2026-10-26T13:36:59.085124+00:00",
+  "category": "repository regression diagnostic; virtual device only",
+  "hardware_validation": "NOT RUN",
+  "full_matrix_status": "unchanged 66 PASS / 1 FAIL",
+  "original_full_matrix_case": {
+    "status": "FAIL",
+    "reference_layout": {
+      "source": "reference-partition-table",
+      "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+      "declared": {
+        "offset": 8519680,
+        "size": 8253440
+      },
+      "effective": {
+        "offset": 8519680,
+        "size": 8253440
+      }
+    },
+    "exit_code": 0,
+    "command": [
+      "/opt/miniconda3/bin/python3.12",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+      "--base",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/.cache/firmware/core2/uiflow2.bin",
+      "--machine",
+      "m5core2",
+      "--files-dir",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/uiflow2/core2_imu",
+      "--vfs-offset",
+      "0x820000",
+      "--vfs-size",
+      "0x7df000",
+      "--flash-size",
+      "0x1000000",
+      "--expected-size",
+      "320x240",
+      "--wait",
+      "13",
+      "--post-input-wait",
+      "1",
+      "--efuse-driver",
+      "none",
+      "--qemu",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-scroll-final/qemu/build/qemu-system-xtensa",
+      "--rom-dir",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-scroll-final/qemu/pc-bios",
+      "--out-dir",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-full-regression-r2-20261026/cases/core2-imu",
+      "--memory",
+      "0",
+      "--deterministic",
+      "--input",
+      "touch:160,183",
+      "--qom-set",
+      "/machine/mpu6886",
+      "accel-x",
+      "0.25",
+      "--qom-set",
+      "/machine/mpu6886",
+      "accel-y",
+      "-0.50",
+      "--qom-set",
+      "/machine/mpu6886",
+      "accel-z",
+      "0.75",
+      "--qom-set",
+      "/machine/mpu6886",
+      "gyro-x",
+      "10",
+      "--qom-set",
+      "/machine/mpu6886",
+      "gyro-y",
+      "-20",
+      "--qom-set",
+      "/machine/mpu6886",
+      "gyro-z",
+      "30",
+      "--allow-static-frame"
+    ],
+    "output": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-full-regression-r2-20261026/cases/core2-imu",
+    "before": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-full-regression-r2-20261026/cases/core2-imu/before.png",
+    "after": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-full-regression-r2-20261026/cases/core2-imu/after.png",
+    "attempts": 1,
+    "retry_used": false,
+    "checks": [
+      {
+        "name": "mpu6886_identity",
+        "status": "FAIL",
+        "evidence": [
+          "frame-marker"
+        ]
+      },
+      {
+        "name": "mpu6886_accel",
+        "status": "FAIL",
+        "evidence": [
+          "frame-marker"
+        ]
+      },
+      {
+        "name": "mpu6886_gyro",
+        "status": "FAIL",
+        "evidence": [
+          "frame-marker"
+        ]
+      },
+      {
+        "name": "imu_ui_marker",
+        "status": "FAIL",
+        "evidence": [
+          "frame-marker"
+        ]
+      }
+    ],
+    "evidence_sources": [
+      "frame-marker"
+    ],
+    "validation": "Core2 IMU success marker missing: rgb=(0,0,0)\n",
+    "reason": "Core2 MPU6886 accel/gyro values are injected through QOM and read through the official UIFlow2 Imu API and ESP32 I2C0 path."
+  },
+  "python": "/opt/miniconda3/bin/python3.12",
+  "python_preflight": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/py312/littlefs/__init__.py",
+  "attempts_per_variant": 1,
+  "allow_retries": false,
+  "environment": {
+    "PYTHONPATH": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/py312",
+    "M5_PYTHON_DEPS": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/py312"
+  },
+  "results": {
+    "old": {
+      "matrix_command": [
+        "/opt/miniconda3/bin/python3.12",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/uiflow2/run_peripheral_matrix.py",
+        "--case",
+        "core2-imu",
+        "--out-dir",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-core2-imu-ab-20261026/old"
+      ],
+      "exit_code": 0,
+      "started_at_ns": 1793021819086173000,
+      "finished_at": "2026-10-26T13:37:14.388423+00:00",
+      "result": {
+        "status": "PASS",
+        "reference_layout": {
+          "source": "reference-partition-table",
+          "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+          "declared": {
+            "offset": 8519680,
+            "size": 8253440
+          },
+          "effective": {
+            "offset": 8519680,
+            "size": 8253440
+          }
+        },
+        "exit_code": 0,
+        "command": [
+          "/opt/miniconda3/bin/python3.12",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+          "--base",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/.cache/firmware/core2/uiflow2.bin",
+          "--machine",
+          "m5core2",
+          "--files-dir",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/uiflow2/core2_imu",
+          "--vfs-offset",
+          "0x820000",
+          "--vfs-size",
+          "0x7df000",
+          "--flash-size",
+          "0x1000000",
+          "--expected-size",
+          "320x240",
+          "--wait",
+          "13",
+          "--post-input-wait",
+          "1",
+          "--efuse-driver",
+          "none",
+          "--qemu",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-pwm-route/qemu/build/qemu-system-xtensa",
+          "--rom-dir",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-pwm-route/qemu/pc-bios",
+          "--out-dir",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-core2-imu-ab-20261026/old/core2-imu",
+          "--memory",
+          "0",
+          "--deterministic",
+          "--input",
+          "touch:160,183",
+          "--qom-set",
+          "/machine/mpu6886",
+          "accel-x",
+          "0.25",
+          "--qom-set",
+          "/machine/mpu6886",
+          "accel-y",
+          "-0.50",
+          "--qom-set",
+          "/machine/mpu6886",
+          "accel-z",
+          "0.75",
+          "--qom-set",
+          "/machine/mpu6886",
+          "gyro-x",
+          "10",
+          "--qom-set",
+          "/machine/mpu6886",
+          "gyro-y",
+          "-20",
+          "--qom-set",
+          "/machine/mpu6886",
+          "gyro-z",
+          "30",
+          "--allow-static-frame"
+        ],
+        "output": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-core2-imu-ab-20261026/old/core2-imu",
+        "before": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-core2-imu-ab-20261026/old/core2-imu/before.png",
+        "after": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-core2-imu-ab-20261026/old/core2-imu/after.png",
+        "attempts": 1,
+        "retry_used": false,
+        "checks": [
+          {
+            "name": "mpu6886_identity",
+            "status": "PASS",
+            "evidence": [
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "mpu6886_accel",
+            "status": "PASS",
+            "evidence": [
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "mpu6886_gyro",
+            "status": "PASS",
+            "evidence": [
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "imu_ui_marker",
+            "status": "PASS",
+            "evidence": [
+              "frame-marker"
+            ]
+          }
+        ],
+        "evidence_sources": [
+          "frame-marker"
+        ],
+        "validation": "PASS Core2 IMU marker rgb=(0,255,0)\n",
+        "reason": "Core2 MPU6886 accel/gyro values are injected through QOM and read through the official UIFlow2 Imu API and ESP32 I2C0 path."
+      },
+      "initial_composed_firmware_sha256": "04ba1e4c5a9b9a286bfd7c66b4693e75a508167d4f0a7ba794a0cdfbf85b8a4b",
+      "evidence": {
+        "after_ppm_sha256": "360fcd5c23e1622d3652ca3cca8a92f7902b2ae46afaff62f889a96998162c5c",
+        "dimensions": [
+          320,
+          240
+        ],
+        "sample_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "marker_green_predicate": true,
+        "top_8_rows_color_counts": [
+          {
+            "rgb": [
+              0,
+              255,
+              0
+            ],
+            "pixels": 2560
+          }
+        ],
+        "frame_nonblack_pixels": 3740,
+        "serial_sha256": "d70e20e001edcd12fc97743b62e0ef20e8572e2e23e345e0ec41124a7debbfe3",
+        "serial_bytes": 656,
+        "serial_mtime_ns": 1793021832331914384,
+        "serial_imu_values": [
+          [
+            "0.00",
+            "0.00",
+            "1.00",
+            "0.0",
+            "0.0",
+            "0.0"
+          ],
+          [
+            "0.25",
+            "-0.50",
+            "0.75",
+            "10.0",
+            "-20.0",
+            "0.0"
+          ]
+        ],
+        "serial_matches_expected_accel_gyro": false,
+        "serial_relevant_lines": [
+          "CORE2_IMU_VALUES a=0.00,0.00,1.00 g=0.0,0.0,0.0",
+          "CORE2_IMU_VALUES a=0.25,-0.50,0.75 g=10.0,-20.0,0.0"
+        ],
+        "serial_fresh_for_this_run": true
+      }
+    },
+    "new": {
+      "matrix_command": [
+        "/opt/miniconda3/bin/python3.12",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/uiflow2/run_peripheral_matrix.py",
+        "--case",
+        "core2-imu",
+        "--out-dir",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-core2-imu-ab-20261026/new"
+      ],
+      "exit_code": 0,
+      "started_at_ns": 1793021834388744000,
+      "finished_at": "2026-10-26T13:37:29.674479+00:00",
+      "result": {
+        "status": "PASS",
+        "reference_layout": {
+          "source": "reference-partition-table",
+          "base_firmware_sha256": "b228c0e2d877e77a8a352e917ed84f4da8ea92d15b25e28f431a2999620fe3c4",
+          "declared": {
+            "offset": 8519680,
+            "size": 8253440
+          },
+          "effective": {
+            "offset": 8519680,
+            "size": 8253440
+          }
+        },
+        "exit_code": 0,
+        "command": [
+          "/opt/miniconda3/bin/python3.12",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+          "--base",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/.cache/firmware/core2/uiflow2.bin",
+          "--machine",
+          "m5core2",
+          "--files-dir",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/uiflow2/core2_imu",
+          "--vfs-offset",
+          "0x820000",
+          "--vfs-size",
+          "0x7df000",
+          "--flash-size",
+          "0x1000000",
+          "--expected-size",
+          "320x240",
+          "--wait",
+          "13",
+          "--post-input-wait",
+          "1",
+          "--efuse-driver",
+          "none",
+          "--qemu",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-scroll-final/qemu/build/qemu-system-xtensa",
+          "--rom-dir",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-scroll-final/qemu/pc-bios",
+          "--out-dir",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-core2-imu-ab-20261026/new/core2-imu",
+          "--memory",
+          "0",
+          "--deterministic",
+          "--input",
+          "touch:160,183",
+          "--qom-set",
+          "/machine/mpu6886",
+          "accel-x",
+          "0.25",
+          "--qom-set",
+          "/machine/mpu6886",
+          "accel-y",
+          "-0.50",
+          "--qom-set",
+          "/machine/mpu6886",
+          "accel-z",
+          "0.75",
+          "--qom-set",
+          "/machine/mpu6886",
+          "gyro-x",
+          "10",
+          "--qom-set",
+          "/machine/mpu6886",
+          "gyro-y",
+          "-20",
+          "--qom-set",
+          "/machine/mpu6886",
+          "gyro-z",
+          "30",
+          "--allow-static-frame"
+        ],
+        "output": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-core2-imu-ab-20261026/new/core2-imu",
+        "before": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-core2-imu-ab-20261026/new/core2-imu/before.png",
+        "after": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-core2-imu-ab-20261026/new/core2-imu/after.png",
+        "attempts": 1,
+        "retry_used": false,
+        "checks": [
+          {
+            "name": "mpu6886_identity",
+            "status": "PASS",
+            "evidence": [
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "mpu6886_accel",
+            "status": "PASS",
+            "evidence": [
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "mpu6886_gyro",
+            "status": "PASS",
+            "evidence": [
+              "frame-marker"
+            ]
+          },
+          {
+            "name": "imu_ui_marker",
+            "status": "PASS",
+            "evidence": [
+              "frame-marker"
+            ]
+          }
+        ],
+        "evidence_sources": [
+          "frame-marker"
+        ],
+        "validation": "PASS Core2 IMU marker rgb=(0,255,0)\n",
+        "reason": "Core2 MPU6886 accel/gyro values are injected through QOM and read through the official UIFlow2 Imu API and ESP32 I2C0 path."
+      },
+      "initial_composed_firmware_sha256": "04ba1e4c5a9b9a286bfd7c66b4693e75a508167d4f0a7ba794a0cdfbf85b8a4b",
+      "evidence": {
+        "after_ppm_sha256": "a4992fb54642fb64c4a84ba0bc2a2eaafc6ad456b3b0ae1998407d2737cad066",
+        "dimensions": [
+          320,
+          240
+        ],
+        "sample_4_4_rgb": [
+          0,
+          255,
+          0
+        ],
+        "marker_green_predicate": true,
+        "top_8_rows_color_counts": [
+          {
+            "rgb": [
+              0,
+              255,
+              0
+            ],
+            "pixels": 2560
+          }
+        ],
+        "frame_nonblack_pixels": 3766,
+        "serial_sha256": "0df93de3085cd4d5260643812da6c5aedd177966e61608c762cfe32780b0d3fb",
+        "serial_bytes": 657,
+        "serial_mtime_ns": 1793021847613479536,
+        "serial_imu_values": [
+          [
+            "0.00",
+            "0.00",
+            "1.00",
+            "0.0",
+            "0.0",
+            "0.0"
+          ],
+          [
+            "0.25",
+            "-0.50",
+            "0.75",
+            "10.0",
+            "-20.0",
+            "30.0"
+          ]
+        ],
+        "serial_matches_expected_accel_gyro": true,
+        "serial_relevant_lines": [
+          "CORE2_IMU_VALUES a=0.00,0.00,1.00 g=0.0,0.0,0.0",
+          "CORE2_IMU_VALUES a=0.25,-0.50,0.75 g=10.0,-20.0,30.0"
+        ],
+        "serial_fresh_for_this_run": true
+      }
+    }
+  },
+  "diagnostic_runner_sha256": "893104bede73fa6778be5b47f29158d88221d976207b79124c8d1e2f8a8651e3",
+  "finished_at": "2026-10-26T13:37:29.837419+00:00",
+  "source_inputs_runtimes_rom_tools_originals_unchanged": true,
+  "identical_composed_firmware": true,
+  "original_frame_evidence": {
+    "after_ppm_sha256": "846364ad9e7a1af1e329e726610464a63cab8520c4e7815400b0f039e1cb35b6",
+    "dimensions": [
+      320,
+      240
+    ],
+    "sample_4_4_rgb": [
+      0,
+      0,
+      0
+    ],
+    "marker_green_predicate": false,
+    "top_8_rows_color_counts": [
+      {
+        "rgb": [
+          0,
+          0,
+          0
+        ],
+        "pixels": 2560
+      }
+    ],
+    "frame_nonblack_pixels": 765,
+    "serial_sha256": "543f81158e4b3724f9ddb986124aaafd333cbe35db4f71d6819482c7a2b0136a",
+    "serial_bytes": 657,
+    "serial_mtime_ns": 1793021396529117595,
+    "serial_imu_values": [
+      [
+        "0.00",
+        "0.00",
+        "1.00",
+        "0.0",
+        "0.0",
+        "0.0"
+      ],
+      [
+        "0.25",
+        "-0.50",
+        "0.75",
+        "10.0",
+        "-20.0",
+        "30.0"
+      ]
+    ],
+    "serial_matches_expected_accel_gyro": true,
+    "serial_relevant_lines": [
+      "CORE2_IMU_VALUES a=0.00,0.00,1.00 g=0.0,0.0,0.0",
+      "CORE2_IMU_VALUES a=0.25,-0.50,0.75 g=10.0,-20.0,30.0"
+    ]
+  },
+  "conclusion": "Both single attempts PASS; the original full-run frame-marker failure was not reproduced. Intermittence observed; cause not established or fixed."
+}

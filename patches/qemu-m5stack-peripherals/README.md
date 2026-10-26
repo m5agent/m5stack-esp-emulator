@@ -14,7 +14,12 @@ For the reproducible external-Unit Xtensa source, follow
 [`qemu-unit-runtime/README.md`](../qemu-unit-runtime/README.md): its pinned public
 base and two prelude patches are followed by `0033`, `0034`, `0035`,
 `0036-core2-soft-i2c-handoff-compat.patch`, then
-`0037-s3-ledc-duty-readback.patch`, then `0038-unit-pwm-route-refresh.patch`.
+`0037-s3-ledc-duty-readback.patch`, then `0038-unit-pwm-route-refresh.patch`,
+then `0043-unit-scroll-controller.patch`. The intervening `0039`–`0042` files
+belong to the separate Core2 diagnostic branch and are not part of this Unit stack.
+`0043` adds an independent, explicitly partial Scroll controller; the prelude
+README and [Scroll audit](../../docs/unit-research/scroll-roller485.md) define
+its bounded ticks, snapshot semantics and RGB queue/bootloader/persistence gaps.
 Patch `0036` removes the permanent
 classic ESP32 software-I2C disable introduced with Unit routing; it preserves
 Core2's hardware/software switching while retaining the S3 handoff behavior.

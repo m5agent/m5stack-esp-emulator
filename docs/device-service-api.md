@@ -137,6 +137,12 @@ firmware, runtime and Web report; additional hosts have separate
 `runtime.host_validation` records. Unsupported combinations fail with
 `409 runtime_model_gap`.
 
+Scroll records bounded same-guest program evidence under
+`runtime.program_validation[device_id]`, with the explicit
+`same-guest-scroll-protocol-v1` contract. Only its CoreS3 record links a real
+Web validation; this is distinct from the existing complete host/Web contract.
+`model_completeness=partial` and the declared protocol gaps still apply.
+
 `runtime-profiles.json` owns current runtime status. The compatibility aliases
 `model_status` and `blocker` follow that profile (or its session-frozen copy).
 `research_snapshot` preserves the original protocol-research status and notes;
@@ -165,6 +171,10 @@ rejects Unit writes with `409 unit_contract_unavailable`.
 `POST /sessions/{id}/unit-input` accepts exactly `{id, values}`. Values are
 validated against the session's input schema before QOM writes; unknown fields,
 outputs, invalid array lengths, malformed hex and nonfinite values are rejected.
+Scroll's frozen profile declares `max_live_input_fields=1`: submit `pressed`
+and `source-count` separately. Mixed updates return 400 before any QOM write;
+creation-time `initial` may contain both fields. This is not a general QMP
+transaction or rollback guarantee for other multi-field Unit inputs.
 Successful injection establishes model acceptance; guest serial/bus observations
 are still required to prove firmware consumption. The evidence ZIP includes
 `units/runtime.json`, `units/state.json` and `units/contract.json` alongside
@@ -221,6 +231,15 @@ Storage retention defaults can be changed with:
 | `M5_SERVICE_MIN_FREE_BYTES` | 2147483648 | free-space reserve required before writes or new leases |
 | `M5_SERVICE_RETAIN_SESSION_FLASH` | false | retain every stopped session's full mutable Flash |
 | `M5_SERVICE_STORAGE_PRUNE_INTERVAL` | 30 | janitor storage-prune interval in seconds |
+| `M5_SERVICE_MAX_PROGRAM_REVISIONS` | 256 | immutable source revision count limit; integer `1`–`4096`, also `--max-program-revisions`; `0` is invalid |
+
+Source revisions are retained independently of session history and cache GC.
+They are never automatically reclaimed: a fresh revision returns HTTP `429`
+with `program_revision_quota_exceeded` at the configured count, while existing
+revisions remain readable and duplicate submissions reuse their original record.
+Raising this bounded limit preserves stored source and history; automatic
+revision reclamation remains an open lifecycle gap. The separate program-package
+store keeps its existing limit and retention behavior.
 
 Local worker identity and heartbeat can be controlled with:
 

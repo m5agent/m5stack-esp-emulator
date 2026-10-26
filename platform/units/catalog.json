@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "checked_at": "2026-10-26",
-  "scope": "27 external visual Unit products; official protocol contracts and runtime status are independent.",
+  "scope": "External visual Unit products; official protocol contracts and runtime status are independent.",
   "units": [
     {
       "id": "env-iii",
@@ -3941,6 +3941,341 @@
       "limitations": [
         "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
         "This catalog alone does not authorize a simulated or functional-PASS claim."
+      ]
+    },
+    {
+      "id": "scroll",
+      "name": "Scroll",
+      "sku": "U186",
+      "visual_asset": {
+        "entry": "src/units/scroll/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/Unit_Scroll",
+      "checked_at": "2026-10-26",
+      "chips": [
+        {
+          "part": "STM32F030F4P6",
+          "status": "officially-documented"
+        },
+        {
+          "part": "EC10E encoder",
+          "status": "officially-documented"
+        },
+        {
+          "part": "WS2812C x1",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          64
+        ],
+        "pins": {
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          },
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          }
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "Pinned internal FW ae60717a; independent Scroll I2C slave, LE int32 counter, active-low button, RR/GG/BB bytes at 0x31..33, bounded TX snapshot loops. Selecting an increment register snapshots and clears before read. UIFlow low16 getters and Python-only setter offsets are preserved.",
+        "registers": [
+          {
+            "counter": "0x10..13 LE int32, partial writes",
+            "pressed": "0x20 active-low byte",
+            "led-rgb": "0x31..33 R,G,B",
+            "reset": "0x40 value1 clears logical count/increment, not physical source",
+            "increments": "0x50..53 LE int32; selection snapshots remaining suffix and clears",
+            "direction": "0x60 physical TIM direction; 0xFB configured AB direction",
+            "system": "0xFC bootloader flash read unsupported, 0xFE firmware version1, 0xFF address change; 0xFD bootloader transition unsupported"
+          }
+        ],
+        "gaps": [
+          "TIM16 rollover IRQ/NVIC reachability is not proven for pinned vendor source; source input is explicitly bounded.",
+          "RGB is a synchronous latest-value model for quiescent writes. The MCU multi-slot RGB queue, burst/slot-dependent partial writes and LED scheduling are not simulated.",
+          "No STM32 bootloader execution, persistent configuration Flash or mechanical angle mapping.",
+          "QEMU address-zero broadcast/unicast mismatch and address collision are rejected explicitly."
+        ]
+      },
+      "inputs": {
+        "source-count": {
+          "type": "integer",
+          "label": "外部编码器源计数（有界TIM区间）",
+          "minimum": -32768,
+          "maximum": 32767,
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false,
+          "description": "Synthetic electrical tick position; TIM16=0x8000+source-count. Single event delta at most 32767; timer rollover and signed counter overflow fail closed. This is separate from guest-writable counter and is not a mechanical angle."
+        },
+        "pressed": {
+          "type": "boolean",
+          "label": "滚轮按下",
+          "default": false,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "counter": {
+          "type": "integer",
+          "label": "内部int32计数",
+          "minimum": -2147483648,
+          "maximum": 2147483647,
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "increments": {
+          "type": "integer",
+          "label": "尚未被选择读取的int32增量",
+          "minimum": -2147483648,
+          "maximum": 2147483647,
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "direction": {
+          "type": "integer",
+          "label": "最后物理源方向（TIM up=1）",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 1,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "ab-direction": {
+          "type": "integer",
+          "label": "AB方向配置",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "led-rgb": {
+          "type": "integer",
+          "label": "单颗RGB颜色",
+          "minimum": 0,
+          "maximum": 16777215,
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true
+        },
+        "source-step-limit": {
+          "type": "integer",
+          "label": "单次源计数差分上限",
+          "default": 32767,
+          "default_source": "explicit-model-policy",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "timer-rollover-supported": {
+          "type": "boolean",
+          "label": "TIM回绕已模拟",
+          "default": false,
+          "default_source": "explicit-model-policy",
+          "readOnly": true
+        },
+        "bootloader-supported": {
+          "type": "boolean",
+          "label": "STM32 bootloader已模拟",
+          "default": false,
+          "default_source": "explicit-model-policy",
+          "readOnly": true
+        },
+        "zero-address-unicast-supported": {
+          "type": "boolean",
+          "label": "地址0单播受支持",
+          "default": false,
+          "default_source": "explicit-model-policy",
+          "readOnly": true
+        },
+        "bootloader-requests": {
+          "type": "integer",
+          "label": "不支持的bootloader请求数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "command-errors": {
+          "type": "integer",
+          "label": "不支持或无效命令数",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "rgb-word": {
+          "type": "integer",
+          "label": "原始RGB寄存器字",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "readOnly": true,
+          "minimum": 0,
+          "maximum": 4294967295
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/Unit_Scroll",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "SKU U186; STM32F030F4P6; EC10E; one WS2812C; I2C address 0x40"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/scroll.py",
+          "sha256": "9ca3348afe65f14b1f12e1d3cab0876f43f6c8532d0159f1b99d3eb81c1b3f1d",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "pinned Scroll driver/register transaction behavior"
+          ]
+        },
+        {
+          "kind": "official-source",
+          "url": "https://raw.githubusercontent.com/m5stack/M5Unit-Scroll-Internal-FW/ae60717a4b9315cd12ac56389992fc2b7576d0aa/code/APP/Encoder_EVQ/Core/Src/i2c_ex.c",
+          "sha256": "68406b2f264c343c015e441b9ea514fb864cfc6761590b5a8780bfcd1b7a4a21",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "pinned Scroll driver/register transaction behavior"
+          ]
+        },
+        {
+          "kind": "official-source",
+          "url": "https://raw.githubusercontent.com/m5stack/M5Unit-Scroll-Internal-FW/ae60717a4b9315cd12ac56389992fc2b7576d0aa/code/APP/Encoder_EVQ/Core/Src/main.c",
+          "sha256": "55e6e96254ff8456316f76218bef16391af5f8a6c8ab529248729aaca24b1579",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "pinned Scroll driver/register transaction behavior"
+          ]
+        },
+        {
+          "kind": "official-source",
+          "url": "https://raw.githubusercontent.com/m5stack/M5Unit-Scroll-Internal-FW/ae60717a4b9315cd12ac56389992fc2b7576d0aa/code/APP/Encoder_EVQ/Core/Inc/i2c_ex.h",
+          "sha256": "7a58992f5b36a14d4784b9c18bf4a964983d424e0fe040b67330a8a371c59ed7",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "pinned Scroll driver/register transaction behavior"
+          ]
+        },
+        {
+          "kind": "official-source",
+          "url": "https://raw.githubusercontent.com/m5stack/M5Unit-Scroll-Internal-FW/ae60717a4b9315cd12ac56389992fc2b7576d0aa/code/APP/Encoder_EVQ/Core/Src/tim.c",
+          "sha256": "90b7c7031ad3d8747fb3e01b8c83d883ec2a05e0bd3f5ca75f942947b0592ad8",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "pinned Scroll driver/register transaction behavior"
+          ]
+        }
+      ],
+      "research_status": "partial-contract",
+      "model_status": "partial",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "source-count": {
+            "property": "source-count",
+            "access": "read-write",
+            "type": "integer"
+          },
+          "pressed": {
+            "property": "pressed",
+            "access": "read-write",
+            "type": "boolean"
+          },
+          "counter": {
+            "property": "counter",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "increments": {
+            "property": "increments",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "direction": {
+            "property": "direction",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "ab-direction": {
+            "property": "ab-direction",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "led-rgb": {
+            "property": "led-rgb",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "source-step-limit": {
+            "property": "source-step-limit",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "timer-rollover-supported": {
+            "property": "timer-rollover-supported",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "bootloader-supported": {
+            "property": "bootloader-supported",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "zero-address-unicast-supported": {
+            "property": "zero-address-unicast-supported",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "bootloader-requests": {
+            "property": "bootloader-requests",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "command-errors": {
+            "property": "command-errors",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "rgb-word": {
+            "property": "rgb-word",
+            "access": "read-only",
+            "type": "integer"
+          }
+        },
+        "required_data_plane": "SoC I2C controller over GPIO matrix and routed I2CBus to independent CONTROL_SCROLL"
+      },
+      "blocker": "Candidate under development; no Scroll guest/controller validation yet. Firmware-specific rollover, bootloader, persistence and mechanical calibration remain explicit model gaps.",
+      "input_semantics": "External source-count and pressed fixtures enter the device-local controller model; no host Python driver values.",
+      "output_semantics": "Logical counter/increment, configuration and RGB are observed controller state, read-only to clients.",
+      "limitations": [
+        "All initial values are synthetic fixtures, not hardware measurements.",
+        "Partial implementation is not full Scroll firmware or hardware equivalence."
       ]
     }
   ],

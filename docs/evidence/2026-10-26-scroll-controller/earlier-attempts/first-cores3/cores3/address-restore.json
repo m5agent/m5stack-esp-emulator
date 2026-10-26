@@ -1,0 +1,54 @@
+{
+  "offset": 21143,
+  "prefix_sha256": "e089d4cd4ba02c6e96af82edd37768ae0c4c6e749292fe48ed901f86d276b678",
+  "marker": "SCROLL_18_9535DC7D",
+  "serial": {
+    "session_id": "fa0385f790cb46ccaed26188525f91d2",
+    "offset": 21143,
+    "next_offset": 21643,
+    "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_32ab6013278d4f01ade92eeb70e81a00__:START\r\nSCROLL_18_9535DC7D {\"phase\": \"address-restore\", \"kind\": \"check\", \"name\": \"restored-address-register\", \"observed\": \"40\"}\r\nSCROLL_18_9535DC7D {\"phase\": \"address-restore\", \"kind\": \"check\", \"name\": \"restored-address-data-plane\", \"observed\": \"01\"}\r\nSCROLL_18_9535DC7D {\"old_address\": 65, \"kind\": \"done\", \"phase\": \"address-restore\", \"address\": 64}\r\n__M5_EXEC_32ab6013278d4f01ade92eeb70e81a00__:DONE\r\n\u0004\u0004>",
+    "bytes": 500
+  },
+  "events": [
+    {
+      "phase": "address-restore",
+      "kind": "check",
+      "name": "restored-address-register",
+      "observed": "40"
+    },
+    {
+      "phase": "address-restore",
+      "kind": "check",
+      "name": "restored-address-data-plane",
+      "observed": "01"
+    },
+    {
+      "old_address": 65,
+      "kind": "done",
+      "phase": "address-restore",
+      "address": 64
+    }
+  ],
+  "state": {
+    "source-count": 117,
+    "pressed": true,
+    "counter": 0,
+    "increments": 0,
+    "direction": 1,
+    "ab-direction": 0,
+    "led-rgb": 1193046,
+    "transactions": 409,
+    "read-bytes": 569,
+    "written-bytes": 478,
+    "input-events": 11,
+    "output-transitions": 17,
+    "i2c-address": 64,
+    "source-step-limit": 32767,
+    "timer-rollover-supported": false,
+    "bootloader-supported": false,
+    "zero-address-unicast-supported": false,
+    "bootloader-requests": 0,
+    "command-errors": 1,
+    "rgb-word": 1446253056
+  }
+}

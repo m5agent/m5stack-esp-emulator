@@ -3357,6 +3357,172 @@
           "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-control-display-gen9-a8fe/batches/stopwatch/strict-selected-aggregate.json"
         }
       }
+    },
+    "scroll": {
+      "max_live_input_fields": 1,
+      "status": "implemented",
+      "hosts": [
+        "cores3",
+        "atoms3r",
+        "sticks3",
+        "stopwatch"
+      ],
+      "model_completeness": "partial",
+      "blocker": "Scoped normal-operation evidence is attached; model remains partial: TIM source range and int32 overflow fail closed; timer rollover, bootloader/flash persistence and address-zero unicast are unsupported. RGB uses synchronous latest-value/quiescent writes, without the MCU multi-slot queue, burst-dependent partial writes or LED scheduling. Four hosts have explicit guest reports; only CoreS3 has real-Web evidence. Other firmware/hosts, physical hardware and the declared gaps are not validated.",
+      "inputs": {
+        "source-count": {
+          "property": "source-count"
+        },
+        "pressed": {
+          "property": "pressed"
+        }
+      },
+      "state": {
+        "source-count": {
+          "property": "source-count"
+        },
+        "pressed": {
+          "property": "pressed"
+        },
+        "counter": {
+          "property": "counter"
+        },
+        "increments": {
+          "property": "increments"
+        },
+        "direction": {
+          "property": "direction"
+        },
+        "ab-direction": {
+          "property": "ab-direction"
+        },
+        "led-rgb": {
+          "property": "led-rgb"
+        },
+        "transactions": {
+          "property": "transactions"
+        },
+        "read-bytes": {
+          "property": "read-bytes"
+        },
+        "written-bytes": {
+          "property": "written-bytes"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        },
+        "i2c-address": {
+          "property": "i2c-address"
+        },
+        "source-step-limit": {
+          "property": "source-step-limit"
+        },
+        "timer-rollover-supported": {
+          "property": "timer-rollover-supported"
+        },
+        "bootloader-supported": {
+          "property": "bootloader-supported"
+        },
+        "zero-address-unicast-supported": {
+          "property": "zero-address-unicast-supported"
+        },
+        "bootloader-requests": {
+          "property": "bootloader-requests"
+        },
+        "command-errors": {
+          "property": "command-errors"
+        },
+        "rgb-word": {
+          "property": "rgb-word"
+        }
+      },
+      "program_validation": {
+        "cores3": {
+          "status": "PASS",
+          "validation": "virtual-device validation",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "firmware_flavor": "reference-uiflow-live-original-ScrollUnit",
+          "report": "docs/evidence/2026-10-26-scroll-controller/hosts/cores3/report.json",
+          "report_sha256": "7edbaf274cd68852ada1016377fd34a9c28e7ef8bf1ab238990a6f870ec9e627",
+          "evidence_sha256": "ebcfe380f0a9a1e38a69209252b9e7eb6a7bf8a2063393395c1dce469e0baf25",
+          "runtime_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+          "runtime_proof_kind": "macOS-proc_pidpath",
+          "worker_generation": 28,
+          "guest_controller": "PASS",
+          "live_browser": "PASS",
+          "hardware": "NOT RUN",
+          "scope": "22 finite same-guest programs; bounded non-rollover source and signed arithmetic, original API/partial-register/TX-snapshot subset. RGB quiescent latest-value only; no MCU queue/scheduling, bootloader/persistence, zero-address unicast or mechanical angle equivalence.",
+          "live_browser_report": "docs/evidence/2026-10-26-scroll-controller/web/report.json",
+          "live_browser_report_sha256": "2b34af58028db1fd83796c9d8fb465e3cc7f4ede653b391d8a66301186107b8e",
+          "evidence_contract": "same-guest-scroll-protocol-v1"
+        },
+        "atoms3r": {
+          "status": "PASS",
+          "validation": "virtual-device validation",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "session_id": "d89750db7eec412bae55ff7c6f8a8822",
+          "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+          "firmware_flavor": "reference-uiflow-live-original-ScrollUnit",
+          "report": "docs/evidence/2026-10-26-scroll-controller/hosts/atoms3r/report.json",
+          "report_sha256": "073d79ec05d6b3663d2b18ec3751519f6a5250187ccf753468c3a774b33ecba2",
+          "evidence_sha256": "fd92b8b41d8ddee1db1bf07ceb8190bb1bb2f8b04d5404ad28808b67173e69ad",
+          "runtime_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+          "runtime_proof_kind": "macOS-proc_pidpath",
+          "worker_generation": 28,
+          "guest_controller": "PASS",
+          "live_browser": "NOT RUN",
+          "hardware": "NOT RUN",
+          "scope": "22 finite same-guest programs; bounded non-rollover source and signed arithmetic, original API/partial-register/TX-snapshot subset. RGB quiescent latest-value only; no MCU queue/scheduling, bootloader/persistence, zero-address unicast or mechanical angle equivalence.",
+          "evidence_contract": "same-guest-scroll-protocol-v1"
+        },
+        "sticks3": {
+          "status": "PASS",
+          "validation": "virtual-device validation",
+          "device_id": "sticks3",
+          "runtime": "qemu",
+          "session_id": "368431790a6240458e273d489b34909c",
+          "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+          "firmware_flavor": "reference-uiflow-live-original-ScrollUnit",
+          "report": "docs/evidence/2026-10-26-scroll-controller/hosts/sticks3/report.json",
+          "report_sha256": "1da0b6ee96f2029a39401c177d6bbe311ce0cb4b518e2dcd450ff2da54e55ec9",
+          "evidence_sha256": "b33197a908a6a48ed0be0c1c6b9921b1898f96aac814439b8208e81d80e0c2e2",
+          "runtime_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+          "runtime_proof_kind": "macOS-proc_pidpath",
+          "worker_generation": 28,
+          "guest_controller": "PASS",
+          "live_browser": "NOT RUN",
+          "hardware": "NOT RUN",
+          "scope": "22 finite same-guest programs; bounded non-rollover source and signed arithmetic, original API/partial-register/TX-snapshot subset. RGB quiescent latest-value only; no MCU queue/scheduling, bootloader/persistence, zero-address unicast or mechanical angle equivalence.",
+          "evidence_contract": "same-guest-scroll-protocol-v1"
+        },
+        "stopwatch": {
+          "status": "PASS",
+          "validation": "virtual-device validation",
+          "device_id": "stopwatch",
+          "runtime": "qemu",
+          "session_id": "5479540affcc4f76801a3ec6177ee514",
+          "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+          "firmware_flavor": "reference-uiflow-live-original-ScrollUnit",
+          "report": "docs/evidence/2026-10-26-scroll-controller/hosts/stopwatch/report.json",
+          "report_sha256": "a87d313ecb30aeadf59b60c44df9c1b81b50ad2fc5af61f2127d2150ef26d70c",
+          "evidence_sha256": "eb5f298499c5abf7b59e90016046642c1fa42f4ac1c88ee36a1c9e32fbd739da",
+          "runtime_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+          "runtime_proof_kind": "macOS-proc_pidpath",
+          "worker_generation": 28,
+          "guest_controller": "PASS",
+          "live_browser": "NOT RUN",
+          "hardware": "NOT RUN",
+          "scope": "22 finite same-guest programs; bounded non-rollover source and signed arithmetic, original API/partial-register/TX-snapshot subset. RGB quiescent latest-value only; no MCU queue/scheduling, bootloader/persistence, zero-address unicast or mechanical angle equivalence.",
+          "evidence_contract": "same-guest-scroll-protocol-v1"
+        }
+      }
     }
   }
 }

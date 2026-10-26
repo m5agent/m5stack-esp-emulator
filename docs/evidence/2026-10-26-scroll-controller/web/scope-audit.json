@@ -1,0 +1,578 @@
+{
+  "schema_version": 1,
+  "category": "independent-scroll-r2-scope-and-evidence-audit",
+  "status": "PASS",
+  "audited_at": "2026-10-26T13:44:58.113590+00:00",
+  "scope_exaggeration_found": false,
+  "mutation_scope": "Only this independent audit JSON is written. Original report, evidence ZIP, product code and probe are preserved. No new guest or browser-fixture execution.",
+  "actual_run": {
+    "report_path": "/tmp/m5-scroll-live-browser-r2-cache/report.json",
+    "report_sha256": "2b34af58028db1fd83796c9d8fb465e3cc7f4ede653b391d8a66301186107b8e",
+    "probe_path": "platform/tests/test_live_scroll_service_browser.mjs",
+    "probe_sha256": "4f1f3872abb92e084a6825cbb1ed9aa5bb899cacd286d01e92246d99add8a472",
+    "evidence_zip_path": "/tmp/m5-scroll-live-browser-r2-cache/evidence.zip",
+    "evidence_zip_sha256": "7b93bfee36f32e525aed08e75f7bd890d49964e3dfa728d88650245d9cd20489",
+    "session_id": "28dd03d28a304e94b9f44e40ad412b93",
+    "guest_pid": 56914,
+    "worker": {
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 28,
+      "lease_active": true
+    },
+    "runtime_identity_before": {
+      "pid": 56914,
+      "executable_name": "qemu-system-xtensa",
+      "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+    },
+    "runtime_identity_after": {
+      "pid": 56914,
+      "executable_name": "qemu-system-xtensa",
+      "sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2"
+    },
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "executed_runtime_profiles_sha256": "637a3b26783dcaa82be71f4ed7a26f3e8041191bfe926e2246a0f699d438ea55",
+    "program": {
+      "execution_id": "37598bcfb9d6449185eaab437c56d482",
+      "revision_id": "e701f6f88cfd6f515295df2d9a9addcbfa25b0d47a3b29cc4999662da06dda28",
+      "source_sha256": "5c0a33d60dd12051aed5b55da84d28efe8a00e1157b4420e2fae5ef2383b6ccf",
+      "source_bytes": 1405,
+      "state": "running",
+      "submitted_at": "2026-10-26T13:35:34.896344+00:00",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 56914,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 491,
+      "next_offset": 561,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T13:35:35.341658+00:00"
+    },
+    "checks": {
+      "original_scroll_api_running_in_same_guest": true,
+      "trusted_canvas_to_http_original_driver_and_gpio_i2c": true,
+      "guest_rgb_to_controller_http_and_real_led_material": true,
+      "actual_png_to_model_display_and_live_execution_metadata": true,
+      "web_source_count_to_original_low16_api_without_guessed_rotation": true,
+      "runtime_readback_zero_input_echo": true,
+      "same_vm_pid_firmware_source_uart_and_zip_evidence": true,
+      "evidence_before_stop_history_and_frame_retained_flash_released": true
+    },
+    "hardware": "NOT RUN"
+  },
+  "source_checks": [
+    {
+      "path": "platform/tests/test_live_scroll_service_browser.mjs",
+      "executed_sha256": "4f1f3872abb92e084a6825cbb1ed9aa5bb899cacd286d01e92246d99add8a472",
+      "current_sha256": "4f1f3872abb92e084a6825cbb1ed9aa5bb899cacd286d01e92246d99add8a472",
+      "unchanged": true
+    },
+    {
+      "path": "platform/web/sessions.js",
+      "executed_sha256": "1507dd7fd1e69d0fb10f741178623d487c2a92b8f2f5b36a66d749c808d5abc8",
+      "current_sha256": "1507dd7fd1e69d0fb10f741178623d487c2a92b8f2f5b36a66d749c808d5abc8",
+      "unchanged": true
+    },
+    {
+      "path": "platform/web/sessions.html",
+      "executed_sha256": "a53a4319aa57ddfa50fd1e27c32ee02a31be452a12ee56af0aeb9ece89a70c1b",
+      "current_sha256": "a53a4319aa57ddfa50fd1e27c32ee02a31be452a12ee56af0aeb9ece89a70c1b",
+      "unchanged": true
+    },
+    {
+      "path": "platform/web/program-panel.js",
+      "executed_sha256": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+      "current_sha256": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+      "unchanged": true
+    },
+    {
+      "path": "platform/web/unit-panel.js",
+      "executed_sha256": "9ae02a31aff57b31241f47c5a11f3683b1a174355be4c34174e7d6233f54644f",
+      "current_sha256": "9ae02a31aff57b31241f47c5a11f3683b1a174355be4c34174e7d6233f54644f",
+      "unchanged": true
+    },
+    {
+      "path": "platform/web/model-shell.js",
+      "executed_sha256": "5ff2860a3638207131a8d488ec102293e61c27f566300ba1b95a368c4b2c2129",
+      "current_sha256": "5ff2860a3638207131a8d488ec102293e61c27f566300ba1b95a368c4b2c2129",
+      "unchanged": true
+    },
+    {
+      "path": "platform/web/unit-visual-mappings.js",
+      "executed_sha256": "4fa597e15dac3c37dd665389f218446e6f8e7f8fd0c38740060a250e5cf942d6",
+      "current_sha256": "4fa597e15dac3c37dd665389f218446e6f8e7f8fd0c38740060a250e5cf942d6",
+      "unchanged": true
+    },
+    {
+      "path": "platform/units/catalog.json",
+      "executed_sha256": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+      "current_sha256": "ba63f08b6c2011150e4cfeb2cb322992cb5d64033ea078eab9006cb3056c0d7c",
+      "unchanged": true
+    },
+    {
+      "path": "platform/units/runtime-profiles.json",
+      "executed_sha256": "637a3b26783dcaa82be71f4ed7a26f3e8041191bfe926e2246a0f699d438ea55",
+      "current_sha256": "43ee119b5f4734ee06116f16f9e913a113488d4cf0655583d3c47aa49eeafdba",
+      "unchanged": false
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/vendor-manifest.json",
+      "executed_sha256": "a26ae90cd9f4eef4c1379cc513911650253ef226070629d8001185a38dd5386a",
+      "current_sha256": "a26ae90cd9f4eef4c1379cc513911650253ef226070629d8001185a38dd5386a",
+      "unchanged": true
+    },
+    {
+      "path": "platform/web/vendor/m5stack-models/src/units/scroll/index.js",
+      "executed_sha256": "412c4887d3a34a2bff833d273fe4bc26df3be1be6b5377fc9195c090946d034c",
+      "current_sha256": "412c4887d3a34a2bff833d273fe4bc26df3be1be6b5377fc9195c090946d034c",
+      "unchanged": true
+    },
+    {
+      "path": "tests/units/scroll_protocol_probe.py",
+      "executed_sha256": "21b1368d863c64bbe2135acf751d51d1d6c2e0786f7bd871edd4b2a4466e7039",
+      "current_sha256": "21b1368d863c64bbe2135acf751d51d1d6c2e0786f7bd871edd4b2a4466e7039",
+      "unchanged": true
+    }
+  ],
+  "cache_chain": [
+    {
+      "url_path": "/platform/web/sessions.html",
+      "http_status": 200,
+      "sha256": "a53a4319aa57ddfa50fd1e27c32ee02a31be452a12ee56af0aeb9ece89a70c1b",
+      "equals_local_and_r2_report": true
+    },
+    {
+      "url_path": "/platform/web/sessions.js?v=20261026f",
+      "http_status": 200,
+      "sha256": "1507dd7fd1e69d0fb10f741178623d487c2a92b8f2f5b36a66d749c808d5abc8",
+      "equals_local_and_r2_report": true
+    },
+    {
+      "url_path": "/platform/web/unit-panel.js?v=20261026f",
+      "http_status": 200,
+      "sha256": "9ae02a31aff57b31241f47c5a11f3683b1a174355be4c34174e7d6233f54644f",
+      "equals_local_and_r2_report": true
+    },
+    {
+      "url_path": "/platform/web/unit-visual-mappings.js?v=20261026f",
+      "http_status": 200,
+      "sha256": "4fa597e15dac3c37dd665389f218446e6f8e7f8fd0c38740060a250e5cf942d6",
+      "equals_local_and_r2_report": true
+    }
+  ],
+  "post_run_publication_metadata": {
+    "classification": "expected post-run publication metadata",
+    "current_profile_file_sha256": "43ee119b5f4734ee06116f16f9e913a113488d4cf0655583d3c47aa49eeafdba",
+    "executed_profile_file_sha256": "637a3b26783dcaa82be71f4ed7a26f3e8041191bfe926e2246a0f699d438ea55",
+    "exact_scroll_profile_changed_paths": [
+      "/blocker",
+      "/guest_validation",
+      "/host_validation"
+    ],
+    "only_allowed_metadata_or_wording": true,
+    "exact_scroll_profile_diff": [
+      {
+        "path": "/blocker",
+        "frozen": "Bounded normal-operation candidate only: TIM source range and int32 overflow fail closed; timer rollover, bootloader/flash persistence and address-zero unicast are unsupported. RGB uses synchronous latest-value/quiescent writes, without the MCU multi-slot queue, burst-dependent partial writes or LED scheduling. Guest/Web validation is not inherited; only explicit future evidence closes each host path.",
+        "current": "Scoped normal-operation evidence is attached; model remains partial: TIM source range and int32 overflow fail closed; timer rollover, bootloader/flash persistence and address-zero unicast are unsupported. RGB uses synchronous latest-value/quiescent writes, without the MCU multi-slot queue, burst-dependent partial writes or LED scheduling. Four hosts have explicit guest reports; only CoreS3 has real-Web evidence. Other firmware/hosts, physical hardware and the declared gaps are not validated."
+      },
+      {
+        "path": "/guest_validation",
+        "frozen": null,
+        "current": {
+          "status": "PASS",
+          "validation": "virtual-device validation",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "firmware_flavor": "reference-uiflow-live-original-ScrollUnit",
+          "report": "docs/evidence/2026-10-26-scroll-controller/hosts/cores3/report.json",
+          "report_sha256": "7edbaf274cd68852ada1016377fd34a9c28e7ef8bf1ab238990a6f870ec9e627",
+          "evidence_sha256": "ebcfe380f0a9a1e38a69209252b9e7eb6a7bf8a2063393395c1dce469e0baf25",
+          "runtime_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 28,
+          "guest_controller": "PASS",
+          "live_browser": "PASS",
+          "hardware": "NOT RUN",
+          "scope": "22 finite same-guest programs; bounded non-rollover source and signed arithmetic, original API/partial-register/TX-snapshot subset. RGB quiescent latest-value only; no MCU queue/scheduling, bootloader/persistence, zero-address unicast or mechanical angle equivalence.",
+          "live_browser_report": "docs/evidence/2026-10-26-scroll-controller/web/report.json",
+          "live_browser_report_sha256": "2b34af58028db1fd83796c9d8fb465e3cc7f4ede653b391d8a66301186107b8e"
+        }
+      },
+      {
+        "path": "/host_validation",
+        "frozen": null,
+        "current": {
+          "atoms3r": {
+            "status": "PASS",
+            "validation": "virtual-device validation",
+            "device_id": "atoms3r",
+            "runtime": "qemu",
+            "session_id": "d89750db7eec412bae55ff7c6f8a8822",
+            "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+            "firmware_flavor": "reference-uiflow-live-original-ScrollUnit",
+            "report": "docs/evidence/2026-10-26-scroll-controller/hosts/atoms3r/report.json",
+            "report_sha256": "073d79ec05d6b3663d2b18ec3751519f6a5250187ccf753468c3a774b33ecba2",
+            "evidence_sha256": "fd92b8b41d8ddee1db1bf07ceb8190bb1bb2f8b04d5404ad28808b67173e69ad",
+            "runtime_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 28,
+            "guest_controller": "PASS",
+            "live_browser": "NOT RUN",
+            "hardware": "NOT RUN",
+            "scope": "22 finite same-guest programs; bounded non-rollover source and signed arithmetic, original API/partial-register/TX-snapshot subset. RGB quiescent latest-value only; no MCU queue/scheduling, bootloader/persistence, zero-address unicast or mechanical angle equivalence."
+          },
+          "sticks3": {
+            "status": "PASS",
+            "validation": "virtual-device validation",
+            "device_id": "sticks3",
+            "runtime": "qemu",
+            "session_id": "368431790a6240458e273d489b34909c",
+            "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+            "firmware_flavor": "reference-uiflow-live-original-ScrollUnit",
+            "report": "docs/evidence/2026-10-26-scroll-controller/hosts/sticks3/report.json",
+            "report_sha256": "1da0b6ee96f2029a39401c177d6bbe311ce0cb4b518e2dcd450ff2da54e55ec9",
+            "evidence_sha256": "b33197a908a6a48ed0be0c1c6b9921b1898f96aac814439b8208e81d80e0c2e2",
+            "runtime_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 28,
+            "guest_controller": "PASS",
+            "live_browser": "NOT RUN",
+            "hardware": "NOT RUN",
+            "scope": "22 finite same-guest programs; bounded non-rollover source and signed arithmetic, original API/partial-register/TX-snapshot subset. RGB quiescent latest-value only; no MCU queue/scheduling, bootloader/persistence, zero-address unicast or mechanical angle equivalence."
+          },
+          "stopwatch": {
+            "status": "PASS",
+            "validation": "virtual-device validation",
+            "device_id": "stopwatch",
+            "runtime": "qemu",
+            "session_id": "5479540affcc4f76801a3ec6177ee514",
+            "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+            "firmware_flavor": "reference-uiflow-live-original-ScrollUnit",
+            "report": "docs/evidence/2026-10-26-scroll-controller/hosts/stopwatch/report.json",
+            "report_sha256": "a87d313ecb30aeadf59b60c44df9c1b81b50ad2fc5af61f2127d2150ef26d70c",
+            "evidence_sha256": "eb5f298499c5abf7b59e90016046642c1fa42f4ac1c88ee36a1c9e32fbd739da",
+            "runtime_binary_sha256": "b8de32a39be06162ae8ce8529b218370038936059dba067b9a7109a470e067d2",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 28,
+            "guest_controller": "PASS",
+            "live_browser": "NOT RUN",
+            "hardware": "NOT RUN",
+            "scope": "22 finite same-guest programs; bounded non-rollover source and signed arithmetic, original API/partial-register/TX-snapshot subset. RGB quiescent latest-value only; no MCU queue/scheduling, bootloader/persistence, zero-address unicast or mechanical angle equivalence."
+          }
+        }
+      }
+    ],
+    "current_worker_generation_observed_readonly": 29,
+    "original_execution_worker_generation": 28,
+    "note": "The r2 contract executed and froze 637a... at generation 28. The subsequent publication/reload at generation 29 does not retroactively change that execution or contract hash."
+  },
+  "independent_readonly_checks": {
+    "zip_member_count": 14,
+    "zip_crc_paths_duplicates_symlinks_index_size_sha": true,
+    "session_device_worker_pid_firmware_attachment_contract_identity": true,
+    "program_original_source_revision_metadata_and_hashes": true,
+    "fresh_uart_windows": 5,
+    "uart_raw_byte_ranges_prefix_hashes_markers_nonce": true,
+    "same_vm_nonce_in_each_sample": true,
+    "actual_frames": [
+      {
+        "name": "released-initial",
+        "sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "png_size": [
+          320,
+          240
+        ],
+        "background_ratio": 0.9680729166666666,
+        "sampled_coordinates": [
+          {
+            "x": 318,
+            "y": 238,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 2,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 318,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          }
+        ],
+        "mounted_display_comparison": "three sampled coordinates checked by original browser probe; not a full framebuffer comparison",
+        "frame_metadata_sha_matches_separately_captured_png": true
+      },
+      {
+        "name": "pressed",
+        "sha256": "8d9c8e3dec4a74d2e626dcf451fe5dec8f0aab5e5cce24c4009e24de853b9108",
+        "png_size": [
+          320,
+          240
+        ],
+        "background_ratio": 0.9696354166666666,
+        "sampled_coordinates": [
+          {
+            "x": 318,
+            "y": 238,
+            "rgb": [
+              255,
+              0,
+              0
+            ]
+          },
+          {
+            "x": 2,
+            "y": 2,
+            "rgb": [
+              255,
+              0,
+              0
+            ]
+          },
+          {
+            "x": 318,
+            "y": 2,
+            "rgb": [
+              255,
+              0,
+              0
+            ]
+          }
+        ],
+        "mounted_display_comparison": "three sampled coordinates checked by original browser probe; not a full framebuffer comparison",
+        "frame_metadata_sha_matches_separately_captured_png": true
+      },
+      {
+        "name": "released",
+        "sha256": "69cfd1eb7a2299e74e7c2ae5325c4b43e0957fbf9c51f7f23478e44e90f54ebc",
+        "png_size": [
+          320,
+          240
+        ],
+        "background_ratio": 0.9680729166666666,
+        "sampled_coordinates": [
+          {
+            "x": 318,
+            "y": 238,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 2,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 318,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          }
+        ],
+        "mounted_display_comparison": "three sampled coordinates checked by original browser probe; not a full framebuffer comparison",
+        "frame_metadata_sha_matches_separately_captured_png": true
+      },
+      {
+        "name": "source-3",
+        "sha256": "c7ff4a2e49c5d64955d6d7f229161ab4513297376351a636853610f3969e8274",
+        "png_size": [
+          320,
+          240
+        ],
+        "background_ratio": 0.9683333333333334,
+        "sampled_coordinates": [
+          {
+            "x": 318,
+            "y": 238,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 2,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 318,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          }
+        ],
+        "mounted_display_comparison": "three sampled coordinates checked by original browser probe; not a full framebuffer comparison",
+        "frame_metadata_sha_matches_separately_captured_png": false
+      },
+      {
+        "name": "source--2",
+        "sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+        "png_size": [
+          320,
+          240
+        ],
+        "background_ratio": 0.9679166666666666,
+        "sampled_coordinates": [
+          {
+            "x": 318,
+            "y": 238,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 2,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "x": 318,
+            "y": 2,
+            "rgb": [
+              0,
+              255,
+              0
+            ]
+          }
+        ],
+        "mounted_display_comparison": "three sampled coordinates checked by original browser probe; not a full framebuffer comparison",
+        "frame_metadata_sha_matches_separately_captured_png": true
+      }
+    ],
+    "retained_frame_sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+    "cleanup_record": {
+      "state": "stopped",
+      "flash_retained": false,
+      "history_retained": true,
+      "last_frame_available": true,
+      "retained_frame_sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e",
+      "pid_gone": true
+    },
+    "screenshot_visual_inspection": "pressed-browser.png shows mounted CoreS3 and Scroll, red guest display, pressed readback and red LED output."
+  },
+  "spec": {
+    "positive": {
+      "layer": "actual browser + Device Service + guest controller",
+      "source": "/tmp/m5-scroll-live-browser-r2-cache/report.json",
+      "source_sha256": "2b34af58028db1fd83796c9d8fb465e3cc7f4ede653b391d8a66301186107b8e",
+      "evidence_fields": [
+        "program_request",
+        "program",
+        "samples",
+        "runtime_identity",
+        "final_runtime_identity",
+        "frames[*].state",
+        "frames[*].visual",
+        "frames[*].metrics.pixels",
+        "zero_echo",
+        "evidence",
+        "cleanup"
+      ],
+      "unit_posts": 4,
+      "fresh_uart_windows": 5,
+      "actual_png_count": 5,
+      "zero_echo": {
+        "observed_ms": 1600,
+        "unit_posts_before": 4,
+        "unit_posts_after": 4,
+        "new_shared_frames": 13,
+        "physical_events_before": 3,
+        "physical_events_after": 3
+      }
+    },
+    "negative": [
+      {
+        "layer": "historical synthetic HTTP browser fixture",
+        "source": "/tmp/m5-scroll-visual-r4-review/report.json",
+        "source_sha256": "a1a4e182284903e778d582794f19a51db2975b949ee4fd759b96ff12f3d4848d",
+        "probe_path": "platform/tests/test_scroll_visual_mapping.mjs",
+        "probe_sha256": "429beb17b2f8a85462ec6c10b17723950cd6929147b085f81e1f3fcdb1f48cd5",
+        "status": "PASS",
+        "checks": 7,
+        "readonly_mixed_output_public_panel_send_requests_rejected_http400": 14,
+        "held_dispose_orders": [
+          "panel-first",
+          "shell-first"
+        ],
+        "late_get_release_ack_no_repaint_event_post": "PASS in historical fixture only",
+        "guest_execution": "NOT RUN",
+        "hardware_execution": "NOT RUN",
+        "same_run_or_final_cache": "NO; historical r4 source hashes differ and are retained in its report"
+      },
+      {
+        "layer": "current host-only parser, planning and evidence negatives",
+        "source_path": "tests/units/test_live_scroll.py",
+        "source_sha256": "6d842ac43b503fd6fb36fbb9fc67b0a1160e170a22f7888af24574ae30286486",
+        "log_path": "/tmp/m5-scroll-live-browser-r2-cache/scope-offline-tests.log",
+        "log_sha256": "c9a32f6a48da69c7fec07304070f0b7ac04cffaed72d7e7cfc7a4db0996b83ba",
+        "command": "PYTHONPATH=platform/tools:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 -m unittest discover -s tests/units -p test_live_scroll.py -v",
+        "tests_passed": 14,
+        "status": "PASS",
+        "covers": [
+          "planning has no client/HTTP/run/mkdir effects",
+          "execute requires new directory and exact runtime SHA",
+          "source AST/compile only, no host execution of guest code",
+          "marker completeness and type validation",
+          "ZIP identity/source/revision/metadata/member/path/hash binding",
+          "duplicate and symlink ZIP rejection",
+          "negative/bool/reversed/out-of-range/mismatched UART offsets",
+          "START/DONE execution identity"
+        ],
+        "guest_execution": "NOT RUN",
+        "hardware_execution": "NOT RUN"
+      }
+    ]
+  },
+  "scope_limits": [
+    "CoreS3, the recorded UIFlow firmware SHA, QEMU binary SHA and frozen Scroll profile only.",
+    "Virtual-device evidence only; physical hardware, electrical/mechanical/timing equivalence NOT RUN.",
+    "Quiescent latest-value RGB only; MCU RGB queue, burst/slot-dependent partial writes and scheduling not covered.",
+    "No calibrated angle, counts per revolution or RPM; all reported joint angles and RPM remain zero.",
+    "No TIM rollover, STM32 bootloader, configuration Flash persistence or zero-address-unicast equivalence.",
+    "Three PNG coordinates match mounted Display pixels; no full framebuffer byte-for-byte equality claim.",
+    "Controller state, PNG and shared-frame metadata are separately sampled stable observations, not an atomic snapshot. source-3 shared metadata still identifies the prior released frame, while execution identity remains correct.",
+    "1600 ms zero-echo observation with 13 shared-frame responses is not a performance SLA or soak.",
+    "No inference for other hosts, Units, firmware images, arbitrary UIFlow programs or compiled .mpy packages.",
+    "Readonly/mixed-output rejection and held-dispose delayed-response negatives are historical synthetic browser-fixture evidence, not r2 guest evidence or a final-cache rerun."
+  ]
+}

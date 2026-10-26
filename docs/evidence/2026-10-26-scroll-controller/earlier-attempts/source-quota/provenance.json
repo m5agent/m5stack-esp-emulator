@@ -1,0 +1,36 @@
+{
+  "started_at": "2026-10-26T13:22:31.135225+00:00",
+  "source_start_sha256": {
+    "tests/units/run_live_scroll.py": "d22257a3768abad5e0b803c099401bc14fce2e1a3f52982de720143a5bd4cf81",
+    "tests/units/scroll_protocol_probe.py": "aa3109375769ec77270f705a72012767933fe1b3ba0067eae301265f51010745",
+    "tests/units/test_live_scroll.py": "6d842ac43b503fd6fb36fbb9fc67b0a1160e170a22f7888af24574ae30286486",
+    "platform/units/catalog.json": "ecb217f8458c9b4032c1439ab920d88b82c8570768b33336185e930a9d5f905f",
+    "platform/units/runtime-profiles.json": "f866b5708ce19251f120bf2d6d7f5b2ebba59854ba64b35264af8a7de572ee8b",
+    "platform/tools/device_service.py": "65fd34d84b098fc29bb8d0ef694c95c1c5e13046bdd21cf2c4a62f4e169e622c",
+    "platform/web/unit-visual-mappings.js": "4fa597e15dac3c37dd665389f218446e6f8e7f8fd0c38740060a250e5cf942d6",
+    "patches/qemu-m5stack-peripherals/0043-unit-scroll-controller.patch": "03f34ee350be9d7fade560c3fe94ed8e6914209350348dd44c8ac4ef4d1c16ea"
+  },
+  "hardware_validation": "NOT RUN",
+  "scope": "four hosts, separate fresh visible sessions, same-guest finite Scroll phases",
+  "results": {
+    "cores3": {
+      "exit_code": 0
+    },
+    "atoms3r": {
+      "exit_code": 1
+    }
+  },
+  "finished_at": "2026-10-26T13:23:04.644443+00:00",
+  "source_end_sha256": {
+    "tests/units/run_live_scroll.py": "d22257a3768abad5e0b803c099401bc14fce2e1a3f52982de720143a5bd4cf81",
+    "tests/units/scroll_protocol_probe.py": "aa3109375769ec77270f705a72012767933fe1b3ba0067eae301265f51010745",
+    "tests/units/test_live_scroll.py": "6d842ac43b503fd6fb36fbb9fc67b0a1160e170a22f7888af24574ae30286486",
+    "platform/units/catalog.json": "ecb217f8458c9b4032c1439ab920d88b82c8570768b33336185e930a9d5f905f",
+    "platform/units/runtime-profiles.json": "f866b5708ce19251f120bf2d6d7f5b2ebba59854ba64b35264af8a7de572ee8b",
+    "platform/tools/device_service.py": "65fd34d84b098fc29bb8d0ef694c95c1c5e13046bdd21cf2c4a62f4e169e622c",
+    "platform/web/unit-visual-mappings.js": "4fa597e15dac3c37dd665389f218446e6f8e7f8fd0c38740060a250e5cf942d6",
+    "patches/qemu-m5stack-peripherals/0043-unit-scroll-controller.patch": "03f34ee350be9d7fade560c3fe94ed8e6914209350348dd44c8ac4ef4d1c16ea"
+  },
+  "source_unchanged": true,
+  "status": "FAIL"
+}

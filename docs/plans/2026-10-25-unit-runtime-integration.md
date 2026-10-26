@@ -216,3 +216,23 @@ revision/source和停止前ZIP均绑定。包含预期失败的语法负控，�
 完整文件/资源与纯字节码依赖已由[文件包工作块](../evidence/2026-10-26-live-package-and-detent/README.md)补齐。
 其它Unit、其它主机Web、二进制入口、Run Always、AIFlow/Preview/SSE仍开放；interrupt-only不保证native、
 定时器、IRQ与线程清理，不将提交确认当作首帧或低延迟SLA，不转授硬件PASS。
+
+
+## 当前 Scroll 数据面工作块
+
+文件包块已提交`662ca4e4`并fetch/merge主线（无新提交）。本块新增Scroll，按
+固定内部FW ae60717a与原ScrollUnit独立实现，不复制Encoder协议；开发树为
+`.work/unit-runtime-source-scroll/qemu`，0043定稿后另建全新最终源码/构建目录。
+现役d1ba运行时不在开发树内改写。主执行队列仍只维护在Backlog。
+
+完成门禁是实际原驱动经主机I2C/controller读取count/increment/按钮、写RGB，
+raw I2C验证部分写、有限TX循环/旧snapshot、选择增量即清零、reset与方向和改址；
+同guest连续程序/应用帧/独立QOM/停止前ZIP绑定，新Web按键及唯一RGB须真实mounted
+vendor与HTTP/guest闭环。宿主C与浏览器fixture不能替代guest证据。
+
+新官方源码调查发现TIM16 IRQ/NVIC到wrap callback的链未闭合，且AB反转与wrap
+补偿顺序有异常。当前候选只接受source-count[-32768,32767]、单事件差分≤32767，
+对应TIM=0x8000+source且不rollover；int32累加溢出拒绝，计数拒绝不改变source/count/increment状态。
+source与guest counter分开，后者写入/reset不能假称物理轴运动。物理角度、
+STM32 bootloader、配置Flash持久化和QEMU地址0的unicast均保持具体模型缺口。
+新增catalog/profile已准入implemented候选，model_completeness仍partial；implemented只说明可执行，不能替代逐主机证据。RGB当前是quiescent/latest-value子集，STM32多槽队列、burst/跨槽partial与LED调度未实现。只按本块证据关闭normal-operation范围，不以此关闭完整Scroll、其它Unit或整个goal。

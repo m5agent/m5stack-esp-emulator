@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-10-26T13:38:31.316821+00:00",
+  "original_initial_composed_firmware_sha256": "04ba1e4c5a9b9a286bfd7c66b4693e75a508167d4f0a7ba794a0cdfbf85b8a4b",
+  "original_old_new_initial_composed_firmware_identical": true,
+  "serial_observation": {
+    "old": {
+      "serial_matches_actual_probe_xy_acceptance": true,
+      "all_six_target_values_observed": false
+    },
+    "new": {
+      "serial_matches_actual_probe_xy_acceptance": true,
+      "all_six_target_values_observed": true
+    }
+  },
+  "interpretation": "The unchanged official-API probe exits its sampling loop once accel-x/y and gyro-x/y match. QOM properties are set sequentially. The old run last printed gyro-z=0.0 before exiting; the new and original runs printed gyro-z=30.0. Matrix frame-marker PASS is preserved exactly; no claim that old serial observed the sixth target value. No extra guest run or parameter changes were made.",
+  "report_sha256": "f37b7974557d4ed87c59bf2df4b0d3d8b289b3b62b867f33e3014a31ef1e9cb9"
+}

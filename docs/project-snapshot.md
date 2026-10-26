@@ -31,29 +31,29 @@
 
 ## 外接 Unit 库存与准入
 
-- Unit 登记：`27` 款；主机接线登记：`14` 款。
-- Runtime profile 状态：`implemented` 27。
+- Unit 登记：`28` 款；主机接线登记：`14` 款。
+- Runtime profile 状态：`implemented` 28。
 - 固定视觉源：[https://github.com/yuyun2000/m5stack-models](https://github.com/yuyun2000/m5stack-models)，commit `48667b728736fbfd4365a06575473ce538d3c972`；包含 `14` 款主机、`29` 款 Unit。视觉库存不构成控制器或电气验证。
-- 仅视觉、尚无内部协议契约：`roller485`，`scroll`；这些型号不计 runtime 准入，也不能创建功能附件。
+- 仅视觉、尚无内部协议契约：`roller485`；这些型号不计 runtime 准入，也不能创建功能附件。
 - 数据源：[`catalog`](../platform/units/catalog.json)，[`runtime_profiles`](../platform/units/runtime-profiles.json)，[`host_ports`](../platform/units/host-ports.json)，[`visual_vendor`](../platform/web/vendor/m5stack-models/vendor-manifest.json)。
 
 准入仅统计 `implemented`/`validated` profile 的主机声明和已确认主机接口；准入不等于同设备固件、Web 或真机验证。`planned`/`partial`/`unsupported` 不计准入，`implemented` 不提升为 `validated`。
 
 | 主机 | Profile 准入 Unit 数 | implemented | validated |
 | --- | ---: | ---: | ---: |
-| `atoms3r` | 26 | 26 | 0 |
+| `atoms3r` | 27 | 27 | 0 |
 | `cardputer-adv` | 0 | 0 | 0 |
 | `cardputer-zero` | 0 | 0 | 0 |
 | `core2` | 0 | 0 | 0 |
-| `cores3` | 27 | 27 | 0 |
+| `cores3` | 28 | 28 | 0 |
 | `nanoc6` | 0 | 0 | 0 |
 | `nesso-n1` | 0 | 0 | 0 |
 | `papercolor` | 0 | 0 | 0 |
 | `papermono` | 0 | 0 | 0 |
 | `stackchan` | 0 | 0 | 0 |
 | `stamplc` | 0 | 0 | 0 |
-| `sticks3` | 26 | 26 | 0 |
-| `stopwatch` | 26 | 26 | 0 |
+| `sticks3` | 27 | 27 | 0 |
+| `stopwatch` | 27 | 27 | 0 |
 | `tab5` | 0 | 0 | 0 |
 
 ## 通用固件审查
@@ -88,32 +88,32 @@
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
-| `UNIT-01` | 进行中 | 同guest程序的剩余Unit、二进制入口与保存开机程序；AIFlow checkpoint/虚拟目标、Preview/Run及SSE/实时分发；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它三款准入主机剩余 Unit 的实际源码 API 执行、三主机 IO 的 ADC app calibration/ADC2 oracle 与 Thermal fixture、新 HUB 拓扑、原 IR GC 长期风险、原 Buzzer、完整 PWM 周期语义、矩阵命令记录、Heart 零值暂态/生理算法和视觉缺口；Scroll/Roller485仅视觉，协议与准入未实现 |
+| `UNIT-01` | 进行中 | 同guest程序的剩余Unit、二进制入口与保存开机程序；AIFlow checkpoint/虚拟目标、Preview/Run及SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它三款准入主机剩余Unit的实际源码API执行、ADC app calibration/ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、矩阵命令记录、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
 ## 代码与文档规模
 
-- `platform/tools`：`52` 个 Python 模块，`39491` 行；规模最大的模块如下。
+- `platform/tools`：`52` 个 Python 模块，`39513` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 10823 |
+| `device_service.py` | 10826 |
 | `firmware_manifest.py` | 3612 |
 | `user_firmware_matrix.py` | 2069 |
 | `network_sandbox.py` | 1681 |
 | `firmware_filesystems.py` | 1469 |
-| `serve.py` | 1449 |
+| `serve.py` | 1462 |
 
-- `tests/`：`101` 个可执行 Python 测试文件，分布在 `55` 个目录；`221` 个 evidence JSON。
-- `patches/`：`13` 个补丁组，`81` 个 patch 文件。
-- 文档：`300` 个 Markdown 页面；除本生成页外共 `30339` 行。
+- `tests/`：`103` 个可执行 Python 测试文件，分布在 `55` 个目录；`221` 个 evidence JSON。
+- `patches/`：`13` 个补丁组，`82` 个 patch 文件。
+- 文档：`303` 个 Markdown 页面；除本生成页外共 `30624` 行。
 
 ## 文档与测试
 
-- 平台测试：`942` 项。
-- Docs 新鲜度登记：`96` 行；其中非历史页 `36` 行，历史固定页 `60` 行。
-- 文档职责分布：待办 `3`，契约 `6`，历史固定 `60`，实现/设计 `8`，参考 `15`，工作流/导航 `4`。
-- 全量文档盘点：`300` 个 Markdown 页面；职责分布：权威/专题页 `96`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `14`，平台说明 `4`，仓内历史记录 `5`，测试/用例说明 `147`，未登记 docs 页面 `2`，第三方来源说明 `9`。
+- 平台测试：`952` 项。
+- Docs 新鲜度登记：`99` 行；其中非历史页 `36` 行，历史固定页 `63` 行。
+- 文档职责分布：待办 `3`，契约 `6`，历史固定 `63`，实现/设计 `8`，参考 `15`，工作流/导航 `4`。
+- 全量文档盘点：`303` 个 Markdown 页面；职责分布：权威/专题页 `99`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `14`，平台说明 `4`，仓内历史记录 `5`，测试/用例说明 `147`，未登记 docs 页面 `2`，第三方来源说明 `9`。
 - 所有非历史页的最近复核日期均与当前事实日期一致。
 - 带显式旧复核日期的委派文档（需按相邻索引和权威页复核）：
   - [platform/web/vendor/m5stack-models/docs/INTEGRATION.md](../platform/web/vendor/m5stack-models/docs/INTEGRATION.md) `2026-10-25`

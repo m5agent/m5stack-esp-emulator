@@ -53,6 +53,21 @@ class UnitServiceStateTests(unittest.TestCase):
             self.session.unit_input({"id": "button1", "values": {"pressed": True, "input-level": False}})
         self.assertEqual(self.writes, [])
 
+    def test_scroll_compound_inputs_are_rejected_before_either_field_changes(self):
+        registry = UnitRegistry()
+        # Initial machine construction can set both inputs; live updates have
+        # no QMP transaction/rollback when source-count rejects a runtime step.
+        self.assertEqual(registry.input_values("scroll", {"source-count": 0, "pressed": False}),
+                         {"source-count": 0, "pressed": False})
+        self.session.units = [{"id": "button1", "unit_id": "scroll", "port_id": "port-a"}]
+        self.session.unit_contract = registry.freeze(["scroll"])
+        for values in ({"pressed": True, "source-count": 1}, {"source-count": 1, "pressed": True}):
+            with self.subTest(values=values), self.assertRaises(ServiceError) as caught:
+                self.session.unit_input({"id": "button1", "values": values})
+            self.assertEqual((caught.exception.code, caught.exception.status), ("invalid_unit_input", 400))
+            self.assertEqual(self.commands, [])
+            self.assertIs(self.pressed, False)
+
     def test_terminal_legacy_snapshot_receives_frozen_definitions(self):
         self.session.unit_state_path.write_text(json.dumps({"units": [{"id": "button1", "properties": {"pressed": False}}]}))
         self.session.state = "stopped"

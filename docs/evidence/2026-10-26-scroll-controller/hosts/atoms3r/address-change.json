@@ -1,0 +1,62 @@
+{
+  "offset": 20531,
+  "prefix_sha256": "bb39887e654c3939f069316900518185a283193260db74011626e7d75a3d61df",
+  "marker": "SCROLL_17_DAE4E0BA",
+  "serial": {
+    "session_id": "d89750db7eec412bae55ff7c6f8a8822",
+    "offset": 20531,
+    "next_offset": 21186,
+    "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_cd9e97d068ec4853b7135a69adef00e4__:START\r\nSCROLL_17_DAE4E0BA {\"name\": \"old-address\", \"phase\": \"address-change\", \"details\": \"259\", \"kind\": \"unsupported\", \"exception\": \"OSError\"}\r\nSCROLL_17_DAE4E0BA {\"phase\": \"address-change\", \"kind\": \"check\", \"name\": \"new-address-register\", \"observed\": \"41\"}\r\nSCROLL_17_DAE4E0BA {\"phase\": \"address-change\", \"kind\": \"check\", \"name\": \"new-address-data-plane\", \"observed\": \"01\"}\r\nSCROLL_17_DAE4E0BA {\"phase\": \"address-change\", \"original_driver_address\": 64, \"kind\": \"done\", \"address\": 65, \"old_address\": 64}\r\n__M5_EXEC_cd9e97d068ec4853b7135a69adef00e4__:DONE\r\n\u0004\u0004>",
+    "bytes": 655
+  },
+  "events": [
+    {
+      "name": "old-address",
+      "phase": "address-change",
+      "details": "259",
+      "kind": "unsupported",
+      "exception": "OSError"
+    },
+    {
+      "phase": "address-change",
+      "kind": "check",
+      "name": "new-address-register",
+      "observed": "41"
+    },
+    {
+      "phase": "address-change",
+      "kind": "check",
+      "name": "new-address-data-plane",
+      "observed": "01"
+    },
+    {
+      "phase": "address-change",
+      "original_driver_address": 64,
+      "kind": "done",
+      "address": 65,
+      "old_address": 64
+    }
+  ],
+  "state": {
+    "source-count": 117,
+    "pressed": true,
+    "counter": 0,
+    "increments": 0,
+    "direction": 1,
+    "ab-direction": 0,
+    "led-rgb": 1193046,
+    "transactions": 408,
+    "read-bytes": 575,
+    "written-bytes": 476,
+    "input-events": 11,
+    "output-transitions": 17,
+    "i2c-address": 65,
+    "source-step-limit": 32767,
+    "timer-rollover-supported": false,
+    "bootloader-supported": false,
+    "zero-address-unicast-supported": false,
+    "bootloader-requests": 0,
+    "command-errors": 1,
+    "rgb-word": 1446253056
+  }
+}

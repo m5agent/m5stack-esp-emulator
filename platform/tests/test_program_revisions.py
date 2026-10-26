@@ -13,7 +13,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform/tools"))
 
-from program_revisions import MAX_REVISION_BYTES, ProgramRevisionStore, RevisionError
+from program_revisions import MAX_CONFIGURED_REVISIONS, MAX_REVISION_BYTES, MAX_REVISIONS, ProgramRevisionStore, RevisionError
 
 
 def canonical(value):
@@ -190,10 +190,36 @@ class ProgramRevisionTests(unittest.TestCase):
         source = self.store.source(first["revision_id"])
         self.assertEqual(ProgramRevisionStore(self.root, max_count=5).create(source), first)
 
-    def test_quota_cannot_be_unbounded_or_greater_than_256(self):
-        for count in (0, -1, 257, 1.0, True, None):
+    def test_configured_quota_above_default_preserves_existing_records_on_reopen(self):
+        self.assertEqual(self.store.max_count, 256)
+        originals = {}
+        for index in range(MAX_REVISIONS):
+            payload = self.payload(f"VALUE = {index}\n# 原始版本\n")
+            result = self.store.create(payload)
+            originals[result["revision_id"]] = (result, payload["files"], self.path(result["revision_id"]).read_bytes())
+        fresh = self.payload("VALUE = 256\n")
+        self.assert_error("program_revision_quota_exceeded", self.store.create, fresh, status=429)
+        expanded = ProgramRevisionStore(self.root, max_count=257)
+        added = expanded.create(fresh)
+        self.assertEqual(expanded.get(added["revision_id"]), added)
+        self.assert_error("program_revision_quota_exceeded", expanded.create, self.payload("VALUE = 257\n"), status=429)
+        reopened = ProgramRevisionStore(self.root)
+        for revision_id, (metadata, files, raw) in originals.items():
+            self.assertEqual(reopened.get(revision_id), metadata)
+            self.assertEqual(reopened.source(revision_id), {"entrypoint": "main.py", "files": files})
+            self.assertEqual(reopened.create({"files": files}), metadata)
+            self.assertEqual(self.path(revision_id).read_bytes(), raw)
+        self.assertEqual(reopened.get(added["revision_id"]), added)
+        self.assertEqual(len(list(self.root.glob("*.json"))), 257)
+        self.assert_error("program_revision_quota_exceeded", reopened.create, self.payload("VALUE = 258\n"), status=429)
+
+    def test_quota_is_bounded_to_4096_and_rejects_non_integer_values(self):
+        self.assertEqual(MAX_CONFIGURED_REVISIONS, 4096)
+        self.assertEqual(ProgramRevisionStore(self.root, max_count=4096).max_count, 4096)
+        self.assertEqual(ProgramRevisionStore(self.root, max_count=1).max_count, 1)
+        for count in (0, -1, 4097, 1.0, True, False, "257", None):
             with self.subTest(count=count):
-                self.assert_error("invalid_revision_quota", ProgramRevisionStore, self.root, max_count=count)
+                self.assert_error("invalid_revision_quota", ProgramRevisionStore, self.root, max_count=count, status=400)
 
     def test_missing_or_invalid_ids_never_escape_root(self):
         for revision_id in ("a" * 64, "../secrets", "A" * 64, "x" * 64, "", None, 1):

@@ -49,6 +49,13 @@ UIFlow 连续改代码的当前主路径是：首次准备并启动具备 UART R
 更新不再要求重组 Flash 或创建新 guest。原 `/firmware/uiflow` composer 与新
 session 路径保留为初始化、兼容运行及显式重建入口。
 
+`.py`在guest内实时编译执行；完整包的纯字节码`.mpy`模块也由真实guest importer加载。
+这两条路径都不会为每次编辑重刷固件；当前入口限定`main.py`，直接`main.mpy`仍待实现。
+Scroll补充四主机原驱动连续程序及CoreS3 Web按键/RGB/屏幕证据，见
+[限定控制器工作块](../evidence/2026-10-26-scroll-controller/README.md)。本块同时暴露全局
+source revision配额耗尽：现可显式配置1..4096、默认256并保持旧记录，长期的引用保留/
+有界回收仍需实现，不将增大本地测试容量称为实时服务生命周期完成。
+
 现有真实 guest、总线控制器、Unit 数据面、固件身份与 Device Service lease/evidence
 继续复用；每次程序执行另有 `execution_id`、`revision_id` 和源码哈希。逻辑
 Preview/Run 编排、统一实时事件与后台订阅采样仍待实现；当前增加独立按需共享帧

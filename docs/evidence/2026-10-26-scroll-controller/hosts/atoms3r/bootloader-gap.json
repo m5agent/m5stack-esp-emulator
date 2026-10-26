@@ -1,0 +1,54 @@
+{
+  "offset": 22350,
+  "prefix_sha256": "6a31d5f2268dafee81ae13d53f26f97f1eec5b7ed1872dbc0ddf85db720f6d15",
+  "marker": "SCROLL_20_3CE30BB5",
+  "serial": {
+    "session_id": "d89750db7eec412bae55ff7c6f8a8822",
+    "offset": 22350,
+    "next_offset": 22877,
+    "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_740239e151ba47279b3d49106e21ca2a__:START\r\nSCROLL_20_3CE30BB5 {\"name\": \"bootloader-mode-unimplemented\", \"phase\": \"bootloader\", \"details\": \"259\", \"kind\": \"unsupported\", \"exception\": \"OSError\"}\r\nSCROLL_20_3CE30BB5 {\"phase\": \"bootloader\", \"kind\": \"check\", \"name\": \"bootloader-rejection-keeps-application\", \"observed\": \"01\"}\r\nSCROLL_20_3CE30BB5 {\"kind\": \"done\", \"phase\": \"bootloader\", \"bootloader_supported\": false}\r\n__M5_EXEC_740239e151ba47279b3d49106e21ca2a__:DONE\r\n\u0004\u0004>",
+    "bytes": 527
+  },
+  "events": [
+    {
+      "name": "bootloader-mode-unimplemented",
+      "phase": "bootloader",
+      "details": "259",
+      "kind": "unsupported",
+      "exception": "OSError"
+    },
+    {
+      "phase": "bootloader",
+      "kind": "check",
+      "name": "bootloader-rejection-keeps-application",
+      "observed": "01"
+    },
+    {
+      "kind": "done",
+      "phase": "bootloader",
+      "bootloader_supported": false
+    }
+  ],
+  "state": {
+    "source-count": 117,
+    "pressed": true,
+    "counter": 0,
+    "increments": 0,
+    "direction": 1,
+    "ab-direction": 0,
+    "led-rgb": 1193046,
+    "transactions": 427,
+    "read-bytes": 584,
+    "written-bytes": 491,
+    "input-events": 11,
+    "output-transitions": 17,
+    "i2c-address": 64,
+    "source-step-limit": 32767,
+    "timer-rollover-supported": false,
+    "bootloader-supported": false,
+    "zero-address-unicast-supported": false,
+    "bootloader-requests": 1,
+    "command-errors": 4,
+    "rgb-word": 1446253056
+  }
+}

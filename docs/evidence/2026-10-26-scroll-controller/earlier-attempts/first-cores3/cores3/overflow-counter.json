@@ -1,0 +1,47 @@
+{
+  "offset": 16390,
+  "prefix_sha256": "32e05e3174404e822aff44086333ad89fdf4fef7c841fb31963a314b6091d7e5",
+  "marker": "SCROLL_15_95457935",
+  "serial": {
+    "session_id": "fa0385f790cb46ccaed26188525f91d2",
+    "offset": 16390,
+    "next_offset": 16747,
+    "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_caaf2ca9ea904ef29aa211ceb0fb7bc8__:START\r\nSCROLL_15_95457935 {\"phase\": \"set-counter\", \"kind\": \"check\", \"name\": \"raw-count-prepared\", \"observed\": 2147483647}\r\nSCROLL_15_95457935 {\"kind\": \"done\", \"counter\": 2147483647, \"phase\": \"set-counter\"}\r\n__M5_EXEC_caaf2ca9ea904ef29aa211ceb0fb7bc8__:DONE\r\n\u0004\u0004>",
+    "bytes": 357
+  },
+  "events": [
+    {
+      "phase": "set-counter",
+      "kind": "check",
+      "name": "raw-count-prepared",
+      "observed": 2147483647
+    },
+    {
+      "kind": "done",
+      "counter": 2147483647,
+      "phase": "set-counter"
+    }
+  ],
+  "state": {
+    "source-count": 117,
+    "pressed": true,
+    "counter": 2147483647,
+    "increments": 1,
+    "direction": 1,
+    "ab-direction": 0,
+    "led-rgb": 1193046,
+    "transactions": 305,
+    "read-bytes": 436,
+    "written-bytes": 341,
+    "input-events": 11,
+    "output-transitions": 13,
+    "i2c-address": 64,
+    "source-step-limit": 32767,
+    "timer-rollover-supported": false,
+    "bootloader-supported": false,
+    "zero-address-unicast-supported": false,
+    "bootloader-requests": 0,
+    "command-errors": 1,
+    "rgb-word": 1446253056
+  }
+}

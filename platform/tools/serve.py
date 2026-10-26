@@ -32,6 +32,7 @@ from device_service import (
     ServiceError,
 )
 from peripheral_inventory import build_inventory
+from program_revisions import MAX_CONFIGURED_REVISIONS, MAX_REVISIONS
 from runtime_interfaces import build_interfaces
 from unit_runtime import UnitError, UnitRegistry
 from transport_security import (
@@ -328,6 +329,9 @@ class Handler(SimpleHTTPRequestHandler):
                     )
                 ),
                 default_ttl=int(os.environ.get("M5_SERVICE_DEFAULT_TTL", "1800")),
+                max_program_revisions=int(os.environ.get(
+                    "M5_SERVICE_MAX_PROGRAM_REVISIONS", str(MAX_REVISIONS),
+                )),
                 api_token=os.environ.get("M5_SERVICE_API_TOKEN") or None,
             )
         return type(self).service
@@ -1131,6 +1135,12 @@ def main() -> None:
         ),
     )
     parser.add_argument("--session-ttl", type=int, default=1800)
+    parser.add_argument(
+        "--max-program-revisions",
+        type=int,
+        default=os.environ.get("M5_SERVICE_MAX_PROGRAM_REVISIONS", str(MAX_REVISIONS)),
+        help="maximum retained immutable source revisions (1–4096; default 256)",
+    )
     auth_group = parser.add_mutually_exclusive_group()
     auth_group.add_argument(
         "--api-token",
@@ -1263,6 +1273,8 @@ def main() -> None:
         ),
     )
     args = parser.parse_args()
+    if not 1 <= args.max_program_revisions <= MAX_CONFIGURED_REVISIONS:
+        parser.error("--max-program-revisions must be between 1 and 4096")
     if args.api_token and args.api_token_file:
         parser.error("--api-token and --api-token-file are mutually exclusive")
     if args.api_token_previous_file and not (
@@ -1342,6 +1354,7 @@ def main() -> None:
         state_dir=args.state_dir or DEFAULT_STATE_DIR,
         max_sessions=args.max_sessions,
         max_per_device=args.max_per_device,
+        max_program_revisions=args.max_program_revisions,
         default_ttl=args.session_ttl,
         api_token=initial_api_token,
         previous_api_token=initial_previous_api_token,

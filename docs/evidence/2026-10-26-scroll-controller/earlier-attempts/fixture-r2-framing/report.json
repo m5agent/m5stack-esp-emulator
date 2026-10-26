@@ -1,0 +1,115 @@
+{
+  "category": "mounted-scroll-http-browser-fixture",
+  "status": "PASS",
+  "guest_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "checks": [
+    "trusted-canvas-press-release-through-real-panel-and-http",
+    "http-readback-drives-real-single-rgb-and-button-with-zero-echo",
+    "logical-writes-and-source-count-do-not-invent-uncalibrated-angle"
+  ],
+  "errors": [],
+  "browser_version": "156.0.8078.48",
+  "observations": [
+    {
+      "led": {
+        "color": "#123456",
+        "brightness": 1
+      },
+      "glow": true,
+      "opacity": 0.85,
+      "emissive": [
+        0.013307432644849352,
+        0.07554757496627904,
+        0.20472971824361832
+      ],
+      "pressed": true,
+      "joint": {
+        "angleDeg": 0,
+        "targetAngleDeg": 0,
+        "rpm": 0,
+        "transitioning": false,
+        "mode": "continuous",
+        "continuous": true,
+        "rangeDeg": null,
+        "visualRangeDeg": null,
+        "demoRpmMax": 60
+      },
+      "events": 3
+    },
+    {
+      "led": {
+        "color": "#00ff00",
+        "brightness": 1
+      },
+      "glow": true,
+      "opacity": 0.85,
+      "emissive": [
+        0,
+        2.2,
+        0
+      ],
+      "pressed": true,
+      "joint": {
+        "angleDeg": 0,
+        "targetAngleDeg": 0,
+        "rpm": 0,
+        "transitioning": false,
+        "mode": "continuous",
+        "continuous": true,
+        "rangeDeg": null,
+        "visualRangeDeg": null,
+        "demoRpmMax": 60
+      },
+      "events": 3
+    },
+    {
+      "led": {
+        "color": "#000000",
+        "brightness": 0
+      },
+      "glow": false,
+      "opacity": 0,
+      "emissive": [
+        0,
+        0,
+        0
+      ],
+      "pressed": false,
+      "joint": {
+        "angleDeg": 0,
+        "targetAngleDeg": 0,
+        "rpm": 0,
+        "transitioning": false,
+        "mode": "continuous",
+        "continuous": true,
+        "rangeDeg": null,
+        "visualRangeDeg": null,
+        "demoRpmMax": 60
+      },
+      "events": 3
+    }
+  ],
+  "posts": [
+    {
+      "id": "scroll1",
+      "values": {
+        "pressed": true
+      }
+    },
+    {
+      "id": "scroll1",
+      "values": {
+        "pressed": false
+      }
+    }
+  ],
+  "gets": 4,
+  "source_sha256": {
+    "platform/web/unit-visual-mappings.js": "4fa597e15dac3c37dd665389f218446e6f8e7f8fd0c38740060a250e5cf942d6",
+    "platform/web/unit-panel.js": "f26a8179150c6b5ed7457b77a0324fcd883d30842f3b0f9262ea61277b0e70b5",
+    "platform/web/model-shell.js": "5ff2860a3638207131a8d488ec102293e61c27f566300ba1b95a368c4b2c2129",
+    "platform/tests/test_scroll_visual_mapping.mjs": "9a0977990cbf16e208a978863d1667d53855a7ec3c0a37913c93fafdc48526e1",
+    "platform/web/vendor/m5stack-models/src/units/scroll/index.js": "412c4887d3a34a2bff833d273fe4bc26df3be1be6b5377fc9195c090946d034c"
+  }
+}

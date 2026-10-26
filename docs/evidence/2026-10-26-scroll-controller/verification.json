@@ -1,0 +1,54 @@
+{
+  "status": "PASS_WITH_DECLARED_RUNTIME_GAPS",
+  "platform_tests": {
+    "passed": 952,
+    "failed": 0,
+    "skipped": 0,
+    "report": "verification/platform-final-952.txt"
+  },
+  "host_tools": {
+    "passed": 14,
+    "report": "verification/host-final-14.txt"
+  },
+  "node": {
+    "programs": 7,
+    "all_exit_zero": true,
+    "report": "verification/node/report.json"
+  },
+  "validators": {
+    "status": "PASS",
+    "report": "verification/validators.json"
+  },
+  "artifacts": {
+    "status": "PASS",
+    "report": "artifact-checks.json"
+  },
+  "zip_index": "zip-index.json",
+  "cleanup": "cleanup-verification.json",
+  "publication_metadata": "publication-metadata.json",
+  "scope_audit": "web/scope-audit.json",
+  "full_matrix": {
+    "passed": 66,
+    "failed": 1,
+    "checks_passed": 270,
+    "checks_failed": 4,
+    "open_issue": "UNIT-HOST-21",
+    "replacement_by_single_case": "NOT PERMITTED"
+  },
+  "source_capacity": "bounded explicit config; default256; retained old records; no GC implemented",
+  "evidence_layers": "C/browser fixtures are separate from actual virtual-device sessions; no hardware PASS",
+  "hardware_validation": "NOT RUN",
+  "external_agent_work_logs": "SKIPPED_BY_USER",
+  "preserved_failure_notes": [
+    "First platform run: stale count/visual/patch-order contracts; no runtime failure.",
+    "Second platform run: source-only program evidence did not match the distinct legacy full host/Web evidence schema; program_validation now names the correct contract and independently verifies each original ZIP.",
+    "Docs command referenced a nonexistent test_openapi_contract module; actual docs tests are rerun separately, OpenAPI is parsed with YAML.",
+    "Bootstrap --source-dir initially referenced its parent, where no owned receipt exists; corrected source-dir/qemu check passes."
+  ],
+  "docs_after_final_api_description": {
+    "passed": 20,
+    "failed": 0,
+    "report": "verification/docs-final.txt"
+  },
+  "staged_whitespace": "PASS; exact upstream/log whitespace exceptions preserve raw bytes"
+}

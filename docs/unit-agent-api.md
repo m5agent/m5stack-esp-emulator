@@ -156,7 +156,30 @@ HUB 共享真实 I2C 总线；从返回的冻结白黄 GPIO 创建 `machine.I2C`
 
 被动 HUB 不提供地址复用；相同 I2C 地址不能同挂，也不支持任意 GPIO/UART
 并联。其它主机先从 `/units?device_id=...` 选其确认端口，不能照搬 CoreS3 的
-端口或 GPIO。新 Scroll/Roller485 仍只有外壳，不在功能附件准入中。
+端口或 GPIO。Roller485仍只有外壳，不在功能附件准入中。
+
+## Scroll 的限定运行时
+
+Scroll通过独立I2C控制器模型准入CoreS3、AtomS3R、StickS3、StopWatch的已确认端口；
+`implemented`表示存在实现，`model_completeness=partial`保留完整模型缺口。
+逐主机同guest程序证据使用`runtime.program_validation`及`same-guest-scroll-protocol-v1`契约；
+它与既有完整host/Web验证类别分开，只有CoreS3条目链接真实Web，其余主机Web为NOT RUN。
+装配形态为`{"id":"external1","unit_id":"scroll","port_id":"<确认端口>"}`，
+默认地址0x40与Encoder冲突，不能同挂被动HUB。使用固件原`unit.ScrollUnit`与返回的
+白黄GPIO；源码生成/实际执行入口见[`run_live_scroll.py`](../tests/units/run_live_scroll.py)。
+
+外部输入是`pressed`和`source-count`，每个`unit-input`请求最多一个字段，必须分别提交；
+混合请求400提前拒绝，不会先改按钮再因计数溢出留下部分状态。
+创建时`initial`可同时设两字段。`source-count`限定[-32768,32767]且单事件差分≤32767，
+对应不回绕的TIM=0x8000+source；逻辑count/increment的int32溢出409拒绝。
+counter/reset是guest逻辑操作，不移动物理source，也不转动3D轴。
+
+原驱动getter暴露低16位，`set_rotary_value`仅加Python偏移。原始counter仍是int32；
+选择0x50..53时即制作并消耗增量快照，跨STOP/连续程序续读保留旧TX位置。
+`led-rgb`为quiescent/latest-value模型读回，可驱动唯一RGB灯；STM32多槽队列、
+burst/跨槽partial及LED时序未模拟。没有可靠角度标定，不提供默认count→机械旋转映射。
+TIM回绕、bootloader执行/版本、配置持久化和地址0单播均未完成，详见
+[官方来源与模型边界](unit-research/scroll-roller485.md)。所有结论均为虚拟验证范围。
 
 ## 首次初始化与兼容固件流程
 

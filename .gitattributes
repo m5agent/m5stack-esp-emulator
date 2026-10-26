@@ -9,3 +9,7 @@ docs/evidence/2026-10-26-live-package-and-detent/image-path-research/*.h whitesp
 docs/evidence/2026-10-26-live-package-and-detent/image-path-research/m5stack__CMakeLists.txt whitespace=-blank-at-eol
 # This frozen source predates the equivalent final EOF-only formatting cleanup.
 docs/evidence/2026-10-26-live-package-and-detent/sources/platform/tools/uiflow_package_runtime.py whitespace=-blank-at-eof
+# Pinned Scroll vendor sources retain upstream bytes for hash verification.
+docs/evidence/2026-10-26-scroll-controller/official-source/*.txt whitespace=-blank-at-eol,-blank-at-eof
+# Preserve the cold compiler/configure log verbatim, including terminal padding.
+docs/evidence/2026-10-26-scroll-controller/verification/unit-scroll-cold-build-20261026.txt whitespace=-blank-at-eol

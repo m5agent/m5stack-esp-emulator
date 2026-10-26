@@ -1,0 +1,373 @@
+{
+  "status": "PASS",
+  "scope": "host generator structural and syntax validation only",
+  "guest_execution": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "factory_sha256": "aa3109375769ec77270f705a72012767933fe1b3ba0067eae301265f51010745",
+  "generated_variants": 36,
+  "negative_factory_inputs": 7,
+  "snapshot_no_constructor_or_pointer_invariant": true,
+  "guest_source_executed_on_host": false,
+  "variants": [
+    {
+      "phase": "registers",
+      "pins": {
+        "white": 1,
+        "yellow": 2
+      },
+      "source_sha256": "88cb674c012c8a3d3c6768eec1b0585ca6d842cde0936383c511d25fefa3f8a8",
+      "bytes": 3779,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "driver-live",
+      "pins": {
+        "white": 1,
+        "yellow": 2
+      },
+      "source_sha256": "1606549cd9f5ba85c421798effedc8e29e5e2ef0db8a05e4f2cccc4b90db936f",
+      "bytes": 2707,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "snapshot-prime",
+      "pins": {
+        "white": 1,
+        "yellow": 2
+      },
+      "source_sha256": "5fc5cfb2a817aa4f07f8b225ee48c8b6fcf0a18ba8464b7018e68b4d7d5574ab",
+      "bytes": 1773,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "snapshot-read",
+      "pins": {
+        "white": 1,
+        "yellow": 2
+      },
+      "source_sha256": "aa78719c9122a4111b5d071b930f459cd87f00b8dc9785dd29743506734941f0",
+      "bytes": 1753,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "set-counter",
+      "pins": {
+        "white": 1,
+        "yellow": 2
+      },
+      "source_sha256": "49d8ad3244c0773940988724f2ee5851f59c8aa9b9a18f4d1bdcb34b60963c2e",
+      "bytes": 1672,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "versions",
+      "pins": {
+        "white": 1,
+        "yellow": 2
+      },
+      "source_sha256": "7e643e80bc3c92c456f9fa1bd49d73cc714f710b9b1c7f861db0bbc855a70dab",
+      "bytes": 1838,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "address-change",
+      "pins": {
+        "white": 1,
+        "yellow": 2
+      },
+      "source_sha256": "9beae4572247ff30416e1f289165906eefa2407ba0c70981ca08322e8816c84b",
+      "bytes": 1930,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "address-restore",
+      "pins": {
+        "white": 1,
+        "yellow": 2
+      },
+      "source_sha256": "a86c6fd1ade32cf1ff954795c202add83f8de158cd5ab99b108786ceb9769014",
+      "bytes": 1811,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "bootloader",
+      "pins": {
+        "white": 1,
+        "yellow": 2
+      },
+      "source_sha256": "29e9c4e8cb9b76c1eec63b205b4aca297646f9a350f17533b2e7b74843afc9ed",
+      "bytes": 1782,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "registers",
+      "pins": {
+        "white": 5,
+        "yellow": 6
+      },
+      "source_sha256": "d2887286c02c6533b06dbca6f7070afb93aae4194948dda213ba7b73d978f0e4",
+      "bytes": 3779,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "driver-live",
+      "pins": {
+        "white": 5,
+        "yellow": 6
+      },
+      "source_sha256": "58450bcd1586469f89e3feb13de08855a7010e528a1c320a6a6cd55e8982e7c6",
+      "bytes": 2707,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "snapshot-prime",
+      "pins": {
+        "white": 5,
+        "yellow": 6
+      },
+      "source_sha256": "9d72c6883174001a235ceed8eec22e13323a4ab2dc08bc6ee5443ef9f965e5fa",
+      "bytes": 1773,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "snapshot-read",
+      "pins": {
+        "white": 5,
+        "yellow": 6
+      },
+      "source_sha256": "c634c917b3b29de1d0272d542d2f78a581893d35f7df1f1c2d6d16cd7c417a7b",
+      "bytes": 1753,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "set-counter",
+      "pins": {
+        "white": 5,
+        "yellow": 6
+      },
+      "source_sha256": "2775ba2846b3ab6e170783531abaa122cb62bb2036969995215ff8225fc90591",
+      "bytes": 1672,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "versions",
+      "pins": {
+        "white": 5,
+        "yellow": 6
+      },
+      "source_sha256": "7d1d9a23bcfe6cb2ac9899c7508da74da60f25284f8df2cae6cd73116e3c7910",
+      "bytes": 1838,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "address-change",
+      "pins": {
+        "white": 5,
+        "yellow": 6
+      },
+      "source_sha256": "039cc4c88596544f5ba95770f84bed0c17b83d5ba96342dccd60df7e9dc90c42",
+      "bytes": 1930,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "address-restore",
+      "pins": {
+        "white": 5,
+        "yellow": 6
+      },
+      "source_sha256": "56435af876357b22bb0dc684739d98d72a21635a1ce3c61891e38412356212f8",
+      "bytes": 1811,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "bootloader",
+      "pins": {
+        "white": 5,
+        "yellow": 6
+      },
+      "source_sha256": "05ad8b621fcffed8c19eb54fe1c8689f693264da17f4bc9c1b72e96ad1c9ca7f",
+      "bytes": 1782,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "registers",
+      "pins": {
+        "white": 15,
+        "yellow": 13
+      },
+      "source_sha256": "afb10793af83c95e35b1cf04f489479ae15124736f43c73fb9b89b19be456a97",
+      "bytes": 3781,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "driver-live",
+      "pins": {
+        "white": 15,
+        "yellow": 13
+      },
+      "source_sha256": "d4dc0a5dd1af8bc3332534e0c6bade499fb42e8e135b18c46292e59bf0325da5",
+      "bytes": 2709,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "snapshot-prime",
+      "pins": {
+        "white": 15,
+        "yellow": 13
+      },
+      "source_sha256": "c4ae936b30258d3c7ada6d887a093d2f2b686dc0583c2ea43378d15bf11c978c",
+      "bytes": 1775,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "snapshot-read",
+      "pins": {
+        "white": 15,
+        "yellow": 13
+      },
+      "source_sha256": "edc876aee5d4d2455f526bcc3fa3d921b9661de4bade81f0e2619b5765d069c9",
+      "bytes": 1755,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "set-counter",
+      "pins": {
+        "white": 15,
+        "yellow": 13
+      },
+      "source_sha256": "6aa4d68d64ba9c252047c33098b7da03c5a091b9b534b03b7322d606128913bc",
+      "bytes": 1674,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "versions",
+      "pins": {
+        "white": 15,
+        "yellow": 13
+      },
+      "source_sha256": "72037d736bda54318cd75e79454f9211142a604c59085364dc263cd5f25185fc",
+      "bytes": 1840,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "address-change",
+      "pins": {
+        "white": 15,
+        "yellow": 13
+      },
+      "source_sha256": "10ee19683b5650ee671c18efc33df8dd51b390189fffe3bda701519f80595db0",
+      "bytes": 1932,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "address-restore",
+      "pins": {
+        "white": 15,
+        "yellow": 13
+      },
+      "source_sha256": "8a00a11a86c199b2c652d4d2c68c110b0029ac3eaaf787b30044bed20d40312c",
+      "bytes": 1813,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "bootloader",
+      "pins": {
+        "white": 15,
+        "yellow": 13
+      },
+      "source_sha256": "5ae290abc21954fa7acb25c0797223f5c02e94f029f2640c68ff1f4b7242bc5e",
+      "bytes": 1784,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "registers",
+      "pins": {
+        "white": 2,
+        "yellow": 1
+      },
+      "source_sha256": "6a56c6bcf9413ae1cad7e1c1f993d61b87060879741ae23c5b87addd16890c13",
+      "bytes": 3779,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "driver-live",
+      "pins": {
+        "white": 2,
+        "yellow": 1
+      },
+      "source_sha256": "b2fbb884987114957da7c62ae7be9be04920fb3ae2e59b048cd54142e00fe6c1",
+      "bytes": 2707,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "snapshot-prime",
+      "pins": {
+        "white": 2,
+        "yellow": 1
+      },
+      "source_sha256": "7e60602f14369aea451444e06516d17d76a22fccf3e92880af5000a51d3f9306",
+      "bytes": 1773,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "snapshot-read",
+      "pins": {
+        "white": 2,
+        "yellow": 1
+      },
+      "source_sha256": "c7dc5f11ac93c425afb77ddd8430b82b85ac85df15e1470dbe0946063da33650",
+      "bytes": 1753,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "set-counter",
+      "pins": {
+        "white": 2,
+        "yellow": 1
+      },
+      "source_sha256": "77a89caf53d6a1cb74a4382083c812e633ada7922a3662cfcb3468aa612055e8",
+      "bytes": 1672,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "versions",
+      "pins": {
+        "white": 2,
+        "yellow": 1
+      },
+      "source_sha256": "833bb8c568b272a7e2e5832d628a835f84d31b94fcfeb6b350a8fbaa1e64e0f2",
+      "bytes": 1838,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "address-change",
+      "pins": {
+        "white": 2,
+        "yellow": 1
+      },
+      "source_sha256": "f27f0fd983dfc5556d11b0e3684a7d07a6d19ae8c4959c3a0b1a4b3199bb7be1",
+      "bytes": 1930,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "address-restore",
+      "pins": {
+        "white": 2,
+        "yellow": 1
+      },
+      "source_sha256": "ff9a17ae07edb336760a6f1880de8dafc96a330ff93dedb861659bfa908edab2",
+      "bytes": 1811,
+      "syntax": "PASS"
+    },
+    {
+      "phase": "bootloader",
+      "pins": {
+        "white": 2,
+        "yellow": 1
+      },
+      "source_sha256": "aa9454f6ee05bfff7af7b0a1466f61e30bb6592a30624eb329f76d8eb81be5d7",
+      "bytes": 1782,
+      "syntax": "PASS"
+    }
+  ]
+}

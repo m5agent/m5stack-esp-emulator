@@ -1,0 +1,55 @@
+{
+  "offset": 4216,
+  "prefix_sha256": "d031b29d1af97243cc06f418cd5e107607f61c3ee72b59ba87f8b3b4cbbe1ddc",
+  "marker": "SCROLL_01_93163C08",
+  "serial": {
+    "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+    "offset": 4216,
+    "next_offset": 4753,
+    "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_6c9a0915b6c7495ba38005f345f8ee06__:START\r\nSCROLL_01_93163C08 {\"phase\": \"versions\", \"kind\": \"check\", \"name\": \"original-firmware-version-string\", \"observed\": \"1\"}\r\nSCROLL_01_93163C08 {\"name\": \"bootloader-version-no-fixture\", \"phase\": \"versions\", \"details\": \"259\", \"kind\": \"unsupported\", \"exception\": \"OSError\"}\r\nSCROLL_01_93163C08 {\"bootloader_fixture\": null, \"firmware_version\": \"1\", \"kind\": \"done\", \"phase\": \"versions\"}\r\n__M5_EXEC_6c9a0915b6c7495ba38005f345f8ee06__:DONE\r\n\u0004\u0004>",
+    "bytes": 537
+  },
+  "events": [
+    {
+      "phase": "versions",
+      "kind": "check",
+      "name": "original-firmware-version-string",
+      "observed": "1"
+    },
+    {
+      "name": "bootloader-version-no-fixture",
+      "phase": "versions",
+      "details": "259",
+      "kind": "unsupported",
+      "exception": "OSError"
+    },
+    {
+      "bootloader_fixture": null,
+      "firmware_version": "1",
+      "kind": "done",
+      "phase": "versions"
+    }
+  ],
+  "state": {
+    "source-count": 0,
+    "pressed": false,
+    "counter": 0,
+    "increments": 0,
+    "direction": 1,
+    "ab-direction": 0,
+    "led-rgb": 1193046,
+    "transactions": 98,
+    "read-bytes": 130,
+    "written-bytes": 131,
+    "input-events": 1,
+    "output-transitions": 5,
+    "i2c-address": 64,
+    "source-step-limit": 32767,
+    "timer-rollover-supported": false,
+    "bootloader-supported": false,
+    "zero-address-unicast-supported": false,
+    "bootloader-requests": 0,
+    "command-errors": 1,
+    "rgb-word": 1446253056
+  }
+}

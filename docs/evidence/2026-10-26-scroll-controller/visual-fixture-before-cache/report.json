@@ -1,0 +1,550 @@
+{
+  "category": "mounted-scroll-http-browser-fixture",
+  "captured_at": "2026-10-26T13:04:27.112Z",
+  "status": "PASS",
+  "guest_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "checks": [
+    "complete-scroll-and-mounted-assembly-projected-inside-canvas-and-screenshot",
+    "trusted-canvas-press-release-through-real-panel-and-http",
+    "http-readback-drives-real-single-rgb-and-button-with-zero-echo",
+    "logical-writes-and-source-count-do-not-invent-uncalibrated-angle",
+    "readonly-output-fields-have-no-input-and-all-fixture-posts-fail-atomically",
+    "trusted-held-panel-dispose-releases-original-session-once-with-no-late-echo",
+    "trusted-held-shell-dispose-releases-original-session-once-with-no-late-echo"
+  ],
+  "errors": [],
+  "browser_version": "156.0.8078.48",
+  "framing": {
+    "canvas": {
+      "left": 12,
+      "right": 912,
+      "top": 12,
+      "bottom": 772
+    },
+    "scroll": {
+      "left": 404.6995269272929,
+      "right": 519.3342041219945,
+      "top": 342.80262586529057,
+      "bottom": 666.8843593314359,
+      "corners": [
+        {
+          "x": 408.8851280342952,
+          "y": 646.8050088999768,
+          "z": 0.9196899074226492
+        },
+        {
+          "x": 404.6995269272929,
+          "y": 666.8843593314359,
+          "z": 0.912124852295812
+        },
+        {
+          "x": 408.8851280342952,
+          "y": 346.39632365865015,
+          "z": 0.9196899074226492
+        },
+        {
+          "x": 404.6995269272929,
+          "y": 342.80262586529057,
+          "z": 0.912124852295812
+        },
+        {
+          "x": 515.1461390786639,
+          "y": 646.8050088999768,
+          "z": 0.9196899074226492
+        },
+        {
+          "x": 519.3342041219945,
+          "y": 666.8843593314359,
+          "z": 0.912124852295812
+        },
+        {
+          "x": 515.1461390786639,
+          "y": 346.39632365865015,
+          "z": 0.9196899074226492
+        },
+        {
+          "x": 519.3342041219945,
+          "y": 342.80262586529057,
+          "z": 0.912124852295812
+        }
+      ]
+    },
+    "assembly": {
+      "left": 404.6613226990183,
+      "right": 519.3386773009818,
+      "top": 117.11564066856403,
+      "bottom": 666.8843593314359,
+      "corners": [
+        {
+          "x": 408.8497144925819,
+          "y": 646.8050088999768,
+          "z": 0.9196899074226492
+        },
+        {
+          "x": 404.6613226990183,
+          "y": 666.8843593314359,
+          "z": 0.912124852295812
+        },
+        {
+          "x": 408.8497144925819,
+          "y": 137.19499110002323,
+          "z": 0.9196899074226492
+        },
+        {
+          "x": 404.6613226990183,
+          "y": 117.11564066856403,
+          "z": 0.912124852295812
+        },
+        {
+          "x": 515.1502855074182,
+          "y": 646.8050088999768,
+          "z": 0.9196899074226492
+        },
+        {
+          "x": 519.3386773009818,
+          "y": 666.8843593314359,
+          "z": 0.912124852295812
+        },
+        {
+          "x": 515.1502855074182,
+          "y": 137.19499110002323,
+          "z": 0.9196899074226492
+        },
+        {
+          "x": 519.3386773009818,
+          "y": 117.11564066856403,
+          "z": 0.912124852295812
+        }
+      ]
+    },
+    "viewport": {
+      "width": 1260,
+      "height": 850
+    },
+    "padding": 1.65
+  },
+  "observations": [
+    {
+      "led": {
+        "color": "#123456",
+        "brightness": 1
+      },
+      "glow": true,
+      "opacity": 0.85,
+      "emissive": [
+        0.013307432644849352,
+        0.07554757496627904,
+        0.20472971824361832
+      ],
+      "pressed": true,
+      "joint": {
+        "angleDeg": 0,
+        "targetAngleDeg": 0,
+        "rpm": 0,
+        "transitioning": false,
+        "mode": "continuous",
+        "continuous": true,
+        "rangeDeg": null,
+        "visualRangeDeg": null,
+        "demoRpmMax": 60
+      },
+      "events": 3,
+      "screenshot": {
+        "path": "scroll-123456.png",
+        "sha256": "b2d41ec31cfb20bfad8fb1f53e7479228261d2a808d218d94412070bbad090f1",
+        "bytes": 186965
+      }
+    },
+    {
+      "led": {
+        "color": "#00ff00",
+        "brightness": 1
+      },
+      "glow": true,
+      "opacity": 0.85,
+      "emissive": [
+        0,
+        2.2,
+        0
+      ],
+      "pressed": true,
+      "joint": {
+        "angleDeg": 0,
+        "targetAngleDeg": 0,
+        "rpm": 0,
+        "transitioning": false,
+        "mode": "continuous",
+        "continuous": true,
+        "rangeDeg": null,
+        "visualRangeDeg": null,
+        "demoRpmMax": 60
+      },
+      "events": 3,
+      "screenshot": {
+        "path": "scroll-00ff00.png",
+        "sha256": "363cb9252c965ad26a115c655013c5336a3ce882cba4ec3186f0943c8e187da9",
+        "bytes": 186767
+      }
+    },
+    {
+      "led": {
+        "color": "#000000",
+        "brightness": 0
+      },
+      "glow": false,
+      "opacity": 0,
+      "emissive": [
+        0,
+        0,
+        0
+      ],
+      "pressed": false,
+      "joint": {
+        "angleDeg": 0,
+        "targetAngleDeg": 0,
+        "rpm": 0,
+        "transitioning": false,
+        "mode": "continuous",
+        "continuous": true,
+        "rangeDeg": null,
+        "visualRangeDeg": null,
+        "demoRpmMax": 60
+      },
+      "events": 3,
+      "screenshot": {
+        "path": "scroll-000000.png",
+        "sha256": "5d41ad92a0ce8aef13c326999a253fa88ab974d8b9604c93d03885be0c8d5398",
+        "bytes": 186652
+      }
+    }
+  ],
+  "readonly": {
+    "controls": [
+      "source-count",
+      "pressed"
+    ],
+    "statuses": [
+      {
+        "field": "counter",
+        "status": 400,
+        "error": "invalid_unit_input"
+      },
+      {
+        "field": "increments",
+        "status": 400,
+        "error": "invalid_unit_input"
+      },
+      {
+        "field": "direction",
+        "status": 400,
+        "error": "invalid_unit_input"
+      },
+      {
+        "field": "ab-direction",
+        "status": 400,
+        "error": "invalid_unit_input"
+      },
+      {
+        "field": "led-rgb",
+        "status": 400,
+        "error": "invalid_unit_input"
+      },
+      {
+        "field": "source-step-limit",
+        "status": 400,
+        "error": "invalid_unit_input"
+      },
+      {
+        "field": "timer-rollover-supported",
+        "status": 400,
+        "error": "invalid_unit_input"
+      },
+      {
+        "field": "bootloader-supported",
+        "status": 400,
+        "error": "invalid_unit_input"
+      },
+      {
+        "field": "zero-address-unicast-supported",
+        "status": 400,
+        "error": "invalid_unit_input"
+      },
+      {
+        "field": "bootloader-requests",
+        "status": 400,
+        "error": "invalid_unit_input"
+      },
+      {
+        "field": "command-errors",
+        "status": 400,
+        "error": "invalid_unit_input"
+      },
+      {
+        "field": "rgb-word",
+        "status": 400,
+        "error": "invalid_unit_input"
+      },
+      {
+        "field": "mixed-input-and-output",
+        "status": 400,
+        "error": "invalid_unit_input"
+      }
+    ],
+    "rejected": [
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "counter"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "increments"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "direction"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "ab-direction"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "led-rgb"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "source-step-limit"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "timer-rollover-supported"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "bootloader-supported"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "zero-address-unicast-supported"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "bootloader-requests"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "command-errors"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "rgb-word"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "pressed",
+          "led-rgb"
+        ],
+        "status": 400
+      },
+      {
+        "path": "/api/v1/sessions/synthetic-scroll-fixture/unit-input",
+        "fields": [
+          "led-rgb"
+        ],
+        "status": 400
+      }
+    ]
+  },
+  "disposal": [
+    {
+      "first": "panel",
+      "originalSessionId": "synthetic-scroll-held-panel",
+      "panelDisposed": true,
+      "shellDisposed": true,
+      "visualWrites": 1,
+      "eventCount": 2,
+      "events": [
+        {
+          "kind": "button",
+          "id": "grove/press",
+          "action": "down",
+          "time": 3057.2000000476837,
+          "source": "pointer:1"
+        },
+        {
+          "kind": "button",
+          "id": "grove/press",
+          "action": "up",
+          "time": 3069.2000000476837,
+          "source": "pointer:1",
+          "duration": 12,
+          "cancelled": true
+        }
+      ],
+      "trusted": [
+        true
+      ],
+      "ownedPressSources": 0,
+      "lastReadbackPressed": true,
+      "after": {
+        "visualWrites": 1,
+        "eventCount": 2,
+        "led": {
+          "color": "#000000",
+          "brightness": 0
+        },
+        "timer": 1,
+        "rootConnected": false
+      },
+      "post_paths": [
+        "/api/v1/sessions/synthetic-scroll-held-panel/unit-input",
+        "/api/v1/sessions/synthetic-scroll-held-panel/unit-input"
+      ],
+      "posts": [
+        {
+          "id": "scroll1",
+          "values": {
+            "pressed": true
+          }
+        },
+        {
+          "id": "scroll1",
+          "values": {
+            "pressed": false
+          }
+        }
+      ],
+      "delayed_responses": [
+        "stale-get",
+        "release-ack"
+      ],
+      "late_posts": 0
+    },
+    {
+      "first": "shell",
+      "originalSessionId": "synthetic-scroll-held-shell",
+      "panelDisposed": true,
+      "shellDisposed": true,
+      "visualWrites": 1,
+      "eventCount": 2,
+      "events": [
+        {
+          "kind": "button",
+          "id": "grove/press",
+          "action": "down",
+          "time": 2939.0999999046326,
+          "source": "pointer:1"
+        },
+        {
+          "kind": "button",
+          "id": "grove/press",
+          "action": "up",
+          "time": 2993.5,
+          "source": "pointer:1",
+          "duration": 54.40000009536743,
+          "cancelled": true
+        }
+      ],
+      "trusted": [
+        true
+      ],
+      "ownedPressSources": 0,
+      "lastReadbackPressed": true,
+      "after": {
+        "visualWrites": 1,
+        "eventCount": 2,
+        "led": {
+          "color": "#000000",
+          "brightness": 0
+        },
+        "timer": 1,
+        "rootConnected": false
+      },
+      "post_paths": [
+        "/api/v1/sessions/synthetic-scroll-held-shell/unit-input",
+        "/api/v1/sessions/synthetic-scroll-held-shell/unit-input"
+      ],
+      "posts": [
+        {
+          "id": "scroll1",
+          "values": {
+            "pressed": true
+          }
+        },
+        {
+          "id": "scroll1",
+          "values": {
+            "pressed": false
+          }
+        }
+      ],
+      "delayed_responses": [
+        "release-ack",
+        "stale-get"
+      ],
+      "late_posts": 0
+    }
+  ],
+  "posts": [
+    {
+      "id": "scroll1",
+      "values": {
+        "pressed": true
+      }
+    },
+    {
+      "id": "scroll1",
+      "values": {
+        "pressed": false
+      }
+    }
+  ],
+  "gets": 4,
+  "source_sha256": {
+    "platform/web/unit-visual-mappings.js": "4fa597e15dac3c37dd665389f218446e6f8e7f8fd0c38740060a250e5cf942d6",
+    "platform/web/unit-panel.js": "f26a8179150c6b5ed7457b77a0324fcd883d30842f3b0f9262ea61277b0e70b5",
+    "platform/web/model-shell.js": "5ff2860a3638207131a8d488ec102293e61c27f566300ba1b95a368c4b2c2129",
+    "platform/units/catalog.json": "ecb217f8458c9b4032c1439ab920d88b82c8570768b33336185e930a9d5f905f",
+    "platform/units/runtime-profiles.json": "06fdd56dc2a90b74913adda67c3ee24e9d36be2ac7cb3ba7e77a463b18c01eca",
+    "platform/tests/test_scroll_visual_mapping.mjs": "429beb17b2f8a85462ec6c10b17723950cd6929147b085f81e1f3fcdb1f48cd5",
+    "platform/web/vendor/m5stack-models/src/units/scroll/index.js": "412c4887d3a34a2bff833d273fe4bc26df3be1be6b5377fc9195c090946d034c"
+  }
+}

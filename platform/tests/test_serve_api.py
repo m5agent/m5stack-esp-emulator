@@ -81,7 +81,7 @@ class ServePeripheralApiTests(unittest.TestCase):
 
     def test_external_unit_inventory_is_separate_from_board_models(self):
         payload = self.get_json("/api/v1/units?device_id=cores3")
-        self.assertEqual(len(payload["units"]), 27)
+        self.assertEqual(len(payload["units"]), 28)
         self.assertEqual([host["device_id"] for host in payload["hosts"]], ["cores3"])
         port = next(port for port in payload["hosts"][0]["ports"] if port["id"] == "port-a")
         self.assertEqual(port["pins"], {"yellow": 2, "white": 1})

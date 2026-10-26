@@ -167,7 +167,11 @@ paths:
       summary: Change an attached Unit physical input through QOM
       description: >
         Accepting an input is not proof that firmware consumed it. Output-only
-        fields are rejected. Controller refusal returns 409 unit_input_rejected;
+        fields are rejected. A frozen profile may limit max_live_input_fields;
+        Scroll accepts one live field per request and rejects mixed inputs with
+        400 before QOM writes. Initial attachment values are separate. Multi-field
+        QOM writes are not a general atomic transaction or rollback guarantee.
+        Controller refusal returns 409 unit_input_rejected;
         unrecorded or invalid contracts return 409 unit_contract_unavailable.
         Transport failure and timeout remain 503 and 504.
       parameters:

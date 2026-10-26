@@ -1,0 +1,142 @@
+{
+  "status": "PASS",
+  "records": [
+    {
+      "report": "hosts/atoms3r/report.json",
+      "session_id": "d89750db7eec412bae55ff7c6f8a8822",
+      "pid": 53586,
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true,
+      "pid_absent": true,
+      "retained_png_sha256": "73361e15d666d7b3b76f4f30cbb4d64373adb575d04a35ca36d377426b10037e"
+    },
+    {
+      "report": "hosts/cores3/report.json",
+      "session_id": "47050cc3ef3d4001a67689e0026c34d0",
+      "pid": 53469,
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true,
+      "pid_absent": true,
+      "retained_png_sha256": "8ec47b89811f5f581470f31617be40134d3105fc2438a980dfb00bbe5ca90d0d"
+    },
+    {
+      "report": "hosts/sticks3/report.json",
+      "session_id": "368431790a6240458e273d489b34909c",
+      "pid": 53646,
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true,
+      "pid_absent": true,
+      "retained_png_sha256": "cd01cc397b3c86f8e8029bf92adfd38816279bb776b7a192546d289b0a2ecff6"
+    },
+    {
+      "report": "hosts/stopwatch/report.json",
+      "session_id": "5479540affcc4f76801a3ec6177ee514",
+      "pid": 53822,
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true,
+      "pid_absent": true,
+      "retained_png_sha256": "d12898027befb536f7bdcbfdcafd82de84811214c4e38e714b9a91684903a669"
+    },
+    {
+      "report": "controls-regression/atoms3r/report.json",
+      "session_id": "62557f6088f2411fa3b15c7af692d4ff",
+      "pid": 53978,
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true,
+      "pid_absent": true,
+      "retained_png_sha256": "a60e5255b4946d3bc4c3df59d3e716ae4f7bbffbcc36ced6e1d93524211b41d2"
+    },
+    {
+      "report": "controls-regression/cores3/report.json",
+      "session_id": "de89e174e19147bf8c161da02bc3f065",
+      "pid": 53923,
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true,
+      "pid_absent": true,
+      "retained_png_sha256": "7ba6d03b4eff060efd70adc4e9b2ebb7098130adaddbb8bac5003838dfeac3bb"
+    },
+    {
+      "report": "controls-regression/sticks3/report.json",
+      "session_id": "1e89d40c32484a33bcb0f0d3f9484b3f",
+      "pid": 54032,
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true,
+      "pid_absent": true,
+      "retained_png_sha256": "c040a35949f2179cd93bda876847a417af1e28a3b6a7ee216152b92cdab63dc1"
+    },
+    {
+      "report": "controls-regression/stopwatch/report.json",
+      "session_id": "82c8d453d1ed4d7382048df1a10998de",
+      "pid": 54372,
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true,
+      "pid_absent": true,
+      "retained_png_sha256": "816b79ea7c7378e768116264646414423aff6ff113f4094d8cb96653b7148c60"
+    },
+    {
+      "report": "web/report.json",
+      "session_id": "28dd03d28a304e94b9f44e40ad412b93",
+      "pid": 56914,
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true,
+      "pid_absent": true,
+      "retained_png_sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e"
+    },
+    {
+      "report": "web-before-cache/report.json",
+      "session_id": "930cced8f2444f72ae5f14e693af9c77",
+      "pid": 53623,
+      "state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true,
+      "pid_absent": true,
+      "retained_png_sha256": "682266d2f7bedde600ff963f66319e131821fa95e37af284091cf4d9814a058e"
+    }
+  ],
+  "health": {
+    "ok": true,
+    "service": "m5stack-device-service",
+    "api_version": "v1",
+    "capacity": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "f56f51c8eecf4590bf23a0b448147ae2",
+        "generation": 30,
+        "state": "ready",
+        "pid": 67503,
+        "started_at": "2026-10-26T13:50:56.174288+00:00",
+        "heartbeat_at": "2026-10-26T13:50:56.174288+00:00",
+        "heartbeat_age_seconds": 0.278,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    }
+  },
+  "final_catalog_scroll_scope": "implemented; model_completeness partial; program_validation per host, real Web CoreS3 only",
+  "final_service_generation": 30
+}

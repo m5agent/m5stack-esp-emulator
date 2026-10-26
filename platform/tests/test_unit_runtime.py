@@ -18,7 +18,7 @@ class UnitRuntimeContractTests(unittest.TestCase):
 
     def test_full_visual_batch_has_explicit_runtime_boundaries(self):
         inventory = self.registry.inventory()
-        self.assertEqual(len(inventory["units"]), 27)
+        self.assertEqual(len(inventory["units"]), 28)
         self.assertEqual(len(inventory["hosts"]), 14)
         for unit in inventory["units"]:
             self.assertIsInstance(unit["inputs"], dict)
@@ -42,6 +42,67 @@ class UnitRuntimeContractTests(unittest.TestCase):
                 "id": "external", "unit_id": "pir", "port_id": "port-a",
             }])
         self.assertEqual(caught.exception.code, "runtime_model_gap")
+
+    def test_scroll_physical_source_is_distinct_from_read_only_logical_counter(self):
+        unit = self.registry.unit("scroll")
+        self.assertEqual(unit["interface"]["address_7bit"], [0x40])
+        self.assertEqual(self.registry.input_values("scroll", {"source-count": -32768, "pressed": True}),
+                         {"source-count": -32768, "pressed": True})
+        self.assertEqual(self.registry.input_values("scroll", {"source-count": 32767}), {"source-count": 32767})
+        for values in ({"source-count": -32769}, {"source-count": 32768}, {"source-count": True},
+                       {"counter": 1}, {"increments": 1}, {"led-rgb": 0x123456}, {"ab-direction": 1}):
+            with self.subTest(values=values), self.assertRaises(UnitError):
+                self.registry.input_values("scroll", values)
+        frozen = self.registry.freeze(["scroll"])
+        self.assertEqual(frozen["profiles"]["scroll"]["state"]["counter"], {"property": "counter"})
+        self.assertEqual(frozen["units"]["scroll"]["outputs"]["counter"]["minimum"], -(2**31))
+
+    def test_scroll_program_evidence_binds_each_host_without_inheriting_web_pass(self):
+        import sys
+        from unittest import mock
+
+        root = self.registry.root.parents[1]
+        with mock.patch.object(sys, 'path', [str(root / 'tests/units'), *sys.path]):
+            from run_live_scroll import validate_bundle
+        profile = self.registry.profiles['scroll']
+        self.assertEqual(profile['model_completeness'], 'partial')
+        self.assertNotIn('host_validation', profile)  # Existing full host/Web contract is distinct.
+        self.assertEqual(set(profile['program_validation']), {'cores3', 'atoms3r', 'sticks3', 'stopwatch'})
+        for host, validation in profile['program_validation'].items():
+            with self.subTest(host=host):
+                self.assertEqual(validation['evidence_contract'], 'same-guest-scroll-protocol-v1')
+                self.assertEqual(validation['hardware'], 'NOT RUN')
+                self.assertEqual(validation['live_browser'], 'PASS' if host == 'cores3' else 'NOT RUN')
+                path = root / validation['report']
+                raw = path.read_bytes()
+                self.assertEqual(hashlib.sha256(raw).hexdigest(), validation['report_sha256'])
+                report = json.loads(raw)
+                self.assertEqual(report['status'], 'PASS')
+                for key in ('device_id', 'runtime', 'session_id', 'firmware_sha256'):
+                    self.assertEqual(report[key], validation[key])
+                self.assertEqual(report['device_id'], host)
+                self.assertEqual(len(report['executions']), 22)
+                self.assertEqual(report['worker']['generation'], validation['worker_generation'])
+                for key in ('runtime_provenance', 'final_runtime_provenance'):
+                    proof = report[key]
+                    self.assertEqual((proof['status'], proof['method'], proof['pid']),
+                                     ('PASS', validation['runtime_proof_kind'], report['pid']))
+                    self.assertEqual(proof['session_id'], report['session_id'])
+                    self.assertEqual(proof['expected_binary_sha256'], validation['runtime_binary_sha256'])
+                    self.assertEqual(proof['observed_binary_sha256'], validation['runtime_binary_sha256'])
+                data = (path.parent / 'evidence.zip').read_bytes()
+                self.assertEqual(hashlib.sha256(data).hexdigest(), validation['evidence_sha256'])
+                with zipfile.ZipFile(path.parent / 'evidence.zip') as archive:
+                    submitted = {name: json.loads(archive.read('programs/' + execution['program']['revision_id'] + '/source.json'))['files']['main.py']
+                                 for name, execution in report['executions'].items()}
+                validate_bundle(data, report, submitted)
+                self.assertEqual(report['cleanup'], {'history_retained': True, 'flash_retained': False, 'last_frame_available': True})
+                if host == 'cores3':
+                    web_raw = (root / validation['live_browser_report']).read_bytes()
+                    self.assertEqual(hashlib.sha256(web_raw).hexdigest(), validation['live_browser_report_sha256'])
+                    web = json.loads(web_raw)
+                    self.assertEqual((web['status'], web['device_id'], web['unit_id']), ('PASS', host, 'scroll'))
+                    self.assertEqual(web['firmware_sha256'], report['firmware_sha256'])
 
     def test_attachment_caller_cannot_select_pins_or_qom_paths(self):
         for override in ({"pins": {"yellow": 0}}, {"qom_path": "/machine"}):

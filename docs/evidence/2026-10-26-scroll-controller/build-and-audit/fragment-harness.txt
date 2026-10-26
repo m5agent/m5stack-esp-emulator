@@ -1,0 +1,413 @@
+
+#include <assert.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+#include <limits.h>
+#define CARD_KEYS 50
+#define KEY_FIFO_SIZE 64
+#define RFID_FIFO_SIZE 64
+#define I2C_SLAVE(x) ((I2CSlave *)(x))
+#define M5_UNIT_CONTROL(x) ((M5UnitControl *)(x))
+#define BUS(x) (x)
+#define QTAILQ_FOREACH(var, head, field) for ((var)=*(head); (var); (var)=(var)->next)
+typedef struct { uint8_t address; } I2CSlave;
+typedef struct BusChild { I2CSlave *child; struct BusChild *next; } BusChild;
+typedef struct { BusChild *children; } I2CBus;
+typedef struct { uint64_t transactions,read_bytes,written_bytes,input_events,output_transitions; I2CBus *bus; } M5Unit;
+typedef struct { char message[256]; } Error;
+static Error failure;
+static void error_setg(Error **errp, const char *format, ...) {
+    va_list args; va_start(args,format); vsnprintf(failure.message,sizeof(failure.message),format,args); va_end(args);
+    if (errp) { *errp=&failure; }
+}
+static void i2c_slave_set_address(I2CSlave *slave, uint8_t value) { slave->address=value; }
+enum i2c_event { I2C_START_SEND, I2C_START_SEND_ASYNC, I2C_START_RECV, I2C_FINISH, I2C_NACK };
+typedef enum {
+    CONTROL_JOYSTICK, CONTROL_ENCODER, CONTROL_ENCODER8,
+    CONTROL_CARDKB, CONTROL_RFID2, CONTROL_SCROLL,
+} ControlKind;
+
+typedef struct M5UnitControl {
+    I2CSlave parent_obj;
+    M5Unit *unit;
+    ControlKind kind;
+    uint8_t pointer, write_base, regs[256], read_snapshot[256];
+    unsigned write_pos, read_pos;
+    bool reading, memory_request;
+    uint8_t joystick[3];
+    int32_t counter[8], increments[8];
+    bool pressed[8], switch_on;
+    uint32_t leds[9];
+    uint8_t led_write[4];
+    bool keys[CARD_KEYS];
+    uint8_t key_fifo[KEY_FIFO_SIZE];
+    unsigned key_head, key_count;
+    uint8_t modifier_mode;
+    int64_t modifier_at;
+    uint64_t key_overflows;
+    bool card_present, card_halted, card_ready, card_selected;
+    uint8_t uid[10], uid_len, cascade_level, card_memory[1024];
+    int auth_sector, pending_write;
+    uint8_t rfid_fifo[RFID_FIFO_SIZE], rfid_len;
+    uint64_t card_reads, card_writes, command_errors;
+    /* Scroll U186 firmware ae60717a has a completed-write callback and a
+     * finite cycling TX buffer, not the legacy Encoder register bank. */
+    int32_t scroll_source_count;
+    uint32_t scroll_rgb_word;
+    uint8_t scroll_ab_direction, scroll_direction;
+    uint8_t scroll_rx[17], scroll_tx[4];
+    unsigned scroll_rx_len, scroll_tx_len, scroll_tx_pos;
+    bool scroll_rx_failed, scroll_read_rejected;
+    uint64_t scroll_bootloader_requests;
+} M5UnitControl;
+static void input_changed(M5UnitControl *s) { s->unit->input_events++; }
+
+static void output_changed(M5UnitControl *s) { s->unit->output_transitions++; }
+
+static bool scroll_source_set(M5UnitControl *s, int64_t value, Error **errp)
+{
+    if (value < -32768 || value > 32767) {
+        error_setg(errp, "Scroll source-count must keep TIM16 in [0,65535]");
+        return false;
+    }
+    int64_t delta = value - s->scroll_source_count;
+    int64_t change = s->scroll_ab_direction ? -delta : delta;
+    int64_t count = (int64_t)s->counter[0] + change;
+    int64_t increment = (int64_t)s->increments[0] + change;
+    if (delta < -32767 || delta > 32767 ||
+        count < INT32_MIN || count > INT32_MAX ||
+        increment < INT32_MIN || increment > INT32_MAX) {
+        error_setg(errp, "Scroll source-count requires no TIM16 rollover, step <=32767 and int32 logical results");
+        return false;
+    }
+    if (delta) {
+        s->scroll_direction = delta > 0;
+        s->scroll_source_count = value;
+        s->counter[0] = count;
+        s->increments[0] = increment;
+        input_changed(s);
+    }
+    return true;
+}
+
+static uint32_t scroll_led_rgb(M5UnitControl *s)
+{
+    /* The MCU's ws2812.c consumes R at bits 8..15, G at 16..23, B at 24..31. */
+    return ((s->scroll_rgb_word & 0x0000ff00U) << 8) |
+           ((s->scroll_rgb_word & 0x00ff0000U) >> 8) |
+           ((s->scroll_rgb_word & 0xff000000U) >> 24);
+}
+
+static void scroll_tx_word(M5UnitControl *s, uint32_t value, unsigned offset)
+{
+    s->scroll_tx_len = 4 - offset;
+    s->scroll_tx_pos = 0;
+    for (unsigned i = 0; i < s->scroll_tx_len; i++) {
+        s->scroll_tx[i] = value >> ((i + offset) * 8);
+    }
+}
+
+static void scroll_tx_byte(M5UnitControl *s, uint8_t value)
+{
+    s->scroll_tx[0] = value;
+    s->scroll_tx_len = 1;
+    s->scroll_tx_pos = 0;
+}
+
+static bool scroll_address_available(M5UnitControl *s, uint8_t address)
+{
+    BusChild *child;
+    /* ae60717a permits zero, but QEMU's bus treats it as broadcast and
+     * suppresses reads. Do not turn a valid MCU setting into virtual
+     * general-call writes affecting other Units: fail closed in this lane. */
+    if (!address || address >= 128) { return false; }
+    QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
+        I2CSlave *other = I2C_SLAVE(child->child);
+        if (other != I2C_SLAVE(s) && other->address == address) { return false; }
+    }
+    return true;
+}
+
+static int scroll_complete(M5UnitControl *s)
+{
+    unsigned len = s->scroll_rx_len;
+    const uint8_t *data = s->scroll_rx;
+    s->scroll_rx_len = 0;
+    if (s->scroll_rx_failed) {
+        s->scroll_rx_failed = false;
+        s->scroll_read_rejected = true;
+        return 1;
+    }
+    if (!len) { return 0; }
+    uint8_t reg = data[0];
+    if (len == 1) {
+        s->scroll_read_rejected = false;
+        if (reg >= 0x10 && reg <= 0x13) {
+            scroll_tx_word(s, (uint32_t)s->counter[0], reg - 0x10);
+        } else if (reg == 0x20) {
+            scroll_tx_byte(s, !s->pressed[0]);
+        } else if (reg >= 0x30 && reg <= 0x33) {
+            scroll_tx_word(s, s->scroll_rgb_word, reg - 0x30);
+        } else if (reg >= 0x50 && reg <= 0x53) {
+            scroll_tx_word(s, (uint32_t)s->increments[0], reg - 0x50);
+            s->increments[0] = 0;
+        } else if (reg == 0x60) {
+            scroll_tx_byte(s, s->scroll_direction);
+        } else if (reg == 0xfb) {
+            scroll_tx_byte(s, s->scroll_ab_direction);
+        } else if (reg == 0xfe) {
+            scroll_tx_byte(s, 1); /* Fixed upstream application protocol. */
+        } else if (reg == 0xff) {
+            scroll_tx_byte(s, I2C_SLAVE(s)->address);
+        } else if (reg == 0xfc) {
+            /* The bootloader flash byte has no supplied model/evidence. */
+            s->command_errors++;
+            s->scroll_read_rejected = true;
+            return 1;
+        }
+        /* Unrecognised pointers preserve the previous finite TX and index. */
+        return 0;
+    }
+    if (reg == 0xff) {
+        /* The MCU requires exactly two bytes; extra bytes do not change it. */
+        if (len == 2 && data[1] < 128) {
+            if (!scroll_address_available(s, data[1])) {
+                s->command_errors++;
+                s->scroll_read_rejected = true;
+                return 1;
+            }
+            i2c_slave_set_address(I2C_SLAVE(s), data[1]);
+        }
+    } else if (reg == 0xfd && data[1] == 1) {
+        /* No pretend MCU reset/bootloader. This is a visible model gap. */
+        s->scroll_bootloader_requests++;
+        s->command_errors++;
+        s->scroll_read_rejected = true;
+        return 1;
+    } else if (reg == 0xfb) {
+        uint8_t value = !!data[1];
+        if (s->scroll_ab_direction != value) {
+            s->scroll_ab_direction = value;
+            output_changed(s);
+        }
+        /* Session-local only: the MCU's Flash persistence is not modeled. */
+    } else if ((reg >= 0x10 && reg <= 0x13) ||
+               (reg >= 0x30 && reg <= 0x33)) {
+        unsigned offset = reg & 3;
+        /* The MCU writes into a 16-byte local buffer before applying only
+         * the first four marks. Reject its undefined stack-overflow cases. */
+        if (offset + len - 1 > 16) {
+            s->command_errors++;
+            s->scroll_read_rejected = true;
+            return 1;
+        }
+        uint32_t word = reg < 0x30 ? (uint32_t)s->counter[0] : s->scroll_rgb_word;
+        for (unsigned i = 1; i < len && offset + i - 1 < 4; i++) {
+            unsigned shift = (offset + i - 1) * 8;
+            word = (word & ~(0xffU << shift)) | ((uint32_t)data[i] << shift);
+        }
+        if (reg < 0x30) {
+            /* Convert high-bit values without an out-of-range unsigned cast. */
+            s->counter[0] = word <= INT32_MAX ? (int32_t)word : (int32_t)((int64_t)word - INT64_C(0x100000000));
+        } else if (s->scroll_rgb_word != word) {
+            s->scroll_rgb_word = word;
+            output_changed(s);
+        }
+    } else if (reg == 0x40 && data[1] == 1) {
+        s->counter[0] = s->increments[0] = 0;
+    }
+    return 0;
+}static int control_event(I2CSlave *dev, enum i2c_event event)
+{
+    M5UnitControl *s = M5_UNIT_CONTROL(dev);
+    if (s->kind == CONTROL_SCROLL) {
+        if (event == I2C_START_SEND || event == I2C_START_SEND_ASYNC ||
+            event == I2C_START_RECV) {
+            int result = scroll_complete(s);
+            s->unit->transactions++;
+            s->reading = event == I2C_START_RECV;
+            return s->reading && (result || s->scroll_read_rejected) ? 1 : 0;
+        } else if (event == I2C_FINISH) {
+            int result = scroll_complete(s);
+            s->reading = false;
+            return result;
+        }
+        return 0;
+    }
+    return 0;
+}
+
+static int control_send(I2CSlave *dev, uint8_t value)
+{
+    M5UnitControl *s = M5_UNIT_CONTROL(dev);
+    s->unit->written_bytes++;
+    if (s->kind == CONTROL_SCROLL) {
+        if (s->scroll_rx_failed) { return 1; }
+        if (s->scroll_rx_len) {
+            uint8_t reg = s->scroll_rx[0];
+            if (((reg >= 0x10 && reg <= 0x13) ||
+                 (reg >= 0x30 && reg <= 0x33)) &&
+                (reg & 3) + s->scroll_rx_len > 16) {
+                s->scroll_rx_failed = s->scroll_read_rejected = true;
+                s->command_errors++;
+                return 1;
+            }
+        }
+        if (s->scroll_rx_len == sizeof(s->scroll_rx)) {
+            s->scroll_rx_failed = true;
+            s->command_errors++;
+            return 1;
+        }
+        s->scroll_rx[s->scroll_rx_len++] = value;
+        if (s->scroll_rx_len == 2 && s->scroll_rx[0] == 0xfd && value == 1) {
+            s->scroll_bootloader_requests++;
+            s->command_errors++;
+            s->scroll_read_rejected = s->scroll_rx_failed = true;
+            return 1;
+        }
+        return 0;
+    }
+    return 0;
+}
+
+static uint8_t control_recv(I2CSlave *dev)
+{
+    M5UnitControl *s = M5_UNIT_CONTROL(dev);
+    s->unit->read_bytes++;
+    if (s->kind == CONTROL_SCROLL) {
+        if (s->scroll_read_rejected || !s->scroll_tx_len) { return 0xff; }
+        uint8_t value = s->scroll_tx[s->scroll_tx_pos];
+        s->scroll_tx_pos = (s->scroll_tx_pos + 1) % s->scroll_tx_len;
+        return value;
+    }
+    return 0;
+}
+static M5UnitControl state;
+static M5Unit unit;
+static I2CBus bus;
+static void init(void) {
+    memset(&state,0,sizeof(state)); memset(&unit,0,sizeof(unit)); memset(&bus,0,sizeof(bus));
+    state.kind=CONTROL_SCROLL; state.unit=&unit; unit.bus=&bus;
+    state.parent_obj.address=0x40; state.scroll_direction=1; state.scroll_tx_len=1;
+}
+static void source(int64_t value) { Error *error=NULL; assert(scroll_source_set(&state,value,&error)); assert(!error); }
+static void source_rejected(int64_t value) {
+    M5UnitControl before=state; M5Unit unit_before=unit; Error *error=NULL;
+    assert(!scroll_source_set(&state,value,&error)); assert(error);
+    assert(!memcmp(&state,&before,sizeof(state))); assert(!memcmp(&unit,&unit_before,sizeof(unit)));
+}
+static int frame(const uint8_t *bytes, unsigned size, bool stop) {
+    assert(control_event(I2C_SLAVE(&state),I2C_START_SEND)==0);
+    int result=0;
+    for(unsigned i=0;i<size;i++) { if(control_send(I2C_SLAVE(&state),bytes[i])) { result=1; break; } }
+    if(stop && control_event(I2C_SLAVE(&state),I2C_FINISH)) { result=1; }
+    return result;
+}
+static void select_reg(uint8_t reg) { assert(!frame(&reg,1,true)); }
+static void read_equals(const uint8_t *expected,unsigned size) {
+    assert(!control_event(I2C_SLAVE(&state),I2C_START_RECV));
+    for(unsigned i=0;i<size;i++) { assert(control_recv(I2C_SLAVE(&state))==expected[i]); }
+    assert(!control_event(I2C_SLAVE(&state),I2C_FINISH));
+}
+static void test_count_snapshot_and_finite_tx(void) {
+    init();
+    const uint8_t set[]={0x10,0x78,0x56,0x34,0x12}; assert(!frame(set,sizeof(set),true));
+    assert(state.counter[0]==0x12345678 && state.scroll_source_count==0 && state.increments[0]==0);
+    select_reg(0x11); read_equals((uint8_t[]){0x56,0x34},2);
+    source(256); assert(state.counter[0]==0x12345778 && state.increments[0]==256);
+    read_equals((uint8_t[]){0x12,0x56,0x34,0x12},4);
+    select_reg(0x99); read_equals((uint8_t[]){0x56},1);
+    select_reg(0x11); read_equals((uint8_t[]){0x57,0x34,0x12,0x57},4);
+    select_reg(0xfe); assert(!frame(set,sizeof(set),true)); read_equals((uint8_t[]){1,1,1,1},4);
+}
+static void test_increment_is_consumed_at_pointer_completion(void) {
+    init(); state.increments[0]=0x12345678;
+    select_reg(0x51); assert(state.increments[0]==0);
+    source(5); assert(state.increments[0]==5);
+    read_equals((uint8_t[]){0x56,0x34},2); read_equals((uint8_t[]){0x12,0x56,0x34,0x12},4);
+    select_reg(0x50); assert(state.increments[0]==0); read_equals((uint8_t[]){5,0,0,0},4);
+    source(6); uint8_t reg=0x50; assert(!frame(&reg,1,false));
+    assert(state.increments[0]==1); source(7); /* No STOP: snapshot belongs to repeated START. */
+    read_equals((uint8_t[]){2,0,0,0},4); assert(state.increments[0]==0);
+    source(8); select_reg(0x50); assert(state.increments[0]==0); /* No read is needed to clear it. */
+    source(9); read_equals((uint8_t[]){1,0,0,0},4); assert(state.increments[0]==1);
+    select_reg(0x50); assert(state.increments[0]==0);
+}
+static void test_rgb_word_and_physical_channels(void) {
+    init(); const uint8_t set[]={0x31,0x12,0x34,0x56}; assert(!frame(set,sizeof(set),true));
+    assert(state.scroll_rgb_word==0x56341200U && scroll_led_rgb(&state)==0x123456U);
+    select_reg(0x30); read_equals((uint8_t[]){0,0x12,0x34,0x56,0,0x12,0x34,0x56},8);
+    assert(!frame((uint8_t[]){0x32,0xab},2,true)); assert(scroll_led_rgb(&state)==0x12ab56U);
+    assert(!frame((uint8_t[]){0x33,0x88,0x99},3,true)); assert(scroll_led_rgb(&state)==0x12ab88U);
+    select_reg(0x31); read_equals((uint8_t[]){0x12,0xab,0x88,0x12},4);
+}
+static void test_source_policy_direction_and_atomic_errors(void) {
+    init(); assert(state.scroll_direction==1); source(10); assert(state.counter[0]==10 && state.increments[0]==10);
+    assert(!frame((uint8_t[]){0xfb,255},2,true)); assert(state.scroll_ab_direction==1);
+    source(5); assert(state.counter[0]==15 && state.increments[0]==15 && state.scroll_direction==0);
+    unsigned events=unit.input_events; source(5); assert(unit.input_events==events && state.scroll_direction==0);
+    assert(!frame((uint8_t[]){0xfb,0},2,true)); assert(state.scroll_direction==0);
+    source_rejected(-32768); source_rejected(32768); source_rejected(INT64_MIN); source_rejected(INT64_MAX);
+    state.counter[0]=INT32_MAX; source_rejected(6);
+    state.counter[0]=0; state.increments[0]=INT32_MAX; source_rejected(6);
+    state.counter[0]=INT32_MIN; state.increments[0]=0; source_rejected(4);
+    state.counter[0]=0; state.increments[0]=INT32_MIN; source_rejected(4);
+    init(); source(-32767); source(-32768); assert(state.scroll_source_count==-32768);
+    source_rejected(0); source(-1); source(32766); source(32767);
+    assert(state.scroll_source_count==32767 && state.counter[0]==32767);
+    source_rejected(-32768);
+}
+static void test_raw_registers_reset_and_button(void) {
+    init(); source(12);
+    assert(!frame((uint8_t[]){0x10,0xff,0xff,0xff,0xff},5,true));
+    assert(state.counter[0]==-1 && state.scroll_source_count==12 && state.increments[0]==12);
+    assert(!frame((uint8_t[]){0x11,0x56,0x34,0x12},4,true)); assert(state.counter[0]==0x123456ff);
+    select_reg(0x10);
+    assert(!frame((uint8_t[]){0x40,1},2,true));
+    assert(state.counter[0]==0 && state.increments[0]==0 && state.scroll_source_count==12);
+    read_equals((uint8_t[]){0xff,0x56,0x34,0x12},4); /* Reset does not replace TX. */
+    source(13); assert(state.counter[0]==1 && state.increments[0]==1);
+    select_reg(0x20); read_equals((uint8_t[]){1,1},2);
+    state.pressed[0]=true; select_reg(0x20); read_equals((uint8_t[]){0,0},2);
+}
+static void test_dynamic_addresses_and_unsupported_paths(void) {
+    init(); assert(!frame((uint8_t[]){0xff,0x52},2,true)); assert(state.parent_obj.address==0x52);
+    assert(!frame((uint8_t[]){0xff,0x53,0},3,true)); assert(state.parent_obj.address==0x52);
+    assert(!frame((uint8_t[]){0xff,0x80},2,true)); assert(state.parent_obj.address==0x52);
+    /* QEMU end_transfer ignores FINISH's return: these bytes still ACK.
+     * Assert the model callback error, retained address and read rejection
+     * separately; do not turn callback failure into a guest write-NACK claim. */
+    assert(!control_event(I2C_SLAVE(&state),I2C_START_SEND));
+    assert(!control_send(I2C_SLAVE(&state),0xff)); assert(!control_send(I2C_SLAVE(&state),0));
+    assert(control_event(I2C_SLAVE(&state),I2C_FINISH)==1); assert(state.parent_obj.address==0x52);
+    I2CSlave peer={.address=0x55}; BusChild child={.child=&peer}; bus.children=&child;
+    assert(!control_event(I2C_SLAVE(&state),I2C_START_SEND));
+    assert(!control_send(I2C_SLAVE(&state),0xff)); assert(!control_send(I2C_SLAVE(&state),0x55));
+    assert(control_event(I2C_SLAVE(&state),I2C_FINISH)==1); assert(state.parent_obj.address==0x52);
+    assert(!frame((uint8_t[]){0xff,1},2,true)); assert(state.parent_obj.address==1);
+    select_reg(0xff); read_equals((uint8_t[]){1,1},2);
+    uint8_t boot_version=0xfc; assert(frame(&boot_version,1,true));
+    assert(control_event(I2C_SLAVE(&state),I2C_START_RECV)==1);
+    select_reg(0xfe); read_equals((uint8_t[]){1},1);
+    source(5); uint64_t errors=state.command_errors;
+    assert(frame((uint8_t[]){0xfd,1},2,true)); assert(state.scroll_bootloader_requests==1);
+    assert(state.command_errors==errors+1 && state.counter[0]==5 && state.scroll_source_count==5 && state.parent_obj.address==1);
+    assert(control_event(I2C_SLAVE(&state),I2C_START_RECV)==1);
+    select_reg(0xfe); read_equals((uint8_t[]){1},1);
+    uint8_t oversized[18]={0x10}; memset(oversized+1,0xff,17);
+    assert(frame(oversized,sizeof(oversized),true)); assert(state.counter[0]==5);
+    oversized[0]=0x13; assert(frame(oversized,17,true)); assert(state.counter[0]==5);
+}
+int main(void) {
+    test_count_snapshot_and_finite_tx();
+    test_increment_is_consumed_at_pointer_completion();
+    test_rgb_word_and_physical_channels();
+    test_source_policy_direction_and_atomic_errors();
+    test_raw_registers_reset_and_button();
+    test_dynamic_addresses_and_unsupported_paths();
+    puts("Scroll actual C fragments: 6 groups PASS (offline only)");
+    return 0;
+}

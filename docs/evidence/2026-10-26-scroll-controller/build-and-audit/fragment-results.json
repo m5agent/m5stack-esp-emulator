@@ -1,0 +1,41 @@
+{
+  "source_sha256": "a0fa59a8b90a0478a2afe1b6ba689c242a76a3470f875a0c9a796e4a8c01f045",
+  "harness_sha256": "b2a1a160e543e26b82e0abb40f6e8bd10cae7e7db901e61b702d3e3b7eb64664",
+  "compiler_command": [
+    "cc",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=undefined",
+    "-g",
+    "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-implementation-20261026/scroll_fragments.c",
+    "-o",
+    "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-scroll-implementation-20261026/scroll_fragments"
+  ],
+  "compiler_exit": 0,
+  "run_exit": 0,
+  "stdout": "Scroll actual C fragments: 6 groups PASS (offline only)\n",
+  "stderr": "",
+  "scope": "Extracted actual Scroll C helpers and dispatch branches with stub QOM/I2C bus; no guest, controller or hardware execution",
+  "negative_controls": {
+    "legacy-encoder16-counter": {
+      "compile_exit": 0,
+      "run_exit": -6,
+      "rejected": true,
+      "stderr": "Assertion failed: (control_recv(I2C_SLAVE(&state))==expected[i]), function read_equals, file legacy-encoder16-counter.c, line 312.\n"
+    },
+    "deferred-increment-clear": {
+      "compile_exit": 0,
+      "run_exit": -6,
+      "rejected": true,
+      "stderr": "Assertion failed: (state.increments[0]==0), function test_increment_is_consumed_at_pointer_completion, file deferred-increment-clear.c, line 328.\n"
+    },
+    "allow-unproven-large-tim-step": {
+      "compile_exit": 0,
+      "run_exit": -6,
+      "rejected": true,
+      "stderr": "Assertion failed: (!scroll_source_set(&state,value,&error)), function source_rejected, file allow-unproven-large-tim-step.c, line 299.\n"
+    }
+  }
+}

@@ -1,0 +1,220 @@
+from pathlib import Path
+import hashlib
+import json
+import re
+import subprocess
+
+ROOT=Path(__file__).resolve().parents[2]
+OUT=Path(__file__).resolve().parent
+SRC=ROOT/'.work/unit-runtime-source-scroll/qemu/hw/m5stopwatch/m5_unit_i2c_controls.c'
+text=SRC.read_text()
+
+def braces(start):
+    depth=0
+    for index in range(start,len(text)):
+        if text[index]=='{': depth+=1
+        elif text[index]=='}':
+            depth-=1
+            if not depth: return index+1
+    raise AssertionError('unclosed function')
+
+def function(name):
+    found=re.search(r'^static [^\n]+\b'+re.escape(name)+r'\(',text,re.M)
+    assert found,name
+    opening=text.index('{',found.start())
+    return text[found.start():braces(opening)]
+
+def scroll_branch(name):
+    found=re.search(r'^static [^\n]+\b'+name+r'\(',text,re.M)
+    opening=text.index('{',found.start())
+    branch=text.index('    if (s->kind == CONTROL_SCROLL) {',opening)
+    ending=braces(text.index('{',branch))
+    return text[found.start():branch]+text[branch:ending]+'\n    return 0;\n}'
+
+struct=text[text.index('typedef enum {\n    CONTROL_JOYSTICK'):text.index('OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl')]
+helpers='\n\n'.join(function(name) for name in ('input_changed','output_changed','scroll_source_set','scroll_led_rgb','scroll_tx_word','scroll_tx_byte','scroll_address_available','scroll_complete'))
+branches='\n\n'.join(scroll_branch(name) for name in ('control_event','control_send','control_recv'))
+prefix=r'''
+#include <assert.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+#include <limits.h>
+#define CARD_KEYS 50
+#define KEY_FIFO_SIZE 64
+#define RFID_FIFO_SIZE 64
+#define I2C_SLAVE(x) ((I2CSlave *)(x))
+#define M5_UNIT_CONTROL(x) ((M5UnitControl *)(x))
+#define BUS(x) (x)
+#define QTAILQ_FOREACH(var, head, field) for ((var)=*(head); (var); (var)=(var)->next)
+typedef struct { uint8_t address; } I2CSlave;
+typedef struct BusChild { I2CSlave *child; struct BusChild *next; } BusChild;
+typedef struct { BusChild *children; } I2CBus;
+typedef struct { uint64_t transactions,read_bytes,written_bytes,input_events,output_transitions; I2CBus *bus; } M5Unit;
+typedef struct { char message[256]; } Error;
+static Error failure;
+static void error_setg(Error **errp, const char *format, ...) {
+    va_list args; va_start(args,format); vsnprintf(failure.message,sizeof(failure.message),format,args); va_end(args);
+    if (errp) { *errp=&failure; }
+}
+static void i2c_slave_set_address(I2CSlave *slave, uint8_t value) { slave->address=value; }
+enum i2c_event { I2C_START_SEND, I2C_START_SEND_ASYNC, I2C_START_RECV, I2C_FINISH, I2C_NACK };
+'''
+body=r'''
+static M5UnitControl state;
+static M5Unit unit;
+static I2CBus bus;
+static void init(void) {
+    memset(&state,0,sizeof(state)); memset(&unit,0,sizeof(unit)); memset(&bus,0,sizeof(bus));
+    state.kind=CONTROL_SCROLL; state.unit=&unit; unit.bus=&bus;
+    state.parent_obj.address=0x40; state.scroll_direction=1; state.scroll_tx_len=1;
+}
+static void source(int64_t value) { Error *error=NULL; assert(scroll_source_set(&state,value,&error)); assert(!error); }
+static void source_rejected(int64_t value) {
+    M5UnitControl before=state; M5Unit unit_before=unit; Error *error=NULL;
+    assert(!scroll_source_set(&state,value,&error)); assert(error);
+    assert(!memcmp(&state,&before,sizeof(state))); assert(!memcmp(&unit,&unit_before,sizeof(unit)));
+}
+static int frame(const uint8_t *bytes, unsigned size, bool stop) {
+    assert(control_event(I2C_SLAVE(&state),I2C_START_SEND)==0);
+    int result=0;
+    for(unsigned i=0;i<size;i++) { if(control_send(I2C_SLAVE(&state),bytes[i])) { result=1; break; } }
+    if(stop && control_event(I2C_SLAVE(&state),I2C_FINISH)) { result=1; }
+    return result;
+}
+static void select_reg(uint8_t reg) { assert(!frame(&reg,1,true)); }
+static void read_equals(const uint8_t *expected,unsigned size) {
+    assert(!control_event(I2C_SLAVE(&state),I2C_START_RECV));
+    for(unsigned i=0;i<size;i++) { assert(control_recv(I2C_SLAVE(&state))==expected[i]); }
+    assert(!control_event(I2C_SLAVE(&state),I2C_FINISH));
+}
+static void test_count_snapshot_and_finite_tx(void) {
+    init();
+    const uint8_t set[]={0x10,0x78,0x56,0x34,0x12}; assert(!frame(set,sizeof(set),true));
+    assert(state.counter[0]==0x12345678 && state.scroll_source_count==0 && state.increments[0]==0);
+    select_reg(0x11); read_equals((uint8_t[]){0x56,0x34},2);
+    source(256); assert(state.counter[0]==0x12345778 && state.increments[0]==256);
+    read_equals((uint8_t[]){0x12,0x56,0x34,0x12},4);
+    select_reg(0x99); read_equals((uint8_t[]){0x56},1);
+    select_reg(0x11); read_equals((uint8_t[]){0x57,0x34,0x12,0x57},4);
+    select_reg(0xfe); assert(!frame(set,sizeof(set),true)); read_equals((uint8_t[]){1,1,1,1},4);
+}
+static void test_increment_is_consumed_at_pointer_completion(void) {
+    init(); state.increments[0]=0x12345678;
+    select_reg(0x51); assert(state.increments[0]==0);
+    source(5); assert(state.increments[0]==5);
+    read_equals((uint8_t[]){0x56,0x34},2); read_equals((uint8_t[]){0x12,0x56,0x34,0x12},4);
+    select_reg(0x50); assert(state.increments[0]==0); read_equals((uint8_t[]){5,0,0,0},4);
+    source(6); uint8_t reg=0x50; assert(!frame(&reg,1,false));
+    assert(state.increments[0]==1); source(7); /* No STOP: snapshot belongs to repeated START. */
+    read_equals((uint8_t[]){2,0,0,0},4); assert(state.increments[0]==0);
+    source(8); select_reg(0x50); assert(state.increments[0]==0); /* No read is needed to clear it. */
+    source(9); read_equals((uint8_t[]){1,0,0,0},4); assert(state.increments[0]==1);
+    select_reg(0x50); assert(state.increments[0]==0);
+}
+static void test_rgb_word_and_physical_channels(void) {
+    init(); const uint8_t set[]={0x31,0x12,0x34,0x56}; assert(!frame(set,sizeof(set),true));
+    assert(state.scroll_rgb_word==0x56341200U && scroll_led_rgb(&state)==0x123456U);
+    select_reg(0x30); read_equals((uint8_t[]){0,0x12,0x34,0x56,0,0x12,0x34,0x56},8);
+    assert(!frame((uint8_t[]){0x32,0xab},2,true)); assert(scroll_led_rgb(&state)==0x12ab56U);
+    assert(!frame((uint8_t[]){0x33,0x88,0x99},3,true)); assert(scroll_led_rgb(&state)==0x12ab88U);
+    select_reg(0x31); read_equals((uint8_t[]){0x12,0xab,0x88,0x12},4);
+}
+static void test_source_policy_direction_and_atomic_errors(void) {
+    init(); assert(state.scroll_direction==1); source(10); assert(state.counter[0]==10 && state.increments[0]==10);
+    assert(!frame((uint8_t[]){0xfb,255},2,true)); assert(state.scroll_ab_direction==1);
+    source(5); assert(state.counter[0]==15 && state.increments[0]==15 && state.scroll_direction==0);
+    unsigned events=unit.input_events; source(5); assert(unit.input_events==events && state.scroll_direction==0);
+    assert(!frame((uint8_t[]){0xfb,0},2,true)); assert(state.scroll_direction==0);
+    source_rejected(-32768); source_rejected(32768); source_rejected(INT64_MIN); source_rejected(INT64_MAX);
+    state.counter[0]=INT32_MAX; source_rejected(6);
+    state.counter[0]=0; state.increments[0]=INT32_MAX; source_rejected(6);
+    state.counter[0]=INT32_MIN; state.increments[0]=0; source_rejected(4);
+    state.counter[0]=0; state.increments[0]=INT32_MIN; source_rejected(4);
+    init(); source(-32767); source(-32768); assert(state.scroll_source_count==-32768);
+    source_rejected(0); source(-1); source(32766); source(32767);
+    assert(state.scroll_source_count==32767 && state.counter[0]==32767);
+    source_rejected(-32768);
+}
+static void test_raw_registers_reset_and_button(void) {
+    init(); source(12);
+    assert(!frame((uint8_t[]){0x10,0xff,0xff,0xff,0xff},5,true));
+    assert(state.counter[0]==-1 && state.scroll_source_count==12 && state.increments[0]==12);
+    assert(!frame((uint8_t[]){0x11,0x56,0x34,0x12},4,true)); assert(state.counter[0]==0x123456ff);
+    select_reg(0x10);
+    assert(!frame((uint8_t[]){0x40,1},2,true));
+    assert(state.counter[0]==0 && state.increments[0]==0 && state.scroll_source_count==12);
+    read_equals((uint8_t[]){0xff,0x56,0x34,0x12},4); /* Reset does not replace TX. */
+    source(13); assert(state.counter[0]==1 && state.increments[0]==1);
+    select_reg(0x20); read_equals((uint8_t[]){1,1},2);
+    state.pressed[0]=true; select_reg(0x20); read_equals((uint8_t[]){0,0},2);
+}
+static void test_dynamic_addresses_and_unsupported_paths(void) {
+    init(); assert(!frame((uint8_t[]){0xff,0x52},2,true)); assert(state.parent_obj.address==0x52);
+    assert(!frame((uint8_t[]){0xff,0x53,0},3,true)); assert(state.parent_obj.address==0x52);
+    assert(!frame((uint8_t[]){0xff,0x80},2,true)); assert(state.parent_obj.address==0x52);
+    /* QEMU end_transfer ignores FINISH's return: these bytes still ACK.
+     * Assert the model callback error, retained address and read rejection
+     * separately; do not turn callback failure into a guest write-NACK claim. */
+    assert(!control_event(I2C_SLAVE(&state),I2C_START_SEND));
+    assert(!control_send(I2C_SLAVE(&state),0xff)); assert(!control_send(I2C_SLAVE(&state),0));
+    assert(control_event(I2C_SLAVE(&state),I2C_FINISH)==1); assert(state.parent_obj.address==0x52);
+    I2CSlave peer={.address=0x55}; BusChild child={.child=&peer}; bus.children=&child;
+    assert(!control_event(I2C_SLAVE(&state),I2C_START_SEND));
+    assert(!control_send(I2C_SLAVE(&state),0xff)); assert(!control_send(I2C_SLAVE(&state),0x55));
+    assert(control_event(I2C_SLAVE(&state),I2C_FINISH)==1); assert(state.parent_obj.address==0x52);
+    assert(!frame((uint8_t[]){0xff,1},2,true)); assert(state.parent_obj.address==1);
+    select_reg(0xff); read_equals((uint8_t[]){1,1},2);
+    uint8_t boot_version=0xfc; assert(frame(&boot_version,1,true));
+    assert(control_event(I2C_SLAVE(&state),I2C_START_RECV)==1);
+    select_reg(0xfe); read_equals((uint8_t[]){1},1);
+    source(5); uint64_t errors=state.command_errors;
+    assert(frame((uint8_t[]){0xfd,1},2,true)); assert(state.scroll_bootloader_requests==1);
+    assert(state.command_errors==errors+1 && state.counter[0]==5 && state.scroll_source_count==5 && state.parent_obj.address==1);
+    assert(control_event(I2C_SLAVE(&state),I2C_START_RECV)==1);
+    select_reg(0xfe); read_equals((uint8_t[]){1},1);
+    uint8_t oversized[18]={0x10}; memset(oversized+1,0xff,17);
+    assert(frame(oversized,sizeof(oversized),true)); assert(state.counter[0]==5);
+    oversized[0]=0x13; assert(frame(oversized,17,true)); assert(state.counter[0]==5);
+}
+int main(void) {
+    test_count_snapshot_and_finite_tx();
+    test_increment_is_consumed_at_pointer_completion();
+    test_rgb_word_and_physical_channels();
+    test_source_policy_direction_and_atomic_errors();
+    test_raw_registers_reset_and_button();
+    test_dynamic_addresses_and_unsupported_paths();
+    puts("Scroll actual C fragments: 6 groups PASS (offline only)");
+    return 0;
+}
+'''
+source=prefix+struct+helpers+branches+body
+path=OUT/'scroll_fragments.c'; path.write_text(source)
+command=['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=undefined','-g',str(path),'-o',str(OUT/'scroll_fragments')]
+build=subprocess.run(command,capture_output=True,text=True)
+(OUT/'compile.txt').write_text(build.stdout+build.stderr)
+if build.returncode: raise SystemExit(build.stdout+build.stderr)
+run=subprocess.run([str(OUT/'scroll_fragments')],capture_output=True,text=True)
+(OUT/'fragment-results.txt').write_text(run.stdout+run.stderr)
+record={'source_sha256':hashlib.sha256(SRC.read_bytes()).hexdigest(),'harness_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'compiler_command':command,'compiler_exit':build.returncode,'run_exit':run.returncode,'stdout':run.stdout,'stderr':run.stderr,'scope':'Extracted actual Scroll C helpers and dispatch branches with stub QOM/I2C bus; no guest, controller or hardware execution'}
+if run.returncode == 0:
+    negative_variants = {
+        'legacy-encoder16-counter': source.replace('scroll_tx_word(s, (uint32_t)s->counter[0], reg - 0x10);', 'scroll_tx_word(s, (uint16_t)s->counter[0], reg - 0x10);', 1),
+        'deferred-increment-clear': source.replace('            s->increments[0] = 0;', '            /* Negative control: no clear at pointer selection. */', 1),
+        'allow-unproven-large-tim-step': source.replace('delta < -32767 || delta > 32767', 'delta < -65535 || delta > 65535', 1),
+    }
+    record['negative_controls'] = {}
+    for label, variant in negative_variants.items():
+        assert variant != source
+        negative_source=OUT/(label+'.c'); negative_source.write_text(variant)
+        negative_binary=OUT/label
+        negative_compile=subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=undefined','-g',str(negative_source),'-o',str(negative_binary)],capture_output=True,text=True)
+        assert negative_compile.returncode == 0, negative_compile.stderr
+        negative_run=subprocess.run([str(negative_binary)],capture_output=True,text=True)
+        record['negative_controls'][label] = {'compile_exit':negative_compile.returncode,'run_exit':negative_run.returncode,'rejected':negative_run.returncode != 0,'stderr':negative_run.stderr}
+        assert negative_run.returncode != 0, label+' did not fail its oracle'
+(OUT/'fragment-results.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps(record,indent=2))
+raise SystemExit(run.returncode)

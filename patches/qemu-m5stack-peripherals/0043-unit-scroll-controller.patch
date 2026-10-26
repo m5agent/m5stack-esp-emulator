@@ -1,0 +1,329 @@
+diff --git a/hw/m5stopwatch/m5_unit_i2c_controls.c b/hw/m5stopwatch/m5_unit_i2c_controls.c
+index edc5d820..8fb167d2 100644
+--- a/hw/m5stopwatch/m5_unit_i2c_controls.c
++++ b/hw/m5stopwatch/m5_unit_i2c_controls.c
+@@ -32,7 +32,7 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp);
+ 
+ typedef enum {
+     CONTROL_JOYSTICK, CONTROL_ENCODER, CONTROL_ENCODER8,
+-    CONTROL_CARDKB, CONTROL_RFID2,
++    CONTROL_CARDKB, CONTROL_RFID2, CONTROL_SCROLL,
+ } ControlKind;
+ 
+ typedef struct M5UnitControl {
+@@ -58,6 +58,15 @@ typedef struct M5UnitControl {
+     int auth_sector, pending_write;
+     uint8_t rfid_fifo[RFID_FIFO_SIZE], rfid_len;
+     uint64_t card_reads, card_writes, command_errors;
++    /* Scroll U186 firmware ae60717a has a completed-write callback and a
++     * finite cycling TX buffer, not the legacy Encoder register bank. */
++    int32_t scroll_source_count;
++    uint32_t scroll_rgb_word;
++    uint8_t scroll_ab_direction, scroll_direction;
++    uint8_t scroll_rx[17], scroll_tx[4];
++    unsigned scroll_rx_len, scroll_tx_len, scroll_tx_pos;
++    bool scroll_rx_failed, scroll_read_rejected;
++    uint64_t scroll_bootloader_requests;
+ } M5UnitControl;
+ OBJECT_DECLARE_SIMPLE_TYPE(M5UnitControl, M5_UNIT_CONTROL)
+ 
+@@ -94,6 +103,167 @@ static const uint8_t key_function[CARD_KEYS] = {
+ static void input_changed(M5UnitControl *s) { s->unit->input_events++; }
+ static void output_changed(M5UnitControl *s) { s->unit->output_transitions++; }
+ 
++/* Physical TIM position remains in [0,65535] around its 0x8000 origin.
++ * The fixed MCU source's TIM3 IRQ/NVIC/wrap path is not established. Reject
++ * rollover, ambiguous large steps and signed-counter overflow atomically;
++ * this subset must never substitute ideal modulo arithmetic for that MCU. */
++static bool scroll_source_set(M5UnitControl *s, int64_t value, Error **errp)
++{
++    if (value < -32768 || value > 32767) {
++        error_setg(errp, "Scroll source-count must keep TIM16 in [0,65535]");
++        return false;
++    }
++    int64_t delta = value - s->scroll_source_count;
++    int64_t change = s->scroll_ab_direction ? -delta : delta;
++    int64_t count = (int64_t)s->counter[0] + change;
++    int64_t increment = (int64_t)s->increments[0] + change;
++    if (delta < -32767 || delta > 32767 ||
++        count < INT32_MIN || count > INT32_MAX ||
++        increment < INT32_MIN || increment > INT32_MAX) {
++        error_setg(errp, "Scroll source-count requires no TIM16 rollover, step <=32767 and int32 logical results");
++        return false;
++    }
++    if (delta) {
++        s->scroll_direction = delta > 0;
++        s->scroll_source_count = value;
++        s->counter[0] = count;
++        s->increments[0] = increment;
++        input_changed(s);
++    }
++    return true;
++}
++
++static uint32_t scroll_led_rgb(M5UnitControl *s)
++{
++    /* The MCU's ws2812.c consumes R at bits 8..15, G at 16..23, B at 24..31. */
++    return ((s->scroll_rgb_word & 0x0000ff00U) << 8) |
++           ((s->scroll_rgb_word & 0x00ff0000U) >> 8) |
++           ((s->scroll_rgb_word & 0xff000000U) >> 24);
++}
++
++static void scroll_tx_word(M5UnitControl *s, uint32_t value, unsigned offset)
++{
++    s->scroll_tx_len = 4 - offset;
++    s->scroll_tx_pos = 0;
++    for (unsigned i = 0; i < s->scroll_tx_len; i++) {
++        s->scroll_tx[i] = value >> ((i + offset) * 8);
++    }
++}
++
++static void scroll_tx_byte(M5UnitControl *s, uint8_t value)
++{
++    s->scroll_tx[0] = value;
++    s->scroll_tx_len = 1;
++    s->scroll_tx_pos = 0;
++}
++
++static bool scroll_address_available(M5UnitControl *s, uint8_t address)
++{
++    BusChild *child;
++    /* ae60717a permits zero, but QEMU's bus treats it as broadcast and
++     * suppresses reads. Do not turn a valid MCU setting into virtual
++     * general-call writes affecting other Units: fail closed in this lane. */
++    if (!address || address >= 128) { return false; }
++    QTAILQ_FOREACH(child, &BUS(s->unit->bus)->children, sibling) {
++        I2CSlave *other = I2C_SLAVE(child->child);
++        if (other != I2C_SLAVE(s) && other->address == address) { return false; }
++    }
++    return true;
++}
++
++/* Called once on STOP or before the next START, matching the MCU RX callback.
++ * A pointer-only write takes the snapshot here, even if no read follows. */
++static int scroll_complete(M5UnitControl *s)
++{
++    unsigned len = s->scroll_rx_len;
++    const uint8_t *data = s->scroll_rx;
++    s->scroll_rx_len = 0;
++    if (s->scroll_rx_failed) {
++        s->scroll_rx_failed = false;
++        s->scroll_read_rejected = true;
++        return 1;
++    }
++    if (!len) { return 0; }
++    uint8_t reg = data[0];
++    if (len == 1) {
++        s->scroll_read_rejected = false;
++        if (reg >= 0x10 && reg <= 0x13) {
++            scroll_tx_word(s, (uint32_t)s->counter[0], reg - 0x10);
++        } else if (reg == 0x20) {
++            scroll_tx_byte(s, !s->pressed[0]);
++        } else if (reg >= 0x30 && reg <= 0x33) {
++            scroll_tx_word(s, s->scroll_rgb_word, reg - 0x30);
++        } else if (reg >= 0x50 && reg <= 0x53) {
++            scroll_tx_word(s, (uint32_t)s->increments[0], reg - 0x50);
++            s->increments[0] = 0;
++        } else if (reg == 0x60) {
++            scroll_tx_byte(s, s->scroll_direction);
++        } else if (reg == 0xfb) {
++            scroll_tx_byte(s, s->scroll_ab_direction);
++        } else if (reg == 0xfe) {
++            scroll_tx_byte(s, 1); /* Fixed upstream application protocol. */
++        } else if (reg == 0xff) {
++            scroll_tx_byte(s, I2C_SLAVE(s)->address);
++        } else if (reg == 0xfc) {
++            /* The bootloader flash byte has no supplied model/evidence. */
++            s->command_errors++;
++            s->scroll_read_rejected = true;
++            return 1;
++        }
++        /* Unrecognised pointers preserve the previous finite TX and index. */
++        return 0;
++    }
++    if (reg == 0xff) {
++        /* The MCU requires exactly two bytes; extra bytes do not change it. */
++        if (len == 2 && data[1] < 128) {
++            if (!scroll_address_available(s, data[1])) {
++                s->command_errors++;
++                s->scroll_read_rejected = true;
++                return 1;
++            }
++            i2c_slave_set_address(I2C_SLAVE(s), data[1]);
++        }
++    } else if (reg == 0xfd && data[1] == 1) {
++        /* No pretend MCU reset/bootloader. This is a visible model gap. */
++        s->scroll_bootloader_requests++;
++        s->command_errors++;
++        s->scroll_read_rejected = true;
++        return 1;
++    } else if (reg == 0xfb) {
++        uint8_t value = !!data[1];
++        if (s->scroll_ab_direction != value) {
++            s->scroll_ab_direction = value;
++            output_changed(s);
++        }
++        /* Session-local only: the MCU's Flash persistence is not modeled. */
++    } else if ((reg >= 0x10 && reg <= 0x13) ||
++               (reg >= 0x30 && reg <= 0x33)) {
++        unsigned offset = reg & 3;
++        /* The MCU writes into a 16-byte local buffer before applying only
++         * the first four marks. Reject its undefined stack-overflow cases. */
++        if (offset + len - 1 > 16) {
++            s->command_errors++;
++            s->scroll_read_rejected = true;
++            return 1;
++        }
++        uint32_t word = reg < 0x30 ? (uint32_t)s->counter[0] : s->scroll_rgb_word;
++        for (unsigned i = 1; i < len && offset + i - 1 < 4; i++) {
++            unsigned shift = (offset + i - 1) * 8;
++            word = (word & ~(0xffU << shift)) | ((uint32_t)data[i] << shift);
++        }
++        if (reg < 0x30) {
++            /* Convert high-bit values without an out-of-range unsigned cast. */
++            s->counter[0] = word <= INT32_MAX ? (int32_t)word : (int32_t)((int64_t)word - INT64_C(0x100000000));
++        } else if (s->scroll_rgb_word != word) {
++            s->scroll_rgb_word = word;
++            output_changed(s);
++        }
++    } else if (reg == 0x40 && data[1] == 1) {
++        s->counter[0] = s->increments[0] = 0;
++    }
++    return 0;
++}
++
+ static void key_push(M5UnitControl *s, uint8_t value)
+ {
+     if (!value) { return; }
+@@ -348,6 +518,14 @@ static void scalar_get(Object *obj, Visitor *v, const char *name, void *opaque,
+     else if (!strcmp(name, "y-raw")) { value = s->joystick[1]; }
+     else if (!strcmp(name, "button-raw")) { value = s->joystick[2]; }
+     else if (!strcmp(name, "counter")) { value = s->counter[0]; }
++    else if (!strcmp(name, "source-count")) { value = s->scroll_source_count; }
++    else if (!strcmp(name, "increments")) { value = s->increments[0]; }
++    else if (!strcmp(name, "direction")) { value = s->scroll_direction; }
++    else if (!strcmp(name, "ab-direction")) { value = s->scroll_ab_direction; }
++    else if (!strcmp(name, "rgb-word")) { value = s->scroll_rgb_word; }
++    else if (!strcmp(name, "source-step-limit")) { value = 32767; }
++    else if (!strcmp(name, "bootloader-requests")) { value = s->scroll_bootloader_requests; }
++    else if (!strcmp(name, "led-rgb") && s->kind == CONTROL_SCROLL) { value = scroll_led_rgb(s); }
+     else if (!strcmp(name, "keycode")) { value = s->key_count ? s->key_fifo[s->key_head] : 0; }
+     else if (!strcmp(name, "queued-keys")) { value = s->key_count; }
+     else if (!strcmp(name, "modifier-mode")) { value = s->modifier_mode; }
+@@ -371,6 +549,10 @@ static void scalar_set(Object *obj, Visitor *v, const char *name, void *opaque,
+     M5UnitControl *s = opaque;
+     int64_t value, lo = 0, hi = 255;
+     if (!visit_type_int64(v, name, &value, errp)) { return; }
++    if (s->kind == CONTROL_SCROLL && !strcmp(name, "source-count")) {
++        scroll_source_set(s, value, errp);
++        return;
++    }
+     if (!strcmp(name, "counter")) { lo = -32768; hi = 32767; }
+     else if (!strcmp(name, "button-raw")) { hi = 1; }
+     if (value < lo || value > hi) { error_setg(errp, "%s outside [%" PRId64 ",%" PRId64 "]", name, lo, hi); return; }
+@@ -388,6 +570,9 @@ static void bool_get(Object *obj, Visitor *v, const char *name, void *opaque, Er
+     M5UnitControl *s = opaque;
+     bool value = !strcmp(name, "pressed") ? s->pressed[0] :
+                  !strcmp(name, "switch-on") ? s->switch_on :
++                 !strcmp(name, "timer-rollover-supported") ||
++                 !strcmp(name, "bootloader-supported") ||
++                 !strcmp(name, "zero-address-unicast-supported") ? false :
+                  !strcmp(name, "card-present") ? s->card_present :
+                  !strcmp(name, "selected") ? s->card_selected : (s->regs[8] & 8) != 0;
+     visit_type_bool(v, name, &value, errp);
+@@ -555,6 +740,20 @@ static void snapshot_registers(M5UnitControl *s)
+ static int control_event(I2CSlave *dev, enum i2c_event event)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
++    if (s->kind == CONTROL_SCROLL) {
++        if (event == I2C_START_SEND || event == I2C_START_SEND_ASYNC ||
++            event == I2C_START_RECV) {
++            int result = scroll_complete(s);
++            s->unit->transactions++;
++            s->reading = event == I2C_START_RECV;
++            return s->reading && (result || s->scroll_read_rejected) ? 1 : 0;
++        } else if (event == I2C_FINISH) {
++            int result = scroll_complete(s);
++            s->reading = false;
++            return result;
++        }
++        return 0;
++    }
+     if (event == I2C_START_SEND || event == I2C_START_SEND_ASYNC) {
+         s->unit->transactions++; s->write_pos = 0; s->reading = false;
+     } else if (event == I2C_START_RECV) {
+@@ -570,6 +769,32 @@ static int control_send(I2CSlave *dev, uint8_t value)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
+     s->unit->written_bytes++;
++    if (s->kind == CONTROL_SCROLL) {
++        if (s->scroll_rx_failed) { return 1; }
++        if (s->scroll_rx_len) {
++            uint8_t reg = s->scroll_rx[0];
++            if (((reg >= 0x10 && reg <= 0x13) ||
++                 (reg >= 0x30 && reg <= 0x33)) &&
++                (reg & 3) + s->scroll_rx_len > 16) {
++                s->scroll_rx_failed = s->scroll_read_rejected = true;
++                s->command_errors++;
++                return 1;
++            }
++        }
++        if (s->scroll_rx_len == sizeof(s->scroll_rx)) {
++            s->scroll_rx_failed = true;
++            s->command_errors++;
++            return 1;
++        }
++        s->scroll_rx[s->scroll_rx_len++] = value;
++        if (s->scroll_rx_len == 2 && s->scroll_rx[0] == 0xfd && value == 1) {
++            s->scroll_bootloader_requests++;
++            s->command_errors++;
++            s->scroll_read_rejected = s->scroll_rx_failed = true;
++            return 1;
++        }
++        return 0;
++    }
+     if (s->write_pos++ == 0) {
+         s->pointer = s->write_base = value; s->memory_request = true;
+         memset(s->led_write, 0, sizeof(s->led_write)); return 0;
+@@ -624,6 +849,12 @@ static uint8_t control_recv(I2CSlave *dev)
+ {
+     M5UnitControl *s = M5_UNIT_CONTROL(dev);
+     s->unit->read_bytes++;
++    if (s->kind == CONTROL_SCROLL) {
++        if (s->scroll_read_rejected || !s->scroll_tx_len) { return 0xff; }
++        uint8_t value = s->scroll_tx[s->scroll_tx_pos];
++        s->scroll_tx_pos = (s->scroll_tx_pos + 1) % s->scroll_tx_len;
++        return value;
++    }
+     if (s->kind == CONTROL_RFID2) {
+         uint8_t reg = s->pointer;
+         if (reg != 9) { s->pointer++; }
+@@ -672,7 +903,7 @@ static void add_string(M5UnitControl *s, const char *name)
+ 
+ bool m5_unit_controls_supported(const char *unit_id)
+ {
+-    static const char *const ids[] = {"joystick-v11", "encoder", "8encoder", "cardkb", "rfid2"};
++    static const char *const ids[] = {"joystick-v11", "encoder", "8encoder", "cardkb", "rfid2", "scroll"};
+     for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) { if (!strcmp(unit_id, ids[i])) { return true; } }
+     return false;
+ }
+@@ -698,6 +929,19 @@ void m5_unit_controls_realize(M5Unit *unit, Error **errp)
+         s->kind = CONTROL_ENCODER8; address = 0x41;
+         add_array(s, "counters", true); add_array(s, "increments", false);
+         add_array(s, "pressed", true); add_bool(s, "switch-on", true); add_array(s, "led-rgb", false);
++    } else if (!strcmp(unit->unit_id, "scroll")) {
++        s->kind = CONTROL_SCROLL; address = 0x40;
++        s->scroll_direction = 1;
++        s->scroll_tx_len = 1;
++        add_int(s, "source-count", true); add_bool(s, "pressed", true);
++        add_int(s, "counter", false); add_int(s, "increments", false);
++        add_int(s, "direction", false); add_int(s, "ab-direction", false);
++        add_int(s, "led-rgb", false); add_int(s, "rgb-word", false);
++        add_int(s, "source-step-limit", false); add_int(s, "command-errors", false);
++        add_int(s, "bootloader-requests", false);
++        add_bool(s, "timer-rollover-supported", false);
++        add_bool(s, "bootloader-supported", false);
++        add_bool(s, "zero-address-unicast-supported", false);
+     } else if (!strcmp(unit->unit_id, "cardkb")) {
+         s->kind = CONTROL_CARDKB; address = 0x5f;
+         add_int(s, "keycode", true); add_array(s, "keys", true);

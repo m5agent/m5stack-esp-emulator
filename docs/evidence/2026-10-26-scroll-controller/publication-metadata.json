@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "scope": "After all gen28 executions, publish only scoped program attestations and descriptive blocker text. Existing complete host/Web contract remains distinct. No historical hash or report is changed.",
+  "final_profile_sha256": "8353c645e37b71ceaef79b62ccad56dd4f9a35dc41cb93fe35839118c259f480",
+  "comparisons": [
+    {
+      "zip": "web/evidence.zip",
+      "execution_profile_sha256": "637a3b26783dcaa82be71f4ed7a26f3e8041191bfe926e2246a0f699d438ea55",
+      "differences": [
+        "/blocker",
+        "/program_validation"
+      ],
+      "execution_semantics_unchanged": true
+    },
+    {
+      "zip": "hosts/cores3/evidence.zip",
+      "execution_profile_sha256": "637a3b26783dcaa82be71f4ed7a26f3e8041191bfe926e2246a0f699d438ea55",
+      "differences": [
+        "/blocker",
+        "/program_validation"
+      ],
+      "execution_semantics_unchanged": true
+    },
+    {
+      "zip": "hosts/atoms3r/evidence.zip",
+      "execution_profile_sha256": "637a3b26783dcaa82be71f4ed7a26f3e8041191bfe926e2246a0f699d438ea55",
+      "differences": [
+        "/blocker",
+        "/program_validation"
+      ],
+      "execution_semantics_unchanged": true
+    },
+    {
+      "zip": "hosts/sticks3/evidence.zip",
+      "execution_profile_sha256": "637a3b26783dcaa82be71f4ed7a26f3e8041191bfe926e2246a0f699d438ea55",
+      "differences": [
+        "/blocker",
+        "/program_validation"
+      ],
+      "execution_semantics_unchanged": true
+    },
+    {
+      "zip": "hosts/stopwatch/evidence.zip",
+      "execution_profile_sha256": "637a3b26783dcaa82be71f4ed7a26f3e8041191bfe926e2246a0f699d438ea55",
+      "differences": [
+        "/blocker",
+        "/program_validation"
+      ],
+      "execution_semantics_unchanged": true
+    }
+  ]
+}

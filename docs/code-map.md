@@ -133,6 +133,7 @@ Unit 集成的其他入口：`platform/web/unit-visual-mappings.js` 与
 `run_sensor_cases.py`、`run_control_cases.py`、`run_io_cases.py` 分组执行
 Device Service 固件探针；`run_live_unit_batch.py` 验证同guest多Unit连续程序，
 `run_frame_preview.py` 与 `platform/tests/test_frame_preview.mjs` 分别验证实际预览和浏览器异步隔离。
+`scroll_protocol_probe.py`/`run_live_scroll.py`经同guest原ScrollUnit与raw I2C验证Scroll限定协议；`test_live_scroll_service_browser.mjs`验证真实Web按键、RGB灯与屏幕，`test_scroll_visual_mapping.mjs`另做无guest的可信pointer/零回声/销毁fixture。`0043-unit-scroll-controller.patch`为独立部分C模型；RGB队列、回绕、bootloader/持久化与机械角度不能继承PASS。证据见[Scroll](evidence/2026-10-26-scroll-controller/README.md)。
 `scripts/bootstrap-unit-runtime.py` 和
 `patches/qemu-unit-runtime/README.md` 固定公开源码、依赖与补丁顺序；
 `platform/tests/test_unit_runtime.py` 校验冻结 schema、拓扑和输入准入，

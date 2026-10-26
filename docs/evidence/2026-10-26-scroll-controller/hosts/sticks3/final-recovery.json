@@ -1,0 +1,229 @@
+{
+  "offset": 22876,
+  "prefix_sha256": "35a9c50e0daed7987b70994fecde4233fd36196e23c603715a5a0925e65d1214",
+  "marker": "SCROLL_21_8EBA00A8",
+  "serial": {
+    "session_id": "368431790a6240458e273d489b34909c",
+    "offset": 22876,
+    "next_offset": 26576,
+    "data": "raw REPL; CTRL-B to exit\r\n>R\u0001�\u0000\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0001\u0004__M5_EXEC_c49ac60db08e474e9f1c67a9474daf86__:START\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"constructor-reset\", \"observed\": 0}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-initial\", \"observed\": false}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16\", \"observed\": 22136}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"partial-counter-write\", \"observed\": 305441656}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"partial-original-low16\", \"observed\": -21640}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"count-write-no-increment\", \"observed\": 0}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"finite-short-read\", \"observed\": \"5634\"}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"finite-continuation-after-stop\", \"observed\": \"12563412\"}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"unknown-pointer-preserves-tx\", \"observed\": \"56341256\"}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"reset-preserves-old-tx\", \"observed\": \"05000000\"}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"reset-clears-counter\", \"observed\": 0}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-0\", \"observed\": 0}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-1\", \"observed\": 1}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16--1\", \"observed\": -1}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-32767\", \"observed\": 32767}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-32768\", \"observed\": -32768}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-65535\", \"observed\": -1}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16-65536\", \"observed\": 0}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-low16--32769\", \"observed\": 32767}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-first\", \"observed\": true}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-query-does-not-consume\", \"observed\": true}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"value-consumes-status\", \"observed\": 1}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"status-after-value\", \"observed\": false}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-software-offset\", \"observed\": 107}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-no-register-write\", \"observed\": 100}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"setter-no-int16-truncation\", \"observed\": 70000}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"rgb-word-finite-tx\", \"observed\": \"001234560012\"}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"rgb-partial-quiescent-model\", \"observed\": \"12ab56\"}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"fb-nonzero-normalized\", \"observed\": \"010101\"}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-button\", \"observed\": true}\r\nSCROLL_21_8EBA00A8 {\"phase\": \"registers\", \"kind\": \"check\", \"name\": \"original-firmware-version-string\", \"observed\": \"1\"}\r\nSCROLL_21_8EBA00A8 {\"original_driver\": true, \"led_rgb\": 1193046, \"kind\": \"done\", \"phase\": \"registers\", \"counter\": 0}\r\n",
+    "bytes": 3700
+  },
+  "events": [
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "constructor-reset",
+      "observed": 0
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "status-initial",
+      "observed": false
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "original-low16",
+      "observed": 22136
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "partial-counter-write",
+      "observed": 305441656
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "partial-original-low16",
+      "observed": -21640
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "count-write-no-increment",
+      "observed": 0
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "finite-short-read",
+      "observed": "5634"
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "finite-continuation-after-stop",
+      "observed": "12563412"
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "unknown-pointer-preserves-tx",
+      "observed": "56341256"
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "reset-preserves-old-tx",
+      "observed": "05000000"
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "reset-clears-counter",
+      "observed": 0
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "original-low16-0",
+      "observed": 0
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "original-low16-1",
+      "observed": 1
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "original-low16--1",
+      "observed": -1
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "original-low16-32767",
+      "observed": 32767
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "original-low16-32768",
+      "observed": -32768
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "original-low16-65535",
+      "observed": -1
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "original-low16-65536",
+      "observed": 0
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "original-low16--32769",
+      "observed": 32767
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "status-first",
+      "observed": true
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "status-query-does-not-consume",
+      "observed": true
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "value-consumes-status",
+      "observed": 1
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "status-after-value",
+      "observed": false
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "setter-software-offset",
+      "observed": 107
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "setter-no-register-write",
+      "observed": 100
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "setter-no-int16-truncation",
+      "observed": 70000
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "rgb-word-finite-tx",
+      "observed": "001234560012"
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "rgb-partial-quiescent-model",
+      "observed": "12ab56"
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "fb-nonzero-normalized",
+      "observed": "010101"
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "original-button",
+      "observed": true
+    },
+    {
+      "phase": "registers",
+      "kind": "check",
+      "name": "original-firmware-version-string",
+      "observed": "1"
+    },
+    {
+      "original_driver": true,
+      "led_rgb": 1193046,
+      "kind": "done",
+      "phase": "registers",
+      "counter": 0
+    }
+  ],
+  "state": {
+    "source-count": 117,
+    "pressed": true,
+    "counter": 0,
+    "increments": 0,
+    "direction": 1,
+    "ab-direction": 0,
+    "led-rgb": 1193046,
+    "transactions": 519,
+    "read-bytes": 713,
+    "written-bytes": 618,
+    "input-events": 11,
+    "output-transitions": 21,
+    "i2c-address": 64,
+    "source-step-limit": 32767,
+    "timer-rollover-supported": false,
+    "bootloader-supported": false,
+    "zero-address-unicast-supported": false,
+    "bootloader-requests": 1,
+    "command-errors": 4,
+    "rgb-word": 1446253056
+  }
+}

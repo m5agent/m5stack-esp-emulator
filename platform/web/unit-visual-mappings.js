@@ -12,11 +12,14 @@ export const CARDKB_KEY_IDS = Object.freeze([
 
 const MOMENTARY = {
   button: {press: 'pressed'}, limit: {press: 'pressed'}, key: {press: 'pressed'},
-  encoder: {press: 'pressed'}, 'dual-button': {red: 'red-pressed', blue: 'blue-pressed'},
+  encoder: {press: 'pressed'}, scroll: {press: 'pressed'}, 'dual-button': {red: 'red-pressed', blue: 'blue-pressed'},
 };
 const JOINTS = {
   angle: {'voltage-mv': ['rotation']},
   encoder: {counter: ['rotation']},
+  // The physical source is separate from writable/resettable guest counters.
+  // It still needs a verified count/revolution and orientation binding.
+  scroll: {'source-count': ['rotation']},
   'joystick-v11': {'x-raw': ['tilt-x', 'tilt-y'], 'y-raw': ['tilt-x', 'tilt-y']},
   '8encoder': Object.fromEntries(Array.from({length: 8}, (_, i) => [`counters:${i}`, [`rotation-${i + 1}`]])),
 };
@@ -116,7 +119,7 @@ export function visualCommands(unit, port, {bindings, running = true} = {}) {
     if (bools(state.keys, 50)) CARDKB_KEY_IDS.forEach((id, index) => commands.push(pressCommand(port, id, state.keys[index])));
     if (rgb(state['led-rgb'])) commands.push(ledCommand(port, 'rgb', state['led-rgb']));
   }
-  if (unitId === 'key' && rgb(state['led-rgb'])) commands.push(ledCommand(port, 'rgb', state['led-rgb']));
+  if (['key', 'scroll'].includes(unitId) && rgb(state['led-rgb'])) commands.push(ledCommand(port, 'rgb', state['led-rgb']));
   if (unitId === '8encoder') {
     if (bools(state.pressed, 8)) state.pressed.forEach((pressed, index) => commands.push(pressCommand(port, `press-${index + 1}`, pressed)));
     if (typeof state['switch-on'] === 'boolean' && hasEvidence(bindings) && validSwitch(bindings.switchPositions)) {
@@ -148,6 +151,7 @@ const AUDIT = {
   'dual-button': {input: ['red-pressed', 'blue-pressed'], readback: ['red-pressed', 'blue-pressed']},
   button: {input: ['pressed'], readback: ['pressed']}, ncir: {}, heart: {},
   encoder: {input: ['pressed'], readback: ['pressed'], binding: {counter: 'Counter units per physical revolution, zero and direction are unconfirmed.', 'led-rgb': 'LED index 1/2 to the two physical locations requires evidence.'}},
+  scroll: {input: ['pressed'], readback: ['pressed', 'led-rgb'], binding: {'source-count': 'EC10E pulse specification alone does not establish decoded count/revolution and physical direction. Logical counter writes/reset never imply shaft motion.'}},
   thermal: {}, tvoc: {}, ir: {}, hub: {}, rfid2: {}, rs485: {}, buzzer: {},
   fan: {activity: ['duty-pct'], note: 'Positive observed PWM enables a fixed graphical activity cadence; zero, unavailable or terminal state stops it. Shaft speed and electromechanical response remain unmodeled.'},
   limit: {input: ['pressed'], readback: ['pressed']},

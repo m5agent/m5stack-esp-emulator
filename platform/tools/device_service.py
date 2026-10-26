@@ -48,7 +48,7 @@ from ble_runtime_limits import (  # noqa: E402
 )
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
 from uiflow_source import UIFlowSourceError, build_uiflow_source_image  # noqa: E402
-from program_revisions import ProgramRevisionStore, RevisionError  # noqa: E402
+from program_revisions import MAX_REVISIONS, ProgramRevisionStore, RevisionError  # noqa: E402
 from program_packages import ProgramPackageStore, ProgramPackageError  # noqa: E402
 from uiflow_package_runtime import deploy_package  # noqa: E402
 from frame_cache import CaptureResult, FrameCache, FrameGenerationChanged  # noqa: E402
@@ -6580,7 +6580,7 @@ class DeviceSession:
         if registry is None:
             raise ServiceError("unit_contract_unavailable", f"Unit session contract is {contract_status}; writes are disabled", 409)
         try:
-            values = registry.input_values(attachment["unit_id"], payload["values"])
+            values = registry.input_values(attachment["unit_id"], payload["values"], live=True)
         except UnitError as error:
             raise ServiceError(error.code, error.message, error.status) from error
         profile = registry.profiles[attachment["unit_id"]]
@@ -8317,6 +8317,7 @@ class DeviceService:
         state_dir: Path = DEFAULT_STATE_DIR,
         max_sessions: int = DEFAULT_MAX_SESSIONS,
         max_per_device: int = DEFAULT_MAX_PER_DEVICE,
+        max_program_revisions: int = MAX_REVISIONS,
         default_ttl: int = 1800,
         api_token: str | None = None,
         previous_api_token: str | None = None,
@@ -8336,7 +8337,9 @@ class DeviceService:
         self.firmware = FirmwareStore(
             self.state_dir / "firmware", self.artifacts, self.specs
         )
-        self.program_revisions = ProgramRevisionStore(self.state_dir / "program-revisions")
+        self.program_revisions = ProgramRevisionStore(
+            self.state_dir / "program-revisions", max_count=max_program_revisions,
+        )
         self.program_packages = ProgramPackageStore(self.state_dir / "program-packages")
         self.max_sessions = max(1, int(max_sessions))
         self.max_per_device = max(1, int(max_per_device))
