@@ -59,3 +59,5 @@ Scroll既有语义。宿主平台两次早期运行分别因snapshot过期和证
 本块所有原始失败、截图局限与独审分别保留。修改当前执行脚本不会重写r1/r2来源，
 各分区sources保留对应冻结版本；原始官方来源保留字节，个别尾空白在.gitattributes
 使用精确路径例外，不修剪原证据。仓内归档不含固件/ROM/compiler二进制。
+
+限定实现提交`3b220560`后已重新fetch/merge `origin/main@f2061759897955e6017d4aa2a41bd5ba962c35b6`，结果Already up to date，工作树干净、实际r3源码哈希保持；见[同步收据](integration.json)。整体UNIT-01仍进行中。

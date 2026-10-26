@@ -249,3 +249,5 @@ Encoder/8Encoder逐灯映射与机械标定仍缺官方依据。本块先实现�
 直接main.mpy入口经固定官方源码与实际CoreS3固件调查，普通导入不满足if-main守卫与模块身份，不能据此实现假入口。本块在GET /devices公开program_features（准入runtime、main.py入口、bytecode依赖、binary/native限制、namespace与cleanup语义），保留现有执行行为；真正二进制脚本支持仍需官方override-main或明确loader的可构建固件、START/IMPORT语义与同VM逐主机验收。执行队列仍只在Backlog。
 
 本块的限定实现与独立新批次已完成：默认uniform/unknown/恢复和program_features，证据见[归档](../evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。实际组件/材质与完整canvas取景分层；HUB遮挡和Encoder closeup可读性不升级为通过，逐灯/旋转、main.mpy及整体UNIT-01继续OPEN。
+
+默认同色灯/程序能力提交`3b220560`，随后重新fetch/merge主线f2061759，Already up to date；[同步收据](../evidence/2026-10-26-uniform-led-and-program-capabilities/integration.json)。后续继续按Backlog推进Unit、视觉源更新和预览API，不把本块当整体完成。
