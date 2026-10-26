@@ -1,0 +1,28 @@
+import sys,os,json,time
+import M5
+from unit import PIRUnit
+import dep
+_state=sys.modules['__m5_loader_probe_state__']
+_owner=_state['owner']
+assert _state['nonce'] == dep.NONCE, 'VM nonce changed'
+_state['count'] += 1
+_guard=False
+if __name__ == '__main__':
+ _guard=True
+_self=sys.modules.get('main')
+_imported=__import__('__main__')
+RESULT={'case':'v1','guard':_guard,'name':__name__,'file':__file__,'self_id':id(_self),'sys_main_id':id(sys.modules.get('__main__')),'import_main_id':id(_imported),'main_cache_is_self':sys.modules.get('__main__') is _self,'import_main_is_self':_imported is _self,'real_main_name':getattr(_self,'__main__',None),'count':_state['count'],'dep_value':dep.VALUE,'dep_file':dep.__file__,'nonce':dep.NONCE}
+print('MAIN_LOADER_CAP '+json.dumps({'kind':'mpy-enter','result':RESULT}))
+assert _guard and __name__ == '__main__', 'if-main not honored'
+assert sys.modules.get('__main__') is _self and _imported is _self, 'main module identity mismatch'
+assert dep.VALUE == 17, 'stale bytecode dependency'
+M5.begin()
+screen=M5.Display
+screen.setBrightness(255)
+screen.fillScreen(0)
+screen.fillRect(screen.width()//2-4,screen.height()//2-4,8,8,16711680)
+pir=PIRUnit((1,2))
+motion=bool(pir.get_status())
+screen.fillRect(screen.width()//2-4,screen.height()//2+16,8,8,0xFFFFFF if motion else 0)
+RESULT['motion']=motion
+print('MAIN_LOADER_CAP '+json.dumps({'kind':'mpy-finite','result':RESULT}))

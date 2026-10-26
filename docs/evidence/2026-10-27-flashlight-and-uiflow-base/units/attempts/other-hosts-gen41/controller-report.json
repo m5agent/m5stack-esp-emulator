@@ -1,0 +1,96 @@
+{
+  "category": "OTHER_HOSTS_FLASHLIGHT_LANES",
+  "hardware": "NOT RUN",
+  "live_browser": "NOT RUN",
+  "runner_sha256": "429774a9695772823d882f7416a0cff3c9a0180c2f314e196c9777921b286211",
+  "expected_runtime_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+  "status": "FAIL_STOPPED",
+  "lanes": [
+    {
+      "device_id": "atoms3r",
+      "mode": "flash",
+      "start_utc": "2026-10-26T21:22:35.237482+00:00",
+      "end_utc": "2026-10-26T21:23:11.806732+00:00",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-live-probe-20261027/probe.py",
+        "--execute",
+        "--device",
+        "atoms3r",
+        "--mode",
+        "flash",
+        "--expected-runtime-sha256",
+        "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+        "--out-dir",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-other-hosts-20261027/atoms3r-flash"
+      ],
+      "exit_code": 0,
+      "report_path": "atoms3r-flash/report.json",
+      "report_sha256": "02bfacb426744b74a0215a392b816024b876ea2ebac18150d0fabd89615adca3",
+      "status": "PASS",
+      "cleanup": "PASS",
+      "error": null,
+      "observations": 10,
+      "session_id": "bfd8bc71fcd84b4994c573fc293da885"
+    },
+    {
+      "device_id": "atoms3r",
+      "mode": "torch",
+      "start_utc": "2026-10-26T21:23:11.807165+00:00",
+      "end_utc": "2026-10-26T21:23:25.035743+00:00",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-live-probe-20261027/probe.py",
+        "--execute",
+        "--device",
+        "atoms3r",
+        "--mode",
+        "torch",
+        "--expected-runtime-sha256",
+        "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+        "--out-dir",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-other-hosts-20261027/atoms3r-torch"
+      ],
+      "exit_code": 0,
+      "report_path": "atoms3r-torch/report.json",
+      "report_sha256": "574a7d93e35ff2c36a4645d7b016595d9aed73f416eed495d9b5821d8aea0870",
+      "status": "PASS",
+      "cleanup": "PASS",
+      "error": null,
+      "observations": 4,
+      "session_id": "cbf9caba3a52451a898b5fac59698671"
+    },
+    {
+      "device_id": "sticks3",
+      "mode": "flash",
+      "start_utc": "2026-10-26T21:23:25.036077+00:00",
+      "end_utc": "2026-10-26T21:23:30.020460+00:00",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-live-probe-20261027/probe.py",
+        "--execute",
+        "--device",
+        "sticks3",
+        "--mode",
+        "flash",
+        "--expected-runtime-sha256",
+        "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+        "--out-dir",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-other-hosts-20261027/sticks3-flash"
+      ],
+      "exit_code": 1,
+      "report_path": "sticks3-flash/report.json",
+      "report_sha256": "d8de01656a6bb36abadc3698408610dc1117819c10824d94519a218bff997f1e",
+      "status": "FAIL",
+      "cleanup": "PASS",
+      "error": {
+        "type": "HTTPFailure",
+        "message": "HTTP 429"
+      },
+      "observations": 1,
+      "session_id": "48483775a9d24f09ade4c977fa38dd13"
+    }
+  ],
+  "policy": "sequential fresh cases; no retry; fail stops dependent work; only owned session cleanup",
+  "runner_unchanged": true
+}

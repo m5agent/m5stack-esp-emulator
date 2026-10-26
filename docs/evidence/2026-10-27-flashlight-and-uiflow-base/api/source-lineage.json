@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "generations": {
+    "39": {
+      "receipt": "service-gen39/start.json",
+      "runtime_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+      "source_sha256": {
+        "platform/tools/device_service.py": "af0d445f5b91246d98bff9549bd352cbd0e4ff281ecbb6efdf1db9f32a3c7197",
+        "platform/tools/serve.py": "fed6c3f9c98197a49059b8cc7848f3de6e8e4f2806d7529cadcf950a8b3280cf",
+        "platform/tools/frame_cache.py": "2e6a119a07e9d83cbe9737a99531cea37ab61321e0a759a8d0a932ae99537073",
+        "platform/tools/guest_console.py": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+        "platform/tools/uiflow_runtime.py": "7abbec2b2a183b820581b79874d9e370fd887909e26a4e50b1c802b4ea18a764",
+        "platform/tools/program_revisions.py": "3839cd9464fe131a60574180c3cc2b613361409123158dbe613da7fd7f1ad54d",
+        "platform/tools/program_packages.py": "e8801c4117271fbe61ceff08f32dbcb460246355f9cac8c3e431b703c13cb6bb",
+        "platform/tools/micropython_repl.py": "151df4dfb04e5c0255dee8677c843fe6b16462b60c70c603ff64e0219f3b24d9",
+        "platform/tools/uiflow_package_runtime.py": "b3326f772cc9b85cc5af352877296d9f2bd8d6867b182fa516ee6366cbf81ecc",
+        "platform/tools/mpy_bytecode.py": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+        "platform/tools/unit_runtime.py": "fb338f9f6167272c81c027cab033369ac47a4cbf0cd63363464493aca6306f8d",
+        "platform/units/catalog.json": "fdd14b933003c220dbbb7b8952be9c88ecd3b2793c5adda6ccf73a9fa36c3dbb",
+        "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "platform/units/runtime-profiles.json": "85edc92a05a6286f8f7e0d46e5349c5b7e4b2eb9ac5201bc0dc406269bd9bda6",
+        "platform/tools/preview_service.py": "df41ee4e77702b590fce52f08b6a7046db53af78c2f73af607ce58a5cc1e5565",
+        "platform/tools/preview_store.py": "4765415dde87382308dbc76a87415922f2dca8e5019d388d66fd08992177f2fb",
+        "platform/tools/preview_retention.py": "17f07fe17f25feb850f89c5a0caba5bfbad8f8821e582cac7aa544423ce3a14d"
+      },
+      "worker_generation": 39,
+      "program_revision_capacity": 1024,
+      "program_package_capacity": 256
+    },
+    "40": {
+      "receipt": "service-gen40/start.json",
+      "runtime_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+      "source_sha256": {
+        "platform/tools/device_service.py": "d6ac640ad65e06dcbfb2e469ee9eadfc93c200e27b4df523979f37e0528a9764",
+        "platform/tools/serve.py": "fed6c3f9c98197a49059b8cc7848f3de6e8e4f2806d7529cadcf950a8b3280cf",
+        "platform/tools/frame_cache.py": "2e6a119a07e9d83cbe9737a99531cea37ab61321e0a759a8d0a932ae99537073",
+        "platform/tools/guest_console.py": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+        "platform/tools/uiflow_runtime.py": "7abbec2b2a183b820581b79874d9e370fd887909e26a4e50b1c802b4ea18a764",
+        "platform/tools/program_revisions.py": "3839cd9464fe131a60574180c3cc2b613361409123158dbe613da7fd7f1ad54d",
+        "platform/tools/program_packages.py": "e8801c4117271fbe61ceff08f32dbcb460246355f9cac8c3e431b703c13cb6bb",
+        "platform/tools/micropython_repl.py": "151df4dfb04e5c0255dee8677c843fe6b16462b60c70c603ff64e0219f3b24d9",
+        "platform/tools/uiflow_package_runtime.py": "b3326f772cc9b85cc5af352877296d9f2bd8d6867b182fa516ee6366cbf81ecc",
+        "platform/tools/mpy_bytecode.py": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+        "platform/tools/unit_runtime.py": "fb338f9f6167272c81c027cab033369ac47a4cbf0cd63363464493aca6306f8d",
+        "platform/units/catalog.json": "fdd14b933003c220dbbb7b8952be9c88ecd3b2793c5adda6ccf73a9fa36c3dbb",
+        "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "platform/units/runtime-profiles.json": "85edc92a05a6286f8f7e0d46e5349c5b7e4b2eb9ac5201bc0dc406269bd9bda6",
+        "platform/tools/preview_service.py": "df41ee4e77702b590fce52f08b6a7046db53af78c2f73af607ce58a5cc1e5565",
+        "platform/tools/preview_store.py": "4765415dde87382308dbc76a87415922f2dca8e5019d388d66fd08992177f2fb",
+        "platform/tools/preview_retention.py": "17f07fe17f25feb850f89c5a0caba5bfbad8f8821e582cac7aa544423ce3a14d"
+      },
+      "worker_generation": 40,
+      "program_revision_capacity": 1024,
+      "program_package_capacity": 256
+    },
+    "41": {
+      "receipt": "service-gen41/start.json",
+      "runtime_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+      "source_sha256": {
+        "platform/tools/device_service.py": "d6ac640ad65e06dcbfb2e469ee9eadfc93c200e27b4df523979f37e0528a9764",
+        "platform/tools/serve.py": "fed6c3f9c98197a49059b8cc7848f3de6e8e4f2806d7529cadcf950a8b3280cf",
+        "platform/tools/frame_cache.py": "2e6a119a07e9d83cbe9737a99531cea37ab61321e0a759a8d0a932ae99537073",
+        "platform/tools/guest_console.py": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+        "platform/tools/uiflow_runtime.py": "7abbec2b2a183b820581b79874d9e370fd887909e26a4e50b1c802b4ea18a764",
+        "platform/tools/program_revisions.py": "3839cd9464fe131a60574180c3cc2b613361409123158dbe613da7fd7f1ad54d",
+        "platform/tools/program_packages.py": "e8801c4117271fbe61ceff08f32dbcb460246355f9cac8c3e431b703c13cb6bb",
+        "platform/tools/micropython_repl.py": "151df4dfb04e5c0255dee8677c843fe6b16462b60c70c603ff64e0219f3b24d9",
+        "platform/tools/uiflow_package_runtime.py": "b3326f772cc9b85cc5af352877296d9f2bd8d6867b182fa516ee6366cbf81ecc",
+        "platform/tools/mpy_bytecode.py": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+        "platform/tools/unit_runtime.py": "fb338f9f6167272c81c027cab033369ac47a4cbf0cd63363464493aca6306f8d",
+        "platform/units/catalog.json": "fdd14b933003c220dbbb7b8952be9c88ecd3b2793c5adda6ccf73a9fa36c3dbb",
+        "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "platform/units/runtime-profiles.json": "e3b961daa43fc5a1be62d2b72ffbc92455e68a593b78684d66c0056337d66a39",
+        "platform/tools/preview_service.py": "df41ee4e77702b590fce52f08b6a7046db53af78c2f73af607ce58a5cc1e5565",
+        "platform/tools/preview_store.py": "4765415dde87382308dbc76a87415922f2dca8e5019d388d66fd08992177f2fb",
+        "platform/tools/preview_retention.py": "17f07fe17f25feb850f89c5a0caba5bfbad8f8821e582cac7aa544423ce3a14d"
+      },
+      "worker_generation": 41,
+      "program_revision_capacity": 1024,
+      "program_package_capacity": 256
+    },
+    "42": {
+      "receipt": "service-gen42/start.json",
+      "runtime_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+      "source_sha256": {
+        "platform/tools/device_service.py": "2a2f8c3ebcded9b80f56dc1642619f414072eae1ceeaaf74e4fd0113ac77c136",
+        "platform/tools/serve.py": "e370343e7e35da19d3c802239b77e0b0bcde923468a386b9da84a212fd3db025",
+        "platform/tools/frame_cache.py": "2e6a119a07e9d83cbe9737a99531cea37ab61321e0a759a8d0a932ae99537073",
+        "platform/tools/guest_console.py": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+        "platform/tools/uiflow_runtime.py": "7abbec2b2a183b820581b79874d9e370fd887909e26a4e50b1c802b4ea18a764",
+        "platform/tools/program_revisions.py": "3839cd9464fe131a60574180c3cc2b613361409123158dbe613da7fd7f1ad54d",
+        "platform/tools/program_packages.py": "577e6b2e45d912db849676cb63a6cfa252c95fff2d109765ab57cb022b682a0c",
+        "platform/tools/micropython_repl.py": "151df4dfb04e5c0255dee8677c843fe6b16462b60c70c603ff64e0219f3b24d9",
+        "platform/tools/uiflow_package_runtime.py": "b3326f772cc9b85cc5af352877296d9f2bd8d6867b182fa516ee6366cbf81ecc",
+        "platform/tools/mpy_bytecode.py": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+        "platform/tools/unit_runtime.py": "fb338f9f6167272c81c027cab033369ac47a4cbf0cd63363464493aca6306f8d",
+        "platform/units/catalog.json": "fdd14b933003c220dbbb7b8952be9c88ecd3b2793c5adda6ccf73a9fa36c3dbb",
+        "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "platform/units/runtime-profiles.json": "e3b961daa43fc5a1be62d2b72ffbc92455e68a593b78684d66c0056337d66a39",
+        "platform/tools/preview_service.py": "df41ee4e77702b590fce52f08b6a7046db53af78c2f73af607ce58a5cc1e5565",
+        "platform/tools/preview_store.py": "4765415dde87382308dbc76a87415922f2dca8e5019d388d66fd08992177f2fb",
+        "platform/tools/preview_retention.py": "17f07fe17f25feb850f89c5a0caba5bfbad8f8821e582cac7aa544423ce3a14d"
+      },
+      "worker_generation": 42,
+      "program_revision_capacity": 1024,
+      "program_package_capacity": 1024
+    }
+  },
+  "final_current_source_sha256": {
+    "platform/tools/device_service.py": "2a2f8c3ebcded9b80f56dc1642619f414072eae1ceeaaf74e4fd0113ac77c136",
+    "platform/tools/serve.py": "e370343e7e35da19d3c802239b77e0b0bcde923468a386b9da84a212fd3db025",
+    "platform/tools/program_packages.py": "577e6b2e45d912db849676cb63a6cfa252c95fff2d109765ab57cb022b682a0c",
+    "platform/tools/uiflow_source.py": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+    "platform/tests/test_uiflow_service.py": "c6010aa6be1f98a33d837f4b0dea62e1859fcee34ff199ec273c3fcf15923aa3",
+    "platform/tests/test_uiflow_source.py": "07d2d4b57c47e3293d441f0e55c2c6fa037de9771c7d087c1082944bf1775516",
+    "platform/tests/test_device_service.py": "5117ed10fdc5e41fd3c24ab07bd9cc2a9caa9055ba1f3bc3ed80d225d6aa1d4f",
+    "platform/tests/test_program_packages.py": "ccdf20b39f234649d8e6606b57ca4689aef3b522994575d12de1ee916df57aee",
+    "platform/tests/test_program_package_config.py": "ee89f08b542da3a84dda0ffa45d52ae162d6fd89fda8837eab7cd96c43981ee0",
+    "platform/tests/test_program_revision_config.py": "2882841d9f8f81fac87123c29c00ed81e900c3c70dacc05764eb24296210b911"
+  },
+  "boundaries": [
+    "gen39 has full CAS context exact comparison and no manifest timestamp exception",
+    "gen40 loader r4 uses device_service d6ac and old runtime850426; it is not gen42 quota source",
+    "gen41 switches runtime to FlashLight build7c898; DeviceService/serve/packages stay gen40 implementation",
+    "gen42 adds bounded package quota configuration in DeviceService/serve/program_packages; no loader on that new runtime or those new source bytes is implied",
+    "62 and 64 original host-test indices are retained independently; their hashes bind historical sources",
+    "shared test_device_service snapshot matches both historical test indices; current test_uiflow_service snapshot matches 64-test index",
+    "only explicitly labeled reconstructed files reverse later small patches and prove equality to historical receipt hashes; they are not falsely described as original live captures"
+  ]
+}

@@ -20,6 +20,7 @@ import re
 import shlex
 import shutil
 import signal
+import stat
 import subprocess
 import sys
 import threading
@@ -54,7 +55,7 @@ from program_revisions import MAX_REVISIONS, ProgramRevisionStore, RevisionError
 from preview_retention import PreviewRetention, RetentionRoots, add_session_roots  # noqa: E402
 from program_packages import (  # noqa: E402
     MAX_FILE_BYTES as MAX_PROGRAM_FILE_BYTES,
-    MAX_PACKAGE_BYTES, MAX_PACKAGE_FILES,
+    MAX_PACKAGE_BYTES, MAX_PACKAGE_FILES, MAX_PACKAGES,
     ProgramPackageStore, ProgramPackageError, _snapshot as program_package_snapshot,
 )
 from mpy_bytecode import MPYBytecodeError, validate_bytecode  # noqa: E402
@@ -67,7 +68,9 @@ from uiflow_runtime import (  # noqa: E402
 from firmware_analysis import (  # noqa: E402
     analyze_esp_image,
     analyze_firmware,
+    detect_secure_boot_v2_signature,
     expected_chip_id,
+    find_app_descriptor,
     parse_partition_table,
 )
 from firmware_manifest import (  # noqa: E402
@@ -2526,6 +2529,132 @@ class FirmwareStore:
     def _data(self, firmware_id: str) -> Path:
         return self.root / f"{firmware_id}.bin"
 
+    @staticmethod
+    def _read_uiflow_base_file(path: Path, limit: int) -> bytes:
+        """Read one bounded regular-file snapshot without following symlinks."""
+        try:
+            descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK | getattr(os, "O_NOFOLLOW", 0))
+            try:
+                info = os.fstat(descriptor)
+                if not stat.S_ISREG(info.st_mode) or not 0 < info.st_size <= limit:
+                    raise ServiceError("uiflow_base_integrity_error", "base storage must contain a bounded regular file", 409)
+                with os.fdopen(descriptor, "rb") as stream:
+                    descriptor = None
+                    data = stream.read(limit + 1)
+                if len(data) != info.st_size:
+                    raise ServiceError("uiflow_base_integrity_error", "base storage changed while being read", 409)
+                return data
+            finally:
+                if descriptor is not None:
+                    os.close(descriptor)
+        except OSError as error:
+            raise ServiceError("uiflow_base_unreadable", "base storage is unavailable or is not a regular file", 409) from error
+
+    def _explicit_uiflow_base(self, spec: DeviceSpec, payload: dict) -> tuple[bytes, dict, dict]:
+        """Re-admit an immutable manifest image for this source composition.
+
+        The pin covers flash-sized stored bytes, which can differ from the
+        original upload after normalization/padding. Neither caller family
+        labels nor a mountable LittleFS alone establish UIFlow compatibility.
+        """
+        base_id = payload["base_firmware_id"]
+        if not isinstance(base_id, str) or not _is_sha256(base_id):
+            raise ServiceError("invalid_uiflow_request", "base_firmware_id must be a stored firmware ID", 400)
+        expected = payload.get("expected_base_sha256")
+        if expected is None:
+            raise ServiceError("uiflow_base_binding_required", "an explicit base requires expected_base_sha256 of the normalized stored image", 400)
+        if not isinstance(expected, str) or not _is_sha256(expected):
+            raise ServiceError("invalid_uiflow_base", "expected_base_sha256 must be a lowercase SHA256", 400)
+        with self._lock:
+            if not self._meta(base_id).exists() and not self._meta(base_id).is_symlink():
+                raise ServiceError("unknown_firmware", "base firmware is not stored", 404)
+            try:
+                record = json.loads(self._read_uiflow_base_file(self._meta(base_id), 8 * 1024 * 1024))
+            except (ValueError, UnicodeError) as error:
+                raise ServiceError("uiflow_base_integrity_error", "base metadata is invalid", 409) from error
+            base = self._read_uiflow_base_file(self._data(base_id), spec.flash_size)
+        actual_sha = hashlib.sha256(base).hexdigest()
+        if actual_sha != expected:
+            raise ServiceError("uiflow_base_hash_mismatch", "expected_base_sha256 must match the normalized stored image bytes", 409)
+        if not isinstance(record, dict) or any(record.get(key) != base_id for key in ("firmware_id", "sha256")) or actual_sha != base_id:
+            raise ServiceError("uiflow_base_integrity_error", "stored base identity differs from its bytes", 409)
+        if record.get("device_id") != spec.id:
+            raise ServiceError("firmware_device_mismatch", "base firmware belongs to another device", 409)
+        if record.get("flash_size") != spec.flash_size or record.get("size") != len(base) or len(base) != spec.flash_size:
+            raise ServiceError("flash_size_mismatch", "base firmware must match the target normalized flash size", 409)
+        source = record.get("source")
+        if record.get("kind") == "manifest" and isinstance(source, dict) and source.get("kind") == "manifest":
+            manifest = record.get("manifest")
+            recorded_manifest_ids = (record.get("manifest_id"), source.get("manifest_id"))
+            recorded_artifact_id = source.get("artifact_id")
+        else:
+            raise ServiceError("uiflow_base_not_admitted", "explicit bases require the existing firmware-manifest intake", 409)
+        try:
+            structure_errors = validate_manifest_structure(manifest)
+        except (TypeError, ValueError) as error:
+            raise ServiceError("invalid_firmware_manifest", "stored base manifest is invalid", 409) from error
+        if structure_errors:
+            raise ServiceError("invalid_firmware_manifest", "stored base manifest is invalid", 409)
+        manifest_id = canonical_json_sha256(manifest_identity_payload(manifest))
+        if manifest.get("manifest_id") != manifest_id or any(value != manifest_id for value in recorded_manifest_ids):
+            raise ServiceError("firmware_manifest_id_mismatch", "stored base manifest identity differs", 409)
+        target, artifact = manifest["target"], manifest["artifact"]
+        if target.get("psram_size") is not None and (type(target["psram_size"]) is not int or target["psram_size"] < 0):
+            raise ServiceError("invalid_firmware_manifest", "base PSRAM requirement must be an integer or null", 409)
+        artifact_id = artifact.get("artifact_id", artifact.get("sha256"))
+        artifact_size = artifact["size"]
+        if (
+            artifact.get("kind") != "merged-flash" or recorded_artifact_id != artifact_id
+            or artifact_id != artifact.get("sha256") or not 0 < artifact_size <= len(base)
+            or hashlib.sha256(base[:artifact_size]).hexdigest() != artifact["sha256"]
+            or any(byte != 0xff for byte in base[artifact_size:])
+        ):
+            raise ServiceError("uiflow_base_integrity_error", "base manifest artifact differs from normalized stored bytes", 409)
+        if manifest.get("device_id") not in (None, spec.id) or target["flash_size"] != spec.flash_size or target.get("chip_id") != expected_chip_id(spec.soc):
+            raise ServiceError("uiflow_base_not_admitted", "base manifest target differs from the device", 409)
+        profile = load_device_profile(spec.id)
+        compatibility = validate_capabilities(manifest, profile) if profile is not None else None
+        if compatibility is None or compatibility["status"] != "PASS" or manifest.get("validation", {}).get("status") != "PASS" or manifest.get("validation", {}).get("errors"):
+            raise ServiceError("unsupported_firmware_capability", "base manifest requirements are not admitted by the target profile", 409,
+                               issues=(compatibility or {}).get("errors", []) + manifest.get("validation", {}).get("errors", []))
+        table = parse_partition_table(base, image_size=spec.flash_size)
+        if not table["valid"] or table["warnings"] or any(part["flags"] != 0 for part in table["partitions"]):
+            raise ServiceError("uiflow_base_not_admitted", "base requires an unflagged valid partition table", 409)
+        declared_table = target.get("partition_table") or {}
+        if not isinstance(declared_table, dict) or declared_table.get("offset") != table["offset"] or declared_table.get("partitions") != table["partitions"]:
+            raise ServiceError("uiflow_base_integrity_error", "base manifest partition layout differs from actual bytes", 409)
+        images = [(analyze_esp_image(base, 0), 0x8000)]
+        families = []
+        for part in table["partitions"]:
+            if part["type"] != 0 or not any(byte != 0xff for byte in base[part["offset"]:part["offset"] + 32]):
+                continue
+            end = part["offset"] + part["size"]
+            image = analyze_esp_image(base, part["offset"])
+            images.append((image, end))
+            descriptor = find_app_descriptor(base, part["offset"], min(image.get("image_end", end), end))
+            app_bytes = base[part["offset"]:min(image.get("image_end", end), end)]
+            if not descriptor or descriptor.get("project_name") != "micropython" or not re.match(r"[Vv]2\.", descriptor.get("version", "")) or b"_uiflow_run_main" not in app_bytes or b"UIFLOW2" not in app_bytes:
+                raise ServiceError("uiflow_base_not_admitted", "base application lacks the supported UIFlow2 compatibility fingerprint", 409)
+            if target.get("application") != descriptor:
+                raise ServiceError("uiflow_base_integrity_error", "base application descriptor differs from the manifest", 409)
+            families.append({"offset": part["offset"], "project_name": descriptor["project_name"], "version": descriptor["version"]})
+        if not families or any(not image["valid"] or image.get("chip_id") != expected_chip_id(spec.soc) or image.get("image_end", end + 1) > end for image, end in images):
+            raise ServiceError("uiflow_base_not_admitted", "base boot/application image is invalid or targets another chip", 409)
+        signatures = [detect_secure_boot_v2_signature(base, image, region_end=end) for image, end in images]
+        if any(item["status"] != "not-found" or item.get("candidate_count") for item in signatures):
+            raise ServiceError("uiflow_base_not_admitted", "signed or invalid secure-boot images cannot be used for UIFlow source composition", 409)
+        provenance = {
+            "kind": "stored-manifest", "manifest_id": manifest_id,
+            "stored_sha256": actual_sha, "stored_size": len(base),
+            "pin_scope": "normalized-stored-flash-image",
+            "artifact_id": artifact_id, "artifact_sha256": artifact["sha256"], "artifact_size": artifact_size,
+            "artifact_source_sha256": artifact.get("source_sha256"),
+            "compatibility": compatibility,
+            "family": {"classification": "STATIC_COMPATIBILITY_FINGERPRINT_NOT_AUTHENTICATION", "applications": families,
+                       "markers": ["_uiflow_run_main", "UIFLOW2"], "runtime": "NOT RUN"},
+        }
+        return base, manifest, provenance
+
     def create(self, payload: dict) -> dict:
         device_id = payload.get("device_id")
         if not isinstance(device_id, str) or device_id not in self.specs:
@@ -2542,7 +2671,7 @@ class FirmwareStore:
         intervals: list[tuple[int, int]] = []
 
         if kind == "uiflow":
-            allowed = {"kind", "device_id", "files", "expected_base_sha256"}
+            allowed = {"kind", "device_id", "files", "expected_base_sha256", "base_firmware_id"}
             if set(payload) - allowed:
                 raise ServiceError("invalid_uiflow_request", "unknown UIFlow source fields", 400)
             if device_id not in {"cores3", "atoms3r", "sticks3", "stopwatch"}:
@@ -2551,10 +2680,15 @@ class FirmwareStore:
                     "UIFlow source intake currently supports CoreS3, AtomS3R, StickS3 and StopWatch",
                     409,
                 )
-            if not spec.reference_path or not spec.reference_path.is_file():
+            base_manifest = base_provenance = None
+            explicit_base = "base_firmware_id" in payload
+            if explicit_base:
+                base, base_manifest, base_provenance = self._explicit_uiflow_base(spec, payload)
+            elif not spec.reference_path or not spec.reference_path.is_file():
                 raise ServiceError("reference_firmware_missing", "cached UIFlow2 reference is required", 409)
             try:
-                base = spec.reference_path.read_bytes()
+                if not explicit_base:
+                    base = spec.reference_path.read_bytes()
                 composed, source_metadata = build_uiflow_source_image(
                     base, spec.flash_size, payload.get("files"),
                     expected_base_sha256=payload.get("expected_base_sha256"),
@@ -2568,12 +2702,14 @@ class FirmwareStore:
             ).encode("utf-8")
             if hashlib.sha256(source_bytes).hexdigest() != source_metadata["source_sha256"]:
                 raise ServiceError("uiflow_source_integrity_error", "source binding differs", 500)
-            artifact = self.artifacts.create(
-                source_bytes, name=f"{device_id}-uiflow-source.json", content_type="application/json",
-            )
             image[:] = composed
             intervals.append((0, len(composed)))
-            source = {"kind": "uiflow", "artifact_id": artifact["artifact_id"], "metadata": source_metadata}
+            if explicit_base:
+                source_metadata = {**source_metadata, "base_firmware_id": payload["base_firmware_id"],
+                                   "base_provenance": base_provenance}
+            # Delay artifact publication until the firmware's CAS provenance
+            # is checked under the store lock. Rejected aliases publish nothing.
+            source = {"kind": "uiflow", "artifact_id": source_metadata["source_sha256"], "metadata": source_metadata}
         elif kind == "merged":
             artifact_id = payload.get("artifact_id")
             data = self.artifacts.read(artifact_id)
@@ -2740,6 +2876,8 @@ class FirmwareStore:
             raise ServiceError("empty_firmware", "firmware has no data", 400)
         image_bytes = bytes(image)
         firmware_id = hashlib.sha256(image_bytes).hexdigest()
+        if kind == "uiflow" and base_manifest is not None and firmware_id == payload["base_firmware_id"]:
+            raise ServiceError("uiflow_source_context_conflict", "source composition must not replace its base manifest context", 409)
         record = {
             "firmware_id": firmware_id,
             "sha256": firmware_id,
@@ -2748,6 +2886,7 @@ class FirmwareStore:
             "size": len(image_bytes),
             "kind": kind,
             "source": source,
+            **({"base_manifest": base_manifest} if kind == "uiflow" and base_manifest is not None else {}),
             **(
                 {
                     "manifest": manifest,
@@ -2760,12 +2899,36 @@ class FirmwareStore:
             "created_at": iso_now(),
         }
         with self._lock:
+            meta_path = self._meta(firmware_id)
+            if meta_path.exists() or meta_path.is_symlink():
+                try:
+                    existing = json.loads(self._read_uiflow_base_file(meta_path, 8 * 1024 * 1024))
+                except (ServiceError, ValueError, UnicodeError) as error:
+                    raise ServiceError("uiflow_source_context_conflict", "existing firmware provenance cannot be safely compared", 409) from error
+                if not isinstance(existing, dict):
+                    raise ServiceError("uiflow_source_context_conflict", "existing firmware provenance cannot be safely compared", 409)
+                if "base_manifest" in existing or "base_manifest" in record:
+                    context_keys = ("kind", "device_id", "source", "base_manifest")
+                    old_context = {key: existing[key] for key in context_keys if key in existing}
+                    new_context = {key: record[key] for key in context_keys if key in record}
+                    # Public re-import regenerates only this non-semantic
+                    # timestamp. Keep every other manifest/source field exact.
+                    for context in (old_context, new_context):
+                        if isinstance(context.get("base_manifest"), dict):
+                            context["base_manifest"] = context["base_manifest"].copy()
+                            context["base_manifest"].pop("created_at", None)
+                    if old_context != new_context:
+                        raise ServiceError("uiflow_source_context_conflict", "firmware bytes already have a different source or base-manifest context", 409)
+            if kind == "uiflow":
+                self.artifacts.create(
+                    source_bytes, name=f"{device_id}-uiflow-source.json", content_type="application/json",
+                )
             data_path = self._data(firmware_id)
             if not data_path.exists():
                 temp = self.root / f".{firmware_id}.{uuid.uuid4().hex}.tmp"
                 temp.write_bytes(image_bytes)
                 temp.replace(data_path)
-            self._meta(firmware_id).write_text(
+            meta_path.write_text(
                 json.dumps(record, ensure_ascii=False, indent=2) + "\n"
             )
         return record
@@ -8577,6 +8740,7 @@ class DeviceService:
         max_sessions: int = DEFAULT_MAX_SESSIONS,
         max_per_device: int = DEFAULT_MAX_PER_DEVICE,
         max_program_revisions: int = MAX_REVISIONS,
+        max_program_packages: int = MAX_PACKAGES,
         default_ttl: int = 1800,
         api_token: str | None = None,
         previous_api_token: str | None = None,
@@ -8599,7 +8763,9 @@ class DeviceService:
         self.program_revisions = ProgramRevisionStore(
             self.state_dir / "program-revisions", max_count=max_program_revisions,
         )
-        self.program_packages = ProgramPackageStore(self.state_dir / "program-packages")
+        self.program_packages = ProgramPackageStore(
+            self.state_dir / "program-packages", max_count=max_program_packages,
+        )
         self.max_sessions = max(1, int(max_sessions))
         self.max_per_device = max(1, int(max_per_device))
         self.default_ttl = max(30, int(default_ttl))
@@ -9687,6 +9853,28 @@ class DeviceService:
                     .get("target", {})
                     .get("psram_size")
                 )
+            elif firmware.get("kind") == "uiflow" and "base_manifest" in firmware:
+                # Source composition changes only VFS. The explicit base's
+                # security/capability and PSRAM requirements still apply to
+                # the resulting runtime; changing kind must not erase them.
+                base_manifest = firmware["base_manifest"]
+                try:
+                    structure_errors = validate_manifest_structure(base_manifest)
+                except (TypeError, ValueError) as error:
+                    raise ServiceError("invalid_firmware_manifest", "composed firmware base manifest is invalid", 409) from error
+                if structure_errors or base_manifest["target"].get("psram_size") is not None and (type(base_manifest["target"]["psram_size"]) is not int or base_manifest["target"]["psram_size"] < 0):
+                    raise ServiceError("invalid_firmware_manifest", "composed firmware base manifest is invalid", 409)
+                base_id = canonical_json_sha256(manifest_identity_payload(base_manifest))
+                metadata = firmware_source.get("metadata")
+                provenance = metadata.get("base_provenance") if isinstance(metadata, dict) else None
+                if not isinstance(provenance, dict) or base_manifest.get("manifest_id") != base_id or provenance.get("manifest_id") != base_id:
+                    raise ServiceError("firmware_manifest_id_mismatch", "composed firmware base manifest identity differs", 409)
+                profile = load_device_profile(device_id)
+                compatibility = validate_capabilities(base_manifest, profile) if profile is not None else None
+                if compatibility is None or compatibility["status"] != "PASS" or base_manifest.get("validation", {}).get("status") != "PASS":
+                    raise ServiceError("unsupported_firmware_capability", "composed firmware retains unsupported base requirements", 409,
+                                       issues=(compatibility or {}).get("errors", []))
+                manifest_psram = base_manifest["target"].get("psram_size")
             source_artifacts = (
                 [firmware_source["artifact_id"]]
                 if firmware_source.get("kind") in {"merged", "manifest", "uiflow"}

@@ -1,0 +1,34 @@
+{
+  "status": "READY_R3_WITH_REAL_SHORT_SOURCE_STATE_READBACK_BEFORE_MPY",
+  "prior_attempt": "r2 boot PASS; setup failed builtin sys attr; no MPY attempted; preserved",
+  "guest_runtime": "NOT RUN",
+  "hardware": "NOT RUN",
+  "service_worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "instance_id": "69064e99f8134451989874547dcb6169",
+    "generation": 39,
+    "state": "ready",
+    "pid": 60383,
+    "started_at": "2026-10-26T21:06:44.916991+00:00",
+    "heartbeat_at": "2026-10-26T21:09:45.182837+00:00",
+    "heartbeat_age_seconds": 3.727,
+    "stale": false,
+    "accepting_leases": true,
+    "active_lease_count": 0,
+    "active_lease_ids": [],
+    "drained_at": null
+  },
+  "source_sha256": {
+    "probe.py": "2f7637d478fb676165deaec7ccea5f039dae2f9167306f5e2d966391b1e65444",
+    "test_probe.py": "8b8bace35bf9f8ab455e011d181dcb5da087ef168747e803b7d1baaeb73c12a1"
+  },
+  "prepared_sha256": "45a02c4c758eee9f18ab2195c3837c974f6aae8b882a9df295b658c1e07fdae9",
+  "uiflow_source_sha256": "7a9c69e9df99d8cded6006278b35840b1231cac8e739c3e42ed3ff2da0964153",
+  "nonce": "333acfdcf9f14c058bdb73cba9d3677e",
+  "tests": {
+    "count": 9,
+    "result": "PASS",
+    "scope": "host-only"
+  },
+  "public_mpy_entrypoint_enabled": false
+}

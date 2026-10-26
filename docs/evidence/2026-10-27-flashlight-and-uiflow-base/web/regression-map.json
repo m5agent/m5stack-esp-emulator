@@ -1,0 +1,66 @@
+{
+  "category": "archive-location-map-not-a-new-test-report",
+  "rows": [
+    {
+      "name": "flashlight-web",
+      "command": "/opt/homebrew/bin/node platform/tests/test_flashlight_unit_web.mjs",
+      "original_stdout_archived": false,
+      "original_index_path": "artifacts/verification-index.json",
+      "archived_report": null,
+      "status": "tool stdout only; no original file report; no reconstruction"
+    },
+    {
+      "name": "visual-mappings",
+      "command": "/opt/homebrew/bin/node platform/tests/test_unit_visual_mappings.mjs",
+      "original_stdout_archived": false,
+      "original_index_path": "artifacts/verification-index.json",
+      "archived_report": null,
+      "status": "tool stdout only; no original file report; no reconstruction"
+    },
+    {
+      "name": "unit-panel",
+      "command": "/opt/homebrew/bin/node platform/tests/test_unit_panel.mjs",
+      "original_stdout_archived": false,
+      "original_index_path": "artifacts/verification-index.json",
+      "archived_report": "regressions/unit-panel.json",
+      "original_report_sha256": "0af9867b8a298a84f76866f0c44e38606c024f1c9b1e7b8785035bf8f066deed",
+      "reported_status": "PASS"
+    },
+    {
+      "name": "preview-unit-panel",
+      "command": "/opt/homebrew/bin/node platform/tests/test_preview_unit_panel.mjs",
+      "original_stdout_archived": false,
+      "original_index_path": "artifacts/verification-index.json",
+      "archived_report": "regressions/preview-unit-panel.json",
+      "original_report_sha256": "e3f2cf26b6e097b92e6a13b9fc82f4f87882b9465bc1f7bd5c080f4e29299438",
+      "reported_status": "PASS"
+    },
+    {
+      "name": "unit-web-bridge",
+      "command": "/opt/homebrew/bin/node platform/tests/test_unit_web_bridge.mjs",
+      "original_stdout_archived": false,
+      "original_index_path": "artifacts/verification-index.json",
+      "archived_report": "regressions/unit-web-bridge.json",
+      "original_report_sha256": "b765b1950d7ad715b821f78532d99f6ebcd7119f233dcdabf22612b62e33f7c8",
+      "reported_status": "PASS"
+    },
+    {
+      "name": "frontend-recovery",
+      "command": "/opt/homebrew/bin/node platform/tests/test_frontend_recovery.mjs . /tmp/m5-flashlight-frontend-recovery.json",
+      "original_stdout_archived": false,
+      "original_index_path": "artifacts/verification-index.json",
+      "archived_report": "regressions/frontend-recovery.json",
+      "original_report_sha256": "1e7c471fb4c999aaa0609f0080bb3cfdcbb24d52d6d425c848445ae234d1625f",
+      "reported_status": "PASS"
+    },
+    {
+      "name": "unit-annotation",
+      "command": "/opt/homebrew/bin/node platform/tests/test_unit_annotation_contract.mjs . /tmp/m5-flashlight-annotation-contract.json",
+      "original_stdout_archived": false,
+      "original_index_path": "artifacts/verification-index.json",
+      "archived_report": "regressions/unit-annotation.json",
+      "original_report_sha256": "548eb3d169a2cf2611033bc2436644c8e5fe22235edfb24fe68ee49459a3b361",
+      "reported_status": "PASS"
+    }
+  ]
+}

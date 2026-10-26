@@ -1,0 +1,1960 @@
+{
+  "status": "PASS",
+  "device_id": "stopwatch",
+  "lane": "session",
+  "binary_executed": false,
+  "hardware": "NOT RUN",
+  "runs": [
+    {
+      "execution_id": "e990c5d511d14ca7807bc5b37005af9a",
+      "revision_id": "06283d783a1f6cd8a15298eb3ec7fb822ce5d8c2139fa3895716c2ad3be7889e",
+      "source_sha256": "4b36b0ec3fd78454242ea30583409bb8f3963a934fbc1bc290f3c033905194a6",
+      "source_bytes": 1082,
+      "state": "running",
+      "submitted_at": "2026-10-26T21:30:30.444116+00:00",
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "pid": 70620,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 1695,
+      "source_kind": "uiflow2-package",
+      "total_file_bytes": 4721,
+      "file_count": 2,
+      "deployment": {
+        "phase": "activated",
+        "staging_path": "/flash/.m5-live-packages/.stage-babb491f896a43c6a060e389e55e77ab",
+        "package_path": "/flash/.m5-live-packages/06283d783a1f6cd8a15298eb3ec7fb822ce5d8c2139fa3895716c2ad3be7889e",
+        "events": [
+          {
+            "phase": "preflight",
+            "staging_path": "/flash/.m5-live-packages/.stage-babb491f896a43c6a060e389e55e77ab",
+            "package_path": "/flash/.m5-live-packages/06283d783a1f6cd8a15298eb3ec7fb822ce5d8c2139fa3895716c2ad3be7889e",
+            "observed_at": "2026-10-26T21:30:30.558858+00:00"
+          },
+          {
+            "phase": "capabilities",
+            "capabilities": {
+              "existing": false,
+              "directory_count": 0,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 8073216
+            },
+            "observed_at": "2026-10-26T21:30:30.848147+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "main.py",
+            "written_bytes": 1082,
+            "observed_at": "2026-10-26T21:30:31.409480+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "official_flash.py",
+            "written_bytes": 4721,
+            "observed_at": "2026-10-26T21:30:32.458173+00:00"
+          },
+          {
+            "phase": "verified",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 1082,
+                "sha256": "2ccb7789c14d0eb12db78eaa501895b71f3d51ea8985521eab3c8528c059db3b"
+              }
+            },
+            "observed_at": "2026-10-26T21:30:32.537145+00:00"
+          },
+          {
+            "phase": "published",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 1082,
+                "sha256": "2ccb7789c14d0eb12db78eaa501895b71f3d51ea8985521eab3c8528c059db3b"
+              }
+            },
+            "reused": false,
+            "observed_at": "2026-10-26T21:30:32.580584+00:00"
+          },
+          {
+            "phase": "activated",
+            "package_path": "/flash/.m5-live-packages/06283d783a1f6cd8a15298eb3ec7fb822ce5d8c2139fa3895716c2ad3be7889e",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 1082,
+                "sha256": "2ccb7789c14d0eb12db78eaa501895b71f3d51ea8985521eab3c8528c059db3b"
+              }
+            },
+            "reused": false,
+            "capabilities": {
+              "existing": false,
+              "directory_count": 0,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 8073216
+            },
+            "removed_modules": [],
+            "staging_path": "/flash/.m5-live-packages/.stage-babb491f896a43c6a060e389e55e77ab",
+            "observed_at": "2026-10-26T21:30:32.871606+00:00"
+          }
+        ],
+        "capabilities": {
+          "existing": false,
+          "directory_count": 0,
+          "mpy": 11014,
+          "small_int_bits": 31,
+          "free_bytes": 8073216
+        },
+        "path": "official_flash.py",
+        "written_bytes": 4721,
+        "inventory": {
+          "official_flash.py": {
+            "size": 3639,
+            "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+          },
+          "main.py": {
+            "size": 1082,
+            "sha256": "2ccb7789c14d0eb12db78eaa501895b71f3d51ea8985521eab3c8528c059db3b"
+          }
+        },
+        "reused": false,
+        "removed_modules": []
+      },
+      "next_offset": 1754,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T21:30:33.081198+00:00"
+    },
+    {
+      "execution_id": "0712092666f745a4b3a356ee1cc3fec0",
+      "revision_id": "e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+      "source_sha256": "bb701d5b4fa3f43b731104d139a6adc334a01c952d070df4210e0b9cd47931db",
+      "source_bytes": 987,
+      "state": "running",
+      "submitted_at": "2026-10-26T21:30:33.466349+00:00",
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "pid": 70620,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 3351,
+      "source_kind": "uiflow2-package",
+      "total_file_bytes": 4626,
+      "file_count": 2,
+      "deployment": {
+        "phase": "activated",
+        "staging_path": "/flash/.m5-live-packages/.stage-bdb5adac1cf7426f9013a8581651b596",
+        "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+        "events": [
+          {
+            "phase": "preflight",
+            "staging_path": "/flash/.m5-live-packages/.stage-bdb5adac1cf7426f9013a8581651b596",
+            "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+            "observed_at": "2026-10-26T21:30:33.570066+00:00"
+          },
+          {
+            "phase": "capabilities",
+            "capabilities": {
+              "existing": false,
+              "directory_count": 1,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 8048640
+            },
+            "observed_at": "2026-10-26T21:30:33.923639+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "main.py",
+            "written_bytes": 987,
+            "observed_at": "2026-10-26T21:30:34.453709+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "official_flash.py",
+            "written_bytes": 4626,
+            "observed_at": "2026-10-26T21:30:35.499611+00:00"
+          },
+          {
+            "phase": "verified",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 987,
+                "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+              }
+            },
+            "observed_at": "2026-10-26T21:30:35.583409+00:00"
+          },
+          {
+            "phase": "published",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 987,
+                "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+              }
+            },
+            "reused": false,
+            "observed_at": "2026-10-26T21:30:35.627733+00:00"
+          },
+          {
+            "phase": "activated",
+            "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 987,
+                "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+              }
+            },
+            "reused": false,
+            "capabilities": {
+              "existing": false,
+              "directory_count": 1,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 8048640
+            },
+            "removed_modules": [
+              "official_flash"
+            ],
+            "staging_path": "/flash/.m5-live-packages/.stage-bdb5adac1cf7426f9013a8581651b596",
+            "observed_at": "2026-10-26T21:30:35.918123+00:00"
+          }
+        ],
+        "capabilities": {
+          "existing": false,
+          "directory_count": 1,
+          "mpy": 11014,
+          "small_int_bits": 31,
+          "free_bytes": 8048640
+        },
+        "path": "official_flash.py",
+        "written_bytes": 4626,
+        "inventory": {
+          "official_flash.py": {
+            "size": 3639,
+            "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+          },
+          "main.py": {
+            "size": 987,
+            "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+          }
+        },
+        "reused": false,
+        "removed_modules": [
+          "official_flash"
+        ]
+      },
+      "next_offset": 3410,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T21:30:36.124279+00:00"
+    },
+    {
+      "execution_id": "de88ceb03c32407e8ca7976894eba426",
+      "revision_id": "faf6ddb93a1913ef6bd74b267dfd515715b8bd4452f24c5ebcc82c6626174df0",
+      "source_sha256": "d4ba4c008d95748c26e953b29e24b1933f6aa2818dc548c8d52edd3a56f336de",
+      "source_bytes": 976,
+      "state": "running",
+      "submitted_at": "2026-10-26T21:30:36.477630+00:00",
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "pid": 70620,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 5011,
+      "source_kind": "uiflow2-package",
+      "total_file_bytes": 4615,
+      "file_count": 2,
+      "deployment": {
+        "phase": "activated",
+        "staging_path": "/flash/.m5-live-packages/.stage-1f25fadcfbda4333ada9c36cc4dfce8f",
+        "package_path": "/flash/.m5-live-packages/faf6ddb93a1913ef6bd74b267dfd515715b8bd4452f24c5ebcc82c6626174df0",
+        "events": [
+          {
+            "phase": "preflight",
+            "staging_path": "/flash/.m5-live-packages/.stage-1f25fadcfbda4333ada9c36cc4dfce8f",
+            "package_path": "/flash/.m5-live-packages/faf6ddb93a1913ef6bd74b267dfd515715b8bd4452f24c5ebcc82c6626174df0",
+            "observed_at": "2026-10-26T21:30:36.591556+00:00"
+          },
+          {
+            "phase": "capabilities",
+            "capabilities": {
+              "existing": false,
+              "directory_count": 2,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 8024064
+            },
+            "observed_at": "2026-10-26T21:30:36.960160+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "main.py",
+            "written_bytes": 976,
+            "observed_at": "2026-10-26T21:30:37.503032+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "official_flash.py",
+            "written_bytes": 4615,
+            "observed_at": "2026-10-26T21:30:38.559585+00:00"
+          },
+          {
+            "phase": "verified",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 976,
+                "sha256": "59442f0e380babc6b2f1b1c641393e9addfbf8767a8fe625b2b873d61434e6eb"
+              }
+            },
+            "observed_at": "2026-10-26T21:30:38.648515+00:00"
+          },
+          {
+            "phase": "published",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 976,
+                "sha256": "59442f0e380babc6b2f1b1c641393e9addfbf8767a8fe625b2b873d61434e6eb"
+              }
+            },
+            "reused": false,
+            "observed_at": "2026-10-26T21:30:38.694767+00:00"
+          },
+          {
+            "phase": "activated",
+            "package_path": "/flash/.m5-live-packages/faf6ddb93a1913ef6bd74b267dfd515715b8bd4452f24c5ebcc82c6626174df0",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 976,
+                "sha256": "59442f0e380babc6b2f1b1c641393e9addfbf8767a8fe625b2b873d61434e6eb"
+              }
+            },
+            "reused": false,
+            "capabilities": {
+              "existing": false,
+              "directory_count": 2,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 8024064
+            },
+            "removed_modules": [
+              "official_flash"
+            ],
+            "staging_path": "/flash/.m5-live-packages/.stage-1f25fadcfbda4333ada9c36cc4dfce8f",
+            "observed_at": "2026-10-26T21:30:38.988666+00:00"
+          }
+        ],
+        "capabilities": {
+          "existing": false,
+          "directory_count": 2,
+          "mpy": 11014,
+          "small_int_bits": 31,
+          "free_bytes": 8024064
+        },
+        "path": "official_flash.py",
+        "written_bytes": 4615,
+        "inventory": {
+          "official_flash.py": {
+            "size": 3639,
+            "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+          },
+          "main.py": {
+            "size": 976,
+            "sha256": "59442f0e380babc6b2f1b1c641393e9addfbf8767a8fe625b2b873d61434e6eb"
+          }
+        },
+        "reused": false,
+        "removed_modules": [
+          "official_flash"
+        ]
+      },
+      "next_offset": 5070,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T21:30:39.202862+00:00"
+    },
+    {
+      "execution_id": "d076ed0caed940d09b49533f3e06f28e",
+      "revision_id": "e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+      "source_sha256": "bb701d5b4fa3f43b731104d139a6adc334a01c952d070df4210e0b9cd47931db",
+      "source_bytes": 987,
+      "state": "running",
+      "submitted_at": "2026-10-26T21:30:39.682321+00:00",
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "pid": 70620,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 6216,
+      "source_kind": "uiflow2-package",
+      "total_file_bytes": 4626,
+      "file_count": 2,
+      "deployment": {
+        "phase": "activated",
+        "staging_path": "/flash/.m5-live-packages/.stage-e1b8139760e9480e91daf4b0c1677012",
+        "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+        "events": [
+          {
+            "phase": "preflight",
+            "staging_path": "/flash/.m5-live-packages/.stage-e1b8139760e9480e91daf4b0c1677012",
+            "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+            "observed_at": "2026-10-26T21:30:39.793989+00:00"
+          },
+          {
+            "phase": "capabilities",
+            "capabilities": {
+              "existing": true,
+              "directory_count": 3,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 7999488
+            },
+            "observed_at": "2026-10-26T21:30:40.201065+00:00"
+          },
+          {
+            "phase": "published",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 987,
+                "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+              }
+            },
+            "reused": true,
+            "observed_at": "2026-10-26T21:30:40.480553+00:00"
+          },
+          {
+            "phase": "activated",
+            "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 987,
+                "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+              }
+            },
+            "reused": true,
+            "capabilities": {
+              "existing": true,
+              "directory_count": 3,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 7999488
+            },
+            "removed_modules": [
+              "official_flash"
+            ],
+            "staging_path": "/flash/.m5-live-packages/.stage-e1b8139760e9480e91daf4b0c1677012",
+            "observed_at": "2026-10-26T21:30:40.775250+00:00"
+          }
+        ],
+        "capabilities": {
+          "existing": true,
+          "directory_count": 3,
+          "mpy": 11014,
+          "small_int_bits": 31,
+          "free_bytes": 7999488
+        },
+        "inventory": {
+          "official_flash.py": {
+            "size": 3639,
+            "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+          },
+          "main.py": {
+            "size": 987,
+            "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+          }
+        },
+        "reused": true,
+        "removed_modules": [
+          "official_flash"
+        ]
+      },
+      "next_offset": 6275,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T21:30:40.990350+00:00"
+    }
+  ],
+  "observations": [
+    {
+      "index": 0,
+      "phase": "reset",
+      "before_properties": {
+        "flash-mode": false,
+        "mode-frozen": true,
+        "en-level": false,
+        "pad-synchronized": true,
+        "gpio-route-supported": false,
+        "output-known": false,
+        "active": false,
+        "waveform-qualified": false,
+        "pulse-count-capped": false,
+        "bit-exact-supported": false,
+        "live-mode-change-supported": false,
+        "reset-observation-supported": false,
+        "pulse-count": 0,
+        "last-program-count": 0,
+        "flash-level-pct": 0,
+        "timeout-ms": 0,
+        "edge-count": 0,
+        "rising-edges": 0,
+        "decoded-programs": 0,
+        "unqualified-programs": 1,
+        "reset-events": 0,
+        "timeout-events": 0,
+        "trace-overflows": 0,
+        "last-edge-ns": -1,
+        "first-rise-ns": -1,
+        "settle-at-ns": -1,
+        "timeout-at-ns": -1,
+        "program-state": "unqualified",
+        "unknown-reason": "gpio-route-not-observed",
+        "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+        "edge-trace-ns": [],
+        "input-events": 1,
+        "output-transitions": 0
+      },
+      "execution": {
+        "execution_id": "e990c5d511d14ca7807bc5b37005af9a",
+        "revision_id": "06283d783a1f6cd8a15298eb3ec7fb822ce5d8c2139fa3895716c2ad3be7889e",
+        "source_sha256": "4b36b0ec3fd78454242ea30583409bb8f3963a934fbc1bc290f3c033905194a6",
+        "source_bytes": 1082,
+        "state": "completed",
+        "submitted_at": "2026-10-26T21:30:30.444116+00:00",
+        "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+        "pid": 70620,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 1695,
+        "source_kind": "uiflow2-package",
+        "total_file_bytes": 4721,
+        "file_count": 2,
+        "deployment": {
+          "phase": "activated",
+          "staging_path": "/flash/.m5-live-packages/.stage-babb491f896a43c6a060e389e55e77ab",
+          "package_path": "/flash/.m5-live-packages/06283d783a1f6cd8a15298eb3ec7fb822ce5d8c2139fa3895716c2ad3be7889e",
+          "events": [
+            {
+              "phase": "preflight",
+              "staging_path": "/flash/.m5-live-packages/.stage-babb491f896a43c6a060e389e55e77ab",
+              "package_path": "/flash/.m5-live-packages/06283d783a1f6cd8a15298eb3ec7fb822ce5d8c2139fa3895716c2ad3be7889e",
+              "observed_at": "2026-10-26T21:30:30.558858+00:00"
+            },
+            {
+              "phase": "capabilities",
+              "capabilities": {
+                "existing": false,
+                "directory_count": 0,
+                "mpy": 11014,
+                "small_int_bits": 31,
+                "free_bytes": 8073216
+              },
+              "observed_at": "2026-10-26T21:30:30.848147+00:00"
+            },
+            {
+              "phase": "writing",
+              "path": "main.py",
+              "written_bytes": 1082,
+              "observed_at": "2026-10-26T21:30:31.409480+00:00"
+            },
+            {
+              "phase": "writing",
+              "path": "official_flash.py",
+              "written_bytes": 4721,
+              "observed_at": "2026-10-26T21:30:32.458173+00:00"
+            },
+            {
+              "phase": "verified",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 1082,
+                  "sha256": "2ccb7789c14d0eb12db78eaa501895b71f3d51ea8985521eab3c8528c059db3b"
+                }
+              },
+              "observed_at": "2026-10-26T21:30:32.537145+00:00"
+            },
+            {
+              "phase": "published",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 1082,
+                  "sha256": "2ccb7789c14d0eb12db78eaa501895b71f3d51ea8985521eab3c8528c059db3b"
+                }
+              },
+              "reused": false,
+              "observed_at": "2026-10-26T21:30:32.580584+00:00"
+            },
+            {
+              "phase": "activated",
+              "package_path": "/flash/.m5-live-packages/06283d783a1f6cd8a15298eb3ec7fb822ce5d8c2139fa3895716c2ad3be7889e",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 1082,
+                  "sha256": "2ccb7789c14d0eb12db78eaa501895b71f3d51ea8985521eab3c8528c059db3b"
+                }
+              },
+              "reused": false,
+              "capabilities": {
+                "existing": false,
+                "directory_count": 0,
+                "mpy": 11014,
+                "small_int_bits": 31,
+                "free_bytes": 8073216
+              },
+              "removed_modules": [],
+              "staging_path": "/flash/.m5-live-packages/.stage-babb491f896a43c6a060e389e55e77ab",
+              "observed_at": "2026-10-26T21:30:32.871606+00:00"
+            }
+          ],
+          "capabilities": {
+            "existing": false,
+            "directory_count": 0,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 8073216
+          },
+          "path": "official_flash.py",
+          "written_bytes": 4721,
+          "inventory": {
+            "official_flash.py": {
+              "size": 3639,
+              "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+            },
+            "main.py": {
+              "size": 1082,
+              "sha256": "2ccb7789c14d0eb12db78eaa501895b71f3d51ea8985521eab3c8528c059db3b"
+            }
+          },
+          "reused": false,
+          "removed_modules": []
+        },
+        "next_offset": 1754,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T21:30:33.403003+00:00"
+      },
+      "guest": {
+        "nonce": "4ec9b1b8b7f94901b89486a915d31a6e",
+        "driver_sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f",
+        "driver_file": "/flash/.m5-live-packages/06283d783a1f6cd8a15298eb3ec7fb822ce5d8c2139fa3895716c2ad3be7889e/official_flash.py",
+        "en": 0,
+        "phase": "reset"
+      },
+      "unit": {
+        "id": "lamp",
+        "unit_id": "flashlight",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 10,
+          "white": 11
+        },
+        "visual_port": "grove",
+        "initial": {
+          "flash-mode": false
+        },
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "flash-mode": false,
+          "mode-frozen": true,
+          "en-level": false,
+          "pad-synchronized": true,
+          "gpio-route-supported": true,
+          "output-known": true,
+          "active": false,
+          "waveform-qualified": true,
+          "pulse-count-capped": false,
+          "bit-exact-supported": false,
+          "live-mode-change-supported": false,
+          "reset-observation-supported": false,
+          "pulse-count": 0,
+          "last-program-count": 0,
+          "flash-level-pct": 0,
+          "timeout-ms": 0,
+          "edge-count": 2,
+          "rising-edges": 1,
+          "decoded-programs": 0,
+          "unqualified-programs": 2,
+          "reset-events": 2,
+          "timeout-events": 0,
+          "trace-overflows": 0,
+          "last-edge-ns": 4748060000,
+          "first-rise-ns": -1,
+          "settle-at-ns": -1,
+          "timeout-at-ns": -1,
+          "program-state": "ready-low",
+          "unknown-reason": "none",
+          "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+          "edge-trace-ns": [
+            [
+              4748041000,
+              1
+            ],
+            [
+              4748060000,
+              0
+            ]
+          ],
+          "input-events": 1,
+          "output-transitions": 0
+        },
+        "errors": {}
+      },
+      "frame_sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+      "frame_headers": {
+        "content-type": "image/png",
+        "content-length": "711",
+        "x-request-id": "6b699c65cb3a48dfa662772c392bc9f4",
+        "x-frame-width": "466",
+        "x-frame-height": "466",
+        "x-frame-sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+        "x-frame-capture-seq": "1",
+        "x-frame-source": "live",
+        "etag": "\"ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81\"",
+        "x-frame-captured-at": "2026-10-26T21:30:33.416429+00:00",
+        "x-frame-execution-id": "e990c5d511d14ca7807bc5b37005af9a",
+        "x-frame-revision-id": "06283d783a1f6cd8a15298eb3ec7fb822ce5d8c2139fa3895716c2ad3be7889e",
+        "x-frame-program-state": "completed"
+      },
+      "selected_pad_pixel": [
+        0,
+        0,
+        0
+      ],
+      "snapshot_semantics": "QOM fields sampled separately; not atomic across fields or frame"
+    },
+    {
+      "index": 1,
+      "phase": "steady-on",
+      "before_properties": {
+        "flash-mode": false,
+        "mode-frozen": true,
+        "en-level": false,
+        "pad-synchronized": true,
+        "gpio-route-supported": true,
+        "output-known": true,
+        "active": false,
+        "waveform-qualified": true,
+        "pulse-count-capped": false,
+        "bit-exact-supported": false,
+        "live-mode-change-supported": false,
+        "reset-observation-supported": false,
+        "pulse-count": 0,
+        "last-program-count": 0,
+        "flash-level-pct": 0,
+        "timeout-ms": 0,
+        "edge-count": 2,
+        "rising-edges": 1,
+        "decoded-programs": 0,
+        "unqualified-programs": 2,
+        "reset-events": 2,
+        "timeout-events": 0,
+        "trace-overflows": 0,
+        "last-edge-ns": 4748060000,
+        "first-rise-ns": -1,
+        "settle-at-ns": -1,
+        "timeout-at-ns": -1,
+        "program-state": "ready-low",
+        "unknown-reason": "none",
+        "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+        "edge-trace-ns": [
+          [
+            4748041000,
+            1
+          ],
+          [
+            4748060000,
+            0
+          ]
+        ],
+        "input-events": 1,
+        "output-transitions": 0
+      },
+      "execution": {
+        "execution_id": "0712092666f745a4b3a356ee1cc3fec0",
+        "revision_id": "e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+        "source_sha256": "bb701d5b4fa3f43b731104d139a6adc334a01c952d070df4210e0b9cd47931db",
+        "source_bytes": 987,
+        "state": "completed",
+        "submitted_at": "2026-10-26T21:30:33.466349+00:00",
+        "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+        "pid": 70620,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 3351,
+        "source_kind": "uiflow2-package",
+        "total_file_bytes": 4626,
+        "file_count": 2,
+        "deployment": {
+          "phase": "activated",
+          "staging_path": "/flash/.m5-live-packages/.stage-bdb5adac1cf7426f9013a8581651b596",
+          "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+          "events": [
+            {
+              "phase": "preflight",
+              "staging_path": "/flash/.m5-live-packages/.stage-bdb5adac1cf7426f9013a8581651b596",
+              "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+              "observed_at": "2026-10-26T21:30:33.570066+00:00"
+            },
+            {
+              "phase": "capabilities",
+              "capabilities": {
+                "existing": false,
+                "directory_count": 1,
+                "mpy": 11014,
+                "small_int_bits": 31,
+                "free_bytes": 8048640
+              },
+              "observed_at": "2026-10-26T21:30:33.923639+00:00"
+            },
+            {
+              "phase": "writing",
+              "path": "main.py",
+              "written_bytes": 987,
+              "observed_at": "2026-10-26T21:30:34.453709+00:00"
+            },
+            {
+              "phase": "writing",
+              "path": "official_flash.py",
+              "written_bytes": 4626,
+              "observed_at": "2026-10-26T21:30:35.499611+00:00"
+            },
+            {
+              "phase": "verified",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 987,
+                  "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+                }
+              },
+              "observed_at": "2026-10-26T21:30:35.583409+00:00"
+            },
+            {
+              "phase": "published",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 987,
+                  "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+                }
+              },
+              "reused": false,
+              "observed_at": "2026-10-26T21:30:35.627733+00:00"
+            },
+            {
+              "phase": "activated",
+              "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 987,
+                  "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+                }
+              },
+              "reused": false,
+              "capabilities": {
+                "existing": false,
+                "directory_count": 1,
+                "mpy": 11014,
+                "small_int_bits": 31,
+                "free_bytes": 8048640
+              },
+              "removed_modules": [
+                "official_flash"
+              ],
+              "staging_path": "/flash/.m5-live-packages/.stage-bdb5adac1cf7426f9013a8581651b596",
+              "observed_at": "2026-10-26T21:30:35.918123+00:00"
+            }
+          ],
+          "capabilities": {
+            "existing": false,
+            "directory_count": 1,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 8048640
+          },
+          "path": "official_flash.py",
+          "written_bytes": 4626,
+          "inventory": {
+            "official_flash.py": {
+              "size": 3639,
+              "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+            },
+            "main.py": {
+              "size": 987,
+              "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+            }
+          },
+          "reused": false,
+          "removed_modules": [
+            "official_flash"
+          ]
+        },
+        "next_offset": 3410,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T21:30:36.438248+00:00"
+      },
+      "guest": {
+        "nonce": "4ec9b1b8b7f94901b89486a915d31a6e",
+        "driver_sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f",
+        "driver_file": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a/official_flash.py",
+        "en": 1,
+        "phase": "steady-on"
+      },
+      "unit": {
+        "id": "lamp",
+        "unit_id": "flashlight",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 10,
+          "white": 11
+        },
+        "visual_port": "grove",
+        "initial": {
+          "flash-mode": false
+        },
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "flash-mode": false,
+          "mode-frozen": true,
+          "en-level": true,
+          "pad-synchronized": true,
+          "gpio-route-supported": true,
+          "output-known": true,
+          "active": true,
+          "waveform-qualified": true,
+          "pulse-count-capped": false,
+          "bit-exact-supported": false,
+          "live-mode-change-supported": false,
+          "reset-observation-supported": false,
+          "pulse-count": 1,
+          "last-program-count": 0,
+          "flash-level-pct": 0,
+          "timeout-ms": 0,
+          "edge-count": 3,
+          "rising-edges": 2,
+          "decoded-programs": 1,
+          "unqualified-programs": 2,
+          "reset-events": 2,
+          "timeout-events": 0,
+          "trace-overflows": 0,
+          "last-edge-ns": 7801563000,
+          "first-rise-ns": 7801563000,
+          "settle-at-ns": -1,
+          "timeout-at-ns": -1,
+          "program-state": "torch-active",
+          "unknown-reason": "none",
+          "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+          "edge-trace-ns": [
+            [
+              4748041000,
+              1
+            ],
+            [
+              4748060000,
+              0
+            ],
+            [
+              7801563000,
+              1
+            ]
+          ],
+          "input-events": 1,
+          "output-transitions": 1
+        },
+        "errors": {}
+      },
+      "frame_sha256": "bfae9156c15d1748e5f4f5220a52a67b4f7ce9e876c7f8a8fe31edaf2540d2bc",
+      "frame_headers": {
+        "content-type": "image/png",
+        "content-length": "728",
+        "x-request-id": "9124ee8bfd56454fb96eff465e61978b",
+        "x-frame-width": "466",
+        "x-frame-height": "466",
+        "x-frame-sha256": "bfae9156c15d1748e5f4f5220a52a67b4f7ce9e876c7f8a8fe31edaf2540d2bc",
+        "x-frame-capture-seq": "2",
+        "x-frame-source": "live",
+        "etag": "\"bfae9156c15d1748e5f4f5220a52a67b4f7ce9e876c7f8a8fe31edaf2540d2bc\"",
+        "x-frame-captured-at": "2026-10-26T21:30:36.451060+00:00",
+        "x-frame-execution-id": "0712092666f745a4b3a356ee1cc3fec0",
+        "x-frame-revision-id": "e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+        "x-frame-program-state": "completed"
+      },
+      "selected_pad_pixel": [
+        255,
+        255,
+        255
+      ],
+      "snapshot_semantics": "QOM fields sampled separately; not atomic across fields or frame"
+    },
+    {
+      "index": 2,
+      "phase": "steady-off",
+      "before_properties": {
+        "flash-mode": false,
+        "mode-frozen": true,
+        "en-level": true,
+        "pad-synchronized": true,
+        "gpio-route-supported": true,
+        "output-known": true,
+        "active": true,
+        "waveform-qualified": true,
+        "pulse-count-capped": false,
+        "bit-exact-supported": false,
+        "live-mode-change-supported": false,
+        "reset-observation-supported": false,
+        "pulse-count": 1,
+        "last-program-count": 0,
+        "flash-level-pct": 0,
+        "timeout-ms": 0,
+        "edge-count": 3,
+        "rising-edges": 2,
+        "decoded-programs": 1,
+        "unqualified-programs": 2,
+        "reset-events": 2,
+        "timeout-events": 0,
+        "trace-overflows": 0,
+        "last-edge-ns": 7801563000,
+        "first-rise-ns": 7801563000,
+        "settle-at-ns": -1,
+        "timeout-at-ns": -1,
+        "program-state": "torch-active",
+        "unknown-reason": "none",
+        "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+        "edge-trace-ns": [
+          [
+            4748041000,
+            1
+          ],
+          [
+            4748060000,
+            0
+          ],
+          [
+            7801563000,
+            1
+          ]
+        ],
+        "input-events": 1,
+        "output-transitions": 1
+      },
+      "execution": {
+        "execution_id": "de88ceb03c32407e8ca7976894eba426",
+        "revision_id": "faf6ddb93a1913ef6bd74b267dfd515715b8bd4452f24c5ebcc82c6626174df0",
+        "source_sha256": "d4ba4c008d95748c26e953b29e24b1933f6aa2818dc548c8d52edd3a56f336de",
+        "source_bytes": 976,
+        "state": "completed",
+        "submitted_at": "2026-10-26T21:30:36.477630+00:00",
+        "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+        "pid": 70620,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 5011,
+        "source_kind": "uiflow2-package",
+        "total_file_bytes": 4615,
+        "file_count": 2,
+        "deployment": {
+          "phase": "activated",
+          "staging_path": "/flash/.m5-live-packages/.stage-1f25fadcfbda4333ada9c36cc4dfce8f",
+          "package_path": "/flash/.m5-live-packages/faf6ddb93a1913ef6bd74b267dfd515715b8bd4452f24c5ebcc82c6626174df0",
+          "events": [
+            {
+              "phase": "preflight",
+              "staging_path": "/flash/.m5-live-packages/.stage-1f25fadcfbda4333ada9c36cc4dfce8f",
+              "package_path": "/flash/.m5-live-packages/faf6ddb93a1913ef6bd74b267dfd515715b8bd4452f24c5ebcc82c6626174df0",
+              "observed_at": "2026-10-26T21:30:36.591556+00:00"
+            },
+            {
+              "phase": "capabilities",
+              "capabilities": {
+                "existing": false,
+                "directory_count": 2,
+                "mpy": 11014,
+                "small_int_bits": 31,
+                "free_bytes": 8024064
+              },
+              "observed_at": "2026-10-26T21:30:36.960160+00:00"
+            },
+            {
+              "phase": "writing",
+              "path": "main.py",
+              "written_bytes": 976,
+              "observed_at": "2026-10-26T21:30:37.503032+00:00"
+            },
+            {
+              "phase": "writing",
+              "path": "official_flash.py",
+              "written_bytes": 4615,
+              "observed_at": "2026-10-26T21:30:38.559585+00:00"
+            },
+            {
+              "phase": "verified",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 976,
+                  "sha256": "59442f0e380babc6b2f1b1c641393e9addfbf8767a8fe625b2b873d61434e6eb"
+                }
+              },
+              "observed_at": "2026-10-26T21:30:38.648515+00:00"
+            },
+            {
+              "phase": "published",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 976,
+                  "sha256": "59442f0e380babc6b2f1b1c641393e9addfbf8767a8fe625b2b873d61434e6eb"
+                }
+              },
+              "reused": false,
+              "observed_at": "2026-10-26T21:30:38.694767+00:00"
+            },
+            {
+              "phase": "activated",
+              "package_path": "/flash/.m5-live-packages/faf6ddb93a1913ef6bd74b267dfd515715b8bd4452f24c5ebcc82c6626174df0",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 976,
+                  "sha256": "59442f0e380babc6b2f1b1c641393e9addfbf8767a8fe625b2b873d61434e6eb"
+                }
+              },
+              "reused": false,
+              "capabilities": {
+                "existing": false,
+                "directory_count": 2,
+                "mpy": 11014,
+                "small_int_bits": 31,
+                "free_bytes": 8024064
+              },
+              "removed_modules": [
+                "official_flash"
+              ],
+              "staging_path": "/flash/.m5-live-packages/.stage-1f25fadcfbda4333ada9c36cc4dfce8f",
+              "observed_at": "2026-10-26T21:30:38.988666+00:00"
+            }
+          ],
+          "capabilities": {
+            "existing": false,
+            "directory_count": 2,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 8024064
+          },
+          "path": "official_flash.py",
+          "written_bytes": 4615,
+          "inventory": {
+            "official_flash.py": {
+              "size": 3639,
+              "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+            },
+            "main.py": {
+              "size": 976,
+              "sha256": "59442f0e380babc6b2f1b1c641393e9addfbf8767a8fe625b2b873d61434e6eb"
+            }
+          },
+          "reused": false,
+          "removed_modules": [
+            "official_flash"
+          ]
+        },
+        "next_offset": 5070,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T21:30:39.637576+00:00"
+      },
+      "guest": {
+        "nonce": "4ec9b1b8b7f94901b89486a915d31a6e",
+        "driver_sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f",
+        "driver_file": "/flash/.m5-live-packages/faf6ddb93a1913ef6bd74b267dfd515715b8bd4452f24c5ebcc82c6626174df0/official_flash.py",
+        "en": 0,
+        "phase": "steady-off"
+      },
+      "unit": {
+        "id": "lamp",
+        "unit_id": "flashlight",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 10,
+          "white": 11
+        },
+        "visual_port": "grove",
+        "initial": {
+          "flash-mode": false
+        },
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "flash-mode": false,
+          "mode-frozen": true,
+          "en-level": false,
+          "pad-synchronized": true,
+          "gpio-route-supported": true,
+          "output-known": true,
+          "active": false,
+          "waveform-qualified": true,
+          "pulse-count-capped": false,
+          "bit-exact-supported": false,
+          "live-mode-change-supported": false,
+          "reset-observation-supported": false,
+          "pulse-count": 0,
+          "last-program-count": 0,
+          "flash-level-pct": 0,
+          "timeout-ms": 0,
+          "edge-count": 4,
+          "rising-edges": 2,
+          "decoded-programs": 1,
+          "unqualified-programs": 2,
+          "reset-events": 3,
+          "timeout-events": 0,
+          "trace-overflows": 0,
+          "last-edge-ns": 10920992000,
+          "first-rise-ns": -1,
+          "settle-at-ns": -1,
+          "timeout-at-ns": -1,
+          "program-state": "ready-low",
+          "unknown-reason": "none",
+          "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+          "edge-trace-ns": [
+            [
+              4748041000,
+              1
+            ],
+            [
+              4748060000,
+              0
+            ],
+            [
+              7801563000,
+              1
+            ],
+            [
+              10920992000,
+              0
+            ]
+          ],
+          "input-events": 1,
+          "output-transitions": 2
+        },
+        "errors": {}
+      },
+      "frame_sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+      "frame_headers": {
+        "content-type": "image/png",
+        "content-length": "711",
+        "x-request-id": "7f90231817284843b20b23957030d893",
+        "x-frame-width": "466",
+        "x-frame-height": "466",
+        "x-frame-sha256": "ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81",
+        "x-frame-capture-seq": "3",
+        "x-frame-source": "live",
+        "etag": "\"ec5a0018ce3a1ba0992c306981d1c78f2b8c1d9520cac96dbde1db141fbf2a81\"",
+        "x-frame-captured-at": "2026-10-26T21:30:39.654345+00:00",
+        "x-frame-execution-id": "de88ceb03c32407e8ca7976894eba426",
+        "x-frame-revision-id": "faf6ddb93a1913ef6bd74b267dfd515715b8bd4452f24c5ebcc82c6626174df0",
+        "x-frame-program-state": "completed"
+      },
+      "selected_pad_pixel": [
+        0,
+        0,
+        0
+      ],
+      "snapshot_semantics": "QOM fields sampled separately; not atomic across fields or frame"
+    },
+    {
+      "index": 3,
+      "phase": "steady-on",
+      "before_properties": {
+        "flash-mode": false,
+        "mode-frozen": true,
+        "en-level": false,
+        "pad-synchronized": true,
+        "gpio-route-supported": true,
+        "output-known": true,
+        "active": false,
+        "waveform-qualified": true,
+        "pulse-count-capped": false,
+        "bit-exact-supported": false,
+        "live-mode-change-supported": false,
+        "reset-observation-supported": false,
+        "pulse-count": 0,
+        "last-program-count": 0,
+        "flash-level-pct": 0,
+        "timeout-ms": 0,
+        "edge-count": 4,
+        "rising-edges": 2,
+        "decoded-programs": 1,
+        "unqualified-programs": 2,
+        "reset-events": 3,
+        "timeout-events": 0,
+        "trace-overflows": 0,
+        "last-edge-ns": 10920992000,
+        "first-rise-ns": -1,
+        "settle-at-ns": -1,
+        "timeout-at-ns": -1,
+        "program-state": "ready-low",
+        "unknown-reason": "none",
+        "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+        "edge-trace-ns": [
+          [
+            4748041000,
+            1
+          ],
+          [
+            4748060000,
+            0
+          ],
+          [
+            7801563000,
+            1
+          ],
+          [
+            10920992000,
+            0
+          ]
+        ],
+        "input-events": 1,
+        "output-transitions": 2
+      },
+      "execution": {
+        "execution_id": "d076ed0caed940d09b49533f3e06f28e",
+        "revision_id": "e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+        "source_sha256": "bb701d5b4fa3f43b731104d139a6adc334a01c952d070df4210e0b9cd47931db",
+        "source_bytes": 987,
+        "state": "completed",
+        "submitted_at": "2026-10-26T21:30:39.682321+00:00",
+        "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+        "pid": 70620,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 6216,
+        "source_kind": "uiflow2-package",
+        "total_file_bytes": 4626,
+        "file_count": 2,
+        "deployment": {
+          "phase": "activated",
+          "staging_path": "/flash/.m5-live-packages/.stage-e1b8139760e9480e91daf4b0c1677012",
+          "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+          "events": [
+            {
+              "phase": "preflight",
+              "staging_path": "/flash/.m5-live-packages/.stage-e1b8139760e9480e91daf4b0c1677012",
+              "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+              "observed_at": "2026-10-26T21:30:39.793989+00:00"
+            },
+            {
+              "phase": "capabilities",
+              "capabilities": {
+                "existing": true,
+                "directory_count": 3,
+                "mpy": 11014,
+                "small_int_bits": 31,
+                "free_bytes": 7999488
+              },
+              "observed_at": "2026-10-26T21:30:40.201065+00:00"
+            },
+            {
+              "phase": "published",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 987,
+                  "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+                }
+              },
+              "reused": true,
+              "observed_at": "2026-10-26T21:30:40.480553+00:00"
+            },
+            {
+              "phase": "activated",
+              "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 987,
+                  "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+                }
+              },
+              "reused": true,
+              "capabilities": {
+                "existing": true,
+                "directory_count": 3,
+                "mpy": 11014,
+                "small_int_bits": 31,
+                "free_bytes": 7999488
+              },
+              "removed_modules": [
+                "official_flash"
+              ],
+              "staging_path": "/flash/.m5-live-packages/.stage-e1b8139760e9480e91daf4b0c1677012",
+              "observed_at": "2026-10-26T21:30:40.775250+00:00"
+            }
+          ],
+          "capabilities": {
+            "existing": true,
+            "directory_count": 3,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 7999488
+          },
+          "inventory": {
+            "official_flash.py": {
+              "size": 3639,
+              "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+            },
+            "main.py": {
+              "size": 987,
+              "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+            }
+          },
+          "reused": true,
+          "removed_modules": [
+            "official_flash"
+          ]
+        },
+        "next_offset": 6275,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T21:30:41.412320+00:00"
+      },
+      "guest": {
+        "nonce": "4ec9b1b8b7f94901b89486a915d31a6e",
+        "driver_sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f",
+        "driver_file": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a/official_flash.py",
+        "en": 1,
+        "phase": "steady-on"
+      },
+      "unit": {
+        "id": "lamp",
+        "unit_id": "flashlight",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 10,
+          "white": 11
+        },
+        "visual_port": "grove",
+        "initial": {
+          "flash-mode": false
+        },
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "flash-mode": false,
+          "mode-frozen": true,
+          "en-level": true,
+          "pad-synchronized": true,
+          "gpio-route-supported": true,
+          "output-known": true,
+          "active": true,
+          "waveform-qualified": true,
+          "pulse-count-capped": false,
+          "bit-exact-supported": false,
+          "live-mode-change-supported": false,
+          "reset-observation-supported": false,
+          "pulse-count": 1,
+          "last-program-count": 0,
+          "flash-level-pct": 0,
+          "timeout-ms": 0,
+          "edge-count": 5,
+          "rising-edges": 3,
+          "decoded-programs": 2,
+          "unqualified-programs": 2,
+          "reset-events": 3,
+          "timeout-events": 0,
+          "trace-overflows": 0,
+          "last-edge-ns": 12735885000,
+          "first-rise-ns": 12735885000,
+          "settle-at-ns": -1,
+          "timeout-at-ns": -1,
+          "program-state": "torch-active",
+          "unknown-reason": "none",
+          "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+          "edge-trace-ns": [
+            [
+              4748041000,
+              1
+            ],
+            [
+              4748060000,
+              0
+            ],
+            [
+              7801563000,
+              1
+            ],
+            [
+              10920992000,
+              0
+            ],
+            [
+              12735885000,
+              1
+            ]
+          ],
+          "input-events": 1,
+          "output-transitions": 3
+        },
+        "errors": {}
+      },
+      "frame_sha256": "bfae9156c15d1748e5f4f5220a52a67b4f7ce9e876c7f8a8fe31edaf2540d2bc",
+      "frame_headers": {
+        "content-type": "image/png",
+        "content-length": "728",
+        "x-request-id": "9987d68fce2d42f0904a3b840e5aadbb",
+        "x-frame-width": "466",
+        "x-frame-height": "466",
+        "x-frame-sha256": "bfae9156c15d1748e5f4f5220a52a67b4f7ce9e876c7f8a8fe31edaf2540d2bc",
+        "x-frame-capture-seq": "4",
+        "x-frame-source": "live",
+        "etag": "\"bfae9156c15d1748e5f4f5220a52a67b4f7ce9e876c7f8a8fe31edaf2540d2bc\"",
+        "x-frame-captured-at": "2026-10-26T21:30:41.426818+00:00",
+        "x-frame-execution-id": "d076ed0caed940d09b49533f3e06f28e",
+        "x-frame-revision-id": "e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+        "x-frame-program-state": "completed"
+      },
+      "selected_pad_pixel": [
+        255,
+        255,
+        255
+      ],
+      "snapshot_semantics": "QOM fields sampled separately; not atomic across fields or frame"
+    }
+  ],
+  "rejections": [
+    {
+      "mode": true,
+      "error": {
+        "error": {
+          "code": "unit_input_creation_only",
+          "message": "flashlight.flash-mode is frozen after creation; create a new session to select it"
+        }
+      }
+    },
+    {
+      "mode": false,
+      "error": {
+        "error": {
+          "code": "unit_input_creation_only",
+          "message": "flashlight.flash-mode is frozen after creation; create a new session to select it"
+        }
+      }
+    }
+  ],
+  "nonce": "4ec9b1b8b7f94901b89486a915d31a6e",
+  "category": "u152-controller-observation",
+  "flash_mode": false,
+  "live_browser": "NOT RUN",
+  "guest_scope": "GPIO pad, actual original driver bytes, qualified nominal digital model; no optical/electrical/thermal equivalence",
+  "session_id": "1db4339dcc974dfc81d83338c7e9b799",
+  "pid": 70620,
+  "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 42,
+    "lease_active": true
+  },
+  "runtime": {
+    "pid": 70620,
+    "executable_name": "qemu-system-xtensa",
+    "sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e"
+  },
+  "pins": {
+    "yellow": 10,
+    "white": 11
+  },
+  "last_frame_sha256": "bfae9156c15d1748e5f4f5220a52a67b4f7ce9e876c7f8a8fe31edaf2540d2bc",
+  "evidence_zip": {
+    "status": "PASS",
+    "members": 27,
+    "sha256": "361928f7358e517eac6e838831169b6625a2d9bd8ff38f810b5a76eca9c87252"
+  },
+  "admission_scope": "Steady Torch on/off only; no EN PWM or optical equivalence",
+  "model_completeness": "partial",
+  "cleanup": {
+    "status": "PASS",
+    "session": {
+      "session_id": "1db4339dcc974dfc81d83338c7e9b799",
+      "device_id": "stopwatch",
+      "state": "stopped",
+      "pid": 70620,
+      "firmware_id": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "firmware_source": "uploaded",
+      "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+      "source_artifacts": [
+        "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+      ],
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "d076ed0caed940d09b49533f3e06f28e",
+        "revision_id": "e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+        "source_sha256": "bb701d5b4fa3f43b731104d139a6adc334a01c952d070df4210e0b9cd47931db",
+        "source_bytes": 987,
+        "state": "completed",
+        "submitted_at": "2026-10-26T21:30:39.682321+00:00",
+        "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+        "pid": 70620,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 6216,
+        "source_kind": "uiflow2-package",
+        "total_file_bytes": 4626,
+        "file_count": 2,
+        "deployment": {
+          "phase": "activated",
+          "staging_path": "/flash/.m5-live-packages/.stage-e1b8139760e9480e91daf4b0c1677012",
+          "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+          "events": [
+            {
+              "phase": "preflight",
+              "staging_path": "/flash/.m5-live-packages/.stage-e1b8139760e9480e91daf4b0c1677012",
+              "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+              "observed_at": "2026-10-26T21:30:39.793989+00:00"
+            },
+            {
+              "phase": "capabilities",
+              "capabilities": {
+                "existing": true,
+                "directory_count": 3,
+                "mpy": 11014,
+                "small_int_bits": 31,
+                "free_bytes": 7999488
+              },
+              "observed_at": "2026-10-26T21:30:40.201065+00:00"
+            },
+            {
+              "phase": "published",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 987,
+                  "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+                }
+              },
+              "reused": true,
+              "observed_at": "2026-10-26T21:30:40.480553+00:00"
+            },
+            {
+              "phase": "activated",
+              "package_path": "/flash/.m5-live-packages/e17b82dac2f1d1a9e137676806ca2cf644d9019fa93c03b9481ffc5862365d1a",
+              "inventory": {
+                "official_flash.py": {
+                  "size": 3639,
+                  "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+                },
+                "main.py": {
+                  "size": 987,
+                  "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+                }
+              },
+              "reused": true,
+              "capabilities": {
+                "existing": true,
+                "directory_count": 3,
+                "mpy": 11014,
+                "small_int_bits": 31,
+                "free_bytes": 7999488
+              },
+              "removed_modules": [
+                "official_flash"
+              ],
+              "staging_path": "/flash/.m5-live-packages/.stage-e1b8139760e9480e91daf4b0c1677012",
+              "observed_at": "2026-10-26T21:30:40.775250+00:00"
+            }
+          ],
+          "capabilities": {
+            "existing": true,
+            "directory_count": 3,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 7999488
+          },
+          "inventory": {
+            "official_flash.py": {
+              "size": 3639,
+              "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+            },
+            "main.py": {
+              "size": 987,
+              "sha256": "f9acb4385156a1b12d5c453b25ecdb2d999091c465d84a0e973e7628c1ddab71"
+            }
+          },
+          "reused": true,
+          "removed_modules": [
+            "official_flash"
+          ]
+        },
+        "next_offset": 6275,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T21:30:41.412320+00:00"
+      },
+      "firmware_provenance": {
+        "kind": "uiflow",
+        "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "metadata": {
+          "schema_version": 1,
+          "kind": "uiflow2-source-composition",
+          "status": "COMPOSED_NOT_EXECUTED",
+          "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+          "entrypoint": "main.py",
+          "base_sha256": "ef5e81b6da17ba04a0356b3bde782e9f0f8f93b217701a4414a52a8d8d8532c0",
+          "base_size": 16773120,
+          "flash_size": 16777216,
+          "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+          "files": [
+            {
+              "path": "boot.py",
+              "size": 245,
+              "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+              "origin": "caller"
+            },
+            {
+              "path": "main.py",
+              "size": 5,
+              "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+              "origin": "caller"
+            }
+          ],
+          "caller_file_count": 2,
+          "caller_source_bytes": 250,
+          "generated_files": [],
+          "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+          "vfs": {
+            "label": "vfs",
+            "type": 1,
+            "subtype": 129,
+            "flags": 0,
+            "offset": 8519680,
+            "size": 8253440,
+            "partition_table_offset": 32768,
+            "source": "actual-base-partition-table",
+            "filesystem": "LittleFS",
+            "base_sha256": "36c5f2fd68cea5188c8d2abc7d8498fcc531e7d583312a95bed9a47d19d897de",
+            "derived_sha256": "b11b76c1c17a6a73bd0d85d7cc816736c8938fef69e72b35c9fc14fbdaadeabc",
+            "base_disk_version": 131072,
+            "derived_disk_version": 131073
+          },
+          "preservation": {
+            "base_file_count": 17,
+            "preserved_file_count": 15,
+            "overwritten_files": [
+              "boot.py",
+              "main.py"
+            ],
+            "outside_vfs_unchanged": true,
+            "existing_files_readback_verified": true,
+            "source_readback_verified": true
+          },
+          "toolchain": {
+            "builder": "uiflow_source/1",
+            "python": "3.12.8",
+            "python_abi": "cpython-312",
+            "littlefs_python": "0.19.0",
+            "littlefs_library": "(2, 11)",
+            "littlefs_disk": "(2, 1)",
+            "config": {
+              "block_size": 4096,
+              "read_size": 128,
+              "prog_size": 32,
+              "lookahead_size": 128,
+              "block_cycles": 100
+            }
+          }
+        }
+      },
+      "runtime_env": {},
+      "runtime": "qemu",
+      "runtime_memory": {
+        "requested_psram_mib": null,
+        "cli_requested_psram_mib": null,
+        "effective_psram_mib": null,
+        "effective_source": "qemu-cli-request",
+        "policy": "not-configured",
+        "claim": "qemu-memory-configuration-only",
+        "physical_cache_psram_timing": "NOT RUN"
+      },
+      "network": null,
+      "storage": null,
+      "units": [
+        {
+          "id": "lamp",
+          "unit_id": "flashlight",
+          "port_id": "port-a",
+          "pins": {
+            "yellow": 10,
+            "white": 11
+          },
+          "visual_port": "grove",
+          "initial": {
+            "flash-mode": false
+          }
+        }
+      ],
+      "nvs": null,
+      "flash": {
+        "transport": "cache",
+        "verified": true,
+        "flash_size": 16777216,
+        "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+        "session_isolated_copy": true
+      },
+      "flash_retained": false,
+      "serial_bytes": 6637,
+      "created_at": "2026-10-26T21:30:28.497657+00:00",
+      "expires_at": "2026-10-26T21:45:28.497660+00:00",
+      "error": null,
+      "display": {
+        "driver": "CO5300",
+        "width": 466,
+        "height": 466,
+        "shape": "circle",
+        "touch": true
+      },
+      "display_available": true,
+      "last_frame_available": true,
+      "last_frame_captured_at": "2026-10-26T21:30:41.585550+00:00",
+      "device_state_supported": true,
+      "last_device_state_available": true,
+      "last_device_state_at": "2026-10-26T21:30:41.604642+00:00",
+      "completed_at": "2026-10-26T21:30:41.616783+00:00",
+      "event_count": 21,
+      "restored": false,
+      "interrupted": false,
+      "reattached_process": false,
+      "recovery_scope": null,
+      "companions": {
+        "http_fixture": {
+          "required": false
+        },
+        "ble_probe": {
+          "required": false
+        }
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 42,
+        "lease_active": false
+      }
+    },
+    "pid_gone": true,
+    "zip_before_stop": true,
+    "history_frame_sha256": "bfae9156c15d1748e5f4f5220a52a67b4f7ce9e876c7f8a8fe31edaf2540d2bc",
+    "errors": [],
+    "capacity_snapshot": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "3d734a53317949de98decca0828b8fc2",
+        "generation": 42,
+        "state": "ready",
+        "pid": 67553,
+        "started_at": "2026-10-26T21:27:08.789737+00:00",
+        "heartbeat_at": "2026-10-26T21:30:41.617066+00:00",
+        "heartbeat_age_seconds": 0.005,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    },
+    "scope": "owned session lease only; unrelated sessions ignored"
+  }
+}

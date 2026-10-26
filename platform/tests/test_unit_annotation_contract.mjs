@@ -4,13 +4,15 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFile, writeFile} from 'node:fs/promises';
 import {dirname, resolve} from 'node:path';
-import {fileURLToPath} from 'node:url';
+import {fileURLToPath, pathToFileURL} from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const sourceRoot = resolve(process.argv[2] || root);
 const output = process.argv[3];
 const annotationSource = await readFile(resolve(sourceRoot, 'platform/web/unit-annotations.js'), 'utf8');
 const panelSource = await readFile(resolve(sourceRoot, 'platform/web/unit-panel.js'), 'utf8');
+const mappingSource = await readFile(resolve(sourceRoot, 'platform/web/unit-visual-mappings.js'), 'utf8');
+const {arrayLedFeedback} = await import(pathToFileURL(resolve(sourceRoot, 'platform/web/unit-visual-mappings.js')).href);
 const modelSource = await readFile(resolve(sourceRoot, 'platform/web/model-shell.js'), 'utf8');
 const catalog = JSON.parse(await readFile(resolve(root, 'platform/units/catalog.json'), 'utf8'));
 const catalogUnit = id => structuredClone(catalog.units.find(unit => unit.id === id));
@@ -26,9 +28,9 @@ function node() {
     replaceChildren(...children) {this.children = children;}, querySelectorAll() {return [];}};
 }
 const Panel = new Function('window', 'document', 'copy', 'ACTIVE', 'clearTimeout', 'setTimeout',
-  'visualCommands', 'element', 'observedValue', `${panelClass}\nreturn UnitPanel;`)(
+  'visualCommands', 'element', 'observedValue', 'arrayLedFeedback', `${panelClass}\nreturn UnitPanel;`)(
   {addEventListener() {}, removeEventListener() {}}, {hidden: false}, structuredClone,
-  new Set(['booting', 'running']), () => {}, () => 1, () => [], () => node(), () => node(),
+  new Set(['booting', 'running']), () => {}, () => 1, () => [], () => node(), () => node(), arrayLedFeedback,
 );
 const frozen = {running: true, source: 'live', frozenDefinitions: true};
 const env = catalogUnit('env-iii');
@@ -265,6 +267,7 @@ const report = {schema_version: 1, category: 'offline-unit-annotation-semantic-c
   browser_execution: 'NOT RUN', firmware_execution: 'NOT RUN', hardware_execution: 'NOT RUN',
   source_sha256: Object.fromEntries([
     ['platform/web/unit-annotations.js', annotationSource], ['platform/web/unit-panel.js', panelSource],
+    ['platform/web/unit-visual-mappings.js', mappingSource],
     ['platform/web/model-shell.js', modelSource],
   ].map(([path, source]) => [path, createHash('sha256').update(source).digest('hex')])), cases};
 if (output) await writeFile(output, JSON.stringify(report, null, 2) + '\n');

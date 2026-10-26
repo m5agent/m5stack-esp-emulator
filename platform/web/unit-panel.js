@@ -1,6 +1,6 @@
-import {CARDKB_KEY_IDS, arrayLedFeedback, physicalInput, visualCommands} from './unit-visual-mappings.js?v=20261026h';
+import {CARDKB_KEY_IDS, arrayLedFeedback, physicalInput, visualCommands} from './unit-visual-mappings.js?v=20261027a';
 import {UnitAudio} from './unit-audio.js';
-export {physicalInput, visualCommands} from './unit-visual-mappings.js?v=20261026h';
+export {physicalInput, visualCommands} from './unit-visual-mappings.js?v=20261027a';
 
 const ACTIVE = new Set(['booting', 'running']);
 const inputId = (id, field, index) => `unit-${id}-${field}${index === undefined ? '' : `-${index}`}`;
@@ -236,7 +236,7 @@ class UnitPanel {
   safeDetach({shell, port, id}) {
     this.audio.get(id)?.observe(null, null, {sessionId: this.session.session_id});
     const unit = this.states.get(id) || this.session.units?.find(unit => unit.id === id);
-    if (arrayLedFeedback(unit)) {
+    if (arrayLedFeedback(unit) || unit?.unit_id === 'flashlight') {
       try { shell.applyVisualState?.(visualCommands({...unit, available: false}, port)); }
       catch { /* a disposed shell or port has already withdrawn its visuals */ }
     }
@@ -405,6 +405,7 @@ class UnitPanel {
         card.append(mapping);
       }
       if (attachment.unit_id === 'fan') card.append(element('p', 'unit-note', '动画表示 PWM 驱动活动；转速与机电过程未建模。'));
+      if (attachment.unit_id === 'flashlight') card.append(element('p', 'unit-note', 'Flash 显示相对档位，Torch 仅表示持续点亮；不代表实际光度。'));
       if (attachment.unit_id === 'buzzer') {
         const controls = element('div', 'unit-audio-controls');
         const toggle = element('button', 'btn', '启用声音试听');
@@ -432,6 +433,12 @@ class UnitPanel {
       }
       for (const [field, schema] of Object.entries(definition.inputs || {})) {
         if (!definition.runtime?.inputs?.[field] || schema.readOnly) continue;
+        if (schema.creation_only || definition.runtime.inputs[field].creation_only) {
+          const note = element('p', 'unit-note', `${schema.label || field}：创建时固定，运行中只读；当前值以控制器读回为准。`);
+          note.dataset.unitCreationOnly = field;
+          card.append(note);
+          continue;
+        }
         const row = element('div', 'unit-control');
         const label = element('label', '', schema.label || field);
         label.htmlFor = inputId(attachment.id, field);
@@ -739,7 +746,7 @@ class UnitPanel {
     }
     const units = [...(payload.units || [])];
     for (const attachment of this.session.units || []) {
-      if (arrayLedFeedback(attachment) && !units.some(unit => unit.id === attachment.id)) {
+      if ((arrayLedFeedback(attachment) || attachment.unit_id === 'flashlight') && !units.some(unit => unit.id === attachment.id)) {
         const previous = this.states.get(attachment.id);
         units.push({...previous, ...attachment, available: false, errors: {...previous?.errors, state: '本次读回缺少此 Unit'}});
       }
@@ -897,33 +904,72 @@ export async function createUnitPicker(container, {api, deviceId}) {
           }
           return select;
         };
+        const makeCreationFixture = (select, context, changed) => {
+          const node = element('div', 'unit-picker-fixtures');
+          const controls = new Map();
+          let selectedId;
+          return {node,
+            refresh() {
+              if (selectedId === select.value) return;
+              selectedId = select.value;
+              controls.clear();
+              node.replaceChildren();
+              const unit = inventory.units.find(unit => unit.id === selectedId);
+              for (const [field, schema] of Object.entries(unit?.inputs || {})) {
+                if (!schema.creation_only || !unit.runtime?.inputs?.[field]?.creation_only || schema.type !== 'boolean') continue;
+                const label = element('label', 'field-label', `${schema.label || field}（创建配置）`);
+                const input = element('input', 'field');
+                input.type = 'checkbox';
+                input.checked = schema.default === true;
+                input.dataset.creationField = field;
+                input.setAttribute('aria-label', `${context} · ${schema.label || field} · 创建配置`);
+                input.addEventListener('change', changed);
+                controls.set(field, input);
+                label.append(input);
+                node.append(label, element('p', 'unit-note', schema.description || '创建时固定，运行中只读。'));
+              }
+            },
+            values() { return Object.fromEntries([...controls].map(([field, input]) => [field, input.checked])); },
+          };
+        };
         for (const [index, port] of ports.entries()) {
           const row = element('div', 'unit-picker-port');
           row.append(element('label', 'field-label', port.label));
           const select = makeSelect(`Unit · ${port.label}`);
           if (index === 0) select.id = 'unitModelSelect';
+          const fixture = makeCreationFixture(select, port.label, () => update());
           const children = element('div', 'unit-hub-children');
           children.hidden = true;
+          const childFixtures = [];
           const childSelects = Array.from({length: 3}, (_, slot) => {
             const label = `HUB · Grove ${slot + 1}`;
             const child = makeSelect(label, true);
+            const fixture = makeCreationFixture(child, label, () => update());
+            childFixtures.push(fixture);
             const labelNode = element('label', 'field-label', label);
             labelNode.append(child);
-            children.append(labelNode);
+            children.append(labelNode, fixture.node);
             child.addEventListener('change', () => update());
             return child;
           });
           children.append(element('p', 'unit-note', 'HUB 的三个接口共享 I2C 总线；相同地址的设备不能同时连接。'));
           const update = () => {
+            fixture.refresh();
+            childFixtures.forEach(fixture => fixture.refresh());
             children.hidden = select.value !== 'hub';
             const instance = `external${index + 1}`;
+            const initial = fixture.values();
             this.selections[index] = select.value ? [
-              {id: instance, unit_id: select.value, port_id: port.id},
-              ...(select.value === 'hub' ? childSelects.flatMap((child, slot) => child.value ? [{id: `${instance}-${slot + 1}`, parent_id: instance, unit_id: child.value, port_id: `grove-${slot + 1}`}] : []) : []),
+              {id: instance, unit_id: select.value, port_id: port.id, ...(Object.keys(initial).length ? {initial} : {})},
+              ...(select.value === 'hub' ? childSelects.flatMap((child, slot) => {
+                const initial = childFixtures[slot].values();
+                return child.value ? [{id: `${instance}-${slot + 1}`, parent_id: instance, unit_id: child.value,
+                  port_id: `grove-${slot + 1}`, ...(Object.keys(initial).length ? {initial} : {})}] : [];
+              }) : []),
             ] : [];
           };
           select.addEventListener('change', update);
-          row.append(select, children);
+          row.append(select, fixture.node, children);
           container.append(row);
         }
         if (!ports.length) container.append(element('p', 'unit-note', '此设备暂无已确认接线的主机接口。'));

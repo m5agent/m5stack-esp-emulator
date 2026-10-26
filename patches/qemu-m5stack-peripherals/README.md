@@ -15,8 +15,16 @@ For the reproducible external-Unit Xtensa source, follow
 base and two prelude patches are followed by `0033`, `0034`, `0035`,
 `0036-core2-soft-i2c-handoff-compat.patch`, then
 `0037-s3-ledc-duty-readback.patch`, then `0038-unit-pwm-route-refresh.patch`,
-then `0043-unit-scroll-controller.patch` and `0044-unit-2relay-gpio.patch`. The intervening `0039`–`0042` files
+then `0043-unit-scroll-controller.patch`, `0044-unit-2relay-gpio.patch`, and
+`0045-unit-flashlight-aw3641.patch`. The intervening `0039`–`0042` files
 belong to the separate Core2 diagnostic branch and are not part of this Unit stack.
+`0045` adds a partial U152 AW3641E observer on yellow EN GPIO pad edges and
+QEMU virtual time. Its S1 Flash/Torch fixture freezes after all creation inputs
+are applied. Flash pulses qualify only on the supported GPIO route and within
+the documented recommended HI/LO window; out-of-scope waveforms withdraw known
+output. The 500 us stable-high decode and first-rise timeout origin are explicit
+model policies. Torch models static EN only. It does not validate dynamic S1,
+reset observation, PWM modulation, bit-exact timing, current, light or heat.
 `0044` adds U131's two independent GPIO pad observers and schematic R3/R6
 digital pull-downs. White is channel 1, yellow channel 2; each transition
 counter is independent. Outputs are read-only. This is nominal-powered

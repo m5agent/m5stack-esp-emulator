@@ -1,0 +1,40 @@
+{
+  "status": "PASS_WITH_HISTORICAL_GENERATIONS_KEPT_SEPARATE",
+  "date": "2026-10-27",
+  "scope": "host/API source composer, CAS guards, bounded package quota and service reload provenance; firmware loader evidence remains in sibling loader/",
+  "historical_host_tests": {
+    "explicit-base-final-62": 62,
+    "explicit-base-fresh-final-r2-64": 64
+  },
+  "root_saved_test_logs": {
+    "flashlight-package-quota-tests-r2-20261027.log": {
+      "tests": 35,
+      "seconds": 0.281,
+      "final_log_result": "OK",
+      "sha256": "3e97cefc7bf9a5f964a064754e88c51da3308cdc96156002df5bb9ff1157a55a",
+      "attribution": "result parsed from this saved log only; no later documentation or source changes are retroactively validated by it"
+    },
+    "flashlight-platform-tests-r2-20261027.log": {
+      "tests": 1162,
+      "seconds": 123.796,
+      "final_log_result": "OK",
+      "sha256": "0bd8896cbd596fb8175937bd89d192d577bd3b4b01ab2348ad12d6d11049dd44",
+      "attribution": "result parsed from this saved log only; no later documentation or source changes are retroactively validated by it"
+    }
+  },
+  "independent_current_host_tests": {
+    "quota": 35,
+    "security_cas_timestamp": 7
+  },
+  "review": "no actionable quota regression found",
+  "public_mpy_entrypoint_enabled": false,
+  "hardware": "NOT RUN",
+  "source_lineage": "source-lineage.json",
+  "not_claimed": [
+    "host or API tests do not establish hardware execution",
+    "gen40 loader PASS is not gen42 loader PASS",
+    "full-platform saved log does not validate later edits",
+    "live gen42 service.log is an exact prefix captured at archive time and may later append"
+  ],
+  "redaction_policy": "no token files, actual token, token digest, credentials, MAC, firmware/ROM/ELF or rawFlash are archived; safe source code references to credential parameter names are not credential values"
+}

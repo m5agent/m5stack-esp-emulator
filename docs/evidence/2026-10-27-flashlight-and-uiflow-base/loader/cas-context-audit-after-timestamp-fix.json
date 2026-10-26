@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "scope": "host-only actual LittleFS; no mocked builder or IDs; DeviceSession.start mocked only to forbid QEMU",
+  "guests_started": 0,
+  "cases": [
+    {
+      "case": "original-exact-caller-files-default-cannot-launder-explicit-PSRAM",
+      "firmware_sha256": "a8a4be0d2053b815967e2cb1fc66c5fa887c50f959c8687726a8b9e58faf4bf4",
+      "before_runtime_rejection": {
+        "status": 409,
+        "code": "unsupported_firmware_capability",
+        "issue": "runtime_psram_mismatch"
+      },
+      "collision": {
+        "status": 409,
+        "code": "uiflow_source_context_conflict"
+      },
+      "after_runtime_rejection": {
+        "status": 409,
+        "code": "unsupported_firmware_capability",
+        "issue": "runtime_psram_mismatch"
+      },
+      "all_store_bytes_unchanged": true
+    },
+    {
+      "case": "existing-derived-imported-manifest-cannot-be-overwritten-by-explicit-source",
+      "firmware_sha256": "a8a4be0d2053b815967e2cb1fc66c5fa887c50f959c8687726a8b9e58faf4bf4",
+      "collision": {
+        "status": 409,
+        "code": "uiflow_source_context_conflict"
+      },
+      "all_store_bytes_unchanged": true
+    }
+  ],
+  "product_sha256": {
+    "platform/tools/device_service.py": "d6ac640ad65e06dcbfb2e469ee9eadfc93c200e27b4df523979f37e0528a9764",
+    "platform/tests/test_uiflow_service.py": "c6010aa6be1f98a33d837f4b0dea62e1859fcee34ff199ec273c3fcf15923aa3"
+  }
+}

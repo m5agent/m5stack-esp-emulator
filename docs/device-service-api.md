@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-27`.
 
-Status: local MVP with unified-device runtime contract `1.44.0` and bounded
+Status: local MVP with unified-device runtime contract `1.45.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -88,6 +88,11 @@ allocation. Guest version/small-int compatibility still needs the actual
 transfer and can fail after the old program has been interrupted.
 
 `limits.max_revisions` is the independent package store capacity, normally 256;
+configure it with `--max-program-packages` or `M5_SERVICE_MAX_PROGRAM_PACKAGES`
+(integer 1–4096). It is separate from the source-revision capacity. Lowering a
+configured limit does not delete existing packages: reads and identical saves
+still work, while new saves above the limit return `429 program_package_quota_exceeded`.
+This count setting is not automatic garbage collection or reference reclamation;
 `gc_enabled=false` explicitly retains the current lifecycle gap. It does not
 inherit a larger configured Python-source capacity. No Preview/Run resource,
 latest-wins queue, per-Run cancellation or tenant ownership is established by
@@ -322,6 +327,14 @@ rejects Unit writes with `409 unit_contract_unavailable`.
 `POST /sessions/{id}/unit-input` accepts exactly `{id, values}`. Values are
 validated against the session's input schema before QOM writes; unknown fields,
 outputs, invalid array lengths, malformed hex and nonfinite values are rejected.
+Fields marked `creation_only` by either the frozen catalog or runtime mapping
+are accepted in attachment `initial` and rejected on every live write with
+`409 unit_input_creation_only`, before any QMP write or input event. This also
+applies to Preview Unit input. FlashLight's `flash-mode` is such a fixture:
+`true` selects Flash and `false` selects Torch. It is frozen by the controller
+after all creation values, including when initial is omitted; use a new session
+to select another mode. Web creation exposes this selection and the running
+panel displays it as read-only. No exterior S1 detent orientation is inferred.
 Scroll's frozen profile declares `max_live_input_fields=1`: submit `pressed`
 and `source-count` separately. Mixed updates return 400 before any QOM write;
 creation-time `initial` may contain both fields. This is not a general QMP
@@ -383,6 +396,7 @@ Storage retention defaults can be changed with:
 | `M5_SERVICE_RETAIN_SESSION_FLASH` | false | retain every stopped session's full mutable Flash |
 | `M5_SERVICE_STORAGE_PRUNE_INTERVAL` | 30 | janitor storage-prune interval in seconds |
 | `M5_SERVICE_MAX_PROGRAM_REVISIONS` | 256 | immutable source revision count limit; integer `1`–`4096`, also `--max-program-revisions`; `0` is invalid |
+| `M5_SERVICE_MAX_PROGRAM_PACKAGES` | 256 | independent immutable program package count limit; integer `1`–`4096`, also `--max-program-packages`; preserves existing packages when lowered |
 
 Source revisions are retained independently of session history and cache GC.
 They are never automatically reclaimed: a fresh revision returns HTTP `429`
@@ -1121,16 +1135,47 @@ segment composition. They intentionally do not have to be equal.
 The convenience endpoint `POST /api/v1/firmware/uiflow` accepts the same object
 **without `kind`**. Supplying `kind` there, or unknown source-request fields on
 either endpoint, returns `400 invalid_uiflow_request`. Optional
-`expected_base_sha256` pins the cached reference image to a lowercase SHA256;
+`expected_base_sha256` pins the base image to a lowercase SHA256;
 a mismatch returns `409 uiflow_base_hash_mismatch`.
 
 Source intake currently admits only `cores3`, `atoms3r`, `sticks3` and
-`stopwatch`, using each device's known, locally cached UIFlow2 reference.
+`stopwatch`. By default it uses each device's known, locally cached UIFlow2 reference.
 An enabled device outside that set returns `409 unsupported_uiflow_device`;
-a missing cached reference returns `409 reference_firmware_missing`. This is
-not a generic MicroPython, signed/encrypted image or arbitrary base importer.
-Existing merged, segmented and FirmwareManifest paths keep their own capability
-and security preflight.
+a missing default cached reference returns `409 reference_firmware_missing`.
+
+To compose against another compatible UIFlow2 build, first upload and import it
+through the normal FirmwareManifest intake, then supply `base_firmware_id` and
+**required** `expected_base_sha256` to either source endpoint. The pin covers
+the flash-sized **normalized stored image**, including erased padding; obtain
+it from the imported firmware record's `sha256`, not the original artifact hash.
+Missing the explicit-base pin returns `400 uiflow_base_binding_required`.
+The service rereads bounded regular storage files without following symlinks,
+binds their actual bytes to the record and manifest/artifact identity, and
+rechecks the target, capability/security requirements, partition layout,
+boot/application images and UIFlow2 compatibility fingerprint. A signed image,
+flagged/encrypted partition or incompatible LittleFS layout is rejected.
+The static UIFlow2 fingerprint is neither authentication nor runtime validation.
+The resulting source metadata includes `base_firmware_id` and `base_provenance`;
+the firmware record retains `base_manifest`, and sessions still enforce its
+PSRAM, capability and security requirements. Default-reference metadata and
+existing source IDs keep their previous behavior.
+If composition would replace the imported base under the same content ID, or
+an existing content ID has a different explicit-base source/manifest context,
+the service returns `409 uiflow_source_context_conflict` and preserves the
+existing record. The same explicit request can be retried; a default-reference,
+merged or other manifest request cannot overwrite that explicit source context
+and erase its constraints. Default-to-default composition keeps its previous
+behavior. Content equality alone does not make different provenance contexts
+interchangeable.
+
+This endpoint composes a starting filesystem once. For AIFlow live programming,
+start that firmware in a UART REPL session, then submit programs repeatedly to
+the same ordinary UART session. Subsequent Run calls do not reflash or recreate
+the virtual device. Preview currently prepares its fixed cached reference and
+does not accept an explicit base_firmware_id. Executable `.mpy` entrypoints remain separately capability-gated;
+selecting another base does not itself enable them. This is not a generic
+MicroPython, signed/encrypted image or arbitrary base importer. Existing merged,
+segmented and FirmwareManifest paths keep their own preflight.
 
 `files` is a path-to-source-string object with a root `main.py`. Nested Python
 packages are supported. Paths must be canonical relative UTF-8 POSIX `.py`

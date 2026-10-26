@@ -1,0 +1,39 @@
+{
+  "category": "OFFLINE_CHECKER_AUDIT_NO_GUEST_NO_API",
+  "probe_sha256": "cfcfbd54d100ceb3370c533f7b4d8c55bffc09f36e5b354772b0903a4abec146",
+  "driver_sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f",
+  "driver_bytes": 3639,
+  "phases_compiled": [
+    "reset",
+    "original-short",
+    "original-long100",
+    "original-long60",
+    "original-long30",
+    "raw9",
+    "raw16",
+    "invalid17",
+    "slow2",
+    "restore",
+    "steady-on",
+    "steady-off"
+  ],
+  "network": "DENIED",
+  "wrong_Run_identity_negative": {
+    "status": "REPRODUCED",
+    "category": "offline fake negative control only",
+    "submitted_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "receipt_execution": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "observed_execution": "cccccccccccccccccccccccccccccccc",
+    "observed_revision": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "actual_Lane_phase_returned_without_error": true,
+    "unit_output_known": false,
+    "unit_edge_count": 0
+  },
+  "Flash_classifier_negative": {
+    "status": "REPRODUCED",
+    "category": "offline fake negative control only",
+    "all_Flash_phase_output_known": false,
+    "all_Flash_phase_edge_count": 0,
+    "actual_Lane_execute_report_status": "PASS"
+  }
+}

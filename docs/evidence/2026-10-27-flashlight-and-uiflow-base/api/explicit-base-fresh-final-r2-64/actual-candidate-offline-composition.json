@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-26T21:12:55.982049+00:00",
+  "classification": "OFFLINE_SOURCE_COMPOSITION_PASS_NOT_EXECUTED",
+  "actual_calls": [
+    "ArtifactStore.create",
+    "FirmwareStore.create(kind=manifest)",
+    "FirmwareStore.create(kind=uiflow)",
+    "FirmwareStore.create(same explicit context retry)",
+    "FirmwareStore.create(kind=manifest, created_at-only renewal)",
+    "FirmwareStore.create(kind=uiflow, after created_at-only renewal)"
+  ],
+  "input_manifest": ".work/main-loader-capability-probe-20261027/prepared/offline-manifest.json",
+  "input_manifest_sha256": "edd65148ccc13f382edc29dbfc12c73f3931e4a8b0b032158db4d5507c2d8514",
+  "input_image": ".work/main-loader-capability-probe-20261027/prepared/uart-derived.bin",
+  "input_image_sha256": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+  "request": {
+    "kind": "uiflow",
+    "device_id": "cores3",
+    "base_firmware_id": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+    "expected_base_sha256": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+    "files": {
+      "boot.py": "from machine import UART\nimport os\n_repl_uart = UART(0, baudrate=115200, timeout=0, timeout_char=0)\nos.dupterm(_repl_uart, 0)\n_repl_uart.irq(handler=os.dupterm_notify, trigger=UART.IRQ_RX)\n_uiflow_run_main = False\nprint('M5EMU_UART_REPL_READY')\n",
+      "main.py": "pass\n"
+    }
+  },
+  "base_firmware_id": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+  "base_size": 16777216,
+  "base_metadata_before_sha256": "ffc67b3cecf2e4674285f4271073050c832ab961e126156858bfa2968ee0bdbb",
+  "base_metadata_after_composition_sha256": "ffc67b3cecf2e4674285f4271073050c832ab961e126156858bfa2968ee0bdbb",
+  "base_bytes_unchanged": true,
+  "base_metadata_unchanged_by_composition": true,
+  "base_metadata_after_explicit_reimport_sha256": "d9e4ac93aa45a65bc847a712fa0e92dcbbe1739e905064bc4d1a2e8eb6f7f433",
+  "derived_firmware_id": "179e158036f927476b87d5eb01a5e56e462bfd25d798fcd44fe311f53f08d49c",
+  "derived_size": 16777216,
+  "derived_image_sha256": "179e158036f927476b87d5eb01a5e56e462bfd25d798fcd44fe311f53f08d49c",
+  "same_context_retry": "PASS",
+  "created_at_only_base_reimport_retry": "PASS",
+  "reimported_manifest_id_unchanged": true,
+  "source_metadata": {
+    "schema_version": 1,
+    "kind": "uiflow2-source-composition",
+    "status": "COMPOSED_NOT_EXECUTED",
+    "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+    "entrypoint": "main.py",
+    "base_sha256": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+    "base_size": 16777216,
+    "flash_size": 16777216,
+    "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+    "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+    "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+    "files": [
+      {
+        "path": "boot.py",
+        "size": 245,
+        "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+        "origin": "caller"
+      },
+      {
+        "path": "main.py",
+        "size": 5,
+        "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+        "origin": "caller"
+      }
+    ],
+    "caller_file_count": 2,
+    "caller_source_bytes": 250,
+    "generated_files": [],
+    "firmware_sha256": "179e158036f927476b87d5eb01a5e56e462bfd25d798fcd44fe311f53f08d49c",
+    "vfs": {
+      "label": "vfs",
+      "type": 1,
+      "subtype": 129,
+      "flags": 0,
+      "offset": 11141120,
+      "size": 4980736,
+      "partition_table_offset": 32768,
+      "source": "actual-base-partition-table",
+      "filesystem": "LittleFS",
+      "base_sha256": "b282971cc7b9d355d44b6baecef453d7893d905593685d78b8278560b90b3f1d",
+      "derived_sha256": "e3d91d62e31005d77b716a3f1cce19df4ab6061f3d12e192e0e2f90636919866",
+      "base_disk_version": 131073,
+      "derived_disk_version": 131073
+    },
+    "preservation": {
+      "base_file_count": 16,
+      "preserved_file_count": 14,
+      "overwritten_files": [
+        "boot.py",
+        "main.py"
+      ],
+      "outside_vfs_unchanged": true,
+      "existing_files_readback_verified": true,
+      "source_readback_verified": true
+    },
+    "toolchain": {
+      "builder": "uiflow_source/1",
+      "python": "3.12.8",
+      "python_abi": "cpython-312",
+      "littlefs_python": "0.19.0",
+      "littlefs_library": "(2, 11)",
+      "littlefs_disk": "(2, 1)",
+      "config": {
+        "block_size": 4096,
+        "read_size": 128,
+        "prog_size": 32,
+        "lookahead_size": 128,
+        "block_cycles": 100
+      }
+    },
+    "base_firmware_id": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+    "base_provenance": {
+      "kind": "stored-manifest",
+      "manifest_id": "8644618f6753248c152c564a941b033e3ce3153dfce49b937d4f1f79a44d9287",
+      "stored_sha256": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+      "stored_size": 16777216,
+      "pin_scope": "normalized-stored-flash-image",
+      "artifact_id": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+      "artifact_sha256": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+      "artifact_size": 16777216,
+      "artifact_source_sha256": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+      "compatibility": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "errors": [],
+        "warnings": [
+          {
+            "code": "observed_capability_not_declared",
+            "message": "image contains low-confidence ble signature(s) (ble_hs_, nimble), but neither required nor optional capabilities name it; this is not runtime proof",
+            "requirement": "ble",
+            "available": [],
+            "path": "capabilities.observed"
+          },
+          {
+            "code": "observed_capability_unavailable",
+            "message": "image contains low-confidence ieee802154 signature(s) (zigbee), but device cores3 profile does not expose it",
+            "requirement": "ieee802154",
+            "available": [
+              "ble",
+              "button",
+              "camera",
+              "display",
+              "imu",
+              "io-expander",
+              "light-proximity",
+              "magnetometer",
+              "microphone",
+              "psram",
+              "rtc",
+              "speaker",
+              "touch",
+              "usb-host",
+              "wifi"
+            ],
+            "path": "capabilities.observed"
+          },
+          {
+            "code": "observed_capability_not_declared",
+            "message": "image contains low-confidence ieee802154 signature(s) (zigbee), but neither required nor optional capabilities name it; this is not runtime proof",
+            "requirement": "ieee802154",
+            "available": [],
+            "path": "capabilities.observed"
+          },
+          {
+            "code": "observed_capability_not_declared",
+            "message": "image contains low-confidence psram signature(s) (spiram_boot_init), but neither required nor optional capabilities name it; this is not runtime proof",
+            "requirement": "psram",
+            "available": [],
+            "path": "capabilities.observed"
+          },
+          {
+            "code": "observed_capability_not_declared",
+            "message": "image contains low-confidence camera signature(s) (ov2640, ov3660), but neither required nor optional capabilities name it; this is not runtime proof",
+            "requirement": "camera",
+            "available": [],
+            "path": "capabilities.observed"
+          },
+          {
+            "code": "observed_capability_not_declared",
+            "message": "image contains low-confidence display signature(s) (m5gfx), but neither required nor optional capabilities name it; this is not runtime proof",
+            "requirement": "display",
+            "available": [],
+            "path": "capabilities.observed"
+          },
+          {
+            "code": "observed_capability_not_declared",
+            "message": "image contains low-confidence touch signature(s) (gt911, ft5x06), but neither required nor optional capabilities name it; this is not runtime proof",
+            "requirement": "touch",
+            "available": [],
+            "path": "capabilities.observed"
+          },
+          {
+            "code": "observed_capability_unavailable",
+            "message": "image contains low-confidence audio signature(s) (audio_element, i2s_channel_), but device cores3 profile does not expose it",
+            "requirement": "audio",
+            "available": [
+              "ble",
+              "button",
+              "camera",
+              "display",
+              "imu",
+              "io-expander",
+              "light-proximity",
+              "magnetometer",
+              "microphone",
+              "psram",
+              "rtc",
+              "speaker",
+              "touch",
+              "usb-host",
+              "wifi"
+            ],
+            "path": "capabilities.observed"
+          },
+          {
+            "code": "observed_capability_not_declared",
+            "message": "image contains low-confidence audio signature(s) (audio_element, i2s_channel_), but neither required nor optional capabilities name it; this is not runtime proof",
+            "requirement": "audio",
+            "available": [],
+            "path": "capabilities.observed"
+          },
+          {
+            "code": "observed_capability_unavailable",
+            "message": "image contains low-confidence sd signature(s) (sdmmc_host_), but device cores3 profile does not expose it",
+            "requirement": "sd",
+            "available": [
+              "ble",
+              "button",
+              "camera",
+              "display",
+              "imu",
+              "io-expander",
+              "light-proximity",
+              "magnetometer",
+              "microphone",
+              "psram",
+              "rtc",
+              "speaker",
+              "touch",
+              "usb-host",
+              "wifi"
+            ],
+            "path": "capabilities.observed"
+          },
+          {
+            "code": "observed_capability_not_declared",
+            "message": "image contains low-confidence sd signature(s) (sdmmc_host_), but neither required nor optional capabilities name it; this is not runtime proof",
+            "requirement": "sd",
+            "available": [],
+            "path": "capabilities.observed"
+          }
+        ]
+      },
+      "family": {
+        "classification": "STATIC_COMPATIBILITY_FINGERPRINT_NOT_AUTHENTICATION",
+        "applications": [
+          {
+            "offset": 65536,
+            "project_name": "micropython",
+            "version": "V2.5.3"
+          }
+        ],
+        "markers": [
+          "_uiflow_run_main",
+          "UIFLOW2"
+        ],
+        "runtime": "NOT RUN"
+      }
+    }
+  },
+  "base_manifest_retained": true,
+  "guest": "NOT RUN",
+  "http_actual_candidate": "NOT RUN",
+  "service_reload": false,
+  "storage": "isolated temporary FirmwareStore; removed on script exit"
+}

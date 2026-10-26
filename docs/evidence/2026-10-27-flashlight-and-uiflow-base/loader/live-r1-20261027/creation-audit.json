@@ -1,0 +1,28 @@
+{
+  "classification": "CONFIRMED_REJECTED_BEFORE_SESSION_ALLOCATION",
+  "original_report_preserved": true,
+  "original_cleanup_label": "UNCONFIRMED",
+  "corrected_cleanup_category": "NO SESSION",
+  "exec_handle": 43596,
+  "exec_exit_code": 1,
+  "request": "POST /api/v1/sessions",
+  "response_status": 409,
+  "response_sha256": "7ab352a3fc797e6c528bc6427e621f22b4d34636801cd70dae8911ceebea14af",
+  "response": {
+    "error": {
+      "code": "unsupported_program_transport",
+      "message": "UART REPL requires an admitted UIFlow2 QEMU source/reference session"
+    }
+  },
+  "request_allocated_session_id": null,
+  "request_started_guest": false,
+  "gate": "device_service.py:create_session rejects uploaded kind=manifest with program_transport before UUID/process/lease allocation",
+  "product_gate_changed": false,
+  "service_observation": {
+    "pid": 88359,
+    "generation": 38,
+    "active_sessions": 0,
+    "active_leases": 0
+  },
+  "next_execution": "NOT STARTED; await supported diagnostic admission"
+}

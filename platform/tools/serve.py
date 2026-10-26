@@ -33,6 +33,7 @@ from device_service import (
 )
 from peripheral_inventory import build_inventory
 from program_revisions import MAX_CONFIGURED_REVISIONS, MAX_REVISIONS
+from program_packages import MAX_CONFIGURED_PACKAGES, MAX_PACKAGES
 from runtime_interfaces import build_interfaces
 from unit_runtime import UnitError, UnitRegistry
 from transport_security import (
@@ -332,6 +333,9 @@ class Handler(SimpleHTTPRequestHandler):
                 default_ttl=int(os.environ.get("M5_SERVICE_DEFAULT_TTL", "1800")),
                 max_program_revisions=int(os.environ.get(
                     "M5_SERVICE_MAX_PROGRAM_REVISIONS", str(MAX_REVISIONS),
+                )),
+                max_program_packages=int(os.environ.get(
+                    "M5_SERVICE_MAX_PROGRAM_PACKAGES", str(MAX_PACKAGES),
                 )),
                 api_token=os.environ.get("M5_SERVICE_API_TOKEN") or None,
             )
@@ -1221,6 +1225,12 @@ def main() -> None:
         default=os.environ.get("M5_SERVICE_MAX_PROGRAM_REVISIONS", str(MAX_REVISIONS)),
         help="maximum retained immutable source revisions (1–4096; default 256)",
     )
+    parser.add_argument(
+        "--max-program-packages",
+        type=int,
+        default=os.environ.get("M5_SERVICE_MAX_PROGRAM_PACKAGES", str(MAX_PACKAGES)),
+        help="maximum retained immutable program packages (1–4096; default 256)",
+    )
     auth_group = parser.add_mutually_exclusive_group()
     auth_group.add_argument(
         "--api-token",
@@ -1355,6 +1365,8 @@ def main() -> None:
     args = parser.parse_args()
     if not 1 <= args.max_program_revisions <= MAX_CONFIGURED_REVISIONS:
         parser.error("--max-program-revisions must be between 1 and 4096")
+    if not 1 <= args.max_program_packages <= MAX_CONFIGURED_PACKAGES:
+        parser.error("--max-program-packages must be between 1 and 4096")
     if args.api_token and args.api_token_file:
         parser.error("--api-token and --api-token-file are mutually exclusive")
     if args.api_token_previous_file and not (
@@ -1435,6 +1447,7 @@ def main() -> None:
         max_sessions=args.max_sessions,
         max_per_device=args.max_per_device,
         max_program_revisions=args.max_program_revisions,
+        max_program_packages=args.max_program_packages,
         default_ttl=args.session_ttl,
         api_token=initial_api_token,
         previous_api_token=initial_previous_api_token,

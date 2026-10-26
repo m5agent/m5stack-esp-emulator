@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "-m",
+    "unittest",
+    "test_program_packages",
+    "test_program_package_config",
+    "test_program_revision_config"
+  ],
+  "cwd": "repository-root",
+  "environment_overrides": {
+    "PYTHONPATH": "platform/tools:platform/tests:.work/py312"
+  },
+  "started_at": "2026-10-26T21:35:14.106863+00:00",
+  "exit_code": 0,
+  "log_sha256": "3aef38c6598feda15e6e59d9254c8268e874819a44903cb02d25d3a921243dfa",
+  "source_sha256": {
+    "platform/tools/program_packages.py": "577e6b2e45d912db849676cb63a6cfa252c95fff2d109765ab57cb022b682a0c",
+    "platform/tools/device_service.py": "2a2f8c3ebcded9b80f56dc1642619f414072eae1ceeaaf74e4fd0113ac77c136",
+    "platform/tools/serve.py": "e370343e7e35da19d3c802239b77e0b0bcde923468a386b9da84a212fd3db025",
+    "platform/tests/test_program_packages.py": "ccdf20b39f234649d8e6606b57ca4689aef3b522994575d12de1ee916df57aee",
+    "platform/tests/test_program_package_config.py": "ee89f08b542da3a84dda0ffa45d52ae162d6fd89fda8837eab7cd96c43981ee0",
+    "platform/tests/test_program_revision_config.py": "2882841d9f8f81fac87123c29c00ed81e900c3c70dacc05764eb24296210b911"
+  },
+  "source_unchanged_during_verification": true,
+  "guest": "NOT RUN",
+  "listener": "mocked only"
+}

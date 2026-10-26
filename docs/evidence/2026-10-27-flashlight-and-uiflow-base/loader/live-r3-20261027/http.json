@@ -1,0 +1,55 @@
+[
+  {
+    "path": "devices",
+    "method": "GET",
+    "started_at": "2026-10-26T21:09:49.088744+00:00",
+    "status": 200,
+    "bytes": 18781,
+    "sha256": "6eefeb2d5baa8b5d4a1d408b48e51246ac69b43a1a1ad9a9addc421b4ede6010",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "18781",
+      "x-request-id": "0be7128acb9f4104aee5abc652a160e7"
+    },
+    "elapsed_seconds": 0.0027514579705893993
+  },
+  {
+    "path": "artifacts",
+    "method": "POST",
+    "request_bytes": 16121856,
+    "request_sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b",
+    "artifact_name": "new-coreS3-main-loader-original.bin",
+    "status": 201,
+    "bytes": 320,
+    "sha256": "bf671d8c23efa13ef56944a459047d76255fa8a680047743c47b0943acc199ed"
+  },
+  {
+    "path": "firmware/import",
+    "method": "POST",
+    "started_at": "2026-10-26T21:09:49.116323+00:00",
+    "status": 201,
+    "bytes": 62234,
+    "sha256": "5d6df42d19bafbdb481ebe182e69dd8b312850c7f7648ed05cc581b64c6fdad7",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "62234",
+      "x-request-id": "f0114a5a332f4ecdaef843135719f0b6"
+    },
+    "elapsed_seconds": 1.22191520803608
+  },
+  {
+    "path": "firmware/uiflow",
+    "method": "POST",
+    "started_at": "2026-10-26T21:09:50.338488+00:00",
+    "status": 409,
+    "bytes": 139,
+    "sha256": "74b81aade48e1ffe7fd50dad13303710d26debfa68973cb4832a73b1e4b45eb2",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "139",
+      "x-request-id": "ef118f357e6a4f049c02562231ce95dd"
+    },
+    "error_type": "HTTPFailure",
+    "elapsed_seconds": 0.049479832872748375
+  }
+]

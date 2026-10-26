@@ -3890,6 +3890,329 @@
           "browser_response_capture_scope": "Optional bodies/headers; errors and timeouts disclosed, mandatory direct HTTP/Run/GPIO/frame/mounted evidence independently checked."
         }
       }
+    },
+    "flashlight": {
+      "status": "implemented",
+      "model_completeness": "partial",
+      "hosts": [
+        "cores3",
+        "atoms3r",
+        "sticks3",
+        "stopwatch"
+      ],
+      "blocker": "Only the exact recorded nominal digital subsets are admitted; full 16-code guest/PWM/dynamic-S1/physical equivalence remain open. Partial nominal digital model: only qualified GPIO bitbang HI/LO 750..10000ns and steady Torch. Last-rise+500us latch and first-rise+nominal deadline are explicit model policies. No LEDC waveform, EN PWM, dynamic S1, reset-callback guarantee, analog/electrical/optical/current/thermal or bit-exact equivalence. Guest and Web validation must bind the exact host/firmware/runtime; none is inherited from C tests. Route-history qualification is not latched: restoring a previously unsupported route can re-expose old known state without a fresh EN reset (UNIT-HOST-38); such transitions are outside admission.",
+      "inputs": {
+        "flash-mode": {
+          "property": "flash-mode",
+          "creation_only": true
+        }
+      },
+      "state": {
+        "flash-mode": {
+          "property": "flash-mode"
+        },
+        "mode-frozen": {
+          "property": "mode-frozen"
+        },
+        "en-level": {
+          "property": "en-level"
+        },
+        "pad-synchronized": {
+          "property": "pad-synchronized"
+        },
+        "gpio-route-supported": {
+          "property": "gpio-route-supported"
+        },
+        "output-known": {
+          "property": "output-known"
+        },
+        "active": {
+          "property": "active"
+        },
+        "waveform-qualified": {
+          "property": "waveform-qualified"
+        },
+        "pulse-count-capped": {
+          "property": "pulse-count-capped"
+        },
+        "bit-exact-supported": {
+          "property": "bit-exact-supported"
+        },
+        "live-mode-change-supported": {
+          "property": "live-mode-change-supported"
+        },
+        "reset-observation-supported": {
+          "property": "reset-observation-supported"
+        },
+        "pulse-count": {
+          "property": "pulse-count"
+        },
+        "last-program-count": {
+          "property": "last-program-count"
+        },
+        "flash-level-pct": {
+          "property": "flash-level-pct"
+        },
+        "timeout-ms": {
+          "property": "timeout-ms"
+        },
+        "edge-count": {
+          "property": "edge-count"
+        },
+        "rising-edges": {
+          "property": "rising-edges"
+        },
+        "decoded-programs": {
+          "property": "decoded-programs"
+        },
+        "unqualified-programs": {
+          "property": "unqualified-programs"
+        },
+        "reset-events": {
+          "property": "reset-events"
+        },
+        "timeout-events": {
+          "property": "timeout-events"
+        },
+        "trace-overflows": {
+          "property": "trace-overflows"
+        },
+        "last-edge-ns": {
+          "property": "last-edge-ns"
+        },
+        "first-rise-ns": {
+          "property": "first-rise-ns"
+        },
+        "settle-at-ns": {
+          "property": "settle-at-ns"
+        },
+        "timeout-at-ns": {
+          "property": "timeout-at-ns"
+        },
+        "program-state": {
+          "property": "program-state"
+        },
+        "unknown-reason": {
+          "property": "unknown-reason"
+        },
+        "timing-policy": {
+          "property": "timing-policy"
+        },
+        "edge-trace-ns": {
+          "property": "edge-trace-ns"
+        },
+        "input-events": {
+          "property": "input-events"
+        },
+        "output-transitions": {
+          "property": "output-transitions"
+        }
+      },
+      "guest_validation": {
+        "status": "PASS",
+        "device_id": "cores3",
+        "runtime": "qemu",
+        "hardware": "NOT RUN",
+        "model_completeness": "partial",
+        "scope": "Exact selected Flash and Torch source paths; individually qualified programs only. No all-16-code or physical claim.",
+        "report": "docs/evidence/2026-10-27-flashlight-and-uiflow-base/units/index.json",
+        "report_sha256": "218b287da61549452d2f450fcf68c28eb896143b405ef7e45201eb702d6552b9",
+        "runtime_binary_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+        "worker_generation": 42
+      },
+      "model_policies": {
+        "qualified_inter_pulse_ns": [
+          750,
+          10000
+        ],
+        "reset_low_ns_min_exclusive": 500000,
+        "latch": "last observed rising edge + 500000ns stable high",
+        "flash_deadline": "first observed rising edge + nominal 220/1300ms",
+        "torch": "steady EN high, no Flash deadline; EN PWM unqualified",
+        "mode_selection": "creation-only synthetic fixture; default Flash; frozen after all initial values",
+        "cold_start": "A route-only transition without a pad edge can remain unknown; selected tests explicitly drive EN high-to-low then low >500us. No constructor-only known-off claim.",
+        "route_history": "Current route/pad mismatch suppresses output. An observed unsupported-route interval is not latched; return to GPIO can restore prior qualification without reset. Continuous qualified GPIO only; UNIT-HOST-38 remains open."
+      },
+      "program_validation": {
+        "cores3": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "worker_generation": 42,
+          "runtime_binary_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+          "hardware": "NOT RUN",
+          "evidence_contract": "u152-nominal-digital-subset-v1",
+          "model_completeness": "partial",
+          "live_browser": "PASS",
+          "cases": [
+            {
+              "device_id": "cores3",
+              "mode": "flash",
+              "report": "docs/evidence/2026-10-27-flashlight-and-uiflow-base/units/selected/cores3-flash/report.json",
+              "report_sha256": "3822ad268445df80cfd51768d7b8ad3fcbaed6d5f7911da287e9a1a7cb442245",
+              "session_id": "b1010b81d42b40ec9be30b51c4850223",
+              "pid": 67759,
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "runs": 10,
+              "observations": 10,
+              "evidence_zip_sha256": "a80d7b2ee34b813b8eee52129bb82807ffa0885955d1c0e94e44aabc374b6b44",
+              "zip_members": 61,
+              "hardware": "NOT RUN"
+            },
+            {
+              "device_id": "cores3",
+              "mode": "torch",
+              "report": "docs/evidence/2026-10-27-flashlight-and-uiflow-base/units/selected/cores3-torch/report.json",
+              "report_sha256": "a57c4c1a8c19e12b9cf363e3c24b6e4918a1e8bec9b9a3cb58c92e319034f43f",
+              "session_id": "c0aa28a9e74a47e28f253be5b92598c3",
+              "pid": 70957,
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "runs": 8,
+              "observations": 8,
+              "evidence_zip_sha256": "26b31300b545ec34a1b25ed650fd170d7c335e5b3efb999402727b74e8878953",
+              "zip_members": 35,
+              "hardware": "NOT RUN"
+            }
+          ],
+          "scope": "Original single pulse and nominal timeout, explicit long-low reset/recovery, known steady Torch, actual original-driver encoding observations, invalid/out-of-envelope unknown. Only qualified observed commands; no full table guest or hardware equivalence.",
+          "unknown_waveforms_remain_unknown": true,
+          "browser_report": "docs/evidence/2026-10-27-flashlight-and-uiflow-base/web/artifacts/live-cores3-torch-r3/report.json",
+          "browser_response_capture": "PARTIAL",
+          "browser_scope": "Five mounted Torch on/off/unknown/recovery phases; 72 direct GET and actual material evidence. Four optional browser HTTP200 body captures are zero bytes; never used as PNG evidence. Metadata SHA is not full texture-transfer attestation.",
+          "browser_report_sha256": "1e405dc7a0bea834bc88ef63a0543870e6f57a1d5529d2ed77101e1157b6c68c",
+          "browser_verification": "docs/evidence/2026-10-27-flashlight-and-uiflow-base/web/artifacts/live-cores3-torch-r3/verification.json",
+          "browser_verification_sha256": "9565bd54d278b8d937937856df4fd0e8572723217a56a8c61a6fb7edfc178702"
+        },
+        "atoms3r": {
+          "status": "PASS",
+          "device_id": "atoms3r",
+          "runtime": "qemu",
+          "worker_generation": 42,
+          "runtime_binary_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+          "hardware": "NOT RUN",
+          "evidence_contract": "u152-nominal-digital-subset-v1",
+          "model_completeness": "partial",
+          "live_browser": "NOT RUN",
+          "cases": [
+            {
+              "device_id": "atoms3r",
+              "mode": "flash",
+              "report": "docs/evidence/2026-10-27-flashlight-and-uiflow-base/units/selected/other-hosts-gen42/atoms3r-flash/report.json",
+              "report_sha256": "3cc2b62f61f2a396a4cf51aa85e7212430fadd9d5409f96c758c7c810a45393e",
+              "session_id": "9a2f9d26b0a645ce943650fc5009ad84",
+              "pid": 67844,
+              "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+              "runs": 10,
+              "observations": 10,
+              "evidence_zip_sha256": "2c2bb596f8f74152aee333a31f6bf3e38b349e0ce8cdb6f15dbe56c0d947f3fb",
+              "zip_members": 61,
+              "hardware": "NOT RUN"
+            },
+            {
+              "device_id": "atoms3r",
+              "mode": "torch",
+              "report": "docs/evidence/2026-10-27-flashlight-and-uiflow-base/units/selected/other-hosts-gen42/atoms3r-torch/report.json",
+              "report_sha256": "d4ffd6817a8d2896d3636e1a693f66bb7fe6142e8949f1b4cbffdb219a1a16aa",
+              "session_id": "a064de8c874346d2b8aa5fd1c2afcb80",
+              "pid": 68039,
+              "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+              "runs": 4,
+              "observations": 4,
+              "evidence_zip_sha256": "e008f0a2d7cc3fe034f5cf0c354dbd0a42a64de93e5ae3f0041194fd34be7317",
+              "zip_members": 27,
+              "hardware": "NOT RUN"
+            }
+          ],
+          "scope": "Original single pulse and nominal timeout, explicit long-low reset/recovery, known steady Torch, actual original-driver encoding observations, invalid/out-of-envelope unknown. Only qualified observed commands; no full table guest or hardware equivalence.",
+          "unknown_waveforms_remain_unknown": true
+        },
+        "sticks3": {
+          "status": "PASS",
+          "device_id": "sticks3",
+          "runtime": "qemu",
+          "worker_generation": 42,
+          "runtime_binary_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+          "hardware": "NOT RUN",
+          "evidence_contract": "u152-nominal-digital-subset-v1",
+          "model_completeness": "partial",
+          "live_browser": "NOT RUN",
+          "cases": [
+            {
+              "device_id": "sticks3",
+              "mode": "flash",
+              "report": "docs/evidence/2026-10-27-flashlight-and-uiflow-base/units/selected/other-hosts-gen42/sticks3-flash/report.json",
+              "report_sha256": "93e6e58eb3d1fd2f472caa05cc9ade2ea7bf27bd00798e7af5af72bf06246751",
+              "session_id": "7cc6819a8b2f427099f0bca14e019c87",
+              "pid": 68087,
+              "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+              "runs": 10,
+              "observations": 10,
+              "evidence_zip_sha256": "606c6c477f1a880e76b41b11bc562b3e3f3012ac5069eb7e9dc2bf41b1d694d8",
+              "zip_members": 61,
+              "hardware": "NOT RUN"
+            },
+            {
+              "device_id": "sticks3",
+              "mode": "torch",
+              "report": "docs/evidence/2026-10-27-flashlight-and-uiflow-base/units/selected/other-hosts-gen42/sticks3-torch/report.json",
+              "report_sha256": "094718a1982b72e22e8cb5848180fd122f17907346d9e54cbcbae398faf75847",
+              "session_id": "67d350bba87449198819bfc42a5f9e18",
+              "pid": 68913,
+              "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+              "runs": 4,
+              "observations": 4,
+              "evidence_zip_sha256": "48aacf5e7c1a798c18fa39fe40a1d7e88d777da16722878945c7cc37bdbeb072",
+              "zip_members": 27,
+              "hardware": "NOT RUN"
+            }
+          ],
+          "scope": "Original single pulse and nominal timeout, explicit long-low reset/recovery, known steady Torch, actual original-driver encoding observations, invalid/out-of-envelope unknown. Only qualified observed commands; no full table guest or hardware equivalence.",
+          "unknown_waveforms_remain_unknown": true
+        },
+        "stopwatch": {
+          "status": "PASS",
+          "device_id": "stopwatch",
+          "runtime": "qemu",
+          "worker_generation": 42,
+          "runtime_binary_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+          "hardware": "NOT RUN",
+          "evidence_contract": "u152-nominal-digital-subset-v1",
+          "model_completeness": "partial",
+          "live_browser": "NOT RUN",
+          "cases": [
+            {
+              "device_id": "stopwatch",
+              "mode": "flash",
+              "report": "docs/evidence/2026-10-27-flashlight-and-uiflow-base/units/selected/other-hosts-gen42/stopwatch-flash/report.json",
+              "report_sha256": "094c622cd4090d652d5c556f47cdf1e6ce0908a9abe0bac17ec08af380ff2221",
+              "session_id": "329b9ece8fed46738b5f5323f12d1c07",
+              "pid": 69693,
+              "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+              "runs": 10,
+              "observations": 10,
+              "evidence_zip_sha256": "942e702be341e98a4fdfcf445ced9907b1d98d322fd2c4fee4d6122d433f1cbe",
+              "zip_members": 61,
+              "hardware": "NOT RUN"
+            },
+            {
+              "device_id": "stopwatch",
+              "mode": "torch",
+              "report": "docs/evidence/2026-10-27-flashlight-and-uiflow-base/units/selected/other-hosts-gen42/stopwatch-torch/report.json",
+              "report_sha256": "ec1c95631ff38bbd48f53c87c96c2e0cb6de6f89628f93458268eaefdb5ba7de",
+              "session_id": "1db4339dcc974dfc81d83338c7e9b799",
+              "pid": 70620,
+              "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+              "runs": 4,
+              "observations": 4,
+              "evidence_zip_sha256": "361928f7358e517eac6e838831169b6625a2d9bd8ff38f810b5a76eca9c87252",
+              "zip_members": 27,
+              "hardware": "NOT RUN"
+            }
+          ],
+          "scope": "Original single pulse and nominal timeout, explicit long-low reset/recovery, known steady Torch, actual original-driver encoding observations, invalid/out-of-envelope unknown. Only qualified observed commands; no full table guest or hardware equivalence.",
+          "unknown_waveforms_remain_unknown": true
+        }
+      }
     }
   }
 }

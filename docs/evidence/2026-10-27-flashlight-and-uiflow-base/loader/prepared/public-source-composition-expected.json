@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "kind": "uiflow2-source-composition",
+  "status": "COMPOSED_NOT_EXECUTED",
+  "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+  "entrypoint": "main.py",
+  "base_sha256": "3cb901cbfebd616a96292f234fe88ad1b145c3bb019f256dcb57257d78f878d8",
+  "base_size": 16777216,
+  "flash_size": 16777216,
+  "source_sha256": "33d30ac0184f2ee4d690c586c85ef387887a5034f5337a2a647890adc43e0e07",
+  "effective_source_sha256": "33d30ac0184f2ee4d690c586c85ef387887a5034f5337a2a647890adc43e0e07",
+  "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+  "files": [
+    {
+      "path": "boot.py",
+      "size": 243,
+      "sha256": "57110dd4620e4746b7f80e6e6dd95a04671269c2c7d75b41b516e23f3eb42c6b",
+      "origin": "caller"
+    },
+    {
+      "path": "main.py",
+      "size": 5,
+      "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+      "origin": "caller"
+    }
+  ],
+  "caller_file_count": 2,
+  "caller_source_bytes": 248,
+  "generated_files": [],
+  "firmware_sha256": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+  "vfs": {
+    "label": "vfs",
+    "type": 1,
+    "subtype": 129,
+    "flags": 0,
+    "offset": 11141120,
+    "size": 4980736,
+    "partition_table_offset": 32768,
+    "source": "actual-base-partition-table",
+    "filesystem": "LittleFS",
+    "base_sha256": "3c51ab42fc4215e1bdcb9f37420df269c500280d2305cf08d76d3041dd92a624",
+    "derived_sha256": "b282971cc7b9d355d44b6baecef453d7893d905593685d78b8278560b90b3f1d",
+    "base_disk_version": 131072,
+    "derived_disk_version": 131073
+  },
+  "preservation": {
+    "base_file_count": 16,
+    "preserved_file_count": 14,
+    "overwritten_files": [
+      "boot.py",
+      "main.py"
+    ],
+    "outside_vfs_unchanged": true,
+    "existing_files_readback_verified": true,
+    "source_readback_verified": true
+  },
+  "toolchain": {
+    "builder": "uiflow_source/1",
+    "python": "3.12.8",
+    "python_abi": "cpython-312",
+    "littlefs_python": "0.19.0",
+    "littlefs_library": "(2, 11)",
+    "littlefs_disk": "(2, 1)",
+    "config": {
+      "block_size": 4096,
+      "read_size": 128,
+      "prog_size": 32,
+      "lookahead_size": 128,
+      "block_cycles": 100
+    }
+  }
+}

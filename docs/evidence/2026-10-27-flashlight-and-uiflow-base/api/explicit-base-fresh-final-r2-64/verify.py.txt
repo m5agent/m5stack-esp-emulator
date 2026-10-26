@@ -1,0 +1,124 @@
+"""Final narrow/offline verification only; never opens a server or runs a guest."""
+from __future__ import annotations
+
+from datetime import datetime, timezone
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+ROOT = Path.cwd()
+OUT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT / "platform/tools"))
+
+from device_service import ArtifactStore, FirmwareStore, ServiceError, load_device_specs
+from uiflow_runtime import live_bootstrap_files
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def save(name, value):
+    (OUT / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+
+
+def run(name, args, *, environment=None):
+    result = subprocess.run(args, cwd=ROOT, env=environment, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    log = OUT / f"{name}.log"
+    log.write_bytes(result.stdout)
+    record = {"argv": args, "cwd": "repository-root", "environment_overrides":
+              {"PYTHONPATH": environment["PYTHONPATH"]} if environment is not None else {},
+              "exit_code": result.returncode, "stdout_stderr_file": log.name,
+              "stdout_stderr_sha256": sha(result.stdout), "stdout_stderr": result.stdout.decode("utf-8")}
+    save(f"{name}.json", record)
+    if result.returncode:
+        raise RuntimeError(f"{name} failed; inspect {log.name}")
+    return record
+
+
+sources = ["platform/tools/device_service.py", "platform/tests/test_uiflow_service.py", "platform/tests/test_device_service.py"]
+source_before = {name: sha((ROOT / name).read_bytes()) for name in sources}
+env = dict(os.environ, PYTHONPATH="platform/tools:platform/tests:.work/py312")
+tests = run("narrow-tests", [sys.executable, "-m", "unittest", "test_uiflow_service", "test_uiflow_source",
+    "test_device_service.DeviceServiceUnitTests.test_public_uiflow_composer_forwards_explicit_base_binding_without_relabeling_it",
+    "test_device_service.DeviceServiceUnitTests.test_merged_firmware_is_padded_to_device_flash",
+    "test_device_service.DeviceServiceUnitTests.test_manifest_firmware_is_validated_and_recorded",
+    "test_device_service.DeviceServiceUnitTests.test_segmented_firmware_rejects_overlap",
+    "test_device_service.DeviceServiceUnitTests.test_imports_webburner_package_as_normalized_firmware", "-q"], environment=env)
+run("py-compile", [sys.executable, "-m", "py_compile", *sources])
+run("diff-check", ["git", "diff", "--check", "--", *sources])
+
+manifest_path = ROOT / ".work/main-loader-capability-probe-20261027/prepared/offline-manifest.json"
+input_path = ROOT / ".work/main-loader-capability-probe-20261027/prepared/uart-derived.bin"
+manifest_bytes, input_bytes = manifest_path.read_bytes(), input_path.read_bytes()
+manifest = json.loads(manifest_bytes)
+with tempfile.TemporaryDirectory(prefix="m5-explicit-base-offline-") as temporary:
+    root = Path(temporary)
+    artifacts = ArtifactStore(root / "artifacts")
+    store = FirmwareStore(root / "firmware", artifacts, load_device_specs())
+    artifact = artifacts.create(input_bytes)
+    assert artifact["artifact_id"] == manifest["artifact"]["artifact_id"]
+    base = store.create({"device_id": "cores3", "kind": "manifest", "manifest": manifest})
+    base_path, base_meta = store.path(base["firmware_id"]), store._meta(base["firmware_id"])
+    bytes_before, meta_before = base_path.read_bytes(), base_meta.read_bytes()
+    request = {"kind": "uiflow", "device_id": "cores3", "base_firmware_id": base["firmware_id"],
+               "expected_base_sha256": base["sha256"], "files": live_bootstrap_files()}
+    derived = store.create(request)
+    derived_bytes = store.path(derived["firmware_id"]).read_bytes()
+    retry = store.create(request)
+    assert retry["firmware_id"] == derived["firmware_id"]
+    assert retry["source"] == derived["source"] and retry["base_manifest"] == derived["base_manifest"]
+    assert bytes_before == base_path.read_bytes() and meta_before == base_meta.read_bytes()
+    assert derived["base_manifest"] == base["manifest"]
+    metadata_after_composition = base_meta.read_bytes()
+    reimport_manifest = json.loads(json.dumps(manifest))
+    reimport_manifest["created_at"] = datetime.now(timezone.utc).isoformat()
+    assert reimport_manifest["created_at"] != manifest["created_at"]
+    reimported = store.create({"device_id": "cores3", "kind": "manifest", "manifest": reimport_manifest})
+    assert reimported["firmware_id"] == base["firmware_id"]
+    assert reimported["manifest_id"] == base["manifest_id"]
+    timestamp_retry = store.create(request)
+    assert timestamp_retry["firmware_id"] == derived["firmware_id"]
+    assert timestamp_retry["source"] == derived["source"]
+    assert timestamp_retry["base_manifest"] == reimport_manifest
+    assert base_path.read_bytes() == bytes_before
+    preservation = derived["source"]["metadata"]["preservation"]
+    assert preservation["outside_vfs_unchanged"] and preservation["source_readback_verified"]
+    offline = {
+        "schema_version": 1, "generated_at": datetime.now(timezone.utc).isoformat(),
+        "classification": "OFFLINE_SOURCE_COMPOSITION_PASS_NOT_EXECUTED",
+        "actual_calls": ["ArtifactStore.create", "FirmwareStore.create(kind=manifest)",
+                         "FirmwareStore.create(kind=uiflow)", "FirmwareStore.create(same explicit context retry)",
+                         "FirmwareStore.create(kind=manifest, created_at-only renewal)",
+                         "FirmwareStore.create(kind=uiflow, after created_at-only renewal)"],
+        "input_manifest": str(manifest_path.relative_to(ROOT)), "input_manifest_sha256": sha(manifest_bytes),
+        "input_image": str(input_path.relative_to(ROOT)), "input_image_sha256": sha(input_bytes),
+        "request": request, "base_firmware_id": base["firmware_id"], "base_size": len(bytes_before),
+        "base_metadata_before_sha256": sha(meta_before), "base_metadata_after_composition_sha256": sha(metadata_after_composition),
+        "base_bytes_unchanged": True, "base_metadata_unchanged_by_composition": True,
+        "base_metadata_after_explicit_reimport_sha256": sha(base_meta.read_bytes()),
+        "derived_firmware_id": derived["firmware_id"], "derived_size": len(derived_bytes),
+        "derived_image_sha256": sha(derived_bytes), "same_context_retry": "PASS",
+        "created_at_only_base_reimport_retry": "PASS", "reimported_manifest_id_unchanged": True,
+        "source_metadata": derived["source"]["metadata"], "base_manifest_retained": True,
+        "guest": "NOT RUN", "http_actual_candidate": "NOT RUN", "service_reload": False,
+        "storage": "isolated temporary FirmwareStore; removed on script exit",
+    }
+    save("actual-candidate-offline-composition.json", offline)
+
+source_after = {name: sha((ROOT / name).read_bytes()) for name in sources}
+assert source_before == source_after
+summary = {"schema_version": 1, "generated_at": datetime.now(timezone.utc).isoformat(),
+           "status": "PASS", "classification": "NARROW_TESTS_AND_OFFLINE_COMPOSITION_NOT_GUEST_ADMISSION",
+           "sources_sha256": source_after, "sources_unchanged_during_verification": True,
+           "narrow_tests": "narrow-tests.json", "py_compile": "py-compile.json", "diff_check": "diff-check.json",
+           "actual_candidate": "actual-candidate-offline-composition.json",
+           "guest": "NOT RUN", "http_actual_candidate": "NOT RUN", "service_reload": False,
+           "script_sha256": sha(Path(__file__).read_bytes())}
+save("index.json", summary)
+print(json.dumps({"status": "PASS", "evidence": str(OUT.relative_to(ROOT)), "tests_output": tests["stdout_stderr"].splitlines()[-4:],
+                  "base": offline["base_firmware_id"], "derived": offline["derived_firmware_id"]}, ensure_ascii=False))

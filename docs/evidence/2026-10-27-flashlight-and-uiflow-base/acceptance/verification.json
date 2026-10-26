@@ -1,0 +1,157 @@
+{
+  "date": "2026-10-26T21:56:39.164351+00:00",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "snapshot-write",
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "platform/tools/project_snapshot.py",
+        "--write"
+      ],
+      "exit_code": 0,
+      "log": "snapshot-write.log",
+      "log_sha256": "3b72fd2d08b4b210ff970f4e637901e1ca851fd3f7f9431d9f17b09086383a8e"
+    },
+    {
+      "name": "docs-unit-contracts",
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "-m",
+        "unittest",
+        "test_docs_current_state_contract",
+        "test_docs_index_contract",
+        "test_docs_consistency",
+        "test_unit_runtime",
+        "test_unit_creation_inputs",
+        "test_program_package_config",
+        "test_program_packages"
+      ],
+      "exit_code": 0,
+      "log": "docs-unit-contracts.log",
+      "log_sha256": "b1a0a2ede69a5686444d7db810f71aa5834ffdc8dfe3e7f8bef4812896f6941a"
+    },
+    {
+      "name": "runtime-coverage",
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "platform/tools/runtime_coverage.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "runtime-coverage.log",
+      "log_sha256": "ae22dc70eea81ac4f6d6918c0d694fc72cbc72cb589a13d93dac5b5c453d9311"
+    },
+    {
+      "name": "peripheral-catalog",
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "platform/tools/peripheral_catalog.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "peripheral-catalog.log",
+      "log_sha256": "6e3c49ec0c80a56051031a4bf3ba0fe16aa118f2b31f8863c09ef0bc4cc89633"
+    },
+    {
+      "name": "qemu-profiles",
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "platform/tools/qemu_profiles.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "qemu-profiles.log",
+      "log_sha256": "04a26a35d775027ee0ce627c0888eeb20272591f8801dbd6e2f0dfb2e499281e"
+    },
+    {
+      "name": "unit-runtime",
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "platform/tools/unit_runtime.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "unit-runtime.log",
+      "log_sha256": "1efb2a3be1293eb9bcdd1f5a0ac3529c03fdb0afd3d87655a81cbfa79bddfe4d"
+    },
+    {
+      "name": "snapshot-check",
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "platform/tools/project_snapshot.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "snapshot-check.log",
+      "log_sha256": "05110c70ad2d40d6a4943005ed5d00f2780cb44d5288bcee45128d62b19d6f1d"
+    },
+    {
+      "name": "loader-archive",
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-27-flashlight-and-uiflow-base/loader/verify-archive.py.txt",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-27-flashlight-and-uiflow-base/loader"
+      ],
+      "exit_code": 0,
+      "log": "loader-archive.log",
+      "log_sha256": "23906c052d8ae460647430d65dc464beb6bf01484f8a9607aea6c2c154412bbf"
+    },
+    {
+      "name": "api-archive",
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-27-flashlight-and-uiflow-base/api/verify-archive.py.txt",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-27-flashlight-and-uiflow-base/api"
+      ],
+      "exit_code": 0,
+      "log": "api-archive.log",
+      "log_sha256": "ca2892e18e84ee643b6922b87720106e01cba8a9ef0f75a525c2adc033f2b6b2"
+    },
+    {
+      "name": "units-archive",
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-27-flashlight-and-uiflow-base/units/verify-archive.py.txt",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-27-flashlight-and-uiflow-base/units"
+      ],
+      "exit_code": 0,
+      "log": "units-archive.log",
+      "log_sha256": "2db99113c28f90ac734738f74c233a6a50e337c5269fd4be2057dba0fedb38a6"
+    },
+    {
+      "name": "regression-archive",
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-27-flashlight-and-uiflow-base/regression/verify_archive.py"
+      ],
+      "exit_code": 0,
+      "log": "regression-archive.log",
+      "log_sha256": "d6e9d3a45d148950d70117609ef98641e2e80f4e3e3a8e7d430aff104ab81d2d"
+    },
+    {
+      "name": "web-archive",
+      "command": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/docs/evidence/2026-10-27-flashlight-and-uiflow-base/web/verify.py"
+      ],
+      "exit_code": 0,
+      "log": "web-archive.log",
+      "log_sha256": "452255116643e3fe27d8983206bb91281c517dfb81da5093b4523033d6dd1361"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "public_mpy_entrypoint_enabled": false,
+  "hardware": "NOT RUN"
+}

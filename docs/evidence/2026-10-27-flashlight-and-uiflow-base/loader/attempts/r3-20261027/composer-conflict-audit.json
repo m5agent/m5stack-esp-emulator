@@ -1,0 +1,21 @@
+{
+  "status": "COMPOSER_REJECTED_BEFORE_SESSION",
+  "response": {
+    "error": {
+      "code": "uiflow_source_context_conflict",
+      "message": "firmware bytes already have a different source or base-manifest context"
+    }
+  },
+  "base_record_diff": [
+    {
+      "field": ".created_at",
+      "before": "2026-10-26T21:07:26.467990+00:00",
+      "after": "2026-10-26T21:09:50.333129+00:00"
+    },
+    {
+      "field": ".manifest.created_at",
+      "before": "2026-10-26T21:07:26.441164+00:00",
+      "after": "2026-10-26T21:09:50.305116+00:00"
+    }
+  ]
+}

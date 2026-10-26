@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "completed_utc": "2026-10-26T20:58:10.288986+00:00",
+  "validation_category": "source/build candidate only",
+  "guest": "NOT RUN",
+  "hardware": "NOT RUN",
+  "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "patch_count": 11,
+  "source_file_count": 106,
+  "patches": {
+    "patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch": "e3cefb24205dc3cc366839c56d65aa4f53e352502eced3c30ffcf248e84bd36b",
+    "patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch": "77ee7805521fabd9ceb8b4b9683a392157fee98768333e9545824de16869933e",
+    "patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch": "aba1dc082746f04924cbff936bbcb7ffcd7c38ddcc5a574a21ecc1070a1ffce2",
+    "patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch": "723a4ab8c5ac98a329f33f925a4a6061464aae3a0289dc431817ab9dc3a2e757",
+    "patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch": "5b009b4644d505085ab759effe933abe8acadeaa1b680a70fb0c18ee4915926c",
+    "patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch": "bfb18690400f3385ccf4224e34f0021f1c5179e47f62e9b321aff6c4a06bdae8",
+    "patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch": "7d1350423fe3b7a6e583567c3b702ceda18d1268fb9045a73269a828b619c84a",
+    "patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch": "c921bbfa7800e18a3d8525beec52814707e327d53947b7c620076584bb317302",
+    "patches/qemu-m5stack-peripherals/0043-unit-scroll-controller.patch": "03f34ee350be9d7fade560c3fe94ed8e6914209350348dd44c8ac4ef4d1c16ea",
+    "patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch": "bc7547ae74b3ac85ff65cf3780b4b6a77632b435fca463646d53faaa15acf517",
+    "patches/qemu-m5stack-peripherals/0045-unit-flashlight-aw3641.patch": "52e384a59fad2ba0739bfbaa7b515f49bbee97d59a11583c1a53e9a060f58626"
+  },
+  "source_receipt_sha256": "2cac76dcb02f65374ed2b77c46f6b1eac774eba65b8470e5905ef2a979ca1682",
+  "build_manifest_sha256": "771a5a6aca7e017b748c6742df9e90e29154484a55cc2582a62020b9a45aba4f",
+  "binary": ".work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa",
+  "binary_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+  "old_2relay_source_receipt_binary_unchanged": true,
+  "old_2relay_files_checked": 108,
+  "all_reused_dependency_files_unchanged": true,
+  "reused_dependency_files_checked": 1440,
+  "subprojects": {
+    "subprojects/berkeley-softfloat-3": {
+      "commit": "b64af41c3276f97f0e181920400ee056b9c88037",
+      "tracked_status": ""
+    },
+    "subprojects/berkeley-testfloat-3": {
+      "commit": "e7af9751d9f9fd3b47911f51a5cfd08af256a9ab",
+      "tracked_status": ""
+    },
+    "subprojects/dtc": {
+      "commit": "b6910bec11614980a21e46fbccc35934b671bd81",
+      "tracked_status": ""
+    },
+    "subprojects/keycodemapdb": {
+      "commit": "f5772a62ec52591ff6870b7e8ef32482371f22c6",
+      "tracked_status": ""
+    }
+  },
+  "toolchain_and_linkage": {
+    "cc": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+    "python": "Python 3.12.8\n",
+    "ninja": "1.13.2.git.kitware.jobserver-pipe-1\n",
+    "meson": "1.12.1\n",
+    "qemu": "QEMU emulator version 9.2.2\nCopyright (c) 2003-2024 Fabrice Bellard and the QEMU Project developers\n",
+    "file": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa: Mach-O 64-bit executable arm64\n",
+    "dynamic_libraries": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa:\n\t/opt/homebrew/opt/pixman/lib/libpixman-1.0.dylib (compatibility version 0.0.0, current version 0.0.0)\n\t/System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio (compatibility version 1.0.0, current version 1.0.0)\n\t/usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.12)\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1359.0.0)\n\t/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 5027.0.69)\n\t/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5027.0.69)\n\t/usr/lib/libresolv.9.dylib (compatibility version 1.0.0, current version 1.0.0)\n\t/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)\n\t/System/Library/Frameworks/vmnet.framework/Versions/A/vmnet (compatibility version 1.0.0, current version 1.0.0)\n\t/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit (compatibility version 1.0.0, current version 275.0.0)\n\t/opt/homebrew/opt/glib/lib/libgmodule-2.0.0.dylib (compatibility version 8201.0.0, current version 8201.5.0)\n\t/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)\n",
+    "glib_pixman_slirp_versions": "2.82.5\n0.44.2\n4.7.0\n"
+  },
+  "commands": [
+    {
+      "argv": [
+        "cc",
+        "--version"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "stdout": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/venv/bin/python",
+        "--version"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "stdout": "Python 3.12.8\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/venv/bin/ninja",
+        "--version"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "stdout": "1.13.2.git.kitware.jobserver-pipe-1\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/venv/bin/meson",
+        "--version"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "stdout": "1.12.1\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa",
+        "--version"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "stdout": "QEMU emulator version 9.2.2\nCopyright (c) 2003-2024 Fabrice Bellard and the QEMU Project developers\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "file",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "stdout": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa: Mach-O 64-bit executable arm64\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "otool",
+        "-L",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "stdout": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa:\n\t/opt/homebrew/opt/pixman/lib/libpixman-1.0.dylib (compatibility version 0.0.0, current version 0.0.0)\n\t/System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio (compatibility version 1.0.0, current version 1.0.0)\n\t/usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.12)\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1359.0.0)\n\t/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 5027.0.69)\n\t/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5027.0.69)\n\t/usr/lib/libresolv.9.dylib (compatibility version 1.0.0, current version 1.0.0)\n\t/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)\n\t/System/Library/Frameworks/vmnet.framework/Versions/A/vmnet (compatibility version 1.0.0, current version 1.0.0)\n\t/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit (compatibility version 1.0.0, current version 275.0.0)\n\t/opt/homebrew/opt/glib/lib/libgmodule-2.0.0.dylib (compatibility version 8201.0.0, current version 8201.5.0)\n\t/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".work/unit-runtime-source-flashlight-final/qemu/subprojects/berkeley-softfloat-3",
+      "exit_code": 0,
+      "stdout": "b64af41c3276f97f0e181920400ee056b9c88037\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--short",
+        "--untracked-files=no"
+      ],
+      "cwd": ".work/unit-runtime-source-flashlight-final/qemu/subprojects/berkeley-softfloat-3",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".work/unit-runtime-source-flashlight-final/qemu/subprojects/berkeley-testfloat-3",
+      "exit_code": 0,
+      "stdout": "e7af9751d9f9fd3b47911f51a5cfd08af256a9ab\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--short",
+        "--untracked-files=no"
+      ],
+      "cwd": ".work/unit-runtime-source-flashlight-final/qemu/subprojects/berkeley-testfloat-3",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".work/unit-runtime-source-flashlight-final/qemu/subprojects/dtc",
+      "exit_code": 0,
+      "stdout": "b6910bec11614980a21e46fbccc35934b671bd81\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--short",
+        "--untracked-files=no"
+      ],
+      "cwd": ".work/unit-runtime-source-flashlight-final/qemu/subprojects/dtc",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": ".work/unit-runtime-source-flashlight-final/qemu/subprojects/keycodemapdb",
+      "exit_code": 0,
+      "stdout": "f5772a62ec52591ff6870b7e8ef32482371f22c6\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--short",
+        "--untracked-files=no"
+      ],
+      "cwd": ".work/unit-runtime-source-flashlight-final/qemu/subprojects/keycodemapdb",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "limitations": [
+    "partial nominal digital model",
+    "500us stable-high decode and first-rise timeout origin are model policy",
+    "no guest execution or functional acceptance",
+    "no hardware/current/optical/thermal/electrical validation",
+    "UNIT-HOST-36 reset observation remains unsupported",
+    "no hotplug; state/timers follow existing GPIOUnit VM-process ownership",
+    "mode is frozen creation fixture; no live S1/PWM support"
+  ]
+}

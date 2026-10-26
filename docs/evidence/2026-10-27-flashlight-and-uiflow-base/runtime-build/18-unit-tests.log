@@ -1,0 +1,27 @@
+COMMAND ["/opt/miniconda3/bin/python3.12", "-m", "unittest", "discover", "-s", "platform/tests", "-p", "test_unit_flashlight_patch.py", "-v"]
+CWD .
+test_all_sixteen_documented_codes_and_nominal_timeout_origins (test_unit_flashlight_patch.FlashLightPatchTests.test_all_sixteen_documented_codes_and_nominal_timeout_origins) ... ok
+test_cancelled_old_deadline_cannot_turn_off_a_new_program (test_unit_flashlight_patch.FlashLightPatchTests.test_cancelled_old_deadline_cannot_turn_off_a_new_program) ... ok
+test_creation_freeze_hook_follows_all_initial_fields_even_when_absent (test_unit_flashlight_patch.FlashLightPatchTests.test_creation_freeze_hook_follows_all_initial_fields_even_when_absent) ... ok
+test_creation_mode_freezes_and_rejects_idle_or_active_setter (test_unit_flashlight_patch.FlashLightPatchTests.test_creation_mode_freezes_and_rejects_idle_or_active_setter) ... ok
+test_initial_high_requires_observed_long_low (test_unit_flashlight_patch.FlashLightPatchTests.test_initial_high_requires_observed_long_low) ... ok
+test_missing_reset_callback_withdraws_known_output_without_repairing_gpio (test_unit_flashlight_patch.FlashLightPatchTests.test_missing_reset_callback_withdraws_known_output_without_repairing_gpio) ... ok
+test_original_driver_bytes_keep_seven_long_flash_negative_controls (test_unit_flashlight_patch.FlashLightPatchTests.test_original_driver_bytes_keep_seven_long_flash_negative_controls) ... ok
+test_outside_recommended_window_is_unknown_and_long_low_recovers (test_unit_flashlight_patch.FlashLightPatchTests.test_outside_recommended_window_is_unknown_and_long_low_recovers) ... ok
+test_patch_only_adds_unit_model_and_initial_freeze_hook (test_unit_flashlight_patch.FlashLightPatchTests.test_patch_only_adds_unit_model_and_initial_freeze_hook) ... ok
+test_recommended_pulse_window_endpoints (test_unit_flashlight_patch.FlashLightPatchTests.test_recommended_pulse_window_endpoints) ... ok
+test_same_level_and_unrelated_pin_do_not_invent_edges (test_unit_flashlight_patch.FlashLightPatchTests.test_same_level_and_unrelated_pin_do_not_invent_edges) ... ok
+test_seventeen_plus_pulses_are_unknown_without_wrap_or_clamp (test_unit_flashlight_patch.FlashLightPatchTests.test_seventeen_plus_pulses_are_unknown_without_wrap_or_clamp) ... ok
+test_short_low_cannot_silently_start_a_new_program (test_unit_flashlight_patch.FlashLightPatchTests.test_short_low_cannot_silently_start_a_new_program) ... ok
+test_strict_long_low_reset_boundary_and_no_repeated_reset (test_unit_flashlight_patch.FlashLightPatchTests.test_strict_long_low_reset_boundary_and_no_repeated_reset) ... ok
+test_torch_static_truth_has_no_flash_percentage_or_deadline (test_unit_flashlight_patch.FlashLightPatchTests.test_torch_static_truth_has_no_flash_percentage_or_deadline) ... ok
+test_trace_is_bounded_and_chronological_with_overflow_count (test_unit_flashlight_patch.FlashLightPatchTests.test_trace_is_bounded_and_chronological_with_overflow_count) ... ok
+test_unobserved_peripheral_or_inverted_matrix_route_is_unknown (test_unit_flashlight_patch.FlashLightPatchTests.test_unobserved_peripheral_or_inverted_matrix_route_is_unknown) ... ok
+test_zero_pulses_readonly_state_and_explicit_partial_policy (test_unit_flashlight_patch.FlashLightPatchTests.test_zero_pulses_readonly_state_and_explicit_partial_policy) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.403s
+
+OK
+
+EXIT 0

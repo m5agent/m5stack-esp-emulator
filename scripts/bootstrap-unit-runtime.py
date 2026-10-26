@@ -35,6 +35,7 @@ PATCHES = (
     "patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch",
     "patches/qemu-m5stack-peripherals/0043-unit-scroll-controller.patch",
     "patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch",
+    "patches/qemu-m5stack-peripherals/0045-unit-flashlight-aw3641.patch",
 )
 DEPS = (
     ("pkgconf", "2.4.3", "https://distfiles.ariadne.space/pkgconf/pkgconf-2.4.3.tar.xz",

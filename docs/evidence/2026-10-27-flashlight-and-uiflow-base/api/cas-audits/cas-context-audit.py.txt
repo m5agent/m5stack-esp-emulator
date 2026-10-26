@@ -1,0 +1,67 @@
+"""Host-only independent real-LittleFS provenance-collision audit; no QEMU."""
+from pathlib import Path
+import hashlib,json,sys
+from dataclasses import replace
+from unittest import mock
+ROOT=Path.cwd()
+sys.path[:0]=[str(ROOT/'platform/tools'),str(ROOT/'platform/tests'),str(ROOT/'.work/py312')]
+import test_uiflow_service as fixtures
+import device_service as svc
+from uiflow_source import build_uiflow_source_image
+
+def digest(data):return hashlib.sha256(data).hexdigest()
+def snapshot(case):return case.stores()
+def denial(case,record):
+ with mock.patch.object(svc.DeviceSession,'start') as start:
+  try:case.service.create_session({'device_id':'cores3','firmware_id':record['firmware_id'],'runtime':'qemu','uiflow_source_sha256':record['source']['metadata']['source_sha256']})
+  except svc.ServiceError as e:
+   assert e.code=='unsupported_firmware_capability' and e.extra['issues'][0]['code']=='runtime_psram_mismatch'
+   result={'status':e.status,'code':e.code,'issue':e.extra['issues'][0]['code']}
+  else:raise AssertionError('runtime PSRAM bound was bypassed')
+ start.assert_not_called()
+ return result
+
+def run():
+ report={'status':'FAIL','scope':'host-only actual LittleFS; no mocked builder or IDs; DeviceSession.start mocked only to forbid QEMU','guests_started':0,'cases':[]}
+ for existing_kind in ('explicit','manifest'):
+  case=fixtures.UIFlowServiceCompositionTests('test_explicit_base_psram_requirement_survives_source_composition')
+  case.setUp()
+  try:
+   case.reference.write_bytes(fixtures.explicit_base_image())
+   base=fixtures.store_explicit_base(case.service,psram_size=8<<20)
+   if existing_kind=='explicit':
+    record=case.create_source(base_firmware_id=base['firmware_id'],expected_base_sha256=base['sha256'])
+    case.service.specs['cores3']=replace(case.service.specs['cores3'],memory='4')
+    first=denial(case,record)
+    before=snapshot(case)
+    try:case.create_source()
+    except svc.ServiceError as e:
+     assert e.status==409 and e.code=='uiflow_source_context_conflict'
+     collision={'status':e.status,'code':e.code}
+    else:raise AssertionError('default overwrote explicit CAS context')
+    assert snapshot(case)==before
+    assert case.service.firmware.get(record['firmware_id'])==record
+    second=denial(case,record)
+    report['cases'].append({'case':'original-exact-caller-files-default-cannot-launder-explicit-PSRAM','firmware_sha256':record['sha256'],'before_runtime_rejection':first,'collision':collision,'after_runtime_rejection':second,'all_store_bytes_unchanged':True})
+   else:
+    image,_=build_uiflow_source_image(case.service.firmware.path(base['firmware_id']).read_bytes(),fixtures.source_fixtures.FLASH_SIZE,fixtures.CALLER_FILES)
+    existing=fixtures.store_explicit_base(case.service,data=image,psram_size=8<<20)
+    assert existing['sha256']==digest(image)
+    before=snapshot(case)
+    try:case.create_source(base_firmware_id=base['firmware_id'],expected_base_sha256=base['sha256'])
+    except svc.ServiceError as e:
+     assert e.status==409 and e.code=='uiflow_source_context_conflict'
+     collision={'status':e.status,'code':e.code}
+    else:raise AssertionError('explicit overwrote imported manifest CAS context')
+    assert snapshot(case)==before
+    assert case.service.firmware.get(existing['firmware_id'])==existing
+    report['cases'].append({'case':'existing-derived-imported-manifest-cannot-be-overwritten-by-explicit-source','firmware_sha256':existing['sha256'],'collision':collision,'all_store_bytes_unchanged':True})
+  finally:case.tearDown()
+ report['status']='PASS'
+ report['product_sha256']={p:digest((ROOT/p).read_bytes()) for p in ('platform/tools/device_service.py','platform/tests/test_uiflow_service.py')}
+ return report
+if __name__=='__main__':
+ result=run()
+ path=ROOT/'.work/main-loader-capability-probe-20261027/cas-context-audit.json'
+ path.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+ print(json.dumps(result,ensure_ascii=False,indent=2))

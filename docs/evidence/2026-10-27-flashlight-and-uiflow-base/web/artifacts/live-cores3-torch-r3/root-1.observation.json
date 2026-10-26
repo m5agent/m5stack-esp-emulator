@@ -1,0 +1,276 @@
+{
+  "sequence": 1,
+  "phase": "steady-off",
+  "observation": {
+    "index": 4,
+    "phase": "steady-off",
+    "before_properties": {
+      "flash-mode": false,
+      "mode-frozen": true,
+      "en-level": true,
+      "pad-synchronized": true,
+      "gpio-route-supported": true,
+      "output-known": true,
+      "active": true,
+      "waveform-qualified": true,
+      "pulse-count-capped": false,
+      "bit-exact-supported": false,
+      "live-mode-change-supported": false,
+      "reset-observation-supported": false,
+      "pulse-count": 1,
+      "last-program-count": 0,
+      "flash-level-pct": 0,
+      "timeout-ms": 0,
+      "edge-count": 5,
+      "rising-edges": 3,
+      "decoded-programs": 2,
+      "unqualified-programs": 2,
+      "reset-events": 3,
+      "timeout-events": 0,
+      "trace-overflows": 0,
+      "last-edge-ns": 12970870000,
+      "first-rise-ns": 12970870000,
+      "settle-at-ns": -1,
+      "timeout-at-ns": -1,
+      "program-state": "torch-active",
+      "unknown-reason": "none",
+      "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+      "edge-trace-ns": [
+        [
+          5042037000,
+          1
+        ],
+        [
+          5042048000,
+          0
+        ],
+        [
+          8123347000,
+          1
+        ],
+        [
+          11200220000,
+          0
+        ],
+        [
+          12970870000,
+          1
+        ]
+      ],
+      "input-events": 1,
+      "output-transitions": 3
+    },
+    "execution": {
+      "execution_id": "2f9446a4d2d74f45ae69e5c50d1650de",
+      "revision_id": "793e58eb7d292734e6bd011bae2b42695cf9a50172099048af823ae08d0d2576",
+      "source_sha256": "d9c5b3bfc615f94e12e4114bdbf0e1ff1b424926ccc65ceb39f8fcd3aecb28e0",
+      "source_bytes": 975,
+      "state": "completed",
+      "submitted_at": "2026-10-26T21:34:40.630065+00:00",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 70957,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 7415,
+      "source_kind": "uiflow2-package",
+      "total_file_bytes": 4614,
+      "file_count": 2,
+      "deployment": {
+        "phase": "activated",
+        "staging_path": "/flash/.m5-live-packages/.stage-a983d5fe765443fb95511cc7c15b18b3",
+        "package_path": "/flash/.m5-live-packages/793e58eb7d292734e6bd011bae2b42695cf9a50172099048af823ae08d0d2576",
+        "events": [
+          {
+            "phase": "preflight",
+            "staging_path": "/flash/.m5-live-packages/.stage-a983d5fe765443fb95511cc7c15b18b3",
+            "package_path": "/flash/.m5-live-packages/793e58eb7d292734e6bd011bae2b42695cf9a50172099048af823ae08d0d2576",
+            "observed_at": "2026-10-26T21:34:40.739250+00:00"
+          },
+          {
+            "phase": "capabilities",
+            "capabilities": {
+              "existing": true,
+              "directory_count": 3,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4726784
+            },
+            "observed_at": "2026-10-26T21:34:41.193699+00:00"
+          },
+          {
+            "phase": "published",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 975,
+                "sha256": "7b2fda809175a6d8cf8afc98009c98396608e5e3764267a1e579633d619bc30b"
+              }
+            },
+            "reused": true,
+            "observed_at": "2026-10-26T21:34:41.480818+00:00"
+          },
+          {
+            "phase": "activated",
+            "package_path": "/flash/.m5-live-packages/793e58eb7d292734e6bd011bae2b42695cf9a50172099048af823ae08d0d2576",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 975,
+                "sha256": "7b2fda809175a6d8cf8afc98009c98396608e5e3764267a1e579633d619bc30b"
+              }
+            },
+            "reused": true,
+            "capabilities": {
+              "existing": true,
+              "directory_count": 3,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4726784
+            },
+            "removed_modules": [
+              "official_flash"
+            ],
+            "staging_path": "/flash/.m5-live-packages/.stage-a983d5fe765443fb95511cc7c15b18b3",
+            "observed_at": "2026-10-26T21:34:41.772482+00:00"
+          }
+        ],
+        "capabilities": {
+          "existing": true,
+          "directory_count": 3,
+          "mpy": 11014,
+          "small_int_bits": 31,
+          "free_bytes": 4726784
+        },
+        "inventory": {
+          "official_flash.py": {
+            "size": 3639,
+            "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+          },
+          "main.py": {
+            "size": 975,
+            "sha256": "7b2fda809175a6d8cf8afc98009c98396608e5e3764267a1e579633d619bc30b"
+          }
+        },
+        "reused": true,
+        "removed_modules": [
+          "official_flash"
+        ]
+      },
+      "next_offset": 7474,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T21:34:42.409934+00:00"
+    },
+    "guest": {
+      "nonce": "a0ebb36a985a4b409dfb6781ba858cb7",
+      "driver_sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f",
+      "driver_file": "/flash/.m5-live-packages/793e58eb7d292734e6bd011bae2b42695cf9a50172099048af823ae08d0d2576/official_flash.py",
+      "en": 0,
+      "phase": "steady-off"
+    },
+    "unit": {
+      "id": "lamp",
+      "unit_id": "flashlight",
+      "port_id": "port-a",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {
+        "flash-mode": false
+      },
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "flash-mode": false,
+        "mode-frozen": true,
+        "en-level": false,
+        "pad-synchronized": true,
+        "gpio-route-supported": true,
+        "output-known": true,
+        "active": false,
+        "waveform-qualified": true,
+        "pulse-count-capped": false,
+        "bit-exact-supported": false,
+        "live-mode-change-supported": false,
+        "reset-observation-supported": false,
+        "pulse-count": 0,
+        "last-program-count": 0,
+        "flash-level-pct": 0,
+        "timeout-ms": 0,
+        "edge-count": 6,
+        "rising-edges": 3,
+        "decoded-programs": 2,
+        "unqualified-programs": 2,
+        "reset-events": 4,
+        "timeout-events": 0,
+        "trace-overflows": 0,
+        "last-edge-ns": 154078603000,
+        "first-rise-ns": -1,
+        "settle-at-ns": -1,
+        "timeout-at-ns": -1,
+        "program-state": "ready-low",
+        "unknown-reason": "none",
+        "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+        "edge-trace-ns": [
+          [
+            5042037000,
+            1
+          ],
+          [
+            5042048000,
+            0
+          ],
+          [
+            8123347000,
+            1
+          ],
+          [
+            11200220000,
+            0
+          ],
+          [
+            12970870000,
+            1
+          ],
+          [
+            154078603000,
+            0
+          ]
+        ],
+        "input-events": 1,
+        "output-transitions": 4
+      },
+      "errors": {}
+    },
+    "frame_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+    "frame_headers": {
+      "content-type": "image/png",
+      "content-length": "302",
+      "x-request-id": "877172c5d16747c78e8352f1ba8b51b6",
+      "x-frame-width": "320",
+      "x-frame-height": "240",
+      "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+      "x-frame-capture-seq": "38",
+      "x-frame-source": "live",
+      "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+      "x-frame-captured-at": "2026-10-26T21:34:42.424383+00:00",
+      "x-frame-execution-id": "2f9446a4d2d74f45ae69e5c50d1650de",
+      "x-frame-revision-id": "793e58eb7d292734e6bd011bae2b42695cf9a50172099048af823ae08d0d2576",
+      "x-frame-program-state": "completed"
+    },
+    "selected_pad_pixel": [
+      0,
+      0,
+      0
+    ],
+    "snapshot_semantics": "QOM fields sampled separately; not atomic across fields or frame"
+  }
+}

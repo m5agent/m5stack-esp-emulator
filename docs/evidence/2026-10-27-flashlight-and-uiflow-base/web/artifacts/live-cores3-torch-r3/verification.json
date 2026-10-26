@@ -1,0 +1,298 @@
+{
+  "category": "post-run-file-and-observation-verification",
+  "status": "PASS",
+  "report_sha256": "1e405dc7a0bea834bc88ef63a0543870e6f57a1d5529d2ed77101e1157b6c68c",
+  "source_snapshot_before_api": {
+    "path": "observer.executed.mjs",
+    "sha256": "ac12e171d803b974d3e0c1cb756253c9a6f5c7f1c2a2c826b1a2399304b82bca",
+    "captured_before_api": true
+  },
+  "source_before_after_identical": true,
+  "service_pid": 67553,
+  "generation": 42,
+  "runtime_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+  "session_id": "c0aa28a9e74a47e28f253be5b92598c3",
+  "pid": 70957,
+  "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "http_count": 72,
+  "browser_http_count": 318,
+  "browser_statuses": {
+    "200": 125,
+    "304": 193
+  },
+  "browser_capture": {
+    "rows": 318,
+    "bytes": 849771,
+    "pending": 0,
+    "errors": 0,
+    "sealed": true,
+    "limits": {
+      "each_bytes": 2097152,
+      "aggregate_browser_bytes": 33554432,
+      "browser_rows": 3000,
+      "body_timeout_ms": 5000
+    }
+  },
+  "phase_observations": [
+    {
+      "sequence": 0,
+      "phase": "steady-on",
+      "execution_id": "38a62c8f6c3847309bd6ea1f5f26a547",
+      "revision_id": "4d348aec652c048507eca75dfdeb5624f87789f31a72d241de4b40aba227489e",
+      "output_known": true,
+      "led_runtime_known": true,
+      "brightness": 1,
+      "emissive": [
+        2.2,
+        2.1031413771462306,
+        1.9170076622311047
+      ],
+      "glow": false,
+      "raw_qom_properties": 9,
+      "web_qom_response_index": 11
+    },
+    {
+      "sequence": 1,
+      "phase": "steady-off",
+      "execution_id": "2f9446a4d2d74f45ae69e5c50d1650de",
+      "revision_id": "793e58eb7d292734e6bd011bae2b42695cf9a50172099048af823ae08d0d2576",
+      "output_known": true,
+      "led_runtime_known": true,
+      "brightness": 0,
+      "emissive": [
+        0,
+        0,
+        0
+      ],
+      "glow": false,
+      "raw_qom_properties": 9,
+      "web_qom_response_index": 83
+    },
+    {
+      "sequence": 2,
+      "phase": "steady-on",
+      "execution_id": "66c96a9624d642c8b90b29b0916a0c57",
+      "revision_id": "4d348aec652c048507eca75dfdeb5624f87789f31a72d241de4b40aba227489e",
+      "output_known": true,
+      "led_runtime_known": true,
+      "brightness": 1,
+      "emissive": [
+        2.2,
+        2.1031413771462306,
+        1.9170076622311047
+      ],
+      "glow": false,
+      "raw_qom_properties": 9,
+      "web_qom_response_index": 142
+    },
+    {
+      "sequence": 3,
+      "phase": "slow2",
+      "execution_id": "8703df9e82dd4d1d919e7c4df95db29e",
+      "revision_id": "dbba0b26e0e6ccb83918a533b35aa63f275dd01b22e16a99d7ca714e15a97798",
+      "output_known": false,
+      "led_runtime_known": false,
+      "brightness": 0,
+      "emissive": [
+        0,
+        0,
+        0
+      ],
+      "glow": false,
+      "raw_qom_properties": 9,
+      "web_qom_response_index": 222
+    },
+    {
+      "sequence": 4,
+      "phase": "steady-on",
+      "execution_id": "d2e8faf76dc54e52979d4a21fb159f63",
+      "revision_id": "4d348aec652c048507eca75dfdeb5624f87789f31a72d241de4b40aba227489e",
+      "output_known": true,
+      "led_runtime_known": true,
+      "brightness": 1,
+      "emissive": [
+        2.2,
+        2.1031413771462306,
+        1.9170076622311047
+      ],
+      "glow": false,
+      "raw_qom_properties": 9,
+      "web_qom_response_index": 278
+    }
+  ],
+  "screenshots_and_frames_sha_verified": 25,
+  "screenshot_attempts": [
+    {
+      "label": "0-steady-on",
+      "attempt": 1,
+      "observed_at": "2026-10-26T21:34:34.542Z",
+      "status": "PASS",
+      "before": {
+        "allow_three": true,
+        "destroyed": false,
+        "shell_present": true,
+        "own_default_order": 0,
+        "sessions_in_current_list": 18,
+        "mounted_lamp": true,
+        "panel_disposed": false,
+        "session_card_connected": true,
+        "actual_stage_count": 1
+      },
+      "after": {
+        "allow_three": true,
+        "destroyed": false,
+        "shell_present": true,
+        "own_default_order": 0,
+        "sessions_in_current_list": 18,
+        "mounted_lamp": true,
+        "panel_disposed": false,
+        "session_card_connected": true,
+        "actual_stage_count": 1
+      }
+    },
+    {
+      "label": "1-steady-off",
+      "attempt": 1,
+      "observed_at": "2026-10-26T21:34:42.588Z",
+      "status": "PASS",
+      "before": {
+        "allow_three": true,
+        "destroyed": false,
+        "shell_present": true,
+        "own_default_order": 0,
+        "sessions_in_current_list": 18,
+        "mounted_lamp": true,
+        "panel_disposed": false,
+        "session_card_connected": true,
+        "actual_stage_count": 1
+      },
+      "after": {
+        "allow_three": true,
+        "destroyed": false,
+        "shell_present": true,
+        "own_default_order": 0,
+        "sessions_in_current_list": 18,
+        "mounted_lamp": true,
+        "panel_disposed": false,
+        "session_card_connected": true,
+        "actual_stage_count": 1
+      }
+    },
+    {
+      "label": "2-steady-on",
+      "attempt": 1,
+      "observed_at": "2026-10-26T21:34:48.447Z",
+      "status": "PASS",
+      "before": {
+        "allow_three": true,
+        "destroyed": false,
+        "shell_present": true,
+        "own_default_order": 0,
+        "sessions_in_current_list": 18,
+        "mounted_lamp": true,
+        "panel_disposed": false,
+        "session_card_connected": true,
+        "actual_stage_count": 1
+      },
+      "after": {
+        "allow_three": true,
+        "destroyed": false,
+        "shell_present": true,
+        "own_default_order": 0,
+        "sessions_in_current_list": 18,
+        "mounted_lamp": true,
+        "panel_disposed": false,
+        "session_card_connected": true,
+        "actual_stage_count": 1
+      }
+    },
+    {
+      "label": "3-slow2",
+      "attempt": 1,
+      "observed_at": "2026-10-26T21:34:55.922Z",
+      "status": "PASS",
+      "before": {
+        "allow_three": true,
+        "destroyed": false,
+        "shell_present": true,
+        "own_default_order": 0,
+        "sessions_in_current_list": 18,
+        "mounted_lamp": true,
+        "panel_disposed": false,
+        "session_card_connected": true,
+        "actual_stage_count": 1
+      },
+      "after": {
+        "allow_three": true,
+        "destroyed": false,
+        "shell_present": true,
+        "own_default_order": 0,
+        "sessions_in_current_list": 18,
+        "mounted_lamp": true,
+        "panel_disposed": false,
+        "session_card_connected": true,
+        "actual_stage_count": 1
+      }
+    },
+    {
+      "label": "4-steady-on",
+      "attempt": 1,
+      "observed_at": "2026-10-26T21:35:01.206Z",
+      "status": "PASS",
+      "before": {
+        "allow_three": true,
+        "destroyed": false,
+        "shell_present": true,
+        "own_default_order": 0,
+        "sessions_in_current_list": 18,
+        "mounted_lamp": true,
+        "panel_disposed": false,
+        "session_card_connected": true,
+        "actual_stage_count": 1
+      },
+      "after": {
+        "allow_three": true,
+        "destroyed": false,
+        "shell_present": true,
+        "own_default_order": 0,
+        "sessions_in_current_list": 18,
+        "mounted_lamp": true,
+        "panel_disposed": false,
+        "session_card_connected": true,
+        "actual_stage_count": 1
+      }
+    }
+  ],
+  "console_errors": [],
+  "console_warnings": [
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x13c000e7c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x13c000e7c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x13c000e7c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x13c000e7c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    }
+  ],
+  "page_errors": [],
+  "resource_errors": [],
+  "forbidden_mutations": [],
+  "visual_inspection": {
+    "opened_via_view_image": [
+      "0-steady-on-attempt1-stage.png",
+      "3-slow2-attempt1-stage.png",
+      "4-steady-on-attempt1-viewport.png"
+    ],
+    "observed": "Host and attached FlashLight entirely visible; D1 fixed white emissive appearance is withdrawn in unknown stage; screen EN marker remains white for slow2 and is independent of output-known. No optical measurement claim."
+  },
+  "hardware": "NOT RUN",
+  "r1_r2_status": "Separate FAIL attempts preserved, not combined into this PASS."
+}

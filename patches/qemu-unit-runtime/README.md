@@ -8,7 +8,8 @@ new Unit implementation stays in `qemu-m5stack-peripherals/0033` through `0035`,
 followed by the narrow classic-I2C compatibility fix in `0036` and the scoped
 S3 LEDC duty-register readback fix in `0037` and the GPIO-route observation
 candidate in `0038`, then the independent bounded Scroll controller in `0043`
-and dual GPIO 2Relay in `0044`.
+and dual GPIO 2Relay in `0044`, then the partial AW3641E GPIO-edge/timer
+FlashLight model in `0045`.
 No firmware, ROM, executable or credential is added by these patches.
 
 ## Exact source and order
@@ -26,7 +27,8 @@ No firmware, ROM, executable or credential is added by these patches.
    `0037-s3-ledc-duty-readback.patch`, then
    `0038-unit-pwm-route-refresh.patch`, then
    `0043-unit-scroll-controller.patch`, then
-   `0044-unit-2relay-gpio.patch`.
+   `0044-unit-2relay-gpio.patch`, then
+   `0045-unit-flashlight-aw3641.patch`.
 6. Build `xtensa-softmmu`. These instructions do not rebuild the separate C6
    branch or the P4/Linux backends.
 
@@ -100,6 +102,18 @@ no bootloader, configuration Flash persistence, address-zero unicast or mechanic
 angle calibration. A rejected completed frame increments `command-errors`;
 it does not retroactively create a wire NACK. See the
 [protocol audit](../../docs/unit-research/scroll-roller485.md).
+
+`0045` observes U152 yellow EN pad edges using QEMU virtual nanoseconds and
+independent timers. Flash/Torch mode is a synthetic creation fixture, frozen
+after all initial properties are applied. Flash decode qualifies 1–16 pulses
+only on the supported GPIO route and within the recommended 750–10000 ns
+HI/LO window; other waveforms produce unknown output. Waiting 500 us at stable
+high before decode and measuring timeout from the first rise are model policies,
+not datasheet claims. The timer cancels stale deadlines, keeps the last decoded
+code after timeout, and exposes a bounded chronological edge trace. Torch
+supports static EN only. Reset observation, dynamic S1, PWM modulation,
+bit-exact timing, current, optical, thermal and electrical equivalence remain
+outside this source implementation; source checks do not establish guest PASS.
 
 ## Why a prelude is necessary
 
@@ -228,3 +242,10 @@ records implementation scope, not the per-Unit functional acceptance result.
 - Each Unit/host/firmware path still needs its own Device Service evidence.
   A passing Unit does not grant another Unit, firmware SHA or controller path
   the same result. Current acceptance belongs in the status/backlog/ledger.
+
+
+The FlashLight admission covers continuous qualified GPIO. Route mismatch
+suppresses the current known output, but route history is not latched: restoring
+GPIO can expose an old qualification without a new EN reset. This host C
+reproduction remains `UNIT-HOST-38`; unsupported-route/PWM transitions are not
+admitted by the continuous GPIO guest or Web evidence.

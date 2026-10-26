@@ -596,6 +596,15 @@ class DeviceServiceUnitTests(unittest.TestCase):
             8 << 20,
         )
 
+    def test_public_uiflow_composer_forwards_explicit_base_binding_without_relabeling_it(self):
+        payload = {"device_id": "cores3", "files": {"main.py": "pass\n"},
+                   "base_firmware_id": "a" * 64, "expected_base_sha256": "a" * 64}
+        result = {"kind": "uiflow", "firmware_id": "b" * 64}
+        with mock.patch.object(self.service.firmware, "create", return_value=result) as create:
+            self.assertEqual(self.service.create_uiflow_firmware(payload), result)
+        create.assert_called_once_with({**payload, "kind": "uiflow"})
+        self.assertNotIn("kind", payload)
+
     def test_manifest_firmware_is_validated_and_recorded(self):
         data = b"\xe9" + b"M" * 1023
         artifact = self.service.upload_artifact(data)

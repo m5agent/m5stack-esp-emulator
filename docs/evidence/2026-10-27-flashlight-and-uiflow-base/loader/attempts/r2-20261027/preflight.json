@@ -1,0 +1,47 @@
+{
+  "status": "READY_AUTHORIZED_BY_ROOT",
+  "guest_runtime": "NOT RUN",
+  "hardware": "NOT RUN",
+  "source_sha256": {
+    "probe.py": "abc8b66352b308b75f8142fd0b7507b2ffffbed93365fdf1f1c4b7e38907bb86",
+    "test_probe.py": "5dc3a60b55be725cf39c87d92e6af62f3e3a2104a4faa9d4205238c1258cd676"
+  },
+  "api_service_worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "instance_id": "69064e99f8134451989874547dcb6169",
+    "generation": 39,
+    "state": "ready",
+    "pid": 60383,
+    "started_at": "2026-10-26T21:06:44.916991+00:00",
+    "heartbeat_at": "2026-10-26T21:07:24.977460+00:00",
+    "heartbeat_age_seconds": 0.122,
+    "stale": false,
+    "accepting_leases": true,
+    "active_lease_count": 0,
+    "active_lease_ids": [],
+    "drained_at": null
+  },
+  "tests": {
+    "count": 8,
+    "result": "PASS",
+    "scope": "host-only"
+  },
+  "base_sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b",
+  "normalized_base_sha256": "3cb901cbfebd616a96292f234fe88ad1b145c3bb019f256dcb57257d78f878d8",
+  "r1_prepared_sha256": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+  "prepared_sha256": "45a02c4c758eee9f18ab2195c3837c974f6aae8b882a9df295b658c1e07fdae9",
+  "uiflow_source_sha256": "7a9c69e9df99d8cded6006278b35840b1231cac8e739c3e42ed3ff2da0964153",
+  "preservation": {
+    "fixed_comment_only_boot_revision": true,
+    "r1_prepared_files_unchanged": true,
+    "outside_vfs_same_between_base_r1_r2": true,
+    "before_vfs_sha256": "a5358ce3f635a56bbe5b2c01650ea03a5ce0455d984f6d4809fba60ad123ef82",
+    "after_vfs_sha256": "152e56baeaace51ee143f9a1b95d3b9d546cb873c259fecdbbb23ffb9d0dd22a",
+    "vfs": {
+      "offset": 11141120,
+      "size": 4980736
+    },
+    "app_base_unchanged": true
+  },
+  "public_mpy_entrypoint_enabled": false
+}

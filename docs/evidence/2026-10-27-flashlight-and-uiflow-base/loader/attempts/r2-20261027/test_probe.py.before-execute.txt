@@ -1,0 +1,110 @@
+"""Host-only contracts for an unexecuted new-firmware loader probe."""
+import contextlib
+import copy
+import importlib.util
+import io
+import json
+from pathlib import Path
+import sys
+import unittest
+from unittest import mock
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import probe
+
+
+class ProbeTests(unittest.TestCase):
+    def test_default_plan_cannot_read_token_or_contact_service(self):
+        with mock.patch.object(probe.common, "read_token", side_effect=AssertionError("token")), \
+                mock.patch.object(probe.common, "Client", side_effect=AssertionError("network")), contextlib.redirect_stdout(io.StringIO()) as stream:
+            self.assertEqual(probe.main([]), 0)
+        result = json.loads(stream.getvalue())
+        self.assertFalse(result["api_contacted"])
+        self.assertFalse(result["public_mpy_entrypoint_enabled"])
+        self.assertEqual(result["base"]["sha256"], probe.BASE_SHA)
+
+    def test_actual_import_uses_false_sentinel_not_bytecode_transform(self):
+        source = probe.loader_source("a" * 32, "v1", "v1")
+        compile(source, "loader.py", "exec")
+        self.assertIn("__import__('main',None,None,False,0)", source)
+        self.assertIn("finally:", source)
+        self.assertIn("['dep.mpy','main.mpy']", source)
+        self.assertIn("sys.modules.pop('main',None)", source)
+        self.assertIn("sys.modules[_name]=_pair[1]", source)
+        self.assertNotIn("marshal", source)
+
+    def test_compiled_programs_cover_identity_guard_dependency_error_and_gpio(self):
+        for case, value, loop, raises in (("v1", 17, False, False), ("v2", 29, False, False), ("exception", 17, False, True), ("loop", 29, True, False)):
+            source = probe.module_source(case, value, loop=loop, raises=raises)
+            compile(source, "main.py", "exec")
+            self.assertIn("if __name__ == '__main__':", source)
+            self.assertIn("sys.modules.get('__main__') is _self", source)
+            self.assertIn("PIRUnit((1,2))", source)
+            self.assertIn("motion=bool(pir.get_status())", source)
+            self.assertEqual("while True:" in source, loop)
+            self.assertEqual("PROBE_TOP_EXCEPTION" in source, raises)
+            if loop:
+                self.assertIn("M5.update()", source)
+                self.assertIn("time.sleep_ms(200)", source)
+
+    def test_result_identity_cache_path_and_reexecution_controls(self):
+        nonce = "a" * 32
+        root = "/flash/.main-loader-probe-" + nonce + "/v1"
+        row = {"case": "v1", "nonce": nonce, "guard": True, "name": "__main__", "main_cache_is_self": True,
+               "import_main_is_self": True, "self_id": 7, "sys_main_id": 7, "import_main_id": 7,
+               "file": root + "/main.mpy", "dep_file": root + "/dep.mpy", "real_main_name": "main", "dep_value": 17, "count": 2}
+        probe.validate_result(row, nonce, "v1", 17, 2)
+        for key, value in (("guard", False), ("name", "main"), ("import_main_id", 8), ("count", 1), ("dep_value", 29), ("file", "/flash/main.py")):
+            changed = {**row, key: value}
+            with self.assertRaises(ValueError):
+                probe.validate_result(changed, nonce, "v1", 17, 2)
+
+    def test_parser_never_infers_internal_mpy_success_from_source_start(self):
+        text = "__M5_EXEC_" + "a" * 32 + "__:START\r\n"
+        self.assertEqual(probe.typed_rows(text), [])
+        text += probe.PREFIX + json.dumps({"kind": "mpy-enter"}) + "\r\n"
+        self.assertEqual(probe.typed_rows(text), [{"kind": "mpy-enter"}])
+        self.assertEqual(probe.typed_rows(probe.PREFIX + '{"kind":"mpy-enter"}'), [])
+
+    def test_prepared_fixture_inventory_and_header_negative_are_explicit(self):
+        prepared = json.loads((probe.PREPARED_DIR / "prepared.json").read_text())
+        for case in prepared["inventory"]:
+            row = {"inventory": {name: {"bytes": meta["bytes"], "sha256": meta["sha256"]} for name, meta in prepared["inventory"][case].items()},
+                   "directory": "/flash/.main-loader-probe-" + prepared["nonce"] + "/" + case}
+            probe.validate_inventory(row, prepared, case)
+            row["inventory"]["main.mpy"]["sha256"] = "0" * 64
+            with self.assertRaises(ValueError):
+                probe.validate_inventory(row, prepared, case)
+        compile(probe.setup_source(prepared), "setup.py", "exec")
+        bad = (probe.PREPARED_DIR / prepared["inventory"]["format"]["main.mpy"]["file"]).read_bytes()
+        good = (probe.PREPARED_DIR / prepared["inventory"]["v1"]["main.mpy"]["file"]).read_bytes()
+        self.assertEqual(len(bad), len(good))
+        self.assertEqual(bad[:1], b"N")
+        self.assertEqual(bad[1:], good[1:])
+
+    def test_r2_preserves_prior_attempt_and_pins_new_source_image(self):
+        old = HERE / "prepared"
+        previous = json.loads((old / "prepared.json").read_text())
+        prepared = json.loads((probe.PREPARED_DIR / "prepared.json").read_text())
+        comment = "# Explicit-base loader probe revision 2; preserve prior CAS provenance.\n"
+        self.assertEqual(probe.BOOT, (old / "boot.py.txt").read_text() + comment)
+        self.assertEqual(prepared["base_sha256"], previous["base_sha256"])
+        self.assertEqual(prepared["normalized_base_sha256"], previous["normalized_base_sha256"])
+        self.assertNotEqual(prepared["prepared_sha256"], previous["prepared_sha256"])
+        files = {"boot.py": probe.BOOT, "main.py": "pass\n"}
+        self.assertEqual(prepared["source_sha256"], probe.sha(probe.common.canonical(files)))
+        preserved = json.loads((HERE / "attempts/r1-20261027/preservation.json").read_text())
+        for name, digest in preserved["old_prepared_files_unchanged"].items():
+            self.assertEqual(probe.sha((HERE / name).read_bytes()), digest)
+        raw = (HERE / "attempts/r1-20261027/probe.py.executed-source.txt").read_bytes()
+        self.assertEqual(probe.sha(raw), preserved["executed_source_sha256"])
+
+    def test_complete4xx_creation_rejection_is_not_unknown_or_retried(self):
+        for status, complete, expected in ((400, True, True), (409, True, True), (408, True, False), (500, True, False), (409, False, False)):
+            self.assertEqual(probe.creation_definitely_rejected(probe.common.HTTPFailure(status, {}, complete=complete)), expected)
+        self.assertFalse(probe.creation_definitely_rejected(TimeoutError()))
+
+
+if __name__ == "__main__":
+    unittest.main()

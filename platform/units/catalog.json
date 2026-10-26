@@ -4433,6 +4433,495 @@
         "All initial values are synthetic fixtures, not hardware measurements.",
         "Partial implementation is not full Scroll firmware or hardware equivalence."
       ]
+    },
+    {
+      "id": "flashlight",
+      "name": "FlashLight",
+      "sku": "U152",
+      "visual_asset": {
+        "entry": "src/units/flashlight/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/FlashLight",
+      "checked_at": "2026-10-27",
+      "chips": [
+        {
+          "part": "AW3641EDNR",
+          "status": "official-schematic-and-datasheet"
+        }
+      ],
+      "interface": {
+        "bus": "gpio",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "EN",
+            "direction": "host-to-unit",
+            "external_bias": "schematic 10K pull-down"
+          },
+          "white": {
+            "signal": "NC",
+            "direction": "unused"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-schematic",
+          "logic_v": null
+        }
+      },
+      "protocol": {
+        "status": "documented-partial-model",
+        "summary": "S1 selects FLASH/TORCH internally. EN pulses 1..8 encode 100..30% at nominal 220ms; 9..16 encode the same eight relative codes at nominal 1300ms. Torch EN high is steady on; long low >500us resets.",
+        "registers": [],
+        "gaps": [
+          "Recommended pulse envelope is qualification, not a claim other widths fail on silicon.",
+          "Torch EN PWM description conflicts with the datasheet FLASH-pin PWM path; no waveform model admitted.",
+          "Original UIFlow2 long-flash multiplication differs from Table 1."
+        ]
+      },
+      "inputs": {
+        "flash-mode": {
+          "type": "boolean",
+          "label": "Flash 模式（关闭为 Torch，仅创建时可选）",
+          "default": true,
+          "default_source": "synthetic-creation-fixture",
+          "creation_only": true,
+          "readOnly": false
+        }
+      },
+      "outputs": {
+        "mode-frozen": {
+          "type": "boolean",
+          "readOnly": true,
+          "default": true,
+          "default_source": "synthetic-test-fixture"
+        },
+        "en-level": {
+          "type": "boolean",
+          "readOnly": true,
+          "default": false,
+          "default_source": "synthetic-test-fixture"
+        },
+        "pad-synchronized": {
+          "type": "boolean",
+          "readOnly": true,
+          "default": false,
+          "default_source": "synthetic-test-fixture"
+        },
+        "gpio-route-supported": {
+          "type": "boolean",
+          "readOnly": true,
+          "default": false,
+          "default_source": "synthetic-test-fixture"
+        },
+        "output-known": {
+          "type": "boolean",
+          "readOnly": true,
+          "default": false,
+          "default_source": "synthetic-test-fixture"
+        },
+        "active": {
+          "type": "boolean",
+          "readOnly": true,
+          "default": false,
+          "default_source": "synthetic-test-fixture"
+        },
+        "waveform-qualified": {
+          "type": "boolean",
+          "readOnly": true,
+          "default": false,
+          "default_source": "synthetic-test-fixture"
+        },
+        "pulse-count-capped": {
+          "type": "boolean",
+          "readOnly": true,
+          "default": false,
+          "default_source": "synthetic-test-fixture"
+        },
+        "bit-exact-supported": {
+          "type": "boolean",
+          "readOnly": true,
+          "default": false,
+          "default_source": "synthetic-test-fixture"
+        },
+        "live-mode-change-supported": {
+          "type": "boolean",
+          "readOnly": true,
+          "default": false,
+          "default_source": "synthetic-test-fixture"
+        },
+        "reset-observation-supported": {
+          "type": "boolean",
+          "readOnly": true,
+          "default": false,
+          "default_source": "synthetic-test-fixture"
+        },
+        "pulse-count": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "maximum": 17
+        },
+        "last-program-count": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture"
+        },
+        "flash-level-pct": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "enum": [
+            0,
+            30,
+            40,
+            50,
+            60,
+            70,
+            80,
+            90,
+            100
+          ]
+        },
+        "timeout-ms": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "enum": [
+            0,
+            220,
+            1300
+          ]
+        },
+        "edge-count": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture"
+        },
+        "rising-edges": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture"
+        },
+        "decoded-programs": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture"
+        },
+        "unqualified-programs": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture"
+        },
+        "reset-events": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture"
+        },
+        "timeout-events": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture"
+        },
+        "trace-overflows": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": 0,
+          "default": 0,
+          "default_source": "synthetic-test-fixture"
+        },
+        "last-edge-ns": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": -1,
+          "default": -1,
+          "default_source": "synthetic-test-fixture",
+          "description": "QEMU virtual nanoseconds; -1 means no pending/observed event."
+        },
+        "first-rise-ns": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": -1,
+          "default": -1,
+          "default_source": "synthetic-test-fixture",
+          "description": "QEMU virtual nanoseconds; -1 means no pending/observed event."
+        },
+        "settle-at-ns": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": -1,
+          "default": -1,
+          "default_source": "synthetic-test-fixture",
+          "description": "QEMU virtual nanoseconds; -1 means no pending/observed event."
+        },
+        "timeout-at-ns": {
+          "type": "integer",
+          "readOnly": true,
+          "minimum": -1,
+          "default": -1,
+          "default_source": "synthetic-test-fixture",
+          "description": "QEMU virtual nanoseconds; -1 means no pending/observed event."
+        },
+        "program-state": {
+          "type": "string",
+          "readOnly": true,
+          "maxLength": 512
+        },
+        "unknown-reason": {
+          "type": "string",
+          "readOnly": true,
+          "maxLength": 512
+        },
+        "timing-policy": {
+          "type": "string",
+          "readOnly": true,
+          "maxLength": 512
+        },
+        "edge-trace-ns": {
+          "type": "array",
+          "readOnly": true,
+          "maxItems": 256,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "integer"
+            }
+          },
+          "description": "Bounded oldest-to-newest [QEMU virtual nanoseconds, actual EN pad level 0/1]. Reads across fields are not an atomic snapshot."
+        }
+      },
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/FlashLight",
+          "sha256": "8dc3caa7ed7c4d3172f6ce23a1b9d8f7b6a18e2af83753ed2be0040e19b5f713",
+          "checked_at": "2026-10-27"
+        },
+        {
+          "kind": "official-schematic",
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/606/UNIT-FlashLight_sch_01.png",
+          "sha256": "06526f1c2a245a5b7642b06e8c3f3e742b3c99f8fb6a4be8e6d3cde18e6bac59",
+          "checked_at": "2026-10-27"
+        },
+        {
+          "kind": "official-datasheet",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/FlashLight/FLASHLEDDRIVER_2019-07-01.PDF",
+          "sha256": "ff6ee09ea120f612f43c39af6318d98e86a778d9cb3ecf1e643d794a94c52a6e",
+          "checked_at": "2026-10-27",
+          "locator": "AW3641E Feb 2019 V1.3 pp12-14, Table 1"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/50e440780492aa847378c7d3477ab912f7063bac/m5stack/libs/unit/flash_light.py",
+          "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f",
+          "checked_at": "2026-10-27",
+          "known_issue": "brightness*time emits the wrong command for seven of eight 1300ms requests; retain original bytes as negative controls."
+        }
+      ],
+      "research_status": "confirmed-contract-with-explicit-gaps",
+      "model_status": "planned",
+      "runtime": {
+        "status": "planned",
+        "qom_path_template": "/machine/units/{attachment_id}",
+        "properties": {
+          "flash-mode": {
+            "property": "flash-mode",
+            "access": "creation-only",
+            "type": "boolean"
+          },
+          "mode-frozen": {
+            "property": "mode-frozen",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "en-level": {
+            "property": "en-level",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "pad-synchronized": {
+            "property": "pad-synchronized",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "gpio-route-supported": {
+            "property": "gpio-route-supported",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "output-known": {
+            "property": "output-known",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "active": {
+            "property": "active",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "waveform-qualified": {
+            "property": "waveform-qualified",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "pulse-count-capped": {
+            "property": "pulse-count-capped",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "bit-exact-supported": {
+            "property": "bit-exact-supported",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "live-mode-change-supported": {
+            "property": "live-mode-change-supported",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "reset-observation-supported": {
+            "property": "reset-observation-supported",
+            "access": "read-only",
+            "type": "boolean"
+          },
+          "pulse-count": {
+            "property": "pulse-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "last-program-count": {
+            "property": "last-program-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "flash-level-pct": {
+            "property": "flash-level-pct",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "timeout-ms": {
+            "property": "timeout-ms",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "edge-count": {
+            "property": "edge-count",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "rising-edges": {
+            "property": "rising-edges",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "decoded-programs": {
+            "property": "decoded-programs",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "unqualified-programs": {
+            "property": "unqualified-programs",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "reset-events": {
+            "property": "reset-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "timeout-events": {
+            "property": "timeout-events",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "trace-overflows": {
+            "property": "trace-overflows",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "last-edge-ns": {
+            "property": "last-edge-ns",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "first-rise-ns": {
+            "property": "first-rise-ns",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "settle-at-ns": {
+            "property": "settle-at-ns",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "timeout-at-ns": {
+            "property": "timeout-at-ns",
+            "access": "read-only",
+            "type": "integer"
+          },
+          "program-state": {
+            "property": "program-state",
+            "access": "read-only",
+            "type": "string"
+          },
+          "unknown-reason": {
+            "property": "unknown-reason",
+            "access": "read-only",
+            "type": "string"
+          },
+          "timing-policy": {
+            "property": "timing-policy",
+            "access": "read-only",
+            "type": "string"
+          },
+          "edge-trace-ns": {
+            "property": "edge-trace-ns",
+            "access": "read-only",
+            "type": "array"
+          }
+        },
+        "required_data_plane": "Yellow EN SoC GPIO pad edges plus QEMU_CLOCK_VIRTUAL nanosecond timers; no duty-snapshot pulse synthesis."
+      },
+      "blocker": "Partial nominal digital model: only qualified GPIO bitbang HI/LO 750..10000ns and steady Torch. Last-rise+500us latch and first-rise+nominal deadline are explicit model policies. No LEDC waveform, EN PWM, dynamic S1, reset-callback guarantee, analog/electrical/optical/current/thermal or bit-exact equivalence. Guest and Web validation must bind the exact host/firmware/runtime; none is inherited from C tests.",
+      "input_semantics": "S1 is an explicit synthetic creation fixture, frozen after all initial values; flash-mode true is Flash, false is Torch. No live S1 setter.",
+      "output_semantics": "Read-only controller state. output-known plus route and pad synchronization qualify active. Relative Flash code is not luminance; Torch uses no Flash code/deadline.",
+      "limitations": [
+        "Partial nominal digital model: only qualified GPIO bitbang HI/LO 750..10000ns and steady Torch. Last-rise+500us latch and first-rise+nominal deadline are explicit model policies. No LEDC waveform, EN PWM, dynamic S1, reset-callback guarantee, analog/electrical/optical/current/thermal or bit-exact equivalence. Guest and Web validation must bind the exact host/firmware/runtime; none is inherited from C tests.",
+        "No calibrated outer-shell S1 detent binding or LED color temperature measurement.",
+        "UNIT-HOST-36 reset-observer gap remains open; a mismatched pad revokes output-known."
+      ]
     }
   ],
   "model_status_values": [

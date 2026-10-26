@@ -176,6 +176,10 @@ class UnitRegistry:
                 raise UnitError(
                     "unit_input_not_supported", f"{unit_id}.{field} has no controller input", 409,
                 )
+            if live and (fields[field].get("creation_only") or profile_fields[field].get("creation_only")):
+                raise UnitError(
+                    "unit_input_creation_only", f"{unit_id}.{field} is frozen after creation; create a new session to select it", 409,
+                )
             values[field] = scalar_value(value, fields[field], field)
         return values
 

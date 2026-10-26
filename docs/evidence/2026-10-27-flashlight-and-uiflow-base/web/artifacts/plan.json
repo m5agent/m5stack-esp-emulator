@@ -1,0 +1,53 @@
+{
+  "status": "NOT RUN",
+  "api_contacted": false,
+  "browser_started": false,
+  "guests_started": 0,
+  "phases": [
+    "initial-steady-on",
+    "steady-off",
+    "steady-on",
+    "slow2",
+    "steady-on"
+  ],
+  "hardware": "NOT RUN",
+  "requires": [
+    "root explicit runtime READY + owned Torch hold ready"
+  ],
+  "execution_arguments": [
+    "--execute",
+    "--hold-file <root-owned.json>",
+    "--out-dir <fresh-directory>",
+    "--expected-runtime-sha256 <64-hex>",
+    "--expected-service-pid <pid>",
+    "--expected-generation <generation>"
+  ],
+  "scope": "Actual 8787 sessions page, actual default UnitPanel, mounted vendor FixedWhiteLed material, independent GET units/raw-QOM/frame/serial.",
+  "mutations": "Only root-owned hold command/done files. No program/input POST, controller setter, synthetic state, or API reply substitution.",
+  "instrumentation": "Append only window.__flashlightProbe={state,SessionVisual} to hash-verified sessions.js; actual GET replies are unchanged.",
+  "response_limits": {
+    "each_bytes": 2097152,
+    "aggregate_browser_bytes": 33554432,
+    "browser_rows": 3000,
+    "body_timeout_ms": 5000
+  },
+  "source_sha256": {
+    ".work/flashlight-live-web-20261027/observe.mjs": "cc92924c9c849bacf918db66e30f0042c7e060ffdb9af60a1b830fffdecd6540",
+    ".work/flashlight-live-probe-20261027/probe.py": "bf4749e206578a8ad03347af65576e557cbee6fffd0c3756080d85f95ffb2d57",
+    "platform/web/sessions.html": "dcc24c94e12a20b22a4905b6d8599261fb1b8d7b2b10c400a8c1676d3628d3f9",
+    "platform/web/sessions.js": "2bdfb9a18c448eac5e450162cb4497bbc6920dbdcb8cc0a67fa491e583d19675",
+    "platform/web/unit-panel.js": "252b1f60144a3bed1be5cd18f335f038f042803fee102331a0c74ee8f0f4f6e1",
+    "platform/web/model-shell.js": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+    "platform/web/unit-visual-mappings.js": "28868a42e2eb58d61efacc07a66e5725fc0c1c8b0597d85a56a680d37b6289da",
+    "platform/web/device-shell-factory.js": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2",
+    "platform/units/catalog.json": "fdd14b933003c220dbbb7b8952be9c88ecd3b2793c5adda6ccf73a9fa36c3dbb",
+    "platform/units/runtime-profiles.json": "85edc92a05a6286f8f7e0d46e5349c5b7e4b2eb9ac5201bc0dc406269bd9bda6",
+    "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "platform/tools/device_service.py": "d6ac640ad65e06dcbfb2e469ee9eadfc93c200e27b4df523979f37e0528a9764",
+    "platform/web/vendor/m5stack-models/src/core/components/Led.js": "220f32c62ad83b41a86ba6f3d280697fe47008e81bde074c4c9542120f47a0cb",
+    "platform/web/vendor/m5stack-models/src/units/flashlight/assembly.js": "f5079233849468c0408b9a32309146efb481cb0be60cdf089bccfd44d8a261f8",
+    "platform/web/vendor/m5stack-models/src/units/flashlight/dimensions.js": "119c839e5782a537b46cccf9604cc401189b02f38d34951b3e377be1f8ea7137",
+    "platform/tests/test_live_uniform_led_service_browser.mjs": "e1308a230b6aa0d335ba010f887994c12de5a202310ac038d7f35073d73e164c",
+    "platform/tests/test_live_relay2_preview_service_browser.mjs": "47d29135eb45cb7f371fe7377770ab9173fcaf4d680b2ca84e7438913b48f493"
+  }
+}

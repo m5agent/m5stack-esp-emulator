@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "policy": "No token, credential, MAC, private IP/hostname endpoint or URL-userinfo match in archived text",
+  "text_files_scanned": 297,
+  "patterns": {
+    "mac": "(?i)(?<![0-9a-f])(?:[0-9a-f]{2}:){5}[0-9a-f]{2}(?![0-9a-f])",
+    "private_ipv4": "\\b(?:10(?:\\.\\d{1,3}){3}|192\\.168(?:\\.\\d{1,3}){2}|172\\.(?:1[6-9]|2\\d|3[01])(?:\\.\\d{1,3}){2})\\b",
+    "private_ipv6": "(?i)(?<![0-9a-f])(?:f[cd][0-9a-f]{2}:|fe[89ab][0-9a-f]:)[0-9a-f:]*",
+    "credential_format": "(?i)(?:sk-(?:proj-)?[a-z0-9_-]{16,}|gh[pousr]_[a-z0-9]{20,}|AKIA[0-9A-Z]{16}|Bearer\\s+[a-z0-9._~-]{12,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)",
+    "credential_assignment": "(?i)(?:api[_-]?key|access[_-]?token|client[_-]?secret|password|authorization)\\s*[:=]\\s*[\\x22\\x27]?(?!none\\b|null\\b|false\\b|true\\b)[^\\s,\\x22\\x27]{8,}",
+    "private_hostname": "(?i)https?://[^\\s\\x22\\x27/]*(?:\\.local|\\.lan|\\.internal)(?::\\d+)?(?=[/\\s\\x22\\x27]|$)",
+    "url_userinfo": "(?i)https?://[^\\s/\\x22\\x27]+:[^\\s/\\x22\\x27]+@"
+  },
+  "hits": [],
+  "binary_policy": "Only PNG framebuffer images are archived; firmware, ROM, MPY, ELF, virtual Flash/SD, PCM/RMT and redundant PPM are hash-only exclusions"
+}

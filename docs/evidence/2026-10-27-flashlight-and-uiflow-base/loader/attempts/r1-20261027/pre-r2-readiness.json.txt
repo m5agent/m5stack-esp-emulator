@@ -1,0 +1,23 @@
+{
+  "status": "PUBLIC_EXPLICIT_BASE_PIPELINE_PREPARED_WAITING_SERVICE",
+  "guest_runtime": "NOT RUN",
+  "hardware": "NOT RUN",
+  "api_contacted": true,
+  "public_mpy_entrypoint_enabled": false,
+  "tests": {
+    "count": 7,
+    "result": "PASS",
+    "scope": "host-only"
+  },
+  "source_sha256": {
+    "probe.py": "62d78c2e1ceb8854f591df304910cc074ab57695a04a866004a38d233a7f8ca3",
+    "test_probe.py": "8f11d51260bbe05cb3b80600a504f8f3b6e378b8adc82640d9df6a3e67c93839"
+  },
+  "base_sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b",
+  "prepared_sha256": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+  "safe_format_negative": "one invalid magic byte; retained unused truncated preparation explicitly NOT EXECUTED",
+  "manifest_validation": "PASS with explicit warnings; security not-indicated/efuse-not-included preserved",
+  "waiting_for": "root/builder service ready for base_firmware_id + expected_base_sha256; no r2 started",
+  "normalized_base_sha256": "3cb901cbfebd616a96292f234fe88ad1b145c3bb019f256dcb57257d78f878d8",
+  "r1_unused_uart_package_sha256": "bf6e00319e6faa2562ce91609421378f09f3e4ccddb7e2ebc793ddf892166e67"
+}

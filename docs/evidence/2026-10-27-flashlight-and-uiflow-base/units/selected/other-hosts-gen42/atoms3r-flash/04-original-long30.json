@@ -1,0 +1,601 @@
+{
+  "index": 4,
+  "phase": "original-long30",
+  "before_properties": {
+    "flash-mode": true,
+    "mode-frozen": true,
+    "en-level": true,
+    "pad-synchronized": true,
+    "gpio-route-supported": true,
+    "output-known": true,
+    "active": true,
+    "waveform-qualified": true,
+    "pulse-count-capped": false,
+    "bit-exact-supported": false,
+    "live-mode-change-supported": false,
+    "reset-observation-supported": false,
+    "pulse-count": 10,
+    "last-program-count": 10,
+    "flash-level-pct": 90,
+    "timeout-ms": 1300,
+    "edge-count": 27,
+    "rising-edges": 14,
+    "decoded-programs": 3,
+    "unqualified-programs": 2,
+    "reset-events": 4,
+    "timeout-events": 2,
+    "trace-overflows": 0,
+    "last-edge-ns": 14796218000,
+    "first-rise-ns": 14796123000,
+    "settle-at-ns": -1,
+    "timeout-at-ns": 16096123000,
+    "program-state": "flash-active",
+    "unknown-reason": "none",
+    "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+    "edge-trace-ns": [
+      [
+        5012415000,
+        1
+      ],
+      [
+        5012436000,
+        0
+      ],
+      [
+        8149765000,
+        1
+      ],
+      [
+        11525000000,
+        0
+      ],
+      [
+        11526392000,
+        1
+      ],
+      [
+        11526399000,
+        0
+      ],
+      [
+        11526404000,
+        1
+      ],
+      [
+        14794776000,
+        0
+      ],
+      [
+        14796123000,
+        1
+      ],
+      [
+        14796130000,
+        0
+      ],
+      [
+        14796134000,
+        1
+      ],
+      [
+        14796140000,
+        0
+      ],
+      [
+        14796145000,
+        1
+      ],
+      [
+        14796151000,
+        0
+      ],
+      [
+        14796155000,
+        1
+      ],
+      [
+        14796161000,
+        0
+      ],
+      [
+        14796166000,
+        1
+      ],
+      [
+        14796172000,
+        0
+      ],
+      [
+        14796176000,
+        1
+      ],
+      [
+        14796182000,
+        0
+      ],
+      [
+        14796186000,
+        1
+      ],
+      [
+        14796192000,
+        0
+      ],
+      [
+        14796197000,
+        1
+      ],
+      [
+        14796203000,
+        0
+      ],
+      [
+        14796207000,
+        1
+      ],
+      [
+        14796213000,
+        0
+      ],
+      [
+        14796218000,
+        1
+      ]
+    ],
+    "input-events": 0,
+    "output-transitions": 5
+  },
+  "execution": {
+    "execution_id": "c6f24753c655466c88719732a7055e0b",
+    "revision_id": "19b71e738b42ca58a94188643a9afab9517a93254db3d5f1abbdb6790c20d6ab",
+    "source_sha256": "8fc21641dafaa991d2d021770e9876370d417a3b49d96f0c215b54f96afd3dc0",
+    "source_bytes": 1066,
+    "state": "completed",
+    "submitted_at": "2026-10-26T21:28:25.069047+00:00",
+    "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+    "pid": 67844,
+    "execution_mode": "same-guest-uart-repl",
+    "cleanup_mode": "interrupt-only",
+    "serial_offset": 8365,
+    "source_kind": "uiflow2-package",
+    "total_file_bytes": 4705,
+    "file_count": 2,
+    "deployment": {
+      "phase": "activated",
+      "staging_path": "/flash/.m5-live-packages/.stage-959bb5c90d5e43a7b8a392d6e044519f",
+      "package_path": "/flash/.m5-live-packages/19b71e738b42ca58a94188643a9afab9517a93254db3d5f1abbdb6790c20d6ab",
+      "events": [
+        {
+          "phase": "preflight",
+          "staging_path": "/flash/.m5-live-packages/.stage-959bb5c90d5e43a7b8a392d6e044519f",
+          "package_path": "/flash/.m5-live-packages/19b71e738b42ca58a94188643a9afab9517a93254db3d5f1abbdb6790c20d6ab",
+          "observed_at": "2026-10-26T21:28:25.186140+00:00"
+        },
+        {
+          "phase": "capabilities",
+          "capabilities": {
+            "existing": false,
+            "directory_count": 4,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 1548288
+          },
+          "observed_at": "2026-10-26T21:28:25.631025+00:00"
+        },
+        {
+          "phase": "writing",
+          "path": "main.py",
+          "written_bytes": 1066,
+          "observed_at": "2026-10-26T21:28:26.192511+00:00"
+        },
+        {
+          "phase": "writing",
+          "path": "official_flash.py",
+          "written_bytes": 4705,
+          "observed_at": "2026-10-26T21:28:27.242959+00:00"
+        },
+        {
+          "phase": "verified",
+          "inventory": {
+            "official_flash.py": {
+              "size": 3639,
+              "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+            },
+            "main.py": {
+              "size": 1066,
+              "sha256": "8aea139fb9ed67c403078f4773ae4e96df3249546b1624c4980aaeabe4ec87c8"
+            }
+          },
+          "observed_at": "2026-10-26T21:28:27.351822+00:00"
+        },
+        {
+          "phase": "published",
+          "inventory": {
+            "official_flash.py": {
+              "size": 3639,
+              "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+            },
+            "main.py": {
+              "size": 1066,
+              "sha256": "8aea139fb9ed67c403078f4773ae4e96df3249546b1624c4980aaeabe4ec87c8"
+            }
+          },
+          "reused": false,
+          "observed_at": "2026-10-26T21:28:27.416130+00:00"
+        },
+        {
+          "phase": "activated",
+          "package_path": "/flash/.m5-live-packages/19b71e738b42ca58a94188643a9afab9517a93254db3d5f1abbdb6790c20d6ab",
+          "inventory": {
+            "official_flash.py": {
+              "size": 3639,
+              "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+            },
+            "main.py": {
+              "size": 1066,
+              "sha256": "8aea139fb9ed67c403078f4773ae4e96df3249546b1624c4980aaeabe4ec87c8"
+            }
+          },
+          "reused": false,
+          "capabilities": {
+            "existing": false,
+            "directory_count": 4,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 1548288
+          },
+          "removed_modules": [
+            "official_flash"
+          ],
+          "staging_path": "/flash/.m5-live-packages/.stage-959bb5c90d5e43a7b8a392d6e044519f",
+          "observed_at": "2026-10-26T21:28:27.705035+00:00"
+        }
+      ],
+      "capabilities": {
+        "existing": false,
+        "directory_count": 4,
+        "mpy": 11014,
+        "small_int_bits": 31,
+        "free_bytes": 1548288
+      },
+      "path": "official_flash.py",
+      "written_bytes": 4705,
+      "inventory": {
+        "official_flash.py": {
+          "size": 3639,
+          "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+        },
+        "main.py": {
+          "size": 1066,
+          "sha256": "8aea139fb9ed67c403078f4773ae4e96df3249546b1624c4980aaeabe4ec87c8"
+        }
+      },
+      "reused": false,
+      "removed_modules": [
+        "official_flash"
+      ]
+    },
+    "next_offset": 8424,
+    "acknowledged": true,
+    "transfer_mode": "raw-paste",
+    "observed_at": "2026-10-26T21:28:28.436483+00:00"
+  },
+  "guest": {
+    "nonce": "ded1208780844c1c90beb4b90d2e31a6",
+    "driver_sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f",
+    "driver_file": "/flash/.m5-live-packages/19b71e738b42ca58a94188643a9afab9517a93254db3d5f1abbdb6790c20d6ab/official_flash.py",
+    "en": 1,
+    "phase": "original-long30"
+  },
+  "unit": {
+    "id": "lamp",
+    "unit_id": "flashlight",
+    "port_id": "custom",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    },
+    "visual_port": "grove",
+    "initial": {
+      "flash-mode": true
+    },
+    "source": "guest-qom",
+    "available": true,
+    "properties": {
+      "flash-mode": true,
+      "mode-frozen": true,
+      "en-level": true,
+      "pad-synchronized": true,
+      "gpio-route-supported": true,
+      "output-known": true,
+      "active": true,
+      "waveform-qualified": true,
+      "pulse-count-capped": false,
+      "bit-exact-supported": false,
+      "live-mode-change-supported": false,
+      "reset-observation-supported": false,
+      "pulse-count": 16,
+      "last-program-count": 16,
+      "flash-level-pct": 30,
+      "timeout-ms": 1300,
+      "edge-count": 59,
+      "rising-edges": 30,
+      "decoded-programs": 4,
+      "unqualified-programs": 2,
+      "reset-events": 5,
+      "timeout-events": 3,
+      "trace-overflows": 0,
+      "last-edge-ns": 18153864000,
+      "first-rise-ns": 18153695000,
+      "settle-at-ns": -1,
+      "timeout-at-ns": 19453695000,
+      "program-state": "flash-active",
+      "unknown-reason": "none",
+      "timing-policy": "nominal-model: long-low>500us; qualified inter-pulse HI/LO=750..10000ns; latch=last-rise+500us; Flash deadline=first-rise+220/1300ms; latch/deadline origins are model policy, not measured silicon",
+      "edge-trace-ns": [
+        [
+          5012415000,
+          1
+        ],
+        [
+          5012436000,
+          0
+        ],
+        [
+          8149765000,
+          1
+        ],
+        [
+          11525000000,
+          0
+        ],
+        [
+          11526392000,
+          1
+        ],
+        [
+          11526399000,
+          0
+        ],
+        [
+          11526404000,
+          1
+        ],
+        [
+          14794776000,
+          0
+        ],
+        [
+          14796123000,
+          1
+        ],
+        [
+          14796130000,
+          0
+        ],
+        [
+          14796134000,
+          1
+        ],
+        [
+          14796140000,
+          0
+        ],
+        [
+          14796145000,
+          1
+        ],
+        [
+          14796151000,
+          0
+        ],
+        [
+          14796155000,
+          1
+        ],
+        [
+          14796161000,
+          0
+        ],
+        [
+          14796166000,
+          1
+        ],
+        [
+          14796172000,
+          0
+        ],
+        [
+          14796176000,
+          1
+        ],
+        [
+          14796182000,
+          0
+        ],
+        [
+          14796186000,
+          1
+        ],
+        [
+          14796192000,
+          0
+        ],
+        [
+          14796197000,
+          1
+        ],
+        [
+          14796203000,
+          0
+        ],
+        [
+          14796207000,
+          1
+        ],
+        [
+          14796213000,
+          0
+        ],
+        [
+          14796218000,
+          1
+        ],
+        [
+          18152333000,
+          0
+        ],
+        [
+          18153695000,
+          1
+        ],
+        [
+          18153703000,
+          0
+        ],
+        [
+          18153708000,
+          1
+        ],
+        [
+          18153715000,
+          0
+        ],
+        [
+          18153720000,
+          1
+        ],
+        [
+          18153726000,
+          0
+        ],
+        [
+          18153731000,
+          1
+        ],
+        [
+          18153737000,
+          0
+        ],
+        [
+          18153742000,
+          1
+        ],
+        [
+          18153748000,
+          0
+        ],
+        [
+          18153753000,
+          1
+        ],
+        [
+          18153760000,
+          0
+        ],
+        [
+          18153765000,
+          1
+        ],
+        [
+          18153771000,
+          0
+        ],
+        [
+          18153776000,
+          1
+        ],
+        [
+          18153782000,
+          0
+        ],
+        [
+          18153787000,
+          1
+        ],
+        [
+          18153793000,
+          0
+        ],
+        [
+          18153798000,
+          1
+        ],
+        [
+          18153804000,
+          0
+        ],
+        [
+          18153809000,
+          1
+        ],
+        [
+          18153815000,
+          0
+        ],
+        [
+          18153820000,
+          1
+        ],
+        [
+          18153826000,
+          0
+        ],
+        [
+          18153831000,
+          1
+        ],
+        [
+          18153838000,
+          0
+        ],
+        [
+          18153842000,
+          1
+        ],
+        [
+          18153849000,
+          0
+        ],
+        [
+          18153853000,
+          1
+        ],
+        [
+          18153860000,
+          0
+        ],
+        [
+          18153864000,
+          1
+        ]
+      ],
+      "input-events": 0,
+      "output-transitions": 7
+    },
+    "errors": {}
+  },
+  "frame_sha256": "1004ca97fc4786bed5337c5e88f3cf760856d5f9d63986e57970d17ec688de20",
+  "frame_headers": {
+    "content-type": "image/png",
+    "content-length": "143",
+    "x-request-id": "33e929cfa7104c52ab25c07683ec063d",
+    "x-frame-width": "128",
+    "x-frame-height": "128",
+    "x-frame-sha256": "1004ca97fc4786bed5337c5e88f3cf760856d5f9d63986e57970d17ec688de20",
+    "x-frame-capture-seq": "5",
+    "x-frame-source": "live",
+    "etag": "\"1004ca97fc4786bed5337c5e88f3cf760856d5f9d63986e57970d17ec688de20\"",
+    "x-frame-captured-at": "2026-10-26T21:28:28.449095+00:00",
+    "x-frame-execution-id": "c6f24753c655466c88719732a7055e0b",
+    "x-frame-revision-id": "19b71e738b42ca58a94188643a9afab9517a93254db3d5f1abbdb6790c20d6ab",
+    "x-frame-program-state": "completed"
+  },
+  "selected_pad_pixel": [
+    255,
+    255,
+    255
+  ],
+  "snapshot_semantics": "QOM fields sampled separately; not atomic across fields or frame",
+  "waveform_result": "QUALIFIED_NOMINAL_DIGITAL_CODE"
+}

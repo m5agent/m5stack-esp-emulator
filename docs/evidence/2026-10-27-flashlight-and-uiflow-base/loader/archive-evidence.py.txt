@@ -1,0 +1,71 @@
+"""Copy only checked loader text/JSON/PNG and firmware-free evidence ZIPs."""
+from pathlib import Path
+import hashlib,io,json,re,sys,zipfile
+ROOT=Path.cwd();SOURCE=ROOT/'.work/main-loader-capability-probe-20261027'
+DEST=ROOT/'docs/evidence/2026-10-27-flashlight-and-uiflow-base/loader'
+sys.path[:0]=[str(SOURCE),str(ROOT/'.work/py312')]
+import probe
+from PIL import Image
+h=lambda b:hashlib.sha256(b).hexdigest()
+token=probe.common.read_token(ROOT/'.work/preview-control-token').encode()
+
+def secret_check(raw):
+ assert token not in raw,'live service token would be archived'
+ assert not re.search(rb'(?:sk-proj-|ghp_|gho_|xoxb-)[A-Za-z0-9_-]{10,}',raw),'credential would be archived'
+ assert not re.search(rb'(?i)\b(?:[0-9a-f]{2}:){5}[0-9a-f]{2}\b',raw),'MAC would be archived'
+
+def inspect_zip(raw):
+ inventory=[];forbidden=[]
+ with zipfile.ZipFile(io.BytesIO(raw)) as z:
+  assert z.testzip() is None
+  for item in z.infolist():
+   name=Path(item.filename);assert not name.is_absolute() and '..' not in name.parts
+   assert not (item.external_attr>>16)&0o170000==0o120000
+   data=z.read(item.filename);inventory.append({'path':item.filename,'bytes':len(data),'sha256':h(data)})
+   if name.suffix.lower() in ('.bin','.elf','.mpy'):forbidden.append(item.filename)
+   else:
+    secret_check(data)
+    if name.suffix=='.json':json.loads(data)
+    elif data.startswith(b'\x89PNG\r\n\x1a\n'):
+     with Image.open(io.BytesIO(data)) as image:image.verify()
+    elif name.suffix not in ('.log','.stdout','.stderr'):data.decode('utf8',errors='strict')
+ return inventory,forbidden
+
+def main():
+ DEST.mkdir(parents=True,exist_ok=True)
+ copied=[];excluded=[]
+ for source in sorted(SOURCE.rglob('*')):
+  if not source.is_file():continue
+  assert not source.is_symlink()
+  relative=source.relative_to(SOURCE);raw=source.read_bytes();meta={'source_path':str(source.relative_to(ROOT)),'bytes':len(raw),'source_sha256':h(raw)}
+  suffix=source.suffix.lower();name=relative
+  if suffix in ('.bin','.elf','.mpy'):
+   excluded.append({**meta,'reason':'compiled-mpy-bytecode' if suffix=='.mpy' else 'firmware-or-raw-flash'});continue
+  if raw.startswith(b'PK\x03\x04'):
+   members,forbidden=inspect_zip(raw)
+   if forbidden:
+    excluded.append({**meta,'reason':'zip-contains-firmware','members':members,'forbidden_members':forbidden});continue
+   if suffix!='.zip':name=Path(str(relative)+'.zip')
+   kind='safe-device-evidence-zip'
+  elif raw.startswith(b'\x89PNG\r\n\x1a\n'):
+   with Image.open(io.BytesIO(raw)) as image:image.verify()
+   if suffix!='.png':name=Path(str(relative)+'.png')
+   kind='png'
+  else:
+   raw.decode('utf8',errors='strict');secret_check(raw)
+   if suffix in ('.json','.response'):
+    json.loads(raw);kind='json'
+    if suffix=='.response':name=Path(str(relative)+'.json')
+   elif suffix=='.py':name=Path(str(relative)+'.txt');kind='source-snapshot'
+   elif suffix=='.md':name=Path(str(relative)+'.txt');kind='markdown-snapshot'
+   elif suffix in ('.txt','.log') or source.name=='sdkconfig':
+    kind='text'
+    if not suffix:name=Path(str(relative)+'.txt')
+   else:raise AssertionError('unclassified file: '+str(relative))
+  archive=DEST/name;archive.parent.mkdir(parents=True,exist_ok=True);archive.write_bytes(raw)
+  assert h(archive.read_bytes())==meta['source_sha256']
+  copied.append({**meta,'archive_path':str(name),'archive_sha256':h(raw),'kind':kind})
+ index={'schema_version':1,'kind':'loader-evidence-archive','date':'2026-10-27','source_root':str(SOURCE.relative_to(ROOT)),'public_mpy_entrypoint_enabled':False,'hardware':'NOT RUN','policy':'text source snapshots are exact UTF8 bytes; raw response JSON/PNG/ZIP suffixes describe content; raw UART .log protocol control bytes inside evidence ZIPs are retained exactly; excluded firmware/Flash/MPY/ELF/firmware-containing ZIP retain fingerprints only; no authorization headers or credentials','files':copied,'excluded':excluded}
+ (DEST/'index.json').write_text(json.dumps(index,ensure_ascii=False,indent=2)+'\n')
+ print(json.dumps({'archive':str(DEST.relative_to(ROOT)),'copied':len(copied),'excluded':len(excluded),'kinds':{kind:sum(r['kind']==kind for r in copied) for kind in sorted({r['kind'] for r in copied})}},indent=2))
+if __name__=='__main__':main()

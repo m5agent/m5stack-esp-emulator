@@ -1,0 +1,25 @@
+{
+  "classification": "PREBUILT_C6_RUNTIME_WITHOUT_AVAILABLE_SOURCE_RECEIPT",
+  "binary": ".work/M5StopWatch-QEMU/build/qemu-c6/build/qemu-system-riscv32",
+  "binary_sha256": "ff6c2ef71e83253ef35ccc2ef5aa42243270f6a397b169a9af549b47d5ca09c0",
+  "rom_dir": ".work/M5StopWatch-QEMU/build/qemu-c6/pc-bios",
+  "rom_hashes": {
+    "esp32c6-rom.bin": "91db14c2419391308b108bac0b15fe3442a9c411cdd7f3fb088767c9fbc4b713"
+  },
+  "source_status": "NOT_AVAILABLE_IN_LOCAL_C6_LANE",
+  "source_tree": ".work/M5StopWatch-QEMU/build/qemu-c6",
+  "available_top_level": [
+    "build",
+    "pc-bios"
+  ],
+  "absent": [
+    ".git",
+    "hw/riscv/esp32c6.c",
+    "meson.build",
+    "build/compile_commands.json",
+    "build/build.ninja"
+  ],
+  "source_hash_claim": "NOT MADE",
+  "parent_repository_git_fallback_is_not_C6_source_evidence": true,
+  "regression_boundary": "5 C6 cases execute the fixed prebuilt binary; 62 Xtensa cases use newly built source-receipted FlashLight runtime"
+}

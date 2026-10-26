@@ -1,0 +1,96 @@
+"""Archive API/composer/quota evidence, keeping execution generations distinct."""
+from pathlib import Path
+import ast,datetime,hashlib,json,re,subprocess
+ROOT=Path.cwd();DEST=ROOT/'docs/evidence/2026-10-27-flashlight-and-uiflow-base/api'
+h=lambda b:hashlib.sha256(b).hexdigest()
+TOKEN=(ROOT/'.work/preview-control-token').read_bytes().strip()
+TOKEN_DIGEST=hashlib.sha256(TOKEN).hexdigest().encode()
+entries=[]
+
+def check(raw):
+ assert TOKEN not in raw and TOKEN_DIGEST not in raw,'credential or credential fingerprint found'
+ assert not re.search(rb'(?:sk-proj-|ghp_|gho_|xoxb-)[A-Za-z0-9_-]{10,}',raw),'credential pattern found'
+ assert not re.search(rb'(?i)\b(?:[0-9a-f]{2}:){5}[0-9a-f]{2}\b',raw),'MAC found'
+ raw.decode('utf8',errors='strict')
+
+def write(relative,raw,*,source,kind='captured',extra=None):
+ check(raw);path=DEST/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+ entries.append({'source_path':source,'archive_path':str(relative),'bytes':len(raw),'source_sha256':h(raw),'archive_sha256':h(path.read_bytes()),'source_kind':kind,**(extra or {})})
+
+def generated(relative,value):
+ raw=(json.dumps(value,ensure_ascii=False,indent=2)+'\n').encode();write(relative,raw,source='generated:'+str(relative),kind='generated')
+
+def capture(source,relative=None,*,appendable=False):
+ path=ROOT/source;raw=path.read_bytes();stat=path.stat()
+ name=Path(relative or source)
+ if name.suffix in ('.py','.md'):name=Path(str(name)+'.txt')
+ write(name,raw,source=source,extra={'captured_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source_mtime_ns':stat.st_mtime_ns,'appendable_source':appendable,'prefix_snapshot_note':'live service log may append after capture; hashes cover the captured bytes only' if appendable else 'fixed file snapshot'})
+
+def reconstructed(relative,raw,*,historical_sha,derivation,inputs):
+ assert h(raw)==historical_sha
+ write(relative,raw,source='reconstructed:'+str(relative),kind='reconstructed-exact-historical-sha',extra={'historical_receipt_sha256':historical_sha,'derivation':derivation,'input_sources_sha256':inputs})
+
+def receipt(source):return json.loads((ROOT/source).read_text())
+
+def main():
+ groups=[('.work/explicit-uiflow-base-final-20261027','explicit-base-final-62'),('.work/explicit-uiflow-base-fresh-final-r2-20261027','explicit-base-fresh-final-r2-64')]
+ for original,prefix in groups:
+  for path in sorted((ROOT/original).rglob('*')):
+   if path.is_file():
+    assert path.suffix in ('.json','.log','.py','.txt')
+    capture(str(path.relative_to(ROOT)),str(Path(prefix)/path.relative_to(ROOT/original)))
+ for name in ('cas-context-audit.py','cas-context-audit.json','cas-context-audit-after-timestamp-fix.json'):
+  capture('.work/main-loader-capability-probe-20261027/'+name,'cas-audits/'+name)
+ services={39:'.work/uiflow-explicit-base-service-gen39-20261027',40:'.work/uiflow-explicit-base-service-gen40-20261027',41:'.work/flashlight-service-gen41-20261027',42:'.work/flashlight-service-gen42-20261027'}
+ generations={}
+ for number,directory in services.items():
+  for name in ('start.json','service.log'):capture(directory+'/'+name,f'service-gen{number}/'+name,appendable=number==42 and name=='service.log')
+  r=receipt(directory+'/start.json');generations[str(number)]={'receipt':f'service-gen{number}/start.json','runtime_sha256':r['runtime_sha256'],'source_sha256':r['source_sha256'],'worker_generation':r['health']['capacity']['worker']['generation'],'program_revision_capacity':r['program_revision_capacity'],'program_package_capacity':r.get('program_package_capacity',256)}
+ for name in ('flashlight-package-quota-tests-r2-20261027.log','flashlight-platform-tests-r2-20261027.log'):
+  capture('.work/'+name,'root-tests/'+name)
+ sources=['platform/tools/device_service.py','platform/tools/serve.py','platform/tools/program_packages.py','platform/tools/uiflow_source.py','platform/tests/test_uiflow_service.py','platform/tests/test_uiflow_source.py','platform/tests/test_device_service.py','platform/tests/test_program_packages.py','platform/tests/test_program_package_config.py','platform/tests/test_program_revision_config.py']
+ current={}
+ for name in sources:
+  raw=(ROOT/name).read_bytes();current[name]=h(raw);capture(name,'source-snapshots/gen42/'+name)
+ for name in ('platform/tools/device_service.py','platform/tools/serve.py','platform/tools/program_packages.py'):
+  assert current[name]==generations['42']['source_sha256'][name]
+ original=(ROOT/'platform/tools/device_service.py').read_text()
+ gen40=original.replace('    MAX_PACKAGE_BYTES, MAX_PACKAGE_FILES, MAX_PACKAGES,\n','    MAX_PACKAGE_BYTES, MAX_PACKAGE_FILES,\n').replace('        max_program_packages: int = MAX_PACKAGES,\n','').replace('        self.program_packages = ProgramPackageStore(\n            self.state_dir / "program-packages", max_count=max_program_packages,\n        )','        self.program_packages = ProgramPackageStore(self.state_dir / "program-packages")')
+ reconstructed('source-snapshots/gen40/device_service.py.txt',gen40.encode(),historical_sha=generations['40']['source_sha256']['platform/tools/device_service.py'],derivation='reverse only the later package quota import, keyword-only parameter and constructor forwarding; exact hash matches gen40/gen41 start receipts and loader r4 freeze',inputs={'platform/tools/device_service.py':h(original.encode())})
+ timestamp='''                    # Public re-import regenerates only this non-semantic
+                    # timestamp. Keep every other manifest/source field exact.
+                    for context in (old_context, new_context):
+                        if isinstance(context.get("base_manifest"), dict):
+                            context["base_manifest"] = context["base_manifest"].copy()
+                            context["base_manifest"].pop("created_at", None)
+'''
+ gen39=gen40.replace(timestamp,'')
+ reconstructed('source-snapshots/gen39/device_service.py.txt',gen39.encode(),historical_sha=generations['39']['source_sha256']['platform/tools/device_service.py'],derivation='reverse only the six-line top-level manifest.created_at comparison exception from the exact gen40 reconstruction',inputs={'gen40/device_service.py':h(gen40.encode())})
+ head=subprocess.run(['git','rev-parse','HEAD'],capture_output=True,check=True,text=True).stdout.strip()
+ for name in ('platform/tools/serve.py','platform/tools/program_packages.py'):
+  raw=subprocess.run(['git','show',head+':'+name],capture_output=True,check=True).stdout
+  reconstructed('source-snapshots/gen39-41/'+Path(name).name+'.txt',raw,historical_sha=generations['40']['source_sha256'][name],derivation='read exact Git blob '+head+':'+name+'; hash matches service gen39/gen40/gen41 receipts',inputs={'git_commit':head})
+ tests=(ROOT/'platform/tests/test_uiflow_service.py').read_text();lines=tests.splitlines(keepends=True);spans=[]
+ for cls in ast.parse(tests).body:
+  if isinstance(cls,ast.ClassDef):
+   for i,node in enumerate(cls.body):
+    if isinstance(node,ast.FunctionDef) and node.name in ('test_timestamp_exception_keeps_all_other_manifest_and_source_fields_exact','test_public_reimport_timestamp_change_allows_identical_explicit_source_retry'):
+     start=min([node.lineno]+[item.lineno for item in node.decorator_list])-1;end=cls.body[i+1].lineno-1 if i+1<len(cls.body) else node.end_lineno;spans.append((start,end))
+ for start,end in sorted(spans,reverse=True):del lines[start:end]
+ expected=receipt('.work/explicit-uiflow-base-final-20261027/index.json')['sources_sha256']['platform/tests/test_uiflow_service.py']
+ reconstructed('source-snapshots/explicit-base-final-62/test_uiflow_service.py.txt',''.join(lines).encode(),historical_sha=expected,derivation='AST-bounded removal including decorators of only the two later timestamp retry/negative-control tests; exact hash matches original 62-test index',inputs={'platform/tests/test_uiflow_service.py':h(tests.encode())})
+ generated('source-lineage.json',{'schema_version':1,'generations':generations,'final_current_source_sha256':current,'boundaries':['gen39 has full CAS context exact comparison and no manifest timestamp exception','gen40 loader r4 uses device_service d6ac and old runtime850426; it is not gen42 quota source','gen41 switches runtime to FlashLight build7c898; DeviceService/serve/packages stay gen40 implementation','gen42 adds bounded package quota configuration in DeviceService/serve/program_packages; no loader on that new runtime or those new source bytes is implied','62 and 64 original host-test indices are retained independently; their hashes bind historical sources','shared test_device_service snapshot matches both historical test indices; current test_uiflow_service snapshot matches 64-test index','only explicitly labeled reconstructed files reverse later small patches and prove equality to historical receipt hashes; they are not falsely described as original live captures']})
+ generated('review/quota-diff-review.json',{'status':'PASS_NO_ACTIONABLE_REGRESSION_FOUND','reviewed_source_sha256':{k:current[k] for k in ('platform/tools/program_packages.py','platform/tools/device_service.py','platform/tools/serve.py')},'checks':[{'file':'platform/tools/program_packages.py','lines':[29,30,217,219],'result':'default256 unchanged; strict type(int) bounds1..4096 reject bool and invalid types'},{'file':'platform/tools/program_packages.py','lines':[328,348],'result':'existing records checked and reused before quota; lowering cap preserves all stored bytes and reads; new distinct record above cap429; atomic locking unchanged'},{'file':'platform/tools/device_service.py','lines':[8743,8767],'result':'keyword-only default256 forwarded independently of source revision quota'},{'file':'platform/tools/serve.py','lines':[337,338,1229,1368,1450],'result':'lazyhandler environment, CLI/environment precedence, prelistener range validation and constructor forwarding complete'}],'independent_checks':'review/quota-narrow-tests.json (35 actual host tests) and review/explicit-security-cas-timestamp-tests.json (7 actual host tests)','guest':'NOT RUN','listener':'no production listener started or reloaded','unrelated_behavior':'package count changed only when configured; package size/content identity/MPY admission unchanged'})
+ results={}
+ for name in ('flashlight-package-quota-tests-r2-20261027.log','flashlight-platform-tests-r2-20261027.log'):
+  raw=(ROOT/'.work'/name).read_bytes();found=re.findall(rb'Ran (\d+) tests in ([0-9.]+)s\r?\n\r?\nOK',raw);assert found
+  count,seconds=found[-1];results[name]={'tests':int(count),'seconds':float(seconds),'final_log_result':'OK','sha256':h(raw),'attribution':'result parsed from this saved log only; no later documentation or source changes are retroactively validated by it'}
+ generated('summary.json',{'status':'PASS_WITH_HISTORICAL_GENERATIONS_KEPT_SEPARATE','date':'2026-10-27','scope':'host/API source composer, CAS guards, bounded package quota and service reload provenance; firmware loader evidence remains in sibling loader/','historical_host_tests':{'explicit-base-final-62':62,'explicit-base-fresh-final-r2-64':64},'root_saved_test_logs':results,'independent_current_host_tests':{'quota':35,'security_cas_timestamp':7},'review':'no actionable quota regression found','public_mpy_entrypoint_enabled':False,'hardware':'NOT RUN','source_lineage':'source-lineage.json','not_claimed':['host or API tests do not establish hardware execution','gen40 loader PASS is not gen42 loader PASS','full-platform saved log does not validate later edits','live gen42 service.log is an exact prefix captured at archive time and may later append'],'redaction_policy':'no token files, actual token, token digest, credentials, MAC, firmware/ROM/ELF or rawFlash are archived; safe source code references to credential parameter names are not credential values'})
+ # Include locally authored review files and these scripts in the same inventory.
+ listed={e['archive_path'] for e in entries}
+ for path in sorted(DEST.rglob('*')):
+  if path.is_file() and str(path.relative_to(DEST)) not in listed and path.name!='index.json':
+   raw=path.read_bytes();check(raw);entries.append({'source_path':'locally-authored:'+str(path.relative_to(DEST)),'archive_path':str(path.relative_to(DEST)),'bytes':len(raw),'source_sha256':h(raw),'archive_sha256':h(raw),'source_kind':'locally-authored-review-or-verifier'})
+ index={'schema_version':1,'kind':'api-composer-quota-evidence','captured_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'files':sorted(entries,key=lambda e:e['archive_path']),'excluded':'explicit source whitelist only; no binary/firmware/token paths were enumerated or copied','redaction_scan':{'actual_service_token':'NO MATCH','actual_service_token_digest':'NO MATCH','common_credentials':'NO MATCH','MAC':'NO MATCH'},'public_mpy_entrypoint_enabled':False,'hardware':'NOT RUN'}
+ (DEST/'index.json').write_text(json.dumps(index,ensure_ascii=False,indent=2)+'\n');print(json.dumps({'status':'PASS','archive_files':len(entries),'source_phase':'explicit generation-aware lineage','index_sha256':h((DEST/'index.json').read_bytes())},indent=2))
+if __name__=='__main__':main()

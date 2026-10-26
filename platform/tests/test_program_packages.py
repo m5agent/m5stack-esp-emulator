@@ -254,8 +254,18 @@ class ProgramPackageTests(unittest.TestCase):
         self.assertEqual(len(accepted), 5)
         self.assertEqual(len(list(self.root.glob("*.json"))), 5)
         self.assertEqual(ProgramPackageStore(self.root, max_count=5).create(self.store.source(accepted[0]["revision_id"])), accepted[0])
-        for maximum in (0, -1, 257, True, 1.0, None):
+        for maximum in (0, -1, 4097, True, 1.0, None):
             self.assert_error("invalid_package_quota", ProgramPackageStore, self.root, max_count=maximum)
+
+    def test_expanded_quota_preserves_history_when_reopened_at_default(self):
+        expanded = ProgramPackageStore(self.root, max_count=1024)
+        records = [expanded.create(self.payload(f"VALUE={index}")) for index in range(257)]
+        before = {p.name: p.read_bytes() for p in self.root.glob("*.json")}
+        reopened = ProgramPackageStore(self.root)
+        self.assertEqual(reopened.max_count, 256)
+        self.assertEqual(reopened.create(expanded.source(records[0]["revision_id"])), records[0])
+        self.assert_error("program_package_quota_exceeded", reopened.create, self.payload("VALUE=258"), status=429)
+        self.assertEqual({p.name: p.read_bytes() for p in self.root.glob("*.json")}, before)
 
     def test_invalid_and_missing_identity_cannot_escape_the_root(self):
         for identity in ("a" * 64, "../private", "A" * 64, "x" * 64, "", None, 1):

@@ -172,7 +172,7 @@ try {
     };
     await window.makeScenario();
   }, inventory);
-  assert.equal(await page.locator('.unit-card').count(), 28, 'all 28 schema families render');
+  assert.equal(await page.locator('.unit-card').count(), inventory.units.length, 'all catalog schema families render');
   assert.ok((await page.locator('[data-unit-id="u-button"] h4').textContent()).includes('冻结按键合同'));
   assert.equal(await page.locator('[data-unit-id="u-button"] [data-input-field="frozen-only"]').count(), 1);
   assert.equal(await page.locator('[data-input-field="live-only"]').count(), 0, 'live catalog must not replace frozen contract');
@@ -200,9 +200,14 @@ try {
   });
   assert.equal(await page.evaluate(() => window.fixtureCommands.filter(command => command.type === 'drive-activity').at(-1).active), false, 'transport failure stops activity instead of displaying stale motion');
   await page.evaluate(async () => { await window.panel.refresh(); clearTimeout(window.panel.timer); });
-  const expectedFields = units.flatMap(unit => Object.keys(profiles[unit.id]?.inputs || {}).map(field => ({unit: unit.id, field})));
-  for (const {unit, field} of expectedFields) {
-    assert.ok(await page.locator(`[data-unit-id="u-${unit}"] [data-input-field="${field}"], [data-unit-id="u-${unit}"] [data-press-field="${field}"]`).count(), `${unit}.${field} must have a schema control`);
+  const expectedFields = units.flatMap(unit => Object.entries(profiles[unit.id]?.inputs || {}).map(([field, runtime]) => ({unit: unit.id, field,
+    creationOnly: runtime.creation_only || unit.inputs[field]?.creation_only})));
+  for (const {unit, field, creationOnly} of expectedFields) {
+    const controls = page.locator(`[data-unit-id="u-${unit}"] [data-input-field="${field}"], [data-unit-id="u-${unit}"] [data-press-field="${field}"]`);
+    if (creationOnly) {
+      assert.equal(await controls.count(), 0, `${unit}.${field} creation fixture has no live control`);
+      assert.equal(await page.locator(`[data-unit-id="u-${unit}"] [data-unit-creation-only="${field}"]`).count(), 1, `${unit}.${field} explains the read-only creation fixture`);
+    } else assert.ok(await controls.count(), `${unit}.${field} must have a schema control`);
   }
 
   await page.evaluate(() => { window.delayPosts = true; });
@@ -537,7 +542,7 @@ try {
   await page.evaluate(() => { window.panel.dispose(); window.picker.dispose(); });
   assert.deepEqual(errors, []);
   const source_sha256 = Object.fromEntries(await Promise.all(['platform/web/unit-panel.js', 'platform/web/unit-panel.css', 'platform/web/unit-visual-mappings.js', 'platform/tests/test_unit_panel.mjs', 'platform/units/catalog.json', 'platform/units/runtime-profiles.json'].map(async path => [path, createHash('sha256').update(await readFile(resolve(root, path))).digest('hex')])));
-  await writeFile(`${output}/report.json`, JSON.stringify({category: 'browser-bridge-contract', status: 'PASS', captured_at: new Date().toISOString(), browser_version: browser.version(), source_sha256, checks: ['controller-readback-over-initial', 'multi-source-press-release', 'readback-animation-command', 'explicit-planned-picker', 'blur-release', 'terminal-controls-disabled', 'dispose-polling', 'frozen-session-schema-over-live-catalog', 'all-28-schema-forms', 'cardkb-50-and-encoder8-8-controls', 'pending-multikey-array-preservation', 'stale-readback-preserves-held-channels', 'get-before-post-late-snapshot-rejected', 'get-during-post-late-snapshot-rejected', 'old-session-get-success-and-error-fenced', 'payload-session-id-before-state-writes', 'reused-session-id-epoch-fenced', 'old-session-init-fenced', 'same-session-init-input-epoch-fenced', 'replacement-session-original-release-preserved', 'replacement-session-model-remount-and-old-async-attach-fenced', 'old-session-post-and-queued-input-fenced', 'queued-release-recovery-session-fenced', 'dispose-original-session-release-without-late-state-writes', 'observed-rgb-swatches-electrical-order', 'fan-terminal-and-transport-fail-closed', 'array-schema-validation', 'nested-hub-parent-first-input-routing', 'null-shell-release', 'async-attach-cancel', 'disposed-shell-sync-and-async-errors', 'hub-three-i2c-picker', 'responsive-1440-1024-768-390', 'cardkb-full-key-names-nowrap-no-text-overflow-all-viewports'], firmware_execution: 'NOT RUN', errors}, null, 2) + '\n');
+  await writeFile(`${output}/report.json`, JSON.stringify({category: 'browser-bridge-contract', status: 'PASS', captured_at: new Date().toISOString(), browser_version: browser.version(), source_sha256, checks: ['controller-readback-over-initial', 'multi-source-press-release', 'readback-animation-command', 'explicit-planned-picker', 'blur-release', 'terminal-controls-disabled', 'dispose-polling', 'frozen-session-schema-over-live-catalog', `all-${inventory.units.length}-schema-forms`, 'cardkb-50-and-encoder8-8-controls', 'pending-multikey-array-preservation', 'stale-readback-preserves-held-channels', 'get-before-post-late-snapshot-rejected', 'get-during-post-late-snapshot-rejected', 'old-session-get-success-and-error-fenced', 'payload-session-id-before-state-writes', 'reused-session-id-epoch-fenced', 'old-session-init-fenced', 'same-session-init-input-epoch-fenced', 'replacement-session-original-release-preserved', 'replacement-session-model-remount-and-old-async-attach-fenced', 'old-session-post-and-queued-input-fenced', 'queued-release-recovery-session-fenced', 'dispose-original-session-release-without-late-state-writes', 'observed-rgb-swatches-electrical-order', 'fan-terminal-and-transport-fail-closed', 'array-schema-validation', 'nested-hub-parent-first-input-routing', 'null-shell-release', 'async-attach-cancel', 'disposed-shell-sync-and-async-errors', 'hub-three-i2c-picker', 'responsive-1440-1024-768-390', 'cardkb-full-key-names-nowrap-no-text-overflow-all-viewports'], firmware_execution: 'NOT RUN', errors}, null, 2) + '\n');
   console.log('UNIT_PANEL_BROWSER_OK');
 } catch (error) {
   const source_sha256 = Object.fromEntries(await Promise.all(['platform/web/unit-panel.js', 'platform/tests/test_unit_panel.mjs'].map(async path => [path, createHash('sha256').update(await readFile(resolve(root, path))).digest('hex')])));

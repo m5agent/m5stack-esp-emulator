@@ -1,0 +1,42 @@
+import sys,os,json,hashlib,binascii
+_state=sys.modules['__m5_loader_probe_state__']
+assert _state['nonce'] == '333acfdcf9f14c058bdb73cba9d3677e', 'VM nonce lost'
+_state=sys.modules['__m5_loader_probe_state__']
+_owner=_state['owner']
+assert __import__('__main__') is _owner, 'REPL owner not restored before import'
+_cwd=os.getcwd()
+_path=sys.path[:]
+_saved={}
+for _name in ('main','__main__','dep'):
+ _saved[_name]=(_name in sys.modules,sys.modules.get(_name))
+sys.modules.pop('main',None)
+sys.modules.pop('dep',None)
+_directory='/flash/.main-loader-probe-333acfdcf9f14c058bdb73cba9d3677e/exception'
+assert sorted(os.listdir(_directory)) == ['dep.mpy','main.mpy'], 'entrypoint shadowing exists'
+_inventory={}
+for _name in ('main.mpy','dep.mpy'):
+ with open(_directory+'/'+_name,'rb') as _file:
+  _raw=_file.read()
+ _inventory[_name]={'sha256':binascii.hexlify(hashlib.sha256(_raw).digest()).decode(),'bytes':len(_raw)}
+os.chdir(_directory)
+sys.path[:]=[_directory]+[p for p in _path if p != _directory]
+print('MAIN_LOADER_CAP '+json.dumps({'kind':'load-request','label':'exception','directory':_directory,'inventory':_inventory}))
+try:
+ _module=__import__('main',None,None,False,0)
+ _result=_module.RESULT
+ assert sys.modules.get('main') is _module and sys.modules.get('__main__') is _module, 'import returned another module'
+ assert __import__('__main__') is _module, 'application __main__ differs'
+ print('MAIN_LOADER_CAP '+json.dumps({'kind':'import-return','label':'exception','result':_result,'module_id':id(_module),'inventory':_inventory}))
+except BaseException as _error:
+ print('MAIN_LOADER_CAP '+json.dumps({'kind':'import-error','label':'exception','exception':type(_error).__name__,'message':str(_error),'inventory':_inventory,'main_cached_after_failure':'main' in sys.modules,'main_alias_after_failure':id(sys.modules.get('__main__'))}))
+finally:
+ os.chdir(_cwd)
+ sys.path[:]=_path
+ for _name,_pair in _saved.items():
+  if _pair[0]:
+   sys.modules[_name]=_pair[1]
+  else:
+   sys.modules.pop(_name,None)
+ _restored=__import__('__main__') is _owner and all((_name in sys.modules)==_pair[0] and (not _pair[0] or sys.modules[_name] is _pair[1]) for _name,_pair in _saved.items())
+ print('MAIN_LOADER_CAP '+json.dumps({'kind':'restored','label':'exception','restored':_restored,'owner_id':id(__import__('__main__')),'nonce':_state['nonce']}))
+ assert _restored, 'REPL owner/cache restoration failed'

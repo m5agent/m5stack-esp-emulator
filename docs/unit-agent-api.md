@@ -1,6 +1,6 @@
 # 外部 Agent：UIFlow 实时编程与 Unit 会话
 
-日期：`2026-10-27`。API 契约：`1.44.0`。
+日期：`2026-10-27`。API 契约：`1.45.0`。
 
 实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
 串口及 Unit 状态”的路径。AIFlow/外部 Agent 推荐创建一次 `/previews`，将完整
@@ -14,6 +14,17 @@ REPL 在同一 VM 部署运行，不重刷固件或重启虚拟设备。下方 c
 脚本以新globals执行、初始`__name__='__main__'`，不会替换REPL的
 `sys.modules['__main__']`。当前固件普通导入`.mpy`保留模块名，if-main守卫不执行，
 不能把“模块导入成功”当作完整UIFlow脚本入口已支持。
+固定CoreS3兼容构建已通过独立loader诊断，包括真正if-main、模块身份、重复运行、
+依赖更新及异常/Ctrl-C恢复；公共入口仍为false，不能用该诊断绕过能力门禁。
+首次准备可用`firmware/uiflow`显式`base_firmware_id`，必须pin normalized stored
+image SHA并通过manifest/实际镜像与安全能力校验；后续仍在同一guest Run。
+
+新增FlashLight U152：attachment的`initial: {"flash-mode": false}`选择Torch，
+true选择Flash；S1创建后冻结，运行中写入返回409。四主机已验限定数字子集，
+CoreS3默认网页另验亮/灭/unknown/恢复。始终检查`output-known`、route与pad
+资格；`active=false`而`output-known=false`不代表已知熄灭。原驱动部分长闪
+请求编码错误，超出推荐时序的波形保持unknown；详见
+[分层证据与限制](evidence/2026-10-27-flashlight-and-uiflow-base/README.md)。
 
 默认网页对RGB/Encoder/8Encoder的全灯同色和全灭显示真实3D灯反馈；非对称颜色因物理灯位未确认而标unknown，仍可查看原始电气数组。读取失败会撤回旧颜色，恢复后重新显示。该范围不包含旋转角度，见[证据与限制](evidence/2026-10-26-uniform-led-and-program-capabilities/README.md)。
 
@@ -110,7 +121,7 @@ CoreS3 另有真实网页创建、输入、程序替换、画面进入模型屏�
 早期手动 bootstrap 的 AtomS3R 基线保留在
 [首轮实时程序证据](evidence/2026-10-26-uiflow-live-program/README.md)。
 上述早期结果不外推其它 Unit、任意源码、多文件资源或物理设备。
-每session最多256次execution；单源码store默认256、可显式配置1..4096，完整包store独立限256。额度
+每session最多256次execution；单源码store默认256、可显式配置1..4096，完整包store独立配额默认256、可显式配置1..4096。额度
 耗尽返回明确错误，不自动删除历史或重跑未知提交；公共checkpoint响应明确gc_enabled=false。服务重连期间可能丢失串口输出，
 原活跃程序保持 unknown，不能仅根据旧 START 恢复 running。
 

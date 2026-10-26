@@ -1,0 +1,405 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "source": "actual final source + actual patch harness",
+  "guest": "NOT RUN",
+  "syntax_files": {
+    "hw/m5stopwatch/m5_unit_gpio.c": "0ef49f327222c8586318a0a5c42825ee417d5c4c3bb52b25c2e8d35dba8af113",
+    "hw/m5stopwatch/m5_unit_runtime.c": "2c9e32285770643de338bded45d03cafb83295269f757b95db53ee2b420e6243"
+  },
+  "patch_sha256": "52e384a59fad2ba0739bfbaa7b515f49bbee97d59a11583c1a53e9a060f58626",
+  "harness_source_sha256": "7315385caea30c0b2aa466cebb8a39436b4e982d0df456e45bbe0e3e4dca3ac8",
+  "harness_binary_sha256": "76a87e52950eb28c991685450cec67d8066979eaa4b3b85e92facfc4503340c6",
+  "cases": [
+    "table",
+    "boundaries",
+    "outside",
+    "reset",
+    "duplicates",
+    "torch",
+    "mode",
+    "initial-high",
+    "many",
+    "trace",
+    "missing-pad",
+    "route",
+    "short-low",
+    "old-timer",
+    "original-negative",
+    "readonly"
+  ],
+  "commands": [
+    {
+      "argv": [
+        "cc",
+        "-Ilibqemu-xtensa-softmmu.a.p",
+        "-I.",
+        "-I..",
+        "-Itarget/xtensa",
+        "-I../target/xtensa",
+        "-Isubprojects/dtc/libfdt",
+        "-I../subprojects/dtc/libfdt",
+        "-Iqapi",
+        "-Itrace",
+        "-Iui",
+        "-Iui/shader",
+        "-I/opt/homebrew/Cellar/pixman/0.44.2/include/pixman-1",
+        "-I/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-scroll-final/deps/include/slirp",
+        "-I/opt/homebrew/Cellar/glib/2.82.5/include/glib-2.0",
+        "-I/opt/homebrew/Cellar/glib/2.82.5/lib/glib-2.0/include",
+        "-I/opt/homebrew/opt/gettext/include",
+        "-I/opt/homebrew/Cellar/pcre2/10.44/include",
+        "-I/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/include",
+        "-I/opt/homebrew/Cellar/glib/2.82.5/include",
+        "-fdiagnostics-color=auto",
+        "-Wall",
+        "-Winvalid-pch",
+        "-std=gnu11",
+        "-O2",
+        "-g",
+        "-fstack-protector-strong",
+        "-Wempty-body",
+        "-Wendif-labels",
+        "-Wexpansion-to-defined",
+        "-Wformat-security",
+        "-Wformat-y2k",
+        "-Wignored-qualifiers",
+        "-Winit-self",
+        "-Wmissing-format-attribute",
+        "-Wmissing-prototypes",
+        "-Wnested-externs",
+        "-Wold-style-definition",
+        "-Wredundant-decls",
+        "-Wstrict-prototypes",
+        "-Wtype-limits",
+        "-Wundef",
+        "-Wvla",
+        "-Wwrite-strings",
+        "-Wno-gnu-variable-sized-type-not-at-end",
+        "-Wno-initializer-overrides",
+        "-Wno-missing-include-dirs",
+        "-Wno-psabi",
+        "-Wno-shift-negative-value",
+        "-Wno-string-plus-int",
+        "-Wno-tautological-type-limit-compare",
+        "-Wno-typedef-redefinition",
+        "-iquote",
+        ".",
+        "-iquote",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu",
+        "-iquote",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/include",
+        "-iquote",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/host/include/aarch64",
+        "-iquote",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/host/include/generic",
+        "-iquote",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/tcg/aarch64",
+        "-D_GNU_SOURCE",
+        "-D_FILE_OFFSET_BITS=64",
+        "-D_LARGEFILE_SOURCE",
+        "-fno-strict-aliasing",
+        "-fno-common",
+        "-fwrapv",
+        "-fno-pie",
+        "-ftrivial-auto-var-init=zero",
+        "-fzero-call-used-regs=used-gpr",
+        "-DCOMPILING_PER_TARGET",
+        "-DCONFIG_TARGET=\"xtensa-softmmu-config-target.h\"",
+        "-DCONFIG_DEVICES=\"xtensa-softmmu-config-devices.h\"",
+        "../hw/m5stopwatch/m5_unit_gpio.c",
+        "-fsyntax-only"
+      ],
+      "cwd": ".work/unit-runtime-source-flashlight-final/qemu/build",
+      "start_utc": "2026-10-26T20:59:07.776570+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "cc",
+        "-Ilibqemu-xtensa-softmmu.a.p",
+        "-I.",
+        "-I..",
+        "-Itarget/xtensa",
+        "-I../target/xtensa",
+        "-Isubprojects/dtc/libfdt",
+        "-I../subprojects/dtc/libfdt",
+        "-Iqapi",
+        "-Itrace",
+        "-Iui",
+        "-Iui/shader",
+        "-I/opt/homebrew/Cellar/pixman/0.44.2/include/pixman-1",
+        "-I/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-scroll-final/deps/include/slirp",
+        "-I/opt/homebrew/Cellar/glib/2.82.5/include/glib-2.0",
+        "-I/opt/homebrew/Cellar/glib/2.82.5/lib/glib-2.0/include",
+        "-I/opt/homebrew/opt/gettext/include",
+        "-I/opt/homebrew/Cellar/pcre2/10.44/include",
+        "-I/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/include",
+        "-I/opt/homebrew/Cellar/glib/2.82.5/include",
+        "-fdiagnostics-color=auto",
+        "-Wall",
+        "-Winvalid-pch",
+        "-std=gnu11",
+        "-O2",
+        "-g",
+        "-fstack-protector-strong",
+        "-Wempty-body",
+        "-Wendif-labels",
+        "-Wexpansion-to-defined",
+        "-Wformat-security",
+        "-Wformat-y2k",
+        "-Wignored-qualifiers",
+        "-Winit-self",
+        "-Wmissing-format-attribute",
+        "-Wmissing-prototypes",
+        "-Wnested-externs",
+        "-Wold-style-definition",
+        "-Wredundant-decls",
+        "-Wstrict-prototypes",
+        "-Wtype-limits",
+        "-Wundef",
+        "-Wvla",
+        "-Wwrite-strings",
+        "-Wno-gnu-variable-sized-type-not-at-end",
+        "-Wno-initializer-overrides",
+        "-Wno-missing-include-dirs",
+        "-Wno-psabi",
+        "-Wno-shift-negative-value",
+        "-Wno-string-plus-int",
+        "-Wno-tautological-type-limit-compare",
+        "-Wno-typedef-redefinition",
+        "-iquote",
+        ".",
+        "-iquote",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu",
+        "-iquote",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/include",
+        "-iquote",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/host/include/aarch64",
+        "-iquote",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/host/include/generic",
+        "-iquote",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/tcg/aarch64",
+        "-D_GNU_SOURCE",
+        "-D_FILE_OFFSET_BITS=64",
+        "-D_LARGEFILE_SOURCE",
+        "-fno-strict-aliasing",
+        "-fno-common",
+        "-fwrapv",
+        "-fno-pie",
+        "-ftrivial-auto-var-init=zero",
+        "-fzero-call-used-regs=used-gpr",
+        "-DCOMPILING_PER_TARGET",
+        "-DCONFIG_TARGET=\"xtensa-softmmu-config-target.h\"",
+        "-DCONFIG_DEVICES=\"xtensa-softmmu-config-devices.h\"",
+        "../hw/m5stopwatch/m5_unit_runtime.c",
+        "-fsyntax-only"
+      ],
+      "cwd": ".work/unit-runtime-source-flashlight-final/qemu/build",
+      "start_utc": "2026-10-26T20:59:07.857355+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/usr/bin/cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-Wno-unused-function",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-g",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641.c",
+        "-o",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:07.936820+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "table"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.117531+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "boundaries"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.538097+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "outside"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.548562+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "reset"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.558343+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "duplicates"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.567968+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "torch"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.576955+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "mode"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.585676+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "initial-high"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.594278+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "many"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.602827+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "trace"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.611464+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "missing-pad"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.620425+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "route"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.629381+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "short-low"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.637865+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "old-timer"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.646282+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "original-negative"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.654752+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/harness/aw3641-sanitized",
+        "readonly"
+      ],
+      "cwd": ".",
+      "start_utc": "2026-10-26T20:59:08.663205+00:00",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

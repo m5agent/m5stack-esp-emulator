@@ -1,0 +1,37 @@
+{
+  "category": "browser-ui-transport-contract",
+  "status": "PASS",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "posts": 31,
+  "trusted_pointer_events": 12,
+  "checks": [
+    "scrolled-capture-restores-page-top",
+    "sticky-navigation-remains-at-capture-top",
+    "booting-available-qom-waits-for-product-running",
+    "running-disabled-dom-control-waits-for-enabled",
+    "trusted-touch-and-double-click-wait-for-running",
+    "cardkb-two-contact-hold-and-independent-release",
+    "single-real-mouse-double-click-four-posts",
+    "eight-encoder-array-number-checkbox-controls",
+    "nested-hub-instance-routing",
+    "real-http-response-observation",
+    "output-dom-equals-product-readback",
+    "trusted-browser-touch-events",
+    "empty-or-missing-attachment-dom-rejected"
+  ],
+  "source_sha256": {
+    "platform/web/sessions.js": "2bdfb9a18c448eac5e450162cb4497bbc6920dbdcb8cc0a67fa491e583d19675",
+    "platform/web/sessions.html": "dcc24c94e12a20b22a4905b6d8599261fb1b8d7b2b10c400a8c1676d3628d3f9",
+    "platform/web/unit-panel.js": "252b1f60144a3bed1be5cd18f335f038f042803fee102331a0c74ee8f0f4f6e1",
+    "platform/web/unit-panel.css": "3b85b78e8c2389d680343e5c8af1c48ed35a75294a164c2a0e0aa528c949e36a",
+    "platform/web/unit-visual-mappings.js": "28868a42e2eb58d61efacc07a66e5725fc0c1c8b0597d85a56a680d37b6289da",
+    "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+    "platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+    "platform/web/model-shell.js": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+    "platform/web/device-shell-factory.js": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2",
+    "platform/tests/unit_web_bridge.mjs": "2cf7a92aabbfc0af21f0d5278f4b74a898eba44676b83195fec78612675650e0",
+    "tests/units/web_ui_bridge.py": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+    "tests/units/run_service_cases.py": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b"
+  }
+}

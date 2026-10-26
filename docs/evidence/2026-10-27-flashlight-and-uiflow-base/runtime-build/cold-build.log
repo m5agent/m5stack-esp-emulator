@@ -1,0 +1,2164 @@
+COMMAND ["/opt/miniconda3/bin/python3.12", "scripts/bootstrap-unit-runtime.py", "--source-dir", ".work/unit-runtime-source-flashlight-final/qemu", "--work-dir", ".work/unit-runtime-build-flashlight-final", "--jobs", "8"]
++ /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/bin/pkg-config --exists glib-2.0 pixman-1 slirp
++ /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/configure --target-list=xtensa-softmmu --python=/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/venv/bin/python --enable-gcrypt --enable-slirp --disable-docs --disable-werror --disable-gtk --disable-gnutls --disable-nettle --disable-vnc --disable-curl --disable-libssh --disable-zstd --disable-bzip2 --disable-curses --disable-auth-pam --disable-dbus-display --disable-tpm --disable-sdl --disable-cocoa --disable-png --extra-cflags=-I/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/include --extra-ldflags=/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/lib/libgcrypt.a /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/lib/libgpg-error.a
+python determined to be '/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/venv/bin/python'
+python version: Python 3.12.8
+mkvenv: Creating isolated virtual environment (with packages from '/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/venv/lib/python3.12/site-packages') at 'pyvenv'
+mkvenv: checking for LegacyMatcher('meson>=1.5.0')
+mkvenv: checking for LegacyMatcher('pycotap>=1.1.0')
+Disabling PIE due to missing toolchain support
+The Meson build system
+Version: 1.12.1
+Source dir: /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu
+Build dir: /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build
+Build type: native build
+Project name: qemu
+Project version: 9.2.2
+C compiler for the host machine: cc (clang 21.0.0 "Apple clang version 21.0.0 (clang-2100.3.34.2)")
+C linker for the host machine: cc ld64 27037.1
+Host machine cpu family: aarch64
+Host machine cpu: aarch64
+Program scripts/symlink-install-tree.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/symlink-install-tree.py)
+Program sh found: YES (/bin/sh)
+Program python3 found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12)
+Objective-C compiler for the host machine: clang (clang 21.0.0)
+Objective-C linker for the host machine: clang ld64 27037.1
+Compiler for language rust skipped: feature rust disabled
+Program iasl found: NO
+Compiler for C supports arguments -fno-pie: YES 
+Compiler for C supports arguments -no-pie: NO 
+Compiler for C supports link arguments -Wl,-z,relro: NO 
+Compiler for C supports link arguments -Wl,-z,now: NO 
+Checking if "-fzero-call-used-regs=used-gpr" compiles: YES 
+Compiler for C supports arguments -ftrivial-auto-var-init=zero: YES 
+Compiler for C supports arguments -fzero-call-used-regs=used-gpr: YES 
+Compiler for C supports arguments -Wempty-body: YES 
+Compiler for C supports arguments -Wendif-labels: YES 
+Compiler for C supports arguments -Wexpansion-to-defined: YES 
+Compiler for C supports arguments -Wformat-security: YES 
+Compiler for C supports arguments -Wformat-y2k: YES 
+Compiler for C supports arguments -Wignored-qualifiers: YES 
+Compiler for C supports arguments -Wimplicit-fallthrough=2: NO 
+Compiler for C supports arguments -Winit-self: YES 
+Compiler for C supports arguments -Wmissing-format-attribute: YES 
+Compiler for C supports arguments -Wmissing-prototypes: YES 
+Compiler for C supports arguments -Wnested-externs: YES 
+Compiler for C supports arguments -Wold-style-declaration: NO 
+Compiler for C supports arguments -Wold-style-definition: YES 
+Compiler for C supports arguments -Wredundant-decls: YES 
+Compiler for C supports arguments -Wshadow=local: NO 
+Compiler for C supports arguments -Wstrict-prototypes: YES 
+Compiler for C supports arguments -Wtype-limits: YES 
+Compiler for C supports arguments -Wundef: YES 
+Compiler for C supports arguments -Wvla: YES 
+Compiler for C supports arguments -Wwrite-strings: YES 
+Compiler for C supports arguments -Wno-gnu-variable-sized-type-not-at-end: YES 
+Compiler for C supports arguments -Wno-initializer-overrides: YES 
+Compiler for C supports arguments -Wno-missing-include-dirs: YES 
+Compiler for C supports arguments -Wno-psabi: YES 
+Compiler for C supports arguments -Wno-shift-negative-value: YES 
+Compiler for C supports arguments -Wno-string-plus-int: YES 
+Compiler for C supports arguments -Wno-tautological-type-limit-compare: YES 
+Compiler for C supports arguments -Wno-typedef-redefinition: YES 
+Compiler for Objective-C supports arguments -Wempty-body: YES 
+Compiler for Objective-C supports arguments -Wendif-labels: YES 
+Compiler for Objective-C supports arguments -Wexpansion-to-defined: YES 
+Compiler for Objective-C supports arguments -Wformat-security: YES 
+Compiler for Objective-C supports arguments -Wformat-y2k: YES 
+Compiler for Objective-C supports arguments -Wignored-qualifiers: YES 
+Compiler for Objective-C supports arguments -Wimplicit-fallthrough=2: NO 
+Compiler for Objective-C supports arguments -Winit-self: YES 
+Compiler for Objective-C supports arguments -Wmissing-format-attribute: YES 
+Compiler for Objective-C supports arguments -Wmissing-prototypes: YES 
+Compiler for Objective-C supports arguments -Wnested-externs: YES 
+Compiler for Objective-C supports arguments -Wold-style-declaration: NO 
+Compiler for Objective-C supports arguments -Wold-style-definition: YES 
+Compiler for Objective-C supports arguments -Wredundant-decls: YES 
+Compiler for Objective-C supports arguments -Wshadow=local: NO 
+Compiler for Objective-C supports arguments -Wstrict-prototypes: YES 
+Compiler for Objective-C supports arguments -Wtype-limits: YES 
+Compiler for Objective-C supports arguments -Wundef: YES 
+Compiler for Objective-C supports arguments -Wvla: YES 
+Compiler for Objective-C supports arguments -Wwrite-strings: YES 
+Compiler for Objective-C supports arguments -Wno-gnu-variable-sized-type-not-at-end: YES 
+Compiler for Objective-C supports arguments -Wno-initializer-overrides: YES 
+Compiler for Objective-C supports arguments -Wno-missing-include-dirs: YES 
+Compiler for Objective-C supports arguments -Wno-psabi: YES 
+Compiler for Objective-C supports arguments -Wno-shift-negative-value: YES 
+Compiler for Objective-C supports arguments -Wno-string-plus-int: YES 
+Compiler for Objective-C supports arguments -Wno-tautological-type-limit-compare: YES 
+Compiler for Objective-C supports arguments -Wno-typedef-redefinition: YES 
+Program cgcc found: NO
+Library m found: YES
+Run-time dependency threads found: YES
+Library util found: YES
+Run-time dependency appleframeworks found: YES (CoreFoundation)
+Run-time dependency appleframeworks found: YES (IOKit)
+Run-time dependency appleframeworks found: YES (Hypervisor)
+Found pkg-config: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/bin/pkg-config) 2.4.3
+Run-time dependency xencontrol found: NO  (tried pkg-config)
+Library xenstore found: NO
+Library xenctrl found: NO
+Library xendevicemodel found: NO
+Library xenforeignmemory found: NO
+Library xengnttab found: NO
+Library xenevtchn found: NO
+Library xentoolcore found: NO
+Run-time dependency glib-2.0 found: YES 2.82.5
+Run-time dependency gmodule-no-export-2.0 found: YES 2.82.5
+WARNING: Pkg-config error with 'gio-2.0': Could not generate cflags for gio-2.0:
+Package libffi was not found in the pkg-config search path.
+Perhaps you should add the directory containing `libffi.pc'
+to the PKG_CONFIG_PATH environment variable
+Package 'libffi', required by 'gobject-2.0', not found
+
+Run-time dependency gio-2.0 found: NO  (tried pkg-config)
+Program scripts/xml-preprocess.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/xml-preprocess.py)
+Run-time dependency pixman-1 found: YES 0.44.2
+Did not find CMake 'cmake'
+Found CMake: NO
+Run-time dependency zlib found: YES 1.2.12
+Has header "libaio.h" : NO 
+Run-time dependency liburing found: NO  (tried pkg-config)
+Run-time dependency libnfs found: NO  (tried pkg-config)
+Has header "attr/xattr.h" : NO 
+Dependency appleframeworks(modules: Cocoa, CoreVideo, QuartzCore) for host machine skipped: feature cocoa disabled
+Run-time dependency appleframeworks found: YES (vmnet)
+Header "vmnet/vmnet.h" has symbol "VMNET_BRIDGED_MODE" with dependency appleframeworks: YES 
+Run-time dependency libseccomp found: NO  (tried pkg-config)
+Has header "cap-ng.h" : NO 
+Run-time dependency xkbcommon found: NO  (tried pkg-config)
+WARNING: Static library 'resolv' not found for dependency 'slirp', may not be statically linked
+WARNING: Static library 'iconv' not found for dependency 'slirp', may not be statically linked
+Run-time dependency slirp found: YES 4.7.0
+Has header "libvdeplug.h" : NO 
+Run-time dependency jack found: NO  (tried pkg-config)
+Run-time dependency sndio found: NO  (tried pkg-config)
+Run-time dependency spice-protocol found: NO  (tried pkg-config)
+Run-time dependency spice-server found: NO  (tried pkg-config)
+Library rt found: NO
+Initialized empty Git repository in /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/subprojects/dtc/.git/
+From https://gitlab.com/qemu-project/dtc
+ * branch            b6910bec11614980a21e46fbccc35934b671bd81 -> FETCH_HEAD
+HEAD is now at b6910be Bump version to v1.6.1
+Run-time dependency libiscsi found: NO  (tried pkg-config)
+Dependency libzstd for host machine skipped: feature zstd disabled
+Run-time dependency qpl found: NO  (tried pkg-config)
+Run-time dependency libwd found: NO  (tried pkg-config)
+Run-time dependency libwd_comp found: NO  (tried pkg-config)
+Run-time dependency qatzip found: NO  (tried pkg-config)
+Run-time dependency virglrenderer found: NO  (tried pkg-config)
+Run-time dependency rutabaga_gfx_ffi found: NO  (tried pkg-config)
+Run-time dependency blkio found: NO  (tried pkg-config)
+Dependency libcurl for host machine skipped: feature curl disabled
+Has header "brlapi.h" : NO 
+Dependency sdl2 for host machine skipped: feature sdl disabled
+Library rados found: NO
+Has header "rbd/librbd.h" : NO 
+Run-time dependency glusterfs-api found: NO  (tried pkg-config)
+Dependency libssh for host machine skipped: feature libssh disabled
+Library bz2 skipped: feature bzip2 disabled
+Has header "lzfse.h" : NO 
+Has header "sys/soundcard.h" : NO 
+Run-time dependency appleframeworks found: YES (CoreAudio)
+Run-time dependency epoxy found: NO  (tried pkg-config)
+Has header "epoxy/egl.h" with dependency epoxy: NO 
+Run-time dependency libcbor found: NO  (tried pkg-config, framework and cmake)
+Run-time dependency libgcrypt found: YES 1.11.0
+Run-time dependency capstone found: NO  (tried pkg-config)
+Run-time dependency gmp found: YES 6.3.0
+Library pam skipped: feature auth_pam disabled
+Has header "snappy-c.h" : NO 
+Has header "lzo/lzo1x.h" : NO 
+Has header "numa.h" : NO 
+Library fdt found: NO
+
+Executing subproject dtc for machine: host 
+
+dtc| Project name: dtc
+dtc| Project version: 1.6.0
+dtc| C compiler for the host machine: cc (clang 21.0.0 "Apple clang version 21.0.0 (clang-2100.3.34.2)")
+dtc| C linker for the host machine: cc ld64 27037.1
+dtc| Compiler for C supports arguments -Wpointer-arith: YES
+dtc| Compiler for C supports arguments -Wcast-qual: YES
+dtc| Compiler for C supports arguments -Wnested-externs: YES (cached)
+dtc| Compiler for C supports arguments -Wstrict-prototypes: YES (cached)
+dtc| Compiler for C supports arguments -Wmissing-prototypes: YES (cached)
+dtc| Compiler for C supports arguments -Wredundant-decls: YES (cached)
+dtc| Compiler for C supports arguments -Wshadow: YES
+dtc| Dependency yaml-0.1 for host machine skipped: feature yaml disabled
+dtc| Run-time dependency valgrind found: NO  (tried pkg-config)
+dtc| Program python found: NO (disabled by: python )
+dtc| Program swig skipped: feature python disabled
+dtc| Found git repository at /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/subprojects/dtc
+dtc| Compiler for C supports link arguments -Wl,--version-script=/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/subprojects/dtc/libfdt/version.lds: NO
+dtc| Found pkg-config: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/bin/pkg-config) 2.4.3
+dtc| Build targets in project: 2
+dtc| Subproject dtc finished.
+
+Has header "rdma/rdma_cma.h" : NO 
+Library ibverbs found: NO
+Run-time dependency libcacard found: NO  (tried pkg-config)
+Run-time dependency u2f-emu found: NO  (tried pkg-config)
+Run-time dependency canokey-qemu found: NO  (tried pkg-config)
+Run-time dependency libusbredirparser-0.5 found: NO  (tried pkg-config)
+Run-time dependency libusb-1.0 found: NO  (tried pkg-config)
+Run-time dependency libpmem found: NO  (tried pkg-config)
+Run-time dependency libdaxctl found: NO  (tried pkg-config)
+Run-time dependency libkeyutils found: NO  (tried pkg-config)
+Checking for function "gettid" : NO 
+Run-time dependency libselinux found: NO  (tried pkg-config)
+Checking for function "malloc_trim" : NO 
+Header "sys/stat.h" has symbol "STATX_BASIC_STATS" : NO 
+Header "sys/stat.h" has symbol "STATX_MNT_ID" : NO 
+Run-time dependency fuse3 found: NO  (tried pkg-config)
+Run-time dependency libbpf found: NO  (tried pkg-config)
+Run-time dependency libdw found: NO  (tried pkg-config)
+Has header "IOKit/storage/IOMedia.h" : YES 
+Checking for function "pthread_fchdir_np" : YES 
+Has header "sys/epoll.h" : NO 
+Has header "linux/magic.h" : NO 
+Has header "valgrind/valgrind.h" : NO 
+Has header "linux/btrfs.h" : NO 
+Has header "libdrm/drm.h" : NO 
+Has header "linux/openat2.h" : NO 
+Has header "pty.h" : NO 
+Has header "sys/disk.h" : YES 
+Has header "sys/ioccom.h" : YES 
+Has header "sys/kcov.h" : NO 
+Checking for function "close_range" : NO 
+Checking for function "accept4" : NO 
+Checking for function "clock_adjtime" : NO 
+Checking for function "dup3" : YES 
+Checking for function "fallocate" : NO 
+Checking for function "posix_fallocate" : NO 
+Checking for function "getcpu" : NO 
+Checking for function "sched_getcpu" : NO 
+Checking for function "posix_memalign" : YES 
+Checking for function "_aligned_malloc" : NO 
+Checking for function "valloc" : YES 
+Checking for function "memalign" : NO 
+Checking for function "ppoll" : NO 
+Checking for function "preadv" : YES 
+Checking for function "pthread_fchdir_np" : YES (cached)
+Checking for function "sendfile" : YES 
+Checking for function "setns" : NO 
+Checking for function "syncfs" : NO 
+Checking for function "sync_file_range" : NO 
+Checking for function "timerfd_create" : NO 
+Checking for function "copy_file_range" : NO 
+Checking for function "getifaddrs" : YES 
+Checking for function "openpty" with dependency -lutil: YES 
+Checking for function "strchrnul" : YES 
+Checking for function "system" : YES 
+Header "sys/inotify.h" has symbol "inotify_init" : NO 
+Header "sys/inotify.h" has symbol "inotify_init1" : NO 
+Header "linux/blkzoned.h" has symbol "BLKOPENZONE" : NO 
+Header "sys/epoll.h" has symbol "epoll_create1" : NO 
+Header "linux/falloc.h" has symbol "FALLOC_FL_PUNCH_HOLE" : NO 
+Header "linux/falloc.h" has symbol "FALLOC_FL_ZERO_RANGE" : NO 
+Has header "linux/fiemap.h" : NO 
+Checking for function "getrandom" : NO 
+Header "sys/prctl.h" has symbol "PR_SET_TIMERSLACK" : NO 
+Header "linux/rtnetlink.h" has symbol "IFLA_PROTO_DOWN" : NO 
+Header "sys/sysmacros.h" has symbol "makedev" : NO 
+Header "getopt.h" has symbol "optreset" : YES 
+Header "netinet/in.h" has symbol "IPPROTO_MPTCP" : NO 
+Checking whether type "struct sigevent" has member "sigev_notify_thread_id" : NO 
+Checking whether type "struct stat" has member "st_atim" : NO 
+Checking whether type "struct blk_zone" has member "capacity" : NO 
+Checking for type "struct iovec" : YES 
+Checking for type "struct utmpx" : YES 
+Checking for type "struct mmsghdr" : NO 
+Header "asm/hwprobe.h" has symbol "RISCV_HWPROBE_EXT_ZBA" : NO 
+Header "linux/vm_sockets.h" has symbol "AF_VSOCK" : NO 
+Program scripts/minikconf.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/minikconf.py)
+Configuring xtensa-softmmu-config-target.h using configuration
+Configuring xtensa-softmmu-config-devices.mak with command
+Reading depfile: /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/meson-private/xtensa-softmmu-config-devices.mak.d
+Configuring xtensa-softmmu-config-devices.h using configuration
+Program scripts/make-config-poison.sh found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/make-config-poison.sh)
+Configuring config-host.h using configuration
+Program scripts/hxtool found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/hxtool)
+Program scripts/shaderinclude.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/shaderinclude.py)
+Initialized empty Git repository in /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/subprojects/keycodemapdb/.git/
+From https://gitlab.com/qemu-project/keycodemapdb
+ * branch            f5772a62ec52591ff6870b7e8ef32482371f22c6 -> FETCH_HEAD
+HEAD is now at f5772a6 Add Qemu qcode support for F13 to F24
+Initialized empty Git repository in /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/subprojects/berkeley-softfloat-3/.git/
+From https://gitlab.com/qemu-project/berkeley-softfloat-3
+ * branch            b64af41c3276f97f0e181920400ee056b9c88037 -> FETCH_HEAD
+HEAD is now at b64af41 Fix typo in function 'softfloat_propagateNaNF128M' for RISC-V.
+Initialized empty Git repository in /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/subprojects/berkeley-testfloat-3/.git/
+From https://gitlab.com/qemu-project/berkeley-testfloat-3
+ * branch            e7af9751d9f9fd3b47911f51a5cfd08af256a9ab -> FETCH_HEAD
+HEAD is now at e7af975 Fix -Wreturn-type errors in fNNRandom
+Program scripts/qapi-gen.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/qapi-gen.py)
+Program scripts/qemu-version.sh found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/qemu-version.sh)
+
+Executing subproject keycodemapdb for machine: host 
+
+keycodemapdb| Project name: keycodemapdb
+keycodemapdb| Project version: undefined
+keycodemapdb| Program tools/keymap-gen found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/subprojects/keycodemapdb/tools/keymap-gen)
+keycodemapdb| Build targets in project: 268
+keycodemapdb| Subproject keycodemapdb finished.
+
+Program scripts/decodetree.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/decodetree.py)
+Program ../scripts/modules/module_block.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/block/../scripts/modules/module_block.py)
+Program ../scripts/block-coroutine-wrapper.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/block/../scripts/block-coroutine-wrapper.py)
+Configuring qemu-plugin.symbols with command
+Configuring qemu-plugins-ld64.symbols with command
+Program scripts/modinfo-collect.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/modinfo-collect.py)
+Program scripts/modinfo-generate.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/modinfo-generate.py)
+Program nm found: YES
+Program scripts/undefsym.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/undefsym.py)
+Program scripts/feature_to_c.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/feature_to_c.py)
+Program scripts/rust/rust_root_crate.sh found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/rust/rust_root_crate.sh)
+Program scripts/entitlement.sh found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/entitlement.sh)
+Program dtc found: NO
+Program qemu-keymap found: NO
+Program /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/sphinx-build skipped: feature docs disabled
+Program bash found: NO found 3.2.57 but need: '>= 4.0' (/bin/bash)
+Message: bash >= v4.0 not available ==> Disabled the qemu-iotests.
+Program /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/decodetree.py found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/decodetree.py)
+
+Executing subproject berkeley-softfloat-3 for machine: host 
+
+berkeley-softfloat-3| Project name: berkeley-softfloat-3
+berkeley-softfloat-3| Project version: undefined
+berkeley-softfloat-3| C compiler for the host machine: cc (clang 21.0.0 "Apple clang version 21.0.0 (clang-2100.3.34.2)")
+berkeley-softfloat-3| C linker for the host machine: cc ld64 27037.1
+berkeley-softfloat-3| Configuring platform.h using configuration
+berkeley-softfloat-3| Build targets in project: 374
+berkeley-softfloat-3| Subproject berkeley-softfloat-3 finished.
+
+
+Executing subproject berkeley-testfloat-3 for machine: host 
+
+berkeley-testfloat-3| Project name: berkeley-testfloat-3
+berkeley-testfloat-3| Project version: undefined
+berkeley-testfloat-3| C compiler for the host machine: cc (clang 21.0.0 "Apple clang version 21.0.0 (clang-2100.3.34.2)")
+berkeley-testfloat-3| C linker for the host machine: cc ld64 27037.1
+berkeley-testfloat-3| Configuring platform.h using configuration
+berkeley-testfloat-3| Compiler for C supports arguments -Wno-ignored-pragmas: YES
+berkeley-testfloat-3| Build targets in project: 376
+berkeley-testfloat-3| Subproject berkeley-testfloat-3 finished.
+
+Program diff found: YES (/usr/bin/diff)
+Program dbus-daemon found: NO
+Run-time dependency sysprof-capture-4 found: NO  (tried pkg-config)
+WARNING: Static library 'iconv' not found for dependency 'glib-2.0', may not be statically linked
+Run-time dependency glib-2.0 found: YES 2.82.5
+Program initrd-stress.sh found: YES (/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/tests/migration/initrd-stress.sh)
+Build targets in project: 501
+
+qemu 9.2.2
+
+  Build environment
+    Build directory                 : /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build
+    Source path                     : /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu
+    Download dependencies           : YES
+
+  Directories
+    Build directory                 : /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build
+    Source path                     : /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu
+    Download dependencies           : YES
+    Install prefix                  : /usr/local
+    BIOS directory                  : share/qemu
+    firmware path                   : share/qemu-firmware
+    binary directory                : /usr/local/bin
+    library directory               : /usr/local/lib
+    module directory                : lib/qemu
+    libexec directory               : /usr/local/libexec
+    include directory               : /usr/local/include
+    config directory                : /usr/local/etc
+    local state directory           : /var/local
+    Manual directory                : /usr/local/share/man
+    Doc directory                   : /usr/local/share/doc
+
+  Host binaries
+    python                          : /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 (version: 3.12)
+    sphinx-build                    : NO
+    gdb                             : 
+    iasl                            : NO
+    genisoimage                     : 
+    smbd                            : /usr/sbin/smbd
+
+  Configurable features
+    Documentation                   : NO
+    system-mode emulation           : YES
+    user-mode emulation             : NO
+    block layer                     : YES
+    Install blobs                   : YES
+    module support                  : NO
+    fuzzing support                 : NO
+    Audio drivers                   : coreaudio
+    Trace backends                  : log
+    D-Bus display                   : NO
+    QOM debugging                   : YES
+    Relocatable install             : YES
+    vhost-kernel support            : NO
+    vhost-net support               : NO
+    vhost-user support              : NO
+    vhost-user-crypto support       : NO
+    vhost-user-blk server support   : NO
+    vhost-vdpa support              : NO
+    build guest agent               : NO
+
+  Compilation
+    host CPU                        : aarch64
+    host endianness                 : little
+    C compiler                      : cc
+    Host C compiler                 : cc
+    C++ compiler                    : NO
+    Objective-C compiler            : clang
+    Rust support                    : NO
+    CFLAGS                          : -I/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/include -g -O2
+    OBJCFLAGS                       : -I/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/include -g -O2
+    LDFLAGS                         : -I/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/include /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/lib/libgcrypt.a /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/deps/lib/libgpg-error.a
+    QEMU_CFLAGS                     : -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -fno-pie -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -fstack-protector-strong
+    QEMU_OBJCFLAGS                  : -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -fno-pie -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr
+    QEMU_LDFLAGS                    : -fstack-protector-strong
+    link-time optimization (LTO)    : NO
+    PIE                             : NO
+    static build                    : NO
+    malloc trim support             : NO
+    membarrier                      : NO
+    debug graph lock                : NO
+    debug stack usage               : NO
+    mutex debugging                 : NO
+    memory allocator                : system
+    avx2 optimization               : NO
+    avx512bw optimization           : NO
+    gcov                            : NO
+    thread sanitizer                : NO
+    CFI support                     : NO
+    strip binaries                  : NO
+    sparse                          : NO
+    mingw32 support                 : NO
+
+  Targets and accelerators
+    KVM support                     : NO
+    HVF support                     : NO
+    WHPX support                    : NO
+    NVMM support                    : NO
+    Xen support                     : NO
+    Xen emulation                   : NO
+    TCG support                     : YES
+    TCG backend                     : native (aarch64)
+    TCG plugins                     : YES
+    TCG debug enabled               : NO
+    target list                     : xtensa-softmmu
+    default devices                 : YES
+    out of process emulation        : NO
+    vfio-user server                : NO
+
+  Block layer support
+    coroutine backend               : sigaltstack
+    coroutine pool                  : YES
+    Block whitelist (rw)            : 
+    Block whitelist (ro)            : 
+    Use block whitelist in tools    : NO
+    VirtFS (9P) support             : YES
+    replication support             : YES
+    bochs support                   : YES
+    cloop support                   : YES
+    dmg support                     : YES
+    qcow v1 support                 : YES
+    vdi support                     : YES
+    vhdx support                    : YES
+    vmdk support                    : YES
+    vpc support                     : YES
+    vvfat support                   : YES
+    qed support                     : YES
+    parallels support               : YES
+    FUSE exports                    : NO
+    VDUSE block exports             : NO
+
+  Crypto
+    TLS priority                    : NORMAL
+    GNUTLS support                  : NO
+    libgcrypt                       : YES 1.11.0
+    nettle                          : NO
+    SM4 ALG support                 : YES 1.11.0
+    SM3 ALG support                 : YES 1.11.0
+    AF_ALG support                  : NO
+    rng-none                        : NO
+    Linux keyring                   : NO
+    Linux keyutils                  : NO
+
+  User interface
+    Cocoa support                   : NO
+    SDL support                     : NO
+    SDL image support               : NO
+    GTK support                     : NO
+    pixman                          : YES 0.44.2
+    VTE support                     : NO
+    PNG support                     : NO
+    VNC support                     : NO
+    spice protocol support          : NO
+    curses support                  : NO
+    brlapi support                  : NO
+
+  Graphics backends
+    VirGL support                   : NO
+    Rutabaga support                : NO
+
+  Audio backends
+    CoreAudio support               : YES
+    PipeWire support                : NO
+    JACK support                    : NO
+
+  Network backends
+    vmnet.framework support         : YES
+    AF_XDP support                  : NO
+    slirp support                   : YES
+    vde support                     : NO
+    netmap support                  : NO
+    l2tpv3 support                  : NO
+
+  Dependencies
+    libtasn1                        : NO
+    PAM                             : NO
+    iconv support                   : NO
+    blkio support                   : NO
+    curl support                    : NO
+    Multipath support               : NO
+    Linux AIO support               : NO
+    Linux io_uring support          : NO
+    ATTR/XATTR support              : NO
+    RDMA support                    : NO
+    fdt support                     : internal
+    libcap-ng support               : NO
+    bpf support                     : NO
+    rbd support                     : NO
+    smartcard support               : NO
+    U2F support                     : NO
+    libusb                          : NO
+    usb net redir                   : NO
+    OpenGL support (epoxy)          : NO
+    GBM                             : NO
+    libiscsi support                : NO
+    libnfs support                  : NO
+    seccomp support                 : NO
+    GlusterFS support               : NO
+    hv-balloon support              : YES
+    TPM support                     : NO
+    libssh support                  : NO
+    lzo support                     : NO
+    snappy support                  : NO
+    bzip2 support                   : NO
+    lzfse support                   : NO
+    zstd support                    : NO
+    Query Processing Library support: NO
+    UADK Library support            : NO
+    qatzip support                  : NO
+    NUMA host support               : NO
+    capstone                        : NO
+    libpmem support                 : NO
+    libdaxctl support               : NO
+    libcbor support                 : NO
+    libudev                         : NO
+    FUSE lseek                      : NO
+    selinux                         : NO
+    libdw                           : NO
+
+  Subprojects (for host machine)
+    berkeley-softfloat-3            : YES
+    berkeley-testfloat-3            : YES
+    dtc                             : YES
+    keycodemapdb                    : YES
+
+  User defined options
+    Native files                    : config-meson.cross
+    auth_pam                        : disabled
+    b_pie                           : false
+    bzip2                           : disabled
+    cocoa                           : disabled
+    curl                            : disabled
+    curses                          : disabled
+    dbus_display                    : disabled
+    docs                            : disabled
+    gcrypt                          : enabled
+    gnutls                          : disabled
+    gtk                             : disabled
+    libssh                          : disabled
+    nettle                          : disabled
+    plugins                         : true
+    png                             : disabled
+    sdl                             : disabled
+    slirp                           : enabled
+    tpm                             : disabled
+    vnc                             : disabled
+    werror                          : false
+    zstd                            : disabled
+
+Found ninja-1.13.2.git.kitware.jobserver-pipe-1 at /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/venv/bin/ninja
+Running postconf script '/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/pyvenv/bin/python3.12 /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/scripts/symlink-install-tree.py'
++ /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-build-flashlight-final/venv/bin/ninja -j8 qemu-system-xtensa
+[1/1508] Generating trace/trace-root.h with a custom command
+[2/1508] Generating trace/trace-root.c with a custom command
+[3/1508] Generating trace/trace-crypto.h with a custom command
+[4/1508] Generating trace/trace-crypto.c with a custom command
+[5/1508] Generating trace/trace-qapi.h with a custom command
+[6/1508] Generating trace/trace-qapi.c with a custom command
+[7/1508] Generating trace/trace-qom.h with a custom command
+[8/1508] Generating trace/trace-qom.c with a custom command
+[9/1508] Generating trace/trace-monitor.h with a custom command
+[10/1508] Generating trace/trace-monitor.c with a custom command
+[11/1508] Generating trace/trace-util.h with a custom command
+[12/1508] Generating trace/trace-util.c with a custom command
+[13/1508] Generating trace/trace-gdbstub.h with a custom command
+[14/1508] Generating trace/trace-gdbstub.c with a custom command
+[15/1508] Generating trace/trace-authz.h with a custom command
+[16/1508] Generating trace/trace-authz.c with a custom command
+[17/1508] Generating trace/trace-block.h with a custom command
+[18/1508] Generating trace/trace-block.c with a custom command
+[19/1508] Generating trace/trace-chardev.h with a custom command
+[20/1508] Generating trace/trace-chardev.c with a custom command
+[21/1508] Generating config-poison.h with a custom command (wrapped by meson to capture output)
+[22/1508] Generating trace/trace-io.h with a custom command
+[23/1508] Generating trace/trace-io.c with a custom command
+[24/1508] Generating trace/trace-nbd.h with a custom command
+[25/1508] Generating trace/trace-nbd.c with a custom command
+[26/1508] Generating trace/trace-scsi.h with a custom command
+[27/1508] Generating trace/trace-scsi.c with a custom command
+[28/1508] Generating qapi/shared QAPI source files with a custom command
+[29/1508] Generating trace/trace-accel_kvm.c with a custom command
+[30/1508] Generating trace/trace-accel_kvm.h with a custom command
+[31/1508] Generating trace/trace-audio.h with a custom command
+[32/1508] Generating trace/trace-audio.c with a custom command
+[33/1508] Generating trace/trace-backends.h with a custom command
+[34/1508] Generating trace/trace-backends.c with a custom command
+[35/1508] Generating trace/trace-backends_tpm.c with a custom command
+[36/1508] Generating trace/trace-backends_tpm.h with a custom command
+[37/1508] Generating trace/trace-ebpf.h with a custom command
+[38/1508] Generating trace/trace-ebpf.c with a custom command
+[39/1508] Generating trace/trace-hw_9pfs.h with a custom command
+[40/1508] Generating trace/trace-hw_9pfs.c with a custom command
+[41/1508] Generating trace/trace-hw_acpi.h with a custom command
+[42/1508] Generating trace/trace-hw_acpi.c with a custom command
+[43/1508] Generating trace/trace-hw_adc.h with a custom command
+[44/1508] Generating trace/trace-hw_adc.c with a custom command
+[45/1508] Generating trace/trace-hw_alpha.h with a custom command
+[46/1508] Generating trace/trace-hw_alpha.c with a custom command
+[47/1508] Generating trace/trace-hw_arm.c with a custom command
+[48/1508] Generating trace/trace-hw_arm.h with a custom command
+[49/1508] Generating trace/trace-hw_audio.h with a custom command
+[50/1508] Generating trace/trace-hw_audio.c with a custom command
+[51/1508] Generating trace/trace-hw_block.h with a custom command
+[52/1508] Generating trace/trace-hw_block.c with a custom command
+[53/1508] Generating trace/trace-hw_char.h with a custom command
+[54/1508] Generating trace/trace-hw_char.c with a custom command
+[55/1508] Generating trace/trace-hw_display.c with a custom command
+[56/1508] Generating trace/trace-hw_display.h with a custom command
+[57/1508] Generating trace/trace-hw_dma.h with a custom command
+[58/1508] Generating trace/trace-hw_dma.c with a custom command
+[59/1508] Generating trace/trace-hw_fsi.h with a custom command
+[60/1508] Generating trace/trace-hw_fsi.c with a custom command
+[61/1508] Generating trace/trace-hw_hyperv.c with a custom command
+[62/1508] Generating trace/trace-hw_hyperv.h with a custom command
+[63/1508] Generating trace/trace-hw_i2c.h with a custom command
+[64/1508] Generating trace/trace-hw_i2c.c with a custom command
+[65/1508] Generating trace/trace-hw_i386.c with a custom command
+[66/1508] Generating trace/trace-hw_i386.h with a custom command
+[67/1508] Generating trace/trace-hw_i386_xen.h with a custom command
+[68/1508] Generating trace/trace-hw_i386_xen.c with a custom command
+[69/1508] Generating trace/trace-hw_i386_kvm.h with a custom command
+[70/1508] Generating qemu-img-cmds.h with a custom command (wrapped by meson to capture output)
+[71/1508] Generating trace/trace-hw_i386_kvm.c with a custom command
+[72/1508] Generating hmp-commands-info.h with a custom command (wrapped by meson to capture output)
+[73/1508] Generating trace/trace-hw_ide.h with a custom command
+[74/1508] Generating trace/trace-hw_ide.c with a custom command
+[75/1508] Generating hmp-commands.h with a custom command (wrapped by meson to capture output)
+[76/1508] Generating trace/trace-hw_input.h with a custom command
+[77/1508] Generating trace/trace-hw_input.c with a custom command
+[78/1508] Generating trace/trace-hw_isa.c with a custom command
+[79/1508] Generating trace/trace-hw_isa.h with a custom command
+[80/1508] Generating trace/trace-hw_intc.c with a custom command
+[81/1508] Generating trace/trace-hw_mem.h with a custom command
+[82/1508] Generating trace/trace-hw_intc.h with a custom command
+[83/1508] Generating trace/trace-hw_mem.c with a custom command
+[84/1508] Generating qemu-options.def with a custom command (wrapped by meson to capture output)
+[85/1508] Generating trace/trace-hw_mips.h with a custom command
+[86/1508] Generating trace/trace-hw_mips.c with a custom command
+[87/1508] Generating trace/trace-hw_misc.c with a custom command
+[88/1508] Generating trace/trace-hw_misc_macio.c with a custom command
+[89/1508] Generating trace/trace-hw_misc_macio.h with a custom command
+[90/1508] Generating trace/trace-hw_misc.h with a custom command
+[91/1508] Generating trace/trace-hw_net_can.h with a custom command
+[92/1508] Generating trace/trace-hw_net.c with a custom command
+[93/1508] Generating trace/trace-hw_net_can.c with a custom command
+[94/1508] Generating trace/trace-hw_nubus.c with a custom command
+[95/1508] Generating trace/trace-hw_nubus.h with a custom command
+[96/1508] Generating trace/trace-hw_net.h with a custom command
+[97/1508] Generating trace/trace-hw_nvme.c with a custom command
+[98/1508] Generating trace/trace-hw_nvram.h with a custom command
+[99/1508] Generating trace/trace-hw_nvram.c with a custom command
+[100/1508] Generating trace/trace-hw_pci.c with a custom command
+[101/1508] Generating trace/trace-hw_pci.h with a custom command
+[102/1508] Generating trace/trace-hw_nvme.h with a custom command
+[103/1508] Generating trace/trace-hw_pci_host.c with a custom command
+[104/1508] Generating trace/trace-hw_pci_host.h with a custom command
+[105/1508] Generating trace/trace-hw_ppc.c with a custom command
+[106/1508] Generating trace/trace-hw_rtc.c with a custom command
+[107/1508] Generating trace/trace-hw_rtc.h with a custom command
+[108/1508] Generating trace/trace-hw_riscv.h with a custom command
+[109/1508] Generating trace/trace-hw_ppc.h with a custom command
+[110/1508] Generating trace/trace-hw_riscv.c with a custom command
+[111/1508] Generating trace/trace-hw_s390x.h with a custom command
+[112/1508] Generating trace/trace-hw_s390x.c with a custom command
+[113/1508] Generating trace/trace-hw_sd.c with a custom command
+[114/1508] Generating trace/trace-hw_scsi.c with a custom command
+[115/1508] Generating trace/trace-hw_sd.h with a custom command
+[116/1508] Generating trace/trace-hw_sensor.h with a custom command
+[117/1508] Generating trace/trace-hw_sensor.c with a custom command
+[118/1508] Generating trace/trace-hw_sh4.h with a custom command
+[119/1508] Generating trace/trace-hw_scsi.h with a custom command
+[120/1508] Generating trace/trace-hw_sh4.c with a custom command
+[121/1508] Generating trace/trace-hw_sparc.h with a custom command
+[122/1508] Generating trace/trace-hw_sparc.c with a custom command
+[123/1508] Generating trace/trace-hw_sparc64.h with a custom command
+[124/1508] Generating trace/trace-hw_sparc64.c with a custom command
+[125/1508] Generating trace/trace-hw_ssi.c with a custom command
+[126/1508] Generating trace/trace-hw_ssi.h with a custom command
+[127/1508] Generating trace/trace-hw_timer.c with a custom command
+[128/1508] Generating trace/trace-hw_tpm.h with a custom command
+[129/1508] Generating trace/trace-hw_timer.h with a custom command
+[130/1508] Generating trace/trace-hw_tpm.c with a custom command
+[131/1508] Generating trace/trace-hw_ufs.h with a custom command
+[132/1508] Generating trace/trace-hw_ufs.c with a custom command
+[133/1508] Generating trace/trace-hw_usb.c with a custom command
+[134/1508] Generating trace/trace-hw_vfio.c with a custom command
+[135/1508] Generating trace/trace-hw_virtio.c with a custom command
+[136/1508] Generating trace/trace-hw_vfio.h with a custom command
+[137/1508] Generating trace/trace-hw_watchdog.h with a custom command
+[138/1508] Generating trace/trace-hw_virtio.h with a custom command
+[139/1508] Generating trace/trace-hw_usb.h with a custom command
+[140/1508] Generating trace/trace-hw_watchdog.c with a custom command
+[141/1508] Generating trace/trace-hw_xen.h with a custom command
+[142/1508] Generating trace/trace-hw_xen.c with a custom command
+[143/1508] Generating trace/trace-hw_gpio.h with a custom command
+[144/1508] Generating trace/trace-hw_gpio.c with a custom command
+[145/1508] Generating trace/trace-migration.c with a custom command
+[146/1508] Generating trace/trace-net.h with a custom command
+[147/1508] Generating trace/trace-net.c with a custom command
+[148/1508] Generating trace/trace-system.c with a custom command
+[149/1508] Generating trace/trace-system.h with a custom command
+[150/1508] Generating trace/trace-migration.h with a custom command
+[151/1508] Generating trace/trace-hw_remote.h with a custom command
+[152/1508] Generating trace/trace-ui.h with a custom command
+[153/1508] Generating trace/trace-ui.c with a custom command
+[154/1508] Generating trace/trace-hw_remote.c with a custom command
+[155/1508] Generating trace/trace-accel_tcg.c with a custom command
+[156/1508] Generating trace/trace-accel_tcg.h with a custom command
+[157/1508] Generating trace/trace-hw_core.h with a custom command
+[158/1508] Generating trace/trace-target_arm.c with a custom command
+[159/1508] Generating trace/trace-hw_core.c with a custom command
+[160/1508] Generating trace/trace-target_arm.h with a custom command
+[161/1508] Generating trace/trace-target_arm_hvf.h with a custom command
+[162/1508] Generating trace/trace-target_arm_hvf.c with a custom command
+[163/1508] Generating trace/trace-target_hppa.h with a custom command
+[164/1508] Generating trace/trace-target_hppa.c with a custom command
+[165/1508] Generating trace/trace-target_i386.c with a custom command
+[166/1508] Generating trace/trace-target_i386.h with a custom command
+[167/1508] Generating trace/trace-target_i386_kvm.h with a custom command
+[168/1508] Generating trace/trace-target_i386_kvm.c with a custom command
+[169/1508] Generating trace/trace-target_loongarch.h with a custom command
+[170/1508] Generating trace/trace-target_loongarch.c with a custom command
+[171/1508] Generating trace/trace-target_mips_tcg.h with a custom command
+[172/1508] Generating trace/trace-target_mips_tcg.c with a custom command
+[173/1508] Generating trace/trace-target_ppc.c with a custom command
+[174/1508] Generating trace/trace-target_ppc.h with a custom command
+[175/1508] Generating trace/trace-target_riscv.h with a custom command
+[176/1508] Generating trace/trace-target_riscv.c with a custom command
+[177/1508] Generating trace/trace-target_s390x.h with a custom command
+[178/1508] Generating trace/trace-target_s390x.c with a custom command
+[179/1508] Generating trace/trace-target_s390x_kvm.h with a custom command
+[180/1508] Generating trace/trace-target_s390x_kvm.c with a custom command
+[181/1508] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+fatal: No names found, cannot describe anything.
+
+[182/1508] Generating trace/trace-target_sparc.c with a custom command
+[183/1508] Generating trace/trace-target_sparc.h with a custom command
+[184/1508] Generating trace/trace-qapi_commands_authz_trace_events.h with a custom command
+[185/1508] Generating trace/trace-qapi_commands_authz_trace_events.c with a custom command
+[186/1508] Generating trace/trace-qapi_commands_block_trace_events.h with a custom command
+[187/1508] Generating trace/trace-qapi_commands_block_trace_events.c with a custom command
+[188/1508] Generating trace/trace-qapi_commands_block_core_trace_events.c with a custom command
+[189/1508] Generating trace/trace-qapi_commands_block_export_trace_events.c with a custom command
+[190/1508] Generating trace/trace-qapi_commands_block_export_trace_events.h with a custom command
+[191/1508] Generating trace/trace-qapi_commands_block_core_trace_events.h with a custom command
+[192/1508] Generating trace/trace-qapi_commands_char_trace_events.c with a custom command
+[193/1508] Generating trace/trace-qapi_commands_char_trace_events.h with a custom command
+[194/1508] Generating trace/trace-qapi_commands_common_trace_events.h with a custom command
+[195/1508] Generating trace/trace-qapi_commands_common_trace_events.c with a custom command
+[196/1508] Generating trace/trace-qapi_commands_compat_trace_events.c with a custom command
+[197/1508] Generating trace/trace-qapi_commands_compat_trace_events.h with a custom command
+[198/1508] Generating trace/trace-qapi_commands_control_trace_events.h with a custom command
+[199/1508] Generating trace/trace-qapi_commands_control_trace_events.c with a custom command
+[200/1508] Generating trace/trace-qapi_commands_crypto_trace_events.h with a custom command
+[201/1508] Generating trace/trace-qapi_commands_crypto_trace_events.c with a custom command
+[202/1508] Generating trace/trace-qapi_commands_cxl_trace_events.h with a custom command
+[203/1508] Generating trace/trace-qapi_commands_cxl_trace_events.c with a custom command
+[204/1508] Generating trace/trace-qapi_commands_dump_trace_events.h with a custom command
+[205/1508] Generating trace/trace-qapi_commands_dump_trace_events.c with a custom command
+[206/1508] Generating trace/trace-qapi_commands_ebpf_trace_events.h with a custom command
+[207/1508] Generating trace/trace-qapi_commands_ebpf_trace_events.c with a custom command
+[208/1508] Generating trace/trace-qapi_commands_error_trace_events.h with a custom command
+[209/1508] Generating trace/trace-qapi_commands_error_trace_events.c with a custom command
+[210/1508] Generating trace/trace-qapi_commands_introspect_trace_events.h with a custom command
+[211/1508] Generating trace/trace-qapi_commands_introspect_trace_events.c with a custom command
+[212/1508] Generating trace/trace-qapi_commands_machine_common_trace_events.h with a custom command
+[213/1508] Generating trace/trace-qapi_commands_job_trace_events.h with a custom command
+[214/1508] Generating trace/trace-qapi_commands_job_trace_events.c with a custom command
+[215/1508] Generating trace/trace-qapi_commands_machine_common_trace_events.c with a custom command
+[216/1508] Generating trace/trace-qapi_commands_machine_trace_events.c with a custom command
+[217/1508] Generating trace/trace-qapi_commands_machine_trace_events.h with a custom command
+[218/1508] Generating trace/trace-qapi_commands_migration_trace_events.c with a custom command
+[219/1508] Generating trace/trace-qapi_commands_misc_trace_events.c with a custom command
+[220/1508] Generating trace/trace-qapi_commands_net_trace_events.h with a custom command
+[221/1508] Generating trace/trace-qapi_commands_migration_trace_events.h with a custom command
+[222/1508] Generating trace/trace-qapi_commands_misc_trace_events.h with a custom command
+[223/1508] Generating trace/trace-qapi_commands_net_trace_events.c with a custom command
+[224/1508] Generating trace/trace-qapi_commands_pragma_trace_events.h with a custom command
+[225/1508] Generating trace/trace-qapi_commands_pragma_trace_events.c with a custom command
+[226/1508] Generating trace/trace-qapi_commands_qom_trace_events.h with a custom command
+[227/1508] Generating trace/trace-qapi_commands_replay_trace_events.c with a custom command
+[228/1508] Generating trace/trace-qapi_commands_qom_trace_events.c with a custom command
+[229/1508] Generating trace/trace-qapi_commands_replay_trace_events.h with a custom command
+[230/1508] Generating trace/trace-qapi_commands_run_state_trace_events.h with a custom command
+[231/1508] Generating trace/trace-qapi_commands_run_state_trace_events.c with a custom command
+[232/1508] Generating trace/trace-qapi_commands_sockets_trace_events.h with a custom command
+[233/1508] Generating trace/trace-qapi_commands_sockets_trace_events.c with a custom command
+[234/1508] Generating trace/trace-qapi_commands_stats_trace_events.h with a custom command
+[235/1508] Generating trace/trace-qapi_commands_trace_trace_events.c with a custom command
+[236/1508] Generating trace/trace-qapi_commands_stats_trace_events.c with a custom command
+[237/1508] Generating trace/trace-qapi_commands_trace_trace_events.h with a custom command
+[238/1508] Generating trace/trace-qapi_commands_transaction_trace_events.h with a custom command
+[239/1508] Generating trace/trace-qapi_commands_transaction_trace_events.c with a custom command
+[240/1508] Generating trace/trace-qapi_commands_vfio_trace_events.h with a custom command
+[241/1508] Generating trace/trace-qapi_commands_vfio_trace_events.c with a custom command
+[242/1508] Generating trace/trace-qapi_commands_virtio_trace_events.h with a custom command
+[243/1508] Generating trace/trace-qapi_commands_yank_trace_events.h with a custom command
+[244/1508] Generating trace/trace-qapi_commands_virtio_trace_events.c with a custom command
+[245/1508] Generating trace/trace-qapi_commands_acpi_trace_events.h with a custom command
+[246/1508] Generating trace/trace-qapi_commands_acpi_trace_events.c with a custom command
+[247/1508] Generating trace/trace-qapi_commands_yank_trace_events.c with a custom command
+[248/1508] Generating trace/trace-qapi_commands_audio_trace_events.h with a custom command
+[249/1508] Generating trace/trace-qapi_commands_audio_trace_events.c with a custom command
+[250/1508] Generating trace/trace-qapi_commands_cryptodev_trace_events.h with a custom command
+[251/1508] Generating trace/trace-qapi_commands_cryptodev_trace_events.c with a custom command
+[252/1508] Generating trace/trace-qapi_commands_qdev_trace_events.c with a custom command
+[253/1508] Generating trace/trace-qapi_commands_pci_trace_events.c with a custom command
+[254/1508] Generating trace/trace-qapi_commands_qdev_trace_events.h with a custom command
+[255/1508] Generating trace/trace-qapi_commands_pci_trace_events.h with a custom command
+[256/1508] Generating trace/trace-qapi_commands_rocker_trace_events.c with a custom command
+[257/1508] Generating trace/trace-qapi_commands_rocker_trace_events.h with a custom command
+[258/1508] Generating trace/trace-qapi_commands_tpm_trace_events.h with a custom command
+[259/1508] Generating trace/trace-qapi_commands_tpm_trace_events.c with a custom command
+[260/1508] Generating trace/trace-qapi_commands_ui_trace_events.c with a custom command
+[261/1508] Generating trace/trace-qapi_commands_machine_target_trace_events.c with a custom command
+[262/1508] Generating trace/trace-qapi_commands_machine_target_trace_events.h with a custom command
+[263/1508] Generating trace/trace-qapi_commands_ui_trace_events.h with a custom command
+[264/1508] Generating trace/trace-qapi_commands_misc_target_trace_events.c with a custom command
+[265/1508] Generating trace/trace-qapi_commands_misc_target_trace_events.h with a custom command
+[266/1508] Generating ui/input-keymap-qcode-to-atset1.c.inc with a custom command (wrapped by meson to capture output)
+[267/1508] Generating ui/input-keymap-linux-to-qcode.c.inc with a custom command (wrapped by meson to capture output)
+[268/1508] Generating ui/input-keymap-qcode-to-atset2.c.inc with a custom command (wrapped by meson to capture output)
+[269/1508] Generating ui/input-keymap-qcode-to-atset3.c.inc with a custom command (wrapped by meson to capture output)
+[270/1508] Generating ui/input-keymap-qcode-to-linux.c.inc with a custom command (wrapped by meson to capture output)
+[271/1508] Generating ui/input-keymap-qcode-to-qnum.c.inc with a custom command (wrapped by meson to capture output)
+[272/1508] Generating ui/input-keymap-qcode-to-sun.c.inc with a custom command (wrapped by meson to capture output)
+[273/1508] Generating ui/input-keymap-atset1-to-qcode.c.inc with a custom command (wrapped by meson to capture output)
+[274/1508] Generating ui/input-keymap-qnum-to-qcode.c.inc with a custom command (wrapped by meson to capture output)
+[275/1508] Generating ui/input-keymap-usb-to-qcode.c.inc with a custom command (wrapped by meson to capture output)
+[276/1508] Generating ui/input-keymap-xorgevdev-to-qcode.c.inc with a custom command (wrapped by meson to capture output)
+[277/1508] Generating ui/input-keymap-win32-to-qcode.c.inc with a custom command (wrapped by meson to capture output)
+[278/1508] Generating ui/input-keymap-xorgxquartz-to-qcode.c.inc with a custom command (wrapped by meson to capture output)
+[279/1508] Generating ui/input-keymap-xorgkbd-to-qcode.c.inc with a custom command (wrapped by meson to capture output)
+[280/1508] Generating ui/input-keymap-xorgxwin-to-qcode.c.inc with a custom command (wrapped by meson to capture output)
+[281/1508] Generating ui/input-keymap-x11-to-qcode.c.inc with a custom command (wrapped by meson to capture output)
+[282/1508] Generating ui/shader/texture-blit-frag.h with a custom command (wrapped by meson to capture output)
+[283/1508] Generating ui/shader/texture-blit-vert.h with a custom command (wrapped by meson to capture output)
+[284/1508] Generating ui/shader/texture-blit-flip-vert.h with a custom command (wrapped by meson to capture output)
+[285/1508] Generating ui/input-keymap-osx-to-qcode.c.inc with a custom command (wrapped by meson to capture output)
+[286/1508] Compiling C object subprojects/dtc/libfdt/libfdt.a.p/fdt_empty_tree.c.o
+[287/1508] Compiling C object subprojects/dtc/libfdt/libfdt.a.p/fdt_check.c.o
+[288/1508] Compiling C object subprojects/dtc/libfdt/libfdt.a.p/fdt_addresses.c.o
+[289/1508] Compiling C object subprojects/dtc/libfdt/libfdt.a.p/fdt.c.o
+[290/1508] Compiling C object subprojects/dtc/libfdt/libfdt.a.p/fdt_overlay.c.o
+[291/1508] Compiling C object subprojects/dtc/libfdt/libfdt.a.p/fdt_rw.c.o
+[292/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-authz.c.o
+[293/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-authz.c.o
+[294/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-builtin-types.c.o
+[295/1508] Compiling C object subprojects/dtc/libfdt/libfdt.a.p/fdt_ro.c.o
+[296/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-authz.c.o
+[297/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-builtin-visit.c.o
+[298/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-authz.c.o
+[299/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-block.c.o
+[300/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-block.c.o
+[301/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-block.c.o
+[302/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-block-core.c.o
+[303/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-block.c.o
+[304/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-block-core.c.o
+[305/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-block-export.c.o
+[306/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-block-export.c.o
+[307/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-block-export.c.o
+[308/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-char.c.o
+[309/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-char.c.o
+[310/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-block-export.c.o
+[311/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-char.c.o
+[312/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-common.c.o
+[313/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-common.c.o
+[314/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-common.c.o
+[315/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-char.c.o
+[316/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-common.c.o
+[317/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-block-core.c.o
+[318/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-compat.c.o
+[319/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-compat.c.o
+[320/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-compat.c.o
+[321/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-compat.c.o
+[322/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-control.c.o
+[323/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-control.c.o
+[324/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-control.c.o
+[325/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-control.c.o
+[326/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-crypto.c.o
+[327/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-crypto.c.o
+[328/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-crypto.c.o
+[329/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-cxl.c.o
+[330/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-block-core.c.o
+[331/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-cxl.c.o
+[332/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-crypto.c.o
+[333/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-cxl.c.o
+[334/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-dump.c.o
+[335/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-dump.c.o
+[336/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-dump.c.o
+[337/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-cxl.c.o
+[338/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-ebpf.c.o
+[339/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-dump.c.o
+[340/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-ebpf.c.o
+[341/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-ebpf.c.o
+[342/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-ebpf.c.o
+[343/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-error.c.o
+[344/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-error.c.o
+[345/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-error.c.o
+[346/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-error.c.o
+[347/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-introspect.c.o
+[348/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-introspect.c.o
+[349/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-introspect.c.o
+[350/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-introspect.c.o
+[351/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-job.c.o
+[352/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-job.c.o
+[353/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-job.c.o
+[354/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-machine-common.c.o
+[355/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-machine-common.c.o
+[356/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-job.c.o
+[357/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-machine-common.c.o
+[358/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-machine-common.c.o
+[359/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-machine.c.o
+[360/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-machine.c.o
+[361/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-migration.c.o
+[362/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-migration.c.o
+[363/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-misc.c.o
+[364/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-machine.c.o
+[365/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-misc.c.o
+[366/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-misc.c.o
+[367/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-migration.c.o
+[368/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-net.c.o
+[369/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-machine.c.o
+[370/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-pragma.c.o
+[371/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-migration.c.o
+[372/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-net.c.o
+[373/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-misc.c.o
+[374/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-net.c.o
+[375/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-net.c.o
+[376/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-pragma.c.o
+[377/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-pragma.c.o
+[378/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-pragma.c.o
+[379/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-qom.c.o
+[380/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-replay.c.o
+[381/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-qom.c.o
+[382/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-replay.c.o
+[383/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-replay.c.o
+[384/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-replay.c.o
+[385/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-qom.c.o
+[386/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-qom.c.o
+[387/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-run-state.c.o
+[388/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-sockets.c.o
+[389/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-run-state.c.o
+[390/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-run-state.c.o
+[391/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-run-state.c.o
+[392/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-sockets.c.o
+[393/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-sockets.c.o
+[394/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-sockets.c.o
+[395/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-stats.c.o
+[396/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-stats.c.o
+[397/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-trace.c.o
+[398/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-stats.c.o
+[399/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-stats.c.o
+[400/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-trace.c.o
+[401/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-trace.c.o
+[402/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-trace.c.o
+[403/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-transaction.c.o
+[404/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-vfio.c.o
+[405/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-transaction.c.o
+[406/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-vfio.c.o
+[407/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-transaction.c.o
+[408/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-vfio.c.o
+[409/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-transaction.c.o
+[410/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-vfio.c.o
+[411/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-virtio.c.o
+[412/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-virtio.c.o
+[413/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-yank.c.o
+[414/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-yank.c.o
+[415/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-yank.c.o
+[416/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-virtio.c.o
+[417/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-yank.c.o
+[418/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-virtio.c.o
+[419/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-acpi.c.o
+[420/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-acpi.c.o
+[421/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-acpi.c.o
+[422/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-acpi.c.o
+[423/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-audio.c.o
+[424/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-audio.c.o
+[425/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-audio.c.o
+[426/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-cryptodev.c.o
+[427/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-audio.c.o
+[428/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-cryptodev.c.o
+[429/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-cryptodev.c.o
+[430/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-cryptodev.c.o
+[431/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-qdev.c.o
+[432/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-qdev.c.o
+[433/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-qdev.c.o
+[434/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-pci.c.o
+[435/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-pci.c.o
+[436/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-pci.c.o
+[437/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-qdev.c.o
+[438/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-pci.c.o
+[439/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-rocker.c.o
+[440/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-tpm.c.o
+[441/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-rocker.c.o
+[442/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-rocker.c.o
+[443/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-rocker.c.o
+[444/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-tpm.c.o
+[445/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-tpm.c.o
+[446/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-tpm.c.o
+[447/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-ui.c.o
+[448/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-ui.c.o
+[449/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qom.c.o
+[450/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-root.c.o
+[451/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-crypto.c.o
+[452/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi.c.o
+[453/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-monitor.c.o
+[454/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-ui.c.o
+[455/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-util.c.o
+[456/1508] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-ui.c.o
+[457/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-authz.c.o
+[458/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-gdbstub.c.o
+[459/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-chardev.c.o
+[460/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-block.c.o
+[461/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-io.c.o
+[462/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-nbd.c.o
+[463/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-scsi.c.o
+[464/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-accel_kvm.c.o
+[465/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-audio.c.o
+[466/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-backends_tpm.c.o
+[467/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-backends.c.o
+[468/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-ebpf.c.o
+[469/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_9pfs.c.o
+[470/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_acpi.c.o
+[471/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_adc.c.o
+[472/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_alpha.c.o
+[473/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_audio.c.o
+[474/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_arm.c.o
+[475/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_block.c.o
+[476/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_char.c.o
+[477/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_display.c.o
+[478/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_dma.c.o
+[479/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_fsi.c.o
+[480/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_hyperv.c.o
+[481/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_i2c.c.o
+[482/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_i386_xen.c.o
+[483/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_i386_kvm.c.o
+[484/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_i386.c.o
+[485/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_ide.c.o
+[486/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_input.c.o
+[487/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_isa.c.o
+[488/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_intc.c.o
+[489/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_mem.c.o
+[490/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_mips.c.o
+[491/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_misc_macio.c.o
+[492/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_net_can.c.o
+[493/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_nubus.c.o
+[494/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_misc.c.o
+[495/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_net.c.o
+[496/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_nvme.c.o
+[497/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_nvram.c.o
+[498/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_pci.c.o
+[499/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_pci_host.c.o
+[500/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_rtc.c.o
+[501/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_riscv.c.o
+[502/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_ppc.c.o
+[503/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_s390x.c.o
+[504/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_scsi.c.o
+[505/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_sensor.c.o
+[506/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_sh4.c.o
+[507/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_sparc.c.o
+[508/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_sd.c.o
+[509/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_sparc64.c.o
+[510/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_ssi.c.o
+[511/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_timer.c.o
+[512/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_tpm.c.o
+[513/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_watchdog.c.o
+[514/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_ufs.c.o
+[515/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_xen.c.o
+[516/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_vfio.c.o
+[517/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_virtio.c.o
+[518/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_gpio.c.o
+[519/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_usb.c.o
+[520/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-migration.c.o
+[521/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-system.c.o
+[522/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-net.c.o
+[523/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_remote.c.o
+[524/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-accel_tcg.c.o
+[525/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-ui.c.o
+[526/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_core.c.o
+[527/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_arm.c.o
+[528/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_arm_hvf.c.o
+[529/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_hppa.c.o
+[530/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_i386_kvm.c.o
+[531/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_i386.c.o
+[532/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_mips_tcg.c.o
+[533/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_loongarch.c.o
+[534/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_riscv.c.o
+[535/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_ppc.c.o
+[536/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_s390x.c.o
+[537/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_block_trace_events.c.o
+[538/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_s390x_kvm.c.o
+[539/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_authz_trace_events.c.o
+[540/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_block_export_trace_events.c.o
+[541/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_common_trace_events.c.o
+[542/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_sparc.c.o
+[543/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_char_trace_events.c.o
+[544/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_block_core_trace_events.c.o
+[545/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_introspect_trace_events.c.o
+[546/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_error_trace_events.c.o
+[547/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_crypto_trace_events.c.o
+[548/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_control_trace_events.c.o
+[549/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_ebpf_trace_events.c.o
+[550/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_cxl_trace_events.c.o
+[551/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_dump_trace_events.c.o
+[552/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_compat_trace_events.c.o
+[553/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_pragma_trace_events.c.o
+[554/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_misc_trace_events.c.o
+[555/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_machine_common_trace_events.c.o
+[556/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_machine_trace_events.c.o
+[557/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_net_trace_events.c.o
+[558/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_job_trace_events.c.o
+[559/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_migration_trace_events.c.o
+[560/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_qom_trace_events.c.o
+[561/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_sockets_trace_events.c.o
+[562/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_replay_trace_events.c.o
+[563/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_run_state_trace_events.c.o
+[564/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_stats_trace_events.c.o
+[565/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_trace_trace_events.c.o
+[566/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_transaction_trace_events.c.o
+[567/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_vfio_trace_events.c.o
+[568/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_virtio_trace_events.c.o
+[569/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_qdev_trace_events.c.o
+[570/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_yank_trace_events.c.o
+[571/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_rocker_trace_events.c.o
+[572/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_tpm_trace_events.c.o
+[573/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_pci_trace_events.c.o
+[574/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_audio_trace_events.c.o
+[575/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_cryptodev_trace_events.c.o
+[576/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_acpi_trace_events.c.o
+[577/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_machine_target_trace_events.c.o
+[578/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_ui_trace_events.c.o
+[579/1508] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_misc_target_trace_events.c.o
+[580/1508] Compiling C object libqemuutil.a.p/qapi_qapi-dealloc-visitor.c.o
+[581/1508] Compiling C object libqemuutil.a.p/qapi_qapi-clone-visitor.c.o
+[582/1508] Compiling C object libqemuutil.a.p/qapi_qapi-util.c.o
+[583/1508] Compiling C object libqemuutil.a.p/qapi_qapi-forward-visitor.c.o
+[584/1508] Compiling C object libqemuutil.a.p/qapi_opts-visitor.c.o
+[585/1508] Compiling C object libqemuutil.a.p/qapi_qobject-output-visitor.c.o
+[586/1508] Compiling C object libqemuutil.a.p/qapi_qapi-type-helpers.c.o
+[587/1508] Compiling C object libqemuutil.a.p/qapi_qmp-event.c.o
+[588/1508] Compiling C object libqemuutil.a.p/qapi_string-input-visitor.c.o
+[589/1508] Compiling C object libqemuutil.a.p/qapi_qobject-input-visitor.c.o
+[590/1508] Compiling C object libqemuutil.a.p/qapi_string-output-visitor.c.o
+[591/1508] Compiling C object libqemuutil.a.p/qapi_qapi-visit-core.c.o
+[592/1508] Compiling C object libqemuutil.a.p/qapi_qmp-dispatch.c.o
+[593/1508] Compiling C object libqemuutil.a.p/qobject_qnull.c.o
+[594/1508] Compiling C object libqemuutil.a.p/qobject_qstring.c.o
+[595/1508] Compiling C object libqemuutil.a.p/qobject_qnum.c.o
+[596/1508] Compiling C object libqemuutil.a.p/qapi_qmp-registry.c.o
+[597/1508] Compiling C object libqemuutil.a.p/qobject_qbool.c.o
+[598/1508] Compiling C object libqemuutil.a.p/qobject_qlist.c.o
+[599/1508] Compiling C object libqemuutil.a.p/qobject_qdict.c.o
+[600/1508] Compiling C object libqemuutil.a.p/qobject_qlit.c.o
+[601/1508] Compiling C object libqemuutil.a.p/qobject_qjson.c.o
+[602/1508] Compiling C object libqemuutil.a.p/qobject_qobject.c.o
+[603/1508] Compiling C object libqemuutil.a.p/qobject_json-writer.c.o
+[604/1508] Compiling C object libqemuutil.a.p/qobject_json-streamer.c.o
+[605/1508] Compiling C object libqemuutil.a.p/qobject_json-lexer.c.o
+[606/1508] Compiling C object libqemuutil.a.p/qobject_json-parser.c.o
+[607/1508] Compiling C object libqemuutil.a.p/util_unicode.c.o
+[608/1508] Compiling C object libqemuutil.a.p/util_qemu-timer-common.c.o
+[609/1508] Compiling C object libqemuutil.a.p/qobject_block-qdict.c.o
+[610/1508] Compiling C object libqemuutil.a.p/util_osdep.c.o
+[611/1508] Compiling C object libqemuutil.a.p/util_cutils.c.o
+[612/1508] Compiling C object libqemuutil.a.p/util_thread-context.c.o
+[613/1508] Compiling C object libqemuutil.a.p/util_compatfd.c.o
+[614/1508] Compiling C object libqemuutil.a.p/util_fdmon-poll.c.o
+[615/1508] Compiling C object libqemuutil.a.p/util_mmap-alloc.c.o
+[616/1508] Compiling C object libqemuutil.a.p/util_event_notifier-posix.c.o
+[617/1508] Compiling C object libqemuutil.a.p/util_aio-posix.c.o
+[618/1508] Compiling C object libqemuutil.a.p/util_drm.c.o
+[619/1508] Compiling C object libqemuutil.a.p/util_memfd.c.o
+[620/1508] Compiling C object libqemuutil.a.p/util_defer-call.c.o
+[621/1508] Compiling C object libqemuutil.a.p/util_oslib-posix.c.o
+[622/1508] Compiling C object libqemuutil.a.p/util_envlist.c.o
+[623/1508] Compiling C object libqemuutil.a.p/util_qemu-thread-posix.c.o
+[624/1508] Compiling C object libqemuutil.a.p/util_path.c.o
+[625/1508] Compiling C object libqemuutil.a.p/util_module.c.o
+[626/1508] Compiling C object libqemuutil.a.p/util_host-utils.c.o
+[627/1508] Compiling C object libqemuutil.a.p/util_bitops.c.o
+[628/1508] Compiling C object libqemuutil.a.p/util_fifo8.c.o
+[629/1508] Compiling C object libqemuutil.a.p/util_cacheflush.c.o
+[630/1508] Compiling C object libqemuutil.a.p/util_bitmap.c.o
+[631/1508] Compiling C object libqemuutil.a.p/util_error.c.o
+[632/1508] Compiling C object libqemuutil.a.p/util_qemu-print.c.o
+[633/1508] Compiling C object libqemuutil.a.p/util_error-report.c.o
+[634/1508] Compiling C object libqemuutil.a.p/util_id.c.o
+[635/1508] Compiling C object libqemuutil.a.p/util_notify.c.o
+[636/1508] Compiling C object libqemuutil.a.p/util_qemu-progress.c.o
+[637/1508] Compiling C object libqemuutil.a.p/util_qemu-config.c.o
+[638/1508] Compiling C object libqemuutil.a.p/util_crc32c.c.o
+[639/1508] Compiling C object libqemuutil.a.p/util_uuid.c.o
+[640/1508] Compiling C object libqemuutil.a.p/util_getauxval.c.o
+[641/1508] Compiling C object libqemuutil.a.p/util_keyval.c.o
+[642/1508] Compiling C object libqemuutil.a.p/util_qemu-option.c.o
+[643/1508] Compiling C object libqemuutil.a.p/util_rcu.c.o
+[644/1508] Compiling C object libqemuutil.a.p/util_qdist.c.o
+[645/1508] Compiling C object libqemuutil.a.p/util_log.c.o
+[646/1508] Compiling C object libqemuutil.a.p/util_range.c.o
+[647/1508] Compiling C object libqemuutil.a.p/util_stats64.c.o
+[648/1508] Compiling C object libqemuutil.a.p/util_reserved-region.c.o
+[649/1508] Compiling C object libqemuutil.a.p/util_systemd.c.o
+[650/1508] Compiling C object libqemuutil.a.p/util_qsp.c.o
+[651/1508] Compiling C object libqemuutil.a.p/util_qht.c.o
+[652/1508] Compiling C object libqemuutil.a.p/util_transactions.c.o
+[653/1508] Compiling C object libqemuutil.a.p/util_guest-random.c.o
+[654/1508] Compiling C object libqemuutil.a.p/util_int128.c.o
+[655/1508] Compiling C object libqemuutil.a.p/util_memalign.c.o
+[656/1508] Compiling C object libqemuutil.a.p/util_crc-ccitt.c.o
+[657/1508] Compiling C object libqemuutil.a.p/util_lockcnt.c.o
+[658/1508] Compiling C object libqemuutil.a.p/util_aiocb.c.o
+[659/1508] Compiling C object libqemuutil.a.p/util_interval-tree.c.o
+[660/1508] Compiling C object libqemuutil.a.p/util_base64.c.o
+[661/1508] Compiling C object libqemuutil.a.p/util_main-loop.c.o
+[662/1508] Compiling C object libqemuutil.a.p/util_async.c.o
+[663/1508] Compiling C object libqemuutil.a.p/util_qemu-coroutine.c.o
+[664/1508] Compiling C object libqemuutil.a.p/util_qemu-coroutine-io.c.o
+[665/1508] Compiling C object libqemuutil.a.p/util_coroutine-sigaltstack.c.o
+[666/1508] Compiling C object libqemuutil.a.p/util_qemu-coroutine-lock.c.o
+[667/1508] Compiling C object libqemuutil.a.p/util_thread-pool.c.o
+[668/1508] Compiling C object libqemuutil.a.p/util_aio-wait.c.o
+[669/1508] Compiling C object libqemuutil.a.p/util_qemu-timer.c.o
+[670/1508] Compiling C object libqemuutil.a.p/util_buffer.c.o
+[671/1508] Compiling C object libqemuutil.a.p/util_hexdump.c.o
+[672/1508] Compiling C object libqemuutil.a.p/util_bufferiszero.c.o
+[673/1508] Compiling C object libqemuutil.a.p/util_iova-tree.c.o
+[674/1508] Compiling C object libqemuutil.a.p/util_qemu-sockets.c.o
+[675/1508] Compiling C object libqemuutil.a.p/util_block-helpers.c.o
+[676/1508] Compiling C object libqemuutil.a.p/util_nvdimm-utils.c.o
+[677/1508] Compiling C object libqemuutil.a.p/util_hbitmap.c.o
+[678/1508] Compiling C object libqemuutil.a.p/util_qemu-coroutine-sleep.c.o
+[679/1508] Compiling C object libqemuutil.a.p/util_iov.c.o
+[680/1508] Compiling C object libqemuutil.a.p/util_qemu-co-shared-resource.c.o
+[681/1508] Compiling C object libqemuutil.a.p/util_qemu-co-timeout.c.o
+[682/1508] Compiling C object libqemuutil.a.p/util_filemonitor-stub.c.o
+[683/1508] Compiling C object libqemuutil.a.p/util_timed-average.c.o
+[684/1508] Compiling C object libqemuutil.a.p/util_readline.c.o
+[685/1508] Compiling C object libqemuutil.a.p/util_cpuinfo-aarch64.c.o
+[686/1508] Compiling C object libqemuutil.a.p/util_yank.c.o
+[687/1508] Compiling C object libqemuutil.a.p/util_throttle.c.o
+[688/1508] Compiling C object libqemuutil.a.p/crypto_init.c.o
+[689/1508] Compiling C object libqemuutil.a.p/crypto_sm4.c.o
+[690/1508] Compiling C object libqemuutil.a.p/crypto_sha512_t-internal.c.o
+[691/1508] Compiling C object libqemuutil.a.p/crypto_sha512_256-internal.c.o
+[692/1508] Compiling C object libqemuutil.a.p/crypto_sha512_224-internal.c.o
+[693/1508] Compiling C object libqemuutil.a.p/crypto_clmul.c.o
+[694/1508] Compiling C object libqemuutil.a.p/crypto_sha512-internal.c.o
+[695/1508] Compiling C object libqemuutil.a.p/crypto_sha384-internal.c.o
+[696/1508] Compiling C object libqemuutil.a.p/crypto_sha256-internal.c.o
+[697/1508] Compiling C object libqemuutil.a.p/crypto_aes.c.o
+[698/1508] Compiling C object libqemuutil.a.p/crypto_sha224-internal.c.o
+[699/1508] Compiling C object libqemuutil.a.p/crypto_hmac256-internal.c.o
+[700/1508] Compiling C object libqemuutil.a.p/crypto_random-gcrypt.c.o
+[701/1508] Compiling C object libqemuutil.a.p/crypto_sha1-internal.c.o
+[702/1508] Compiling C object libqemuutil.a.p/crypto_xts.c.o
+[703/1508] Compiling C object libqemuutil.a.p/trace_qmp.c.o
+[704/1508] Compiling C object libqemuutil.a.p/stubs_cpu-get-clock.c.o
+[705/1508] Compiling C object libqemuutil.a.p/trace_control.c.o
+[706/1508] Compiling C object libqemuutil.a.p/stubs_error-printf.c.o
+[707/1508] Compiling C object libqemuutil.a.p/stubs_iothread-lock.c.o
+[708/1508] Compiling C object libqemuutil.a.p/stubs_is-daemonized.c.o
+[709/1508] Compiling C object libqemuutil.a.p/stubs_fdset.c.o
+[710/1508] Compiling C object libqemuutil.a.p/stubs_trace-control.c.o
+[711/1508] Compiling C object libqemuutil.a.p/stubs_replay-mode.c.o
+[712/1508] Compiling C object libqemuutil.a.p/stubs_monitor-core.c.o
+[713/1508] Compiling C object libqemuutil.a.p/stubs_bdrv-next-monitor-owned.c.o
+[714/1508] Compiling C object libqemuutil.a.p/stubs_blk-exp-close-all.c.o
+[715/1508] Compiling C object libqemuutil.a.p/stubs_blk-commit-all.c.o
+[716/1508] Compiling C object libqemuutil.a.p/stubs_change-state-handler.c.o
+[717/1508] Compiling C object libqemuutil.a.p/stubs_get-vm-name.c.o
+[718/1508] Compiling C object libqemuutil.a.p/stubs_blockdev-close-all-bdrv-states.c.o
+[719/1508] Compiling C object libqemuutil.a.p/stubs_iothread-lock-block.c.o
+[720/1508] Compiling C object libqemuutil.a.p/stubs_migr-blocker.c.o
+[721/1508] Compiling C object libqemuutil.a.p/stubs_runstate-check.c.o
+[722/1508] Compiling C object libqemuutil.a.p/stubs_uuid.c.o
+[723/1508] Compiling C object libqemuutil.a.p/stubs_physmem.c.o
+[724/1508] Compiling C object libqemuutil.a.p/stubs_ram-block.c.o
+[725/1508] Compiling C object libqemuutil.a.p/stubs_icount.c.o
+[726/1508] Compiling C object libqemuutil.a.p/stubs_cpus-virtual-clock.c.o
+[727/1508] Compiling C object libqemuutil.a.p/stubs_replay-tools.c.o
+[728/1508] Compiling C object libqemuutil.a.p/stubs_graph-lock.c.o
+[729/1508] Compiling C object libqemuutil.a.p/stubs_qemu-timer-notify-cb.c.o
+[730/1508] Compiling C object libqemuutil.a.p/stubs_vm-stop.c.o
+[731/1508] Compiling C object libqemuutil.a.p/stubs_monitor-internal.c.o
+[732/1508] Compiling C object libqemuutil.a.p/stubs_qtest.c.o
+[733/1508] Compiling C object libqemuutil.a.p/stubs_dump.c.o
+[734/1508] Compiling C object libqemuutil.a.p/stubs_vmstate.c.o
+[735/1508] Compiling C object libqemuutil.a.p/stubs_qmp-command-available.c.o
+[736/1508] Compiling C object libqemuutil.a.p/stubs_qmp-quit.c.o
+[737/1508] Compiling C object libqemuutil.a.p/stubs_cmos.c.o
+[738/1508] Compiling C object libqemuutil.a.p/stubs_win32-kbd-hook.c.o
+[739/1508] Compiling C object libqemuutil.a.p/stubs_target-monitor-defs.c.o
+[740/1508] Compiling C object libqemuutil.a.p/stubs_target-get-monitor-def.c.o
+[741/1508] Compiling C object libqemuutil.a.p/stubs_gdbstub.c.o
+[742/1508] Compiling C object libqemuutil.a.p/stubs_replay.c.o
+[743/1508] Generating block/module_block.h with a custom command
+[744/1508] Compiling C object libqemuutil.a.p/stubs_fw_cfg.c.o
+[745/1508] Compiling C object subprojects/dtc/libfdt/libfdt.a.p/fdt_strerror.c.o
+[746/1508] Generating block/block-gen.c with a custom command
+[747/1508] Compiling C object subprojects/dtc/libfdt/libfdt.a.p/fdt_wip.c.o
+[748/1508] Compiling C object libqemuutil.a.p/stubs_xen-hw-stub.c.o
+[749/1508] Compiling C object libqemuutil.a.p/stubs_hotplug-stubs.c.o
+[750/1508] Compiling C object libqemuutil.a.p/stubs_sysbus.c.o
+[751/1508] Compiling C object subprojects/dtc/libfdt/libfdt.a.p/fdt_sw.c.o
+[752/1508] Generating 'libcommon.a.p/decode-insns.c.inc'
+[753/1508] Linking static target subprojects/dtc/libfdt/libfdt.a
+[754/1508] Compiling C object libqom.a.p/qom_container.c.o
+[755/1508] Linking static target libqemuutil.a
+[756/1508] Compiling C object libqom.a.p/qom_qom-qobject.c.o
+[757/1508] Compiling C object libqom.a.p/qom_object_interfaces.c.o
+[758/1508] Compiling C object gdbstub/libgdb_system.a.p/system.c.o
+[759/1508] Compiling C object libevent-loop-base.a.p/event-loop-base.c.o
+[760/1508] Compiling C object tcg/libtcg_system.a.p/tcg-common.c.o
+[761/1508] Compiling C object libqom.a.p/qom_object.c.o
+[762/1508] Compiling C object tcg/libtcg_system.a.p/region.c.o
+[763/1508] Compiling C object gdbstub/libgdb_system.a.p/gdbstub.c.o
+[764/1508] Generating block.syms with a custom command (wrapped by meson to capture output)
+[765/1508] Generating qemu.syms with a custom command (wrapped by meson to capture output)
+[766/1508] Compiling C object tcg/libtcg_system.a.p/optimize.c.o
+[767/1508] Compiling C object tcg/libtcg_system.a.p/tcg-op.c.o
+[768/1508] Compiling C object libauthz.a.p/authz_base.c.o
+[769/1508] Compiling C object tcg/libtcg_system.a.p/tcg-op-vec.c.o
+[770/1508] Compiling C object tcg/libtcg_system.a.p/tcg-op-ldst.c.o
+[771/1508] Compiling C object libauthz.a.p/authz_list.c.o
+[772/1508] Compiling C object libauthz.a.p/authz_simple.c.o
+[773/1508] Compiling C object libauthz.a.p/authz_listfile.c.o
+[774/1508] Compiling C object libcrypto.a.p/crypto_afsplit.c.o
+[775/1508] Compiling C object libcrypto.a.p/crypto_block-qcow.c.o
+[776/1508] Compiling C object libcrypto.a.p/crypto_akcipher.c.o
+[777/1508] Compiling C object libcrypto.a.p/crypto_block-luks.c.o
+[778/1508] Compiling C object tcg/libtcg_system.a.p/tcg-op-gvec.c.o
+[779/1508] Compiling C object libcrypto.a.p/crypto_cipher.c.o
+[780/1508] Compiling C object libcrypto.a.p/crypto_der.c.o
+[781/1508] Compiling C object libcrypto.a.p/crypto_hmac.c.o
+[782/1508] Compiling C object libcrypto.a.p/crypto_block.c.o
+[783/1508] Compiling C object libcrypto.a.p/crypto_hash.c.o
+[784/1508] Compiling C object libcrypto.a.p/crypto_ivgen-plain.c.o
+[785/1508] Compiling C object libcrypto.a.p/crypto_ivgen-essiv.c.o
+[786/1508] Compiling C object libcrypto.a.p/crypto_ivgen-plain64.c.o
+[787/1508] Compiling C object libcrypto.a.p/crypto_ivgen.c.o
+[788/1508] Compiling C object libcrypto.a.p/crypto_pbkdf.c.o
+[789/1508] Compiling C object libcrypto.a.p/crypto_secret.c.o
+[790/1508] Compiling C object libcrypto.a.p/crypto_secret_common.c.o
+[791/1508] Compiling C object libcrypto.a.p/crypto_tlscreds.c.o
+[792/1508] Compiling C object libcrypto.a.p/crypto_tlscredsanon.c.o
+[793/1508] Compiling C object libcrypto.a.p/crypto_tlscredspsk.c.o
+[794/1508] Compiling C object libcrypto.a.p/crypto_tlssession.c.o
+[795/1508] Compiling C object libcrypto.a.p/crypto_tlscredsx509.c.o
+[796/1508] Compiling C object libcrypto.a.p/crypto_rsakey.c.o
+[797/1508] Compiling C object libcrypto.a.p/crypto_hash-gcrypt.c.o
+[798/1508] Compiling C object libcrypto.a.p/crypto_hmac-gcrypt.c.o
+[799/1508] Compiling C object libcrypto.a.p/crypto_pbkdf-gcrypt.c.o
+[800/1508] Compiling C object libio.a.p/io_channel-buffer.c.o
+[801/1508] Compiling C object libio.a.p/io_channel-file.c.o
+[802/1508] Compiling C object libio.a.p/io_channel-command.c.o
+[803/1508] Compiling C object libio.a.p/io_channel-null.c.o
+[804/1508] Compiling C object tcg/libtcg_system.a.p/tcg.c.o
+[805/1508] Compiling C object libio.a.p/io_channel-util.c.o
+[806/1508] Compiling C object libio.a.p/io_channel-tls.c.o
+[807/1508] Compiling C object libio.a.p/io_channel-watch.c.o
+[808/1508] Compiling C object libio.a.p/io_channel-socket.c.o
+[809/1508] Compiling C object libio.a.p/io_dns-resolver.c.o
+[810/1508] Compiling C object libio.a.p/io_net-listener.c.o
+[811/1508] Compiling C object libio.a.p/io_task.c.o
+[812/1508] Compiling C object libio.a.p/io_channel.c.o
+[813/1508] Compiling C object libmigration.a.p/migration_xbzrle.c.o
+[814/1508] Compiling C object libmigration.a.p/migration_page_cache.c.o
+[815/1508] Compiling C object libmigration.a.p/migration_migration-stats.c.o
+[816/1508] Compiling C object libio.a.p/io_channel-websock.c.o
+[817/1508] Compiling C object libmigration.a.p/migration_yank_functions.c.o
+[818/1508] Compiling C object libmigration.a.p/migration_vmstate-types.c.o
+[819/1508] Compiling C object libmigration.a.p/migration_qemu-file.c.o
+[820/1508] Compiling C object libblock.a.p/blockjob.c.o
+[821/1508] Compiling C object libmigration.a.p/migration_vmstate.c.o
+[822/1508] Compiling C object libblock.a.p/meson-generated_.._block_block-gen.c.o
+[823/1508] Compiling C object libblock.a.p/replication.c.o
+[824/1508] Compiling C object libblock.a.p/job.c.o
+[825/1508] Compiling C object libblock.a.p/scsi_utils.c.o
+[826/1508] Compiling C object libblock.a.p/nbd_common.c.o
+[827/1508] Compiling C object libblock.a.p/nbd_client-connection.c.o
+[828/1508] Compiling C object libblock.a.p/scsi_pr-manager-stub.c.o
+[829/1508] Compiling C object libblock.a.p/block_accounting.c.o
+[830/1508] Compiling C object libblock.a.p/qemu-io-cmds.c.o
+[831/1508] Compiling C object libblock.a.p/block_aio_task.c.o
+[832/1508] Compiling C object libblock.a.p/nbd_client.c.o
+[833/1508] Compiling C object libblock.a.p/block_amend.c.o
+[834/1508] Compiling C object libblock.a.p/block_backup.c.o
+[835/1508] Compiling C object libblock.a.p/block_blkverify.c.o
+[836/1508] Compiling C object libblock.a.p/block_blklogwrites.c.o
+[837/1508] Compiling C object libblock.a.p/block_blkdebug.c.o
+[838/1508] Compiling C object libblock.a.p/block_commit.c.o
+[839/1508] Compiling C object libblock.a.p/block_block-copy.c.o
+[840/1508] Compiling C object libblock.a.p/block_copy-before-write.c.o
+[841/1508] Compiling C object libblock.a.p/block_create.c.o
+[842/1508] Compiling C object libblock.a.p/block_copy-on-read.c.o
+[843/1508] Compiling C object libblock.a.p/block.c.o
+[844/1508] Compiling C object libblock.a.p/block_crypto.c.o
+[845/1508] Compiling C object libblock.a.p/block_block-backend.c.o
+[846/1508] Compiling C object libblock.a.p/block_filter-compress.c.o
+[847/1508] Compiling C object libblock.a.p/block_graph-lock.c.o
+[848/1508] Compiling C object libblock.a.p/block_dirty-bitmap.c.o
+[849/1508] Compiling C object libblock.a.p/block_null.c.o
+[850/1508] Compiling C object libblock.a.p/block_progress_meter.c.o
+[851/1508] Compiling C object libblock.a.p/block_preallocate.c.o
+[852/1508] Compiling C object libblock.a.p/block_mirror.c.o
+[853/1508] Compiling C object libblock.a.p/block_qapi.c.o
+[854/1508] Compiling C object libblock.a.p/block_nbd.c.o
+[855/1508] Compiling C object libblock.a.p/block_qcow2-cache.c.o
+[856/1508] Compiling C object libblock.a.p/block_io.c.o
+[857/1508] Compiling C object libblock.a.p/block_qcow2-bitmap.c.o
+[858/1508] Compiling C object libblock.a.p/block_qcow2-threads.c.o
+[859/1508] Compiling C object libblock.a.p/block_qcow2-snapshot.c.o
+[860/1508] Compiling C object libblock.a.p/block_reqlist.c.o
+[861/1508] Compiling C object libblock.a.p/block_raw-format.c.o
+[862/1508] Compiling C object libblock.a.p/block_qcow2-cluster.c.o
+[863/1508] Compiling C object libblock.a.p/block_quorum.c.o
+[864/1508] Compiling C object libblock.a.p/block_qcow2.c.o
+[865/1508] Compiling C object libblock.a.p/block_snapshot-access.c.o
+[866/1508] Compiling C object libblock.a.p/block_throttle.c.o
+[867/1508] Compiling C object libblock.a.p/block_snapshot.c.o
+[868/1508] Compiling C object libblock.a.p/block_qcow2-refcount.c.o
+[869/1508] Compiling C object libblock.a.p/block_write-threshold.c.o
+[870/1508] Compiling C object libblock.a.p/block_throttle-groups.c.o
+[871/1508] Compiling C object libblock.a.p/block_vhdx-endian.c.o
+[872/1508] Compiling C object libblock.a.p/block_vdi.c.o
+[873/1508] Compiling C object libblock.a.p/block_qcow.c.o
+[874/1508] Compiling C object libblock.a.p/block_vhdx-log.c.o
+[875/1508] Compiling C object libblock.a.p/block_cloop.c.o
+[876/1508] Compiling C object libblock.a.p/block_vpc.c.o
+[877/1508] Compiling C object libblock.a.p/block_vhdx.c.o
+[878/1508] Compiling C object libblock.a.p/block_bochs.c.o
+[879/1508] Compiling C object libblock.a.p/block_dmg.c.o
+[880/1508] Compiling C object libblock.a.p/block_qed-cluster.c.o
+[881/1508] Compiling C object libblock.a.p/block_qed-check.c.o
+[882/1508] Compiling C object libblock.a.p/block_vmdk.c.o
+[883/1508] Compiling C object libblock.a.p/block_qed-l2-cache.c.o
+[884/1508] Compiling C object libblock.a.p/block_qed-table.c.o
+[885/1508] Compiling C object libblock.a.p/block_parallels-ext.c.o
+[886/1508] Compiling C object libblock.a.p/block_qed.c.o
+[887/1508] Compiling C object libblock.a.p/block_replication.c.o
+[888/1508] Compiling C object libblock.a.p/block_stream.c.o
+[889/1508] Compiling C object libblock.a.p/block_monitor_bitmap-qmp-cmds.c.o
+[890/1508] Compiling C object libblock.a.p/block_parallels.c.o
+[891/1508] Compiling C object libblock.a.p/block_vvfat.c.o
+[892/1508] Compiling C object libblockdev.a.p/block_export_export.c.o
+[893/1508] Compiling C object libblockdev.a.p/job-qmp.c.o
+[894/1508] Compiling C object libblockdev.a.p/blockdev-nbd.c.o
+[895/1508] Compiling C object libblock.a.p/block_file-posix.c.o
+[896/1508] Compiling C object libblockdev.a.p/iothread.c.o
+[897/1508] Compiling C object libblockdev.a.p/os-posix.c.o
+[898/1508] Compiling C object libqmp.a.p/qom_qom-qmp-cmds.c.o
+[899/1508] Compiling C object libchardev.a.p/chardev_char-fe.c.o
+[900/1508] Compiling C object libqmp.a.p/monitor_qmp-cmds-control.c.o
+[901/1508] Compiling C object libchardev.a.p/chardev_char-file.c.o
+[902/1508] Compiling C object libqmp.a.p/monitor_qmp.c.o
+[903/1508] Compiling C object libqmp.a.p/monitor_monitor.c.o
+[904/1508] Compiling C object libblockdev.a.p/blockdev.c.o
+[905/1508] Compiling C object libchardev.a.p/chardev_char-io.c.o
+[906/1508] Compiling C object libblockdev.a.p/nbd_server.c.o
+[907/1508] Compiling C object libchardev.a.p/chardev_char-null.c.o
+[908/1508] Compiling C object libchardev.a.p/chardev_char-pipe.c.o
+[909/1508] Compiling C object libchardev.a.p/chardev_char-ringbuf.c.o
+[910/1508] Compiling C object libchardev.a.p/chardev_char-mux.c.o
+[911/1508] Compiling C object libchardev.a.p/chardev_char-serial.c.o
+[912/1508] Compiling C object libchardev.a.p/chardev_char-stdio.c.o
+[913/1508] Compiling C object libchardev.a.p/chardev_char-udp.c.o
+[914/1508] Compiling C object libchardev.a.p/chardev_char-fd.c.o
+[915/1508] Compiling C object libchardev.a.p/chardev_char-parallel.c.o
+[916/1508] Compiling C object libchardev.a.p/chardev_char-pty.c.o
+[917/1508] Compiling C object libhwcore.a.p/hw_core_bus.c.o
+[918/1508] Compiling C object libchardev.a.p/chardev_char-socket.c.o
+[919/1508] Compiling C object libchardev.a.p/chardev_char.c.o
+[920/1508] Compiling C object libhwcore.a.p/hw_core_resetcontainer.c.o
+[921/1508] Compiling C object libhwcore.a.p/hw_core_vmstate-if.c.o
+[922/1508] Compiling C object libhwcore.a.p/hw_core_qdev-properties.c.o
+[923/1508] Compiling C object libhwcore.a.p/hw_core_resettable.c.o
+[924/1508] Compiling C object libhwcore.a.p/hw_core_irq.c.o
+[925/1508] Compiling C object libhwcore.a.p/hw_core_clock.c.o
+[926/1508] Compiling C object libhwcore.a.p/hw_core_qdev.c.o
+[927/1508] Compiling C object libhwcore.a.p/hw_core_qdev-clock.c.o
+[928/1508] Compiling C object libcommon.a.p/gdbstub_syscalls.c.o
+[929/1508] Compiling C object libcommon.a.p/page-vary-common.c.o
+[930/1508] Compiling C object libcommon.a.p/disas_xtensa.c.o
+[931/1508] Compiling C object libcommon.a.p/disas_disas-host.c.o
+[932/1508] Compiling C object libcommon.a.p/disas_disas-target.c.o
+[933/1508] Compiling C object libcommon.a.p/cpu-common.c.o
+[934/1508] Compiling C object libcommon.a.p/hw_core_machine-smp.c.o
+[935/1508] Compiling C object libcommon.a.p/hw_core_cpu-common.c.o
+[936/1508] Compiling C object libcommon.a.p/disas_objdump.c.o
+[937/1508] Compiling C object libcommon.a.p/disas_disas-common.c.o
+[938/1508] Compiling C object libcommon.a.p/accel_tcg_cpu-exec-common.c.o
+[939/1508] Compiling C object libcommon.a.p/ui_clipboard.c.o
+[940/1508] Compiling C object libcommon.a.p/ui_dmabuf.c.o
+[941/1508] Compiling C object libcommon.a.p/trace_trace-hmp-cmds.c.o
+[942/1508] Compiling C object libcommon.a.p/qom_qom-hmp-cmds.c.o
+[943/1508] Compiling C object libcommon.a.p/ui_cursor.c.o
+[944/1508] Compiling C object libcommon.a.p/ui_input-keymap.c.o
+[945/1508] Compiling C object libcommon.a.p/ui_input-legacy.c.o
+[946/1508] Compiling C object libcommon.a.p/ui_kbd-state.c.o
+[947/1508] Compiling C object libcommon.a.p/ui_keymaps.c.o
+[948/1508] Compiling C object libcommon.a.p/ui_console.c.o
+[949/1508] Compiling C object libcommon.a.p/ui_qemu-pixman.c.o
+[950/1508] Compiling C object libcommon.a.p/ui_input.c.o
+[951/1508] Compiling C object libcommon.a.p/ui_input-barrier.c.o
+[952/1508] Compiling C object libcommon.a.p/ui_ui-hmp-cmds.c.o
+[953/1508] Compiling C object libcommon.a.p/ui_ui-qmp-cmds.c.o
+[954/1508] Compiling C object libcommon.a.p/ui_spice-module.c.o
+[955/1508] Compiling C object libcommon.a.p/ui_vnc-stubs.c.o
+[956/1508] Compiling C object libcommon.a.p/ui_util.c.o
+[957/1508] Compiling C object libcommon.a.p/hw_9pfs_9p-posix-acl.c.o
+[958/1508] Compiling C object libcommon.a.p/hw_9pfs_9p-xattr-user.c.o
+[959/1508] Compiling C object libcommon.a.p/ui_console-vc.c.o
+[960/1508] Compiling C object libcommon.a.p/hw_9pfs_9p-xattr.c.o
+[961/1508] Compiling C object libcommon.a.p/hw_9pfs_9p-local.c.o
+[962/1508] Compiling C object libcommon.a.p/hw_9pfs_9p-synth.c.o
+[963/1508] Compiling C object libcommon.a.p/hw_9pfs_codir.c.o
+[964/1508] Compiling C object libcommon.a.p/hw_9pfs_cofile.c.o
+[965/1508] Compiling C object libcommon.a.p/hw_9pfs_9p-util-darwin.c.o
+[966/1508] Compiling C object libcommon.a.p/hw_acpi_acpi-stub.c.o
+[967/1508] Compiling C object libcommon.a.p/hw_9pfs_coth.c.o
+[968/1508] Compiling C object libcommon.a.p/hw_9pfs_cofs.c.o
+[969/1508] Compiling C object libcommon.a.p/hw_9pfs_coxattr.c.o
+[970/1508] Compiling C object libcommon.a.p/hw_acpi_aml-build-stub.c.o
+[971/1508] Compiling C object libcommon.a.p/hw_acpi_ghes-stub.c.o
+[972/1508] Compiling C object libcommon.a.p/hw_acpi_acpi_interface.c.o
+[973/1508] Compiling C object libcommon.a.p/hw_acpi_pci-bridge-stub.c.o
+[974/1508] Compiling C object libcommon.a.p/hw_acpi_acpi-qmp-cmds.c.o
+[975/1508] Compiling C object libcommon.a.p/hw_audio_soundhw.c.o
+[976/1508] Compiling C object libcommon.a.p/hw_audio_es1370.c.o
+[977/1508] Compiling C object libcommon.a.p/hw_audio_ac97.c.o
+[978/1508] Compiling C object libcommon.a.p/hw_audio_intel-hda.c.o
+[979/1508] Compiling C object libcommon.a.p/hw_9pfs_9p.c.o
+[980/1508] Compiling C object libcommon.a.p/hw_audio_virtio-snd-pci.c.o
+[981/1508] Compiling C object libcommon.a.p/hw_audio_hda-codec.c.o
+[982/1508] Compiling C object libcommon.a.p/hw_block_block.c.o
+[983/1508] Compiling C object libcommon.a.p/hw_block_m25p80_sfdp.c.o
+[984/1508] Compiling C object libcommon.a.p/hw_block_cdrom.c.o
+[985/1508] Compiling C object libcommon.a.p/hw_audio_virtio-snd.c.o
+[986/1508] Compiling C object libcommon.a.p/hw_block_hd-geometry.c.o
+[987/1508] Compiling C object libcommon.a.p/hw_char_ipoctal232.c.o
+[988/1508] Compiling C object libcommon.a.p/hw_char_serial-mm.c.o
+[989/1508] Compiling C object libcommon.a.p/hw_char_serial.c.o
+[990/1508] Compiling C object libcommon.a.p/hw_block_pflash_cfi01.c.o
+[991/1508] Compiling C object libcommon.a.p/hw_block_m25p80.c.o
+[992/1508] Compiling C object libcommon.a.p/hw_char_serial-pci.c.o
+[993/1508] Compiling C object libcommon.a.p/hw_char_serial-pci-multi.c.o
+[994/1508] Compiling C object libcommon.a.p/hw_char_virtio-console.c.o
+[995/1508] Compiling C object libcommon.a.p/hw_core_fw-path-provider.c.o
+[996/1508] Compiling C object libcommon.a.p/hw_char_esp32_uart.c.o
+[997/1508] Compiling C object libcommon.a.p/hw_char_esp32s3_uart.c.o
+[998/1508] Compiling C object libcommon.a.p/hw_core_cpu-sysemu.c.o
+[999/1508] Compiling C object libcommon.a.p/hw_core_hotplug.c.o
+[1000/1508] Compiling C object libcommon.a.p/hw_core_gpio.c.o
+[1001/1508] Compiling C object libcommon.a.p/hw_core_guest-loader.c.o
+[1002/1508] Compiling C object libcommon.a.p/hw_core_generic-loader.c.o
+[1003/1508] Compiling C object libcommon.a.p/hw_core_nmi.c.o
+[1004/1508] Compiling C object libcommon.a.p/hw_core_qdev-fw.c.o
+[1005/1508] Compiling C object libcommon.a.p/hw_core_machine-hmp-cmds.c.o
+[1006/1508] Compiling C object libcommon.a.p/hw_core_null-machine.c.o
+[1007/1508] Compiling C object libcommon.a.p/hw_core_machine-qmp-cmds.c.o
+[1008/1508] Compiling C object libcommon.a.p/hw_core_numa.c.o
+[1009/1508] Compiling C object libcommon.a.p/hw_core_reset.c.o
+[1010/1508] Compiling C object libcommon.a.p/hw_core_vm-change-state-handler.c.o
+[1011/1508] Compiling C object libcommon.a.p/hw_core_qdev-hotplug.c.o
+[1012/1508] Compiling C object libcommon.a.p/hw_core_machine.c.o
+[1013/1508] Compiling C object libcommon.a.p/hw_core_sysbus.c.o
+[1014/1508] Compiling C object libcommon.a.p/hw_core_clock-vmstate.c.o
+[1015/1508] Compiling C object libcommon.a.p/hw_core_qdev-properties-system.c.o
+[1016/1508] Compiling C object libcommon.a.p/hw_display_i2c-ddc.c.o
+[1017/1508] Compiling C object libcommon.a.p/hw_cpu_core.c.o
+[1018/1508] Compiling C object libcommon.a.p/hw_display_edid-generate.c.o
+[1019/1508] Compiling C object libcommon.a.p/hw_cxl_cxl-host-stubs.c.o
+[1020/1508] Compiling C object libcommon.a.p/hw_display_ramfb-stubs.c.o
+[1021/1508] Compiling C object libcommon.a.p/hw_display_edid-region.c.o
+[1022/1508] Compiling C object libcommon.a.p/hw_core_loader.c.o
+[1023/1508] Compiling C object libcommon.a.p/hw_display_vga-pci.c.o
+[1024/1508] Compiling C object libcommon.a.p/hw_display_virtio-dmabuf.c.o
+[1025/1508] Compiling C object libcommon.a.p/hw_display_acpi-vga-stub.c.o
+[1026/1508] Compiling C object libcommon.a.p/hw_display_bochs-display.c.o
+[1027/1508] Compiling C object libcommon.a.p/hw_display_esp_rgb.c.o
+[1028/1508] Compiling C object libcommon.a.p/hw_dma_esp32s3_gdma.c.o
+[1029/1508] Compiling C object libcommon.a.p/hw_display_ati_dbg.c.o
+[1030/1508] Compiling C object libcommon.a.p/hw_display_ati.c.o
+[1031/1508] Compiling C object libcommon.a.p/hw_display_ati_2d.c.o
+[1032/1508] Compiling C object libcommon.a.p/hw_gpio_esp32_gpio.c.o
+[1033/1508] Compiling C object libcommon.a.p/hw_gpio_esp32s3_gpio.c.o
+[1034/1508] Compiling C object libcommon.a.p/hw_dma_esp_gdma.c.o
+[1035/1508] Compiling C object libcommon.a.p/hw_display_vga.c.o
+[1036/1508] Compiling C object libcommon.a.p/hw_i2c_bitbang_i2c.c.o
+[1037/1508] Compiling C object libcommon.a.p/hw_i2c_core.c.o
+[1038/1508] Compiling C object libcommon.a.p/hw_i2c_esp32_i2c.c.o
+[1039/1508] Compiling C object libcommon.a.p/hw_ide_ide-bus.c.o
+[1040/1508] Compiling C object libcommon.a.p/hw_ide_ich.c.o
+[1041/1508] Compiling C object libcommon.a.p/hw_ide_cf.c.o
+[1042/1508] Compiling C object libcommon.a.p/hw_ide_ide-dev.c.o
+[1043/1508] Compiling C object libcommon.a.p/hw_input_hid.c.o
+[1044/1508] Compiling C object libcommon.a.p/hw_intc_intc.c.o
+[1045/1508] Compiling C object libcommon.a.p/hw_ide_atapi.c.o
+[1046/1508] Compiling C object libcommon.a.p/hw_input_virtio-input-hid.c.o
+[1047/1508] Compiling C object libcommon.a.p/hw_ide_ahci.c.o
+[1048/1508] Compiling C object libcommon.a.p/hw_input_virtio-input.c.o
+[1049/1508] Compiling C object libcommon.a.p/hw_intc_ioapic-stub.c.o
+[1050/1508] Compiling C object libcommon.a.p/hw_ipack_ipack.c.o
+[1051/1508] Compiling C object libcommon.a.p/hw_mem_cxl_type3_stubs.c.o
+[1052/1508] Compiling C object libcommon.a.p/hw_mem_memory-device-stubs.c.o
+[1053/1508] Compiling C object libcommon.a.p/hw_misc_unimp.c.o
+[1054/1508] Compiling C object libcommon.a.p/hw_ide_core.c.o
+[1055/1508] Compiling C object libcommon.a.p/hw_ipack_tpci200.c.o
+[1056/1508] Compiling C object libcommon.a.p/hw_misc_unimp-default.c.o
+[1057/1508] Compiling C object libcommon.a.p/hw_misc_led.c.o
+[1058/1508] Compiling C object libcommon.a.p/hw_misc_pvpanic.c.o
+[1059/1508] Compiling C object libcommon.a.p/hw_misc_pvpanic-pci.c.o
+[1060/1508] Compiling C object libcommon.a.p/hw_misc_esp32_crosscore_int.c.o
+[1061/1508] Compiling C object libcommon.a.p/hw_misc_esp32_rng.c.o
+[1062/1508] Compiling C object libcommon.a.p/hw_misc_esp32_rtc_cntl.c.o
+[1063/1508] Compiling C object libcommon.a.p/hw_misc_esp32_dport.c.o
+[1064/1508] Compiling C object libcommon.a.p/hw_misc_esp32_aes.c.o
+[1065/1508] Compiling C object libcommon.a.p/hw_misc_esp32_ana.c.o
+[1066/1508] Compiling C object libcommon.a.p/hw_misc_esp32_sha.c.o
+[1067/1508] Compiling C object libcommon.a.p/hw_misc_esp32_fe.c.o
+[1068/1508] Compiling C object libcommon.a.p/hw_misc_esp32_phya.c.o
+[1069/1508] Compiling C object libcommon.a.p/hw_misc_esp32_unknown.c.o
+[1070/1508] Compiling C object libcommon.a.p/hw_misc_esp32_wifi.c.o
+../hw/misc/esp32_wifi.c:37:49: warning: format specifies type 'unsigned long' but the argument has type 'hwaddr' (aka 'unsigned long long') [-Wformat]
+   37 |     if(DEBUG) printf("esp32_wifi_read %lx=%x\n",addr,r);
+      |                                       ~~~       ^~~~
+      |                                       %llx
+../hw/misc/esp32_wifi.c:48:51: warning: format specifies type 'unsigned long' but the argument has type 'hwaddr' (aka 'unsigned long long') [-Wformat]
+   48 |     if(DEBUG) printf("esp32_wifi_write %lx=%lx\n",addr, value);
+      |                                        ~~~        ^~~~
+      |                                        %llx
+../hw/misc/esp32_wifi.c:48:57: warning: format specifies type 'unsigned long' but the argument has type 'uint64_t' (aka 'unsigned long long') [-Wformat]
+   48 |     if(DEBUG) printf("esp32_wifi_write %lx=%lx\n",addr, value);
+      |                                            ~~~          ^~~~~
+      |                                            %llx
+../hw/misc/esp32_wifi.c:93:23: warning: variable length array used [-Wvla]
+   93 |     uint8_t header[28+length];
+      |                    ~~~^~~~~~
+4 warnings generated.
+[1071/1508] Compiling C object libcommon.a.p/hw_misc_esp32_ledc.c.o
+[1072/1508] Compiling C object libcommon.a.p/hw_misc_ssi_psram.c.o
+[1073/1508] Compiling C object libcommon.a.p/hw_misc_esp32_wlan_packet.c.o
+[1074/1508] Compiling C object libcommon.a.p/hw_misc_esp32_flash_enc.c.o
+[1075/1508] Compiling C object libcommon.a.p/hw_misc_esp_sha.c.o
+[1076/1508] Compiling C object libcommon.a.p/hw_misc_esp32c3_jtag.c.o
+[1077/1508] Compiling C object libcommon.a.p/hw_misc_esp32_wifi_ap.c.o
+[1078/1508] Compiling C object libcommon.a.p/hw_misc_esp_hmac.c.o
+[1079/1508] Compiling C object libcommon.a.p/hw_misc_esp32s3_sha.c.o
+[1080/1508] Compiling C object libcommon.a.p/hw_misc_esp32s3_cache.c.o
+[1081/1508] Compiling C object libcommon.a.p/hw_misc_esp32s3_wifi.c.o
+[1082/1508] Compiling C object libcommon.a.p/hw_misc_esp32s3_rng.c.o
+[1083/1508] Compiling C object libcommon.a.p/hw_misc_esp32s3_rtc_cntl.c.o
+[1084/1508] Compiling C object libcommon.a.p/hw_misc_esp32s3_pms.c.o
+[1085/1508] Compiling C object libcommon.a.p/hw_misc_esp32s3_hmac.c.o
+[1086/1508] Compiling C object libcommon.a.p/hw_misc_esp_aes.c.o
+[1087/1508] Compiling C object libcommon.a.p/hw_misc_esp32s3_aes.c.o
+[1088/1508] Compiling C object libcommon.a.p/hw_misc_esp32_rsa.c.o
+[1089/1508] Compiling C object libcommon.a.p/hw_misc_esp_rsa.c.o
+[1090/1508] Compiling C object libcommon.a.p/hw_display_cirrus_vga.c.o
+[1091/1508] Compiling C object libcommon.a.p/hw_misc_esp_ds.c.o
+[1092/1508] Compiling C object libcommon.a.p/hw_misc_esp32s3_rsa.c.o
+[1093/1508] Compiling C object libcommon.a.p/hw_misc_esp32s3_ds.c.o
+[1094/1508] Compiling C object libcommon.a.p/hw_net_ne2000-pci.c.o
+[1095/1508] Compiling C object libcommon.a.p/hw_misc_esp32s3_xts_aes.c.o
+[1096/1508] Compiling C object libcommon.a.p/hw_net_ne2000.c.o
+[1097/1508] Compiling C object libcommon.a.p/hw_net_pcnet-pci.c.o
+[1098/1508] Compiling C object libcommon.a.p/hw_net_eepro100.c.o
+[1099/1508] Compiling C object libcommon.a.p/hw_net_pcnet.c.o
+[1100/1508] Compiling C object libcommon.a.p/hw_net_e1000x_common.c.o
+[1101/1508] Compiling C object libcommon.a.p/hw_net_e1000.c.o
+[1102/1508] Compiling C object libcommon.a.p/hw_net_net_tx_pkt.c.o
+[1103/1508] Compiling C object libcommon.a.p/hw_net_net_rx_pkt.c.o
+[1104/1508] Compiling C object libcommon.a.p/hw_net_vhost_net-stub.c.o
+[1105/1508] Compiling C object libcommon.a.p/hw_net_rocker_qmp-norocker.c.o
+[1106/1508] Compiling C object libcommon.a.p/hw_net_rtl8139.c.o
+[1107/1508] Compiling C object libcommon.a.p/hw_net_opencores_eth.c.o
+[1108/1508] Compiling C object libcommon.a.p/hw_net_tulip.c.o
+[1109/1508] Compiling C object libcommon.a.p/hw_net_rocker_rocker-hmp-cmds.c.o
+[1110/1508] Compiling C object libcommon.a.p/hw_net_can_can_sja1000.c.o
+[1111/1508] Compiling C object libcommon.a.p/hw_net_can_can_kvaser_pci.c.o
+[1112/1508] Compiling C object libcommon.a.p/hw_net_can_can_pcm3680_pci.c.o
+[1113/1508] Compiling C object libcommon.a.p/hw_net_vmxnet3.c.o
+[1114/1508] Compiling C object libcommon.a.p/hw_net_can_esp32_twai.c.o
+[1115/1508] Compiling C object libcommon.a.p/hw_net_can_ctucan_core.c.o
+[1116/1508] Compiling C object libcommon.a.p/hw_net_can_can_mioe3680_pci.c.o
+[1117/1508] Compiling C object libcommon.a.p/hw_net_can_ctucan_pci.c.o
+[1118/1508] Compiling C object libcommon.a.p/hw_net_can_esp32s3_twai.c.o
+[1119/1508] Compiling C object libcommon.a.p/hw_nvram_eeprom93xx.c.o
+[1120/1508] Compiling C object libcommon.a.p/hw_nvram_fw_cfg-interface.c.o
+[1121/1508] Compiling C object libcommon.a.p/hw_nvme_nguid.c.o
+[1122/1508] Compiling C object libcommon.a.p/hw_nvme_subsys.c.o
+[1123/1508] Compiling C object libcommon.a.p/hw_nvme_dif.c.o
+[1124/1508] Compiling C object libcommon.a.p/hw_nvme_ns.c.o
+[1125/1508] Compiling C object libcommon.a.p/hw_nvram_fw_cfg.c.o
+[1126/1508] Compiling C object libcommon.a.p/hw_nvram_esp32_efuse.c.o
+[1127/1508] Compiling C object libcommon.a.p/hw_nvram_esp32s3_efuse.c.o
+[1128/1508] Compiling C object libcommon.a.p/hw_nvram_esp_efuse.c.o
+[1129/1508] Compiling C object libcommon.a.p/hw_pci_pcie_port.c.o
+[1130/1508] Compiling C object libcommon.a.p/hw_pci_pcie_host.c.o
+[1131/1508] Compiling C object libcommon.a.p/hw_pci_msi.c.o
+[1132/1508] Compiling C object libcommon.a.p/hw_pci_msix.c.o
+[1133/1508] Compiling C object libcommon.a.p/hw_pci_pci_bridge.c.o
+[1134/1508] Compiling C object libcommon.a.p/hw_pci_pci_host.c.o
+[1135/1508] Compiling C object libcommon.a.p/hw_pci_pci-hmp-cmds.c.o
+[1136/1508] Compiling C object libcommon.a.p/hw_pci_pci-qmp-cmds.c.o
+[1137/1508] Compiling C object libcommon.a.p/hw_pci_pcie_sriov.c.o
+[1138/1508] Compiling C object libcommon.a.p/hw_pci_slotid_cap.c.o
+[1139/1508] Compiling C object libcommon.a.p/hw_pci_pci.c.o
+[1140/1508] Compiling C object libcommon.a.p/hw_pci_shpc.c.o
+[1141/1508] Compiling C object libcommon.a.p/hw_pci_pcie_doe.c.o
+[1142/1508] Compiling C object libcommon.a.p/hw_pci_pcie_aer.c.o
+[1143/1508] Compiling C object libcommon.a.p/hw_pci_pcie.c.o
+[1144/1508] Compiling C object libcommon.a.p/hw_pci-bridge_pci_bridge_dev.c.o
+[1145/1508] Compiling C object libcommon.a.p/hw_scsi_emulation.c.o
+[1146/1508] Compiling C object libcommon.a.p/hw_pci-bridge_i82801b11.c.o
+[1147/1508] Compiling C object libcommon.a.p/hw_pci-bridge_pci_expander_bridge_stubs.c.o
+[1148/1508] Compiling C object libcommon.a.p/hw_pci-host_gpex.c.o
+[1149/1508] Compiling C object libcommon.a.p/hw_scsi_scsi-generic.c.o
+[1150/1508] Compiling C object libcommon.a.p/hw_scsi_esp-pci.c.o
+[1151/1508] Compiling C object libcommon.a.p/hw_scsi_scsi-bus.c.o
+[1152/1508] Compiling C object libcommon.a.p/hw_nvme_ctrl.c.o
+[1153/1508] Compiling C object libcommon.a.p/hw_scsi_esp.c.o
+[1154/1508] Compiling C object libcommon.a.p/hw_scsi_scsi-disk.c.o
+[1155/1508] Compiling C object libcommon.a.p/hw_scsi_mptendian.c.o
+[1156/1508] Compiling C object libcommon.a.p/hw_scsi_mptsas.c.o
+[1157/1508] Compiling C object libcommon.a.p/hw_scsi_mptconfig.c.o
+[1158/1508] Compiling C object libcommon.a.p/hw_scsi_virtio-scsi-dataplane.c.o
+[1159/1508] Compiling C object libcommon.a.p/hw_scsi_lsi53c895a.c.o
+[1160/1508] Compiling C object libcommon.a.p/hw_sd_core.c.o
+[1161/1508] Compiling C object libcommon.a.p/hw_scsi_megasas.c.o
+[1162/1508] Compiling C object libcommon.a.p/hw_scsi_vmw_pvscsi.c.o
+[1163/1508] Compiling C object libcommon.a.p/hw_sd_sdhci-pci.c.o
+[1164/1508] Compiling C object libcommon.a.p/hw_sensor_tmp105.c.o
+[1165/1508] Compiling C object libcommon.a.p/hw_smbios_smbios-stub.c.o
+[1166/1508] Compiling C object libcommon.a.p/hw_sd_dwc_sdmmc.c.o
+[1167/1508] Compiling C object libcommon.a.p/hw_ssi_ssi.c.o
+[1168/1508] Compiling C object libcommon.a.p/hw_sd_sd.c.o
+[1169/1508] Compiling C object libcommon.a.p/hw_ssi_esp32_spi.c.o
+[1170/1508] Compiling C object libcommon.a.p/hw_sd_sdhci.c.o
+[1171/1508] Compiling C object libcommon.a.p/hw_ssi_esp32s3_spi.c.o
+[1172/1508] Compiling C object libcommon.a.p/hw_timer_esp32_frc_timer.c.o
+[1173/1508] Compiling C object libcommon.a.p/hw_timer_esp32s3_timg.c.o
+[1174/1508] Compiling C object libcommon.a.p/hw_timer_esp32_timg.c.o
+[1175/1508] Compiling C object libcommon.a.p/hw_timer_esp_timg.c.o
+[1176/1508] Compiling C object libcommon.a.p/hw_timer_esp_systimer.c.o
+[1177/1508] Compiling C object libcommon.a.p/hw_timer_esp32s3_systimer.c.o
+[1178/1508] Compiling C object libcommon.a.p/hw_usb_combined-packet.c.o
+[1179/1508] Compiling C object libcommon.a.p/hw_ufs_lu.c.o
+[1180/1508] Compiling C object libcommon.a.p/hw_usb_desc-msos.c.o
+[1181/1508] Compiling C object libcommon.a.p/hw_usb_bus.c.o
+[1182/1508] Compiling C object libcommon.a.p/hw_usb_core.c.o
+[1183/1508] Compiling C object libcommon.a.p/hw_usb_libhw.c.o
+[1184/1508] Compiling C object libcommon.a.p/hw_usb_desc.c.o
+[1185/1508] Compiling C object libcommon.a.p/hw_usb_pcap.c.o
+[1186/1508] Compiling C object libcommon.a.p/hw_ufs_ufs.c.o
+[1187/1508] Compiling C object libcommon.a.p/hw_usb_hcd-ohci-pci.c.o
+[1188/1508] Compiling C object libcommon.a.p/hw_usb_hcd-ehci-pci.c.o
+[1189/1508] Compiling C object libcommon.a.p/hw_usb_hcd-uhci.c.o
+[1190/1508] Compiling C object libcommon.a.p/hw_usb_hcd-xhci-pci.c.o
+[1191/1508] Compiling C object libcommon.a.p/hw_usb_hcd-xhci-nec.c.o
+[1192/1508] Compiling C object libcommon.a.p/hw_usb_imx-usb-phy.c.o
+[1193/1508] Compiling C object libcommon.a.p/hw_usb_dev-hub.c.o
+[1194/1508] Compiling C object libcommon.a.p/hw_usb_dev-hid.c.o
+[1195/1508] Compiling C object libcommon.a.p/hw_usb_dev-wacom.c.o
+[1196/1508] Compiling C object libcommon.a.p/hw_usb_hcd-ohci.c.o
+[1197/1508] Compiling C object libcommon.a.p/hw_usb_hcd-ehci.c.o
+[1198/1508] Compiling C object libcommon.a.p/hw_usb_dev-storage-bot.c.o
+[1199/1508] Compiling C object libcommon.a.p/hw_usb_dev-storage.c.o
+[1200/1508] Compiling C object libcommon.a.p/hw_usb_dev-audio.c.o
+[1201/1508] Compiling C object libcommon.a.p/hw_usb_dev-storage-classic.c.o
+[1202/1508] Compiling C object libcommon.a.p/hw_usb_dev-serial.c.o
+[1203/1508] Compiling C object libcommon.a.p/hw_usb_hcd-xhci.c.o
+[1204/1508] Compiling C object libcommon.a.p/hw_usb_dev-network.c.o
+[1205/1508] Compiling C object libcommon.a.p/hw_usb_dev-uas.c.o
+[1206/1508] Compiling C object libcommon.a.p/hw_usb_dev-smartcard-reader.c.o
+[1207/1508] Compiling C object libcommon.a.p/hw_usb_u2f.c.o
+[1208/1508] Compiling C object libcommon.a.p/hw_virtio_virtio-bus.c.o
+[1209/1508] Compiling C object libcommon.a.p/hw_virtio_vhost-stub.c.o
+[1210/1508] Compiling C object libcommon.a.p/hw_virtio_virtio-md-stubs.c.o
+[1211/1508] Compiling C object libcommon.a.p/hw_watchdog_watchdog.c.o
+[1212/1508] Compiling C object libcommon.a.p/hw_virtio_virtio-hmp-cmds.c.o
+[1213/1508] Compiling C object libcommon.a.p/hw_virtio_virtio-crypto.c.o
+[1214/1508] Compiling C object libcommon.a.p/hw_usb_dev-mtp.c.o
+[1215/1508] Compiling C object libcommon.a.p/hw_watchdog_wdt_i6300esb.c.o
+[1216/1508] Compiling C object libcommon.a.p/hw_virtio_virtio-pci.c.o
+[1217/1508] Compiling C object libcommon.a.p/audio_noaudio.c.o
+[1218/1508] Compiling C object libcommon.a.p/audio_audio-hmp-cmds.c.o
+[1219/1508] Compiling C object libcommon.a.p/audio_wavaudio.c.o
+[1220/1508] Compiling C object libcommon.a.p/hw_virtio_virtio-iommu.c.o
+[1221/1508] Compiling C object libcommon.a.p/audio_wavcapture.c.o
+[1222/1508] Compiling C object libcommon.a.p/chardev_msmouse.c.o
+[1223/1508] Compiling C object libcommon.a.p/chardev_char-hmp-cmds.c.o
+[1224/1508] Compiling C object libcommon.a.p/chardev_testdev.c.o
+[1225/1508] Compiling C object libcommon.a.p/audio_mixeng.c.o
+In file included from ../audio/mixeng.c:146:
+../audio/mixeng_template.h:68:70: warning: implicit conversion from 'unsigned int' to 'float' changes value from 2147483647 to 2147483648 [-Wimplicit-const-int-float-conversion]
+   68 |     return ENDIAN_CONVERT((IN_T)((v * ((mixeng_real)IN_MAX / 2.f)) + HALF));
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+../audio/mixeng_template.h:31:22: note: expanded from macro 'HALF'
+   31 | #define HALF (IN_MAX >> 1)
+      |                      ^
+../audio/mixeng.c:145:28: note: expanded from macro 'ENDIAN_CONVERT'
+  145 | #define ENDIAN_CONVERT(v) (v)
+      |                            ^
+In file included from ../audio/mixeng.c:151:
+../audio/mixeng_template.h:68:70: warning: implicit conversion from 'unsigned int' to 'float' changes value from 2147483647 to 2147483648 [-Wimplicit-const-int-float-conversion]
+   68 |     return ENDIAN_CONVERT((IN_T)((v * ((mixeng_real)IN_MAX / 2.f)) + HALF));
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+../audio/mixeng_template.h:31:22: note: expanded from macro 'HALF'
+   31 | #define HALF (IN_MAX >> 1)
+      |                      ^
+../audio/mixeng.c:150:36: note: expanded from macro 'ENDIAN_CONVERT'
+  150 | #define ENDIAN_CONVERT(v) bswap32 (v)
+      |                           ~~~~~~~~~^~
+/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/include/qemu/bswap.h:7:39: note: expanded from macro 'bswap32'
+    7 | #define bswap32(_x) __builtin_bswap32(_x)
+      |                                       ^~
+2 warnings generated.
+[1226/1508] Compiling C object libcommon.a.p/chardev_wctablet.c.o
+[1227/1508] Compiling Objective-C object libcommon.a.p/audio_coreaudio.m.o
+[1228/1508] Compiling C object libcommon.a.p/fsdev_qemu-fsdev-opts.c.o
+[1229/1508] Compiling C object libcommon.a.p/fsdev_9p-marshal.c.o
+[1230/1508] Compiling C object libcommon.a.p/fsdev_qemu-fsdev-throttle.c.o
+[1231/1508] Compiling C object libcommon.a.p/audio_audio.c.o
+[1232/1508] Compiling C object libcommon.a.p/fsdev_9p-iov-marshal.c.o
+[1233/1508] Compiling C object libcommon.a.p/fsdev_qemu-fsdev.c.o
+[1234/1508] Compiling C object libcommon.a.p/dump_dump-hmp-cmds.c.o
+[1235/1508] Compiling C object libcommon.a.p/block_blkreplay.c.o
+[1236/1508] Compiling C object libcommon.a.p/block_block-ram-registrar.c.o
+[1237/1508] Compiling C object libcommon.a.p/system_balloon.c.o
+[1238/1508] Compiling C object libcommon.a.p/block_qapi-sysemu.c.o
+[1239/1508] Compiling C object libcommon.a.p/system_bootdevice.c.o
+[1240/1508] Compiling C object libcommon.a.p/system_datadir.c.o
+[1241/1508] Compiling C object libcommon.a.p/system_cpu-timers.c.o
+[1242/1508] Compiling C object libcommon.a.p/dump_dump.c.o
+[1243/1508] Compiling C object libcommon.a.p/block_monitor_block-hmp-cmds.c.o
+[1244/1508] Compiling C object libcommon.a.p/system_cpus.c.o
+[1245/1508] Compiling C object libcommon.a.p/system_runstate-action.c.o
+[1246/1508] Compiling C object libcommon.a.p/system_dirtylimit.c.o
+[1247/1508] Compiling C object libcommon.a.p/system_globals.c.o
+[1248/1508] Compiling C object libcommon.a.p/system_memory_mapping.c.o
+[1249/1508] Compiling C object libcommon.a.p/system_dma-helpers.c.o
+[1250/1508] Compiling C object libcommon.a.p/system_rtc.c.o
+[1251/1508] Compiling C object libcommon.a.p/system_qdev-monitor.c.o
+[1252/1508] Compiling C object libcommon.a.p/system_tpm-hmp-cmds.c.o
+[1253/1508] Compiling C object libcommon.a.p/system_runstate-hmp-cmds.c.o
+[1254/1508] Compiling C object libcommon.a.p/system_qtest.c.o
+[1255/1508] Compiling C object libcommon.a.p/backends_cryptodev-builtin.c.o
+[1256/1508] Compiling C object libcommon.a.p/system_device_tree.c.o
+[1257/1508] Compiling C object libcommon.a.p/system_runstate.c.o
+[1258/1508] Compiling C object libcommon.a.p/backends_cryptodev-hmp-cmds.c.o
+[1259/1508] Compiling C object libcommon.a.p/backends_hostmem-ram.c.o
+[1260/1508] Compiling C object libcommon.a.p/backends_rng-builtin.c.o
+[1261/1508] Compiling C object libcommon.a.p/backends_hostmem.c.o
+[1262/1508] Compiling C object libcommon.a.p/backends_rng-egd.c.o
+[1263/1508] Compiling C object libcommon.a.p/backends_cryptodev.c.o
+[1264/1508] Compiling C object libcommon.a.p/backends_rng.c.o
+[1265/1508] Compiling C object libcommon.a.p/backends_confidential-guest-support.c.o
+[1266/1508] Compiling C object libcommon.a.p/backends_rng-random.c.o
+[1267/1508] Compiling C object libcommon.a.p/backends_hostmem-file.c.o
+[1268/1508] Compiling C object libcommon.a.p/backends_hostmem-shm.c.o
+[1269/1508] Compiling C object libcommon.a.p/backends_spdm-socket.c.o
+[1270/1508] Compiling C object libcommon.a.p/system_vl.c.o
+[1271/1508] Compiling C object libcommon.a.p/backends_cryptodev-vhost.c.o
+[1272/1508] Compiling C object libcommon.a.p/disas_disas-mon.c.o
+[1273/1508] Compiling C object libcommon.a.p/migration_channel.c.o
+[1274/1508] Compiling C object libcommon.a.p/migration_channel-block.c.o
+[1275/1508] Compiling C object libcommon.a.p/migration_block-dirty-bitmap.c.o
+[1276/1508] Compiling C object libcommon.a.p/migration_cpu-throttle.c.o
+[1277/1508] Compiling C object libcommon.a.p/migration_exec.c.o
+[1278/1508] Compiling C object libcommon.a.p/migration_fd.c.o
+[1279/1508] Compiling C object libcommon.a.p/migration_file.c.o
+[1280/1508] Compiling C object libcommon.a.p/migration_global_state.c.o
+[1281/1508] Compiling C object libcommon.a.p/migration_dirtyrate.c.o
+[1282/1508] Compiling C object libcommon.a.p/migration_multifd-nocomp.c.o
+[1283/1508] Compiling C object libcommon.a.p/migration_multifd-zero-page.c.o
+[1284/1508] Compiling C object libcommon.a.p/migration_migration-hmp-cmds.c.o
+[1285/1508] Compiling C object libcommon.a.p/migration_multifd-zlib.c.o
+[1286/1508] Compiling C object libcommon.a.p/migration_multifd.c.o
+[1287/1508] Compiling C object libcommon.a.p/migration_threadinfo.c.o
+[1288/1508] Compiling C object libcommon.a.p/migration_options.c.o
+[1289/1508] Compiling C object libcommon.a.p/migration_postcopy-ram.c.o
+[1290/1508] Compiling C object libcommon.a.p/migration_socket.c.o
+[1291/1508] Compiling C object libcommon.a.p/migration_tls.c.o
+[1292/1508] Compiling C object libcommon.a.p/migration_colo-failover.c.o
+[1293/1508] Compiling C object libcommon.a.p/migration_migration.c.o
+[1294/1508] Compiling C object libcommon.a.p/monitor_fds.c.o
+[1295/1508] Compiling C object libcommon.a.p/monitor_hmp-cmds.c.o
+[1296/1508] Compiling C object libcommon.a.p/monitor_qemu-config-qmp.c.o
+[1297/1508] Compiling C object libcommon.a.p/migration_colo.c.o
+[1298/1508] Compiling C object libcommon.a.p/monitor_qmp-cmds.c.o
+[1299/1508] Compiling C object libcommon.a.p/net_announce.c.o
+[1300/1508] Compiling C object libcommon.a.p/net_checksum.c.o
+[1301/1508] Compiling C object libcommon.a.p/monitor_hmp.c.o
+[1302/1508] Compiling C object libcommon.a.p/net_dump.c.o
+[1303/1508] Compiling C object libcommon.a.p/migration_savevm.c.o
+[1304/1508] Compiling C object libcommon.a.p/net_filter-buffer.c.o
+[1305/1508] Compiling C object libcommon.a.p/net_eth.c.o
+[1306/1508] Compiling C object libcommon.a.p/net_filter-mirror.c.o
+[1307/1508] Compiling C object libcommon.a.p/net_filter.c.o
+[1308/1508] Compiling C object libcommon.a.p/net_hub.c.o
+[1309/1508] Compiling C object libcommon.a.p/net_net-hmp-cmds.c.o
+[1310/1508] Compiling C object libcommon.a.p/net_queue.c.o
+[1311/1508] Compiling C object libcommon.a.p/net_stream.c.o
+[1312/1508] Compiling C object libcommon.a.p/net_socket.c.o
+[1313/1508] Compiling C object libcommon.a.p/net_util.c.o
+[1314/1508] Compiling C object libcommon.a.p/net_colo.c.o
+[1315/1508] Compiling C object libcommon.a.p/net_dgram.c.o
+[1316/1508] Compiling C object libcommon.a.p/net_filter-rewriter.c.o
+[1317/1508] Compiling C object libcommon.a.p/net_net.c.o
+[1318/1508] Compiling C object libcommon.a.p/net_filter-replay.c.o
+[1319/1508] Compiling C object libcommon.a.p/net_tap-bsd.c.o
+[1320/1508] Compiling C object libcommon.a.p/net_colo-compare.c.o
+[1321/1508] Compiling C object libcommon.a.p/net_slirp.c.o
+[1322/1508] Compiling C object libcommon.a.p/net_tap.c.o
+[1323/1508] Compiling C object libcommon.a.p/net_vmnet-host.c.o
+[1324/1508] Compiling Objective-C object libcommon.a.p/net_vmnet-bridged.m.o
+[1325/1508] Compiling Objective-C object libcommon.a.p/net_vmnet-common.m.o
+[1326/1508] Compiling C object libcommon.a.p/net_vmnet-shared.c.o
+[1327/1508] Compiling C object libcommon.a.p/net_can_can_core.c.o
+[1328/1508] Compiling C object libcommon.a.p/net_can_can_host.c.o
+[1329/1508] Compiling C object libcommon.a.p/replay_replay-time.c.o
+[1330/1508] Compiling C object libcommon.a.p/replay_replay-internal.c.o
+[1331/1508] Compiling C object libcommon.a.p/replay_replay.c.o
+[1332/1508] Compiling C object libcommon.a.p/replay_replay-events.c.o
+[1333/1508] Compiling C object libcommon.a.p/replay_replay-input.c.o
+[1334/1508] Compiling C object libcommon.a.p/replay_replay-char.c.o
+[1335/1508] Compiling C object libcommon.a.p/replay_replay-snapshot.c.o
+[1336/1508] Compiling C object libcommon.a.p/replay_replay-net.c.o
+[1337/1508] Compiling C object libcommon.a.p/stats_stats-qmp-cmds.c.o
+[1338/1508] Compiling C object libcommon.a.p/replay_replay-audio.c.o
+[1339/1508] Compiling C object libcommon.a.p/replay_replay-random.c.o
+[1340/1508] Compiling C object libcommon.a.p/replay_replay-debugging.c.o
+[1341/1508] Compiling C object libcommon.a.p/stats_stats-hmp-cmds.c.o
+[1342/1508] Compiling C object libcommon.a.p/accel_accel-blocker.c.o
+[1343/1508] Compiling C object libcommon.a.p/accel_accel-system.c.o
+[1344/1508] Compiling C object libcommon.a.p/ebpf_ebpf_rss-stub.c.o
+[1345/1508] Compiling C object libcommon.a.p/accel_dummy-cpus.c.o
+[1346/1508] Compiling C object libcommon.a.p/accel_tcg_icount-common.c.o
+[1347/1508] Compiling C object libcommon.a.p/accel_tcg_monitor.c.o
+[1348/1508] Compiling C object libcommon.a.p/hw_display_virtio-gpu-udmabuf-stubs.c.o
+[1349/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-types-machine-target.c.o
+[1350/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-visit-machine-target.c.o
+[1351/1508] Compiling C object libcommon.a.p/hw_display_virtio-gpu-base.c.o
+[1352/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-events-machine-target.c.o
+[1353/1508] Compiling C object libcommon.a.p/hw_display_virtio-gpu-pci.c.o
+[1354/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-commands-machine-target.c.o
+[1355/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-types-misc-target.c.o
+[1356/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-visit-misc-target.c.o
+[1357/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-events-misc-target.c.o
+[1358/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-commands-misc-target.c.o
+[1359/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-emit-events.c.o
+[1360/1508] Compiling C object libcommon.a.p/hw_display_virtio-gpu.c.o
+[1361/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-visit.c.o
+[1362/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-types.c.o
+[1363/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-commands.c.o
+[1364/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-init-commands.c.o
+[1365/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-events.c.o
+[1366/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_dbg_helper.c.o
+[1367/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_xtensa-semi.c.o
+[1368/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_monitor.c.o
+[1369/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_xtensa_xtensa_memory.c.o
+[1370/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_xtensa_pic_cpu.c.o
+[1371/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_xtensa_mx_pic.c.o
+[1372/1508] Compiling C object libqemu-xtensa-softmmu.a.p/meson-generated_.._qapi_qapi-introspect.c.o
+[1373/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_mmu_helper.c.o
+[1374/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_board.c.o
+[1375/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_esp32s3_sens.c.o
+[1376/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_unit_runtime.c.o
+[1377/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_can_peer.c.o
+[1378/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_unit_gpio.c.o
+[1379/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_unit_i2c_sensors.c.o
+[1380/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_rmt.c.o
+[1381/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_scs_servo.c.o
+[1382/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_unit_i2c_controls.c.o
+[1383/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_st25r3916_spi.c.o
+[1384/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_cc1101_spi.c.o
+[1385/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_uart_peer.c.o
+[1386/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_sx1262.c.o
+[1387/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_spi_sd.c.o
+../hw/m5stopwatch/m5_spi_sd.c:260:17: warning: excess elements in array initializer [-Wexcess-initializers]
+  260 |                 0x00, 0x00,
+      |                 ^~~~
+1 warning generated.
+[1388/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_max3421e.c.o
+[1389/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_esp32s3_soft_i2c.c.o
+[1390/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_spi_panel.c.o
+[1391/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_xtensa_sim.c.o
+[1392/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_xtensa_virt.c.o
+[1393/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_xtensa_esp32_intc.c.o
+[1394/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_xtensa_xtfpga.c.o
+[1395/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5sw_i2c_devs.c.o
+../hw/m5stopwatch/m5sw_i2c_devs.c:311:28: warning: no previous prototype for function 'm5sw_ir_rx_start' [-Wmissing-prototypes]
+  311 | __attribute__((weak)) void m5sw_ir_rx_start(void)
+      |                            ^
+../hw/m5stopwatch/m5sw_i2c_devs.c:311:23: note: declare 'static' if the function is not intended to be used outside of this translation unit
+  311 | __attribute__((weak)) void m5sw_ir_rx_start(void)
+      |                       ^
+      |                       static 
+1 warning generated.
+[1396/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5core2.c.o
+[1397/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_xtensa_esp32s3_clk.c.o
+[1398/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_i2s_esp32.c.o
+[1399/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_xtensa_esp32.c.o
+[1400/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_xtensa_esp32s3_intc.c.o
+[1401/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_esp32s3_i2c.c.o
+[1402/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_xtensa_esp32_native_hci.c.o
+[1403/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_esp32s3_regi2c.c.o
+[1404/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_esp32s3_fe.c.o
+[1405/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_esp32s3_phy.c.o
+[1406/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_co5300.c.o
+[1407/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_esp32s3_gpspi.c.o
+[1408/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_xtensa_esp32s3.c.o
+[1409/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5sticks3.c.o
+[1410/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5atoms3r.c.o
+[1411/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5cores3.c.o
+[1412/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5cardputeradv.c.o
+[1413/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5stamplc.c.o
+[1414/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5stackchan.c.o
+[1415/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_epd_panel.c.o
+[1416/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_lcd_cam.c.o
+[1417/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5_i2s.c.o
+[1418/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5papermono.c.o
+[1419/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_m5stopwatch_m5papercolor.c.o
+[1420/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_core-dc232b.c.o
+[1421/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_core-dc233c.c.o
+[1422/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_core-lx106.c.o
+[1423/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_core-sample_controller.c.o
+[1424/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_core-fsf.c.o
+[1425/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_core-de212.c.o
+[1426/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_core-de233_fpu.c.o
+[1427/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_cpu.c.o
+[1428/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_exc_helper.c.o
+[1429/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_fpu_helper.c.o
+[1430/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_gdbstub.c.o
+[1431/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_core-esp32.c.o
+[1432/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_helper.c.o
+[1433/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_op_helper.c.o
+[1434/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_translate_tie_esp32s3.c.o
+[1435/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_win_helper.c.o
+[1436/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_core-esp32s3.c.o
+[1437/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_xtensa-isa.c.o
+[1438/1508] Compiling C object libqemu-xtensa-softmmu.a.p/trace_control-target.c.o
+[1439/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_core-test_mmuhifi_c3.c.o
+[1440/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_9pfs_virtio-9p-device.c.o
+[1441/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_block_virtio-blk-common.c.o
+[1442/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_hyperv_hv-balloon-stub.c.o
+[1443/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_translate.c.o
+[1444/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_core-test_kc705_be.c.o
+[1445/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_char_virtio-serial-bus.c.o
+[1446/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_block_virtio-blk.c.o
+[1447/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-config-io.c.o
+[1448/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_scsi_virtio-scsi.c.o
+[1449/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-rng.c.o
+[1450/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-qmp.c.o
+[1451/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-balloon.c.o
+[1452/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-crypto-pci.c.o
+[1453/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-input-pci.c.o
+[1454/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_net_virtio-net.c.o
+[1455/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-rng-pci.c.o
+[1456/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-balloon-pci.c.o
+[1457/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-9p-pci.c.o
+[1458/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-scsi-pci.c.o
+[1459/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio.c.o
+[1460/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-blk-pci.c.o
+[1461/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-net-pci.c.o
+[1462/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-serial-pci.c.o
+[1463/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_virtio_virtio-iommu-pci.c.o
+[1464/1508] Compiling C object libqemu-xtensa-softmmu.a.p/hw_i386_kvm_xen-stubs.c.o
+[1465/1508] Compiling C object libqemu-xtensa-softmmu.a.p/dump_win_dump.c.o
+[1466/1508] Compiling C object libqemu-xtensa-softmmu.a.p/system_arch_init.c.o
+[1467/1508] Compiling C object libqemu-xtensa-softmmu.a.p/cpu-target.c.o
+[1468/1508] Compiling C object libqemu-xtensa-softmmu.a.p/system_ioport.c.o
+[1469/1508] Compiling C object libqemu-xtensa-softmmu.a.p/page-target.c.o
+[1470/1508] Compiling C object libqemu-xtensa-softmmu.a.p/system_watchpoint.c.o
+[1471/1508] Compiling C object libqemu-xtensa-softmmu.a.p/page-vary-target.c.o
+[1472/1508] Compiling C object libqemu-xtensa-softmmu.a.p/migration_target.c.o
+[1473/1508] Compiling C object libqemu-xtensa-softmmu.a.p/semihosting_guestfd.c.o
+[1474/1508] Compiling C object libqemu-xtensa-softmmu.a.p/monitor_hmp-target.c.o
+[1475/1508] Compiling C object libqemu-xtensa-softmmu.a.p/monitor_hmp-cmds-target.c.o
+[1476/1508] Compiling C object libqemu-xtensa-softmmu.a.p/semihosting_config.c.o
+[1477/1508] Compiling C object libqemu-xtensa-softmmu.a.p/semihosting_syscalls.c.o
+[1478/1508] Compiling C object libqemu-xtensa-softmmu.a.p/semihosting_uaccess.c.o
+[1479/1508] Compiling C object libqemu-xtensa-softmmu.a.p/semihosting_console.c.o
+[1480/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_accel-target.c.o
+[1481/1508] Compiling C object libqemu-xtensa-softmmu.a.p/system_memory.c.o
+[1482/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_tcg-all.c.o
+[1483/1508] Compiling C object libqemu-xtensa-softmmu.a.p/system_physmem.c.o
+[1484/1508] Compiling C object libqemu-xtensa-softmmu.a.p/migration_ram.c.o
+[1485/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_cpu-exec.c.o
+[1486/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_tcg-runtime.c.o
+[1487/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_tb-maint.c.o
+[1488/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_translate-all.c.o
+[1489/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_translator.c.o
+[1490/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_plugin-gen.c.o
+[1491/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_stubs_xen-stub.c.o
+[1492/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_watchpoint.c.o
+[1493/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_stubs_kvm-stub.c.o
+[1494/1508] Compiling C object libqemu-xtensa-softmmu.a.p/plugins_loader.c.o
+[1495/1508] Compiling C object libqemu-xtensa-softmmu.a.p/target_xtensa_core-dsp3400.c.o
+[1496/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_tcg-accel-ops.c.o
+[1497/1508] Compiling C object libqemu-xtensa-softmmu.a.p/plugins_core.c.o
+[1498/1508] Compiling C object libqemu-xtensa-softmmu.a.p/plugins_api.c.o
+[1499/1508] Compiling C object qemu-system-xtensa-unsigned.p/system_main.c.o
+[1500/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_tcg-accel-ops-icount.c.o
+[1501/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_tcg-accel-ops-mttcg.c.o
+[1502/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_qtest_qtest.c.o
+[1503/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_tcg-accel-ops-rr.c.o
+[1504/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_tcg-runtime-gvec.c.o
+[1505/1508] Compiling C object libqemu-xtensa-softmmu.a.p/fpu_softfloat.c.o
+[1506/1508] Compiling C object libqemu-xtensa-softmmu.a.p/accel_tcg_cputlb.c.o
+[1507/1508] Linking target qemu-system-xtensa-unsigned
+[1508/1508] Generating qemu-system-xtensa with a custom command
+Built: /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa
+SHA256: 7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e
+Use Device Service for functional validation.

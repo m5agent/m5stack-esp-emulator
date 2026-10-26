@@ -1,0 +1,383 @@
+{
+  "category": "supplemental-browser-capture-evidence-assessment",
+  "original_report_rewritten": false,
+  "original_report_archive": "artifacts/live-cores3-torch-r3/report.json",
+  "original_report_sha256": "1e405dc7a0bea834bc88ef63a0543870e6f57a1d5529d2ed77101e1157b6c68c",
+  "mandatory_controller_mounted_frame_status": "PASS",
+  "optional_browser_body_capture": "PARTIAL",
+  "browser_responses": 318,
+  "http_200": 125,
+  "http_200_nonempty_bodies": 121,
+  "http_200_empty_body_observations": 4,
+  "http_304_body_absent_by_protocol": 193,
+  "http_304_empty_entity_substitutes": 0,
+  "empty_body_rows": [
+    {
+      "response_index": 4,
+      "metadata_archive": "artifacts/live-cores3-torch-r3/browser-4.json",
+      "body_archive": "artifacts/live-cores3-torch-r3/browser-4.response",
+      "observed_request_identification": {
+        "method": "GET",
+        "session_url": "/api/v1/sessions/c0aa28a9e74a47e28f253be5b92598c3/frame.png?max_age_ms=125",
+        "observed_at": "2026-10-26T21:34:21.047Z",
+        "browser_network_request_id": "NOT CAPTURED; response_index is only the observer sequence"
+      },
+      "status": 200,
+      "captured_bytes": 0,
+      "response_headers": {
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "content-length": "319",
+        "content-type": "image/png",
+        "etag": "\"5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7\"",
+        "x-frame-capture-seq": "5",
+        "x-frame-captured-at": "2026-10-26T21:34:21.043780+00:00",
+        "x-frame-execution-id": "38a62c8f6c3847309bd6ea1f5f26a547",
+        "x-frame-height": "240",
+        "x-frame-program-state": "completed",
+        "x-frame-revision-id": "4d348aec652c048507eca75dfdeb5624f87789f31a72d241de4b40aba227489e",
+        "x-frame-sha256": "5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7",
+        "x-frame-source": "live",
+        "x-frame-width": "320"
+      },
+      "advertised_content_length": 319,
+      "classification": "EMPTY_BROWSER_BODY_OBSERVATION; optional capture PARTIAL. Not a PNG, not proof of an absent server entity.",
+      "matching_mandatory_execution_observations": [
+        {
+          "sequence": 0,
+          "phase": "steady-on",
+          "inside_mandatory_capture_browser_window": false,
+          "mandatory_browser_window": [
+            8,
+            59
+          ],
+          "mandatory_direct_http_index": 15,
+          "mandatory_direct_body_path": "http-15.response",
+          "mandatory_direct_body_bytes": 319,
+          "mandatory_direct_png_sha256": "5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7",
+          "advertised_sha_matches_actual_direct_png": true,
+          "default_display_observation": {
+            "metadata": {
+              "x-frame-capture-seq": "6",
+              "x-frame-captured-at": "2026-10-26T21:34:33.263183+00:00",
+              "x-frame-execution-id": "38a62c8f6c3847309bd6ea1f5f26a547",
+              "x-frame-height": "240",
+              "x-frame-program-state": "completed",
+              "x-frame-revision-id": "4d348aec652c048507eca75dfdeb5624f87789f31a72d241de4b40aba227489e",
+              "x-frame-sha256": "5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7",
+              "x-frame-source": "live",
+              "x-frame-width": "320"
+            },
+            "sha256": "5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7",
+            "width": 320,
+            "height": 240,
+            "center": [
+              255,
+              255,
+              255
+            ]
+          },
+          "actual_led_material_observation": {
+            "id": "light",
+            "path": "grove/light",
+            "class_name": "FixedWhiteLed",
+            "attached": true,
+            "actual_vendor_light": true,
+            "known": true,
+            "userDataKnown": true,
+            "state": {
+              "color": "#fffaf0",
+              "brightness": 1
+            },
+            "emissive": [
+              2.2,
+              2.1031413771462306,
+              1.9170076622311047
+            ],
+            "glow": false,
+            "opacity": 0.85
+          },
+          "independence": "Mandatory current PNG comes from direct nonempty GET, default display center/metadata from actual mounted display, LED material from actual FixedWhiteLed and controller state. No empty browser body is used as image/material evidence."
+        }
+      ]
+    },
+    {
+      "response_index": 5,
+      "metadata_archive": "artifacts/live-cores3-torch-r3/browser-5.json",
+      "body_archive": "artifacts/live-cores3-torch-r3/browser-5.response",
+      "observed_request_identification": {
+        "method": "GET",
+        "session_url": "/api/v1/sessions/c0aa28a9e74a47e28f253be5b92598c3/frame.png?max_age_ms=125",
+        "observed_at": "2026-10-26T21:34:33.514Z",
+        "browser_network_request_id": "NOT CAPTURED; response_index is only the observer sequence"
+      },
+      "status": 200,
+      "captured_bytes": 0,
+      "response_headers": {
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "content-length": "319",
+        "content-type": "image/png",
+        "etag": "\"5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7\"",
+        "x-frame-capture-seq": "6",
+        "x-frame-captured-at": "2026-10-26T21:34:33.263183+00:00",
+        "x-frame-execution-id": "38a62c8f6c3847309bd6ea1f5f26a547",
+        "x-frame-height": "240",
+        "x-frame-program-state": "completed",
+        "x-frame-revision-id": "4d348aec652c048507eca75dfdeb5624f87789f31a72d241de4b40aba227489e",
+        "x-frame-sha256": "5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7",
+        "x-frame-source": "live",
+        "x-frame-width": "320"
+      },
+      "advertised_content_length": 319,
+      "classification": "EMPTY_BROWSER_BODY_OBSERVATION; optional capture PARTIAL. Not a PNG, not proof of an absent server entity.",
+      "matching_mandatory_execution_observations": [
+        {
+          "sequence": 0,
+          "phase": "steady-on",
+          "inside_mandatory_capture_browser_window": false,
+          "mandatory_browser_window": [
+            8,
+            59
+          ],
+          "mandatory_direct_http_index": 15,
+          "mandatory_direct_body_path": "http-15.response",
+          "mandatory_direct_body_bytes": 319,
+          "mandatory_direct_png_sha256": "5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7",
+          "advertised_sha_matches_actual_direct_png": true,
+          "default_display_observation": {
+            "metadata": {
+              "x-frame-capture-seq": "6",
+              "x-frame-captured-at": "2026-10-26T21:34:33.263183+00:00",
+              "x-frame-execution-id": "38a62c8f6c3847309bd6ea1f5f26a547",
+              "x-frame-height": "240",
+              "x-frame-program-state": "completed",
+              "x-frame-revision-id": "4d348aec652c048507eca75dfdeb5624f87789f31a72d241de4b40aba227489e",
+              "x-frame-sha256": "5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7",
+              "x-frame-source": "live",
+              "x-frame-width": "320"
+            },
+            "sha256": "5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7",
+            "width": 320,
+            "height": 240,
+            "center": [
+              255,
+              255,
+              255
+            ]
+          },
+          "actual_led_material_observation": {
+            "id": "light",
+            "path": "grove/light",
+            "class_name": "FixedWhiteLed",
+            "attached": true,
+            "actual_vendor_light": true,
+            "known": true,
+            "userDataKnown": true,
+            "state": {
+              "color": "#fffaf0",
+              "brightness": 1
+            },
+            "emissive": [
+              2.2,
+              2.1031413771462306,
+              1.9170076622311047
+            ],
+            "glow": false,
+            "opacity": 0.85
+          },
+          "independence": "Mandatory current PNG comes from direct nonempty GET, default display center/metadata from actual mounted display, LED material from actual FixedWhiteLed and controller state. No empty browser body is used as image/material evidence."
+        }
+      ]
+    },
+    {
+      "response_index": 82,
+      "metadata_archive": "artifacts/live-cores3-torch-r3/browser-82.json",
+      "body_archive": "artifacts/live-cores3-torch-r3/browser-82.response",
+      "observed_request_identification": {
+        "method": "GET",
+        "session_url": "/api/v1/sessions/c0aa28a9e74a47e28f253be5b92598c3/frame.png?max_age_ms=125",
+        "observed_at": "2026-10-26T21:34:42.430Z",
+        "browser_network_request_id": "NOT CAPTURED; response_index is only the observer sequence"
+      },
+      "status": 200,
+      "captured_bytes": 0,
+      "response_headers": {
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "content-length": "302",
+        "content-type": "image/png",
+        "etag": "\"57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43\"",
+        "x-frame-capture-seq": "38",
+        "x-frame-captured-at": "2026-10-26T21:34:42.424383+00:00",
+        "x-frame-execution-id": "2f9446a4d2d74f45ae69e5c50d1650de",
+        "x-frame-height": "240",
+        "x-frame-program-state": "completed",
+        "x-frame-revision-id": "793e58eb7d292734e6bd011bae2b42695cf9a50172099048af823ae08d0d2576",
+        "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+        "x-frame-source": "live",
+        "x-frame-width": "320"
+      },
+      "advertised_content_length": 302,
+      "classification": "EMPTY_BROWSER_BODY_OBSERVATION; optional capture PARTIAL. Not a PNG, not proof of an absent server entity.",
+      "matching_mandatory_execution_observations": [
+        {
+          "sequence": 1,
+          "phase": "steady-off",
+          "inside_mandatory_capture_browser_window": false,
+          "mandatory_browser_window": [
+            83,
+            118
+          ],
+          "mandatory_direct_http_index": 29,
+          "mandatory_direct_body_path": "http-29.response",
+          "mandatory_direct_body_bytes": 302,
+          "mandatory_direct_png_sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+          "advertised_sha_matches_actual_direct_png": true,
+          "default_display_observation": {
+            "metadata": {
+              "x-frame-capture-seq": "38",
+              "x-frame-captured-at": "2026-10-26T21:34:42.424383+00:00",
+              "x-frame-execution-id": "2f9446a4d2d74f45ae69e5c50d1650de",
+              "x-frame-height": "240",
+              "x-frame-program-state": "completed",
+              "x-frame-revision-id": "793e58eb7d292734e6bd011bae2b42695cf9a50172099048af823ae08d0d2576",
+              "x-frame-sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+              "x-frame-source": "live",
+              "x-frame-width": "320"
+            },
+            "sha256": "57580743a08a3f4ebdf57240cbcc997002ef63b7234531f946127f1495973f43",
+            "width": 320,
+            "height": 240,
+            "center": [
+              0,
+              0,
+              0
+            ]
+          },
+          "actual_led_material_observation": {
+            "id": "light",
+            "path": "grove/light",
+            "class_name": "FixedWhiteLed",
+            "attached": true,
+            "actual_vendor_light": true,
+            "known": true,
+            "userDataKnown": true,
+            "state": {
+              "color": "#fffaf0",
+              "brightness": 0
+            },
+            "emissive": [
+              0,
+              0,
+              0
+            ],
+            "glow": false,
+            "opacity": 0
+          },
+          "independence": "Mandatory current PNG comes from direct nonempty GET, default display center/metadata from actual mounted display, LED material from actual FixedWhiteLed and controller state. No empty browser body is used as image/material evidence."
+        }
+      ]
+    },
+    {
+      "response_index": 141,
+      "metadata_archive": "artifacts/live-cores3-torch-r3/browser-141.json",
+      "body_archive": "artifacts/live-cores3-torch-r3/browser-141.response",
+      "observed_request_identification": {
+        "method": "GET",
+        "session_url": "/api/v1/sessions/c0aa28a9e74a47e28f253be5b92598c3/frame.png?max_age_ms=125",
+        "observed_at": "2026-10-26T21:34:48.207Z",
+        "browser_network_request_id": "NOT CAPTURED; response_index is only the observer sequence"
+      },
+      "status": 200,
+      "captured_bytes": 0,
+      "response_headers": {
+        "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+        "content-length": "319",
+        "content-type": "image/png",
+        "etag": "\"5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7\"",
+        "x-frame-capture-seq": "62",
+        "x-frame-captured-at": "2026-10-26T21:34:48.169622+00:00",
+        "x-frame-execution-id": "66c96a9624d642c8b90b29b0916a0c57",
+        "x-frame-height": "240",
+        "x-frame-program-state": "completed",
+        "x-frame-revision-id": "4d348aec652c048507eca75dfdeb5624f87789f31a72d241de4b40aba227489e",
+        "x-frame-sha256": "5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7",
+        "x-frame-source": "live",
+        "x-frame-width": "320"
+      },
+      "advertised_content_length": 319,
+      "classification": "EMPTY_BROWSER_BODY_OBSERVATION; optional capture PARTIAL. Not a PNG, not proof of an absent server entity.",
+      "matching_mandatory_execution_observations": [
+        {
+          "sequence": 2,
+          "phase": "steady-on",
+          "inside_mandatory_capture_browser_window": false,
+          "mandatory_browser_window": [
+            142,
+            180
+          ],
+          "mandatory_direct_http_index": 43,
+          "mandatory_direct_body_path": "http-43.response",
+          "mandatory_direct_body_bytes": 319,
+          "mandatory_direct_png_sha256": "5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7",
+          "advertised_sha_matches_actual_direct_png": true,
+          "default_display_observation": {
+            "metadata": {
+              "x-frame-capture-seq": "63",
+              "x-frame-captured-at": "2026-10-26T21:34:48.334933+00:00",
+              "x-frame-execution-id": "66c96a9624d642c8b90b29b0916a0c57",
+              "x-frame-height": "240",
+              "x-frame-program-state": "completed",
+              "x-frame-revision-id": "4d348aec652c048507eca75dfdeb5624f87789f31a72d241de4b40aba227489e",
+              "x-frame-sha256": "5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7",
+              "x-frame-source": "live",
+              "x-frame-width": "320"
+            },
+            "sha256": "5ab8db50b189f98150af0a22bc1eeecc2ddfdbb99a2f53aff5860090ca5b87c7",
+            "width": 320,
+            "height": 240,
+            "center": [
+              255,
+              255,
+              255
+            ]
+          },
+          "actual_led_material_observation": {
+            "id": "light",
+            "path": "grove/light",
+            "class_name": "FixedWhiteLed",
+            "attached": true,
+            "actual_vendor_light": true,
+            "known": true,
+            "userDataKnown": true,
+            "state": {
+              "color": "#fffaf0",
+              "brightness": 1
+            },
+            "emissive": [
+              2.2,
+              2.1031413771462306,
+              1.9170076622311047
+            ],
+            "glow": false,
+            "opacity": 0.85
+          },
+          "independence": "Mandatory current PNG comes from direct nonempty GET, default display center/metadata from actual mounted display, LED material from actual FixedWhiteLed and controller state. No empty browser body is used as image/material evidence."
+        }
+      ]
+    }
+  ],
+  "mandatory_scope": {
+    "direct_gets": 72,
+    "different_same_vm_executions": 5,
+    "current_direct_pngs": 5,
+    "actual_mounted_led_states": 5,
+    "image_artifacts_sha_verified": 25,
+    "actual_web_units_json_each_stage": true,
+    "uses_empty_browser_frame_body_as_evidence": false
+  },
+  "limits": [
+    "Exact cause of the four Playwright empty body observations is UNCONFIRMED; no cache/transport/server cause is inferred.",
+    "Ordinary-session display SHA fields are response metadata, not an independent hash of all decoded texture pixels. Actual display center pixels and current execution/revision are sampled separately and checked against direct valid PNGs.",
+    "The exact transfer that populated each display texture was not traced; empty observed frame bodies may advertise the same execution/version but do not support body-completeness claims."
+  ],
+  "hardware": "NOT RUN"
+}

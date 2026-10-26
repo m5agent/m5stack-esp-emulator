@@ -1,0 +1,205 @@
+{
+  "generated_at": "2026-10-26T21:15:40.023168+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 10.168,
+  "matrix_summary": {
+    "schema_version": 1,
+    "generated_at": "2026-10-27T05:15:39.998837+08:00",
+    "out_dir": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-runtime-regression-20261027/targeted",
+    "results": {
+      "cores3-peripherals": {
+        "status": "PASS",
+        "reference_layout": {
+          "source": "reference-partition-table",
+          "base_firmware_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+          "declared": {
+            "offset": 11141120,
+            "size": 4980736
+          },
+          "effective": {
+            "offset": 11141120,
+            "size": 4980736
+          }
+        },
+        "exit_code": 0,
+        "command": [
+          "/opt/miniconda3/bin/python3.12",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/uiflow2/run_profile_ui_test.py",
+          "--base",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/.cache/firmware/cores3/uiflow2.bin",
+          "--machine",
+          "m5cores3",
+          "--files-dir",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/tests/uiflow2/cores3_peripherals",
+          "--vfs-offset",
+          "0xaa0000",
+          "--vfs-size",
+          "0x4c0000",
+          "--flash-size",
+          "0x1000000",
+          "--expected-size",
+          "320x240",
+          "--wait",
+          "6",
+          "--post-input-wait",
+          "1",
+          "--efuse-driver",
+          "nvram.esp32s3.efuse",
+          "--qemu",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa",
+          "--rom-dir",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/pc-bios",
+          "--out-dir",
+          "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-runtime-regression-20261027/targeted/cores3-peripherals",
+          "--efuse-pkg-version",
+          "0",
+          "--input",
+          "touch:160,183",
+          "--input",
+          "key:p",
+          "--qom-set",
+          "/machine/bmi270",
+          "accel-x",
+          "0.25",
+          "--qom-set",
+          "/machine/bmi270",
+          "accel-y",
+          "-0.50",
+          "--qom-set",
+          "/machine/bmi270",
+          "accel-z",
+          "0.75",
+          "--qom-set",
+          "/machine/bmi270",
+          "gyro-x",
+          "10",
+          "--qom-set",
+          "/machine/bmi270",
+          "gyro-y",
+          "-20",
+          "--qom-set",
+          "/machine/bmi270",
+          "gyro-z",
+          "30",
+          "--qom-set",
+          "/machine/bmm150",
+          "mag-x",
+          "30",
+          "--qom-set",
+          "/machine/bmm150",
+          "mag-y",
+          "-20",
+          "--qom-set",
+          "/machine/bmm150",
+          "mag-z",
+          "45",
+          "--qom-set",
+          "/machine/ltr553",
+          "light-level",
+          "640",
+          "--qom-set",
+          "/machine/ltr553",
+          "proximity-level",
+          "321",
+          "--serial-expect",
+          "CORES3_IMU_TYPE 6",
+          "--serial-expect",
+          "CORES3_POWER 87 4000 1",
+          "--serial-expect",
+          "CORES3_ALS 640 321",
+          "--serial-expect",
+          "CORES3_MAG",
+          "--serial-expect",
+          "CORES3_TOUCH",
+          "--serial-expect",
+          "CORES3_BTN_PWR 1",
+          "--serial-expect",
+          "CORES3_IMU 0.250 -0.500 0.750",
+          "--serial-expect",
+          "CORES3_RTC 2026-10-22 06:07:08"
+        ],
+        "output": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-runtime-regression-20261027/targeted/cores3-peripherals",
+        "before": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-runtime-regression-20261027/targeted/cores3-peripherals/before.png",
+        "after": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-runtime-regression-20261027/targeted/cores3-peripherals/after.png",
+        "attempts": 1,
+        "retry_used": false,
+        "checks": [
+          {
+            "name": "imu_identity",
+            "status": "PASS",
+            "evidence": [
+              "serial.log"
+            ]
+          },
+          {
+            "name": "imu_values",
+            "status": "PASS",
+            "evidence": [
+              "serial.log"
+            ]
+          },
+          {
+            "name": "magnetometer",
+            "status": "PASS",
+            "evidence": [
+              "serial.log"
+            ]
+          },
+          {
+            "name": "ambient_light",
+            "status": "PASS",
+            "evidence": [
+              "serial.log"
+            ]
+          },
+          {
+            "name": "proximity",
+            "status": "PASS",
+            "evidence": [
+              "serial.log"
+            ]
+          },
+          {
+            "name": "touch",
+            "status": "PASS",
+            "evidence": [
+              "serial.log"
+            ]
+          },
+          {
+            "name": "btn_pwr",
+            "status": "PASS",
+            "evidence": [
+              "serial.log"
+            ]
+          },
+          {
+            "name": "power",
+            "status": "PASS",
+            "evidence": [
+              "serial.log"
+            ]
+          },
+          {
+            "name": "rtc",
+            "status": "PASS",
+            "evidence": [
+              "serial.log"
+            ]
+          }
+        ],
+        "evidence_sources": [
+          "serial.log"
+        ],
+        "validation": "PASS serial markers: CORES3_IMU_TYPE 6, CORES3_POWER 87 4000 1, CORES3_ALS 640 321, CORES3_MAG, CORES3_TOUCH, CORES3_BTN_PWR 1, CORES3_IMU 0.250 -0.500 0.750, CORES3_RTC 2026-10-22 06:07:08\n",
+        "reason": "IMU, magnetometer, touch, PWR, power, RTC and LTR553 ambient light/proximity all pass through their real buses."
+      }
+    }
+  },
+  "binary_and_source_receipt_unchanged": true,
+  "retry_policy": "DISABLED",
+  "device_service_sessions_started": 0,
+  "full_matrix": "NOT STARTED",
+  "stdout_sha256": "16ed3e1cc38a2579e05b0f46bc818c089a07e6e2cccfb0870b5e33b6c12f459b",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

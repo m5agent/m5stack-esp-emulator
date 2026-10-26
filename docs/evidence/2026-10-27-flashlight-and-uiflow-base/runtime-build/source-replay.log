@@ -1,0 +1,62 @@
+COMMAND ["git", "apply", "--reverse", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0045-unit-flashlight-aw3641.patch"]
+COMMAND ["git", "clone", "--shared", "--no-checkout", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/replay/qemu"]
+Cloning into '/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/replay/qemu'...
+COMMAND ["git", "checkout", "--detach", "40edccac415693c5130f91c01d84176ae6008566"]
+HEAD is now at 40edcca hw/riscv: fix interrupts being lost or delayed when MIE=0 on the ESP32-C3
+COMMAND ["git", "apply", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch"]
+COMMAND ["git", "apply", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch"]
+/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch:11834: trailing whitespace.
+{   
+/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch:11866: trailing whitespace.
+    
+/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch:18691: new blank line at EOF.
++
+/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch:19197: new blank line at EOF.
++
+/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch:19250: new blank line at EOF.
++
+warning: squelched 2 whitespace errors
+warning: 7 lines add whitespace errors.
+COMMAND ["git", "apply", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch"]
+COMMAND ["git", "apply", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch"]
+COMMAND ["git", "apply", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch"]
+COMMAND ["git", "apply", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch"]
+COMMAND ["git", "apply", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch"]
+COMMAND ["git", "apply", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch"]
+COMMAND ["git", "apply", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch"]
+COMMAND ["git", "apply", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch"]
+COMMAND ["git", "apply", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch"]
+COMMAND ["git", "apply", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch"]
+COMMAND ["git", "apply", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch"]
+COMMAND ["git", "apply", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch"]
+COMMAND ["git", "apply", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch"]
+COMMAND ["git", "apply", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch"]
+COMMAND ["git", "apply", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0043-unit-scroll-controller.patch"]
+COMMAND ["git", "apply", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0043-unit-scroll-controller.patch"]
+COMMAND ["git", "apply", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch"]
+COMMAND ["git", "apply", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch"]
+COMMAND ["git", "apply", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0045-unit-flashlight-aw3641.patch"]
+COMMAND ["git", "apply", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0045-unit-flashlight-aw3641.patch"]
+COMMAND ["git", "apply", "--reverse", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0045-unit-flashlight-aw3641.patch"]
+COMMAND ["git", "apply", "--reverse", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0045-unit-flashlight-aw3641.patch"]
+COMMAND ["git", "apply", "--reverse", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch"]
+COMMAND ["git", "apply", "--reverse", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch"]
+COMMAND ["git", "apply", "--reverse", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0043-unit-scroll-controller.patch"]
+COMMAND ["git", "apply", "--reverse", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0043-unit-scroll-controller.patch"]
+COMMAND ["git", "apply", "--reverse", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch"]
+COMMAND ["git", "apply", "--reverse", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch"]
+COMMAND ["git", "apply", "--reverse", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch"]
+COMMAND ["git", "apply", "--reverse", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch"]
+COMMAND ["git", "apply", "--reverse", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch"]
+COMMAND ["git", "apply", "--reverse", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch"]
+COMMAND ["git", "apply", "--reverse", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch"]
+COMMAND ["git", "apply", "--reverse", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch"]
+COMMAND ["git", "apply", "--reverse", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch"]
+COMMAND ["git", "apply", "--reverse", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch"]
+COMMAND ["git", "apply", "--reverse", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch"]
+COMMAND ["git", "apply", "--reverse", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch"]
+COMMAND ["git", "apply", "--reverse", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch"]
+COMMAND ["git", "apply", "--reverse", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch"]
+COMMAND ["git", "apply", "--reverse", "--check", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch"]
+COMMAND ["git", "apply", "--reverse", "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch"]
+11-patch forward file hashes match all 106 files; reverse replay clean

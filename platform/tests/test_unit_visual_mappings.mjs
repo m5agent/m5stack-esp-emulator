@@ -7,6 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {CARDKB_KEY_IDS, arrayLedFeedback, physicalInput, visualCommands, visualMappingCoverage} from '../web/unit-visual-mappings.js';
 import {KEYS as visualKeys} from '../web/vendor/m5stack-models/src/units/cardkb/dimensions.js';
 import {spec as relay2Spec} from '../web/vendor/m5stack-models/src/units/2relay/dimensions.js';
+import {spec as flashlightSpec} from '../web/vendor/m5stack-models/src/units/flashlight/dimensions.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const catalog = JSON.parse(await readFile(resolve(root, 'platform/units/catalog.json'), 'utf8'));
@@ -37,6 +38,46 @@ for (const unit of [snapshot('2relay', {}), snapshot('2relay', {'output-1-level'
 }
 assert.equal(input('2relay', 'led-1', 'down'), null, 'Indicators are not writable Unit inputs');
 checks.push('u131-two-independent-pad-indicators-exact-asset-numbering-and-unknown-withdrawal');
+
+const flashlightState = {'output-known': true, 'pad-synchronized': true, 'gpio-route-supported': true,
+  'flash-mode': true, 'en-level': true, active: true, 'flash-level-pct': 100, 'timeout-ms': 220};
+const flashlight = (values = {}, extra = {}) => visualCommands(snapshot('flashlight', {...flashlightState, ...values}, extra), 'grove');
+const lamp = (on, brightness) => [{type: 'led', target: 'grove/light', color: flashlightSpec.light.color, on, brightness}];
+const unknownLamp = [{type: 'led', target: 'grove/light', known: false}];
+assert.equal(flashlightSpec.sku, 'U152');
+assert.equal(flashlightSpec.light.color, 0xFFFAF0);
+for (const pct of [100, 90, 80, 70, 60, 50, 40, 30]) for (const timeout of [220, 1300]) {
+  assert.deepEqual(flashlight({'flash-level-pct': pct, 'timeout-ms': timeout}), lamp(true, pct / 100));
+  assert.deepEqual(flashlight({active: false, 'flash-level-pct': pct, 'timeout-ms': timeout}), lamp(false, 0), 'controller timeout retains code without retaining light');
+}
+assert.deepEqual(flashlight({active: false, 'en-level': false, 'flash-level-pct': 0, 'timeout-ms': 0}), lamp(false, 0), 'reset idle has no decoded Flash code');
+assert.deepEqual(flashlight({'flash-mode': false, 'flash-level-pct': 0, 'timeout-ms': 0}), lamp(true, 1), 'Torch is a qualitative continuous indicator with zero Flash code/deadline');
+assert.deepEqual(flashlight({'flash-mode': false, active: false, 'en-level': false, 'flash-level-pct': 0, 'timeout-ms': 0}), lamp(false, 0));
+for (const field of Object.keys(flashlightState)) {
+  const properties = {...flashlightState};
+  delete properties[field];
+  assert.deepEqual(visualCommands(snapshot('flashlight', properties), 'grove'), unknownLamp, `missing ${field} withdraws the old light`);
+}
+for (const field of ['output-known', 'pad-synchronized', 'gpio-route-supported']) for (const value of [false, 1, 'true', null]) {
+  assert.deepEqual(flashlight({[field]: value}), unknownLamp);
+}
+for (const field of ['flash-mode', 'en-level', 'active']) for (const value of [0, 1, 'true', null]) {
+  assert.deepEqual(flashlight({[field]: value}), unknownLamp);
+}
+for (const pct of [0, 29, 31, 99, 101, 50.5, NaN, Infinity, '100']) assert.deepEqual(flashlight({'flash-level-pct': pct}), unknownLamp);
+for (const timeout of [0, 219, 221, 1299, 1301, 220.1, Infinity, '220']) assert.deepEqual(flashlight({'timeout-ms': timeout}), unknownLamp);
+for (const values of [
+  {'en-level': false},
+  {active: false, 'en-level': false},
+  {active: false, 'flash-level-pct': 0, 'timeout-ms': 0},
+  {'flash-mode': false},
+  {'flash-mode': false, active: false, 'flash-level-pct': 0, 'timeout-ms': 0},
+]) assert.deepEqual(flashlight(values), unknownLamp, 'inconsistent pad/mode/active/code snapshots never become an off observation');
+for (const extra of [{available: false}, {available: undefined}, {errors: {read: 'failed'}}]) assert.deepEqual(flashlight({}, extra), unknownLamp);
+assert.deepEqual(flashlight({'output-known': false, brightness: 100, 'duty-pct': 100}), unknownLamp, 'request values and PWM duty cannot override qualification');
+assert.deepEqual(flashlight(), lamp(true, 1), 'the converter has no host timer or retained previous code');
+assert.equal(input('flashlight', 'mode', 'down', {bindings: {evidence: 'synthetic fixture', switchPositions: {on: 0, off: 1}}}), null, 'S1 detent does not authorize live mode input');
+checks.push('u152-qualified-code-and-torch-readback-timing-consistency-and-unknown-withdrawal');
 
 assert.deepEqual(CARDKB_KEY_IDS, keymap.keys.map(key => key.id), 'matrix order must match the official-table fixture');
 assert.deepEqual(CARDKB_KEY_IDS, visualKeys.map(key => key.id), 'all 50 visual controls must match the matrix IDs');
@@ -140,7 +181,7 @@ assert.deepEqual(input('joystick-v11', 'press', 'up', {bindings: joystickBinding
 checks.push('evidence-required-calibration-permutation-range-and-detent-validation');
 
 const report = visualMappingCoverage(catalog);
-assert.equal(catalog.units.length, 29);
+assert.equal(catalog.units.length, 30);
 assert.deepEqual([...report.registered_unit_ids].sort(), catalog.units.map(unit => unit.id).sort());
 assert.equal(report.units.some(unit => unit.status === 'unregistered'), false);
 for (const unit of catalog.units) {
@@ -152,13 +193,14 @@ for (const unit of catalog.units) {
 assert.equal(report.units.find(unit => unit.unit_id === '8encoder').status, 'requires-binding');
 assert.equal(report.units.find(unit => unit.unit_id === 'fan').status, 'activity-only');
 assert.equal(report.units.find(unit => unit.unit_id === 'hub').status, 'passive');
-checks.push('all-29-products-and-every-catalog-field-audited');
+checks.push('all-30-products-and-every-catalog-field-audited');
 report.checks = checks;
 report.status = 'PASS';
 report.source_sha256 = Object.fromEntries(await Promise.all([
   'platform/web/unit-visual-mappings.js', 'platform/tests/test_unit_visual_mappings.mjs',
   'platform/units/catalog.json', 'platform/units/fixtures/cardkb-keymap.json',
   'platform/web/vendor/m5stack-models/src/units/cardkb/dimensions.js',
+  'platform/web/vendor/m5stack-models/src/units/flashlight/dimensions.js',
 ].map(async path => [path, createHash('sha256').update(await readFile(resolve(root, path))).digest('hex')])));
 report.summary = Object.fromEntries(['mapped', 'requires-binding', 'activity-only', 'panel-only', 'passive'].map(status => [status, report.units.filter(unit => unit.status === status).length]));
 const reportAt = process.argv.indexOf('--report');

@@ -1,0 +1,65 @@
+[
+  {
+    "path": "devices",
+    "method": "GET",
+    "started_at": "2026-10-26T20:35:04.383616+00:00",
+    "status": 200,
+    "bytes": 18781,
+    "sha256": "6eefeb2d5baa8b5d4a1d408b48e51246ac69b43a1a1ad9a9addc421b4ede6010",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "18781",
+      "x-request-id": "9e68545616384e45ad1c2978a16e9fba"
+    },
+    "elapsed_seconds": 0.0032357079908251762
+  },
+  {
+    "path": "artifacts",
+    "method": "POST",
+    "request_bytes": 16121856,
+    "request_sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b",
+    "artifact_name": "new-coreS3-main-loader-original.bin",
+    "status": 201,
+    "bytes": 320,
+    "sha256": "1762308d85c07c832ce6d6f307dc6435eb378ae8e2c6ebd01fe707c0d1719e7e"
+  },
+  {
+    "path": "artifacts",
+    "method": "POST",
+    "request_bytes": 5988610,
+    "request_sha256": "bf6e00319e6faa2562ce91609421378f09f3e4ccddb7e2ebc793ddf892166e67",
+    "artifact_name": "new-coreS3-main-loader-uart.zip",
+    "status": 201,
+    "bytes": 315,
+    "sha256": "3842f34f1794b2c0383970c3751e309a45916e1891a4f2cfabdbc012be41f3a4"
+  },
+  {
+    "path": "firmware/import",
+    "method": "POST",
+    "started_at": "2026-10-26T20:35:04.419225+00:00",
+    "status": 201,
+    "bytes": 62607,
+    "sha256": "3907b56e6e84c5b037cdd80175584fe6c8211911d3556c8d538e82e15589ae6f",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "62607",
+      "x-request-id": "d815bddfdfb24a74afeff2a089d8e4c2"
+    },
+    "elapsed_seconds": 1.2113893749192357
+  },
+  {
+    "path": "sessions",
+    "method": "POST",
+    "started_at": "2026-10-26T20:35:05.630948+00:00",
+    "status": 409,
+    "bytes": 135,
+    "sha256": "7ab352a3fc797e6c528bc6427e621f22b4d34636801cd70dae8911ceebea14af",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "135",
+      "x-request-id": "b74aa4531b194698ab428e5356bb5ad5"
+    },
+    "error_type": "HTTPFailure",
+    "elapsed_seconds": 0.0014683329500257969
+  }
+]

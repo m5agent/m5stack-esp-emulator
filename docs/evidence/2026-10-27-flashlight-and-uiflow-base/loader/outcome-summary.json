@@ -1,0 +1,81 @@
+{
+  "status": "PASS_WITH_PRESERVED_FAILED_CONTROLS",
+  "date": "2026-10-27",
+  "scope": "显式上传的 CoreS3 新固件 + 固定旧 QEMU runtime 的真实 guest main.mpy loader 诊断；不是公共 main.mpy program API 开放",
+  "public_mpy_entrypoint_enabled": false,
+  "hardware": "NOT RUN",
+  "firmware_scope": {
+    "original_app_base_sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b",
+    "normalized_base_sha256": "3cb901cbfebd616a96292f234fe88ad1b145c3bb019f256dcb57257d78f878d8",
+    "r1_uart_derived_sha256": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+    "r2_to_r4_uart_derived_sha256": "45a02c4c758eee9f18ab2195c3837c974f6aae8b882a9df295b658c1e07fdae9",
+    "r2_to_r4_source_pin": "7a9c69e9df99d8cded6006278b35840b1231cac8e739c3e42ed3ff2da0964153",
+    "runtime_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+    "mpy_compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b"
+  },
+  "attempts": [
+    {
+      "id": "r1",
+      "status": "REJECTED_BEFORE_SESSION",
+      "service_generation": 38,
+      "guest_started": false,
+      "reason": "derived image imported as manifest is not admitted uart-repl uiflow source firmware",
+      "original_report_cleanup": "UNCONFIRMED due to then-missing full-4xx classification",
+      "independent_audit": "complete409 means no allocation; exact original runner reconstructed and SHA matched"
+    },
+    {
+      "id": "r2",
+      "status": "BOOT_PASS_SETUP_FAIL",
+      "service_generation": 39,
+      "guest_started": true,
+      "reason": "probe attempted dynamic builtin sys attribute; no MPY load attempted",
+      "zip_before_stop": true,
+      "cleanup": "PASS",
+      "subsequent_history_byte_identity": "PASS"
+    },
+    {
+      "id": "r3",
+      "status": "COMPOSER_REJECTED_BEFORE_SESSION",
+      "service_generation": 39,
+      "guest_started": false,
+      "reason": "same public re-import only refreshed manifest.created_at; exact CAS context rejected retry",
+      "regression_fixed": "only ignore top-level base_manifest.created_at; all remaining fields exact"
+    },
+    {
+      "id": "r4",
+      "status": "PASS",
+      "service_generation": 40,
+      "guest_started": true,
+      "session_id": "f7bc9bfdcf6948b28190a08c894f30ae",
+      "source_executions": 11,
+      "binary_enter_markers": 5,
+      "fresh_pir_uart_qom_frame_cycles": 3,
+      "frames": 7,
+      "http_responses": 171,
+      "zip_members": 44,
+      "zip_sha256": "c6f6648445b1ae713871f96ac66b75334e20b6d49418bb37b1b0248b49019db4",
+      "runner_sha256": "2f7637d478fb676165deaec7ccea5f039dae2f9167306f5e2d966391b1e65444",
+      "cleanup": "PASS",
+      "independent_audit": "PASS"
+    }
+  ],
+  "r4_proves": [
+    "normal artifact/import -> explicit-base source composer -> source-pinned session succeeds and retries after re-import",
+    "private dictionary state survives two actual short source executions before bytecode staging",
+    "official mpy-cross pure-bytecode modules are staged/read back with exact SHA and size",
+    "actual __import__(main, None, None, False, 0); if-main, module name/file, main and __main__ aliases refer to same module",
+    "same MPY bytes execute twice; changed MPY dependency read; count remains same VM state",
+    "top-level RuntimeError and invalid magic importer rejection restore REPL owner/cache; source recovery works",
+    "infinite binary reads real emulated PIR GPIO; fresh serial sequence, controller QOM and framebuffer agree",
+    "ordinary next /program sends actual UART Ctrl-C; KeyboardInterrupt restore then source recovery works",
+    "one boot marker, same PID/firmware/runtime/nonce; no repeated flash or guest reset during live programming",
+    "ZIP collected before stop; exact retained final frame; owned PID/Flash/lease released; r1 original CAS artifact and manifest bytes unchanged"
+  ],
+  "limits": [
+    "public devices program_features.mpy_entrypoint remains false; public /program main.mpy remains rejected until separate implementation and admission",
+    "does not change cached stock firmware or establish other boards/firmware families/runtimes",
+    "does not establish physical PIR timing or hardware/electrical behavior",
+    "pure MicroPython bytecode only; no native/viper MPY acceptance"
+  ],
+  "archive_policy": "raw firmware/Flash .bin, MPY bytecode .mpy, ELF, and preparation ZIPs containing firmware.bin are excluded and fingerprinted; safe device evidence ZIPs contain text/JSON/PNG only; source and public bytecode-upload request snapshots retained"
+}

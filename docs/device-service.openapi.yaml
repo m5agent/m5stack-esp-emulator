@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.44.0
+  version: 1.45.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -699,6 +699,9 @@ paths:
       description: >
         Accepting an input is not proof that firmware consumed it. Output-only
         fields are rejected. A frozen profile may limit max_live_input_fields;
+        Fields marked creation_only in the frozen catalog or runtime mapping
+        reject all live writes with 409 unit_input_creation_only before QMP,
+        including Preview input. Set such fixtures only in attachment initial.
         Scroll accepts one live field per request and rejects mixed inputs with
         400 before QOM writes. Initial attachment values are separate. Multi-field
         QOM writes are not a general atomic transaction or rollback guarantee.
@@ -1430,11 +1433,17 @@ paths:
           $ref: "#/components/responses/Error"
   /firmware/uiflow:
     post:
-      summary: Compose Python sources into a cached UIFlow2 reference image
+      summary: Compose Python sources into a compatible UIFlow2 base image
       description: >
         Convenience form of POST /firmware with kind=uiflow. This endpoint
         rejects a kind field and unknown fields with 400 invalid_uiflow_request.
-        Supports only the four admitted, cached S3 references. Mounts and
+        Supports four admitted S3 devices. Defaults to their cached reference;
+        an explicit base_firmware_id requires expected_base_sha256 of the
+        normalized stored bytes and full manifest/image compatibility checks.
+        Preserves base PSRAM/security/capability constraints in later sessions.
+        A no-op base identity or conflicting existing explicit-base provenance
+        returns 409 uiflow_source_context_conflict without replacing its record.
+        Does not enable executable MPY entrypoints. Mounts and
         preserves the real LittleFS VFS, verifies persisted bytes and never
         executes caller Python on the host. COMPOSED_NOT_EXECUTED is packaging
         evidence; run the returned firmware in a visible session for runtime
@@ -3204,20 +3213,28 @@ components:
       type: object
       additionalProperties: false
       required: [device_id, files]
+      dependentRequired:
+        base_firmware_id: [expected_base_sha256]
       properties:
         device_id:
           type: string
           enum: [cores3, atoms3r, sticks3, stopwatch]
         files:
           $ref: "#/components/schemas/UIFlowSourceFiles"
+        base_firmware_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Optional compatible stored manifest base. Requires expected_base_sha256; actual bytes, manifest, target, security and capabilities are rechecked.
         expected_base_sha256:
           type: string
           pattern: "^[0-9a-f]{64}$"
-          description: Optional cached-reference pin; mismatch returns 409 uiflow_base_hash_mismatch.
+          description: Required with base_firmware_id, otherwise optional cached-reference pin. Covers normalized stored flash bytes, not the original upload. Mismatch returns 409 uiflow_base_hash_mismatch.
     UIFlowFirmwareRequest:
       type: object
       additionalProperties: false
       required: [device_id, kind, files]
+      dependentRequired:
+        base_firmware_id: [expected_base_sha256]
       properties:
         device_id:
           type: string
@@ -3226,10 +3243,14 @@ components:
           const: uiflow
         files:
           $ref: "#/components/schemas/UIFlowSourceFiles"
+        base_firmware_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Optional compatible stored manifest base; requires a normalized-byte pin and full re-admission.
         expected_base_sha256:
           type: string
           pattern: "^[0-9a-f]{64}$"
-          description: Optional cached-reference pin; mismatch returns 409 uiflow_base_hash_mismatch.
+          description: Required with base_firmware_id, otherwise optional cached-reference pin. Covers normalized stored flash bytes. Mismatch returns 409 uiflow_base_hash_mismatch.
     UIFlowSourceFile:
       type: object
       additionalProperties: false
@@ -3282,6 +3303,14 @@ components:
         base_sha256:
           type: string
           pattern: "^[0-9a-f]{64}$"
+        base_firmware_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Present only for explicit stored-base composition.
+        base_provenance:
+          type: object
+          additionalProperties: true
+          description: Rechecked manifest/artifact identity, normalized stored-byte pin and static compatibility result; runtime validation remains separate.
         base_size:
           type: integer
         flash_size:
@@ -3379,6 +3408,10 @@ components:
           $ref: "#/components/schemas/FirmwareKind"
         source:
           type: object
+        base_manifest:
+          type: object
+          additionalProperties: true
+          description: Original explicit UIFlow base requirements retained through composition and rechecked at session admission.
         header_magic:
           type: integer
       allOf:
@@ -3544,7 +3577,8 @@ components:
             max_revisions:
               type: integer
               minimum: 1
-              maximum: 256
+              maximum: 4096
+              description: Independent package count quota, default 256; configured by --max-program-packages or M5_SERVICE_MAX_PROGRAM_PACKAGES. Lowering retains existing records and identical saves; new records above quota return 429.
             max_files:
               type: integer
               const: 64
@@ -3637,7 +3671,8 @@ components:
             means the guest START marker was observed; application readiness,
             frame and Unit effects require their own observations. At most 256
             execution records per session and 256 source revisions per service
-            are accepted. File packages have a separate 256-revision store.
+            are accepted. File packages have a separate count quota, default
+            256 and explicitly configurable to 1–4096.
             Package records add source_kind, total_file_bytes, file_count and
             deployment phase/guest capabilities/hash inventory. Publishing or
             activating files is distinct from entering application execution.

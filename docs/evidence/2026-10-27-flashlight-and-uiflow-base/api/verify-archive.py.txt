@@ -1,0 +1,33 @@
+"""Verify API evidence content hashes and historical-source distinctions offline."""
+from pathlib import Path
+import argparse,hashlib,json,re
+h=lambda b:hashlib.sha256(b).hexdigest()
+def verify(root):
+ root=Path(root);index=json.loads((root/'index.json').read_text());seen=set()
+ for item in index['files']:
+  path=root/item['archive_path'];raw=path.read_bytes();assert path.is_file() and not path.is_symlink()
+  assert path.suffix.lower() in ('.json','.log','.txt')
+  assert len(raw)==item['bytes'] and h(raw)==item['source_sha256']==item['archive_sha256']
+  assert item['archive_path'] not in seen;seen.add(item['archive_path']);raw.decode('utf8',errors='strict')
+  if path.suffix=='.json':json.loads(raw)
+  assert not re.search(rb'(?i)\b(?:[0-9a-f]{2}:){5}[0-9a-f]{2}\b',raw)
+ actual={str(p.relative_to(root)) for p in root.rglob('*') if p.is_file()};assert actual==seen|{'index.json'}
+ lineage=json.loads((root/'source-lineage.json').read_text())['generations']
+ assert lineage['39']['source_sha256']['platform/tools/device_service.py']!=lineage['40']['source_sha256']['platform/tools/device_service.py']
+ assert lineage['40']['source_sha256']['platform/tools/device_service.py']==lineage['41']['source_sha256']['platform/tools/device_service.py']!=lineage['42']['source_sha256']['platform/tools/device_service.py']
+ assert lineage['39']['runtime_sha256']==lineage['40']['runtime_sha256']!=lineage['41']['runtime_sha256']==lineage['42']['runtime_sha256']
+ for generation in ('39','40'):
+  assert h((root/f'source-snapshots/gen{generation}/device_service.py.txt').read_bytes())==lineage[generation]['source_sha256']['platform/tools/device_service.py']
+ for path,digest in json.loads((root/'explicit-base-final-62/index.json').read_text())['sources_sha256'].items():
+  source={'platform/tools/device_service.py':'source-snapshots/gen39/device_service.py.txt','platform/tests/test_uiflow_service.py':'source-snapshots/explicit-base-final-62/test_uiflow_service.py.txt','platform/tests/test_device_service.py':'source-snapshots/gen42/platform/tests/test_device_service.py.txt'}[path];assert h((root/source).read_bytes())==digest
+ for path,digest in json.loads((root/'explicit-base-fresh-final-r2-64/index.json').read_text())['sources_sha256'].items():
+  source='source-snapshots/gen40/device_service.py.txt' if path=='platform/tools/device_service.py' else 'source-snapshots/gen42/'+path+'.txt';assert h((root/source).read_bytes())==digest
+ for prefix,expected in [('explicit-base-final-62',62),('explicit-base-fresh-final-r2-64',64)]:
+  info=json.loads((root/prefix/'narrow-tests.json').read_text());raw=(root/prefix/'narrow-tests.log').read_bytes();assert info['exit_code']==0 and info['stdout_stderr_sha256']==h(raw) and f'Ran {expected} tests'.encode() in raw
+ for prefix,expected in [('quota-narrow-tests',35),('explicit-security-cas-timestamp-tests',7)]:
+  info=json.loads((root/'review'/(prefix+'.json')).read_text());raw=(root/'review'/(prefix+'.log')).read_bytes();assert info['exit_code']==0 and info['source_unchanged_during_verification'] and info['log_sha256']==h(raw) and f'Ran {expected} tests'.encode() in raw
+ summary=json.loads((root/'summary.json').read_text());assert summary['public_mpy_entrypoint_enabled'] is False and summary['hardware']=='NOT RUN'
+ assert summary['root_saved_test_logs']['flashlight-platform-tests-r2-20261027.log']['tests']==1162
+ return {'status':'PASS','files':len(seen),'generations':[39,40,41,42],'historical_tests':[62,64],'independent_tests':[35,7],'saved_full_platform_log_tests':1162,'all_source_archive_sha256_match':True,'public_mpy_entrypoint_enabled':False,'hardware':'NOT RUN'}
+if __name__=='__main__':
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('root',type=Path);args=parser.parse_args();print(json.dumps(verify(args.root),indent=2))

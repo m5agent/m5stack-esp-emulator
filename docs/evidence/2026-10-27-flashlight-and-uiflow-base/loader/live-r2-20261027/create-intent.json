@@ -1,0 +1,17 @@
+{
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "firmware_id": "45a02c4c758eee9f18ab2195c3837c974f6aae8b882a9df295b658c1e07fdae9",
+  "ttl_seconds": 900,
+  "uiflow_source_sha256": "7a9c69e9df99d8cded6006278b35840b1231cac8e739c3e42ed3ff2da0964153",
+  "program_transport": "uart-repl",
+  "ready_marker": "M5EMU_MAIN_LOADER_UART_READY",
+  "ready_timeout_seconds": 60,
+  "units": [
+    {
+      "id": "pir",
+      "unit_id": "pir",
+      "port_id": "port-a"
+    }
+  ]
+}

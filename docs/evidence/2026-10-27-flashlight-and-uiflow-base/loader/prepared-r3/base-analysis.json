@@ -1,0 +1,1864 @@
+{
+  "image_size": 16121856,
+  "sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b",
+  "valid": true,
+  "errors": [],
+  "warnings": [],
+  "bootloader": {
+    "offset": 0,
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "segments": [
+      {
+        "index": 0,
+        "load_addr": 1070475296,
+        "length": 3320
+      },
+      {
+        "index": 1,
+        "load_addr": 1077708544,
+        "length": 2868
+      },
+      {
+        "index": 2,
+        "load_addr": 1077720832,
+        "length": 11556
+      }
+    ],
+    "segment_count": 3,
+    "entry_addr": 1077708944,
+    "chip_id": 9,
+    "chip": "esp32s3",
+    "min_chip_rev_full": 0,
+    "max_chip_rev_full": 99,
+    "hash_appended": true,
+    "image_end": 17792,
+    "secure_boot_v2_signature": {
+      "status": "not-found",
+      "sector_offset": null,
+      "image_bytes": null,
+      "candidate_count": 0,
+      "block_count": 0,
+      "blocks": [],
+      "image_digest_match": false,
+      "signature_math_verified": false,
+      "signature_authenticity": "not-verified",
+      "trust_root": "not-verified"
+    }
+  },
+  "partition_table": {
+    "offset": 32768,
+    "image_size": 16777216,
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "partitions": [
+      {
+        "type": 1,
+        "subtype": 2,
+        "offset": 36864,
+        "size": 24576,
+        "label": "nvs",
+        "flags": 0
+      },
+      {
+        "type": 1,
+        "subtype": 1,
+        "offset": 61440,
+        "size": 4096,
+        "label": "phy_init",
+        "flags": 0
+      },
+      {
+        "type": 0,
+        "subtype": 0,
+        "offset": 65536,
+        "size": 10027008,
+        "label": "factory",
+        "flags": 0
+      },
+      {
+        "type": 1,
+        "subtype": 129,
+        "offset": 10092544,
+        "size": 1048576,
+        "label": "sys",
+        "flags": 0
+      },
+      {
+        "type": 1,
+        "subtype": 129,
+        "offset": 11141120,
+        "size": 4980736,
+        "label": "vfs",
+        "flags": 0
+      },
+      {
+        "type": 1,
+        "subtype": 130,
+        "offset": 16121856,
+        "size": 655360,
+        "label": "storage",
+        "flags": 0
+      }
+    ],
+    "md5": "fab277be37a1de2c6e4d110ce32dc244"
+  },
+  "app_images": [
+    {
+      "offset": 65536,
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "segments": [
+        {
+          "index": 0,
+          "load_addr": 1010499616,
+          "length": 5925432
+        },
+        {
+          "index": 1,
+          "load_addr": 1070212096,
+          "length": 30812
+        },
+        {
+          "index": 2,
+          "load_addr": 1077362688,
+          "length": 7508
+        },
+        {
+          "index": 3,
+          "load_addr": 1107296288,
+          "length": 3864544
+        },
+        {
+          "index": 4,
+          "load_addr": 1077370196,
+          "length": 116324
+        },
+        {
+          "index": 5,
+          "load_addr": 1342181376,
+          "length": 32
+        },
+        {
+          "index": 6,
+          "load_addr": 1611653120,
+          "length": 56
+        }
+      ],
+      "segment_count": 7,
+      "entry_addr": 1077368184,
+      "chip_id": 9,
+      "chip": "esp32s3",
+      "min_chip_rev_full": 0,
+      "max_chip_rev_full": 99,
+      "hash_appended": true,
+      "image_end": 10010324,
+      "present": true,
+      "label": "factory",
+      "size": 10027008,
+      "secure_boot_v2_signature": {
+        "status": "not-found",
+        "sector_offset": null,
+        "image_bytes": null,
+        "candidate_count": 0,
+        "block_count": 0,
+        "blocks": [],
+        "image_digest_match": false,
+        "signature_math_verified": false,
+        "signature_authenticity": "not-verified",
+        "trust_root": "not-verified"
+      }
+    }
+  ],
+  "app_descriptor": {
+    "offset": 65568,
+    "secure_version": 0,
+    "version": "V2.5.3",
+    "project_name": "micropython",
+    "compile_time": "04:17:14",
+    "compile_date": "Oct 27 2026",
+    "idf_version": "73550728-dirty",
+    "elf_sha256": "c54b0b507da47e185cd6e34decd50a53261b36966b9c3c2a9112538ffd329a0c",
+    "min_efuse_blk_rev_full": 0,
+    "max_efuse_blk_rev_full": 199
+  },
+  "declared_flash_size": 16777216,
+  "sparse_source": true,
+  "filesystems": [
+    {
+      "label": "sys",
+      "subtype": 129,
+      "offset": 10092544,
+      "size": 1048576,
+      "sha256": "b91347cc59450e92f2ac48d7d2425c3e1bd54c40b50e92448912ab4b64a9e041",
+      "type": "littlefs",
+      "status": "PASS",
+      "errors": [],
+      "block_size": 4096,
+      "block_count": 256,
+      "used_block_count": 186,
+      "file_count": 73,
+      "directory_count": 15,
+      "total_file_bytes": 469292,
+      "files": [
+        {
+          "path": "/README.md",
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/common/font/Montserrat-Medium-10.vlw",
+          "size": 6730,
+          "sha256": "17caa8ad9c8252fbf37ee98c1a3d5f70ab88ad75f3f9063616d0e0fe41e247ba",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/common/font/Montserrat-Medium-12.vlw",
+          "size": 8373,
+          "sha256": "156eb5d5fe63fd57bb546755bf3d49eaecb352f033638546cbb4988e0204fe04",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/common/font/Montserrat-Medium-14.vlw",
+          "size": 10052,
+          "sha256": "7c3feec7cf076c750b90788f55ab17ca06ca091c41271dadde1c69639ff46239",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/common/font/Montserrat-Medium-16.vlw",
+          "size": 12342,
+          "sha256": "5d6ce2b5fcbb169833555e4926e2a75a9c530cdd8b9558e6590d1969f56d942d",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/common/font/Montserrat-Medium-18.vlw",
+          "size": 14427,
+          "sha256": "5779c663b395a6e9d2ce29d2261c08df52a6a1f2bf8ba73bf72075ea4d2766cd",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/common/img/avatar.jpg",
+          "size": 17062,
+          "sha256": "d6cea32f84bc6a9cd95796b832cb7a1c86afde987d71ae5c50b7655f51d521e6",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/common/wav/bg.wav",
+          "size": 6096,
+          "sha256": "3f166b9aff29c2bf0fd8e2d93bef23ed3c83d0baa2b952a173d44f77d1613c4a",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/common/wav/click.wav",
+          "size": 3782,
+          "sha256": "1c2194a0d12a71d416d97665c437a8b0b0fb83c14b26a5fcd7013089e164845b",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/common/wav/insert.wav",
+          "size": 4164,
+          "sha256": "6c982d2d7a8042f2b11529f53a496390fda5cef6101abcadb6e267fa78c673c4",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/common/wav/remove.wav",
+          "size": 5264,
+          "sha256": "e71ac3e29d124b420a0c2bea52ed0afde668556249e2216168db0c34766c4152",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/bk模板4.png",
+          "size": 38942,
+          "sha256": "39ffde97e9a077379a85ded87af055b0255b5586c24dff4f82254671ccbf517c",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/boot.png",
+          "size": 12775,
+          "sha256": "9625bf924d8d7fc85b0323c5896ad6d7a3f0d3bb273fc1be186ef6aa43bc96c7",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Battery/battery_Black.png",
+          "size": 3832,
+          "sha256": "2bec7da28b6effe0c5fb8affe321b1a5d5612d19605dc19458de1e2cfad22f27",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Battery/battery_Black_Charge.png",
+          "size": 3901,
+          "sha256": "4624854e4c4169eebce59a4fe3b8d35a9863cf7162491f1328518e8f2e273eb4",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Battery/battery_Gray.png",
+          "size": 3223,
+          "sha256": "214f23e8a24da9a4823cdeb1760b777c1b225d7c22813d024d17812cfe310c8c",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Battery/battery_Green.png",
+          "size": 3539,
+          "sha256": "453174da927e0bc447926debd3642fe65ec237655e2590b581a3af2184c6bfb3",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Battery/battery_Green_Charge.png",
+          "size": 3596,
+          "sha256": "00c4221b431e05d30848023e2e3fa9e34fab6471ca7ee0de4505e1f83f4ab70d",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Battery/battery_Red.png",
+          "size": 3517,
+          "sha256": "8bb428579acd5f86facb25dd498f37c7b9c934e0ab27906dfbcdaa12f85dfe23",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Battery/battery_Red_Charge.png",
+          "size": 3576,
+          "sha256": "56c9fece93e8bd8aa07de7ba7798862d62d5d561f5ceed94b23ee1d846e2981e",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Battery/battery_Yellow.png",
+          "size": 3226,
+          "sha256": "e9e1ad722441e81cbe1c666131b382d359aa7c13058abaccf582e7f29b2e1d1f",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Develop/bg.png",
+          "size": 17359,
+          "sha256": "b6d039e4e6d2230a233e2a133c87a77a1643fe27bb37fc6641fea754b220633a",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/List/left_cursor.png",
+          "size": 2816,
+          "sha256": "6ce0808f070800b20dcfcc4b024c21fc35ab8a799b3ca615382a306344fec3f6",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/List/main.png",
+          "size": 9826,
+          "sha256": "f2213a2af5d3432704ed00a72c483e4c95b077a3708769af5591b8b15fe04704",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/List/right_cursor.png",
+          "size": 2826,
+          "sha256": "5e99f97563c24cf919b60a206654ec09dcba5cd4e8304d4da0e20fadb5d3a455",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Run/run.png",
+          "size": 12430,
+          "sha256": "2aadfde43aca7b0f3fbec2e00d8682db632d4f58293c73471658d9475cf45456",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Selection/appList_selected.png",
+          "size": 5748,
+          "sha256": "9e1b08ae1656ed658cb38bc9e19ab01277631d431a0d6fc1cad4d9afc9926443",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Selection/appList_unselected.png",
+          "size": 5067,
+          "sha256": "e46929fd16ab6095274cc92e937172a7ef311f6f9bbcb47cb4cdd31fca4943b0",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Selection/appRun_selected.png",
+          "size": 5424,
+          "sha256": "fe9e367dbd6c5409602e50f3744fdf9ada39cba037c872d4d0b21c16f2217d36",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Selection/appRun_unselected.png",
+          "size": 4992,
+          "sha256": "518a7d216044a8500ebf78f3cbae42278193ac05f09c6ce205af43ce8be62110",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Selection/develop_selected.png",
+          "size": 6458,
+          "sha256": "0bde59258a5a529459fdca20bd809b34be50086d195b6b568b37208309a2f6cc",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Selection/develop_unselected.png",
+          "size": 5654,
+          "sha256": "59ceb5551650c028339f2ff427d20be30f1f36f84fd4f34953f3e7df18e821a4",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Selection/ezdata_selected.png",
+          "size": 5454,
+          "sha256": "26196e2d893c28dd39b67051f1db65a949e86a45bee12a33e9e163067f826ce6",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Selection/ezdata_unselected.png",
+          "size": 5016,
+          "sha256": "ce98d83f9d8b9c369212595078c9d757fa85b8374ec4761bd8e903bbb38689a1",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Selection/setting_selected.png",
+          "size": 5866,
+          "sha256": "1ab131f6f78d73fa1149acef800e8707551564908015966604319da67a84e7bf",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Selection/setting_unselected.png",
+          "size": 5171,
+          "sha256": "656591810c11848f83270c04bdb56dc57816b0a7ad6c93191a79e136e58d1fd7",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Server/Server_Green.png",
+          "size": 3665,
+          "sha256": "3eedb3e8319989a55f35ebe2bfe71a103c39844f52d915f6cada2d94614848d7",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Server/server_blue.png",
+          "size": 3629,
+          "sha256": "a9f2dadc2377d99c26f4bd5b0fb88c4eab67bd5dc6b821543e63e4fb1c27fdef",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Server/server_empty.png",
+          "size": 3673,
+          "sha256": "4931818af0b02d9a0d8a1250d5bc63408d7a95dfb7ccd36cc653f01d53481539",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Server/server_error.png",
+          "size": 3745,
+          "sha256": "a9344e7e0a788aff97c43e2d8ca77249d38533fe1bc3239ae2b5dd3b7ba909b1",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Server/server_red.png",
+          "size": 3614,
+          "sha256": "6421ce50cbcee73cb2a2fd0c572ced04000342c70ba79132f633b8b1bdd20619",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/bootNo.png",
+          "size": 4886,
+          "sha256": "6d03a5caa68ca357863b8980ffdf8e38fb53730c15c690687c89ed4720774768",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/bootYes.png",
+          "size": 4970,
+          "sha256": "b8a201657129a704d9b7d961bbd0b662fe41b901408780519c0727eb2a163689",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/busInput.png",
+          "size": 4544,
+          "sha256": "396519d89cf49f679a681b8518c3c17e5d7df90aee0b6baee58e2022f70db937",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/busOutput.png",
+          "size": 4730,
+          "sha256": "6a223138277cecf6ee0cc8232efbf7059375814f8743a357f0f913b5d894f7ea",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/charge100.png",
+          "size": 4952,
+          "sha256": "cf4fdcf5ff4c523050ff64d77d7f16af0de836606426068e047e40ee1543c111",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/charge1000.png",
+          "size": 5044,
+          "sha256": "cf855ce31992ddd85011f9aa66611f0203927dfb584291246b516b685140448f",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/charge1500.png",
+          "size": 5218,
+          "sha256": "7a84340321bedfd3010e0ebfec307f12a2b0953165407ddeecd27294a6a697f2",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/charge2000.png",
+          "size": 5414,
+          "sha256": "f7233d786ad933222b1b9b9e10f211c4632b82639d4aea26f0927f3fed7228f0",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/charge500.png",
+          "size": 5278,
+          "sha256": "70f0afdc34387bc1a5d640f99dcf629dc37d23f3c497d5a02318c6a192e58dd9",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/charge900.png",
+          "size": 5227,
+          "sha256": "0e06f9b516bf76514c75db28ad2101a6311dd98e01cc3ebb6197b7e45bd3a1e8",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/comxDisable.png",
+          "size": 5193,
+          "sha256": "f37d5e46e16ce45607550b3348e9ee5e35a3f45ec48c866462ff547f8a316b8e",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/comxEnable.png",
+          "size": 5100,
+          "sha256": "e6591fe8cad601d303262e69c6159437452d479f454e8ee3a4428b3d2b693203",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/pass.png",
+          "size": 9136,
+          "sha256": "1f84a0663d0114b4efa5ab0c83c977fdce6571fa3f0747c848d53ee8bce655af",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/server.png",
+          "size": 9129,
+          "sha256": "64ea557e9f9684b5e06bb9b64e92b728830aa808e97cef7c3c57a950f80c8b8f",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/ssid.png",
+          "size": 9131,
+          "sha256": "08071e96960ff525550fd438d1b6e715d15a6a21f4850c04154b3728b7c6c2dd",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/usbInput.png",
+          "size": 4542,
+          "sha256": "f032550d782bd23ae3b39a7e83dbdcfff356883d6867306b80cec4fafc50bc11",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/usbOutput.png",
+          "size": 4733,
+          "sha256": "ffd7d819458c02d62ec810263d791d7919d8da121776250b7052e274d0dbdcb9",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Setting/wifiServer.png",
+          "size": 9024,
+          "sha256": "fe96bfa13ba7a08081d6872fd51bb54cf95d5b5c576e90022f1ee01a5ddf0dc1",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Title/title_black.png",
+          "size": 6311,
+          "sha256": "c9b38962d6c044d4883979b6acb8fca4559a41e43c71113e4954a7c3dc128bad",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Title/title_blue.png",
+          "size": 6127,
+          "sha256": "aa41deb5b4358f0e75f7eca2d9dc2e2a2e98d25a2555d9619f269745e1a76b4a",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Title/title_gray.png",
+          "size": 4428,
+          "sha256": "d4acef3212ad400b88449afd7b01c216174a9a007a555f97213c4d9e572af5cc",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Title/title_green.png",
+          "size": 4472,
+          "sha256": "09be88b6acd7c36e4264e8fd39ce2c34d3d06ede4a6043fcd452a08d756443c7",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/Title/title_red.png",
+          "size": 6432,
+          "sha256": "8abd033717118dd625185e8ceec1e661190c4bbe5de1e6bfd8c342ea5a2d159f",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/WiFi/wifi_disconnected.png",
+          "size": 3586,
+          "sha256": "1794405323075e226cd2710fc95e6a98895f30a84f169535fb7a3138230556a5",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/WiFi/wifi_empty.png",
+          "size": 3531,
+          "sha256": "ba2cc7de8b4a6722a03529e974dbfceefaed2e33f83045a9f9cfcd9d635a3968",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/WiFi/wifi_good.png",
+          "size": 3470,
+          "sha256": "3b6292dcc055b3f70401a7589aaada9c7f93857efabcda32ccf0b30b68f31be3",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/WiFi/wifi_mid.png",
+          "size": 3441,
+          "sha256": "8328573ec4cedb6804afa64263a4a95972d85bfd913d1a72383f819208e31676",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/WiFi/wifi_worse.png",
+          "size": 3400,
+          "sha256": "dc1af8b3ccd18526e8b1a2d300cd7aae8c8adea576ae674a402cb0896dcddc20",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/boot/boot0.png",
+          "size": 6174,
+          "sha256": "6eec5f88d3e1b2b020df7caa7d588997109c4369e476f3d6aa391b354211212b",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/boot/boot1.png",
+          "size": 7164,
+          "sha256": "00f8f11b70facf2072c2a020e58983609114929ae7e850e692debd7862b9e869",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/boot/boot2.png",
+          "size": 8222,
+          "sha256": "cd2b1ff2f85a37262ec163f7aae5826ca19f5d4d06ac599b4054285be590b915",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/cores3/boot/boot3.png",
+          "size": 9431,
+          "sha256": "da70dc5c41bbd8eeb75eea8595924a8308059b69b16f76737b7eabcb56ec56d8",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        }
+      ],
+      "directories": [
+        "/common",
+        "/cores3",
+        "/common/font",
+        "/common/img",
+        "/common/wav",
+        "/cores3/Battery",
+        "/cores3/Develop",
+        "/cores3/List",
+        "/cores3/Run",
+        "/cores3/Selection",
+        "/cores3/Server",
+        "/cores3/Setting",
+        "/cores3/Title",
+        "/cores3/WiFi",
+        "/cores3/boot"
+      ],
+      "permission_model": {
+        "kind": "none",
+        "source": "filesystem-metadata",
+        "unix_mode": "not-recorded",
+        "runtime_enforcement": "not-proven",
+        "claim": "the image does not carry Unix mode bits; runtime permission enforcement is not proven"
+      },
+      "permission_summary": {
+        "files": 73,
+        "files_with_policy": 73,
+        "unix_mode_recorded": 0,
+        "fat_read_only_attribute_count": 0,
+        "fat_hidden_count": 0,
+        "fat_system_count": 0,
+        "model": "none",
+        "runtime_enforcement": "NOT RUN"
+      },
+      "redacted_directories": [],
+      "sensitive_files": [],
+      "license_files": [],
+      "declared_licenses": [],
+      "limits": {
+        "files_truncated": false,
+        "directories_truncated": false,
+        "max_files": 512,
+        "max_directories": 512
+      },
+      "not_claimed": [
+        "file contents",
+        "runtime permissions",
+        "license compliance"
+      ]
+    },
+    {
+      "label": "vfs",
+      "subtype": 129,
+      "offset": 11141120,
+      "size": 4980736,
+      "sha256": "3c51ab42fc4215e1bdcb9f37420df269c500280d2305cf08d76d3041dd92a624",
+      "type": "littlefs",
+      "status": "PASS",
+      "errors": [],
+      "block_size": 4096,
+      "block_count": 1216,
+      "used_block_count": 26,
+      "file_count": 16,
+      "directory_count": 7,
+      "total_file_bytes": 15817,
+      "files": [
+        {
+          "path": "/README.md",
+          "size": 757,
+          "sha256": "3734d988c6e76deb9c1519caeed9b3df45b255f807c425fae25a0fcb654700f3",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/boot.py",
+          "size": 1728,
+          "sha256": "dfc76de173d2afee2bc5a94a293346b898a76e5ee6e544f6f7f3edac14657efb",
+          "kind": "script",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/main.py",
+          "size": 10,
+          "sha256": "76f3c3296c30d60b041303ae4de297dc913fcbe9743b2ea52e7c29c7d588e955",
+          "kind": "script",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/apps/helloworld.py",
+          "size": 528,
+          "sha256": "ca2763fc8e2b9bb8a971de93a60776a9f7619b429a87284c62b73f0dbe7fa474",
+          "kind": "script",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/certificate/README.md",
+          "size": 22,
+          "sha256": "c9ee96df38475084850eae87ef516644708eca1615fa3b43bdcf40eeb0fdf71f",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/libs/README.md",
+          "size": 372,
+          "sha256": "99ad04b4eea8fc5ed218f3fb5fdde1294e2dde96f652c05a945ab2b3de9ca06e",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/libs/__init__.py",
+          "size": 90,
+          "sha256": "367026c78b5c0de45d7f9adfb81766a4b12d6355eaedf33f6e9810dbeb9af7be",
+          "kind": "script",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/res/audio/README.md",
+          "size": 57,
+          "sha256": "fbc59e3f4eb59b4258b3139c9b239c2c67b05abb87fbf97b7e6400f7fbaa6944",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/res/font/README.md",
+          "size": 38,
+          "sha256": "a1f82dc7277874fe74331411b8ae52afcc9251f4824ffe2073718d01d9ac02a2",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/res/img/README.md",
+          "size": 34,
+          "sha256": "471be886b6dd02e49ec96f34af9408833dfb873e8168814668e99f4eddc35c2e",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/res/img/default.jpg",
+          "size": 1743,
+          "sha256": "56ee9fb0ba1eb53aa18005dc9173ea98dd8f02436e7e4f1dabdba44a10137407",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/res/img/default.png",
+          "size": 1012,
+          "sha256": "a4ba28e1a06c072f0cc7cbc219e01b1aaa77a5df3a481206612b6c5d46de554b",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/res/img/m5stack.pbm",
+          "size": 685,
+          "sha256": "b8f255538f05aff8f526333ea3df3a04cf18640b87c3f464edf0d6fcdb052e69",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/res/img/uiflow.bmp",
+          "size": 3016,
+          "sha256": "275f0afe078088d1ca945e3eda254e74687ab01e6f9e58d4b7f3a8a88d2e967d",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/res/img/uiflow.jpg",
+          "size": 4361,
+          "sha256": "2219a637c34072638e81064416eb5f0dcd001b44a34f4706de89fdfd05218734",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        },
+        {
+          "path": "/res/img/uiflow.png",
+          "size": 1364,
+          "sha256": "3ea58599e5c64558dfc621fd533d25854d040cccc45566d2deaba6b234fcac0e",
+          "kind": "resource",
+          "permissions": "not-recorded",
+          "permission_policy": {
+            "source": "filesystem-metadata",
+            "model": "none",
+            "unix_mode": "not-recorded",
+            "read_only_attribute": "unknown",
+            "hidden": "unknown",
+            "system": "unknown",
+            "archive": "unknown",
+            "runtime_enforcement": "not-proven"
+          }
+        }
+      ],
+      "directories": [
+        "/apps",
+        "/certificate",
+        "/libs",
+        "/res",
+        "/res/audio",
+        "/res/font",
+        "/res/img"
+      ],
+      "permission_model": {
+        "kind": "none",
+        "source": "filesystem-metadata",
+        "unix_mode": "not-recorded",
+        "runtime_enforcement": "not-proven",
+        "claim": "the image does not carry Unix mode bits; runtime permission enforcement is not proven"
+      },
+      "permission_summary": {
+        "files": 16,
+        "files_with_policy": 16,
+        "unix_mode_recorded": 0,
+        "fat_read_only_attribute_count": 0,
+        "fat_hidden_count": 0,
+        "fat_system_count": 0,
+        "model": "none",
+        "runtime_enforcement": "NOT RUN"
+      },
+      "redacted_directories": [],
+      "sensitive_files": [],
+      "license_files": [],
+      "declared_licenses": [],
+      "limits": {
+        "files_truncated": false,
+        "directories_truncated": false,
+        "max_files": 512,
+        "max_directories": 512
+      },
+      "not_claimed": [
+        "file contents",
+        "runtime permissions",
+        "license compliance"
+      ]
+    }
+  ],
+  "secure_boot_v2": {
+    "status": "not-found",
+    "signature_authenticity": "not-verified",
+    "trust_root": "not-verified",
+    "images": [
+      {
+        "label": "bootloader",
+        "status": "not-found",
+        "sector_offset": null,
+        "image_bytes": null,
+        "candidate_count": 0,
+        "block_count": 0,
+        "blocks": [],
+        "image_digest_match": false,
+        "signature_math_verified": false,
+        "signature_authenticity": "not-verified",
+        "trust_root": "not-verified"
+      },
+      {
+        "label": "factory",
+        "status": "not-found",
+        "sector_offset": null,
+        "image_bytes": null,
+        "candidate_count": 0,
+        "block_count": 0,
+        "blocks": [],
+        "image_digest_match": false,
+        "signature_math_verified": false,
+        "signature_authenticity": "not-verified",
+        "trust_root": "not-verified"
+      }
+    ]
+  }
+}

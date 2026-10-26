@@ -1,0 +1,18 @@
+{
+  "category": "static-controller-C-diagnostic",
+  "result": "ROUTE_HISTORY_GAP_REPRODUCED",
+  "api_contacted": false,
+  "guest_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "scope": "Actual patch C with existing synthetic pad/route/virtual-clock stubs. No guest or physical-controller inference.",
+  "observation": "After qualified steady Torch, unsupported route withdraws known. Restoring GPIO route 256 without an edge/reset regrants old known/active. Getter only ANDs current route/pad, without latching history.",
+  "release_scope": "Unadmitted dynamic-route path; does not negate the recorded continuously observed GPIO subset.",
+  "source_sha256": {
+    "patches/qemu-m5stack-peripherals/0045-unit-flashlight-aw3641.patch": "52e384a59fad2ba0739bfbaa7b515f49bbee97d59a11583c1a53e9a060f58626",
+    "platform/tests/test_unit_flashlight_patch.py": "48295e89185ce00186e49cfc7dedf82e46fa691c9ca2f98bd529d97aa9ae39a3",
+    ".work/flashlight-route-history-audit-20261027/reproduce.py": "3d5db57ebd36631679f8392b054b455b28a5a55691ebeb611cf9603d4d868fda",
+    ".work/flashlight-route-history-audit-20261027/harness.c": "acda8fb14cca2439c519201249504d240b7a2b8b3fdae8358c6c230844e30646",
+    ".work/flashlight-route-history-audit-20261027/stdout.txt": "d98fc169e5ccbef81bda529d1593530aa214b7f5dc297cf536ed86cc1fcb6ddd",
+    ".work/flashlight-route-history-audit-20261027/stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

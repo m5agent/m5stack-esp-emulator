@@ -1,0 +1,51 @@
+{
+  "status": "NOT RUN",
+  "category": "new-firmware-main-loader-capability-plan",
+  "api_contacted": false,
+  "guests_started": 0,
+  "hardware": "NOT RUN",
+  "public_mpy_entrypoint_enabled": false,
+  "base": {
+    "sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b",
+    "bytes": 16121856,
+    "chip": "esp32s3",
+    "board": "CoreS3",
+    "flash_bytes": 16777216
+  },
+  "runtime_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+  "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+  "phases": [
+    "state-create",
+    "state-readback",
+    "setup",
+    "v1",
+    "repeat-v1",
+    "v2",
+    "exception",
+    "format",
+    "recovery-errors",
+    "loop",
+    "recovery-interrupt"
+  ],
+  "unit": {
+    "id": "pir",
+    "unit_id": "pir",
+    "port_id": "port-a"
+  },
+  "admission": "original merged artifact -> normal public firmware/import -> firmware/uiflow explicit base_firmware_id and normalized expected_base_sha256 -> source-bound session",
+  "loader": "actual __import__('main', None, None, False, 0) in guest; no bytecode rewriting",
+  "observations": [
+    "separate source START and MPY enter/import/restore markers",
+    "if-main/name/file and three module identities",
+    "same bytes reexecuted; changed MPY dependency read",
+    "top-level/format error restoration",
+    "PIR fresh UART/QOM/frame in infinite MPY",
+    "real Ctrl-C via next source submission; REPL owner restored"
+  ],
+  "failure_policy": "retain exact new-firmware failure, never substitute a stock reference",
+  "cleanup": "ZIP before stop purge=0, history/frame/Flash/PID/owned lease checks",
+  "prepared_sha256": "45a02c4c758eee9f18ab2195c3837c974f6aae8b882a9df295b658c1e07fdae9",
+  "source_sha256": "7a9c69e9df99d8cded6006278b35840b1231cac8e739c3e42ed3ff2da0964153",
+  "state_storage": "private sys.modules key explicitly indexing dict; no import or dynamic builtin/owner attributes",
+  "prior_attempts": "r1 rejected before session; r2 boot PASS setup attribute failure; both immutable"
+}

@@ -1,0 +1,33 @@
+{
+  "classification": "DIRECT_REPOSITORY_REGRESSION_NOT_DEVICE_SERVICE_FUNCTIONAL_SESSION",
+  "selected": [
+    {
+      "id": "cores3-peripherals",
+      "machine": "m5cores3",
+      "files_dir": "tests/uiflow2/cores3_peripherals"
+    }
+  ],
+  "matrix_cases_listed": 67,
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "tests/uiflow2/run_peripheral_matrix.py",
+    "--case",
+    "cores3-peripherals",
+    "--out-dir",
+    "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/flashlight-runtime-regression-20261027/targeted"
+  ],
+  "environment_overrides": {
+    "M5_QEMU_XTENSA": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa",
+    "M5_QEMU_XTENSA_ROM_DIR": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu/pc-bios",
+    "M5_PYTHON_DEPS": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/py312",
+    "PYTHONPATH": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/py312"
+  },
+  "runner_input_sha256": {
+    "tests/uiflow2/run_peripheral_matrix.py": "c4231cfaa4162d04d22fce197ba7f43fe17fe221f4bd942278e177a1661778be",
+    "tests/uiflow2/run_profile_ui_test.py": "d8819cb73b7bace9df55e65bbc293d7ed27f01466eaabbb1fab14b4923714557",
+    "tests/uiflow2/cores3_peripherals/boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "tests/uiflow2/cores3_peripherals/main.py": "451ef0ec5852a78f454474a5477d85cf9c13455d25478408990e7496134bff2c"
+  },
+  "retry_policy": "DISABLED",
+  "full_matrix": "NOT STARTED; requires explicit parent START"
+}

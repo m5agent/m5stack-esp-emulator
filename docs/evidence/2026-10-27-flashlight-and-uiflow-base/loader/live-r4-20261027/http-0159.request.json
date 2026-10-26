@@ -1,0 +1,5 @@
+{
+  "source": "import sys,json,M5\n_state=sys.modules['__m5_loader_probe_state__']\nassert _state['nonce'] == '333acfdcf9f14c058bdb73cba9d3677e', 'VM nonce lost after failure/interrupt'\nassert __import__('__main__') is _state['owner'], 'REPL owner differs after failure/interrupt'\nM5.begin()\nM5.Display.setBrightness(255)\nM5.Display.fillScreen(0)\nM5.Display.fillRect(M5.Display.width()//2-4,M5.Display.height()//2-4,8,8,0x0000FF)\nprint('MAIN_LOADER_CAP '+json.dumps({'kind':'recovery','label':'recovery-interrupt','nonce':_state['nonce'],'owner_id':id(__import__('__main__')),'count':_state['count']}))\n",
+  "expected_execution_id": "abf8440573ac4db082838c4bc79289ca",
+  "timeout_seconds": 30
+}

@@ -1,0 +1,41 @@
+[
+  {
+    "source": "hw/m5stopwatch/m5_unit_gpio.c",
+    "status": "PASS",
+    "compiler": "cc",
+    "mode": "-fsyntax-only using unchanged baseline generated headers/flags, author C file",
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "source": "hw/m5stopwatch/m5_unit_runtime.c",
+    "status": "PASS",
+    "compiler": "cc",
+    "mode": "-fsyntax-only using unchanged baseline generated headers/flags, author C file",
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "status": "PASS",
+    "check": "actual patch C core/adapter with ASan+UBSan",
+    "cases": [
+      "table",
+      "boundaries",
+      "outside",
+      "reset",
+      "duplicates",
+      "torch",
+      "mode",
+      "initial-high",
+      "many",
+      "trace",
+      "missing-pad",
+      "route",
+      "short-low",
+      "old-timer",
+      "original-negative",
+      "readonly"
+    ],
+    "guest": "NOT RUN"
+  }
+]

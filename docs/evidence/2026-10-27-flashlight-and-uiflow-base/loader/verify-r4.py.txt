@@ -1,0 +1,89 @@
+"""Independent saved-response, guest-bytecode, ZIP and history audit for r4."""
+from pathlib import Path
+import hashlib,io,json,sys,zipfile
+ROOT=Path.cwd();HERE=ROOT/'.work/main-loader-capability-probe-20261027';OUT=HERE/'live-r4-20261027'
+sys.path[:0]=[str(HERE),str(ROOT/'.work/py312')]
+import probe
+from PIL import Image
+h=lambda b:hashlib.sha256(b).hexdigest()
+def rows(text):
+ return [json.loads(line[len('MAIN_LOADER_CAP '):]) for line in text.splitlines(keepends=True) if line.endswith('\n') and line.startswith('MAIN_LOADER_CAP ')]
+def exactly(items,kind):
+ found=[i for i in items if i.get('kind')==kind];assert len(found)==1,(kind,len(found));return found[0]
+def main():
+ report=json.loads((OUT/'report.json').read_text());http=json.loads((OUT/'http.json').read_text())
+ prepared=json.loads((HERE/'prepared-r3/prepared.json').read_text());frozen=HERE/'attempts/r4-20261027/probe.py.before-execute.txt'
+ assert report['status']=='PASS' and report['runner_sha256']==h(frozen.read_bytes())=='2f7637d478fb676165deaec7ccea5f039dae2f9167306f5e2d966391b1e65444'
+ assert report['pid']==64450 and report['runtime']['sha256']==probe.RUNTIME_SHA and report['firmware_sha256']==prepared['prepared_sha256']
+ assert report['firmware_intake']['source']['artifact_id']==prepared['source_sha256']
+ assert report['product_sources_unchanged'] and report['public_mpy_entrypoint_enabled'] is False and report['hardware']=='NOT RUN'
+ assert report['public_device_before']['program_features']['mpy_entrypoint'] is False and report['public_program_features_after']['mpy_entrypoint'] is False
+ for index,row in enumerate(http):
+  raw=(OUT/f'http-{index:04d}.response').read_bytes()
+  assert len(raw)==row['bytes'] and h(raw)==row['sha256'] and 200<=row['status']<300,(index,row)
+  if row.get('headers',{}).get('content-type','').startswith('application/json'):json.loads(raw)
+ assert [r['status'] for r in http[:5]]==[200,201,201,201,202]
+ execution={r['execution_id']:r for r in report['executions']};observations={r['label']:r for r in report['observations']}
+ assert len(execution)==len(observations)==11
+ rawzip=(OUT/'evidence-before-stop.zip').read_bytes();assert h(rawzip)==report['zip']['sha256']
+ with zipfile.ZipFile(io.BytesIO(rawzip)) as z:
+  assert z.testzip() is None and len(z.namelist())==44
+  serial=z.read('serial.log');assert serial.count(probe.READY.encode())==1
+  for phase in observations.values():
+   window=phase['serial'];text=serial[window['offset']:window['next_offset']].decode('utf8',errors='replace')
+   assert text==window['data'] and rows(text)==phase['rows']
+   assert ('__M5_EXEC_'+phase['execution_id']+'__:START') in text
+   e=execution[phase['execution_id']];assert e['pid']==64450 and e['firmware_sha256']==prepared['prepared_sha256']
+   source=(OUT/(phase['label']+'.source.py.txt')).read_text()
+   canonical=lambda value:json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode('utf8')
+   assert e['source_sha256']==h(canonical({'main.py':source}))
+   assert e['revision_id']==h(canonical({'source_kind':'uiflow2-python','entrypoint':'main.py','files':{'main.py':source}}))
+  for item in report['inputs']:
+   window=item['serial'];text=serial[window['offset']:window['next_offset']].decode('utf8',errors='replace')
+   assert text==window['data'] and window['offset']==item['fresh_offset']
+  assert h(z.read('frames/current.png'))==report['last_frame_sha256']==report['cleanup']['history_frame_sha256']
+ assert exactly(observations['state-create']['rows'],'state-created')['owner_id']==report['initial_owner_id']
+ assert exactly(observations['state-readback']['rows'],'state-readback')['owner_id']==report['initial_owner_id']
+ setup=exactly(observations['setup']['rows'],'setup')
+ expected_inventory={case:{name:{'bytes':r['bytes'],'sha256':r['sha256']} for name,r in members.items()} for case,members in prepared['inventory'].items()}
+ assert setup['inventory']==expected_inventory and setup['nonce']==prepared['nonce']
+ for label,case,value,count in [('v1','v1',17,1),('repeat-v1','v1',17,2),('v2','v2',29,3),('exception','exception',17,4),('loop','loop',29,5)]:
+  phase=observations[label];request=exactly(phase['rows'],'load-request');enter=exactly(phase['rows'],'mpy-enter')['result']
+  assert request['inventory']==expected_inventory[case]
+  assert enter['case']==case and enter['nonce']==prepared['nonce'] and enter['count']==count and enter['dep_value']==value
+  assert enter['name']=='__main__' and enter['guard'] is True and enter['real_main_name']=='main'
+  assert enter['self_id']==enter['sys_main_id']==enter['import_main_id']!=report['initial_owner_id']
+  assert enter['main_cache_is_self'] is True and enter['import_main_is_self'] is True
+  assert enter['file']==request['directory']+'/main.mpy' and enter['dep_file']==request['directory']+'/dep.mpy'
+  if label in ('v1','repeat-v1','v2'):assert exactly(phase['rows'],'import-return')['module_id']==enter['self_id']
+ assert exactly(observations['v1']['rows'],'load-request')['inventory']==exactly(observations['repeat-v1']['rows'],'load-request')['inventory']
+ top=exactly(observations['exception']['rows'],'import-error');assert top['exception']=='RuntimeError' and top['message']=='PROBE_TOP_EXCEPTION'
+ malformed=exactly(observations['format']['rows'],'import-error');assert malformed['exception'] in ('ValueError','ImportError') and not any(r.get('kind')=='mpy-enter' for r in observations['format']['rows'])
+ interrupted=exactly(observations['recovery-interrupt']['rows'],'import-error');assert interrupted['exception']=='KeyboardInterrupt' and interrupted['label']=='loop'
+ for label in ('v1','repeat-v1','v2','exception','format','recovery-interrupt'):
+  restored=exactly(observations[label]['rows'],'restored');assert restored['restored'] is True and restored['owner_id']==report['initial_owner_id'] and restored['nonce']==prepared['nonce']
+ previous=0
+ for item,motion in zip(report['inputs'],(False,True,False),strict=True):
+  values=[r for r in rows(item['serial']['data']) if r.get('kind')=='mpy-sample' and r.get('motion') is motion and r.get('nonce')==prepared['nonce'] and r.get('sequence',0)>previous]
+  assert values and item['qom']['value'] is motion;previous=max(v['sequence'] for v in values)
+  assert item['frame']['center_pixel']==[0,255,0] and item['frame']['motion_pixel']==([255,255,255] if motion else [0,0,0])
+ pngs=[]
+ for index,row in enumerate(http):
+  if row.get('headers',{}).get('content-type')=='image/png':
+   raw=(OUT/f'http-{index:04d}.response').read_bytes();assert h(raw)==row['headers']['x-frame-sha256']
+   with Image.open(io.BytesIO(raw)) as im:assert im.size==(320,240)
+   pngs.append(h(raw))
+ assert len(report['frames'])==7 and all(f['sha256'] in pngs for f in report['frames'])
+ prior=json.loads((HERE/'attempts/r3-20261027/r1-cas-pre-r4.json').read_text())
+ for filename,meta in prior['files'].items():assert h((ROOT/filename).read_bytes())==meta['sha256']
+ output=OUT/'independent-audit-http';output.mkdir(exist_ok=False)
+ client=probe.common.Client('http://127.0.0.1:8787',probe.common.read_token(ROOT/'.work/preview-control-token'),output)
+ stopped=client.json('sessions/'+report['session_id']);frame=client.json('sessions/'+report['session_id']+'/frame.png',binary=True)
+ (output/'history.png').write_bytes(frame)
+ assert stopped['state']=='stopped' and stopped['flash_retained'] is False and stopped['worker']['lease_active'] is False
+ assert h(frame)==report['last_frame_sha256'] and probe.common.pid_gone(report['pid'])
+ health=client.json('health');assert health['capacity']['active_sessions']==0 and health['capacity']['worker']['active_lease_count']==0
+ result={'status':'PASS','classification':'validated CoreS3 virtual-device loader diagnostic for this exact built app and old QEMU runtime','http_responses':len(http),'guest_source_executions':11,'binary_enter_markers':5,'compiled_main_cases':4,'fresh_pir_cycles':3,'png_observations':7,'zip_members':44,'zip_sha256':h(rawzip),'session_id':report['session_id'],'pid':report['pid'],'runtime_sha256':probe.RUNTIME_SHA,'original_app_base_sha256':probe.BASE_SHA,'derived_firmware_sha256':prepared['prepared_sha256'],'uiflow_source_sha256':prepared['source_sha256'],'guest_mpy':report['guest_mpy'],'state_owner_id':report['initial_owner_id'],'reimport_compose_repeat':'PASS','source_START_distinct_from_binary_enter':True,'no_guest_reboot':True,'exact_history_frame_sha256':h(frame),'owned_pid_flash_lease_cleanup':'PASS','active_sessions_after_audit':0,'active_leases_after_audit':0,'r1_cas_four_files_unchanged':True,'hardware':'NOT RUN','public_mpy_entrypoint_enabled':False,'scope_boundary':'loader diagnostic only; public main.mpy program API still refused; no other firmware/board/runtime claims'}
+ (OUT/'independent-audit.json').write_text(json.dumps(result,indent=2)+'\n')
+ return result
+if __name__=='__main__':print(json.dumps(main(),indent=2))

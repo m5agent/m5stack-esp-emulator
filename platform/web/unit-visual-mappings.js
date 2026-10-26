@@ -36,6 +36,26 @@ const sourceValue = (state, field) => {
   return index === undefined ? state[name] : state[name]?.[Number(index)];
 };
 
+function flashlightCommand(unit, port) {
+  const unknown = {type: 'led', target: path(port, 'light'), known: false};
+  const state = unit.properties || {};
+  if (!observed(unit) || !['output-known', 'pad-synchronized', 'gpio-route-supported'].every(field => state[field] === true)
+      || !['flash-mode', 'en-level', 'active'].every(field => typeof state[field] === 'boolean')) return unknown;
+  const flash = state['flash-mode'], active = state.active, en = state['en-level'];
+  const pct = state['flash-level-pct'], timeout = state['timeout-ms'];
+  const decodedFlash = Number.isInteger(pct) && pct >= 30 && pct <= 100 && pct % 10 === 0 && [220, 1300].includes(timeout);
+  const reset = pct === 0 && timeout === 0;
+  // Timeout keeps the decoded Flash code while EN stays high. We never infer
+  // expiry from a browser clock: active is the observed controller result.
+  const consistent = active ? en && (flash ? decodedFlash : reset)
+    : flash ? (en ? decodedFlash : reset) : !en && reset;
+  if (!consistent) return unknown;
+  // Flash brightness is only the relative digital code. Torch has no decoded
+  // Flash percentage, so its fixed appearance is qualitative, not photometry.
+  return {type: 'led', target: path(port, 'light'), color: 0xFFFAF0, on: active,
+    brightness: active ? flash ? pct / 100 : 1 : 0};
+}
+
 // Uniform colors are invariant under every unknown electrical-to-physical
 // permutation. Distinct colors still require an explicit, evidenced mapping.
 export function arrayLedFeedback(unit, bindings) {
@@ -125,6 +145,7 @@ function calibratedJoints(unitId, state, port, bindings) {
 
 export function visualCommands(unit, port, {bindings, running = true} = {}) {
   if (typeof port !== 'string' || !port) return [];
+  if (unit?.unit_id === 'flashlight') return [flashlightCommand(unit, port)];
   if (unit?.unit_id === '2relay') {
     // U131 schematic + fixed asset channel numbering, recorded in
     // platform/units/fixtures/2relay-binding.json. Nominal powered indication
@@ -176,6 +197,7 @@ const AUDIT = {
   angle: {binding: {'voltage-mv': 'Potentiometer mechanical travel, zero, direction and voltage/angle calibration are unconfirmed.'}},
   color: {}, tof: {}, light: {}, relay: {},
   '2relay': {readback: ['output-1-level', 'output-2-level'], note: 'U131 white=Relay1=led-1, yellow=Relay2=led-2. Fixed-blue nominal powered indication; GPIO pads are not contacts or load measurements.'},
+  flashlight: {readback: ['output-known', 'pad-synchronized', 'gpio-route-supported', 'flash-mode', 'en-level', 'active', 'flash-level-pct', 'timeout-ms'], note: 'U152 D1 fixed-white appearance requires qualified controller readback. Flash brightness represents a relative digital code; Torch appearance is qualitative. No photometry or S1 visual-detent mapping.'},
   'joystick-v11': {binding: {'x-raw': 'Raw axis to tilt joint orientation/range requires calibration.', 'y-raw': 'Raw axis to tilt joint orientation/range requires calibration.', 'button-raw': 'Catalog preserves raw button byte; pressed polarity is unconfirmed.'}},
   'dual-button': {input: ['red-pressed', 'blue-pressed'], readback: ['red-pressed', 'blue-pressed']},
   button: {input: ['pressed'], readback: ['pressed']}, ncir: {}, heart: {},

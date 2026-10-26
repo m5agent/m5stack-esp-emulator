@@ -143,6 +143,8 @@
 | [Preview Web消费者](plans/2026-10-27-preview-web-consumer.md) | 实施计划 | `2026-10-27` | 共享Preview身份、完整包保留编辑、主机/Unit输入、Run帧与生命周期；CoreS3 PIR/Relay限定真实Web验收完成，AIFlow/SSE仍开放；构图限定修复见下一块 |
 | [Preview 控制组与 2Relay](plans/2026-10-27-preview-controls-and-2relay.md) | 实施计划 | `2026-10-27` | 四主机同VM丰富HUB控制组、U131双GPIO/蓝灯和限定窄屏/长dt相机已验；新运行时定向7PASS、完整矩阵66/67，边界保留 |
 | [二进制checkpoint与Unit协议](plans/2026-10-27-binary-checkpoint-and-unit-protocols.md) | 实施计划 | `2026-10-27` | 分开不可变二进制包存储与固件loader能力，先验证旧Run不被不支持入口打断；兼容固件隔离构建与4Relay/FlashLight协议核对进行中 |
+| [FlashLight与显式UIFlow base](plans/2026-10-27-flashlight-and-uploaded-uiflow-base.md) | 实施计划 | `2026-10-27` | 新兼容固件先经严格显式base source composer再验真实loader；AW3641 GPIO/定时器、创建期S1与白灯反馈实施中 |
+| [FlashLight与显式base分层证据](evidence/2026-10-27-flashlight-and-uiflow-base/README.md) | 验收证据 | `2026-10-27` | 严格base/CAS、候选loader诊断、四host八会话60Run/360ZIP成员、CoreS3 mounted与独立67/67矩阵；原失败及unknown/optional body/硬件边界保留 |
 | [二进制checkpoint与兼容构建证据](evidence/2026-10-27-binary-checkpoint-admission/README.md) | 验收证据 | `2026-10-27` | 四host双lane旧程序保护、8ZIP与圆屏oracle负控；官方CoreS3候选只完成本地build，未guest准入；Unit协议冲突与反馈分层 |
 | [Preview 控制组与 2Relay 证据](evidence/2026-10-27-preview-controls-and-2relay/README.md) | 验收证据 | `2026-10-27` | 官方U131研究、相机负控、四主机HUB与2Relay最终会话、失败/不完整尝试及清理；完整矩阵66/67独立保留，硬件NOT RUN |
 | [Preview Web与完整包验收](evidence/2026-10-27-preview-web-consumer/README.md) | 历史证据 | `2026-10-27` | 同VM外部完整包→Web保留MPY/资源编辑、PIR/Relay控制与Run选定像素、取消恢复/ZIP与清理；首次Token与raw-paste oracle失败、取消/松键独审负控保留 |

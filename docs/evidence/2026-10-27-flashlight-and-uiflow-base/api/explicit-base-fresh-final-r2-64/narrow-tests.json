@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-m",
+    "unittest",
+    "test_uiflow_service",
+    "test_uiflow_source",
+    "test_device_service.DeviceServiceUnitTests.test_public_uiflow_composer_forwards_explicit_base_binding_without_relabeling_it",
+    "test_device_service.DeviceServiceUnitTests.test_merged_firmware_is_padded_to_device_flash",
+    "test_device_service.DeviceServiceUnitTests.test_manifest_firmware_is_validated_and_recorded",
+    "test_device_service.DeviceServiceUnitTests.test_segmented_firmware_rejects_overlap",
+    "test_device_service.DeviceServiceUnitTests.test_imports_webburner_package_as_normalized_firmware",
+    "-q"
+  ],
+  "cwd": "repository-root",
+  "environment_overrides": {
+    "PYTHONPATH": "platform/tools:platform/tests:.work/py312"
+  },
+  "exit_code": 0,
+  "stdout_stderr_file": "narrow-tests.log",
+  "stdout_stderr_sha256": "212855de3e47e3bbaa4f602fc2e326088ed969694c2936a909f610d08f043836",
+  "stdout_stderr": "127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/firmware/uiflow HTTP/1.1\" 400 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/firmware/uiflow HTTP/1.1\" 413 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/firmware/uiflow HTTP/1.1\" 201 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/firmware HTTP/1.1\" 201 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"GET /api/v1/firmware/0f6a64d82ce7aba6dac9a4a3b479e10e13232992bed4763147418530bbead18b HTTP/1.1\" 200 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/firmware/uiflow HTTP/1.1\" 400 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/firmware/uiflow HTTP/1.1\" 409 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/firmware/uiflow HTTP/1.1\" 201 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/artifacts HTTP/1.1\" 201 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/firmware/import HTTP/1.1\" 201 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/firmware/uiflow HTTP/1.1\" 201 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/artifacts HTTP/1.1\" 201 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/firmware/import HTTP/1.1\" 201 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/firmware/uiflow HTTP/1.1\" 201 -\n127.0.0.1 - - [27/Oct/2026 05:12:54] \"POST /api/v1/firmware/uiflow HTTP/1.1\" 401 -\n----------------------------------------------------------------------\nRan 64 tests in 1.447s\n\nOK\n"
+}

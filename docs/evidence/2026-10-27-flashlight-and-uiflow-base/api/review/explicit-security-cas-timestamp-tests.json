@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "-m",
+    "unittest",
+    "test_uiflow_service.UIFlowServiceAdmissionTests.test_actual_secure_boot_sector_cannot_be_hidden_by_unknown_manifest_security",
+    "test_uiflow_service.UIFlowServiceAdmissionTests.test_explicit_base_revalidates_manifest_identity_profile_and_security",
+    "test_uiflow_service.UIFlowServiceCompositionTests.test_timestamp_exception_keeps_all_other_manifest_and_source_fields_exact",
+    "test_uiflow_service.UIFlowServiceCompositionTests.test_real_default_and_explicit_aliases_cannot_replace_each_others_context",
+    "test_uiflow_service.UIFlowServiceCompositionTests.test_explicit_base_psram_requirement_survives_source_composition",
+    "test_uiflow_service.UIFlowServiceCompositionTests.test_explicit_context_rejects_other_source_origin_or_base_constraints",
+    "test_uiflow_service.UIFlowServiceHttpTests.test_public_reimport_timestamp_change_allows_identical_explicit_source_retry"
+  ],
+  "cwd": "repository-root",
+  "environment_overrides": {
+    "PYTHONPATH": "platform/tools:platform/tests:.work/py312"
+  },
+  "started_at": "2026-10-26T21:35:49.870187+00:00",
+  "exit_code": 0,
+  "log_sha256": "dc5c89a7e5e8c506923bc1a91aee84224d91c09cd22e1f33eace5ceef5c02f95",
+  "source_sha256": {
+    "platform/tools/device_service.py": "2a2f8c3ebcded9b80f56dc1642619f414072eae1ceeaaf74e4fd0113ac77c136",
+    "platform/tools/uiflow_source.py": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+    "platform/tests/test_uiflow_service.py": "c6010aa6be1f98a33d837f4b0dea62e1859fcee34ff199ec273c3fcf15923aa3",
+    "platform/tests/test_device_service.py": "5117ed10fdc5e41fd3c24ab07bd9cc2a9caa9055ba1f3bc3ed80d225d6aa1d4f"
+  },
+  "source_unchanged_during_verification": true,
+  "source_phase": "gen42 quota-capable implementation; not falsely labeled as same bytes as gen40 loader run",
+  "guest": "NOT RUN",
+  "real_QEMU": "NOT RUN"
+}

@@ -1,0 +1,59 @@
+COMMAND ["/opt/miniconda3/bin/python3.12", "scripts/bootstrap-unit-runtime.py", "--source-dir", ".work/unit-runtime-source-flashlight-final/qemu", "--work-dir", ".work/unit-runtime-build-flashlight-final", "--prepare-only"]
++ git clone --filter=blob:none --depth 1 --branch esp-develop-9.2.2-20260417 --single-branch https://github.com/espressif/qemu.git /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu
+Cloning into '/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu'...
+warning: refs/tags/esp-develop-9.2.2-20260417 6cdce334bfa5541a5e46c860a9b40a4fe5a13aae is not a commit!
+Note: switching to '40edccac415693c5130f91c01d84176ae6008566'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+Updating files:   0% (1/10379)Updating files:   1% (104/10379)Updating files:   2% (208/10379)Updating files:   3% (312/10379)Updating files:   4% (416/10379)Updating files:   5% (519/10379)Updating files:   6% (623/10379)Updating files:   7% (727/10379)Updating files:   8% (831/10379)Updating files:   8% (864/10379)Updating files:   9% (935/10379)Updating files:  10% (1038/10379)Updating files:  11% (1142/10379)Updating files:  12% (1246/10379)Updating files:  13% (1350/10379)Updating files:  14% (1454/10379)Updating files:  15% (1557/10379)Updating files:  16% (1661/10379)Updating files:  17% (1765/10379)Updating files:  18% (1869/10379)Updating files:  19% (1973/10379)Updating files:  20% (2076/10379)Updating files:  21% (2180/10379)Updating files:  22% (2284/10379)Updating files:  23% (2388/10379)Updating files:  24% (2491/10379)Updating files:  25% (2595/10379)Updating files:  26% (2699/10379)Updating files:  27% (2803/10379)Updating files:  28% (2907/10379)Updating files:  29% (3010/10379)Updating files:  30% (3114/10379)Updating files:  31% (3218/10379)Updating files:  32% (3322/10379)Updating files:  33% (3426/10379)Updating files:  34% (3529/10379)Updating files:  35% (3633/10379)Updating files:  36% (3737/10379)Updating files:  37% (3841/10379)Updating files:  38% (3945/10379)Updating files:  39% (4048/10379)Updating files:  40% (4152/10379)Updating files:  41% (4256/10379)Updating files:  42% (4360/10379)Updating files:  43% (4463/10379)Updating files:  44% (4567/10379)Updating files:  45% (4671/10379)Updating files:  46% (4775/10379)Updating files:  47% (4879/10379)Updating files:  48% (4982/10379)Updating files:  49% (5086/10379)Updating files:  50% (5190/10379)Updating files:  51% (5294/10379)Updating files:  52% (5398/10379)Updating files:  53% (5501/10379)Updating files:  54% (5605/10379)Updating files:  55% (5709/10379)Updating files:  56% (5813/10379)Updating files:  57% (5917/10379)Updating files:  58% (6020/10379)Updating files:  59% (6124/10379)Updating files:  60% (6228/10379)Updating files:  61% (6332/10379)Updating files:  62% (6435/10379)Updating files:  63% (6539/10379)Updating files:  64% (6643/10379)Updating files:  65% (6747/10379)Updating files:  66% (6851/10379)Updating files:  67% (6954/10379)Updating files:  68% (7058/10379)Updating files:  69% (7162/10379)Updating files:  70% (7266/10379)Updating files:  71% (7370/10379)Updating files:  72% (7473/10379)Updating files:  73% (7577/10379)Updating files:  74% (7681/10379)Updating files:  75% (7785/10379)Updating files:  76% (7889/10379)Updating files:  77% (7992/10379)Updating files:  78% (8096/10379)Updating files:  79% (8200/10379)Updating files:  80% (8304/10379)Updating files:  81% (8407/10379)Updating files:  82% (8511/10379)Updating files:  83% (8615/10379)Updating files:  84% (8719/10379)Updating files:  85% (8823/10379)Updating files:  86% (8926/10379)Updating files:  87% (9030/10379)Updating files:  88% (9134/10379)Updating files:  89% (9238/10379)Updating files:  90% (9342/10379)Updating files:  91% (9445/10379)Updating files:  92% (9549/10379)Updating files:  93% (9653/10379)Updating files:  94% (9757/10379)Updating files:  95% (9861/10379)Updating files:  96% (9964/10379)Updating files:  97% (10068/10379)Updating files:  98% (10172/10379)Updating files:  99% (10276/10379)Updating files: 100% (10379/10379)Updating files: 100% (10379/10379), done.
++ git checkout --detach 40edccac415693c5130f91c01d84176ae6008566
+HEAD is now at 40edcca hw/riscv: fix interrupts being lost or delayed when MIE=0 on the ESP32-C3
++ git apply --check /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch
++ git apply /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch
+/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch:11834: trailing whitespace.
+{   
+/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch:11866: trailing whitespace.
+    
+/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch:18691: new blank line at EOF.
++
+/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch:19197: new blank line at EOF.
++
+/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0001-reconstructed-xtensa-source.patch:19250: new blank line at EOF.
++
+warning: squelched 2 whitespace errors
+warning: 7 lines add whitespace errors.
++ git apply --check /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch
++ git apply /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-unit-runtime/0002-wifi-radio-lifecycle-compat.patch
++ git apply --check /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch
++ git apply /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0033-unit-runtime-core-and-routing.patch
++ git apply --check /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch
++ git apply /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0034-unit-i2c-sensors.patch
++ git apply --check /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch
++ git apply /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0035-unit-i2c-controls.patch
++ git apply --check /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch
++ git apply /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0036-core2-soft-i2c-handoff-compat.patch
++ git apply --check /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch
++ git apply /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0037-s3-ledc-duty-readback.patch
++ git apply --check /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch
++ git apply /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0038-unit-pwm-route-refresh.patch
++ git apply --check /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0043-unit-scroll-controller.patch
++ git apply /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0043-unit-scroll-controller.patch
++ git apply --check /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch
++ git apply /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0044-unit-2relay-gpio.patch
++ git apply --check /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0045-unit-flashlight-aw3641.patch
++ git apply /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/patches/qemu-m5stack-peripherals/0045-unit-flashlight-aw3641.patch
+Prepared pinned source: /Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-runtime-source-flashlight-final/qemu

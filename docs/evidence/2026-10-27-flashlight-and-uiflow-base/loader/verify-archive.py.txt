@@ -1,0 +1,34 @@
+"""Verify archived loader evidence without firmware, tokens, services or QEMU."""
+from pathlib import Path
+import argparse,hashlib,json,zipfile
+
+def verify(root):
+ root=Path(root);index=json.loads((root/'index.json').read_text());seen=set();zip_members=0
+ for row in index['files']:
+  path=root/row['archive_path'];raw=path.read_bytes();digest=hashlib.sha256(raw).hexdigest()
+  assert row['source_sha256']==row['archive_sha256']==digest and len(raw)==row['bytes'],row['archive_path']
+  assert not path.is_symlink() and row['archive_path'] not in seen;seen.add(row['archive_path'])
+  assert path.suffix.lower() not in ('.bin','.mpy','.elf')
+  if path.suffix=='.json':json.loads(raw)
+  if raw.startswith(b'PK\x03\x04'):
+   with zipfile.ZipFile(path) as z:
+    assert z.testzip() is None
+    for item in z.infolist():
+     name=Path(item.filename)
+     assert not name.is_absolute() and '..' not in name.parts and name.suffix.lower() not in ('.bin','.mpy','.elf')
+     assert not (item.external_attr>>16)&0o170000==0o120000
+     member=z.read(item.filename)
+     if name.suffix=='.json':json.loads(member)
+     elif member.startswith(b'\x89PNG\r\n\x1a\n'):pass
+     elif name.suffix not in ('.log','.stdout','.stderr'):member.decode('utf8',errors='strict')
+     zip_members+=1
+  elif not raw.startswith(b'\x89PNG\r\n\x1a\n'):raw.decode('utf8',errors='strict')
+ actual={str(p.relative_to(root)) for p in root.rglob('*') if p.is_file()}
+ assert actual==seen|{'index.json'},sorted(actual^seen)
+ assert all(r['reason'] in ('firmware-or-raw-flash','compiled-mpy-bytecode','zip-contains-firmware') for r in index['excluded'])
+ summary=json.loads((root/'outcome-summary.json').read_text())
+ assert summary['public_mpy_entrypoint_enabled'] is False and summary['hardware']=='NOT RUN'
+ assert [r['status'] for r in summary['attempts']]==['REJECTED_BEFORE_SESSION','BOOT_PASS_SETUP_FAIL','COMPOSER_REJECTED_BEFORE_SESSION','PASS']
+ return {'status':'PASS','archived_files':len(seen),'excluded_binaries_or_firmware_zips':len(index['excluded']),'safe_zip_members_verified_including_response_copies':zip_members,'public_mpy_entrypoint_enabled':False,'hardware':'NOT RUN','source_and_archive_sha256_all_match':True}
+if __name__=='__main__':
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('root',type=Path);args=parser.parse_args();print(json.dumps(verify(args.root),indent=2))

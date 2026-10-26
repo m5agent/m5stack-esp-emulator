@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-26T21:06:34.016226+00:00",
+  "status": "PASS",
+  "classification": "NARROW_TESTS_AND_OFFLINE_COMPOSITION_NOT_GUEST_ADMISSION",
+  "sources_sha256": {
+    "platform/tools/device_service.py": "af0d445f5b91246d98bff9549bd352cbd0e4ff281ecbb6efdf1db9f32a3c7197",
+    "platform/tests/test_uiflow_service.py": "571ec4c0cd43551a19bf1150f286436009a08991a664c9532abe314ea3353579",
+    "platform/tests/test_device_service.py": "5117ed10fdc5e41fd3c24ab07bd9cc2a9caa9055ba1f3bc3ed80d225d6aa1d4f"
+  },
+  "sources_unchanged_during_verification": true,
+  "narrow_tests": "narrow-tests.json",
+  "py_compile": "py-compile.json",
+  "diff_check": "diff-check.json",
+  "actual_candidate": "actual-candidate-offline-composition.json",
+  "guest": "NOT RUN",
+  "http_actual_candidate": "NOT RUN",
+  "service_reload": false,
+  "script_sha256": "2749cf60fee2995b7db74892d83fbe8c44946431be582887999415278519a900"
+}

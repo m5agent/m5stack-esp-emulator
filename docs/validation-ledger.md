@@ -15,6 +15,7 @@
 
 | 工作流 | 结果 | 证据 |
 | --- | --- | --- |
+| `UNIT-01` / FlashLight、显式base与loader诊断 | API1.45严格manifest base、normalized pin与CAS冲突保护；仅非语义顶层created_at允许变化，安全/PSRAM/能力仍完整重验，包容量默认256/显式1–4096且保留历史。gen40候选CoreS3同VM loader诊断11源码阶段/171HTTP/44ZIP成员通过，公共main.mpy仍关。gen42/7c898八个最终Flash/Torch会话60Run、360ZIP成员与精确历史帧/Flash/PID/lease清理通过；15个脉冲程序qualified、17个保持unknown，不是全16码或硬件PASS。CoreS3实际mounted五阶段另通过；optional browser4个空200体单列PARTIAL。新完整矩阵独立67/67、无重试；旧Core2 IMU偶发未自动关闭。平台1162PASS；cold-route、配额、observer304/DOM失败原文保留 | [分层证据与原始指纹](evidence/2026-10-27-flashlight-and-uiflow-base/README.md) |
 | `UNIT-01` / checkpoint块提交与主线同步 | 9a107c69提交后fetch/merge origin/main@f2061759，Already up to date；8份r2执行源码SHA不变、gen38 active/lease均0，无需重载或重复guest。兼容候选仍未准入，下一块另做真实loader探针，整体Unit/AIFlow继续 | [同步收据](evidence/2026-10-27-binary-checkpoint-admission/integration.json) |
 | `UNIT-01` / 二进制checkpoint与兼容构建 | API1.44分开main.mpy不可变存储与执行；gen38/850426下四host统一r2双lane：16源码Run、12拒绝、36fresh PIR/UART/QOM/PNG、8ZIP152成员与精确历史帧/Flash/PID/lease清理通过，MPY始终未执行。r1三PASS/superseded与StopWatch圆屏角落oracle FAIL保留。官方固定CoreS3两宏候选pack_all及image/partition检查通过，但未guest准入、stock/能力声明不变；4Relay/FlashLight协议冲突已反馈，研究不授予功能准入 | [分层证据](evidence/2026-10-27-binary-checkpoint-admission/README.md) |
 | `UNIT-01` / 控制组提交与主线同步 | 9e2dc55b实现及55050f86原始日志提交后fetch/merge origin/main@f2061759，Already up to date；20份本块产品/runner SHA不变。owned idle重载为gen37，29 Unit及五类profile元数据与文件一致，runtime仍850426，active/lease均0；未重跑guest，不授予新执行结论，整体Unit/AIFlow继续 | [同步收据](evidence/2026-10-27-preview-controls-and-2relay/integration.json) |

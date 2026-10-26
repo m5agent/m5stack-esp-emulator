@@ -3,10 +3,13 @@ import assert from 'node:assert/strict';
 import {readFile,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
+import {pathToFileURL} from 'node:url';
 const sourceRoot=resolve(process.argv[2] || '.');
 const output=process.argv[3];
 const sessionSource=await readFile(resolve(sourceRoot,'platform/web/sessions.js'),'utf8');
 const panelSource=await readFile(resolve(sourceRoot,'platform/web/unit-panel.js'),'utf8');
+const mappingSource=await readFile(resolve(sourceRoot,'platform/web/unit-visual-mappings.js'),'utf8');
+const {arrayLedFeedback}=await import(pathToFileURL(resolve(sourceRoot,'platform/web/unit-visual-mappings.js')).href);
 const sessionClass=sessionSource.slice(sessionSource.indexOf('class SessionVisual {'),sessionSource.indexOf('\nfunction createSessionCard'));
 const panelClass=panelSource.slice(panelSource.indexOf('class UnitPanel {'),panelSource.indexOf('\nexport async function createUnitPanel'));
 const deferred=()=>{let resolve,reject;const promise=new Promise((r,j)=>{resolve=r;reject=j;});return {promise,resolve,reject};};
@@ -22,7 +25,7 @@ function visualFixture({frame=true,lateMount=true,container=null,failImage=false
   visual.setMessage=()=>{visual.container.content='placeholder';trace.push('placeholder');};
   return {visual,requests,trace};
 }
-const Panel=new Function('window','document','copy','ACTIVE','clearTimeout','setTimeout',panelClass+'\nreturn UnitPanel;')({addEventListener(){},removeEventListener(){}},{hidden:false},structuredClone,new Set(['booting','running']),()=>{},()=>1);
+const Panel=new Function('window','document','copy','ACTIVE','clearTimeout','setTimeout','arrayLedFeedback',panelClass+'\nreturn UnitPanel;')({addEventListener(){},removeEventListener(){}},{hidden:false},structuredClone,new Set(['booting','running']),()=>{},()=>1,arrayLedFeedback);
 function panelFixture({array=false,failUps=0,appliedBeforeFailure=false}={}) {
   let failures=failUps,guest=array?[false,true,false]:false,available=true;
   const posts=[],notes=[],field=array?'keys':'pressed';
@@ -66,7 +69,7 @@ await test('dispose-cancels-pending-compensation',async()=>{const f=panelFixture
 await test('queued-unavailable-does-not-consume-compensation-budget',async()=>{const f=panelFixture({failUps:1});f.hold(true);await f.drain();f.hold(false);await f.drain();const gate=deferred();f.panel.queues.set('u',gate.promise);await f.panel.refresh();f.setAvailable(false);f.panel.states.set('u',f.payload().units[0]);gate.resolve();await f.drain();assert.equal(f.posts.length,2);const intent=[...f.panel.releaseIntents.values()][0];assert.equal(intent.retried,false);assert.equal(intent.queued,false);f.setAvailable(true);await f.panel.refresh();await f.drain();assert.equal(f.posts.length,3);assert.equal(f.guest,false);});
 await test('repress-while-compensation-is-queued-cancels-old-release',async()=>{const f=panelFixture({failUps:1});f.hold(true);await f.drain();f.hold(false);await f.drain();const gate=deferred();f.panel.queues.set('u',gate.promise);await f.panel.refresh();f.hold(true);gate.resolve();await f.drain();assert.equal(f.posts.length,3);assert.equal(f.guest,true);assert.equal((f.panel.releaseIntents?.size || 0),0);});
 await test('unowned-direct-input-does-not-create-recovery-or-echo',async()=>{const f=panelFixture({failUps:1});await f.panel.send('u',{pressed:true});await f.panel.send('u',{pressed:false});await f.panel.refresh();await f.drain();assert.equal(f.posts.length,2);assert.equal(f.guest,true);assert.equal((f.panel.releaseIntents?.size || 0),0);});
-const report={category:'frontend-orchestration-fault-contract',status:cases.every(c=>c.status==='PASS')?'PASS':'FAIL',browser_execution:'NOT RUN',firmware_execution:'NOT RUN',hardware_execution:'NOT RUN',source_sha256:{'platform/web/sessions.js':createHash('sha256').update(sessionSource).digest('hex'),'platform/web/unit-panel.js':createHash('sha256').update(panelSource).digest('hex')},cases};
+const report={category:'frontend-orchestration-fault-contract',status:cases.every(c=>c.status==='PASS')?'PASS':'FAIL',browser_execution:'NOT RUN',firmware_execution:'NOT RUN',hardware_execution:'NOT RUN',source_sha256:{'platform/web/unit-visual-mappings.js':createHash('sha256').update(mappingSource).digest('hex'),'platform/web/sessions.js':createHash('sha256').update(sessionSource).digest('hex'),'platform/web/unit-panel.js':createHash('sha256').update(panelSource).digest('hex')},cases};
 if(output)await writeFile(output,JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify(report,null,2));
 process.exitCode=report.status==='PASS'?0:1;

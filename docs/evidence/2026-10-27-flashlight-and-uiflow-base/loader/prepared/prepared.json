@@ -1,0 +1,403 @@
+{
+  "status": "PREPARED_NOT_EXECUTED",
+  "nonce": "2408d12342274160b25dfccc40dd1547",
+  "base_sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b",
+  "prepared_sha256": "2c7d8ffe6b3e1d45481a519c5d080940a7fbadda1c8fdb6f685a516ca6af0a63",
+  "prepared_bytes": 16777216,
+  "package_sha256": "bf6e00319e6faa2562ce91609421378f09f3e4ccddb7e2ebc793ddf892166e67",
+  "sdkconfig_sha256": "5c5b70accf53966c763ff0dc60da6677f724bcfab0e1e1d6f2f469d16de8f9dc",
+  "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+  "compiler_commands": [
+    {
+      "case": "v1",
+      "module": "main",
+      "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+      "arguments": [
+        "-msmall-int-bits=31",
+        "-s",
+        "main.py",
+        "-o",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/main-loader-capability-probe-20261027/prepared/compiled/v1/main.mpy",
+        "compiled/v1/main.py"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "v1",
+      "module": "dep",
+      "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+      "arguments": [
+        "-msmall-int-bits=31",
+        "-s",
+        "dep.py",
+        "-o",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/main-loader-capability-probe-20261027/prepared/compiled/v1/dep.mpy",
+        "compiled/v1/dep.py"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "v2",
+      "module": "main",
+      "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+      "arguments": [
+        "-msmall-int-bits=31",
+        "-s",
+        "main.py",
+        "-o",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/main-loader-capability-probe-20261027/prepared/compiled/v2/main.mpy",
+        "compiled/v2/main.py"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "v2",
+      "module": "dep",
+      "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+      "arguments": [
+        "-msmall-int-bits=31",
+        "-s",
+        "dep.py",
+        "-o",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/main-loader-capability-probe-20261027/prepared/compiled/v2/dep.mpy",
+        "compiled/v2/dep.py"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "exception",
+      "module": "main",
+      "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+      "arguments": [
+        "-msmall-int-bits=31",
+        "-s",
+        "main.py",
+        "-o",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/main-loader-capability-probe-20261027/prepared/compiled/exception/main.mpy",
+        "compiled/exception/main.py"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "exception",
+      "module": "dep",
+      "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+      "arguments": [
+        "-msmall-int-bits=31",
+        "-s",
+        "dep.py",
+        "-o",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/main-loader-capability-probe-20261027/prepared/compiled/exception/dep.mpy",
+        "compiled/exception/dep.py"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "loop",
+      "module": "main",
+      "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+      "arguments": [
+        "-msmall-int-bits=31",
+        "-s",
+        "main.py",
+        "-o",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/main-loader-capability-probe-20261027/prepared/compiled/loop/main.mpy",
+        "compiled/loop/main.py"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "loop",
+      "module": "dep",
+      "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+      "arguments": [
+        "-msmall-int-bits=31",
+        "-s",
+        "dep.py",
+        "-o",
+        "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/main-loader-capability-probe-20261027/prepared/compiled/loop/dep.mpy",
+        "compiled/loop/dep.py"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "target": {
+    "device_id": "cores3",
+    "soc": "esp32s3",
+    "flash_size": 16777216,
+    "partition_table": {
+      "offset": 32768,
+      "image_size": 16777216,
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "partitions": [
+        {
+          "type": 1,
+          "subtype": 2,
+          "offset": 36864,
+          "size": 24576,
+          "label": "nvs",
+          "flags": 0
+        },
+        {
+          "type": 1,
+          "subtype": 1,
+          "offset": 61440,
+          "size": 4096,
+          "label": "phy_init",
+          "flags": 0
+        },
+        {
+          "type": 0,
+          "subtype": 0,
+          "offset": 65536,
+          "size": 10027008,
+          "label": "factory",
+          "flags": 0
+        },
+        {
+          "type": 1,
+          "subtype": 129,
+          "offset": 10092544,
+          "size": 1048576,
+          "label": "sys",
+          "flags": 0
+        },
+        {
+          "type": 1,
+          "subtype": 129,
+          "offset": 11141120,
+          "size": 4980736,
+          "label": "vfs",
+          "flags": 0
+        },
+        {
+          "type": 1,
+          "subtype": 130,
+          "offset": 16121856,
+          "size": 655360,
+          "label": "storage",
+          "flags": 0
+        }
+      ],
+      "md5": "fab277be37a1de2c6e4d110ce32dc244"
+    },
+    "security": {
+      "secure_boot": "disabled-by-build-sdkconfig",
+      "flash_encryption": "disabled-by-build-sdkconfig",
+      "efuse": "not-included; use explicit QEMU profile"
+    }
+  },
+  "inventory": {
+    "v1": {
+      "main.mpy": {
+        "file": "compiled/v1/main.mpy",
+        "sha256": "78a29e9f8a28a534d4c8502da65b9b0292f70e28a720d479465762e6cc1aa3fb",
+        "bytes": 1171,
+        "source_sha256": "f2756b0a29d51f744ee6f2287ed4bad98afd37fe635cb8a61e639c583372900e",
+        "bytecode_validation": {
+          "mpy_version": 6,
+          "small_int_bits": 31,
+          "feature_byte": 0,
+          "native_arch": 0,
+          "raw_code_count": 1,
+          "qstr_count": 58,
+          "object_count": 11,
+          "constant_node_count": 13,
+          "max_raw_code_depth": 1,
+          "bytecode_bytes": 521,
+          "instruction_count": 283
+        }
+      },
+      "dep.mpy": {
+        "file": "compiled/v1/dep.mpy",
+        "sha256": "dd0c8878ac4336fc67989167946ece753d9d8a82e982c26f6195bbc1882b8a70",
+        "bytes": 78,
+        "source_sha256": "9fae1d4e80a5dc517326b418aba73b3542f11cf40ec1d580c8438608af9d1a45",
+        "bytecode_validation": {
+          "mpy_version": 6,
+          "small_int_bits": 31,
+          "feature_byte": 0,
+          "native_arch": 0,
+          "raw_code_count": 1,
+          "qstr_count": 4,
+          "object_count": 1,
+          "constant_node_count": 1,
+          "max_raw_code_depth": 1,
+          "bytecode_bytes": 13,
+          "instruction_count": 6
+        }
+      }
+    },
+    "v2": {
+      "main.mpy": {
+        "file": "compiled/v2/main.mpy",
+        "sha256": "638265504ca082e4fb6c961525118b75d47e40bd0eac97dbc4d15f42eabb3274",
+        "bytes": 1170,
+        "source_sha256": "17f7491676b4158cd2a8652e0792f3928bc5be9f8a152b2165e3d35c18458122",
+        "bytecode_validation": {
+          "mpy_version": 6,
+          "small_int_bits": 31,
+          "feature_byte": 0,
+          "native_arch": 0,
+          "raw_code_count": 1,
+          "qstr_count": 58,
+          "object_count": 11,
+          "constant_node_count": 13,
+          "max_raw_code_depth": 1,
+          "bytecode_bytes": 520,
+          "instruction_count": 283
+        }
+      },
+      "dep.mpy": {
+        "file": "compiled/v2/dep.mpy",
+        "sha256": "420431b8343b5f4c984325a2735825db552e1a355f63d06094d35b4b2f86d3cf",
+        "bytes": 78,
+        "source_sha256": "a97ef0655e40c434032a85ee1605d244de31cab3092f1bb5877dbd41f55c42e8",
+        "bytecode_validation": {
+          "mpy_version": 6,
+          "small_int_bits": 31,
+          "feature_byte": 0,
+          "native_arch": 0,
+          "raw_code_count": 1,
+          "qstr_count": 4,
+          "object_count": 1,
+          "constant_node_count": 1,
+          "max_raw_code_depth": 1,
+          "bytecode_bytes": 13,
+          "instruction_count": 6
+        }
+      }
+    },
+    "exception": {
+      "main.mpy": {
+        "file": "compiled/exception/main.mpy",
+        "sha256": "c5d2fb9f96b6a3c505f695866030072a37364acc1ffe0f96d2b031e56dd47e9c",
+        "bytes": 1168,
+        "source_sha256": "aa1da909d0bcf2fb0df085b37ddfc73157b68b2b3cab8b1e930552797ffe1568",
+        "bytecode_validation": {
+          "mpy_version": 6,
+          "small_int_bits": 31,
+          "feature_byte": 0,
+          "native_arch": 0,
+          "raw_code_count": 1,
+          "qstr_count": 58,
+          "object_count": 12,
+          "constant_node_count": 14,
+          "max_raw_code_depth": 1,
+          "bytecode_bytes": 500,
+          "instruction_count": 270
+        }
+      },
+      "dep.mpy": {
+        "file": "compiled/exception/dep.mpy",
+        "sha256": "dd0c8878ac4336fc67989167946ece753d9d8a82e982c26f6195bbc1882b8a70",
+        "bytes": 78,
+        "source_sha256": "9fae1d4e80a5dc517326b418aba73b3542f11cf40ec1d580c8438608af9d1a45",
+        "bytecode_validation": {
+          "mpy_version": 6,
+          "small_int_bits": 31,
+          "feature_byte": 0,
+          "native_arch": 0,
+          "raw_code_count": 1,
+          "qstr_count": 4,
+          "object_count": 1,
+          "constant_node_count": 1,
+          "max_raw_code_depth": 1,
+          "bytecode_bytes": 13,
+          "instruction_count": 6
+        }
+      }
+    },
+    "loop": {
+      "main.mpy": {
+        "file": "compiled/loop/main.mpy",
+        "sha256": "099326272850f0966e2659e35c0a934561944b9987afc0457ccf493c33148c6c",
+        "bytes": 1336,
+        "source_sha256": "7010e4f8ab88719922cefb964f88510244975fe2c50c7cc7ba45631c82449bee",
+        "bytecode_validation": {
+          "mpy_version": 6,
+          "small_int_bits": 31,
+          "feature_byte": 0,
+          "native_arch": 0,
+          "raw_code_count": 1,
+          "qstr_count": 62,
+          "object_count": 11,
+          "constant_node_count": 13,
+          "max_raw_code_depth": 1,
+          "bytecode_bytes": 652,
+          "instruction_count": 352
+        }
+      },
+      "dep.mpy": {
+        "file": "compiled/loop/dep.mpy",
+        "sha256": "420431b8343b5f4c984325a2735825db552e1a355f63d06094d35b4b2f86d3cf",
+        "bytes": 78,
+        "source_sha256": "a97ef0655e40c434032a85ee1605d244de31cab3092f1bb5877dbd41f55c42e8",
+        "bytecode_validation": {
+          "mpy_version": 6,
+          "small_int_bits": 31,
+          "feature_byte": 0,
+          "native_arch": 0,
+          "raw_code_count": 1,
+          "qstr_count": 4,
+          "object_count": 1,
+          "constant_node_count": 1,
+          "max_raw_code_depth": 1,
+          "bytecode_bytes": 13,
+          "instruction_count": 6
+        }
+      }
+    },
+    "format": {
+      "main.mpy": {
+        "file": "compiled/format/main.mpy",
+        "sha256": "07583694ee73a5bed2119ece31a80d516f843173857faf13eacc3e5bf02b6832",
+        "bytes": 1171,
+        "expected": "guest importer rejects invalid magic before reading body"
+      },
+      "dep.mpy": {
+        "file": "compiled/v1/dep.mpy",
+        "sha256": "dd0c8878ac4336fc67989167946ece753d9d8a82e982c26f6195bbc1882b8a70",
+        "bytes": 78,
+        "source_sha256": "9fae1d4e80a5dc517326b418aba73b3542f11cf40ec1d580c8438608af9d1a45",
+        "bytecode_validation": {
+          "mpy_version": 6,
+          "small_int_bits": 31,
+          "feature_byte": 0,
+          "native_arch": 0,
+          "raw_code_count": 1,
+          "qstr_count": 4,
+          "object_count": 1,
+          "constant_node_count": 1,
+          "max_raw_code_depth": 1,
+          "bytecode_bytes": 13,
+          "instruction_count": 6
+        }
+      }
+    }
+  },
+  "public_mpy_entrypoint_enabled": false,
+  "guest_runtime": "NOT RUN",
+  "hardware": "NOT RUN",
+  "normalized_base_sha256": "3cb901cbfebd616a96292f234fe88ad1b145c3bb019f256dcb57257d78f878d8",
+  "normalized_base_bytes": 16777216,
+  "pipeline": "original artifact -> imported normalized manifest base -> explicit-base public source composer -> source-pinned UART session"
+}

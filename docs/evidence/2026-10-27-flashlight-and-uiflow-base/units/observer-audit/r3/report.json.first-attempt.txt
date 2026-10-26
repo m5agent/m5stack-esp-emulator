@@ -1,0 +1,165 @@
+{
+  "category": "OFFLINE_CHECKER_AUDIT_NO_GUEST_NO_API",
+  "probe_sha256": "bf4749e206578a8ad03347af65576e557cbee6fffd0c3756080d85f95ffb2d57",
+  "driver_sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f",
+  "driver_bytes": 3639,
+  "phases_compiled": [
+    "reset",
+    "original-short",
+    "original-long100",
+    "original-long60",
+    "original-long30",
+    "raw9",
+    "raw16",
+    "invalid17",
+    "slow2",
+    "restore",
+    "steady-on",
+    "steady-off"
+  ],
+  "network": "DENIED",
+  "tests": [
+    {
+      "name": "phase-valid-fake-fixture",
+      "accepted": true,
+      "expected_accept": true,
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "name": "reject-cross-execution-and-revision",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "GET program identity differs from POST/checkpoint",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-receipt-checkpoint-mismatch",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "POST receipt revision differs from checkpoint",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-no-current-execution-START",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "fresh execution START missing",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-incomplete-record",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "fresh guest record missing/ambiguous",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-wrong-nonce",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "fresh guest record missing/ambiguous",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-duplicate-record",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "fresh guest record missing/ambiguous",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-wrong-phase-pad",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "guest/QOM EN pad differs from actual phase",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-frame-hash-mismatch",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "frame Run identity differs",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-record-before-true-START",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "fresh guest record missing/ambiguous"
+    },
+    {
+      "name": "execute-valid-fake-partial-fixture",
+      "accepted": true,
+      "expected_accept": true,
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "name": "reject-all-off-no-waveform",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "long-low reset did not reach known off",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-unknown-mandatory-single-pulse",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "one-pulse original driver minimum not qualified",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-no-real-edges",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "actual GPIO pulse edges missing",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-wrong-qualified-table",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "qualified command differs from documented table",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-admitted-17-pulse-negative",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "qualified command differs from documented table",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-admitted-slow-wave-negative",
+      "accepted": false,
+      "expected_accept": false,
+      "status": "PASS",
+      "error": "negative waveform was incorrectly admitted",
+      "expected_message_found": true
+    },
+    {
+      "name": "reject-unknown-final-restore",
+      "accepted": true,
+      "expected_accept": false,
+      "status": "UNRESOLVED",
+      "error": null
+    }
+  ],
+  "pass": 17,
+  "unresolved": 1
+}

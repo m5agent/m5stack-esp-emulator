@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "scripts/bootstrap-unit-runtime.py",
+    "--source-dir",
+    ".work/unit-runtime-source-flashlight-final/qemu",
+    "--work-dir",
+    ".work/unit-runtime-build-flashlight-final",
+    "--jobs",
+    "8"
+  ],
+  "start_utc": "2026-10-26T20:56:58.741260+00:00",
+  "end_utc": "2026-10-26T20:57:41.128491+00:00",
+  "exit_code": 0,
+  "cold_build": true,
+  "previous_build_directory_existed": false,
+  "dependency_reuse": "verified pinned local dependencies only; no prior QEMU objects or build copied"
+}

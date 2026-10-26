@@ -1,0 +1,17 @@
+{
+  "device_id": "sticks3",
+  "runtime": "qemu",
+  "program_mode": "uiflow-live",
+  "ttl_seconds": 900,
+  "ready_timeout_seconds": 40,
+  "units": [
+    {
+      "id": "lamp",
+      "unit_id": "flashlight",
+      "port_id": "custom",
+      "initial": {
+        "flash-mode": false
+      }
+    }
+  ]
+}

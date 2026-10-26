@@ -1,0 +1,183 @@
+{
+  "status": "FAIL",
+  "device_id": "cores3",
+  "lane": "session",
+  "binary_executed": false,
+  "hardware": "NOT RUN",
+  "runs": [
+    {
+      "execution_id": "45da9a92d25d4b2a8d1f0844dd370010",
+      "revision_id": "289924a70259f53914d71def513e74215ebf0664fe9cf6d75e8a810510d1ee2e",
+      "source_sha256": "bcb6114831d5326f34c9c5a758d971aaccb2de401537e6fd34c20d99b4b5bcea",
+      "source_bytes": 1019,
+      "state": "running",
+      "submitted_at": "2026-10-26T21:16:34.897537+00:00",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 65336,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 1689,
+      "source_kind": "uiflow2-package",
+      "total_file_bytes": 4658,
+      "file_count": 2,
+      "deployment": {
+        "phase": "activated",
+        "staging_path": "/flash/.m5-live-packages/.stage-a56356c0ae754f549528e181aa9a5bb8",
+        "package_path": "/flash/.m5-live-packages/289924a70259f53914d71def513e74215ebf0664fe9cf6d75e8a810510d1ee2e",
+        "events": [
+          {
+            "phase": "preflight",
+            "staging_path": "/flash/.m5-live-packages/.stage-a56356c0ae754f549528e181aa9a5bb8",
+            "package_path": "/flash/.m5-live-packages/289924a70259f53914d71def513e74215ebf0664fe9cf6d75e8a810510d1ee2e",
+            "observed_at": "2026-10-26T21:16:35.000194+00:00"
+          },
+          {
+            "phase": "capabilities",
+            "capabilities": {
+              "existing": false,
+              "directory_count": 0,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4800512
+            },
+            "observed_at": "2026-10-26T21:16:35.274402+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "main.py",
+            "written_bytes": 1019,
+            "observed_at": "2026-10-26T21:16:35.808671+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "official_flash.py",
+            "written_bytes": 4658,
+            "observed_at": "2026-10-26T21:16:36.870223+00:00"
+          },
+          {
+            "phase": "verified",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 1019,
+                "sha256": "9e4a19770017194603d59a7d122c1f124276f98e5be759b4e2fb751d38af754c"
+              }
+            },
+            "observed_at": "2026-10-26T21:16:36.949577+00:00"
+          },
+          {
+            "phase": "published",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 1019,
+                "sha256": "9e4a19770017194603d59a7d122c1f124276f98e5be759b4e2fb751d38af754c"
+              }
+            },
+            "reused": false,
+            "observed_at": "2026-10-26T21:16:36.990000+00:00"
+          },
+          {
+            "phase": "activated",
+            "package_path": "/flash/.m5-live-packages/289924a70259f53914d71def513e74215ebf0664fe9cf6d75e8a810510d1ee2e",
+            "inventory": {
+              "official_flash.py": {
+                "size": 3639,
+                "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+              },
+              "main.py": {
+                "size": 1019,
+                "sha256": "9e4a19770017194603d59a7d122c1f124276f98e5be759b4e2fb751d38af754c"
+              }
+            },
+            "reused": false,
+            "capabilities": {
+              "existing": false,
+              "directory_count": 0,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4800512
+            },
+            "removed_modules": [],
+            "staging_path": "/flash/.m5-live-packages/.stage-a56356c0ae754f549528e181aa9a5bb8",
+            "observed_at": "2026-10-26T21:16:37.286555+00:00"
+          }
+        ],
+        "capabilities": {
+          "existing": false,
+          "directory_count": 0,
+          "mpy": 11014,
+          "small_int_bits": 31,
+          "free_bytes": 4800512
+        },
+        "path": "official_flash.py",
+        "written_bytes": 4658,
+        "inventory": {
+          "official_flash.py": {
+            "size": 3639,
+            "sha256": "10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f"
+          },
+          "main.py": {
+            "size": 1019,
+            "sha256": "9e4a19770017194603d59a7d122c1f124276f98e5be759b4e2fb751d38af754c"
+          }
+        },
+        "reused": false,
+        "removed_modules": []
+      },
+      "next_offset": 1748,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T21:16:37.487912+00:00"
+    }
+  ],
+  "observations": [],
+  "rejections": [],
+  "nonce": "dc868aa3acdc40498d36d81e314587ec",
+  "category": "u152-controller-observation",
+  "flash_mode": true,
+  "live_browser": "NOT RUN",
+  "guest_scope": "GPIO pad, actual original driver bytes, qualified nominal digital model; no optical/electrical/thermal equivalence",
+  "session_id": "71838e99cddb4af9bc145e7cb7ddc659",
+  "pid": 65336,
+  "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 41,
+    "lease_active": true
+  },
+  "runtime": {
+    "pid": 65336,
+    "executable_name": "qemu-system-xtensa",
+    "sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e"
+  },
+  "pins": {
+    "yellow": 2,
+    "white": 1
+  },
+  "error": {
+    "type": "ValueError",
+    "message": "long-low reset/recovery not known off"
+  },
+  "evidence_zip": {
+    "status": "PASS",
+    "members": 16,
+    "sha256": "6bdfd272a02f6e9fd2ac46aef91567cf5d23d3f597dbc1d2856e2cd567c904ce"
+  },
+  "cleanup": {
+    "status": "UNCONFIRMED",
+    "errors": [
+      {
+        "step": "confirm-resources-and-history",
+        "error_type": "ValueError",
+        "message": "history frame does not retain final stable byte SHA"
+      }
+    ]
+  }
+}

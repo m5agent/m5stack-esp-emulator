@@ -1,0 +1,42 @@
+"""Offline SHA/ZIP/Run/driver/frame/qualified-edge checks. No API or guest."""
+import hashlib,io,json,sys,zipfile
+from pathlib import Path
+root=Path(sys.argv[1]);index=json.loads((root/'index.json').read_text())
+sha=lambda b:hashlib.sha256(b).hexdigest()
+for f in index['files']:
+ data=(root/f['archived_path']).read_bytes();assert len(data)==f['bytes'] and sha(data)==f['original_sha256']==f['archived_sha256']
+counts={'sessions':0,'runs':0,'zip_members':0,'qualified_flash_observations':0,'unknown_flash_observations':0}
+for case in index['selected']:
+ path=root/case['report'];raw=path.read_bytes();assert sha(raw)==case['report_sha256']
+ r=json.loads(raw);assert r['status']=='PASS' and r['cleanup']['status']=='PASS' and r['cleanup']['pid_gone'] is True
+ assert r['worker']['generation']==42 and r['runtime']['sha256']==index['runtime_sha256'] and r['model_completeness']=='partial'
+ zipped=(path.parent/'evidence-before-stop.zip').read_bytes();assert sha(zipped)==case['evidence_zip_sha256']
+ with zipfile.ZipFile(io.BytesIO(zipped)) as z:
+  assert z.testzip() is None and len(z.namelist())==case['zip_members']
+  manifest=json.loads(z.read('manifest.json'));assert set(manifest['files'])==set(z.namelist())-{'manifest.json'}
+  for key in ('session_id','pid','firmware_sha256','device_id'):assert manifest['session'][key]==r[key]
+  for name,member in manifest['files'].items():
+   data=z.read(name);assert member=={'size':len(data),'sha256':sha(data)}
+  serial=z.read('serial.log');assert sha(z.read('frames/current.png'))==r['last_frame_sha256']==r['cleanup']['history_frame_sha256']
+  for run in r['runs']:
+   record=json.loads(z.read('programs/'+run['execution_id']+'.json'));assert record['revision_id']==run['revision_id'] and record['execution_id']==run['execution_id']
+   folder='programs/'+run['revision_id']+'/files/'
+   assert r['nonce'].encode() in z.read(folder+'main.py')
+   assert sha(z.read(folder+'official_flash.py'))=='10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f'
+   assert ('__M5_EXEC_'+run['execution_id']+'__:START').encode() in serial
+  counts['zip_members']+=len(z.namelist())
+ for obs in r['observations']:
+  p=obs['unit']['properties'];run=obs['execution'];headers=obs['frame_headers']
+  assert headers['x-frame-execution-id']==run['execution_id'] and headers['x-frame-revision-id']==run['revision_id'] and headers['x-frame-sha256']==obs['frame_sha256']
+  frame=path.parent/f"{obs['index']:02d}-{obs['phase']}.png";assert sha(frame.read_bytes())==obs['frame_sha256']
+  assert p['flash-mode'] is r['flash_mode'] and p['mode-frozen'] is True
+  if obs.get('waveform_result')=='QUALIFIED_NOMINAL_DIGITAL_CODE':
+   n=p['last-program-count'];assert p['output-known'] is True and 1<=n<=16 and p['flash-level-pct']==100-(n-1)%8*10 and p['timeout-ms']==(220 if n<=8 else 1300)
+   edges=[e for e in p['edge-trace-ns'] if e[0]>=p['first-rise-ns']];assert len(edges)==2*n-1 and edges[0][1]==1
+   assert all(750<=edges[i+1][0]-edges[i][0]<=10000 and edges[i+1][1]!=edges[i][1] for i in range(len(edges)-1))
+   counts['qualified_flash_observations']+=1
+  elif obs.get('waveform_result')=='UNKNOWN_NOT_ADMITTED':
+   assert p['output-known'] is False;counts['unknown_flash_observations']+=1
+ counts['sessions']+=1;counts['runs']+=len(r['runs'])
+assert counts['sessions']==8 and counts['runs']==60
+print(json.dumps({'status':'PASS','hardware':'NOT RUN',**counts}))

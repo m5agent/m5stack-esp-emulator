@@ -1,0 +1,5 @@
+{
+  "source": "import sys,json\n_state=sys.modules['__m5_loader_probe_state__']\nassert type(_state) is dict and _state['nonce']=='333acfdcf9f14c058bdb73cba9d3677e' and _state['count']==0, 'private dict readback differs'\nassert __import__('__main__') is _state['owner'], 'private state owner differs'\nprint('MAIN_LOADER_CAP '+json.dumps({'kind':'state-readback','nonce':_state['nonce'],'count':_state['count'],'owner_id':id(_state['owner'])}))\n",
+  "expected_execution_id": "dcb42ca66f2046fa8335540e03c623f6",
+  "timeout_seconds": 30
+}

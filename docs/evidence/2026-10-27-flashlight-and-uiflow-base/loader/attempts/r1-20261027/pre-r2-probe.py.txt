@@ -1,0 +1,658 @@
+#!/usr/bin/env python3
+"""Offline prepare, or explicitly probe one newly built CoreS3 loader firmware.
+
+This diagnostic uses public artifact/intake/session/source APIs. It neither
+changes stock references nor enables the public MPY program entrypoint.
+"""
+from __future__ import annotations
+
+import argparse
+import base64
+import hashlib
+import io
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+import uuid
+import zipfile
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
+sys.path[:0] = [str(ROOT / "tests/units"), str(ROOT / "platform/tools"), str(ROOT / ".work/py312")]
+import run_binary_checkpoint_admission as common
+
+BASE = ROOT / ".work/uiflow-main-loader-build-20261027/uiflow/m5stack/build-M5STACK_CoreS3/uiflow-3a86d8f.bin"
+BASE_SHA = "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b"
+BASE_SIZE = 16121856
+FLASH_SIZE = 16 * 1024 * 1024
+BUILD_ROOT = ROOT / ".work/uiflow-main-loader-build-20261027"
+SDKCONFIG = BUILD_ROOT / "receipt-data/sdkconfig"
+COMPILER = ROOT / ".work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/mpy-cross/build/mpy-cross"
+COMPILER_SHA = "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b"
+RUNTIME_SHA = common.EXPECTED_RUNTIME
+PREFIX = "MAIN_LOADER_CAP "
+READY = "M5EMU_MAIN_LOADER_UART_READY"
+PHASES = ("setup", "v1", "repeat-v1", "v2", "exception", "format", "recovery-errors", "loop", "recovery-interrupt")
+PRODUCT_SOURCES = ("platform/tools/device_service.py", "platform/tools/serve.py", "platform/tools/uiflow_runtime.py",
+                   "platform/tools/program_packages.py", "platform/tools/uiflow_source.py", "platform/tools/firmware_manifest.py",
+                   "tests/units/run_binary_checkpoint_admission.py", "platform/tools/preview_service.py")
+BOOT = ("from machine import UART\nimport os\n_repl_uart=UART(0,baudrate=115200,timeout=0,timeout_char=0)\n"
+        "os.dupterm(_repl_uart,0)\n_repl_uart.irq(handler=os.dupterm_notify,trigger=UART.IRQ_RX)\n"
+        "_uiflow_run_main=False\nprint(%r)\n" % READY)
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def require(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def plan():
+    return {"status": "NOT RUN", "category": "new-firmware-main-loader-capability-plan", "api_contacted": False,
+            "guests_started": 0, "hardware": "NOT RUN", "public_mpy_entrypoint_enabled": False,
+            "base": {"sha256": BASE_SHA, "bytes": BASE_SIZE, "chip": "esp32s3", "board": "CoreS3", "flash_bytes": FLASH_SIZE},
+            "runtime_sha256": RUNTIME_SHA, "compiler_sha256": COMPILER_SHA,
+            "phases": list(PHASES), "unit": {"id": "pir", "unit_id": "pir", "port_id": "port-a"},
+            "admission": "original merged artifact -> normal public firmware/import -> firmware/uiflow explicit base_firmware_id and normalized expected_base_sha256 -> source-bound session",
+            "loader": "actual __import__('main', None, None, False, 0) in guest; no bytecode rewriting",
+            "observations": ["separate source START and MPY enter/import/restore markers", "if-main/name/file and three module identities",
+                             "same bytes reexecuted; changed MPY dependency read", "top-level/format error restoration",
+                             "PIR fresh UART/QOM/frame in infinite MPY", "real Ctrl-C via next source submission; REPL owner restored"],
+            "failure_policy": "retain exact new-firmware failure, never substitute a stock reference",
+            "cleanup": "ZIP before stop purge=0, history/frame/Flash/PID/owned lease checks"}
+
+
+def module_source(case, value, *, loop=False, raises=False):
+    color = {"v1": 0xFF0000, "v2": 0x00FF00, "exception": 0xFF0000, "loop": 0x00FF00}[case]
+    source = f'''import sys,os,json,time
+import M5
+from unit import PIRUnit
+import dep
+_owner=sys._m5_loader_owner
+assert sys._m5_loader_nonce == dep.NONCE, 'VM nonce changed'
+_owner._m5_loader_count += 1
+_guard=False
+if __name__ == '__main__':
+ _guard=True
+_self=sys.modules.get('main')
+_imported=__import__('__main__')
+RESULT={{'case':{case!r},'guard':_guard,'name':__name__,'file':__file__,'self_id':id(_self),'sys_main_id':id(sys.modules.get('__main__')),'import_main_id':id(_imported),'main_cache_is_self':sys.modules.get('__main__') is _self,'import_main_is_self':_imported is _self,'real_main_name':getattr(_self,'__main__',None),'count':_owner._m5_loader_count,'dep_value':dep.VALUE,'dep_file':dep.__file__,'nonce':dep.NONCE}}
+print({PREFIX!r}+json.dumps({{'kind':'mpy-enter','result':RESULT}}))
+assert _guard and __name__ == '__main__', 'if-main not honored'
+assert sys.modules.get('__main__') is _self and _imported is _self, 'main module identity mismatch'
+assert dep.VALUE == {value}, 'stale bytecode dependency'
+M5.begin()
+screen=M5.Display
+screen.setBrightness(255)
+screen.fillScreen(0)
+screen.fillRect(screen.width()//2-4,screen.height()//2-4,8,8,{color})
+pir=PIRUnit((1,2))
+motion=bool(pir.get_status())
+screen.fillRect(screen.width()//2-4,screen.height()//2+16,8,8,0xFFFFFF if motion else 0)
+RESULT['motion']=motion
+'''
+    if raises:
+        source += "raise RuntimeError('PROBE_TOP_EXCEPTION')\n"
+    elif loop:
+        source += f'''sequence=0
+previous=None
+while True:
+ M5.update()
+ motion=bool(pir.get_status())
+ if motion != previous:
+  screen.fillRect(screen.width()//2-4,screen.height()//2+16,8,8,0xFFFFFF if motion else 0)
+  previous=motion
+ sequence += 1
+ print({PREFIX!r}+json.dumps({{'kind':'mpy-sample','nonce':dep.NONCE,'case':{case!r},'sequence':sequence,'motion':motion,'dep_value':dep.VALUE}}))
+ time.sleep_ms(200)
+'''
+    else:
+        source += f"print({PREFIX!r}+json.dumps({{'kind':'mpy-finite','result':RESULT}}))\n"
+    compile(source, "main.py", "exec")
+    return source
+
+
+def prepare(output):
+    from firmware_analysis import analyze_firmware, parse_partition_table
+    from mpy_bytecode import validate_bytecode, MPYBytecodeError
+    from uiflow_source import build_uiflow_source_image
+    from firmware_manifest import import_package
+    require(not output.exists(), "prepare output must be fresh")
+    output.mkdir(parents=True)
+    base = BASE.read_bytes()
+    require(len(base) == BASE_SIZE and sha(base) == BASE_SHA, "new merged firmware differs from build receipt")
+    require(sha(COMPILER.read_bytes()) == COMPILER_SHA, "official compiler differs")
+    receipt = json.loads((BUILD_ROOT / "build-receipt.json").read_text())
+    sdk = SDKCONFIG.read_bytes()
+    sdk_text = sdk.decode("utf-8")
+    require('CONFIG_IDF_TARGET="esp32s3"' in sdk_text and 'CONFIG_ESPTOOLPY_FLASHSIZE="16MB"' in sdk_text,
+            "new-firmware chip/flash configuration differs")
+    require("# CONFIG_SECURE_BOOT is not set" in sdk_text and "# CONFIG_SECURE_FLASH_ENC_ENABLED is not set" in sdk_text,
+            "firmware build does not prove disabled secure boot/encryption")
+    layout = parse_partition_table(base, image_size=FLASH_SIZE)
+    require(layout["valid"] and not layout["warnings"], "new firmware partition table invalid")
+    common.save(output / "base-analysis.json", analyze_firmware(BASE, expected_chip_id_value=9))
+    prepared, metadata = build_uiflow_source_image(base, FLASH_SIZE, {"boot.py": BOOT, "main.py": "pass\n"}, expected_base_sha256=BASE_SHA)
+    require(metadata["preservation"]["outside_vfs_unchanged"] is True and len(prepared) == FLASH_SIZE, "UART preparation changed non-VFS bytes")
+    (output / "uart-derived.bin").write_bytes(prepared)
+    (output / "boot.py.txt").write_text(BOOT)
+    common.save(output / "uart-source-composition.json", metadata)
+    normalized = base + b"\xff" * (FLASH_SIZE - len(base))
+    normalized_sha = sha(normalized)
+    public_derived, public_metadata = build_uiflow_source_image(normalized, FLASH_SIZE, {"boot.py": BOOT, "main.py": "pass\n"},
+                                                               expected_base_sha256=normalized_sha)
+    require(public_derived == prepared, "public normalized base changes UART-derived image")
+    common.save(output / "public-source-composition-expected.json", public_metadata)
+    common.save(output / "build-receipt-copy.json", receipt)
+    (output / "sdkconfig.txt").write_bytes(sdk)
+    package = output / "uart-derived-with-sdkconfig.zip"
+    with zipfile.ZipFile(package, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("firmware.bin", prepared)
+        archive.writestr("sdkconfig", sdk)
+    imported = import_package(package, output / "offline-import", device_id="cores3", flash_size=FLASH_SIZE)
+    manifest = imported["manifest"]
+    require(manifest["validation"]["status"] == "PASS", "prepared new image fails normal manifest importer")
+    require(sha(Path(imported["image_path"]).read_bytes()) == sha(prepared), "manifest import changed prepared image")
+    common.save(output / "offline-manifest.json", manifest)
+    nonce = uuid.uuid4().hex
+    inventory, commands = {}, []
+    for case, value, loop, raises in (("v1", 17, False, False), ("v2", 29, False, False),
+                                      ("exception", 17, False, True), ("loop", 29, True, False)):
+        directory = output / "compiled" / case
+        directory.mkdir(parents=True)
+        sources = {"main": module_source(case, value, loop=loop, raises=raises),
+                   "dep": f"VALUE={value}\nNONCE={nonce!r}\n"}
+        inventory[case] = {}
+        for name, source in sources.items():
+            py = directory / (name + ".py")
+            mpy = directory / (name + ".mpy")
+            py.write_text(source, encoding="utf-8")
+            command = [str(COMPILER), "-msmall-int-bits=31", "-s", name + ".py", "-o", str(mpy), str(py)]
+            built = subprocess.run(command, check=True, capture_output=True, timeout=30)
+            raw = mpy.read_bytes()
+            require(raw[:4] == b"M\x06\x00\x1f", "compiler did not produce pure bytecode")
+            validation = validate_bytecode(raw)
+            inventory[case][name + ".mpy"] = {"file": str(mpy.relative_to(output)), "sha256": sha(raw), "bytes": len(raw),
+                                               "source_sha256": sha(source.encode()), "bytecode_validation": validation}
+            commands.append({"case": case, "module": name, "compiler_sha256": COMPILER_SHA, "arguments": command[1:-1] + [str(py.relative_to(output))],
+                             "returncode": built.returncode, "stdout_sha256": sha(built.stdout), "stderr_sha256": sha(built.stderr)})
+    # persistentcode.c's varuint reader has no EOF break. Use its bounded
+    # header rejection, rather than a truncated payload that could hang C.
+    valid = (output / inventory["v1"]["main.mpy"]["file"]).read_bytes()
+    bad = b"N" + valid[1:]
+    try:
+        validate_bytecode(bad)
+    except MPYBytecodeError:
+        pass
+    else:
+        raise ValueError("format negative fixture is unexpectedly valid")
+    invalid = output / "compiled/format/main.mpy"
+    invalid.parent.mkdir()
+    invalid.write_bytes(bad)
+    inventory["format"] = {"main.mpy": {"file": str(invalid.relative_to(output)), "sha256": sha(bad), "bytes": len(bad), "expected": "guest importer rejects invalid magic before reading body"},
+                           "dep.mpy": inventory["v1"]["dep.mpy"]}
+    summary = {"status": "PREPARED_NOT_EXECUTED", "nonce": nonce, "base_sha256": BASE_SHA,
+               "normalized_base_sha256": normalized_sha, "normalized_base_bytes": len(normalized),
+               "pipeline": "original artifact -> imported normalized manifest base -> explicit-base public source composer -> source-pinned UART session",
+               "prepared_sha256": sha(prepared), "prepared_bytes": len(prepared), "package_sha256": sha(package.read_bytes()),
+               "sdkconfig_sha256": sha(sdk), "compiler_sha256": COMPILER_SHA, "compiler_commands": commands,
+               "target": {"device_id": "cores3", "soc": "esp32s3", "flash_size": FLASH_SIZE, "partition_table": layout,
+                          "security": {"secure_boot": "disabled-by-build-sdkconfig", "flash_encryption": "disabled-by-build-sdkconfig", "efuse": "not-included; use explicit QEMU profile"}},
+               "inventory": inventory, "public_mpy_entrypoint_enabled": False, "guest_runtime": "NOT RUN", "hardware": "NOT RUN"}
+    common.save(output / "prepared.json", summary)
+    return summary
+
+
+def setup_source(prepared):
+    nonce = prepared["nonce"]
+    directory = "/flash/.main-loader-probe-" + nonce
+    encoded = {}
+    for case, files in prepared["inventory"].items():
+        encoded[case] = {name: {"data": base64.b64encode((HERE / "prepared" / info["file"]).read_bytes()).decode(),
+                               "sha256": info["sha256"], "bytes": info["bytes"]} for name, info in files.items()}
+    source = f'''import sys,os,json,binascii,hashlib
+assert not hasattr(sys,'_m5_loader_nonce'), 'VM was reused from another probe'
+sys._m5_loader_nonce={nonce!r}
+sys._m5_loader_owner=__import__('__main__')
+sys._m5_loader_owner._m5_loader_count=0
+_root={directory!r}
+os.mkdir(_root)
+_files={encoded!r}
+_inventory={{}}
+for _case,_members in _files.items():
+ _dir=_root+'/'+_case
+ os.mkdir(_dir)
+ _inventory[_case]={{}}
+ for _name,_row in _members.items():
+  _raw=binascii.a2b_base64(_row['data'])
+  with open(_dir+'/'+_name,'wb') as _stream:
+   assert _stream.write(_raw)==len(_raw)
+  with open(_dir+'/'+_name,'rb') as _stream:
+   _saved=_stream.read()
+  _hash=binascii.hexlify(hashlib.sha256(_saved).digest()).decode()
+  assert len(_saved)==_row['bytes'] and _hash==_row['sha256'], 'guest MPY bytes changed'
+  _inventory[_case][_name]={{'sha256':_hash,'bytes':len(_saved)}}
+print({PREFIX!r}+json.dumps({{'kind':'setup','nonce':sys._m5_loader_nonce,'owner_id':id(sys._m5_loader_owner),'mpy':getattr(sys.implementation,'_mpy',None),'cwd':os.getcwd(),'inventory':_inventory}}))
+'''
+    compile(source, "diagnostic-setup.py", "exec")
+    require(len(source.encode()) <= 65536, "source setup exceeds public source limit")
+    return source
+
+
+def loader_source(nonce, case, label):
+    require(case in {"v1", "v2", "exception", "format", "loop"}, "invalid diagnostic case")
+    directory = "/flash/.main-loader-probe-" + nonce + "/" + case
+    source = f'''import sys,os,json,hashlib,binascii
+assert sys._m5_loader_nonce == {nonce!r}, 'VM nonce lost'
+_owner=sys._m5_loader_owner
+assert __import__('__main__') is _owner, 'REPL owner not restored before import'
+_cwd=os.getcwd()
+_path=sys.path[:]
+_saved={{}}
+for _name in ('main','__main__','dep'):
+ _saved[_name]=(_name in sys.modules,sys.modules.get(_name))
+sys.modules.pop('main',None)
+sys.modules.pop('dep',None)
+_directory={directory!r}
+assert sorted(os.listdir(_directory)) == ['dep.mpy','main.mpy'], 'entrypoint shadowing exists'
+_inventory={{}}
+for _name in ('main.mpy','dep.mpy'):
+ with open(_directory+'/'+_name,'rb') as _file:
+  _raw=_file.read()
+ _inventory[_name]={{'sha256':binascii.hexlify(hashlib.sha256(_raw).digest()).decode(),'bytes':len(_raw)}}
+os.chdir(_directory)
+sys.path[:]=[_directory]+[p for p in _path if p != _directory]
+print({PREFIX!r}+json.dumps({{'kind':'load-request','label':{label!r},'directory':_directory,'inventory':_inventory}}))
+try:
+ _module=__import__('main',None,None,False,0)
+ _result=_module.RESULT
+ assert sys.modules.get('main') is _module and sys.modules.get('__main__') is _module, 'import returned another module'
+ assert __import__('__main__') is _module, 'application __main__ differs'
+ print({PREFIX!r}+json.dumps({{'kind':'import-return','label':{label!r},'result':_result,'module_id':id(_module),'inventory':_inventory}}))
+except BaseException as _error:
+ print({PREFIX!r}+json.dumps({{'kind':'import-error','label':{label!r},'exception':type(_error).__name__,'message':str(_error),'inventory':_inventory,'main_cached_after_failure':'main' in sys.modules,'main_alias_after_failure':id(sys.modules.get('__main__'))}}))
+finally:
+ os.chdir(_cwd)
+ sys.path[:]=_path
+ for _name,_pair in _saved.items():
+  if _pair[0]:
+   sys.modules[_name]=_pair[1]
+  else:
+   sys.modules.pop(_name,None)
+ _restored=__import__('__main__') is _owner and all((_name in sys.modules)==_pair[0] and (not _pair[0] or sys.modules[_name] is _pair[1]) for _name,_pair in _saved.items())
+ print({PREFIX!r}+json.dumps({{'kind':'restored','label':{label!r},'restored':_restored,'owner_id':id(__import__('__main__')),'nonce':sys._m5_loader_nonce}}))
+ assert _restored, 'REPL owner/cache restoration failed'
+'''
+    compile(source, "diagnostic-loader.py", "exec")
+    return source
+
+
+def recovery_source(nonce, label):
+    source = f'''import sys,json,M5
+assert sys._m5_loader_nonce == {nonce!r}, 'VM nonce lost after failure/interrupt'
+assert __import__('__main__') is sys._m5_loader_owner, 'REPL owner differs after failure/interrupt'
+M5.begin()
+M5.Display.setBrightness(255)
+M5.Display.fillScreen(0)
+M5.Display.fillRect(M5.Display.width()//2-4,M5.Display.height()//2-4,8,8,0x0000FF)
+print({PREFIX!r}+json.dumps({{'kind':'recovery','label':{label!r},'nonce':sys._m5_loader_nonce,'owner_id':id(__import__('__main__')),'count':sys._m5_loader_owner._m5_loader_count}}))
+'''
+    compile(source, "diagnostic-recovery.py", "exec")
+    return source
+
+
+def typed_rows(text):
+    rows = []
+    for line in text.splitlines(keepends=True):
+        if line.endswith("\n") and line.startswith(PREFIX):
+            try:
+                row = json.loads(line[len(PREFIX):])
+            except ValueError:
+                continue
+            if type(row) is dict:
+                rows.append(row)
+    return rows
+
+
+def validate_result(result, nonce, case, expected_value, count):
+    require(result["case"] == case and result["nonce"] == nonce and result["guard"] is True and result["name"] == "__main__", "binary did not execute as main")
+    require(result["main_cache_is_self"] is True and result["import_main_is_self"] is True,
+            "binary main alias identities failed")
+    require(result["self_id"] == result["sys_main_id"] == result["import_main_id"], "binary module identities differ")
+    root = "/flash/.main-loader-probe-" + nonce + "/" + case
+    require(result["file"] == root + "/main.mpy" and result["dep_file"] == root + "/dep.mpy", "binary/dependency loaded from wrong path")
+    require(result["real_main_name"] == "main" and result["dep_value"] == expected_value and result["count"] == count, "cached dependency or repeated entry did not rerun")
+
+
+def validate_inventory(row, prepared, case):
+    expected = {name: {"bytes": info["bytes"], "sha256": info["sha256"]} for name, info in prepared["inventory"][case].items()}
+    require(row["inventory"] == expected, "actual guest MPY bytes differ from official compiler artifact")
+    require(row["directory"] == "/flash/.main-loader-probe-" + prepared["nonce"] + "/" + case, "loader directory differs")
+
+
+def upload(client, path, name):
+    raw = path.read_bytes()
+    index = len(client.http)
+    row = {"path": "artifacts", "method": "POST", "request_bytes": len(raw), "request_sha256": sha(raw), "artifact_name": name}
+    client.http.append(row)
+    request = urllib.request.Request(client.base + "/api/v1/artifacts", data=raw, method="POST", headers={
+        "Authorization": "Bearer " + client.token, "Content-Type": "application/octet-stream", "X-Artifact-Name": name})
+    try:
+        try:
+            response = client.opener.open(request, timeout=120)
+        except urllib.error.HTTPError as error:
+            response = error
+        with response:
+            saved = response.read(2 * 1024 * 1024)
+            row.update(status=response.status, bytes=len(saved), sha256=sha(saved))
+        (client.output / f"http-{index:04d}.response").write_bytes(saved)
+        value = json.loads(saved)
+        require(row["status"] == 201 and value["artifact_id"] == sha(raw) and value["size"] == len(raw), "public artifact upload identity mismatch")
+        return value
+    finally:
+        common.save(client.output / "http.json", client.http)
+
+
+def creation_definitely_rejected(error):
+    return (isinstance(error, common.HTTPFailure) and error.complete
+            and 400 <= error.status < 500 and error.status != 408)
+
+
+class Probe:
+    def __init__(self, client, prepared, output):
+        self.client, self.prepared, self.output = client, prepared, output
+        self.sid = self.expected = self.session = None
+        self.report = {"status": "FAIL", "category": "new-CoreS3-firmware-real-main-loader-capability",
+                       "pipeline": "public-explicit-base-source-composition",
+                       "hardware": "NOT RUN", "public_mpy_entrypoint_enabled": False, "executions": [], "observations": [],
+                       "base_sha256": BASE_SHA, "prepared_sha256": prepared["prepared_sha256"], "nonce": prepared["nonce"]}
+
+    def serial(self, offset=0):
+        return self.client.json(f"sessions/{self.sid}/serial?offset={offset}&limit=1048576")
+
+    def same_vm(self):
+        session = self.client.json("sessions/" + self.sid)
+        for field in ("session_id", "pid", "firmware_sha256", "worker"):
+            require(session[field] == self.session[field], "new firmware guest identity changed")
+        require(session["state"] == "running" and common.runtime_identity(session["pid"]) == self.report["runtime"], "new runtime no longer live")
+
+    def phase(self, label, source, *, loop=False):
+        (self.output / (label + ".source.py.txt")).write_text(source, encoding="utf-8")
+        offset = self.serial()["next_offset"]
+        receipt = self.client.json("sessions/" + self.sid + "/program", "POST", {
+            "source": source, "expected_execution_id": self.expected, "timeout_seconds": 30}, timeout=40)
+        self.expected = receipt["program"]["execution_id"]
+        execution = self.expected
+        if loop:
+            serial = common.poll(lambda: self.serial(offset), lambda row: any(value.get("kind") == "mpy-sample" for value in typed_rows(row["data"])), 40)
+            record = self.client.json("sessions/" + self.sid + "/program")["program"]
+            require(record["state"] == "running", "infinite binary did not stay running")
+        else:
+            record = common.poll(lambda: self.client.json("sessions/" + self.sid + "/program")["program"],
+                                 lambda row: row["state"] in {"completed", "failed", "unknown"}, 40)
+            serial = self.serial(offset)
+            require(record["state"] == "completed", "diagnostic source failed; see fresh serial")
+        require(record["execution_id"] == execution and record["pid"] == self.session["pid"]
+                and record["firmware_sha256"] == self.session["firmware_sha256"], "diagnostic execution identity changed")
+        require("__M5_EXEC_" + execution + "__:START" in serial["data"], "current source START missing")
+        self.same_vm()
+        item = {"label": label, "execution_id": execution, "serial_offset": offset, "serial": serial, "rows": typed_rows(serial["data"])}
+        self.report["executions"].append(record)
+        self.report["observations"].append(item)
+        common.save(self.output / "report.json", self.report)
+        return item
+
+    def one(self, phase, kind, **fields):
+        rows = [row for row in phase["rows"] if row.get("kind") == kind and all(row.get(key) == value for key, value in fields.items())]
+        require(len(rows) == 1, f"one independent {kind} marker required")
+        return rows[0]
+
+    def finite(self, case, label, value, count):
+        phase = self.phase(label, loader_source(self.prepared["nonce"], case, label))
+        validate_inventory(self.one(phase, "load-request", label=label), self.prepared, case)
+        entered = self.one(phase, "mpy-enter")
+        returned = self.one(phase, "import-return", label=label)
+        validate_result(entered["result"], self.prepared["nonce"], case, value, count)
+        validate_result(returned["result"], self.prepared["nonce"], case, value, count)
+        require(returned["module_id"] == returned["result"]["self_id"], "returned binary module object differs")
+        self.check_restored(phase, label)
+        return phase
+
+    def check_restored(self, phase, label):
+        row = self.one(phase, "restored", label=label)
+        require(row["restored"] is True and row["owner_id"] == self.report["initial_owner_id"]
+                and row["nonce"] == self.prepared["nonce"], "REPL owner was not restored")
+
+    def frame(self, name, phase_color, motion=None):
+        from PIL import Image
+        raw, headers = self.client.request("sessions/" + self.sid + "/frame.png?max_age_ms=1", binary=True)
+        require(headers["x-frame-sha256"] == sha(raw) and headers["x-frame-execution-id"] == self.expected, "frame identity mismatch")
+        with Image.open(io.BytesIO(raw)) as image:
+            rgb = image.convert("RGB")
+            center = list(rgb.getpixel((image.width // 2, image.height // 2)))
+            detected = list(rgb.getpixel((image.width // 2, image.height // 2 + 20)))
+            require(center == phase_color, "new firmware framebuffer phase mismatch")
+            if motion is not None:
+                require(detected == ([255, 255, 255] if motion else [0, 0, 0]), "new firmware PIR framebuffer mismatch")
+        (self.output / (name + ".png")).write_bytes(raw)
+        row = {"sha256": sha(raw), "headers": headers, "center_pixel": center, "motion_pixel": detected}
+        self.report.setdefault("frames", []).append(row)
+        self.report["last_frame_sha256"] = sha(raw)
+        return row
+
+    def input_loop(self, motion):
+        offset = self.serial()["next_offset"]
+        self.client.json("sessions/" + self.sid + "/unit-input", "POST", {"id": "pir", "values": {"motion": motion}})
+        window = common.poll(lambda: self.serial(offset), lambda row: any(value.get("kind") == "mpy-sample" and value.get("nonce") == self.prepared["nonce"]
+                            and value.get("motion") is motion and type(value.get("sequence")) is int and value["sequence"] > self.report.get("last_loop_sequence", 0) for value in typed_rows(row["data"])), 40)
+        self.report["last_loop_sequence"] = max(value["sequence"] for value in typed_rows(window["data"])
+            if value.get("kind") == "mpy-sample" and value.get("motion") is motion and value.get("nonce") == self.prepared["nonce"])
+        qom = self.client.json("sessions/" + self.sid + "/qom?path=%2Fmachine%2Funits%2Fpir&property=input-level")
+        require(qom["value"] is motion, "PIR independent controller QOM differs")
+        frame = self.frame("loop-" + str(int(motion)), [0, 255, 0], motion)
+        self.report.setdefault("inputs", []).append({"fresh_offset": offset, "serial": window, "qom": qom, "frame": frame})
+        self.same_vm()
+
+    def execute(self):
+        try:
+            devices = self.client.json("devices")
+            device = next(row for row in devices["devices"] if row["device_id"] == "cores3")
+            require(device["program_features"]["mpy_entrypoint"] is False, "public MPY capability changed before diagnostic")
+            self.report["public_device_before"] = device
+            original = upload(self.client, BASE, "new-coreS3-main-loader-original.bin")
+            require(original["sha256"] == BASE_SHA, "original build artifact mismatch")
+            self.report["original_build_artifact"] = original
+            base = self.client.json("firmware/import", "POST", {"device_id": "cores3", "artifact_id": original["artifact_id"]}, timeout=120)
+            require(base["kind"] == "manifest" and base["sha256"] == self.prepared["normalized_base_sha256"]
+                    and base["firmware_id"] == base["sha256"] and base["size"] == FLASH_SIZE, "normalized stored base identity differs")
+            manifest = base["manifest"]
+            require(manifest["target"]["soc"] == "esp32s3" and manifest["target"]["flash_size"] == FLASH_SIZE, "base intake target mismatch")
+            self.report["verified_base_firmware"] = base
+            source_body = {"device_id": "cores3", "base_firmware_id": base["firmware_id"],
+                           "expected_base_sha256": base["sha256"], "files": {"boot.py": BOOT, "main.py": "pass\n"}}
+            firmware = self.client.json("firmware/uiflow", "POST", source_body, timeout=120)
+            require(firmware["sha256"] == self.prepared["prepared_sha256"] and firmware["flash_size"] == FLASH_SIZE, "intake changed derived firmware")
+            source = firmware["source"]
+            require(source["kind"] == "uiflow" and source["metadata"]["base_sha256"] == base["sha256"], "real public source provenance lost base identity")
+            source_pin = source["metadata"]["source_sha256"]
+            require(source["artifact_id"] == source_pin and source_pin == sha(common.canonical(source_body["files"])), "real source artifact binding differs")
+            self.report["firmware_intake"] = firmware
+            body = {"device_id": "cores3", "runtime": "qemu", "firmware_id": firmware["firmware_id"], "ttl_seconds": 900,
+                    "uiflow_source_sha256": source_pin,
+                    "program_transport": "uart-repl", "ready_marker": READY, "ready_timeout_seconds": 60,
+                    "units": [{"id": "pir", "unit_id": "pir", "port_id": "port-a"}]}
+            common.save(self.output / "create-intent.json", body)
+            self.report["creation_outcome"] = "unknown"
+            try:
+                created = self.client.json("sessions", "POST", body, timeout=90)
+            except BaseException as error:
+                if creation_definitely_rejected(error):
+                    self.report["creation_outcome"] = "rejected"
+                    self.report["creation_rejection_code"] = (error.body or {}).get("error", {}).get("code")
+                raise
+            self.sid = created["session_id"]
+            self.report["creation_outcome"] = "confirmed"
+            self.report["session_id"] = self.sid
+            self.session = common.poll(lambda: self.client.json("sessions/" + self.sid), lambda row: row["state"] in {"running", "failed", "stopped"}, 120)
+            self.report["boot_snapshot"] = self.session
+            require(self.session["state"] == "running", "new firmware failed to boot; stock fallback forbidden")
+            require(self.session["firmware_source"] == "uploaded" and self.session["firmware_id"] == firmware["firmware_id"], "guest did not use explicit new uploaded firmware")
+            require(len(self.session["units"]) == 1 and self.session["units"][0]["id"] == "pir"
+                    and self.session["units"][0]["pins"] == {"white": 1, "yellow": 2}, "CoreS3 frozen PIR wiring differs")
+            self.report.update(pid=self.session["pid"], firmware_sha256=self.session["firmware_sha256"], worker=self.session["worker"],
+                               runtime=common.runtime_identity(self.session["pid"]))
+            require(self.report["runtime"]["sha256"] == RUNTIME_SHA and self.session["firmware_sha256"] == self.prepared["prepared_sha256"], "actual firmware/runtime mismatch")
+            boot = self.serial()
+            self.report["boot_serial"] = boot
+            require(boot["data"].count(READY) == 1, "new UART bootstrap not observed exactly once")
+            setup = self.phase("setup", setup_source(self.prepared))
+            initial = self.one(setup, "setup")
+            self.report["initial_owner_id"] = initial["owner_id"]
+            self.report["guest_mpy"] = initial["mpy"]
+            self.client.json("sessions/" + self.sid + "/unit-input", "POST", {"id": "pir", "values": {"motion": False}})
+            self.finite("v1", "v1", 17, 1)
+            self.frame("v1", [255, 0, 0], False)
+            self.finite("v1", "repeat-v1", 17, 2)
+            self.client.json("sessions/" + self.sid + "/unit-input", "POST", {"id": "pir", "values": {"motion": True}})
+            self.finite("v2", "v2", 29, 3)
+            self.frame("v2", [0, 255, 0], True)
+            failed = self.phase("exception", loader_source(self.prepared["nonce"], "exception", "exception"))
+            validate_inventory(self.one(failed, "load-request", label="exception"), self.prepared, "exception")
+            validate_result(self.one(failed, "mpy-enter")["result"], self.prepared["nonce"], "exception", 17, 4)
+            error = self.one(failed, "import-error", label="exception")
+            require(error["exception"] == "RuntimeError" and error["message"] == "PROBE_TOP_EXCEPTION", "wrong top-level binary exception")
+            self.check_restored(failed, "exception")
+            bad = self.phase("format", loader_source(self.prepared["nonce"], "format", "format"))
+            validate_inventory(self.one(bad, "load-request", label="format"), self.prepared, "format")
+            require(not any(row.get("kind") == "mpy-enter" for row in bad["rows"]), "malformed binary executed")
+            require(self.one(bad, "import-error", label="format")["exception"] in {"ValueError", "ImportError"}, "format failure was not an importer rejection")
+            self.check_restored(bad, "format")
+            recovered = self.phase("recovery-errors", recovery_source(self.prepared["nonce"], "recovery-errors"))
+            require(self.one(recovered, "recovery")["owner_id"] == self.report["initial_owner_id"], "source did not recover after binary errors")
+            self.frame("recovery-errors", [0, 0, 255])
+            loop = self.phase("loop", loader_source(self.prepared["nonce"], "loop", "loop"), loop=True)
+            validate_inventory(self.one(loop, "load-request", label="loop"), self.prepared, "loop")
+            validate_result(self.one(loop, "mpy-enter")["result"], self.prepared["nonce"], "loop", 29, 5)
+            self.report["last_loop_sequence"] = max(row["sequence"] for row in loop["rows"] if row.get("kind") == "mpy-sample")
+            for motion in (False, True, False):
+                self.input_loop(motion)
+            # Ordinary /program synchronizes with actual UART Ctrl-C. The
+            # next source must observe restoration from the interrupted import.
+            recovered = self.phase("recovery-interrupt", recovery_source(self.prepared["nonce"], "recovery-interrupt"))
+            error = self.one(recovered, "import-error", label="loop")
+            require(error["exception"] == "KeyboardInterrupt", "infinite binary did not observe actual Ctrl-C")
+            self.check_restored(recovered, "loop")
+            require(self.one(recovered, "recovery")["owner_id"] == self.report["initial_owner_id"], "source owner did not recover after Ctrl-C")
+            self.frame("recovery-interrupt", [0, 0, 255])
+            require(self.serial()["data"].count(READY) == 1, "guest rebooted during probe")
+            self.capture_zip()
+            device_after = next(row for row in self.client.json("devices")["devices"] if row["device_id"] == "cores3")
+            require(device_after["program_features"]["mpy_entrypoint"] is False, "diagnostic unexpectedly enabled public MPY capability")
+            self.report["public_program_features_after"] = device_after["program_features"]
+            self.report["status"] = "PASS"
+        except BaseException as error:
+            self.report["error"] = {"type": type(error).__name__, "message": str(error)}
+        finally:
+            self.cleanup()
+            common.save(self.output / "report.json", self.report)
+        return self.report
+
+    def capture_zip(self):
+        raw = self.client.json("sessions/" + self.sid + "/evidence", binary=True)
+        (self.output / "evidence-before-stop.zip").write_bytes(raw)
+        self.report["zip_before_stop"] = True
+        if self.session and self.session.get("state") == "running":
+            self.report["zip"] = common.verify_zip(raw, self.session, self.report["executions"])
+            with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+                serial = archive.read("serial.log")
+                for observation in self.report["observations"]:
+                    window = observation["serial"]
+                    require(serial[window["offset"]:window["next_offset"]].decode("utf-8", errors="replace") == window["data"], "ZIP UART byte window differs")
+                if self.report.get("last_frame_sha256"):
+                    require(sha(archive.read("frames/current.png")) == self.report["last_frame_sha256"], "ZIP final framebuffer differs")
+            self.report["zip"]["serial_windows_verified"] = True
+        else:
+            with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+                require(archive.testzip() is None, "failure ZIP CRC mismatch")
+                self.report["zip"] = {"sha256": sha(raw), "members": len(archive.namelist()), "classification": "failure evidence; no boot PASS"}
+
+    def cleanup(self):
+        errors = []
+        if not self.sid:
+            self.report["cleanup"] = {"status": "UNCONFIRMED" if self.report.get("creation_outcome") == "unknown" else "NO SESSION",
+                                      "ordinary_unknown_creation_not_retried": self.report.get("creation_outcome") == "unknown"}
+            return
+        if not self.report.get("zip_before_stop"):
+            try:
+                self.capture_zip()
+            except BaseException as error:
+                errors.append({"step": "ZIP-before-stop", "type": type(error).__name__, "message": str(error)})
+        try:
+            self.client.json("sessions/" + self.sid + "?purge=0", "DELETE", timeout=60)
+        except BaseException as error:
+            errors.append({"step": "stop-receipt", "type": type(error).__name__})
+        try:
+            stopped = common.poll(lambda: self.client.json("sessions/" + self.sid), lambda row: row["state"] in {"stopped", "failed"}, 30)
+            require(stopped["flash_retained"] is False and stopped["worker"]["lease_active"] is False, "owned Flash/lease not released")
+            pid = self.report.get("pid") or (self.session or {}).get("pid")
+            gone = True if not pid else common.poll(lambda: common.pid_gone(pid), bool, 15)
+            history = None
+            if self.report.get("last_frame_sha256"):
+                raw = self.client.json("sessions/" + self.sid + "/frame.png", binary=True)
+                (self.output / "history-last.png").write_bytes(raw)
+                history = sha(raw)
+                require(history == self.report["last_frame_sha256"], "history frame byte identity differs")
+            self.report["cleanup"] = {"status": "PASS" if not errors else "INCOMPLETE", "session": stopped,
+                                      "owned_pid_gone": gone, "history_frame_sha256": history, "errors": errors}
+        except BaseException as error:
+            errors.append({"step": "confirm-owned-cleanup", "type": type(error).__name__, "message": str(error)})
+            self.report["cleanup"] = {"status": "UNCONFIRMED", "errors": errors}
+        if self.report["cleanup"]["status"] != "PASS":
+            self.report["status"] = "FAIL"
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--prepare", action="store_true")
+    mode.add_argument("--execute", action="store_true")
+    parser.add_argument("--token-file", type=Path, default=ROOT / ".work/preview-control-token")
+    parser.add_argument("--out-dir", type=Path)
+    args = parser.parse_args(argv)
+    if args.prepare:
+        result = prepare(HERE / "prepared")
+        print(json.dumps({"status": result["status"], "prepared_sha256": result["prepared_sha256"], "guest_runtime": "NOT RUN"}, indent=2))
+        return 0
+    if not args.execute:
+        print(json.dumps(plan(), indent=2))
+        return 0
+    require(args.out_dir is not None and args.out_dir.resolve().is_relative_to(HERE), "execution output must be a fresh directory inside this owned probe")
+    args.out_dir.mkdir(parents=True, exist_ok=False)
+    prepared = json.loads((HERE / "prepared/prepared.json").read_text())
+    require(sha(BASE.read_bytes()) == BASE_SHA and sha(COMPILER.read_bytes()) == COMPILER_SHA, "frozen input changed")
+    require(sha((HERE / "prepared/uart-derived.bin").read_bytes()) == prepared["prepared_sha256"], "UART-derived image changed")
+    token = common.read_token(args.token_file)
+    client = common.Client("http://127.0.0.1:8787", token, args.out_dir)
+    freeze = {path: sha((ROOT / path).read_bytes()) for path in PRODUCT_SOURCES}
+    probe = Probe(client, prepared, args.out_dir)
+    probe.report["product_source_sha256"] = freeze
+    probe.report["runner_sha256"] = sha(Path(__file__).read_bytes())
+    result = probe.execute()
+    result["product_sources_unchanged"] = freeze == {path: sha((ROOT / path).read_bytes()) for path in PRODUCT_SOURCES}
+    require(result["product_sources_unchanged"], "product source changed during capability probe")
+    common.save(args.out_dir / "report.json", result)
+    print(json.dumps({"status": result["status"], "session_id": probe.sid, "error": result.get("error"),
+                      "public_mpy_entrypoint_enabled": False, "hardware": "NOT RUN"}, indent=2))
+    return 0 if result["status"] == "PASS" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

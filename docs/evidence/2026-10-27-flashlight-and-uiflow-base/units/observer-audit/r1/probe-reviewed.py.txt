@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+"""Bounded public-API FlashLight probe. No execution unless --execute is given."""
+import argparse,base64,io,json,sys,time,uuid
+from pathlib import Path
+HERE=Path(__file__).resolve().parent
+ROOT=HERE.parents[1]
+sys.path[:0]=[str(ROOT/'tests/units'),str(ROOT/'platform/tools'),str(ROOT/'.work/py312')]
+import run_binary_checkpoint_admission as common
+from PIL import Image
+PREFIX='FLASHLIGHT_GUEST '
+DRIVER=ROOT/'docs/evidence/2026-10-27-binary-checkpoint-admission/research/materials/uiflow-flash_light-2.5.3.py'
+DRIVER_SHA='10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f'
+PORTS={'cores3':'port-a','atoms3r':'custom','sticks3':'custom','stopwatch':'port-a'}
+PHASES=('reset','original-short','original-long100','original-long60','original-long30','raw9','raw16','invalid17','slow2','restore','steady-on','steady-off')
+
+def source(nonce,phase,pins):
+ assert phase in PHASES
+ setup=(f"assert '/m5-flash-{nonce}' not in sys.path\nsys.path.append('/m5-flash-{nonce}')" if phase=='reset' else f"assert '/m5-flash-{nonce}' in sys.path, 'VM nonce lost'")
+ action=''
+ if phase.startswith('original-'):
+  b,t={'original-short':(1,1),'original-long100':(1,2),'original-long60':(5,2),'original-long30':(8,2)}[phase]
+  action=f'flash=official_flash.FlashLightUnit(({pins["white"]},{pins["yellow"]}))\nutime.sleep_us(600)\nflash.flash({b},{t},False)\n'
+ elif phase in ('raw9','raw16','invalid17','slow2'):
+  n={'raw9':9,'raw16':16,'invalid17':17,'slow2':2}[phase]
+  delay=20 if phase=='slow2' else 2
+  action=f'for i in range({n}):\n en.value(1)\n utime.sleep_us({delay})\n if i+1 < {n}:\n  en.value(0)\n  utime.sleep_us({delay})\n'
+ elif phase=='steady-on':action='en.value(1)\n'
+ return f'''import sys,os,json,utime,hashlib,binascii
+import M5
+from machine import Pin
+import official_flash
+{setup}
+assert official_flash.__file__ == os.getcwd()+'/official_flash.py', 'stale driver path'
+with open(official_flash.__file__,'rb') as f:
+ original=f.read()
+assert len(original)==3639 and binascii.hexlify(hashlib.sha256(original).digest()).decode()=={DRIVER_SHA!r}, 'driver bytes changed'
+M5.begin()
+s=M5.Display
+s.setBrightness(255)
+s.fillScreen(0)
+en=Pin({pins['yellow']},Pin.OUT,value=0)
+utime.sleep_us(600)
+{action}
+utime.sleep_us(600)
+level=int(en.value())
+s.fillRect(s.width()//2-4,s.height()//2-4,8,8,0xFFFFFF if level else 0)
+print({PREFIX!r}+json.dumps({{'phase':{phase!r},'nonce':{nonce!r},'en':level,'driver_sha256':{DRIVER_SHA!r},'driver_file':official_flash.__file__}}))
+'''
+
+def package(nonce,phase,pins):
+ text=source(nonce,phase,pins);compile(text,'main.py','exec')
+ raw=DRIVER.read_bytes();common.require(common.sha(raw)==DRIVER_SHA,'original driver changed')
+ return {'source_kind':'uiflow2-package','entrypoint':'main.py','files':{'main.py':{'encoding':'utf8','data':text},'official_flash.py':{'encoding':'base64','data':base64.b64encode(raw).decode()}}}
+
+class Lane(common.Lane):
+ def __init__(self,client,args,device,mode,output):
+  super().__init__(client,args,device,'session',output)
+  self.mode=mode;self.report.update(category='u152-controller-observation',flash_mode=mode,hardware='NOT RUN',live_browser='NOT RUN',guest_scope='GPIO pad, actual original driver bytes, qualified nominal digital model; no optical/electrical/thermal equivalence')
+ def create(self):
+  body={'device_id':self.device,'runtime':'qemu','program_mode':'uiflow-live','ttl_seconds':900,'ready_timeout_seconds':40,'units':[{'id':'lamp','unit_id':'flashlight','port_id':PORTS[self.device],'initial':{'flash-mode':self.mode}}]}
+  common.save(self.output/'create-intent.json',body);self.owned['creation_outcome']='unknown'
+  try:
+   created=self.client.json('sessions','POST',body,timeout=120)
+  except common.HTTPFailure as e:
+   if e.complete and 400<=e.status<500 and e.status!=408:self.owned['creation_outcome']='rejected'
+   raise
+  self.owned.update(session_id=created['session_id'],creation_outcome='confirmed')
+  self.session=common.poll(lambda:self.client.json('sessions/'+self.sid),lambda v:v['state'] in ('running','failed','stopped'),120)
+  common.require(self.session['state']=='running','session not running')
+  self.owned['pid']=self.session['pid'];identity=common.runtime_identity(self.session['pid'])
+  common.require(identity['sha256']==self.args.expected_runtime_sha256,'actual runtime differs')
+  self.report.update(session_id=self.sid,pid=self.session['pid'],firmware_sha256=self.session['firmware_sha256'],worker=self.session['worker'],runtime=identity)
+  self.pins=self.session['units'][0]['pins'];self.report['pins']=self.pins
+ def units(self):
+  return self.client.json('sessions/'+self.sid+'/units')
+ def phase(self,name):
+  self.same_vm();offset=self.serial()['next_offset']
+  checkpoint=self.client.json('program-revisions','POST',package(self.nonce,name,self.pins))['revision']
+  previous=self.report['runs'][-1]['execution_id'] if self.report['runs'] else None
+  receipt=self.client.json('sessions/'+self.sid+'/program','POST',{'revision_id':checkpoint['revision_id'],'expected_execution_id':previous,'timeout_seconds':30},timeout=120)['program']
+  self.report['runs'].append(receipt)
+  common.require(receipt['pid']==self.session['pid'] and receipt['firmware_sha256']==self.session['firmware_sha256'],'Run changed VM')
+  done=common.poll(lambda:self.client.json('sessions/'+self.sid+'/program'),lambda v:v['program']['state'] in ('completed','failed','unknown'),60)['program']
+  common.require(done['state']=='completed','guest program did not complete')
+  serial=self.serial(offset)['data'];records=[]
+  for line in serial.splitlines():
+   if line.startswith(PREFIX):
+    try:records.append(json.loads(line[len(PREFIX):]))
+    except ValueError:pass
+  records=[r for r in records if r.get('nonce')==self.nonce and r.get('phase')==name]
+  common.require(len(records)==1 and records[0]['driver_sha256']==DRIVER_SHA,'fresh guest record missing/ambiguous')
+  snapshot=self.units();u=snapshot['units'][0];common.require(u['available'] is True and not u.get('errors'),'QOM unavailable')
+  common.require(u['properties']['flash-mode'] is self.mode and u['properties']['mode-frozen'] is True,'mode fixture differs')
+  raw,headers=self.client.request('sessions/'+self.sid+'/frame.png?max_age_ms=1',binary=True)
+  common.require(headers.get('x-frame-sha256')==common.sha(raw) and headers.get('x-frame-execution-id')==done['execution_id'] and headers.get('x-frame-revision-id')==done['revision_id'],'frame Run identity differs')
+  with Image.open(io.BytesIO(raw)) as image:
+   actual=list(image.convert('RGB').getpixel((image.width//2,image.height//2)))
+   common.require(actual==([255,255,255] if records[0]['en'] else [0,0,0]),'guest pad pixel differs')
+  (self.output/(name+'.png')).write_bytes(raw);self.report['last_frame_sha256']=common.sha(raw)
+  observation={'phase':name,'execution':done,'guest':records[0],'unit':u,'frame_sha256':common.sha(raw),'frame_headers':headers,'selected_pad_pixel':actual,'snapshot_semantics':'QOM fields sampled separately; not atomic across fields or frame'}
+  common.save(self.output/(name+'.json'),observation);self.report['observations'].append(observation)
+  return observation
+ def reject_mode(self):
+  before=self.units()['units'][0]['properties']
+  for mode in (True,False):
+   error=self.client.json('sessions/'+self.sid+'/unit-input','POST',{'id':'lamp','values':{'flash-mode':mode}},expected=409)
+   common.require(error['error']['code']=='unit_input_creation_only','wrong creation-only rejection')
+   self.report['rejections'].append({'mode':mode,'error':error})
+  after=self.units()['units'][0]['properties']
+  common.require(before['flash-mode'] is after['flash-mode'] and before['input-events']==after['input-events'],'rejected input changed fixture')
+ def execute(self):
+  try:
+   self.create();self.phase('reset');self.reject_mode()
+   phases=PHASES[1:10] if self.mode else ('steady-on','steady-off','steady-on')
+   for p in phases:
+    observation=self.phase(p)
+    if not self.mode:
+     props=observation['unit']['properties'];common.require(props['output-known'] is True and props['active'] is (p=='steady-on') and props['flash-level-pct']==0 and props['timeout-ms']==0,'Torch steady state differs')
+   if self.args.hold_file:
+    common.save(self.args.hold_file,{'session_id':self.sid,'device_id':self.device,'mode':self.mode,'pid':self.session['pid'],'firmware_sha256':self.session['firmware_sha256'],'worker':self.session['worker'],'runtime_sha256':self.args.expected_runtime_sha256,'pins':self.pins,'nonce':self.nonce,'output':str(self.output)})
+    deadline=time.monotonic()+self.args.hold_seconds
+    while time.monotonic()<deadline and not self.args.hold_file.with_suffix('.done').exists():time.sleep(.2)
+    common.require(self.args.hold_file.with_suffix('.done').exists(),'bounded live-Web hold not acknowledged')
+   self.same_vm();self.capture_zip();self.report['status']='PASS'
+  except BaseException as error:self.report['error']={'type':type(error).__name__,'message':str(error)}
+  finally:
+   self.report['cleanup']=self.cleanup()
+   if self.report['cleanup']['status']!='PASS':self.report['status']='FAIL'
+   common.save(self.output/'report.json',self.report)
+  return self.report
+
+def main():
+ p=argparse.ArgumentParser();p.add_argument('--execute',action='store_true');p.add_argument('--device',choices=PORTS,default='cores3');p.add_argument('--mode',choices=('flash','torch'),default='flash');p.add_argument('--expected-runtime-sha256');p.add_argument('--out-dir',type=Path);p.add_argument('--hold-file',type=Path);p.add_argument('--hold-seconds',type=int,default=300);args=p.parse_args()
+ if not args.execute:
+  print(json.dumps({'status':'NOT RUN','api_contacted':False,'guests_started':0,'device':args.device,'mode':args.mode,'phases':PHASES if args.mode=='flash' else ['reset','steady-on','steady-off','steady-on'],'driver_sha256':DRIVER_SHA,'scope':'measured actual traces; never relax qualification for a PASS'}));return 0
+ common.require(args.out_dir and args.expected_runtime_sha256 and not args.out_dir.exists(),'fresh output and explicit runtime hash required')
+ args.out_dir.mkdir(parents=True);client=common.Client('http://127.0.0.1:8787',common.read_token(ROOT/'.work/preview-control-token'),args.out_dir)
+ lane=Lane(client,args,args.device,args.mode=='flash',args.out_dir)
+ result=lane.execute();print(json.dumps({'status':result['status'],'session_id':result.get('session_id'),'observations':len(result['observations']),'cleanup':result['cleanup']['status'],'error':result.get('error')}));return result['status']!='PASS'
+if __name__=='__main__':sys.exit(main())

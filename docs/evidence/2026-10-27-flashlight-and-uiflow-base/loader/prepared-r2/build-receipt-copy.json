@@ -1,0 +1,804 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-26T20:21:33.919308+00:00",
+  "classification": "LOCAL_BUILD_PASS_NOT_GUEST_ADMITTED",
+  "target": "CoreS3",
+  "uiflow_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "micropython_commit": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+  "idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+  "idf_version": "v5.5.4",
+  "source": [
+    {
+      "name": "uiflow",
+      "path": "uiflow",
+      "head": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "tracked_diff": {
+        "path": "receipt-data/uiflow-tracked.diff",
+        "bytes": 2039,
+        "sha256": "6669a3a514823f36a3c188c449ed47546a800790c0f367a4b99d7d584b01072b"
+      },
+      "status": {
+        "path": "receipt-data/uiflow-status.txt",
+        "bytes": 195,
+        "sha256": "6507c800d827428b2b71436ae01f3d6774398060a26bed6d0db9fa1bb2de26e9"
+      }
+    },
+    {
+      "name": "idf",
+      "path": "idf",
+      "head": "735507283d5b2f9fb363a1901172dbd9e847945d",
+      "tracked_diff": {
+        "path": "receipt-data/idf-tracked.diff",
+        "bytes": 3470,
+        "sha256": "3c2166c41bac31cab1059039457423c6128b9b72d143e85c8d65b1c9e37afdac"
+      },
+      "status": {
+        "path": "receipt-data/idf-status.txt",
+        "bytes": 121,
+        "sha256": "661c7d931afd02fa39d75fbf5c9614dcac34260b43f6eba281d72db0d232bc4b"
+      }
+    },
+    {
+      "name": "micropython",
+      "path": "uiflow/micropython",
+      "head": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+      "tracked_diff": {
+        "path": "receipt-data/micropython-tracked.diff",
+        "bytes": 40624,
+        "sha256": "06e10d67998fd3c84a91ccdf000a1fc585315cba6ccf201e01e2c68d776843b5"
+      },
+      "status": {
+        "path": "receipt-data/micropython-status.txt",
+        "bytes": 486,
+        "sha256": "7efc4124c671e63c486743dc2e9e42034d392f315569b56811b75605fc482e08"
+      }
+    },
+    {
+      "name": "lv_binding",
+      "path": "uiflow/m5stack/cmodules/lv_binding_micropython",
+      "head": "44f70b1e1adb087e00ea5d39fe45a0b0f3551646",
+      "tracked_diff": {
+        "path": "receipt-data/lv_binding-tracked.diff",
+        "bytes": 4869,
+        "sha256": "0f777d75c86c9cdd44d1652654a455bd1d04d03ffc5dde08ec7800d0251b1ce0"
+      },
+      "status": {
+        "path": "receipt-data/lv_binding-status.txt",
+        "bytes": 80,
+        "sha256": "e228d66c028c68e28fba69801dba59510a0dcbb4d68496d483a7a94d20d5eac7"
+      }
+    },
+    {
+      "name": "M5Unified",
+      "path": "uiflow/m5stack/components/M5Unified/M5Unified",
+      "head": "8530f5377d782e4a25a6c482de2e71c3f75ca8eb",
+      "tracked_diff": {
+        "path": "receipt-data/M5Unified-tracked.diff",
+        "bytes": 38980,
+        "sha256": "131c55ff93be782637a145e111932edf6e0d7717751df2011e34cc95ab86d8e8"
+      },
+      "status": {
+        "path": "receipt-data/M5Unified-status.txt",
+        "bytes": 391,
+        "sha256": "fff3dc2a3e9c293e455b50b9acddbc8acc0886604d5d436ebd3796da7df2f4d0"
+      }
+    },
+    {
+      "name": "M5GFX",
+      "path": "uiflow/m5stack/components/M5Unified/M5GFX",
+      "head": "9bcedf4e19d4cab7a0793de0598ae5390b4689fe",
+      "tracked_diff": {
+        "path": "receipt-data/M5GFX-tracked.diff",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "status": {
+        "path": "receipt-data/M5GFX-status.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "esp-adf",
+      "path": "uiflow/esp-adf",
+      "head": "01488579932e18c327a151c5b61efff38c9af880",
+      "tracked_diff": {
+        "path": "receipt-data/esp-adf-tracked.diff",
+        "bytes": 689,
+        "sha256": "c7b22ef4abdb68298507919ad9be7ea7f9ae7caeb2bdb4bc1da77628b832b4d0"
+      },
+      "status": {
+        "path": "receipt-data/esp-adf-status.txt",
+        "bytes": 65,
+        "sha256": "94abe50c3876cb821b4b888305bbb2753cd45b0ad9b2bbd752f71277a2606306"
+      }
+    },
+    {
+      "name": "esp32-camera",
+      "path": "uiflow/m5stack/components/esp32-camera",
+      "head": "b817e9b81041980608d1a3d3e0b08d86e3666382",
+      "tracked_diff": {
+        "path": "receipt-data/esp32-camera-tracked.diff",
+        "bytes": 30465,
+        "sha256": "5ad4be7633f597a13251f2c16814debe4a35321454c2ef1e22678fc51db0de66"
+      },
+      "status": {
+        "path": "receipt-data/esp32-camera-status.txt",
+        "bytes": 68,
+        "sha256": "18ea79824e57d962f5fea5312d11b66b0d7565b7c41e4b7a6a6a62821bd18b22"
+      }
+    }
+  ],
+  "provenance_files": [
+    {
+      "original_path": "uiflow/m5stack/dependencies.lock",
+      "path": "receipt-data/dependencies.lock",
+      "bytes": 3902,
+      "sha256": "d46169a24b008dc4e5cab20701a69a655d88d3ef79df7cdb5036e1ef87ee750d"
+    },
+    {
+      "original_path": "idf-tools/espidf.constraints.v5.5.txt",
+      "path": "receipt-data/espidf.constraints.v5.5.txt",
+      "bytes": 3766,
+      "sha256": "6b53b3657a924b8ba10c5e4eea0628e1675d2dadb7b2f9ecc48c8d130a117aa1"
+    },
+    {
+      "original_path": "idf/tools/tools.json",
+      "path": "receipt-data/tools.json",
+      "bytes": 42371,
+      "sha256": "113bf865724ddf0c6e554c2da3cd55b39655f0b220fdf5a52ab0518d04dffde3"
+    },
+    {
+      "original_path": "uiflow/m5stack/build-M5STACK_CoreS3/sdkconfig",
+      "path": "receipt-data/sdkconfig",
+      "bytes": 94277,
+      "sha256": "5c5b70accf53966c763ff0dc60da6677f724bcfab0e1e1d6f2f469d16de8f9dc"
+    },
+    {
+      "original_path": "uiflow/m5stack/build-M5STACK_CoreS3/compile_commands.json",
+      "path": "receipt-data/compile_commands.json",
+      "bytes": 115848406,
+      "sha256": "2a86dce86703d9d775276221fa9a6da0c3e30ffc60a2f834e75e2a805cc08b9d"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/micropython.bin",
+      "bytes": 9944832,
+      "sha256": "a3bb30eb01428ec51fb08003950b228bdc57c7cf362354c4089b084d5abdc522"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/uiflow-3a86d8f.bin",
+      "bytes": 16121856,
+      "sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/fs-system.bin",
+      "bytes": 1048576,
+      "sha256": "b91347cc59450e92f2ac48d7d2425c3e1bd54c40b50e92448912ab4b64a9e041"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/fs-user.bin",
+      "bytes": 4980736,
+      "sha256": "3c51ab42fc4215e1bdcb9f37420df269c500280d2305cf08d76d3041dd92a624"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/nvs.bin",
+      "bytes": 24576,
+      "sha256": "41ae2ba19925c9bd4942527efcf6ffec93776331f87933a5286b614736b3879e"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/uiflow-3a86d8f-esp32s3-spiram-16mb-cores3-v2.5.3-20261027.bin",
+      "bytes": 16121856,
+      "sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/sx-uiflow-3a86d8f.uf2",
+      "bytes": 19889664,
+      "sha256": "e3061e04c1b3091d746ea0b3b587142fa73be098e7ed9a5457bfd79368613a35"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/micropython.elf",
+      "bytes": 80833000,
+      "sha256": "c54b0b507da47e185cd6e34decd50a53261b36966b9c3c2a9112538ffd329a0c"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/micropython.map",
+      "bytes": 38794307,
+      "sha256": "5b966c4de16248ebb34fcca253e089be74f051f472bc4bc401a79c64dba60999"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/bootloader/bootloader.bin",
+      "bytes": 17840,
+      "sha256": "a0355d2b5411d960afa19150480cc224266ddbbc27eca148fa6f2f58892a8c04"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/partition_table/partition-table.bin",
+      "bytes": 3072,
+      "sha256": "5ffb11596e648a378ec1c637c646f428a64062620e12552e8c246aa48b1e3688"
+    }
+  ],
+  "tools": [
+    {
+      "path": "idf-tools/dist/xtensa-esp-elf-14.2.0_20260121-aarch64-apple-darwin.tar.xz",
+      "bytes": 170666656,
+      "sha256": "a450db49cea5f191a96345c5b7f0e1a9671a9cf132fecfd9fb1faf6c2a30637e"
+    },
+    {
+      "path": "idf-tools/dist/xtensa-esp-elf-gdb-16.3_20250913-aarch64-apple-darwin24.5.tar.gz",
+      "bytes": 39809369,
+      "sha256": "251e3be9c9436d9ab7fee6c05519fd816a05e63bd47495e24ea4e354881a851c"
+    },
+    {
+      "path": "idf-tools/dist/esp32ulp-elf-2.38_20240113-macos-arm64.tar.gz",
+      "bytes": 15843725,
+      "sha256": "e3a4dfea043e2bce8cd00b3a0b260a59249fa61ca5931bf02f18a3d43c18deb4"
+    },
+    {
+      "path": "idf-tools/dist/openocd-esp32-macos-arm64-0.12.0-esp32-20251215.tar.gz",
+      "bytes": 2535504,
+      "sha256": "e6414c8db2ab09b687eaf765b1e69a92aecdcfe44e073d6f47ff829777e2e823"
+    },
+    {
+      "path": "idf-tools/dist/riscv32-esp-elf-14.2.0_20260121-aarch64-apple-darwin.tar.xz",
+      "bytes": 289213048,
+      "sha256": "caa7103e014c61939eea4656cd4effdc34930da0b76cd59ad1adb7bfaeef923c"
+    },
+    {
+      "path": "idf-tools/dist/esp-rom-elfs-20241011.tar.gz",
+      "bytes": 3540038,
+      "sha256": "921f000164a421c7628fbfee55b173384aafaa51883adc65cd27bf9b0af9e9a9"
+    },
+    {
+      "path": "host-tools/bin/cmp",
+      "bytes": 93696,
+      "sha256": "a5fa1ae8fc53208f26f0550909f1831e57361f306ce1ce5fb31dbec9c9044d49"
+    },
+    {
+      "path": "host-tools/bin/diff3",
+      "bytes": 113704,
+      "sha256": "8688028a68555a512ce39fef6f5e3525cf3c2b4346f9f1c503af87e80fea5e50"
+    },
+    {
+      "path": "host-tools/bin/sed",
+      "bytes": 266848,
+      "sha256": "b4b05d4b2bb5be83d1822fa361d16e09337c84b16fa8a369cbe450dd48326222"
+    },
+    {
+      "path": "host-tools/bin/quilt",
+      "bytes": 3660,
+      "sha256": "54a86f13a3b569ae8f8ae2d3a1a3deb1241d444694a4cc35079debfb6318ac0d"
+    },
+    {
+      "path": "host-tools/bin/diff",
+      "bytes": 305512,
+      "sha256": "772c0e7bf702bea04c20e7ccfe0156a51b486630a3125246777dd3d7f4f37d77"
+    },
+    {
+      "path": "host-tools/bin/patch",
+      "bytes": 274504,
+      "sha256": "203453ad961f3b14152f4810ff4906955819ef347bd4080f506814332723de5b"
+    },
+    {
+      "path": "host-tools/bin/sdiff",
+      "bytes": 97192,
+      "sha256": "db5211b9a4021ba07d5bb78c46a1b337354a424928553b315d885c699c6a62ba"
+    },
+    {
+      "path": "host-tools/bin/guards",
+      "bytes": 7266,
+      "sha256": "100a02e9e46f441ce816f5410054953d69f9680b5e60ccb7b157ea7a4f023d83"
+    },
+    {
+      "path": "uiflow/micropython/mpy-cross/build/mpy-cross",
+      "bytes": 481256,
+      "sha256": "b040a719cc169621e535fe4cf8807a368e1aeb9a5ddad8f67c0aee084016538c"
+    },
+    {
+      "path": "uiflow/tools/littlefs/prebuilt/littlefs2",
+      "bytes": 106744,
+      "sha256": "33f76efe2fad2f667803bde8197212993f22079af8cf39c87ee53aa59ddfce66"
+    }
+  ],
+  "stages": [
+    {
+      "name": "adf-submodules",
+      "argv": [
+        "git",
+        "submodule",
+        "update",
+        "--init",
+        "--depth=1",
+        "components/esp-adf-libs",
+        "components/esp-sr"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/uiflow/esp-adf",
+      "started_at": "2026-10-26T20:11:20.098099+00:00",
+      "timeout_seconds": 1200,
+      "state": "finished",
+      "pid": 89433,
+      "pgid": 89433,
+      "exit_code": 0,
+      "elapsed_seconds": 44.165,
+      "finished_at": "2026-10-26T20:12:04.263287+00:00"
+    },
+    {
+      "name": "check-idf-environment",
+      "argv": [
+        "bash",
+        "check-idf-env.sh"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:13:10.057348+00:00",
+      "timeout_seconds": 120,
+      "state": "finished",
+      "pid": 3178,
+      "pgid": 3178,
+      "exit_code": 0,
+      "elapsed_seconds": 7.006,
+      "finished_at": "2026-10-26T20:13:17.063540+00:00"
+    },
+    {
+      "name": "cores3-pack-all",
+      "argv": [
+        "bash",
+        "build-cores3.sh"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:16:50.009714+00:00",
+      "timeout_seconds": 2400,
+      "state": "finished",
+      "pid": 25739,
+      "pgid": 25739,
+      "exit_code": 0,
+      "elapsed_seconds": 173.692,
+      "finished_at": "2026-10-26T20:19:43.701465+00:00"
+    },
+    {
+      "name": "gnu-host-tools",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "prepare-gnu-tools.py"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:11:40.628311+00:00",
+      "timeout_seconds": 1200,
+      "state": "finished",
+      "pid": 89803,
+      "pgid": 89803,
+      "exit_code": 0,
+      "elapsed_seconds": 185.889,
+      "finished_at": "2026-10-26T20:14:46.517059+00:00"
+    },
+    {
+      "name": "host-build-tools",
+      "argv": [
+        "host-env/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "cmake==3.30.5",
+        "ninja==1.11.1.3",
+        "future==1.0.0"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:08:32.642538+00:00",
+      "timeout_seconds": 300,
+      "state": "finished",
+      "pid": 87236,
+      "pgid": 87236,
+      "exit_code": 0,
+      "elapsed_seconds": 5.375,
+      "finished_at": "2026-10-26T20:08:38.017879+00:00"
+    },
+    {
+      "name": "host-env",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-m",
+        "venv",
+        "host-env"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:08:11.072183+00:00",
+      "timeout_seconds": 180,
+      "state": "finished",
+      "pid": 87136,
+      "pgid": 87136,
+      "exit_code": 0,
+      "elapsed_seconds": 1.101,
+      "finished_at": "2026-10-26T20:08:12.173550+00:00"
+    },
+    {
+      "name": "idf-python-env-r2",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "idf/tools/idf_tools.py",
+        "install-python-env",
+        "--features=core"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:12:20.032304+00:00",
+      "timeout_seconds": 600,
+      "state": "finished",
+      "pid": 93673,
+      "pgid": 93673,
+      "exit_code": 0,
+      "elapsed_seconds": 26.178,
+      "finished_at": "2026-10-26T20:12:46.210480+00:00"
+    },
+    {
+      "name": "idf-python-env",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "idf/tools/idf_tools.py",
+        "install-python-env",
+        "--features=core"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:12:07.993207+00:00",
+      "timeout_seconds": 600,
+      "state": "finished",
+      "pid": 92648,
+      "pgid": 92648,
+      "exit_code": 1,
+      "elapsed_seconds": 0.132,
+      "finished_at": "2026-10-26T20:12:08.124803+00:00"
+    },
+    {
+      "name": "idf-python-future",
+      "argv": [
+        "idf-python-env/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "future==1.0.0"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:16:11.481415+00:00",
+      "timeout_seconds": 120,
+      "state": "finished",
+      "pid": 25611,
+      "pgid": 25611,
+      "exit_code": 0,
+      "elapsed_seconds": 0.453,
+      "finished_at": "2026-10-26T20:16:11.934207+00:00"
+    },
+    {
+      "name": "idf-submodules",
+      "argv": [
+        "git",
+        "submodule",
+        "update",
+        "--init",
+        "--recursive",
+        "--depth=1"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/idf",
+      "started_at": "2026-10-26T20:09:23.851306+00:00",
+      "timeout_seconds": 1500,
+      "state": "finished",
+      "pid": 87576,
+      "pgid": 87576,
+      "exit_code": 0,
+      "elapsed_seconds": 98.217,
+      "finished_at": "2026-10-26T20:11:02.068035+00:00"
+    },
+    {
+      "name": "idf-tools-install",
+      "argv": [
+        "bash",
+        "idf/install.sh",
+        "esp32s3"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:09:23.851305+00:00",
+      "timeout_seconds": 1500,
+      "state": "finished",
+      "pid": 87578,
+      "pgid": 87578,
+      "exit_code": 1,
+      "elapsed_seconds": 54.393,
+      "finished_at": "2026-10-26T20:10:18.244512+00:00"
+    },
+    {
+      "name": "inspect-cores3-build-r2",
+      "argv": [
+        "bash",
+        "inspect-cores3-build.sh"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:21:23.189748+00:00",
+      "timeout_seconds": 90,
+      "state": "finished",
+      "pid": 40923,
+      "pgid": 40923,
+      "exit_code": 0,
+      "elapsed_seconds": 1.095,
+      "finished_at": "2026-10-26T20:21:24.284373+00:00"
+    },
+    {
+      "name": "inspect-cores3-build",
+      "argv": [
+        "bash",
+        "inspect-cores3-build.sh"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:20:11.762886+00:00",
+      "timeout_seconds": 90,
+      "state": "finished",
+      "pid": 40132,
+      "pgid": 40132,
+      "exit_code": 2,
+      "elapsed_seconds": 1.156,
+      "finished_at": "2026-10-26T20:20:12.918589+00:00"
+    },
+    {
+      "name": "littlefs-tool-build",
+      "argv": [
+        "make",
+        "-C",
+        "uiflow/m5stack",
+        "littlefs"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:14:10.294422+00:00",
+      "timeout_seconds": 180,
+      "state": "finished",
+      "pid": 16013,
+      "pgid": 16013,
+      "exit_code": 0,
+      "elapsed_seconds": 2.264,
+      "finished_at": "2026-10-26T20:14:12.558103+00:00"
+    },
+    {
+      "name": "lvgl-submodules",
+      "argv": [
+        "git",
+        "submodule",
+        "update",
+        "--init",
+        "--recursive",
+        "--depth=1"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/cmodules/lv_binding_micropython",
+      "started_at": "2026-10-26T20:11:20.098101+00:00",
+      "timeout_seconds": 1200,
+      "state": "finished",
+      "pid": 89434,
+      "pgid": 89434,
+      "exit_code": 0,
+      "elapsed_seconds": 17.881,
+      "finished_at": "2026-10-26T20:11:37.979520+00:00"
+    },
+    {
+      "name": "micropython-submodules",
+      "argv": [
+        "git",
+        "submodule",
+        "update",
+        "--init",
+        "--depth=1",
+        "lib/berkeley-db-1.xx",
+        "lib/tinyusb",
+        "lib/micropython-lib"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/uiflow/micropython",
+      "started_at": "2026-10-26T20:11:20.098121+00:00",
+      "timeout_seconds": 1200,
+      "state": "finished",
+      "pid": 89435,
+      "pgid": 89435,
+      "exit_code": 0,
+      "elapsed_seconds": 9.698,
+      "finished_at": "2026-10-26T20:11:29.796608+00:00"
+    },
+    {
+      "name": "mpy-cross-build",
+      "argv": [
+        "make",
+        "-C",
+        "uiflow/m5stack",
+        "mpy-cross",
+        "-j4"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:13:11.262357+00:00",
+      "timeout_seconds": 240,
+      "state": "finished",
+      "pid": 3269,
+      "pgid": 3269,
+      "exit_code": 0,
+      "elapsed_seconds": 3.86,
+      "finished_at": "2026-10-26T20:13:15.122147+00:00"
+    },
+    {
+      "name": "official-patch-series",
+      "argv": [
+        "make",
+        "-C",
+        "uiflow/m5stack",
+        "patch"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:15:49.011201+00:00",
+      "timeout_seconds": 300,
+      "state": "finished",
+      "pid": 24117,
+      "pgid": 24117,
+      "exit_code": 0,
+      "elapsed_seconds": 2.032,
+      "finished_at": "2026-10-26T20:15:51.043656+00:00"
+    },
+    {
+      "name": "prepare-sources",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "prepare-sources.py"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027",
+      "started_at": "2026-10-26T20:08:31.415004+00:00",
+      "timeout_seconds": 1400,
+      "state": "finished",
+      "pid": 87216,
+      "pgid": 87216,
+      "exit_code": 0,
+      "elapsed_seconds": 12.453,
+      "finished_at": "2026-10-26T20:08:43.868191+00:00"
+    },
+    {
+      "name": "quilt-build",
+      "argv": [
+        "make",
+        "-j4"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/host-sources/quilt-0.68",
+      "started_at": "2026-10-26T20:15:30.919275+00:00",
+      "timeout_seconds": 180,
+      "state": "finished",
+      "pid": 23587,
+      "pgid": 23587,
+      "exit_code": 0,
+      "elapsed_seconds": 1.602,
+      "finished_at": "2026-10-26T20:15:32.520817+00:00"
+    },
+    {
+      "name": "quilt-configure-r2",
+      "argv": [
+        "./configure",
+        "--prefix=/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/host-tools",
+        "--disable-nls"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/host-sources/quilt-0.68",
+      "started_at": "2026-10-26T20:10:09.549742+00:00",
+      "timeout_seconds": 180,
+      "state": "finished",
+      "pid": 88414,
+      "pgid": 88414,
+      "exit_code": 1,
+      "elapsed_seconds": 0.857,
+      "finished_at": "2026-10-26T20:10:10.406902+00:00"
+    },
+    {
+      "name": "quilt-configure-r3",
+      "argv": [
+        "./configure",
+        "--prefix=/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/host-tools",
+        "--disable-nls",
+        "--without-date"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/host-sources/quilt-0.68",
+      "started_at": "2026-10-26T20:10:36.438317+00:00",
+      "timeout_seconds": 180,
+      "state": "finished",
+      "pid": 88899,
+      "pgid": 88899,
+      "exit_code": 1,
+      "elapsed_seconds": 0.341,
+      "finished_at": "2026-10-26T20:10:36.778836+00:00"
+    },
+    {
+      "name": "quilt-configure-r4",
+      "argv": [
+        "./configure",
+        "--prefix=/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/host-tools",
+        "--disable-nls",
+        "--without-date"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/host-sources/quilt-0.68",
+      "started_at": "2026-10-26T20:14:54.027883+00:00",
+      "timeout_seconds": 180,
+      "state": "finished",
+      "pid": 22876,
+      "pgid": 22876,
+      "exit_code": 1,
+      "elapsed_seconds": 0.378,
+      "finished_at": "2026-10-26T20:14:54.406216+00:00"
+    },
+    {
+      "name": "quilt-configure-r5",
+      "argv": [
+        "./configure",
+        "--prefix=/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/host-tools",
+        "--disable-nls",
+        "--without-date",
+        "--without-getopt"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/host-sources/quilt-0.68",
+      "started_at": "2026-10-26T20:15:22.054647+00:00",
+      "timeout_seconds": 180,
+      "state": "finished",
+      "pid": 23225,
+      "pgid": 23225,
+      "exit_code": 0,
+      "elapsed_seconds": 1.09,
+      "finished_at": "2026-10-26T20:15:23.145081+00:00"
+    },
+    {
+      "name": "quilt-configure",
+      "argv": [
+        "./configure",
+        "--prefix=/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/host-tools",
+        "--disable-nls"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/host-sources/quilt-0.68",
+      "started_at": "2026-10-26T20:09:56.145346+00:00",
+      "timeout_seconds": 180,
+      "state": "finished",
+      "exit_code": 127,
+      "spawn_failed": true,
+      "error": "working directory was absent after system Python tar filter error",
+      "finished_at": "2026-10-26T20:10:09.526484+00:00"
+    },
+    {
+      "name": "quilt-install",
+      "argv": [
+        "make",
+        "install"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/host-sources/quilt-0.68",
+      "started_at": "2026-10-26T20:15:43.562855+00:00",
+      "timeout_seconds": 120,
+      "state": "finished",
+      "pid": 24018,
+      "pgid": 24018,
+      "exit_code": 0,
+      "elapsed_seconds": 0.314,
+      "finished_at": "2026-10-26T20:15:43.876445+00:00"
+    },
+    {
+      "name": "uiflow-submodules",
+      "argv": [
+        "git",
+        "submodule",
+        "update",
+        "--init",
+        "--depth=1"
+      ],
+      "cwd": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-main-loader-build-20261027/uiflow",
+      "started_at": "2026-10-26T20:09:23.851310+00:00",
+      "timeout_seconds": 1500,
+      "state": "finished",
+      "pid": 87577,
+      "pgid": 87577,
+      "exit_code": 0,
+      "elapsed_seconds": 49.765,
+      "finished_at": "2026-10-26T20:10:13.616582+00:00"
+    }
+  ],
+  "active_owned_stages": [],
+  "config_proof": "cores3-loader-macro-proof.json",
+  "external_cache_boundary": {
+    "observed_implementation": "idf-component-manager2.5.2 on macOS defaults to user Library/Caches/Espressif/ComponentManager and ignores XDG_CACHE_HOME",
+    "first_build_cache": "MAY_HAVE_WRITTEN_OUTSIDE_OWNED_ROOT",
+    "sdk_tools_python_sources": "ALL_IN_OWNED_ROOT",
+    "future_stage_override": "IDF_COMPONENT_CACHE_PATH=<owned>/cache/components",
+    "external_cache_deleted_or_moved": false
+  },
+  "guest_runtime": "NOT RUN",
+  "hardware": "NOT RUN",
+  "reference_cache_modified": false,
+  "published": false,
+  "binary_repository_commit": "NOT COMMITTED",
+  "compatibility": "official source with local board override-main flags and resolved dependency lock; not stock-reference compatibility evidence"
+}

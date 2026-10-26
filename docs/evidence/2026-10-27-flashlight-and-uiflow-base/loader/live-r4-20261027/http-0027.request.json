@@ -1,0 +1,5 @@
+{
+  "source": "import sys,json\nassert '__m5_loader_probe_state__' not in sys.modules, 'VM was reused'\nsys.modules['__m5_loader_probe_state__']={'nonce':'333acfdcf9f14c058bdb73cba9d3677e','owner':__import__('__main__'),'count':0}\n_state=sys.modules['__m5_loader_probe_state__']\nassert type(_state) is dict and _state['nonce']=='333acfdcf9f14c058bdb73cba9d3677e' and _state['count']==0, 'private dict readback differs'\nassert __import__('__main__') is _state['owner'], 'private state owner differs'\nprint('MAIN_LOADER_CAP '+json.dumps({'kind':'state-created','nonce':_state['nonce'],'count':_state['count'],'owner_id':id(_state['owner'])}))\n",
+  "expected_execution_id": null,
+  "timeout_seconds": 30
+}

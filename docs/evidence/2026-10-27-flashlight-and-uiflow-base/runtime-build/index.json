@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-27",
+  "category": "BUILD_ONLY_NOT_GUEST_ADMITTED",
+  "status": "BUILD_ONLY_NOT_GUEST_ADMITTED",
+  "guest": "NOT RUN",
+  "hardware": "NOT RUN",
+  "binary_archived": false,
+  "rom_archived": false,
+  "source_workspace": ".work/unit-runtime-source-flashlight-final/qemu",
+  "binary_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+  "qemu_commit": "40edccac415693c5130f91c01d84176ae6008566",
+  "patch_count": 11,
+  "source_file_count": 106,
+  "complete_11_patch_forward_and_reverse_replay": true,
+  "old_2relay_source_receipt_binary_unchanged": true,
+  "old_2relay_files_checked": 108,
+  "all_reused_dependency_files_unchanged": true,
+  "reused_dependency_files_checked": 1440,
+  "checks": {
+    "patch_unit_tests": {
+      "status": "PASS",
+      "count": 18,
+      "receipt": "18-unit-tests.log"
+    },
+    "final_full_C_syntax": {
+      "status": "PASS",
+      "count": 2,
+      "receipt": "final-syntax-and-sanitizer.json"
+    },
+    "actual_patch_ASan_UBSan": {
+      "status": "PASS",
+      "cases": 16,
+      "receipt": "final-syntax-and-sanitizer.json"
+    },
+    "cold_build": {
+      "status": "PASS",
+      "receipt": "cold-build-command.json"
+    },
+    "source_replay": {
+      "status": "PASS",
+      "receipt": "source-replay.json"
+    }
+  },
+  "limitations": [
+    "partial nominal digital model",
+    "500us stable-high decode and first-rise timeout origin are model policy",
+    "no guest execution or functional acceptance",
+    "no hardware/current/optical/thermal/electrical validation",
+    "UNIT-HOST-36 reset observation remains unsupported",
+    "no hotplug; state/timers follow existing GPIOUnit VM-process ownership",
+    "mode is frozen creation fixture; no live S1/PWM support"
+  ],
+  "files": [
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/18-unit-tests.log",
+      "archived_path": "18-unit-tests.log",
+      "original_sha256": "c9142cbe8422fb284202adff7066356a14a282a8e754e99adcf3a65dafea42d3",
+      "archived_sha256": "c9142cbe8422fb284202adff7066356a14a282a8e754e99adcf3a65dafea42d3",
+      "bytes": 3411,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/author-reverse-check.log",
+      "archived_path": "author-reverse-check.log",
+      "original_sha256": "563b27585c0cb3b17997139ad9222da01d99d081f45f1d8bb9f6db3093d42687",
+      "archived_sha256": "563b27585c0cb3b17997139ad9222da01d99d081f45f1d8bb9f6db3093d42687",
+      "bytes": 256,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/cold-build-command.json",
+      "archived_path": "cold-build-command.json",
+      "original_sha256": "a46d1ffcfe98472e2fdd09d4fc149daec7362239345526efb42126fb72fe854e",
+      "archived_sha256": "a46d1ffcfe98472e2fdd09d4fc149daec7362239345526efb42126fb72fe854e",
+      "bytes": 552,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/cold-build.log",
+      "archived_path": "cold-build.log",
+      "original_sha256": "dc05c535b19c2c1e8addd9be686be3c14b262554fbbae2c35e0c7d0077c7c398",
+      "archived_sha256": "dc05c535b19c2c1e8addd9be686be3c14b262554fbbae2c35e0c7d0077c7c398",
+      "bytes": 157139,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/final-build-receipt.json",
+      "archived_path": "final-build-receipt.json",
+      "original_sha256": "db745cfac2ccc5d389904205092951db68c33c084c17fe5a53c1611d397dbea4",
+      "archived_sha256": "db745cfac2ccc5d389904205092951db68c33c084c17fe5a53c1611d397dbea4",
+      "bytes": 11683,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/final-syntax-and-sanitizer.json",
+      "archived_path": "final-syntax-and-sanitizer.json",
+      "original_sha256": "78a9f6b1c0a97596553b79441be0afc3a7e4b9a22493cd701ed43317c2697f05",
+      "archived_sha256": "78a9f6b1c0a97596553b79441be0afc3a7e4b9a22493cd701ed43317c2697f05",
+      "bytes": 14114,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/final-syntax-and-sanitizer.log",
+      "archived_path": "final-syntax-and-sanitizer.log",
+      "original_sha256": "4ab8d794a7ecfba8c80d6cb10e661a9ec31f6f6600e2ddf93410490438b9b38e",
+      "archived_sha256": "4ab8d794a7ecfba8c80d6cb10e661a9ec31f6f6600e2ddf93410490438b9b38e",
+      "bytes": 10531,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/inputs-and-baseline.json",
+      "archived_path": "inputs-and-baseline.json",
+      "original_sha256": "5146d471369d8b0576d339ad5547916aa7b14fc03c208141948c1c6cad798299",
+      "archived_sha256": "5146d471369d8b0576d339ad5547916aa7b14fc03c208141948c1c6cad798299",
+      "bytes": 291981,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/owned-artifact-sha256.json",
+      "archived_path": "owned-artifact-sha256.json",
+      "original_sha256": "ba5e888cc2ee168f1ca6d0656d09d465d4c3322ee0977875f6b315874d30b477",
+      "archived_sha256": "ba5e888cc2ee168f1ca6d0656d09d465d4c3322ee0977875f6b315874d30b477",
+      "bytes": 793,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/prepare-command.json",
+      "archived_path": "prepare-command.json",
+      "original_sha256": "9c6fcc587ff8107a0a409a676d07bfb1b5da6d94932dbc5edbfc3e938790745e",
+      "archived_sha256": "9c6fcc587ff8107a0a409a676d07bfb1b5da6d94932dbc5edbfc3e938790745e",
+      "bytes": 380,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/prepare.log",
+      "archived_path": "prepare.log",
+      "original_sha256": "8816f8638105919017219f829e555f6c789f88c3c62b81ea1491c036ea577db7",
+      "archived_sha256": "8816f8638105919017219f829e555f6c789f88c3c62b81ea1491c036ea577db7",
+      "bytes": 9544,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/source-replay.json",
+      "archived_path": "source-replay.json",
+      "original_sha256": "4d3a3cd5de9356a4ac188cc31310155ba783d821573cad3ff846be1cf9a880a5",
+      "archived_sha256": "4d3a3cd5de9356a4ac188cc31310155ba783d821573cad3ff846be1cf9a880a5",
+      "bytes": 28420,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/source-replay.log",
+      "archived_path": "source-replay.log",
+      "original_sha256": "316dc3c6bbe77e3383433b7fcf2bba834efed523c8a4812756ed013e193bbaaa",
+      "archived_sha256": "316dc3c6bbe77e3383433b7fcf2bba834efed523c8a4812756ed013e193bbaaa",
+      "bytes": 9877,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/verification/syntax-and-sanitizer.json",
+      "archived_path": "syntax-and-sanitizer.json",
+      "original_sha256": "1f46e6837211a4f9dfa5f909ce37a99e53c8b6b75960154e85acdc86c3075cf0",
+      "archived_sha256": "1f46e6837211a4f9dfa5f909ce37a99e53c8b6b75960154e85acdc86c3075cf0",
+      "bytes": 883,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    },
+    {
+      "source_path": ".work/unit-runtime-source-flashlight-final/harness/aw3641.c",
+      "archived_path": "harness/aw3641.c.txt",
+      "original_sha256": "7315385caea30c0b2aa466cebb8a39436b4e982d0df456e45bbe0e3e4dca3ac8",
+      "archived_sha256": "7315385caea30c0b2aa466cebb8a39436b4e982d0df456e45bbe0e3e4dca3ac8",
+      "bytes": 32103,
+      "encoding": "utf-8",
+      "original_bytes_preserved": true
+    }
+  ]
+}

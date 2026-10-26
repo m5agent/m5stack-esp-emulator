@@ -27,6 +27,7 @@ import uuid
 SOURCE_KIND = "uiflow2-package"
 ENTRYPOINTS = ("main.py", "main.mpy")
 MAX_PACKAGES = 256
+MAX_CONFIGURED_PACKAGES = 4096
 MAX_PACKAGE_BYTES = 1024 * 1024
 MAX_PACKAGE_FILES = 64
 MAX_FILE_BYTES = 256 * 1024
@@ -214,8 +215,8 @@ def _unique_object(pairs: list[tuple[str, Any]]) -> dict:
 
 class ProgramPackageStore:
     def __init__(self, root: Path, *, max_count: int = MAX_PACKAGES):
-        if type(max_count) is not int or not 1 <= max_count <= MAX_PACKAGES:
-            raise ProgramPackageError("invalid_package_quota", "max_count must be between 1 and 256")
+        if type(max_count) is not int or not 1 <= max_count <= MAX_CONFIGURED_PACKAGES:
+            raise ProgramPackageError("invalid_package_quota", "max_count must be between 1 and 4096")
         self.root = Path(root)
         self.max_count = max_count
         self._lock = threading.RLock()

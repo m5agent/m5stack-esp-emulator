@@ -1,0 +1,106 @@
+{
+  "category": "frontend-orchestration-fault-contract",
+  "status": "PASS",
+  "browser_execution": "NOT RUN",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "source_sha256": {
+    "platform/web/unit-visual-mappings.js": "28868a42e2eb58d61efacc07a66e5725fc0c1c8b0597d85a56a680d37b6289da",
+    "platform/web/sessions.js": "2bdfb9a18c448eac5e450162cb4497bbc6920dbdcb8cc0a67fa491e583d19675",
+    "platform/web/unit-panel.js": "252b1f60144a3bed1be5cd18f335f038f042803fee102331a0c74ee8f0f4f6e1"
+  },
+  "cases": [
+    {
+      "name": "late-shell-demotion-restores-saved-frame",
+      "status": "PASS"
+    },
+    {
+      "name": "late-shell-without-frame-restores-placeholder",
+      "status": "PASS"
+    },
+    {
+      "name": "destroyed-visual-is-not-restored",
+      "status": "PASS"
+    },
+    {
+      "name": "stale-cleanup-does-not-replace-current-owner",
+      "status": "PASS"
+    },
+    {
+      "name": "destroyed-load-cannot-clear-reused-host-owner",
+      "status": "PASS"
+    },
+    {
+      "name": "reallow-three-retries-only-latest-generation",
+      "status": "PASS"
+    },
+    {
+      "name": "late-shell-rejection-after-demotion-preserves-frame",
+      "status": "PASS"
+    },
+    {
+      "name": "late-rejection-cannot-clear-reused-host-after-destroy",
+      "status": "PASS"
+    },
+    {
+      "name": "late-rejection-preserves-new-shell-owner",
+      "status": "PASS"
+    },
+    {
+      "name": "committed-image-failure-detaches-and-disposes-owned-shell",
+      "status": "PASS"
+    },
+    {
+      "name": "normal-release-adds-no-extra-post",
+      "status": "PASS"
+    },
+    {
+      "name": "lost-release-recovers-on-new-get-once",
+      "status": "PASS"
+    },
+    {
+      "name": "array-recovery-preserves-unowned-held-index",
+      "status": "PASS"
+    },
+    {
+      "name": "repress-cancels-previous-release-intent",
+      "status": "PASS"
+    },
+    {
+      "name": "stale-get-started-before-release-failure-is-not-recovery",
+      "status": "PASS"
+    },
+    {
+      "name": "already-applied-release-is-confirmed-without-retry",
+      "status": "PASS"
+    },
+    {
+      "name": "permanent-failure-is-bounded-and-keeps-intent",
+      "status": "PASS"
+    },
+    {
+      "name": "stopped-cancels-pending-compensation",
+      "status": "PASS"
+    },
+    {
+      "name": "failed-cancels-pending-compensation",
+      "status": "PASS"
+    },
+    {
+      "name": "dispose-cancels-pending-compensation",
+      "status": "PASS"
+    },
+    {
+      "name": "queued-unavailable-does-not-consume-compensation-budget",
+      "status": "PASS"
+    },
+    {
+      "name": "repress-while-compensation-is-queued-cancels-old-release",
+      "status": "PASS"
+    },
+    {
+      "name": "unowned-direct-input-does-not-create-recovery-or-echo",
+      "status": "PASS"
+    }
+  ]
+}
