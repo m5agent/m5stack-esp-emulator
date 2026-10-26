@@ -3,6 +3,8 @@ import json
 import unittest
 from pathlib import Path
 
+import qemu_profiles
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -22,25 +24,30 @@ class QemuProfileTest(unittest.TestCase):
         source = json.loads(
             (ROOT / "devices/catalog.source.json").read_text()
         )
-        catalog = {
-            device["id"]: device["runtime"].get("validation", {})
-            for device in source["devices"]
-        }
-        for row in self.registry["devices"]:
-            if not row["backend"].startswith(("qemu-esp32", "esp-emulator")):
-                continue
-            validation = row.get("validation", {})
-            with self.subTest(device=row["id"]):
-                self.assertEqual(
-                    validation.get("date"),
-                    catalog[row["id"]].get("date"),
-                    f"{row['id']}: QEMU profile and device catalog dates differ",
-                )
-                self.assertEqual(
-                    validation.get("status"),
-                    catalog[row["id"]].get("status"),
-                    f"{row['id']}: QEMU profile and device catalog statuses differ",
-                )
+        self.assertEqual(
+            qemu_profiles.catalog_validation_errors(self.registry, source),
+            [],
+        )
+
+    def test_qemu_profile_check_rejects_catalog_validation_drift(self):
+        source = json.loads(
+            (ROOT / "devices/catalog.source.json").read_text()
+        )
+        registry = json.loads(json.dumps(self.registry))
+        registry["generated_at"] = "2000-01-01"
+        core2 = next(
+            row for row in registry["devices"] if row["id"] == "core2"
+        )
+        core2["validation"]["date"] = "2000-01-01"
+        errors = qemu_profiles.catalog_validation_errors(registry, source)
+        self.assertIn(
+            "profiles generated_at must match devices/catalog.source.json",
+            errors,
+        )
+        self.assertIn(
+            "core2: catalog/profile validation date differs",
+            errors,
+        )
 
     def test_stopwatch_is_reference_ready(self):
         row = next(row for row in self.registry["devices"] if row["id"] == "stopwatch")

@@ -13,6 +13,24 @@
 
 如果本页与上述页面冲突，以上述权威入口和当前代码/evidence 为准。
 
+## 当前盘点
+
+下表只回答“现在做到哪、下一步是什么”。精确固件 SHA、轮次、资源数值和
+失败 control 仍只放在[验证证据台账](validation-ledger.md)与 evidence 中。
+
+| 工作流 | 已经形成可执行路径 | 仍在推进 | 当前判定 |
+| --- | --- | --- | --- |
+| 网络、隔离与 worker | same-guest controlled DNS/CNAME、有界 IPv4/IPv6 egress、pcap、WPA2 正误密码、radio/AP 恢复、DHCP renewal、双 guest fabric、worker-local QEMU、持久队列、TLS/mTLS、discovery、restart/reattach 和 process/companion fence | `NET-04` 的物理跨主机 executor/reattach、跨主机幂等、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和 worker 未拥有的外部 side effect | `PILOT`；单机和同 Docker daemon 的结果不能写成物理多机 PASS |
+| Core2 | native-HCI、WiFi/公网、外部 GATT、重连、active-BLE 长稳、active-stop、QOM `8 MiB` PSRAM、upper-bank MMU 和当前服务容量内并发 | `RUNTIME-03` legacy UIFlow normal-WDT reset 与约 44 秒后的 CPU1 late-loop；`CORE2-02` 物理 PSRAM/cache、bit-exact controller、更大规模、持续吞吐和其他 teardown | 功能级 `PILOT`；legacy UIFlow `PARTIAL`；不能从虚拟容量外推物理等价 |
+| FirmwareManifest 与固件审查 | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学和 security-evidence understatement fail closed | `FW-01/02/03` 的运行态 ACL、完整许可与法律审批、live eFuse/trust root、生产 key、真实云端业务和更多固件族 | `PILOT`；静态镜像与包内自报安全证据不能写成设备 trust root PASS |
+| Device Service 与服务池 | lease、虚拟 Flash、串口、frame/input/QOM、网络故障、pcap、evidence、历史恢复、本地/远程 worker 生命周期 | `SVC-01` 跨主机接管，`SVC-02` warm pool/配额/对象存储/审计，`SVC-03` 从 `device_service.py` 编排热区分步拆分 | `PILOT`；当前是可信主机服务，不是恶意多租户 VM 沙箱 |
+| 专项设备与表现层 | Tab5、CardputerZero 和逐设备外壳均有可用子集；StopWatch 是当前参考外壳 | `TAB5-01` 后端决策、`CZ-01` 长期回归、`UI-01` 视觉保真 | 均为独立边界，不能继承 S3/C6/Core2 的功能结论 |
+| 真机验证 | 已定义同固件 SHA、同输入、同关键路径的验收规则 | `HW-01` 代表设备 hardware validation | `NOT RUN`；仓库当前没有可继承的物理 RF、功耗、声学、光学或电气结论 |
+
+已完成里程碑只保留为依赖摘要，不再继续累加成“新待办”。一个工作流从
+“有功能”到“可发布”必须分别通过功能、稳定性、安全、物理边界和同路径证据；
+局部 PASS 不会自动升级整个平台。
+
 ## 结论
 
 项目已经不是单固件 PoC。当前主线具备以下可执行能力：

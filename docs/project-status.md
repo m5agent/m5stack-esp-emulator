@@ -29,6 +29,24 @@
   完整度。
 
 当前阶段仍是 `PILOT`，不是“任意固件、任意设备都能自动审查”的完成态。
+
+## 本轮目标盘点
+
+| 目标 | 已经落地 | 当前缺口 | 结论 |
+| --- | --- | --- | --- |
+| 网络 namespace、DNS/egress、pcap、错误密码、断线和重连 | controlled DNS A/AAAA/CNAME、有界 IPv4/IPv6 egress、TLS/Host policy、pcap、WPA2-PSK 正确/错误密码、radio/AP 恢复、DHCP renewal、双 guest fabric 和 worker-local QEMU | `NET-04` 的物理跨主机 executor/reattach、跨主机幂等、无 reachable seed 的任意 NAT、QEMU guest/controller 内部状态和外部 side-effect ownership | 核心虚拟设备路径可用，生产网络仍为 `PILOT` |
+| Core2 cache/PSRAM、原生 BT controller、DNS/公网 | QOM `8 MiB` PSRAM、upper-bank MMU、虚拟 PSRAM 压力、OpenMAC WiFi、公网 DNS/HTTP、native-HCI、外部 NUS GATT、重连、长稳和当前容量并发 | 物理 PSRAM/cache timing、bit-exact BT controller/baseband、更大规模和持续吞吐；legacy UIFlow 仍有 TG0 stage-1 reset、黑帧和 CPU1 late-loop | 功能级路径可用，物理/controller 等价性和 legacy 启动仍 `OPEN` |
+| FirmwareManifest、WebBurner、安全配置和 capability mismatch | merged/segmented、WebBurner/M5Burner/ESP-IDF、content-stable manifest、unknown required capability fail closed、文件系统/NVS/SD、静态审查、Secure Boot v2 镜像数学和 security evidence understatement fail closed | 运行态 ACL/许可、live eFuse/trust root、生产 key、bootloader anti-rollback 执行、真实云端业务和更多固件族 | 导入与静态审查可用，运行态安全和通用兼容性仍为 `PILOT` |
+
+这三组能力已经串进同一个 Device Service lease/evidence 模型，但“同一 guest
+完成某条路径”只证明该固件、设备、profile、输入和观察窗口，不等于物理 RF、
+电气测量、生产密钥或任意固件兼容。
+
+> 以下 Core2 段落不是逐日进度流水，而是当前 `RUNTIME-03` 的阻断摘要。
+> `0031-0041` 中被否定的旧假设仍保留，是为了让后续维护者不要把 UART
+> storm、永久 handoff deadlock、TG1 feed 停止或“Flash 扫描永不结束”重新
+> 当作当前根因。精确运行序列只在验证台账和 evidence 中维护。
+
 Core2 legacy I2C 的 board-bus routing 已修正：AXP `0x34` 与 RTC `0x51`
 现在共享 `/machine/soc/i2c0/i2c` 并正常 ACK，原 `I2C bus error (19)` 消失。
 同一固件随后由 TG0 stage-1 触发 watchdog system reset，仍没有非空应用帧，

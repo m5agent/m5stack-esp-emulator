@@ -54,9 +54,9 @@
     "display_protocol": "spi-gc9107",
     "execution": "native-qemu",
     "validation": {
-      "date": "2026-10-23",
+      "date": "2026-10-25",
       "status": "display-input-peripherals-wifi-ble-pass",
-      "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 128x128 显示、GPIO41 按键、BMI270、BMM150、LP5562 RGB、RMT IR、WiFi DHCP/HTTP 和 UART1 HCI BLE。"
+      "detail": "官方 UIFlow2 v2.5.3 在同一 QEMU guest 内通过 128x128 显示、GPIO41 按键、BMI270、BMM150、LP5562 RGB、RMT IR、WiFi DHCP/HTTP 和 UART1 HCI BLE，并通过 WPA2-PSK 正确密码与 M2 MIC 错误密码拒绝路径。"
     }
   },
   "uiflow2": {

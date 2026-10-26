@@ -19,6 +19,29 @@
 - 模型缺口、fixture 缺口、基础设施失败和固件 FAIL 不得混算。
 - 安全状态未知时保持 `unknown`/`REVIEW`，不能为了推进任务写成 PASS。
 
+## 已完成，不再作为待办
+
+以下里程碑已经进入当前状态和验证台账，只作为后续工作的依赖，不再重复列入
+任务板：
+
+- S3/C6/Core2 的统一 QEMU 板级、WiFi、BLE、frame/QOM、pcap 和 evidence
+  主路径；
+- controlled DNS A/AAAA/CNAME、有界 IPv4/IPv6 egress、TLS/Host policy、
+  WPA2 正误密码、断线恢复、DHCP renewal、双 guest fabric 和 pcap；
+- worker durable queue、HMAC、HTTPS/mTLS、credential rotation、
+  multicast/unicast discovery、restart/reattach、跨 namespace/container
+  QEMU，以及 worker-owned process/companion fencing；
+- Core2 native-HCI、WiFi/公网/GATT、重连、active-stop、QOM `8 MiB` PSRAM、
+  upper-bank MMU 和当前服务容量内并发；
+- FirmwareManifest/WebBurner、content-stable manifest、unknown required
+  capability fail closed、文件系统/SD/NVS fixture、静态审查、Secure Boot v2
+  镜像数学和 security-evidence understatement fail closed。
+
+“已完成”只关闭对应里程碑，不关闭更大范围。例如 WPA2 成对密钥路径完成，
+不关闭 WPA3/真实 RF；Core2 功能级 native-HCI 完成，不关闭 bit-exact
+controller 或物理 PSRAM/cache；Secure Boot v2 镜像验证完成，不关闭 live
+eFuse 或生产 key。
+
 ## 优先级总览
 
 | 优先级 | 工作流 | 未完成范围 | 主要风险 |

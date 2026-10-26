@@ -106,7 +106,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/hci_stream.py` | H4 HCI command/event/ACL 分包工具 | BLE runners、测试 |
 | `platform/tools/qemu_network_preflight.py` | 检查 QEMU user-net/网络后端能力 | 部署和测试 |
 | `platform/tools/qemu_accel.py` | Core2 deterministic TCG、bounded 128 MiB translation buffer 和默认固定 `icount shift=5`；`M5_CORE2_ICOUNT_SHIFT` 仅接受 `auto` 或 `0-10` 作为显式诊断覆盖 | Device Service、Core2 runners、回归测试 |
-| `platform/tools/qemu_profiles.py` | 检查/查询 machine、profile、runtime 和资产 | CI、设备中心 |
+| `platform/tools/qemu_profiles.py` | 检查/查询 machine、profile、runtime 和资产；`--check` 同时拒绝 profile/catalog 的生成日期及验证日期/状态漂移 | CI、设备中心 |
 | `platform/tools/peripheral_catalog.py` | 检查设备硬件需求、模型、blocker 和覆盖 | CI |
 | `platform/tools/peripheral_inventory.py` | 生成设备中心可消费的外设/控制清单 | `serve.py`、设备页 |
 | `platform/tools/runtime_coverage.py` | 检查 simulated 模型到设备级运行证据的映射 | CI |
@@ -220,7 +220,7 @@ HTTP / browser
 | `platform/tools/worker_agent.py` | 独立 HTTP executor、中央 worker/job heartbeat、可选 worker-local runtime 的 session/evidence/stop 和 result 回报 |
 | `platform/tools/worker_discovery.py` | active-token HMAC multicast beacon、过期/来源校验和无硬编码 URL 的 worker bootstrap |
 | `platform/tools/storage_policy.py` | 会话历史、Flash 保留与缓存 GC |
-| `platform/tools/qemu_profiles.py` | QEMU profile、machine、runtime 和资产检查 |
+| `platform/tools/qemu_profiles.py` | QEMU profile、machine、runtime 和资产检查；验证日期/状态必须与设备目录一致 |
 | `platform/web/` | 设备目录、会话观察和浏览器设备外壳 |
 
 `device_service.py` 仍是主要编排热区。修改时应先锁定对外 API 和会话状态机，

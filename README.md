@@ -31,21 +31,15 @@ MicroPython 和其他完整 Flash 固件。
   物理 PSRAM/cache timing、bit-exact BT controller 和真机仍未完成。
 - Core2 legacy UIFlow 仍为 `PARTIAL`。共享板级 I2C、`CCOMPARE == CCOUNT`
   equal-deadline timer、TIMG WDT mask 和保留 m25p80 状态的 QIO/stateful
-  SSI 批量数据面已修复/验证，但同一 public firmware 仍会 watchdog reset，
-  且没有同 SHA 非空应用帧。`0037` 统一时间轴和 `0038` exact-time pause
-  已把最后窗口收敛到 cross-core Flash/cache/DPORT handoff；`0039` state
-  sweep 和 `0040` setter trace 又证明 CPU1 持续执行，且首次 reset 前约
-  4,376 次 handoff 已完整往返。BIN/ELF 字节审计拒绝了旧 UART/VM 符号
-  映射，UART 和永久 deadlock 解释均不支持。新增三次 artifact-bound WDT
-  liveness 对照显示 TG0 stage-0 timeout 被 mask，随后 stage-1 触发 system
-  reset；TG1 在 reset 前仍持续 feed，未出现 TG1 interrupt-WDT，历史
-  `800 ms` gap 在当前配置下未复现。WDT-off 诊断进一步显示 Flash 工作约在
-  44 秒结束，随后 CPU0 idle、CPU1 在 `0x40100049` 相同 flag/object 上持续
-  自旋到 120 秒。当前未解决点从“启动太慢”收敛到这个 late-boot wait；
-  matching ELF/MAP、`Core2FactoryTest` 重跑和
-  `RUNTIME-03` 关闭条件以
-  [项目当前状态](docs/project-status.md)与
-  [验证证据台账](docs/validation-ledger.md)为准。
+  SSI 批量数据面及 `0037` 统一 cross-core timeline、`0038` exact-time
+  pause、`0039` state sweep 和 `0040` setter trace 已验证，但同一 public
+  firmware 仍会由 TG0 stage-1 watchdog reset，且没有同 SHA 非空应用帧。
+  WDT liveness 显示 TG1 在 reset 前仍持续 feed，历史 `800 ms` gap 为
+  `NOT_REPRODUCED`；WDT-off 对照随后停在 CPU1 `0x40100049` 的
+  flash-cache/IPC/DPORT late-loop。当前门禁是绑定该 late object 并取得
+  matching ELF/MAP；`RUNTIME-03` 的完整证据与边界只在
+  [项目当前状态](docs/project-status.md)和
+  [验证证据台账](docs/validation-ledger.md)维护。
 - 固件侧支持 UIFlow、ESP-IDF、Arduino、MicroPython、merged/segmented、
   WebBurner/M5Burner、文件系统/NVS/SD fixture、静态和 capability 审查。
   `qemu-wifi/profile=generic-observe` 为非 UIFlow 或 network-first 固件

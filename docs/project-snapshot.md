@@ -2,7 +2,7 @@
 
 # 项目快照（自动生成）
 
-设备目录日期：`2026-10-25`；当前事实复核：`2026-10-26`；最新 evidence 日期：`2026-10-26`。
+设备目录日期：`2026-10-26`；当前事实复核：`2026-10-26`；最新 evidence 日期：`2026-10-26`。
 
 本页只汇总机器可读源和已提交 evidence，避免在多个文档手写同一组动态事实。实现结论、风险说明和验证层级仍以[项目当前状态](project-status.md)、[验证证据台账](validation-ledger.md)和 [项目 Backlog](project-backlog.md) 为准。
 
@@ -15,9 +15,9 @@
 | 设备 | SoC | 后端 | 外设 | 最近验证 | 当前边界 |
 | --- | --- | --- | --- | --- | --- |
 | StopWatch (`stopwatch`) | ESP32-S3R8 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-touch-peripherals-wifi-ble-pass` | 无登记 blocker |
-| AtomS3R (`atoms3r`) | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
-| CoreS3 (`cores3`) | ESP32-S3 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-touch-peripherals-wifi-ble-pass` | UIFlow startup-menu palette PNG/tRNS assets render striped artifacts; ordinary RGB PNG and opaque drawing paths are correct |
-| StickS3 (`sticks3`) | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
+| AtomS3R (`atoms3r`) | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
+| CoreS3 (`cores3`) | ESP32-S3 | `qemu-esp32s3` | `simulated` | `2026-10-25` / `display-touch-peripherals-wifi-ble-pass` | UIFlow startup-menu palette PNG/tRNS assets render striped artifacts; ordinary RGB PNG and opaque drawing paths are correct |
+| StickS3 (`sticks3`) | ESP32-S3-PICO-1-N8R8 | `qemu-esp32s3` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
 | Cardputer-ADV (`cardputer-adv`) | ESP32-S3FN8 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-keyboard-peripherals-wifi-ble-pass` | 无登记 blocker |
 | StackChan (`stackchan`) | ESP32-S3 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
 | StamPLC (`stamplc`) | ESP32-S3FN8 | `qemu-esp32s3` | `simulated` | `2026-10-23` / `display-input-peripherals-wifi-ble-pass` | 无登记 blocker |
@@ -26,7 +26,7 @@
 | NanoC6 (`nanoc6`) | ESP32-C6FH4 | `qemu-esp32c6` | `simulated` | `2026-10-24` / `board-peripherals-wifi-ble-pass` | Zigbee/802.15.4 controller data plane is not modeled (RUNTIME-02) |
 | Arduino Nesso N1 (`nesso-n1`) | ESP32-C6 | `qemu-esp32c6` | `simulated` | `2026-10-24` / `display-touch-peripherals-wifi-ble-pass` | Meshtastic remains PARTIAL after an independent post-application instruction access fault (RUNTIME-01 flash/PMP defect is fixed) |
 | CardputerZero (`cardputer-zero`) | RP3A0 (BCM2837) | `external-linux-arm64` | `simulated` | `2026-10-22` / `linux-display-input-i2c-audio-power-usb-camera-partial` | not an ESP32 firmware target |
-| Core2 (`core2`) | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | `simulated` | `2026-10-25` / `display-input-peripherals-wifi-ble-pass` | Core2 legacy UIFlow shared I2C, equal-deadline timer and TIMG WDT-mask semantics are fixed. Patches 0036-0041 add stateful SSI, unified timeline, exact-time pause/state sweep, BIN-bound setter trace and bounded register/object/stack dumps; run_wdt_liveness.py adds three no-PC-trace TIMG controls. TG0 stage-0 is masked at about 5.91 s and TG0 stage-1 triggers the first reset at about 15.91 s while TG1 remains live. WDT-off 45/120 s controls show Flash/SSI activity ending around 44 s, followed by CPU0 waiti idle and CPU1 spinning at 0x40100049 on the same flag/object (A2+24=1, A10+28=0). The early 800 ms TG1 gap is NOT_REPRODUCED, and the remaining issue is the late-boot flag/object wait plus missing symbols, not a permanent cross-core deadlock, UART storm, TG1 feed stop or never-ending Flash scan. Temporary bulk-read and watchdog-disable diagnostics are not product fixes; physical cache/PSRAM timing equivalence remains NOT RUN; bit-exact ESP32 BT baseband/controller remains NOT RUN; virtual-device concurrency gates cover the current service capacity; more-than-eight-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN (CORE2-02); the bounded-TCG host-memory result is validated only for the tested long-hold workload |
+| Core2 (`core2`) | ESP32-D0WDQ6-V3 | `qemu-esp32lx6` | `simulated` | `2026-10-26` / `display-input-peripherals-wifi-ble-pass` | Core2 legacy UIFlow shared I2C, equal-deadline timer and TIMG WDT-mask semantics are fixed. Patches 0036-0041 add stateful SSI, unified timeline, exact-time pause/state sweep, BIN-bound setter trace and bounded register/object/stack dumps; run_wdt_liveness.py adds three no-PC-trace TIMG controls. TG0 stage-0 is masked at about 5.91 s and TG0 stage-1 triggers the first reset at about 15.91 s while TG1 remains live. WDT-off 45/120 s controls show Flash/SSI activity ending around 44 s, followed by CPU0 waiti idle and CPU1 spinning at 0x40100049 on the same flag/object (A2+24=1, A10+28=0). The early 800 ms TG1 gap is NOT_REPRODUCED, and the remaining issue is the late-boot flag/object wait plus missing symbols, not a permanent cross-core deadlock, UART storm, TG1 feed stop or never-ending Flash scan. Temporary bulk-read and watchdog-disable diagnostics are not product fixes; physical cache/PSRAM timing equivalence remains NOT RUN; bit-exact ESP32 BT baseband/controller remains NOT RUN; virtual-device concurrency gates cover the current service capacity; more-than-eight-instance stability, sustained throughput and teardown modes beyond active-stop remain OPEN (CORE2-02); the bounded-TCG host-memory result is validated only for the tested long-hold workload |
 | Tab5 (`tab5`) | ESP32-P4NRW32 | `esp-emulator-native` | `partial` | `2026-10-22` / `display-touch-rs485-pass-peripherals-partial` | SC2356 MIPI CSI-2 controller/frame path missing from esp-emu 0.50.0; ES8388/ES7210 I2S register and PCM endpoints missing from esp-emu 0.50.0; ESP32-P4 USB Host controller and endpoint attachment missing; Tab5 ST7123 touch is currently a firmware GDB mailbox rather than an I2C chip model; Tab5 SDIO storage is not wired to a host block backend; Tab5 INA226 register preload reaches Power as 8000 mV/1248 mA/87%, direct machine.I2C write/read reaches RX8130 registers, and PI4IOE CHG_STAT/CHG_EN reach Power.isCharging() in both charging and discharging scenarios, but RTC progression, dynamic I2C/time injection and IP2326 analog current/termination behavior remain partial; BMI270 identity also remains partial |
 
 ## 通用固件审查
@@ -65,7 +65,7 @@
 
 ## 代码与文档规模
 
-- `platform/tools`：`40` 个 Python 模块，`34240` 行；规模最大的模块如下。
+- `platform/tools`：`40` 个 Python 模块，`34274` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
@@ -78,11 +78,11 @@
 
 - `tests/`：`72` 个可执行 Python 测试文件，分布在 `52` 个目录；`212` 个 evidence JSON。
 - `patches/`：`10` 个补丁组，`70` 个 patch 文件。
-- 文档：`218` 个 Markdown 页面；除本生成页外共 `20492` 行。
+- 文档：`218` 个 Markdown 页面；除本生成页外共 `20571` 行。
 
 ## 文档与测试
 
-- 平台测试：`530` 项。
+- 平台测试：`531` 项。
 - Docs 新鲜度登记：`33` 行；其中非历史页 `26` 行，历史固定页 `7` 行。
 - 文档职责分布：待办 `3`，契约 `6`，历史固定 `7`，实现/设计 `6`，参考 `7`，工作流/导航 `4`。
 - 全量文档盘点：`218` 个 Markdown 页面；职责分布：权威/专题页 `33`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `11`，平台说明 `3`，仓内历史记录 `5`，测试/用例说明 `141`，第三方来源说明 `2`。
