@@ -3,3 +3,9 @@
 platform/web/vendor/** whitespace=-blank-at-eol,-space-before-tab,-blank-at-eof
 # Line-numbered official-source extracts retain upstream trailing whitespace.
 docs/evidence/2026-10-26-live-unit-preview/encoder-binding-research/*.txt whitespace=-blank-at-eol
+# Verbatim official-source evidence keeps upstream whitespace and hashes.
+docs/evidence/2026-10-26-live-package-and-detent/image-path-research/*.c whitespace=-blank-at-eol,-blank-at-eof
+docs/evidence/2026-10-26-live-package-and-detent/image-path-research/*.h whitespace=-blank-at-eol,-blank-at-eof
+docs/evidence/2026-10-26-live-package-and-detent/image-path-research/m5stack__CMakeLists.txt whitespace=-blank-at-eol
+# This frozen source predates the equivalent final EOF-only formatting cleanup.
+docs/evidence/2026-10-26-live-package-and-detent/sources/platform/tools/uiflow_package_runtime.py whitespace=-blank-at-eof

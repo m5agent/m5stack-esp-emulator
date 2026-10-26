@@ -1,0 +1,105 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-10-26T12:22:13.220347+00:00",
+  "sessions": [
+    {
+      "session_id": "8241ad6faeaa43369e45f82052484b47",
+      "pid": 81711,
+      "pid_gone": true,
+      "history_state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true
+    },
+    {
+      "session_id": "6305f64ec4ff4e57a32e0aa66288807e",
+      "pid": 81710,
+      "pid_gone": true,
+      "history_state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true
+    },
+    {
+      "session_id": "ce36b86ac781458fb2c5bce3d69ac379",
+      "pid": 81818,
+      "pid_gone": true,
+      "history_state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true
+    },
+    {
+      "session_id": "e19f93aceb2c4aeea1d2f45271fb8bc3",
+      "pid": 81835,
+      "pid_gone": true,
+      "history_state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true
+    },
+    {
+      "session_id": "c41a9ff1bc714937b02d300d99f45172",
+      "pid": 81941,
+      "pid_gone": true,
+      "history_state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true
+    },
+    {
+      "session_id": "d6e7aa2538c94d1e94ea1ea8a1f51e59",
+      "pid": 81948,
+      "pid_gone": true,
+      "history_state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true
+    },
+    {
+      "session_id": "21e93e5082554bf5a472e801e9bd40d1",
+      "pid": 82033,
+      "pid_gone": true,
+      "history_state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true
+    },
+    {
+      "session_id": "ff7337d2a0084df2a30b776a25361d64",
+      "pid": 82069,
+      "pid_gone": true,
+      "history_state": "stopped",
+      "flash_retained": false,
+      "last_frame_available": true
+    }
+  ],
+  "health": {
+    "ok": true,
+    "service": "m5stack-device-service",
+    "api_version": "v1",
+    "capacity": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "af08d7da967c42c8b2569078b47ff661",
+        "generation": 24,
+        "state": "ready",
+        "pid": 81661,
+        "started_at": "2026-10-26T12:19:21.773042+00:00",
+        "heartbeat_at": "2026-10-26T12:22:12.039425+00:00",
+        "heartbeat_age_seconds": 1.181,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-26`.
 
-Status: local MVP with unified-device runtime contract `1.38.0` and bounded
+Status: local MVP with unified-device runtime contract `1.39.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -12,7 +12,7 @@ frame, input and QOM operations through HTTP.
 UIFlow2 live programming can use `program_mode="uiflow-live"` at session
 creation on admitted S3 reference devices. It initializes the guest UART REPL
 route once, then `POST /sessions/{id}/program` interrupts and executes each new complete
-single-file Python source checkpoint inside that same guest, without reflashing
+Python source checkpoint or complete file package inside that same guest, without reflashing
 or resetting the VM. `GET /sessions/{id}/program` returns execution and immutable
 source revision identities. Source is limited to 64 KiB UTF-8; submissions require
 `expected_execution_id` (null initially). Cleanup is interrupt-only: native module,
@@ -27,6 +27,55 @@ still opt into `program_transport="uart-repl"` explicitly; this lower-level
 option leaves the guest UART route to the caller. The Live sessions page offers
 an explicit programming checkbox and a per-session editor with execution
 identity checks. A late response never replaces the local source draft.
+
+### Same-guest complete files
+
+`POST /sessions/{id}/program` accepts either the existing `source` string or a
+`files` object. `files` is a complete snapshot, with `main.py` as its script
+entrypoint; each path maps to `{encoding: "utf8"|"base64", data: string}`. Both
+forms use `expected_execution_id`, the same console owner and the same guest.
+`GET /devices` advertises `program_source_kinds` for admitted devices.
+
+Package limits are 1 MiB decoded content, 64 files and 256 KiB per file. Paths
+are canonical relative UTF-8 POSIX paths, at most 192 bytes/eight components;
+absolute paths, traversal, backslashes, aliases/casefold collisions, file/parent
+collisions and any `boot.py` are rejected. Only `/program` admits 2 MiB JSON
+bodies for base64 overhead; other endpoints retain their existing limits.
+The legacy source limit/default timeout remain 64 KiB/10 seconds. Package
+timeout defaults to 120 seconds and covers both deployment and start
+acknowledgement, not application lifetime.
+
+The service owns immutable package bytes separately from uploaded artifacts.
+Files go through the actual UART raw REPL into a unique guest staging directory
+under `/flash/.m5-live-packages`. Guest reads verify each file SHA256/size and
+the complete derived directory set before publishing the directory. Reusing an
+existing revision rechecks the mutable guest copy; changed bytes or an added
+empty namespace directory fail integrity validation. Failed staging directories
+remain for diagnosis. The guest admits at most 64 package/staging directories
+and checks free space; neither exhaustion nor failure silently recreates it.
+The space preflight is an estimate and does not reserve directory metadata.
+A later ENOSPC aborts deployment and retains staging without activating it.
+
+Activation switches working directory/import path and clears only modules
+originating in the managed tree, including namespace-package `__path__`, their
+descendants and parent attributes. Missing files do not stay on the old import
+path. System/native modules, IRQ, timers and other threads remain outside this
+cleanup guarantee. The application reads and compiles guest `main.py` before
+its START marker; publishing/activating files alone is not application START
+or readiness. This is an immutable host snapshot, not an immutable guest disk
+or an atomic view against arbitrary concurrent guest callbacks.
+
+`.mpy` dependencies use the real guest importer. A bounded parser checks the
+pinned MicroPython v6 container, instructions and all nested raw-code kinds;
+native emitters are rejected even with a forged bytecode header. Actual guest
+`sys.implementation._mpy` and the admitted ESP32 A/MPZ small-int configuration
+are checked separately. This is not VM stack/type verification or a sandbox.
+`main.mpy` entrypoints and save-as-boot-program are not implemented. Package
+execution records include source kind, file totals, deployment phases, guest
+capabilities and hash inventory; evidence ZIPs retain canonical package source,
+metadata and original file bytes. Current validation scope is recorded in the
+[validation ledger](validation-ledger.md); the API alone does not establish
+every package, device or physical-hardware result.
 
 Current scope:
 

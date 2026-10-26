@@ -1,0 +1,172 @@
+{
+  "session_id": "e19f93aceb2c4aeea1d2f45271fb8bc3",
+  "program_transport": "uart-repl",
+  "program": {
+    "execution_id": "5883aa5600ea46d9b3b36e7d2adb6655",
+    "revision_id": "9e2a064acc0769e31c57f0720984ad4753f4f003d38c4176bd26d7d7e86a109a",
+    "source_sha256": "d9771e7e39d567f5f547b15a52646a36e6f382f06101b4b90982a2294b57c8b0",
+    "source_bytes": 2549,
+    "state": "running",
+    "submitted_at": "2026-10-26T12:20:19.258380+00:00",
+    "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+    "pid": 81835,
+    "execution_mode": "same-guest-uart-repl",
+    "cleanup_mode": "interrupt-only",
+    "serial_offset": 12242,
+    "source_kind": "uiflow2-package",
+    "total_file_bytes": 2923,
+    "file_count": 7,
+    "deployment": {
+      "phase": "activated",
+      "staging_path": "/flash/.m5-live-packages/.stage-a8e699634bf043f8b7f6e81ab4389d6e",
+      "package_path": "/flash/.m5-live-packages/9e2a064acc0769e31c57f0720984ad4753f4f003d38c4176bd26d7d7e86a109a",
+      "events": [
+        {
+          "phase": "preflight",
+          "staging_path": "/flash/.m5-live-packages/.stage-a8e699634bf043f8b7f6e81ab4389d6e",
+          "package_path": "/flash/.m5-live-packages/9e2a064acc0769e31c57f0720984ad4753f4f003d38c4176bd26d7d7e86a109a",
+          "observed_at": "2026-10-26T12:20:19.363291+00:00"
+        },
+        {
+          "phase": "capabilities",
+          "capabilities": {
+            "existing": true,
+            "directory_count": 3,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 1441792
+          },
+          "observed_at": "2026-10-26T12:20:19.845207+00:00"
+        },
+        {
+          "phase": "published",
+          "inventory": {
+            "lib/__init__.py": {
+              "size": 12,
+              "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2"
+            },
+            "namespace_lib/state.py": {
+              "size": 12,
+              "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2"
+            },
+            "helper.mpy": {
+              "size": 66,
+              "sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8"
+            },
+            "config.json": {
+              "size": 100,
+              "sha256": "7d54c7bcb6bf1cedc6782efd90371b8a3f90ff55baad0fd0aa233a084c2ebc29"
+            },
+            "lib/logic.py": {
+              "size": 86,
+              "sha256": "6477fc7057f5b4f89ed464848d606c145b16347f69303efbf654182e3039957f"
+            },
+            "main.py": {
+              "size": 2549,
+              "sha256": "42cb82c62841bd488e99b002b26c6006716663229121986e0c9c89601ca89ffe"
+            },
+            "assets/pixel.png": {
+              "size": 98,
+              "sha256": "8bc66d7b68c2f0733e8bae1734e7e7a2e12b25052691f121c1587e552b2d3236"
+            }
+          },
+          "reused": true,
+          "observed_at": "2026-10-26T12:20:20.535738+00:00"
+        },
+        {
+          "phase": "activated",
+          "package_path": "/flash/.m5-live-packages/9e2a064acc0769e31c57f0720984ad4753f4f003d38c4176bd26d7d7e86a109a",
+          "inventory": {
+            "lib/__init__.py": {
+              "size": 12,
+              "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2"
+            },
+            "namespace_lib/state.py": {
+              "size": 12,
+              "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2"
+            },
+            "helper.mpy": {
+              "size": 66,
+              "sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8"
+            },
+            "config.json": {
+              "size": 100,
+              "sha256": "7d54c7bcb6bf1cedc6782efd90371b8a3f90ff55baad0fd0aa233a084c2ebc29"
+            },
+            "lib/logic.py": {
+              "size": 86,
+              "sha256": "6477fc7057f5b4f89ed464848d606c145b16347f69303efbf654182e3039957f"
+            },
+            "main.py": {
+              "size": 2549,
+              "sha256": "42cb82c62841bd488e99b002b26c6006716663229121986e0c9c89601ca89ffe"
+            },
+            "assets/pixel.png": {
+              "size": 98,
+              "sha256": "8bc66d7b68c2f0733e8bae1734e7e7a2e12b25052691f121c1587e552b2d3236"
+            }
+          },
+          "reused": true,
+          "capabilities": {
+            "existing": true,
+            "directory_count": 3,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 1441792
+          },
+          "removed_modules": [],
+          "staging_path": "/flash/.m5-live-packages/.stage-a8e699634bf043f8b7f6e81ab4389d6e",
+          "observed_at": "2026-10-26T12:20:20.827402+00:00"
+        }
+      ],
+      "capabilities": {
+        "existing": true,
+        "directory_count": 3,
+        "mpy": 11014,
+        "small_int_bits": 31,
+        "free_bytes": 1441792
+      },
+      "inventory": {
+        "lib/__init__.py": {
+          "size": 12,
+          "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2"
+        },
+        "namespace_lib/state.py": {
+          "size": 12,
+          "sha256": "1fe0f5bb256d66f13ca69002aebdcf874ee277442c3a64615b3f16371a52a7b2"
+        },
+        "helper.mpy": {
+          "size": 66,
+          "sha256": "9089d244363e80b4e0b34a42d2df846c4cf2ee7717043abae5be466c9ba5e1d8"
+        },
+        "config.json": {
+          "size": 100,
+          "sha256": "7d54c7bcb6bf1cedc6782efd90371b8a3f90ff55baad0fd0aa233a084c2ebc29"
+        },
+        "lib/logic.py": {
+          "size": 86,
+          "sha256": "6477fc7057f5b4f89ed464848d606c145b16347f69303efbf654182e3039957f"
+        },
+        "main.py": {
+          "size": 2549,
+          "sha256": "42cb82c62841bd488e99b002b26c6006716663229121986e0c9c89601ca89ffe"
+        },
+        "assets/pixel.png": {
+          "size": 98,
+          "sha256": "8bc66d7b68c2f0733e8bae1734e7e7a2e12b25052691f121c1587e552b2d3236"
+        }
+      },
+      "reused": true,
+      "removed_modules": []
+    },
+    "next_offset": 12303,
+    "acknowledged": true,
+    "transfer_mode": "raw-paste",
+    "observed_at": "2026-10-26T12:20:21.028541+00:00"
+  },
+  "history_error": null,
+  "request_seconds": 1.7729400421958417,
+  "expected_history_state": "interrupted",
+  "activated": true,
+  "reused": true
+}

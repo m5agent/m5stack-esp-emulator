@@ -1,0 +1,134 @@
+{
+  "category": "read-only-correlation-of-existing-same-guest-experiment",
+  "report": ".work/uiflow-package-live-20261026/image-path-diagnostic/report.json",
+  "report_sha256": "004c0e8caf66e8492b3208ccd66220adc2da12e0d00a68ff9ea7260023749edf",
+  "source_sha256": "4cfe4b0c320d11173d6aa0ff1d08469da7070adeccdb26dd8bda5c6544a76f62",
+  "cwd_length": 89,
+  "diagnostic": {
+    "bytes": 97,
+    "cwd": "/flash/.m5-live-packages/0eebe7b95faeefb6fc81d97d678ed7f9f9632251c6410294c86a988e9bdb7794",
+    "length": 106,
+    "sha256": "77557fdbe0cf343aa10c373ee3a51e21df0a41a8dd56b4d9eb220b5bb8527d18"
+  },
+  "calls": [
+    {
+      "call": "drawImage",
+      "source_line": 10,
+      "input": "absolute",
+      "type": "str",
+      "input_length": 106,
+      "x": 8,
+      "y": 8,
+      "red_pixels": 0,
+      "nonblack_pixels": 0,
+      "path": "/flash/.m5-live-packages/0eebe7b95faeefb6fc81d97d678ed7f9f9632251c6410294c86a988e9bdb7794/assets/pixel.png",
+      "repr_a_boxed_length": 213,
+      "file_branch_predicted_by_pinned_source": false
+    },
+    {
+      "call": "drawImage",
+      "source_line": 11,
+      "input": "relative",
+      "type": "str",
+      "input_length": 16,
+      "x": 40,
+      "y": 8,
+      "red_pixels": 0,
+      "nonblack_pixels": 0,
+      "path": "assets/pixel.png",
+      "repr_a_boxed_length": 33,
+      "file_branch_predicted_by_pinned_source": true
+    },
+    {
+      "call": "drawImage",
+      "source_line": 12,
+      "input": "bytes",
+      "type": "bytes",
+      "input_length": 97,
+      "x": 72,
+      "y": 8,
+      "red_pixels": 576,
+      "nonblack_pixels": 576
+    },
+    {
+      "call": "drawPng",
+      "source_line": 13,
+      "input": "absolute",
+      "type": "str",
+      "input_length": 106,
+      "x": 104,
+      "y": 8,
+      "red_pixels": 0,
+      "nonblack_pixels": 0,
+      "path": "/flash/.m5-live-packages/0eebe7b95faeefb6fc81d97d678ed7f9f9632251c6410294c86a988e9bdb7794/assets/pixel.png",
+      "repr_a_boxed_length": 213,
+      "file_branch_predicted_by_pinned_source": false
+    },
+    {
+      "call": "drawPng",
+      "source_line": 14,
+      "input": "relative",
+      "type": "str",
+      "input_length": 16,
+      "x": 136,
+      "y": 8,
+      "red_pixels": 0,
+      "nonblack_pixels": 0,
+      "path": "assets/pixel.png",
+      "repr_a_boxed_length": 33,
+      "file_branch_predicted_by_pinned_source": true
+    },
+    {
+      "call": "drawPng",
+      "source_line": 15,
+      "input": "bytes",
+      "type": "bytes",
+      "input_length": 97,
+      "x": 168,
+      "y": 8,
+      "red_pixels": 576,
+      "nonblack_pixels": 576
+    }
+  ],
+  "serial": [
+    {
+      "member": "serial.log",
+      "size": 1993,
+      "sha256": "656d9a2ea6f263c06647ddc1c294b80073ad9706b075b6eb23df09bf591fd830",
+      "vfs_stream_open_count": 0,
+      "failed_to_open_count": 0
+    },
+    {
+      "member": "serial1.log",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "vfs_stream_open_count": 0,
+      "failed_to_open_count": 0
+    }
+  ],
+  "png": {
+    "size": 97,
+    "sha256": "77557fdbe0cf343aa10c373ee3a51e21df0a41a8dd56b4d9eb220b5bb8527d18",
+    "width": 24,
+    "height": 24,
+    "bit_depth": 8,
+    "color_type": 2,
+    "interlace": 0
+  },
+  "frame": {
+    "size": [
+      320,
+      240
+    ],
+    "sha256": "0218f5688e03ce7f752600603df2ac1fef3a6433f08335618a4bbb06eeaab202"
+  },
+  "evidence": {
+    "sha256": "44918a4d8acdad2873470f2ebabe0a06cd735e276cd21da69b5afacc50b8079b",
+    "crc_verified": true,
+    "source_member": "programs/0eebe7b95faeefb6fc81d97d678ed7f9f9632251c6410294c86a988e9bdb7794/source.json",
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "session_state_when_collected": "running"
+  },
+  "new_guest_execution": "NOT RUN",
+  "boundary": "Source branch predictions are not a symbol-level execution trace of the dirty firmware. Empty VFS log matches cannot prove the wrapper used or which failure occurred."
+}

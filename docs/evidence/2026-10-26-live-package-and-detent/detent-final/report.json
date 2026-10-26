@@ -1,0 +1,545 @@
+{
+  "category": "browser-vendor-detent-event-fixture",
+  "status": "PASS",
+  "captured_at": "2026-10-26T12:15:20.006Z",
+  "vendor_commit": "48667b728736fbfd4365a06575473ce538d3c972",
+  "hardware_execution": "NOT RUN",
+  "guest_execution": "NOT RUN",
+  "electrical_switch_mapping": "NOT VERIFIED; both polarities below are explicit synthetic fixtures",
+  "source_sha256": {
+    "platform/web/model-shell.js": "5ff2860a3638207131a8d488ec102293e61c27f566300ba1b95a368c4b2c2129",
+    "platform/web/unit-panel.js": "f26a8179150c6b5ed7457b77a0324fcd883d30842f3b0f9262ea61277b0e70b5",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/tests/test_unit_detent_events.mjs": "c721b80710e5f51ae080a91bd3b0110f2f3bee4a60b41fa2967302d0209a5d69",
+    "platform/web/vendor/m5stack-models/src/core/components/Button.js": "c2b99313190d4ecf26f2522530360e0aeec687a8a6abd1a5120eb53809414b9e",
+    "platform/web/vendor/m5stack-models/src/units/8encoder/index.js": "dbb970f29ebf9bb1e785460faa4655f9c9764558506da353185cd40bee17a642"
+  },
+  "checks": [
+    "actual-vendor-down-contains-detent-1-then-0",
+    "duplicate-and-multiple-sources-release-cancel-do-not-toggle-again",
+    "momentary-ownership-and-runtime-readback-remain-output-only",
+    "trusted-canvas-pointer-down-and-blur-cancel-preserve-detent",
+    "trusted-canvas-click-and-dispose-release-do-not-add-toggle",
+    "unit-panel-queue-maps-real-events-only-with-explicit-synthetic-binding",
+    "both-fixture-polarities-and-output-readback-zero-post-echo"
+  ],
+  "page_errors": [],
+  "missing_assets": [],
+  "browser_version": "156.0.8078.48",
+  "two_toggles": {
+    "events": [
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "down",
+        "time": 6215.399999856949,
+        "source": "first",
+        "position": 1
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "up",
+        "time": 6215.5,
+        "source": "first",
+        "duration": 0.20000004768371582
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "click",
+        "time": 6215.5,
+        "source": "first",
+        "duration": 0.20000004768371582
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "down",
+        "time": 6215.5,
+        "source": "second",
+        "position": 0
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "up",
+        "time": 6215.5,
+        "source": "second",
+        "duration": 0
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "click",
+        "time": 6215.5,
+        "source": "second",
+        "duration": 0
+      }
+    ],
+    "state": {
+      "pressed": false,
+      "position": 0,
+      "latching": true
+    }
+  },
+  "source_ownership": {
+    "afterRepeatedDown": {
+      "state": {
+        "pressed": true,
+        "position": 1,
+        "latching": true
+      },
+      "eventCount": 1
+    },
+    "afterPartialRelease": {
+      "state": {
+        "pressed": true,
+        "position": 1,
+        "latching": true
+      },
+      "eventCount": 1
+    },
+    "afterCancel": {
+      "state": {
+        "pressed": false,
+        "position": 1,
+        "latching": true
+      },
+      "events": [
+        {
+          "kind": "button",
+          "id": "grove/switch",
+          "action": "down",
+          "time": 6218.699999809265,
+          "source": "held",
+          "position": 1
+        },
+        {
+          "kind": "button",
+          "id": "grove/switch",
+          "action": "up",
+          "time": 6218.699999809265,
+          "source": "other",
+          "duration": 0,
+          "cancelled": true
+        }
+      ]
+    },
+    "nextEvents": [
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "down",
+        "time": 6218.699999809265,
+        "source": "next",
+        "position": 0
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "up",
+        "time": 6218.799999952316,
+        "source": "next",
+        "duration": 0.10000014305114746
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "click",
+        "time": 6218.799999952316,
+        "source": "next",
+        "duration": 0.10000014305114746
+      }
+    ]
+  },
+  "momentary_readback": {
+    "cancelled": [
+      {
+        "kind": "button",
+        "id": "grove/press-1",
+        "action": "down",
+        "time": 6220.599999904633,
+        "source": "first"
+      },
+      {
+        "kind": "button",
+        "id": "grove/press-1",
+        "action": "up",
+        "time": 6220.599999904633,
+        "source": "second",
+        "duration": 0,
+        "cancelled": true
+      }
+    ],
+    "userEvents": [
+      {
+        "kind": "button",
+        "id": "grove/press-1",
+        "action": "down",
+        "time": 6220.699999809265,
+        "source": "with-readback"
+      },
+      {
+        "kind": "button",
+        "id": "grove/press-1",
+        "action": "up",
+        "time": 6220.699999809265,
+        "source": "with-readback",
+        "duration": 0
+      },
+      {
+        "kind": "button",
+        "id": "grove/press-1",
+        "action": "click",
+        "time": 6220.799999952316,
+        "source": "with-readback",
+        "duration": 0
+      }
+    ],
+    "heldVisually": true,
+    "delayedEcho": [],
+    "outputEcho": [],
+    "state": {
+      "pressed": false
+    }
+  },
+  "canvas_blur": {
+    "events": [
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "down",
+        "time": 6470.399999856949,
+        "source": "pointer:1",
+        "position": 1
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "up",
+        "time": 6473.699999809265,
+        "source": "pointer:1",
+        "duration": 3.299999952316284,
+        "cancelled": true
+      }
+    ],
+    "pointers": [
+      {
+        "type": "pointerdown",
+        "isTrusted": true,
+        "pointerId": 1
+      },
+      {
+        "type": "pointerup",
+        "isTrusted": true,
+        "pointerId": 1
+      }
+    ],
+    "state": {
+      "pressed": false,
+      "position": 1,
+      "latching": true
+    }
+  },
+  "canvas_click": {
+    "events": [
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "down",
+        "time": 6530.5,
+        "source": "pointer:1",
+        "position": 0
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "up",
+        "time": 6530.599999904633,
+        "source": "pointer:1",
+        "duration": 0.09999990463256836
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "click",
+        "time": 6530.599999904633,
+        "source": "pointer:1",
+        "duration": 0.09999990463256836
+      }
+    ],
+    "pointers": [
+      {
+        "type": "pointerdown",
+        "isTrusted": true,
+        "pointerId": 1
+      },
+      {
+        "type": "pointerup",
+        "isTrusted": true,
+        "pointerId": 1
+      }
+    ],
+    "state": {
+      "pressed": false,
+      "position": 0,
+      "latching": true
+    }
+  },
+  "dispose": {
+    "events": [
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "down",
+        "time": 6631.299999952316,
+        "source": "pointer:1",
+        "position": 1
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "up",
+        "time": 6632.399999856949,
+        "source": "pointer:1",
+        "duration": 1.0999999046325684,
+        "cancelled": true
+      }
+    ],
+    "state": {
+      "pressed": false,
+      "position": 1,
+      "latching": true
+    }
+  },
+  "panel_mapping": {
+    "rejected": {
+      "postCount": 0,
+      "events": [
+        {
+          "kind": "button",
+          "id": "grove/switch",
+          "action": "down",
+          "time": 9776.899999856949,
+          "source": "unbound",
+          "position": 1
+        },
+        {
+          "kind": "button",
+          "id": "grove/switch",
+          "action": "up",
+          "time": 9777.099999904633,
+          "source": "unbound",
+          "duration": 0.20000004768371582
+        },
+        {
+          "kind": "button",
+          "id": "grove/switch",
+          "action": "click",
+          "time": 9777.099999904633,
+          "source": "unbound",
+          "duration": 0.20000004768371582
+        },
+        {
+          "kind": "button",
+          "id": "grove/switch",
+          "action": "down",
+          "time": 9777.099999904633,
+          "source": "without-evidence",
+          "position": 0
+        },
+        {
+          "kind": "button",
+          "id": "grove/switch",
+          "action": "up",
+          "time": 9777.099999904633,
+          "source": "without-evidence",
+          "duration": 0
+        },
+        {
+          "kind": "button",
+          "id": "grove/switch",
+          "action": "click",
+          "time": 9777.099999904633,
+          "source": "without-evidence",
+          "duration": 0
+        },
+        {
+          "kind": "button",
+          "id": "grove/switch",
+          "action": "down",
+          "time": 9777.099999904633,
+          "source": "invalid-detents",
+          "position": 1
+        },
+        {
+          "kind": "button",
+          "id": "grove/switch",
+          "action": "up",
+          "time": 9777.099999904633,
+          "source": "invalid-detents",
+          "duration": 0
+        },
+        {
+          "kind": "button",
+          "id": "grove/switch",
+          "action": "click",
+          "time": 9777.099999904633,
+          "source": "invalid-detents",
+          "duration": 0
+        }
+      ]
+    },
+    "mapped": [
+      {
+        "on": 0,
+        "calls": [
+          {
+            "id": "synthetic-8encoder",
+            "values": {
+              "switch-on": true
+            }
+          },
+          {
+            "id": "synthetic-8encoder",
+            "values": {
+              "switch-on": false
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "button",
+            "id": "grove/switch",
+            "action": "down",
+            "time": 9777.199999809265,
+            "source": "mapped-on-0",
+            "position": 0
+          },
+          {
+            "kind": "button",
+            "id": "grove/switch",
+            "action": "up",
+            "time": 9777.199999809265,
+            "source": "mapped-on-0",
+            "duration": 0
+          },
+          {
+            "kind": "button",
+            "id": "grove/switch",
+            "action": "click",
+            "time": 9777.199999809265,
+            "source": "mapped-on-0",
+            "duration": 0
+          },
+          {
+            "kind": "button",
+            "id": "grove/switch",
+            "action": "down",
+            "time": 9777.5,
+            "source": "mapped-off-0",
+            "position": 1
+          },
+          {
+            "kind": "button",
+            "id": "grove/switch",
+            "action": "up",
+            "time": 9777.599999904633,
+            "source": "mapped-off-0",
+            "duration": 0.09999990463256836
+          },
+          {
+            "kind": "button",
+            "id": "grove/switch",
+            "action": "click",
+            "time": 9777.599999904633,
+            "source": "mapped-off-0",
+            "duration": 0.09999990463256836
+          }
+        ],
+        "state": {
+          "pressed": false,
+          "position": 1,
+          "latching": true
+        }
+      },
+      {
+        "on": 1,
+        "calls": [
+          {
+            "id": "synthetic-8encoder",
+            "values": {
+              "switch-on": true
+            }
+          },
+          {
+            "id": "synthetic-8encoder",
+            "values": {
+              "switch-on": false
+            }
+          }
+        ],
+        "events": [
+          {
+            "kind": "button",
+            "id": "grove/switch",
+            "action": "down",
+            "time": 9777.699999809265,
+            "source": "mapped-on-1",
+            "position": 1
+          },
+          {
+            "kind": "button",
+            "id": "grove/switch",
+            "action": "up",
+            "time": 9777.699999809265,
+            "source": "mapped-on-1",
+            "duration": 0
+          },
+          {
+            "kind": "button",
+            "id": "grove/switch",
+            "action": "click",
+            "time": 9777.699999809265,
+            "source": "mapped-on-1",
+            "duration": 0
+          },
+          {
+            "kind": "button",
+            "id": "grove/switch",
+            "action": "down",
+            "time": 9777.799999952316,
+            "source": "mapped-off-1",
+            "position": 0
+          },
+          {
+            "kind": "button",
+            "id": "grove/switch",
+            "action": "up",
+            "time": 9777.799999952316,
+            "source": "mapped-off-1",
+            "duration": 0
+          },
+          {
+            "kind": "button",
+            "id": "grove/switch",
+            "action": "click",
+            "time": 9777.799999952316,
+            "source": "mapped-off-1",
+            "duration": 0
+          }
+        ],
+        "state": {
+          "pressed": false,
+          "position": 0,
+          "latching": true
+        }
+      }
+    ],
+    "readbackEcho": {
+      "calls": 0,
+      "events": 0
+    }
+  }
+}

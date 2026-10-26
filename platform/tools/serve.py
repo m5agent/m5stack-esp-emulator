@@ -869,7 +869,7 @@ class Handler(SimpleHTTPRequestHandler):
             ):
                 session = service.get_session(parts[1])
                 action = parts[2]
-                payload = self._read_json(required=False)
+                payload = self._read_json(required=False, max_bytes=2 * 1024 * 1024 if action == "program" else 1024 * 1024)
                 if action == "input":
                     response = session.inject(payload)
                 elif action == "program":
@@ -1023,10 +1023,10 @@ class Handler(SimpleHTTPRequestHandler):
                 409,
             )
 
-    def _read_json(self, required: bool = True) -> dict:
+    def _read_json(self, required: bool = True, *, max_bytes: int = 1024 * 1024) -> dict:
         if not required and int(self.headers.get("Content-Length", "0") or "0") == 0:
             return {}
-        raw = self._read_body(max_bytes=1024 * 1024)
+        raw = self._read_body(max_bytes=max_bytes)
         try:
             payload = json.loads(raw)
         except json.JSONDecodeError as error:

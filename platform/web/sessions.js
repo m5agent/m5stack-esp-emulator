@@ -1,4 +1,4 @@
-import { createDeviceShell } from './device-shell-factory.js?v=20261026b';
+import { createDeviceShell } from './device-shell-factory.js?v=20261026c';
 import { createUnitPanel, createUnitPicker } from './unit-panel.js';
 import { createProgramPanel } from './program-panel.js';
 

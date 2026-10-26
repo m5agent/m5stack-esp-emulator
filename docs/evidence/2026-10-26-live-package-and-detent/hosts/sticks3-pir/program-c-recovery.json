@@ -1,0 +1,262 @@
+{
+  "session_id": "c41a9ff1bc714937b02d300d99f45172",
+  "program_transport": "uart-repl",
+  "program": {
+    "execution_id": "41d157f41ccd4669974a992d23034ac2",
+    "revision_id": "17edebbf6942134bb1d8d42f8170c0942f0481693d32c72f2829d43692b1b6e8",
+    "source_sha256": "e44765f0fc03435886375c58a6d0bc1225476c008effa5a6c0700ee400873250",
+    "source_bytes": 2509,
+    "state": "running",
+    "submitted_at": "2026-10-26T12:20:54.593443+00:00",
+    "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+    "pid": 81941,
+    "execution_mode": "same-guest-uart-repl",
+    "cleanup_mode": "interrupt-only",
+    "serial_offset": 20918,
+    "source_kind": "uiflow2-package",
+    "total_file_bytes": 2885,
+    "file_count": 7,
+    "deployment": {
+      "phase": "activated",
+      "staging_path": "/flash/.m5-live-packages/.stage-797de414388649ddbac29fa54a4ea8a2",
+      "package_path": "/flash/.m5-live-packages/17edebbf6942134bb1d8d42f8170c0942f0481693d32c72f2829d43692b1b6e8",
+      "events": [
+        {
+          "phase": "preflight",
+          "staging_path": "/flash/.m5-live-packages/.stage-797de414388649ddbac29fa54a4ea8a2",
+          "package_path": "/flash/.m5-live-packages/17edebbf6942134bb1d8d42f8170c0942f0481693d32c72f2829d43692b1b6e8",
+          "observed_at": "2026-10-26T12:20:54.707982+00:00"
+        },
+        {
+          "phase": "capabilities",
+          "capabilities": {
+            "existing": false,
+            "directory_count": 3,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 1376256
+          },
+          "observed_at": "2026-10-26T12:20:55.208960+00:00"
+        },
+        {
+          "phase": "writing",
+          "path": "assets/pixel.png",
+          "written_bytes": 99,
+          "observed_at": "2026-10-26T12:20:55.641301+00:00"
+        },
+        {
+          "phase": "writing",
+          "path": "config.json",
+          "written_bytes": 200,
+          "observed_at": "2026-10-26T12:20:55.760277+00:00"
+        },
+        {
+          "phase": "writing",
+          "path": "helper.mpy",
+          "written_bytes": 266,
+          "observed_at": "2026-10-26T12:20:55.859580+00:00"
+        },
+        {
+          "phase": "writing",
+          "path": "lib/__init__.py",
+          "written_bytes": 278,
+          "observed_at": "2026-10-26T12:20:55.963807+00:00"
+        },
+        {
+          "phase": "writing",
+          "path": "lib/logic.py",
+          "written_bytes": 364,
+          "observed_at": "2026-10-26T12:20:56.072007+00:00"
+        },
+        {
+          "phase": "writing",
+          "path": "main.py",
+          "written_bytes": 2873,
+          "observed_at": "2026-10-26T12:20:56.844833+00:00"
+        },
+        {
+          "phase": "writing",
+          "path": "namespace_lib/state.py",
+          "written_bytes": 2885,
+          "observed_at": "2026-10-26T12:20:56.949333+00:00"
+        },
+        {
+          "phase": "verified",
+          "inventory": {
+            "lib/__init__.py": {
+              "size": 12,
+              "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780"
+            },
+            "namespace_lib/state.py": {
+              "size": 12,
+              "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780"
+            },
+            "helper.mpy": {
+              "size": 66,
+              "sha256": "021edd161bcc79e972301efbf384b07b4d92b326d67e6d61e80cc1d4266ea26a"
+            },
+            "config.json": {
+              "size": 101,
+              "sha256": "9325925a192c8604d972d97fc127078f1c288e07402b910742f777f5e254a913"
+            },
+            "lib/logic.py": {
+              "size": 86,
+              "sha256": "11aff7b9d29aeb59b4982aec000f2a74a812c53fc3bd62944235a14670762a8b"
+            },
+            "main.py": {
+              "size": 2509,
+              "sha256": "66c7aa777687fca04ee9ee29c031c5548f7c6cfa7a08362958ba61c130f492a9"
+            },
+            "assets/pixel.png": {
+              "size": 99,
+              "sha256": "9488edded333f3f4af607602662f5af43fb00eb213a68191e9726cfdb4fab672"
+            }
+          },
+          "observed_at": "2026-10-26T12:20:57.394523+00:00"
+        },
+        {
+          "phase": "published",
+          "inventory": {
+            "lib/__init__.py": {
+              "size": 12,
+              "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780"
+            },
+            "namespace_lib/state.py": {
+              "size": 12,
+              "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780"
+            },
+            "helper.mpy": {
+              "size": 66,
+              "sha256": "021edd161bcc79e972301efbf384b07b4d92b326d67e6d61e80cc1d4266ea26a"
+            },
+            "config.json": {
+              "size": 101,
+              "sha256": "9325925a192c8604d972d97fc127078f1c288e07402b910742f777f5e254a913"
+            },
+            "lib/logic.py": {
+              "size": 86,
+              "sha256": "11aff7b9d29aeb59b4982aec000f2a74a812c53fc3bd62944235a14670762a8b"
+            },
+            "main.py": {
+              "size": 2509,
+              "sha256": "66c7aa777687fca04ee9ee29c031c5548f7c6cfa7a08362958ba61c130f492a9"
+            },
+            "assets/pixel.png": {
+              "size": 99,
+              "sha256": "9488edded333f3f4af607602662f5af43fb00eb213a68191e9726cfdb4fab672"
+            }
+          },
+          "reused": false,
+          "observed_at": "2026-10-26T12:20:57.448017+00:00"
+        },
+        {
+          "phase": "activated",
+          "package_path": "/flash/.m5-live-packages/17edebbf6942134bb1d8d42f8170c0942f0481693d32c72f2829d43692b1b6e8",
+          "inventory": {
+            "lib/__init__.py": {
+              "size": 12,
+              "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780"
+            },
+            "namespace_lib/state.py": {
+              "size": 12,
+              "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780"
+            },
+            "helper.mpy": {
+              "size": 66,
+              "sha256": "021edd161bcc79e972301efbf384b07b4d92b326d67e6d61e80cc1d4266ea26a"
+            },
+            "config.json": {
+              "size": 101,
+              "sha256": "9325925a192c8604d972d97fc127078f1c288e07402b910742f777f5e254a913"
+            },
+            "lib/logic.py": {
+              "size": 86,
+              "sha256": "11aff7b9d29aeb59b4982aec000f2a74a812c53fc3bd62944235a14670762a8b"
+            },
+            "main.py": {
+              "size": 2509,
+              "sha256": "66c7aa777687fca04ee9ee29c031c5548f7c6cfa7a08362958ba61c130f492a9"
+            },
+            "assets/pixel.png": {
+              "size": 99,
+              "sha256": "9488edded333f3f4af607602662f5af43fb00eb213a68191e9726cfdb4fab672"
+            }
+          },
+          "reused": false,
+          "capabilities": {
+            "existing": false,
+            "directory_count": 3,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 1376256
+          },
+          "removed_modules": [
+            "lib.logic",
+            "namespace_lib.state",
+            "lib",
+            "namespace_lib",
+            "helper"
+          ],
+          "staging_path": "/flash/.m5-live-packages/.stage-797de414388649ddbac29fa54a4ea8a2",
+          "observed_at": "2026-10-26T12:20:57.739024+00:00"
+        }
+      ],
+      "capabilities": {
+        "existing": false,
+        "directory_count": 3,
+        "mpy": 11014,
+        "small_int_bits": 31,
+        "free_bytes": 1376256
+      },
+      "path": "namespace_lib/state.py",
+      "written_bytes": 2885,
+      "inventory": {
+        "lib/__init__.py": {
+          "size": 12,
+          "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780"
+        },
+        "namespace_lib/state.py": {
+          "size": 12,
+          "sha256": "ec4d621fbdf2ae3e0adf70639618b4eeefaf728b9279f8bcfd1da8ae12cdf780"
+        },
+        "helper.mpy": {
+          "size": 66,
+          "sha256": "021edd161bcc79e972301efbf384b07b4d92b326d67e6d61e80cc1d4266ea26a"
+        },
+        "config.json": {
+          "size": 101,
+          "sha256": "9325925a192c8604d972d97fc127078f1c288e07402b910742f777f5e254a913"
+        },
+        "lib/logic.py": {
+          "size": 86,
+          "sha256": "11aff7b9d29aeb59b4982aec000f2a74a812c53fc3bd62944235a14670762a8b"
+        },
+        "main.py": {
+          "size": 2509,
+          "sha256": "66c7aa777687fca04ee9ee29c031c5548f7c6cfa7a08362958ba61c130f492a9"
+        },
+        "assets/pixel.png": {
+          "size": 99,
+          "sha256": "9488edded333f3f4af607602662f5af43fb00eb213a68191e9726cfdb4fab672"
+        }
+      },
+      "reused": false,
+      "removed_modules": [
+        "lib.logic",
+        "namespace_lib.state",
+        "lib",
+        "namespace_lib",
+        "helper"
+      ]
+    },
+    "next_offset": 20977,
+    "acknowledged": true,
+    "transfer_mode": "raw-paste",
+    "observed_at": "2026-10-26T12:20:57.947186+00:00"
+  },
+  "history_error": null,
+  "request_seconds": 3.358059582998976,
+  "expected_history_state": "running",
+  "activated": true,
+  "reused": false
+}

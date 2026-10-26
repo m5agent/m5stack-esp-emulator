@@ -1,0 +1,59 @@
+{
+  "session_id": "8241ad6faeaa43369e45f82052484b47",
+  "program_transport": "uart-repl",
+  "program": {
+    "execution_id": "4cb7dcd8714e48169ab12db2fa927ff3",
+    "revision_id": "7cdf781c78631458003af6c004e151e4b68258706e7926243ffd7366123d73fe",
+    "source_sha256": "f133a6a68e8d4dd118989039b6aeb4990254064977dfa194bc0f0bd10b881d46",
+    "source_bytes": 2508,
+    "state": "failed",
+    "submitted_at": "2026-10-26T12:19:58.942928+00:00",
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "pid": 81711,
+    "execution_mode": "same-guest-uart-repl",
+    "cleanup_mode": "interrupt-only",
+    "serial_offset": 15877,
+    "source_kind": "uiflow2-package",
+    "total_file_bytes": 2882,
+    "file_count": 7,
+    "deployment": {
+      "phase": "capabilities",
+      "staging_path": "/flash/.m5-live-packages/.stage-c6df994616b64fb8aa7d2ce5400be89e",
+      "package_path": "/flash/.m5-live-packages/7cdf781c78631458003af6c004e151e4b68258706e7926243ffd7366123d73fe",
+      "events": [
+        {
+          "phase": "preflight",
+          "staging_path": "/flash/.m5-live-packages/.stage-c6df994616b64fb8aa7d2ce5400be89e",
+          "package_path": "/flash/.m5-live-packages/7cdf781c78631458003af6c004e151e4b68258706e7926243ffd7366123d73fe",
+          "observed_at": "2026-10-26T12:19:59.046992+00:00"
+        },
+        {
+          "phase": "capabilities",
+          "capabilities": {
+            "existing": true,
+            "directory_count": 3,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 4579328
+          },
+          "observed_at": "2026-10-26T12:19:59.515390+00:00"
+        }
+      ],
+      "capabilities": {
+        "existing": true,
+        "directory_count": 3,
+        "mpy": 11014,
+        "small_int_bits": 31,
+        "free_bytes": 4579328
+      }
+    },
+    "error": {
+      "code": "program_package_integrity",
+      "message": "guest package directories differ from the snapshot"
+    }
+  },
+  "history_error": null,
+  "expected_history_state": "failed",
+  "activated": false,
+  "error_code": "program_package_integrity"
+}

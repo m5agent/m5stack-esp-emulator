@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>M5Stack Device Simulator</title>
+  <link rel="stylesheet" href="/platform/web/app.css">
+  <link rel="stylesheet" href="/platform/web/device-shell.css">
+  <link rel="stylesheet" href="/platform/web/three-device-viewer.css?v=20261022e">
+  <link rel="stylesheet" href="/platform/web/m5-tokens.css">
+  <link rel="stylesheet" href="/platform/web/m5-brand.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/platform/web/vendor/three/three.module.js",
+        "three/addons/": "/platform/web/vendor/three/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="brandbar">
+    <div class="brand-mark"><img src="/platform/web/m5stack-logo.png" alt="M5Stack"></div>
+    <div>
+      <div class="brand-title" id="brandTitle">M5Stack Device Simulator</div>
+      <div class="brand-sub" id="brandSub">Loading profile…</div>
+    </div>
+    <div class="brand-actions">
+      <a class="btn ghost" href="/platform/web/index.html">设备目录</a>
+      <a class="btn ghost" href="/platform/web/sessions.html">Live sessions</a>
+      <button class="btn" id="pauseBtn" disabled>暂停</button>
+      <button class="btn" id="resetBtn" disabled>复位</button>
+      <a class="btn primary" id="referenceBtn" hidden>打开参考运行时</a>
+    </div>
+  </header>
+
+  <main class="device-page">
+    <section class="panel device-page-stage">
+      <div class="stage-toolbar">
+        <div>
+          <div class="stage-title" id="stageTitle">Device</div>
+          <div class="stage-sub" id="stageSub">Profile shell</div>
+        </div>
+        <div class="stage-actions">
+          <div class="view-toggle" id="viewToggle">
+            <button type="button" data-view="photo" class="active">实物图</button>
+            <button type="button" data-view="shell">结构图</button>
+          </div>
+          <span class="status-chip" id="runtimeChip">loading</span>
+        </div>
+      </div>
+      <div id="deviceMount"></div>
+    </section>
+
+    <aside class="panel device-page-inspector">
+      <h2 id="deviceName">Device</h2>
+      <div class="inspector-sub" id="deviceSku"></div>
+
+      <div class="section">
+        <div class="section-title">官方参考图</div>
+        <img class="reference-photo" id="referencePhoto" alt="Official device reference">
+        <div class="reference-caption">M5Stack 官方产品资料，仅用于外形校准。</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Runtime</div>
+        <div id="runtimeNotice" class="notice">Loading runtime profile…</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Firmware</div>
+        <div class="file-row">
+          <input class="file-input" id="firmwareFile" type="file" accept=".bin">
+          <button class="btn" id="fetchBtn">获取 UIFlow2</button>
+        </div>
+        <div class="notice" id="firmwareNotice" style="margin-top:10px">未加载固件。支持 merged flash `.bin`。</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Hardware</div>
+        <dl class="kv" id="hardwareKv"></dl>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Peripherals</div>
+        <div id="peripheralSummary" class="notice">Loading peripheral contract…</div>
+        <div id="peripheralList" class="peripheral-list"></div>
+      </div>
+
+      <div class="section" id="sensorSection">
+        <div class="section-title">Interactive inputs</div>
+        <div id="sensorControls" class="notice">此设备当前没有可注入的传感器模型。</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">UART log</div>
+        <div class="log" id="log">等待固件…</div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="m5-page-footer"><div class="m5-page-footer__inner"><span>M5 AI OPERATIONS</span><span>SIMULATED DEVICE PROFILE</span><span>© 2026 M5Stack</span></div></footer>
+
+  <script type="module" src="/platform/web/device.js?v=20261026a"></script>
+</body>
+</html>

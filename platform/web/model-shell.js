@@ -201,7 +201,14 @@ export class ModelDeviceShell {
         press(source);
         if (wasDown) return;
         downAt = performance.now(); cancelled = false;
-        input('down', { source });
+        const payload = { source };
+        // Preserve the actuator's post-toggle detent without assigning an
+        // electrical on/off meaning. That mapping still needs a binding.
+        if (button.isLatching) {
+          const position = button.getState().position;
+          if (position === 0 || position === 1) payload.position = position;
+        }
+        input('down', payload);
         clearTimeout(timer);
         if (button.longPressMs > 0) timer = setTimeout(() => {
           if (sources.size) input('longpress', { source });

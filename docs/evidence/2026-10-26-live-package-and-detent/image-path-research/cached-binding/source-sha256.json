@@ -1,0 +1,51 @@
+{
+  "scope": "Read-only cached source audit. No guest execution. UIFlow mpy_m5gfx.cpp cache is byte-identical to parent-fetched fixed 3a86 source; see binding-identity.json. Other cached dependencies retain their listed pinned refs.",
+  "micropython_commit": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+  "files": {
+    "uiflow_binding": {
+      "path": ".work/unit-host-control-display-candidate-20261026/evidence/uiflow-micropython/2.5.3/m5stack/components/M5Unified/mpy_m5gfx.cpp",
+      "sha256": "b13f252dbfd05eaa9135169acb13c65766af7529973debdc45690e4e9ae853f7",
+      "bytes": 65368
+    },
+    "uiflow_gfx_methods": {
+      "path": ".work/unit-host-control-display-candidate-20261026/evidence/uiflow-micropython/2.5.3/m5stack/cmodules/m5unified/m5unified_gfx.c",
+      "sha256": "9e869e68eb99706e46855858e72a213db66e65e0e83a56ad155ab5238bac9a4e",
+      "bytes": 20285
+    },
+    "uiflow_display_object": {
+      "path": ".work/unit-host-control-display-candidate-20261026/evidence/uiflow-micropython/2.5.3/m5stack/components/M5Unified/mpy_m5unified.cpp",
+      "sha256": "2db38cbc3ce1ab53c55977c90d6d23dea246c00dc5ac8dfb1fed5c0c4a1af163",
+      "bytes": 36563
+    },
+    "gfx_header": {
+      "path": ".work/unit-host-control-display-candidate-20261026/evidence/M5GFX/9bcedf4e19d4cab7a0793de0598ae5390b4689fe/src/lgfx/v1/LGFXBase.hpp",
+      "sha256": "e595198f2a0872c55a854b78d8a1d48cb656c534b62da183e4334f148afa01c1",
+      "bytes": 85866
+    },
+    "gfx_decoder": {
+      "path": ".work/unit-host-control-display-candidate-20261026/evidence/M5GFX/9bcedf4e19d4cab7a0793de0598ae5390b4689fe/src/lgfx/v1/LGFXBase.cpp",
+      "sha256": "c9bff4ce17f1e2127bf708ad6ebc9d10b4ac7bfed557340811cfea61769f9918",
+      "bytes": 113514
+    },
+    "mp_obj": {
+      "path": ".work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/py/obj.c",
+      "sha256": "076e9c0ca48c2a09de8fdf0a8b02f1ca618e0e48c9ba534d75350440b9c15a52",
+      "bytes": 22271
+    },
+    "mp_obj_header": {
+      "path": ".work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/py/obj.h",
+      "sha256": "4f194e356a78a7201238216673967779391892f61a662f21a76ffe85d82dba3c",
+      "bytes": 63942
+    },
+    "mp_obj_str": {
+      "path": ".work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/py/objstr.c",
+      "sha256": "ae779cf8561978f9060935555b1595af387719e06ca52bad75b4c8b20838e46b",
+      "bytes": 86907
+    },
+    "mp_esp32_config": {
+      "path": ".work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/ports/esp32/mpconfigport.h",
+      "sha256": "b4ebfe1215cab23144511f73e21e9ec1807ded8ce5e9130c6c9db1460673cfb3",
+      "bytes": 16521
+    }
+  }
+}

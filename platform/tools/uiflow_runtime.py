@@ -87,7 +87,7 @@ class ExecutionStateScanner:
 
 
 def run_source(console, source: str, execution_id: str, *, timeout: float, cancelled,
-               on_synchronized=None) -> dict:
+               on_synchronized=None, source_path: str | None = None) -> dict:
     """Interrupt, synchronize raw REPL, then compile and execute source in guest.
 
     MicroPython raw REPL uses Ctrl-A to enter, Ctrl-D to submit and an OK
@@ -121,9 +121,15 @@ def run_source(console, source: str, execution_id: str, *, timeout: float, cance
     markers = execution_markers(execution_id)
     # Compile before START so a syntax error cannot count as application
     # execution. Use a fresh globals dictionary; this is not a native VM reset.
+    prepare_source = (
+        f" with open({source_path!r}, 'r') as _m5_input:\n  _m5_text = _m5_input.read()\n"
+        if source_path is not None else ""
+    )
+    expression = "_m5_text" if source_path is not None else repr(source)
     wrapper = (
         "try:\n"
-        f" _m5_compiled = compile({source!r}, '<m5-{execution_id}>', 'exec')\n"
+        + prepare_source
+        + f" _m5_compiled = compile({expression}, '<m5-{execution_id}>', 'exec')\n"
         f" print({markers['START'].decode()!r})\n"
         " exec(_m5_compiled, {'__name__': '__main__', '__file__': 'main.py'})\n"
         "except BaseException as _m5_error:\n"

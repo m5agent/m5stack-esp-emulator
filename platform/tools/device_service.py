@@ -49,6 +49,8 @@ from ble_runtime_limits import (  # noqa: E402
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
 from uiflow_source import UIFlowSourceError, build_uiflow_source_image  # noqa: E402
 from program_revisions import ProgramRevisionStore, RevisionError  # noqa: E402
+from program_packages import ProgramPackageStore, ProgramPackageError  # noqa: E402
+from uiflow_package_runtime import deploy_package  # noqa: E402
 from frame_cache import CaptureResult, FrameCache, FrameGenerationChanged  # noqa: E402
 from uiflow_runtime import (  # noqa: E402
     ExecutionStateScanner, LIVE_PROGRAM_DEVICES, LIVE_READY_MARKER,
@@ -6216,20 +6218,24 @@ class DeviceSession:
         """Run one source checkpoint in the existing MicroPython VM over UART."""
         from guest_console import GuestConsoleError
 
-        if not isinstance(payload, dict) or set(payload) - {"source", "expected_execution_id", "timeout_seconds"}:
+        package = isinstance(payload, dict) and "files" in payload
+        allowed = ({"files", "entrypoint", "source_kind", "expected_execution_id", "timeout_seconds"}
+                   if package else {"source", "expected_execution_id", "timeout_seconds"})
+        if not isinstance(payload, dict) or set(payload) - allowed:
             raise ServiceError("invalid_program", "source, expected_execution_id and optional timeout_seconds are accepted", 400)
-        if "expected_execution_id" not in payload or not isinstance(payload.get("source"), str):
+        if "expected_execution_id" not in payload or (not package and not isinstance(payload.get("source"), str)):
             raise ServiceError("invalid_program", "source and expected_execution_id (null for the first run) are required", 400)
-        source = payload["source"]
+        source = "" if package else payload["source"]
         try:
             source_size = len(source.encode("utf-8"))
         except UnicodeEncodeError as error:
             raise ServiceError("invalid_program", "source must be valid UTF-8", 400) from error
         if source_size > 65536:
             raise ServiceError("program_too_large", "live source execution is limited to 64 KiB", 413)
-        timeout = payload.get("timeout_seconds", 10)
-        if type(timeout) not in {int, float} or not 1 <= timeout <= 30:
-            raise ServiceError("invalid_program", "timeout_seconds must be between 1 and 30", 400)
+        timeout = payload.get("timeout_seconds", 120 if package else 10)
+        maximum_timeout = 120 if package else 30
+        if type(timeout) not in {int, float} or not 1 <= timeout <= maximum_timeout:
+            raise ServiceError("invalid_program", f"timeout_seconds must be between 1 and {maximum_timeout}", 400)
         if not self._program_lock.acquire(blocking=False):
             raise ServiceError("program_busy", "a program transfer already owns this console", 409)
         try:
@@ -6243,8 +6249,12 @@ class DeviceSession:
             if payload["expected_execution_id"] != current_id:
                 raise ServiceError("program_generation_conflict", "expected_execution_id is stale", 409)
             try:
-                revision = self.service.program_revisions.create({"files": {"main.py": source}})
-            except RevisionError as error:
+                if package:
+                    revision = self.service.program_packages.create({key: payload[key] for key in ("files", "entrypoint", "source_kind") if key in payload})
+                    package_files = self.service.program_packages.read_files(revision["revision_id"])
+                else:
+                    revision = self.service.program_revisions.create({"files": {"main.py": source}})
+            except (RevisionError, ProgramPackageError) as error:
                 raise ServiceError(error.code, error.message, error.status) from error
             if len(list((self.dir / "programs").glob("*.json"))) >= 256:
                 raise ServiceError("program_quota_exceeded", "this session retains at most 256 executions", 429)
@@ -6269,6 +6279,9 @@ class DeviceSession:
                     "execution_mode": "same-guest-uart-repl", "cleanup_mode": "interrupt-only",
                     "serial_offset": console.offset(),
                 }
+                if package:
+                    self._program.update(source_kind="uiflow2-package", source_bytes=len(package_files["main.py"]),
+                                         total_file_bytes=revision["total_file_bytes"], file_count=len(package_files))
                 self._preview_frames.invalidate()
                 self._persist_program()
                 self._record_event("program_submitted", **self._program)
@@ -6283,10 +6296,31 @@ class DeviceSession:
                         previous.update(state="interrupted", interruption_confirmed=True, interrupted_at=iso_now())
                         atomic_write_json(self.dir / "programs" / f"{previous['execution_id']}.json", previous)
 
+            def package_progress(values):
+                with self._lock:
+                    if self._stop_purge:
+                        raise UIFlowRuntimeError("program_cancelled", "session was purged")
+                    deployment = self._program.setdefault("deployment", {})
+                    deployment.update(values)
+                    deployment.setdefault("events", []).append({**values, "observed_at": iso_now()})
+                    self._persist_program()
+                    if self._stop_event.is_set():
+                        raise UIFlowRuntimeError("program_cancelled", "session is stopping")
+
             try:
+                execution_timeout = float(timeout)
+                if package:
+                    package_started = time.monotonic()
+                    deploy_package(console, package_files, revision, timeout=execution_timeout,
+                                   cancelled=self._stop_event.is_set, on_synchronized=synchronized,
+                                   on_progress=package_progress)
+                    execution_timeout -= time.monotonic() - package_started
+                    if execution_timeout <= 0:
+                        raise UIFlowRuntimeError("program_timeout", "package deployment used its execution acknowledgement budget")
                 result = run_source(console, source, execution_id,
-                                    timeout=float(timeout), cancelled=self._stop_event.is_set,
-                                    on_synchronized=synchronized)
+                                    timeout=execution_timeout, cancelled=self._stop_event.is_set,
+                                    on_synchronized=synchronized,
+                                    **({"source_path": "main.py"} if package else {}))
             except (GuestConsoleError, UIFlowRuntimeError) as error:
                 with self._lock:
                     if self._stop_purge:
@@ -6295,11 +6329,16 @@ class DeviceSession:
                     if previous and previous["state"] == "interrupt-requested":
                         previous.update(state="unknown", interruption_confirmed=False)
                         atomic_write_json(self.dir / "programs" / f"{previous['execution_id']}.json", previous)
-                    self._program.update(state="cancelled" if self._stop_event.is_set() else "unknown",
+                    known_package_failure = package and error.code in {
+                        "program_mpy_invalid", "program_mpy_incompatible", "program_mpy_native_unsupported",
+                        "program_mpy_capability_unknown", "program_package_integrity", "program_package_guest_quota",
+                        "program_package_no_space", "program_package_short_write", "program_rpc_failed",
+                    }
+                    self._program.update(state="cancelled" if self._stop_event.is_set() else "failed" if known_package_failure else "unknown",
                                          error={"code": error.code, "message": error.message})
                     self._persist_program()
                     self._record_event("program_unconfirmed", execution_id=execution_id, code=error.code)
-                raise ServiceError(error.code, error.message, 409 if self._stop_event.is_set() else 504,
+                raise ServiceError(error.code, error.message, 409 if self._stop_event.is_set() or known_package_failure else 504,
                                    execution_id=execution_id) from error
             with self._lock:
                 if self._stop_purge:
@@ -7071,11 +7110,18 @@ class DeviceSession:
             for record_path in sorted((self.dir / "programs").glob("*.json")):
                 raw = record_path.read_bytes()
                 files[f"programs/{record_path.name}"] = raw
-                revision_id = json.loads(raw)["revision_id"]
+                record = json.loads(raw)
+                revision_id = record["revision_id"]
                 try:
-                    source = self.service.program_revisions.source(revision_id)
-                    metadata = self.service.program_revisions.get(revision_id)
-                except RevisionError as error:
+                    if record.get("source_kind") == "uiflow2-package":
+                        source = self.service.program_packages.source(revision_id)
+                        metadata = self.service.program_packages.get(revision_id)
+                        for path, content in self.service.program_packages.read_files(revision_id).items():
+                            files[f"programs/{revision_id}/files/{path}"] = content
+                    else:
+                        source = self.service.program_revisions.source(revision_id)
+                        metadata = self.service.program_revisions.get(revision_id)
+                except (RevisionError, ProgramPackageError) as error:
                     raise ServiceError(error.code, error.message, error.status) from error
                 files[f"programs/{revision_id}/source.json"] = json.dumps(
                     source, ensure_ascii=False, sort_keys=True, separators=(",", ":"),
@@ -8291,6 +8337,7 @@ class DeviceService:
             self.state_dir / "firmware", self.artifacts, self.specs
         )
         self.program_revisions = ProgramRevisionStore(self.state_dir / "program-revisions")
+        self.program_packages = ProgramPackageStore(self.state_dir / "program-packages")
         self.max_sessions = max(1, int(max_sessions))
         self.max_per_device = max(1, int(max_per_device))
         self.default_ttl = max(30, int(default_ttl))
@@ -8817,6 +8864,7 @@ class DeviceService:
             "warnings": spec.warnings,
             "firmware_families": ["uiflow2", "generic-flash"],
             "program_modes": ["uiflow-live"] if spec.id in LIVE_PROGRAM_DEVICES else [],
+            "program_source_kinds": ["uiflow2-python", "uiflow2-package"] if spec.id in LIVE_PROGRAM_DEVICES else [],
             "coverage": {
                 "peripheral_status": spec.peripheral_status,
                 "complete": spec.peripheral_status == "simulated",

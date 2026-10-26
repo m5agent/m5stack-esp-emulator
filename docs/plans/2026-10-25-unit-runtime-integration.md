@@ -213,6 +213,6 @@ revision/source和停止前ZIP均绑定。包含预期失败的语法负控，�
 读回、实际frame角像素到模型display、错误显示与恢复、停止历史。初始picker
 跨主机竞态的409负控保留为UNIT-HOST-27，修复后的13项browser fixture通过；
 它与真实guest证据分开。详见[Web与四主机程序证据](../evidence/2026-10-26-live-program-web-and-hosts/README.md)。
-其它Unit、其它主机的Web整页、多文件/资源、二进制`.mpy`、Run Always、AIFlow
-checkpoint/虚拟目标、Preview/Run与SSE仍待完成；interrupt-only不保证native、
+完整文件/资源与纯字节码依赖已由[文件包工作块](../evidence/2026-10-26-live-package-and-detent/README.md)补齐。
+其它Unit、其它主机Web、二进制入口、Run Always、AIFlow/Preview/SSE仍开放；interrupt-only不保证native、
 定时器、IRQ与线程清理，不将提交确认当作首帧或低延迟SLA，不转授硬件PASS。

@@ -1,6 +1,6 @@
 # 外部 Agent：UIFlow 实时编程与 Unit 会话
 
-日期：`2026-10-26`。API 契约：`1.38.0`。
+日期：`2026-10-26`。API 契约：`1.39.0`。
 
 实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
 串口及 Unit 状态”的路径。每次改源码调用 `/sessions/{id}/program`，不重刷
@@ -55,8 +55,8 @@ Content-Type: application/json
 读取 `GET /api/v1/sessions/SESSION_ID/program`，下一次提交把
 `expected_execution_id` 换成返回的 `program.execution_id`。过期身份或并发传输
 返回 409；超时返回明确错误，不自动重新刷机或替换 guest。源码最多 65536
-UTF-8 字节，超时配置 1–30 秒；当前接口只执行单文件 `.py` 源码，由 guest
-MicroPython 编译。多文件同步、二进制 `.mpy` 上传和保存开机程序需要另行实现。
+UTF-8 字节，超时配置 1–30 秒，由 guest MicroPython 编译。多文件、纯字节码
+`.mpy` 依赖与资源使用下方 `files` 请求；二进制入口和保存开机程序仍待实现。
 
 每次尝试保存独立 `execution_id`、不可变 `revision_id`、源码 SHA、固件 SHA、
 PID、串口窗口与执行状态，停止前 evidence ZIP 包含执行记录和 revision 源码。
@@ -78,10 +78,54 @@ CoreS3 另有真实网页创建、输入、程序替换、画面进入模型屏�
 [直接创建与 Web 验证](evidence/2026-10-26-live-program-web-and-hosts/README.md)。
 早期手动 bootstrap 的 AtomS3R 基线保留在
 [首轮实时程序证据](evidence/2026-10-26-uiflow-live-program/README.md)。
-上述结果不外推其它 Unit、任意源码、多文件资源或物理设备。
-每 session 最多保留 256 次 execution；当前服务级 revision 存储上限 256，额度
+上述早期结果不外推其它 Unit、任意源码、多文件资源或物理设备。
+每session最多256次execution；单源码与完整包的服务级store各独立限256 revisions，额度
 耗尽返回明确错误，不自动删除历史或重跑未知提交。服务重连期间可能丢失串口输出，
 原活跃程序保持 unknown，不能仅根据旧 START 恢复 running。
+
+## 同一 VM 的完整文件包
+
+`GET /devices` 的 `program_source_kinds` 中，`uiflow2-python` 对应原 `source`，
+`uiflow2-package` 对应完整文件快照。两种请求互斥，但可在同一 session 连续使用：
+
+```json
+{"expected_execution_id":null,"files":{
+  "main.py":{"encoding":"utf8","data":"from app import read\nprint(read())\n"},
+  "app.py":{"encoding":"utf8","data":"import json\ndef read():\n with open('assets/settings.json') as stream:\n  return json.load(stream)\n"},
+  "assets/settings.json":{"encoding":"utf8","data":"{\"enabled\":true}\n"}
+},"entrypoint":"main.py","timeout_seconds":120}
+```
+
+图片、字体、音频、数据和 `.mpy` 依赖用 `base64` 编码实际文件 bytes；不要把
+二进制转换成 UTF-8。每次提交完整集合，删除的模块与旧目录不继续参与导入。
+源码/字节码在虚拟设备自己的 MicroPython 与文件系统内运行，不执行 host Python。
+`.mpy` 必须是与实际 guest 匹配的纯字节码依赖，使用官方相应 `mpy-cross`；
+原生 emitter、伪造头的 native payload 和 `main.mpy` 入口不准入。
+
+总 decoded 上限 1MiB、64文件、单文件256KiB，路径最多192 UTF-8字节/8层；
+禁止 boot.py、越界路径和别名冲突。HTTP JSON 上限2MiB，包超时1–120秒/默认120秒；
+该预算含真实UART传输、guest哈希读回和应用开始确认，不限制程序最长运行时间。
+进度见 `program.deployment`，`activated` 仍不等于应用 READY。重复revision会重验
+guest文件及目录；篡改文件或增加额外空目录均拒绝。guest最多保留64个包/暂存目录，
+另受实际Flash空闲空间限制；不会暗中删旧包、刷固件或新建guest。
+
+托管模块清理包括 namespace package；native/IRQ/thread仍可能保留，不能当作完整
+reset。文件留在专用目录，不改系统boot/main，不保存为开机程序。逐设备与真实
+Unit/画面验证范围应查台账，不能从这一请求示例直接继承PASS。
+四款准入主机×PIR/Relay的完整文件包、缓存替换/完整性拒绝和恢复已分别验证，见
+[八组合文件包证据](evidence/2026-10-26-live-package-and-detent/README.md)。
+
+当前参考固件的 `drawImage(path)` / `drawPng(path)` 存在已复现兼容性问题。
+资源可按官方bytes接口使用：
+
+```python
+with open("assets/pixel.png", "rb") as stream:
+    M5.Display.drawImage(stream.read(), 8, 8)
+```
+
+文件路径问题与bytes成功属于不同结论，见
+[实际六格实验与固定源码](evidence/2026-10-26-live-package-and-detent/image-path-research/audit.md)。
+
 
 ## 多 Unit 的同设备连续程序
 

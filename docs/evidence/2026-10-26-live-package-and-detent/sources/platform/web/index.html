@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>M5Stack Simulated Devices</title>
+  <link rel="stylesheet" href="/platform/web/app.css">
+  <link rel="stylesheet" href="/platform/web/device-shell.css">
+  <link rel="stylesheet" href="/platform/web/three-device-viewer.css?v=20261022e">
+  <link rel="stylesheet" href="/platform/web/m5-tokens.css">
+  <link rel="stylesheet" href="/platform/web/m5-brand.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/platform/web/vendor/three/three.module.js",
+        "three/addons/": "/platform/web/vendor/three/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="brandbar">
+    <div class="brand-mark"><img src="/platform/web/m5stack-logo.png" alt="M5Stack"></div>
+    <div>
+      <div class="brand-title">M5Stack Simulated Devices</div>
+      <div class="brand-sub">M5Stack firmware lab · device-center ready profiles</div>
+    </div>
+    <div class="brand-actions">
+      <a class="btn ghost" href="/platform/web/sessions.html">Live sessions</a>
+      <a class="btn ghost" href="/platform/web/firmware.html">WebBurner</a>
+      <a class="btn ghost" href="/products/README.md" hidden>Docs</a>
+      <span class="status-chip boot-capable" id="catalogChip">loading</span>
+    </div>
+  </header>
+
+  <main class="gallery-layout">
+    <nav class="panel gallery-nav">
+      <input class="nav-search" id="search" placeholder="搜索型号、芯片、SKU…" autocomplete="off">
+      <div id="deviceNav"></div>
+    </nav>
+
+    <section class="panel gallery-stage">
+      <div class="stage-toolbar">
+        <div>
+          <div class="stage-title" id="stageTitle">选择模拟设备</div>
+          <div class="stage-sub" id="stageSub">按芯片架构分组</div>
+        </div>
+        <div class="stage-actions">
+          <div class="view-toggle" id="viewToggle">
+            <button type="button" data-view="photo" class="active">实物图</button>
+            <button type="button" data-view="shell">结构图</button>
+          </div>
+          <a class="btn primary" id="openBtn" hidden>打开模拟页面</a>
+        </div>
+      </div>
+      <div class="stage-device" id="deviceMount"></div>
+    </section>
+
+    <aside class="panel inspector">
+      <h2 id="detailName">设备目录</h2>
+      <div class="inspector-sub" id="detailSub">选择一个型号查看 UIFlow2 与运行时状态。</div>
+      <div id="detailBody">
+        <div class="notice">YAML/JSON profiles are shared by the simulator and the future device center.</div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="m5-page-footer"><div class="m5-page-footer__inner"><span>M5 AI OPERATIONS</span><span>SIMULATED DEVICE PLATFORM</span><span>© 2026 M5Stack</span></div></footer>
+
+  <script type="module" src="/platform/web/gallery.js?v=20261026a"></script>
+</body>
+</html>

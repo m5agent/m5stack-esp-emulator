@@ -1,0 +1,68 @@
+/*
+* SPDX-FileCopyrightText: 2024 M5Stack Technology CO LTD
+*
+* SPDX-License-Identifier: MIT
+*/
+
+#include <py/obj.h>
+#include "_vfs_stream.h"
+
+
+
+struct LFS2Wrapper : public m5gfx::DataWrapper
+{
+    LFS2Wrapper() : DataWrapper()
+    {
+        need_transaction = true;
+    }
+
+    bool open(const char *path) override {
+        _file = vfs_stream_open(path, VFS_READ | VFS_WRITE);
+        return _file != nullptr;
+    }
+
+    bool open(const char *path, int flag) {
+        _file = vfs_stream_open(path, flag);
+        return _file != nullptr;
+    }
+
+    int read(uint8_t *buf, uint32_t len) override {
+        if (_file == nullptr) {
+            return -1;
+        }
+        return vfs_stream_read(_file, buf, len);
+    }
+    void skip(int32_t offset) override {
+        if (_file == nullptr) {
+            return;
+        }
+        vfs_stream_seek(_file, offset, SEEK_CUR);
+    }
+    bool seek(uint32_t offset) override {
+        if (_file == nullptr) {
+            return false;
+        }
+        return vfs_stream_seek(_file, offset, SEEK_SET) >= 0;
+    }
+    bool seek(uint32_t offset, int origin) {
+        if (_file == nullptr) {
+            return false;
+        }
+        return vfs_stream_seek(_file, offset, origin) >= 0;
+    }
+    void close() override {
+        if (_file) {
+            vfs_stream_close(_file);
+            _file = nullptr;
+        }
+    }
+    int32_t tell(void) override {
+        if (_file == nullptr) {
+            return -1;
+        }
+        return vfs_stream_tell(_file);
+    }
+
+protected:
+    void *_file = nullptr;
+};

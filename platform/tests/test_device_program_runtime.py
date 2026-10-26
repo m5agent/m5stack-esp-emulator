@@ -652,8 +652,8 @@ class DeviceProgramHttpTests(_ProgramFixture):
                 self.assertIn(payload["error"]["code"], {"invalid_json", "invalid_program"})
         self.execute.assert_not_called()
 
-    def test_json_boundary_is_one_mib(self):
-        status, payload = self.request("POST", body_length=1024 * 1024 + 1)
+    def test_program_json_boundary_is_two_mib(self):
+        status, payload = self.request("POST", body_length=2 * 1024 * 1024 + 1)
         self.assertEqual(status, 413)
         self.assertEqual(payload["error"]["code"], "body_too_large")
         self.execute.assert_not_called()

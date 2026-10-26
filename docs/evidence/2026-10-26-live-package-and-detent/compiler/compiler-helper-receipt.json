@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-10-26T11:25:13.972801+00:00",
+  "category": "official-micropython-mpy-cross-build-and-static-bytecode-inspection",
+  "status": "COMPILER_BUILT_HELPER_COMPILED",
+  "guest_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "repository": "https://github.com/micropython/micropython.git",
+  "commit": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+  "micropython_version_macros": [
+    1,
+    27,
+    0
+  ],
+  "uiflow_repository": "https://github.com/m5stack/uiflow-micropython",
+  "uiflow_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "uiflow_micropython_gitlink": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+  "cached_source_audit": {
+    "path": ".work/uiflow-live-repl-source-20261026-source-api-review/micropython-78ff170d",
+    "file_count": 17,
+    "complete_for_build": false
+  },
+  "compiler": {
+    "path": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/mpy-cross/build/mpy-cross",
+    "version": "MicroPython 78ff170de9 on 2026-10-26; mpy-cross emitting mpy v6.3",
+    "sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+    "size": 481256,
+    "host": "macOS-26.6.2-arm64-arm-64bit",
+    "c_compiler_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+    "tracked_source_dirty": false
+  },
+  "helper": {
+    "source": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/helper.py",
+    "source_sha256": "1dfee2f3cea425e54eb454264dc48d6b8ad8f6e3077219934d2bbb49fbb737f9",
+    "source_size": 192,
+    "mpy": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/helper.mpy",
+    "mpy_sha256": "583a0028999b53b0ba576f0a2c79c6a7cb2b7243b91725215e3de284a18a41fd",
+    "mpy_size": 170,
+    "header_bytes": [
+      77,
+      6,
+      0,
+      31
+    ],
+    "header_hex": "4d06001f",
+    "mpy_major": 6,
+    "feature_byte": 0,
+    "native_arch": 0,
+    "required_small_int_bits": 31,
+    "pure_bytecode": true,
+    "compile_command": [
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/mpy-cross/build/mpy-cross",
+      "-msmall-int-bits=31",
+      "-s",
+      "helper.py",
+      "-o",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/helper.mpy",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/helper.py"
+    ],
+    "inspection_command": [
+      "python3",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython/tools/mpy-tool.py",
+      "-xd",
+      "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/uiflow-package-live-20261026/mpy-cross-78ff170d/helper.mpy"
+    ],
+    "inspection_sha256": "5a0c6e28f6105abf46049fc5a669a5e78ad71d608ba20a1c23538d918ea2fecf",
+    "expected_examples": {
+      "transform(5)": 22,
+      "describe(5, True)": "official-mpy-cross-78ff170d:22:DOWN",
+      "describe(5, False)": "official-mpy-cross-78ff170d:22:UP"
+    }
+  },
+  "official_source_sha256": {
+    "docs/reference/mpyfiles.rst": "7b0e3b3b3934ed2feccbbd05055242784864aed3e690645cc2af9e4c29df01bb",
+    "docs/library/sys.rst": "19fb623413f00222295f1bc7b8937d31bac6950103cd9927d97e23fbe564c135",
+    "py/persistentcode.h": "e0f3f891dd5b764aec114845a5bf3cf0d227c8732db441db9b8b5a1aa3e4cdff",
+    "py/persistentcode.c": "8a51785b43959707a008e8d640c2e872a32e0333d7114f22111d41ed05ae529f",
+    "py/modsys.c": "3a53241cceafc4a5aa48452dda6adafb2fc165a80d69f6322f6789018a0a1515",
+    "py/objint_mpz.c": "24267d74b36755f1e299b7e16a7d691141905b6c9eadcf9f45e8ef4d6a189c54",
+    "py/smallint.h": "50ff0297b9167a1d6ee19f2b273b641f0d20826c0c5ee8b4480373418e265201",
+    "ports/esp32/mpconfigport.h": "b4ebfe1215cab23144511f73e21e9ec1807ded8ce5e9130c6c9db1460673cfb3",
+    "mpy-cross/main.c": "9ace44a8554df0e5a704f5fcaaff7217325c3615018d44355a95129ced088540",
+    "mpy-cross/Makefile": "35881ab3fc1bb183ef45cad1474bcc6bbfbcc12b82f70f9bac7b99200e9a8a32",
+    "mpy-cross/mpconfigport.h": "0524d7c98e3b9ab6f6ff6b9a5e0f84e5da1fb162fb6793304d39c9ec48aeba10",
+    "tools/mpy-tool.py": "d2584b569a98181fc864b0ee58e8ce87bdf106ef090993ec0ce61dd7f9d9c216",
+    "py/mpconfig.h": "5bb74a59cb349b3d5e524d202ed150b1df3b866555ad663750b95a5087b7f4f5"
+  },
+  "compatibility_boundary": "Compiler source matches the pinned UIFlow MicroPython gitlink and reference banners say v1.27.0-dirty. Actual guest _mpy/maxsize/import compatibility still requires a Device Service session.",
+  "source_tree": {
+    "git_tree": "1d19acaa7028b585d3e35c02ed6520a108ae804e",
+    "git_tree_listing_sha256": "99ba374310dc2edf8108cc4fcfea0d3243138e42462bbafe24c08b9d1496be75",
+    "tracked_regular_files": 6310,
+    "source_file_manifest_sha256": "cb92ee23d7ee4fe0bd986500ae51806197498e0b24d8ef7525bd6305ef6efa12",
+    "required_mpy_cross_source_complete": true,
+    "submodules_initialized": false,
+    "mpy_cross_requires_submodules": false
+  },
+  "board_config_manifest_sha256": "92fb8bde6c0a80e26bfa50b29b257e2b27d539343e4da79b19fb00be15f2be13",
+  "reference_static_versions_sha256": "a0c6f0ff8fc59ec6de7da12024fbec5b20e0d3087affef6f5d90ed19c26f694b"
+}

@@ -1,0 +1,41 @@
+{
+  "session_id": "c41a9ff1bc714937b02d300d99f45172",
+  "program_transport": "uart-repl",
+  "program": {
+    "execution_id": "a4339f0c024e47f990125a112c068298",
+    "revision_id": "d268c711fe0cea96796596b684a9829251bd0a281a568739d1d661a12b540833",
+    "source_sha256": "235028cbf8dec48b8be57099503f9ceaf25f3c7260fe2ae70a0592dfd49246a3",
+    "source_bytes": 2509,
+    "state": "failed",
+    "submitted_at": "2026-10-26T12:20:50.292570+00:00",
+    "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+    "pid": 81941,
+    "execution_mode": "same-guest-uart-repl",
+    "cleanup_mode": "interrupt-only",
+    "serial_offset": 15406,
+    "source_kind": "uiflow2-package",
+    "total_file_bytes": 2883,
+    "file_count": 7,
+    "deployment": {
+      "phase": "preflight",
+      "staging_path": "/flash/.m5-live-packages/.stage-43a63a2bc782465aaae4d5c880464354",
+      "package_path": "/flash/.m5-live-packages/d268c711fe0cea96796596b684a9829251bd0a281a568739d1d661a12b540833",
+      "events": [
+        {
+          "phase": "preflight",
+          "staging_path": "/flash/.m5-live-packages/.stage-43a63a2bc782465aaae4d5c880464354",
+          "package_path": "/flash/.m5-live-packages/d268c711fe0cea96796596b684a9829251bd0a281a568739d1d661a12b540833",
+          "observed_at": "2026-10-26T12:20:50.398500+00:00"
+        }
+      ]
+    },
+    "error": {
+      "code": "program_mpy_incompatible",
+      "message": ".mpy version or small-int requirement differs from this guest"
+    }
+  },
+  "history_error": null,
+  "expected_history_state": "failed",
+  "activated": false,
+  "error_code": "program_mpy_incompatible"
+}

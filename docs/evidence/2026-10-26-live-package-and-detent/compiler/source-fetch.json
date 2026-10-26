@@ -1,0 +1,33 @@
+{
+  "repository": "https://github.com/micropython/micropython.git",
+  "commit": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+  "fetched_at": "2026-10-26T11:22:39.515950+00:00",
+  "commands": [
+    [
+      "git",
+      "init",
+      "--quiet"
+    ],
+    [
+      "git",
+      "remote",
+      "add",
+      "origin",
+      "https://github.com/micropython/micropython.git"
+    ],
+    [
+      "git",
+      "fetch",
+      "--depth=1",
+      "origin",
+      "78ff170de9e32c79db6e64d3e33d2bd60002bdcd"
+    ],
+    [
+      "git",
+      "checkout",
+      "--quiet",
+      "--detach",
+      "FETCH_HEAD"
+    ]
+  ]
+}

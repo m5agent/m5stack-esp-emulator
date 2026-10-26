@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.38.0
+  version: 1.39.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -61,8 +61,13 @@ paths:
       summary: Interrupt and run source in the existing UIFlow2 guest without flashing or resetting
       description: >
         Requires a running session created with program_transport=uart-repl
-        and a guest UART REPL route installed at boot. Only complete single-file
-        main.py source is accepted, up to 65536 UTF-8 bytes. expected_execution_id
+        and a guest UART REPL route installed at boot. Accepts either single-file
+        source (65536 UTF-8 bytes) or a complete files snapshot with main.py,
+        Python modules, bytecode-only .mpy dependencies and resources. Packages
+        are written and SHA/size-verified through the real guest filesystem before
+        activation; main.py compiles before START. The HTTP JSON limit is 2 MiB;
+        package decoded content is limited to 1 MiB/64 files/256 KiB per file.
+        expected_execution_id
         must equal the latest execution ID, or null for the first submission.
         The console has one transfer owner; conflicting submissions return 409.
         Waits for bounded guest acknowledgement, not arbitrary application
@@ -71,6 +76,9 @@ paths:
         callbacks or threads. No automatic reset, reflash or guest replacement
         occurs on failure. The same firmware hash and guest process remain bound
         to the session. This trusted-local interface does not add tenant isolation.
+        Package directories are limited to 64 per guest, including failed
+        staging directories; quota exhaustion never silently recreates a guest.
+        Native .mpy emitters and main.mpy entrypoints are not admitted.
       parameters:
         - $ref: "#/components/parameters/SessionId"
       requestBody:
@@ -2320,6 +2328,10 @@ components:
         Parallel HUB leaves currently require I2C. Power-current limits and
         physical electrical behavior are not established by this topology.
     RunProgramRequest:
+      oneOf:
+        - $ref: "#/components/schemas/RunProgramSourceRequest"
+        - $ref: "#/components/schemas/RunProgramPackageRequest"
+    RunProgramSourceRequest:
       type: object
       additionalProperties: false
       required: [source, expected_execution_id]
@@ -2336,6 +2348,50 @@ components:
           minimum: 1
           maximum: 30
           default: 10
+    RunProgramPackageRequest:
+      type: object
+      additionalProperties: false
+      required: [files, expected_execution_id]
+      properties:
+        source_kind:
+          type: string
+          enum: [uiflow2-package]
+          default: uiflow2-package
+        entrypoint:
+          type: string
+          enum: [main.py]
+          default: main.py
+        files:
+          type: object
+          minProperties: 1
+          maxProperties: 64
+          description: >
+            Complete snapshot, including main.py. Canonical relative UTF-8 paths,
+            at most 192 bytes/eight components, without traversal, aliases,
+            casefold collisions, path-prefix collisions or boot.py. Individual
+            decoded files are limited to 256 KiB; decoded total to 1 MiB.
+            Missing files are absent from the new import path. Reused guest
+            directories must still match every declared file SHA/size.
+          additionalProperties:
+            type: object
+            additionalProperties: false
+            required: [encoding, data]
+            properties:
+              encoding:
+                type: string
+                enum: [utf8, base64]
+              data:
+                type: string
+        expected_execution_id:
+          type: [string, "null"]
+          pattern: "^[0-9a-f]{32}$"
+          description: Latest execution ID, or null before the first submission
+        timeout_seconds:
+          type: number
+          minimum: 1
+          maximum: 120
+          default: 120
+          description: Shared deployment and application-start acknowledgement budget, not program lifetime.
     ProgramStatus:
       type: object
       required: [session_id, program_transport, program, history_error]
@@ -2354,7 +2410,10 @@ components:
             means the guest START marker was observed; application readiness,
             frame and Unit effects require their own observations. At most 256
             execution records per session and 256 source revisions per service
-            are accepted by this first implementation.
+            are accepted. File packages have a separate 256-revision store.
+            Package records add source_kind, total_file_bytes, file_count and
+            deployment phase/guest capabilities/hash inventory. Publishing or
+            activating files is distinct from entering application execution.
           additionalProperties: true
     CreateSessionRequest:
       type: object

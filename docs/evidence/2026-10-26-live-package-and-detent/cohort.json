@@ -1,0 +1,261 @@
+{
+  "status": "PASS",
+  "category": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "sessions": 8,
+  "execution_attempts": 96,
+  "expected_rejection_requests": 40,
+  "service_generation": 24,
+  "source_stable": true,
+  "cases": [
+    {
+      "device_id": "cores3",
+      "unit_id": "pir",
+      "session_id": "8241ad6faeaa43369e45f82052484b47",
+      "pid": 81711,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 24,
+        "lease_active": true
+      },
+      "runner_sha256": "092d5cc8b43d44d527cbcd3a0d6b2a6fcee01bcbbf104188816d59f1ae720147",
+      "checks": {
+        "same_entrypoint_different_modules_config_assets": true,
+        "compiled_mpy_imported_in_guest": true,
+        "removed_module_and_old_import_paths_absent": true,
+        "fresh_serial_independent_qom_and_png": true,
+        "syntax_error_and_cached_b_recovery": true,
+        "mpy_capability_and_stale_execution_rejected": true,
+        "guest_mutation_rejected_before_app": true,
+        "new_c_recovered": true,
+        "same_process_firmware_vm_and_banner": true,
+        "zip_original_bytes_guest_inventory_and_executions": true
+      },
+      "evidence": {
+        "members": 84,
+        "sha256": "9177c336a422959da78fd1ae760deb463854d9321d53c93a5de47e558f185756",
+        "original_files_and_guest_inventory_verified": true,
+        "serial_byte_offsets_verified": true
+      }
+    },
+    {
+      "device_id": "cores3",
+      "unit_id": "relay",
+      "session_id": "6305f64ec4ff4e57a32e0aa66288807e",
+      "pid": 81710,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 24,
+        "lease_active": true
+      },
+      "runner_sha256": "092d5cc8b43d44d527cbcd3a0d6b2a6fcee01bcbbf104188816d59f1ae720147",
+      "checks": {
+        "same_entrypoint_different_modules_config_assets": true,
+        "compiled_mpy_imported_in_guest": true,
+        "removed_module_and_old_import_paths_absent": true,
+        "fresh_serial_independent_qom_and_png": true,
+        "syntax_error_and_cached_b_recovery": true,
+        "mpy_capability_and_stale_execution_rejected": true,
+        "guest_mutation_rejected_before_app": true,
+        "new_c_recovered": true,
+        "same_process_firmware_vm_and_banner": true,
+        "zip_original_bytes_guest_inventory_and_executions": true
+      },
+      "evidence": {
+        "members": 84,
+        "sha256": "6e2de358fd3ed0805f741106bf2b8914b227638f8dcd72ea903387c1de418128",
+        "original_files_and_guest_inventory_verified": true,
+        "serial_byte_offsets_verified": true
+      }
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "pir",
+      "session_id": "ce36b86ac781458fb2c5bce3d69ac379",
+      "pid": 81818,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 24,
+        "lease_active": true
+      },
+      "runner_sha256": "092d5cc8b43d44d527cbcd3a0d6b2a6fcee01bcbbf104188816d59f1ae720147",
+      "checks": {
+        "same_entrypoint_different_modules_config_assets": true,
+        "compiled_mpy_imported_in_guest": true,
+        "removed_module_and_old_import_paths_absent": true,
+        "fresh_serial_independent_qom_and_png": true,
+        "syntax_error_and_cached_b_recovery": true,
+        "mpy_capability_and_stale_execution_rejected": true,
+        "guest_mutation_rejected_before_app": true,
+        "new_c_recovered": true,
+        "same_process_firmware_vm_and_banner": true,
+        "zip_original_bytes_guest_inventory_and_executions": true
+      },
+      "evidence": {
+        "members": 84,
+        "sha256": "4049339b8780b90635ad47271492050adc410fcc60289f9ab24e40ab84d61614",
+        "original_files_and_guest_inventory_verified": true,
+        "serial_byte_offsets_verified": true
+      }
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "relay",
+      "session_id": "e19f93aceb2c4aeea1d2f45271fb8bc3",
+      "pid": 81835,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 24,
+        "lease_active": true
+      },
+      "runner_sha256": "092d5cc8b43d44d527cbcd3a0d6b2a6fcee01bcbbf104188816d59f1ae720147",
+      "checks": {
+        "same_entrypoint_different_modules_config_assets": true,
+        "compiled_mpy_imported_in_guest": true,
+        "removed_module_and_old_import_paths_absent": true,
+        "fresh_serial_independent_qom_and_png": true,
+        "syntax_error_and_cached_b_recovery": true,
+        "mpy_capability_and_stale_execution_rejected": true,
+        "guest_mutation_rejected_before_app": true,
+        "new_c_recovered": true,
+        "same_process_firmware_vm_and_banner": true,
+        "zip_original_bytes_guest_inventory_and_executions": true
+      },
+      "evidence": {
+        "members": 84,
+        "sha256": "143529ee23b9139a7187d7d4aaf46ca6e4cace2864e85ac4b7e5ee884f876871",
+        "original_files_and_guest_inventory_verified": true,
+        "serial_byte_offsets_verified": true
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "pir",
+      "session_id": "c41a9ff1bc714937b02d300d99f45172",
+      "pid": 81941,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 24,
+        "lease_active": true
+      },
+      "runner_sha256": "092d5cc8b43d44d527cbcd3a0d6b2a6fcee01bcbbf104188816d59f1ae720147",
+      "checks": {
+        "same_entrypoint_different_modules_config_assets": true,
+        "compiled_mpy_imported_in_guest": true,
+        "removed_module_and_old_import_paths_absent": true,
+        "fresh_serial_independent_qom_and_png": true,
+        "syntax_error_and_cached_b_recovery": true,
+        "mpy_capability_and_stale_execution_rejected": true,
+        "guest_mutation_rejected_before_app": true,
+        "new_c_recovered": true,
+        "same_process_firmware_vm_and_banner": true,
+        "zip_original_bytes_guest_inventory_and_executions": true
+      },
+      "evidence": {
+        "members": 84,
+        "sha256": "601bcbd68b0017f780b7869b8995d921d2b90ed1ae8c88053017821b313918fd",
+        "original_files_and_guest_inventory_verified": true,
+        "serial_byte_offsets_verified": true
+      }
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "relay",
+      "session_id": "d6e7aa2538c94d1e94ea1ea8a1f51e59",
+      "pid": 81948,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 24,
+        "lease_active": true
+      },
+      "runner_sha256": "092d5cc8b43d44d527cbcd3a0d6b2a6fcee01bcbbf104188816d59f1ae720147",
+      "checks": {
+        "same_entrypoint_different_modules_config_assets": true,
+        "compiled_mpy_imported_in_guest": true,
+        "removed_module_and_old_import_paths_absent": true,
+        "fresh_serial_independent_qom_and_png": true,
+        "syntax_error_and_cached_b_recovery": true,
+        "mpy_capability_and_stale_execution_rejected": true,
+        "guest_mutation_rejected_before_app": true,
+        "new_c_recovered": true,
+        "same_process_firmware_vm_and_banner": true,
+        "zip_original_bytes_guest_inventory_and_executions": true
+      },
+      "evidence": {
+        "members": 84,
+        "sha256": "5cb84f9d545d6e13256236756de9603a279b6b45f8babd429d853de19588dfd3",
+        "original_files_and_guest_inventory_verified": true,
+        "serial_byte_offsets_verified": true
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "pir",
+      "session_id": "21e93e5082554bf5a472e801e9bd40d1",
+      "pid": 82033,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 24,
+        "lease_active": true
+      },
+      "runner_sha256": "092d5cc8b43d44d527cbcd3a0d6b2a6fcee01bcbbf104188816d59f1ae720147",
+      "checks": {
+        "same_entrypoint_different_modules_config_assets": true,
+        "compiled_mpy_imported_in_guest": true,
+        "removed_module_and_old_import_paths_absent": true,
+        "fresh_serial_independent_qom_and_png": true,
+        "syntax_error_and_cached_b_recovery": true,
+        "mpy_capability_and_stale_execution_rejected": true,
+        "guest_mutation_rejected_before_app": true,
+        "new_c_recovered": true,
+        "same_process_firmware_vm_and_banner": true,
+        "zip_original_bytes_guest_inventory_and_executions": true
+      },
+      "evidence": {
+        "members": 84,
+        "sha256": "7f3f42a387e602275fe930ffb37c1415ace4653d48d11ea5236d6ec9f8ab1a33",
+        "original_files_and_guest_inventory_verified": true,
+        "serial_byte_offsets_verified": true
+      }
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "relay",
+      "session_id": "ff7337d2a0084df2a30b776a25361d64",
+      "pid": 82069,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 24,
+        "lease_active": true
+      },
+      "runner_sha256": "092d5cc8b43d44d527cbcd3a0d6b2a6fcee01bcbbf104188816d59f1ae720147",
+      "checks": {
+        "same_entrypoint_different_modules_config_assets": true,
+        "compiled_mpy_imported_in_guest": true,
+        "removed_module_and_old_import_paths_absent": true,
+        "fresh_serial_independent_qom_and_png": true,
+        "syntax_error_and_cached_b_recovery": true,
+        "mpy_capability_and_stale_execution_rejected": true,
+        "guest_mutation_rejected_before_app": true,
+        "new_c_recovered": true,
+        "same_process_firmware_vm_and_banner": true,
+        "zip_original_bytes_guest_inventory_and_executions": true
+      },
+      "evidence": {
+        "members": 84,
+        "sha256": "af692fbf0defb279ee6037bfb1ba6740dafa47e1fae020635000658fbbbfb8a0",
+        "original_files_and_guest_inventory_verified": true,
+        "serial_byte_offsets_verified": true
+      }
+    }
+  ],
+  "stale_requests_without_new_execution": 8
+}

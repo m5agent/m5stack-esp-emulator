@@ -1,0 +1,127 @@
+[
+  {
+    "name": "native-control",
+    "status": "REJECTED",
+    "inspection": {
+      "error": "native architecture, architecture flags or reserved header bit is unsupported at byte 4"
+    },
+    "header": "4d062b1f",
+    "sha256": "b5ef441586ff7dcfecce9c826fd7739db34ddb95400868161a2531789d2eb2ce",
+    "spoof_status": "REJECTED",
+    "spoof_error": "native function-table constant is unsupported at byte 34"
+  },
+  {
+    "name": "constants",
+    "status": "ACCEPTED",
+    "inspection": {
+      "mpy_version": 6,
+      "small_int_bits": 31,
+      "feature_byte": 0,
+      "native_arch": 0,
+      "raw_code_count": 1,
+      "qstr_count": 5,
+      "object_count": 4,
+      "constant_node_count": 4,
+      "max_raw_code_depth": 1,
+      "bytecode_bytes": 24,
+      "instruction_count": 13
+    },
+    "header": "4d06001f",
+    "sha256": "3174f86d182e877d8ac1b6ef4b80f44d99ec5543f70ae0efe74c83c914f8c5eb"
+  },
+  {
+    "name": "closure",
+    "status": "ACCEPTED",
+    "inspection": {
+      "mpy_version": 6,
+      "small_int_bits": 31,
+      "feature_byte": 0,
+      "native_arch": 0,
+      "raw_code_count": 3,
+      "qstr_count": 7,
+      "object_count": 0,
+      "constant_node_count": 0,
+      "max_raw_code_depth": 3,
+      "bytecode_bytes": 39,
+      "instruction_count": 16
+    },
+    "header": "4d06001f",
+    "sha256": "cd4465a8f2bb82828fe73327235e3adab3555968d1744332b81c89960b20f653"
+  },
+  {
+    "name": "flow",
+    "status": "ACCEPTED",
+    "inspection": {
+      "mpy_version": 6,
+      "small_int_bits": 31,
+      "feature_byte": 0,
+      "native_arch": 0,
+      "raw_code_count": 2,
+      "qstr_count": 5,
+      "object_count": 0,
+      "constant_node_count": 0,
+      "max_raw_code_depth": 2,
+      "bytecode_bytes": 47,
+      "instruction_count": 21
+    },
+    "header": "4d06001f",
+    "sha256": "d73195aaaa12d0777ce35e0e5ccd6f5884da7f589926311c972098da54a4475b"
+  },
+  {
+    "name": "generator",
+    "status": "ACCEPTED",
+    "inspection": {
+      "mpy_version": 6,
+      "small_int_bits": 31,
+      "feature_byte": 0,
+      "native_arch": 0,
+      "raw_code_count": 2,
+      "qstr_count": 4,
+      "object_count": 0,
+      "constant_node_count": 0,
+      "max_raw_code_depth": 2,
+      "bytecode_bytes": 29,
+      "instruction_count": 16
+    },
+    "header": "4d06001f",
+    "sha256": "61c1af27329696a342869b97291d71543881f9706a615583346197928703d4cc"
+  },
+  {
+    "name": "class",
+    "status": "ACCEPTED",
+    "inspection": {
+      "mpy_version": 6,
+      "small_int_bits": 31,
+      "feature_byte": 0,
+      "native_arch": 0,
+      "raw_code_count": 4,
+      "qstr_count": 10,
+      "object_count": 0,
+      "constant_node_count": 0,
+      "max_raw_code_depth": 3,
+      "bytecode_bytes": 59,
+      "instruction_count": 25
+    },
+    "header": "4d06001f",
+    "sha256": "0e2e50a01a0abac84d082e22aa3432c14973d220f093ba418ad309b94379fb61"
+  },
+  {
+    "name": "args",
+    "status": "ACCEPTED",
+    "inspection": {
+      "mpy_version": 6,
+      "small_int_bits": 31,
+      "feature_byte": 0,
+      "native_arch": 0,
+      "raw_code_count": 2,
+      "qstr_count": 6,
+      "object_count": 0,
+      "constant_node_count": 0,
+      "max_raw_code_depth": 2,
+      "bytecode_bytes": 37,
+      "instruction_count": 17
+    },
+    "header": "4d06001f",
+    "sha256": "971f8e513290b144a66bdb0e60b99ec69a080b6ca028a30980d8d1cebd8a7714"
+  }
+]

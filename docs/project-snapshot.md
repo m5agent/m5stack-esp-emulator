@@ -88,32 +88,32 @@
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 |
-| `UNIT-01` | 进行中 | 同 guest 程序的剩余 Unit、多文件/资源、二进制 .mpy 与保存开机程序；AIFlow checkpoint/虚拟目标、Preview/Run及SSE/实时分发；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它三款准入主机剩余 Unit 的实际源码 API 执行、三主机 IO 的 ADC app calibration/ADC2 oracle 与 Thermal fixture、新 HUB 拓扑、原 IR GC 长期风险、原 Buzzer、完整 PWM 周期语义、矩阵命令记录、Heart 零值暂态/生理算法和视觉缺口；Scroll/Roller485仅视觉，协议与准入未实现 |
+| `UNIT-01` | 进行中 | 同guest程序的剩余Unit、二进制入口与保存开机程序；AIFlow checkpoint/虚拟目标、Preview/Run及SSE/实时分发；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它三款准入主机剩余 Unit 的实际源码 API 执行、三主机 IO 的 ADC app calibration/ADC2 oracle 与 Thermal fixture、新 HUB 拓扑、原 IR GC 长期风险、原 Buzzer、完整 PWM 周期语义、矩阵命令记录、Heart 零值暂态/生理算法和视觉缺口；Scroll/Roller485仅视觉，协议与准入未实现 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 |
 
 ## 代码与文档规模
 
-- `platform/tools`：`48` 个 Python 模块，`38382` 行；规模最大的模块如下。
+- `platform/tools`：`52` 个 Python 模块，`39491` 行；规模最大的模块如下。
 
 | 模块 | 行数 |
 | --- | ---: |
-| `device_service.py` | 10775 |
+| `device_service.py` | 10823 |
 | `firmware_manifest.py` | 3612 |
 | `user_firmware_matrix.py` | 2069 |
 | `network_sandbox.py` | 1681 |
 | `firmware_filesystems.py` | 1469 |
 | `serve.py` | 1449 |
 
-- `tests/`：`99` 个可执行 Python 测试文件，分布在 `55` 个目录；`221` 个 evidence JSON。
+- `tests/`：`101` 个可执行 Python 测试文件，分布在 `55` 个目录；`221` 个 evidence JSON。
 - `patches/`：`13` 个补丁组，`81` 个 patch 文件。
-- 文档：`297` 个 Markdown 页面；除本生成页外共 `29965` 行。
+- 文档：`300` 个 Markdown 页面；除本生成页外共 `30339` 行。
 
 ## 文档与测试
 
-- 平台测试：`852` 项。
-- Docs 新鲜度登记：`93` 行；其中非历史页 `36` 行，历史固定页 `57` 行。
-- 文档职责分布：待办 `3`，契约 `6`，历史固定 `57`，实现/设计 `8`，参考 `15`，工作流/导航 `4`。
-- 全量文档盘点：`297` 个 Markdown 页面；职责分布：权威/专题页 `93`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `14`，平台说明 `4`，仓内历史记录 `5`，测试/用例说明 `147`，未登记 docs 页面 `2`，第三方来源说明 `9`。
+- 平台测试：`942` 项。
+- Docs 新鲜度登记：`96` 行；其中非历史页 `36` 行，历史固定页 `60` 行。
+- 文档职责分布：待办 `3`，契约 `6`，历史固定 `60`，实现/设计 `8`，参考 `15`，工作流/导航 `4`。
+- 全量文档盘点：`300` 个 Markdown 页面；职责分布：权威/专题页 `96`，设备档案 `18`，示例 `1`，治理/入口 `3`，文档导航 `1`，补丁说明 `14`，平台说明 `4`，仓内历史记录 `5`，测试/用例说明 `147`，未登记 docs 页面 `2`，第三方来源说明 `9`。
 - 所有非历史页的最近复核日期均与当前事实日期一致。
 - 带显式旧复核日期的委派文档（需按相邻索引和权威页复核）：
   - [platform/web/vendor/m5stack-models/docs/INTEGRATION.md](../platform/web/vendor/m5stack-models/docs/INTEGRATION.md) `2026-10-25`

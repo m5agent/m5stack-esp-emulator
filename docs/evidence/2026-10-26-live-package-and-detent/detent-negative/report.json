@@ -1,0 +1,80 @@
+{
+  "category": "browser-vendor-detent-event-fixture",
+  "status": "FAIL",
+  "captured_at": "2026-10-26T11:19:59.670Z",
+  "vendor_commit": "48667b728736fbfd4365a06575473ce538d3c972",
+  "hardware_execution": "NOT RUN",
+  "guest_execution": "NOT RUN",
+  "electrical_switch_mapping": "NOT VERIFIED; both polarities below are explicit synthetic fixtures",
+  "source_sha256": {
+    "platform/web/model-shell.js": "5f1802e49412342216044ee056b292e0039edb605fbdbb34f0ff32580a2d5fa6",
+    "platform/web/unit-panel.js": "f26a8179150c6b5ed7457b77a0324fcd883d30842f3b0f9262ea61277b0e70b5",
+    "platform/web/unit-visual-mappings.js": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+    "platform/tests/test_unit_detent_events.mjs": "c721b80710e5f51ae080a91bd3b0110f2f3bee4a60b41fa2967302d0209a5d69",
+    "platform/web/vendor/m5stack-models/src/core/components/Button.js": "c2b99313190d4ecf26f2522530360e0aeec687a8a6abd1a5120eb53809414b9e",
+    "platform/web/vendor/m5stack-models/src/units/8encoder/index.js": "dbb970f29ebf9bb1e785460faa4655f9c9764558506da353185cd40bee17a642"
+  },
+  "checks": [],
+  "page_errors": [],
+  "missing_assets": [],
+  "browser_version": "156.0.8078.48",
+  "two_toggles": {
+    "events": [
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "down",
+        "time": 5940.400000095367,
+        "source": "first"
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "up",
+        "time": 5940.800000190735,
+        "source": "first",
+        "duration": 0.40000009536743164
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "click",
+        "time": 5940.800000190735,
+        "source": "first",
+        "duration": 0.40000009536743164
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "down",
+        "time": 5940.800000190735,
+        "source": "second"
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "up",
+        "time": 5940.900000095367,
+        "source": "second",
+        "duration": 0.09999990463256836
+      },
+      {
+        "kind": "button",
+        "id": "grove/switch",
+        "action": "click",
+        "time": 5940.900000095367,
+        "source": "second",
+        "duration": 0.09999990463256836
+      }
+    ],
+    "state": {
+      "pressed": false,
+      "position": 0,
+      "latching": true
+    }
+  },
+  "failure": {
+    "message": "actual vendor down events must carry the post-toggle detent\n+ actual - expected\n\n  [\n+   undefined,\n+   undefined\n-   1,\n-   0\n  ]\n",
+    "stack": "AssertionError [ERR_ASSERTION]: actual vendor down events must carry the post-toggle detent\n+ actual - expected\n\n  [\n+   undefined,\n+   undefined\n-   1,\n-   0\n  ]\n\n    at file:///Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_unit_detent_events.mjs:87:10"
+  }
+}

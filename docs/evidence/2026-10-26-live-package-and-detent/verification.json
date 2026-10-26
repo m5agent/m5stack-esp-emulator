@@ -1,0 +1,62 @@
+{
+  "status": "PASS",
+  "targeted_host_tests": {
+    "status": "PASS",
+    "tests": 103
+  },
+  "platform_first_run": {
+    "tests": 942,
+    "failures": 2,
+    "classification": "archive documentation links/index incomplete; corrected before final rerun"
+  },
+  "browser": {
+    "detent": 7,
+    "model_shells": 14,
+    "model_units": 29,
+    "program_panel": 13,
+    "unit_panel": "PASS"
+  },
+  "generated": {
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS"
+  },
+  "yaml": {
+    "status": "PASS",
+    "api_version": "1.39.0"
+  },
+  "ast_parse": {
+    "status": "PASS",
+    "files": 54
+  },
+  "full_peripheral_matrix": "NOT RUN; no QEMU/controller changes",
+  "hardware_validation": "NOT RUN",
+  "platform_final": {
+    "status": "PASS",
+    "tests": 942,
+    "failures": 0,
+    "seconds": 87.26,
+    "log": "verification/program-packages-platform-verified-20261026.txt"
+  },
+  "diff_check": "PASS",
+  "redaction_scan": "PASS",
+  "independent_audit": {
+    "status": "PASS",
+    "path": "independent-audit.json",
+    "assertions": 3874,
+    "errors": 0
+  },
+  "post_validation_formatting": {
+    "status": "PASS",
+    "path": "post-validation-formatting.json",
+    "ast_identical": true,
+    "targeted_tests": 103,
+    "service_reloaded_idle": true
+  },
+  "final_docs": {
+    "status": "PASS",
+    "tests": 20,
+    "log": "verification/program-packages-docs-final-20261026.txt"
+  }
+}

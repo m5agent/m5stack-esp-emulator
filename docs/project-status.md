@@ -22,8 +22,8 @@ QEMU 新增显式 `max_age_ms=1..1000` 的按需共享帧样本和 ETag/304；�
 evidence、wait 与 stop 仍采集新帧。无后台采样或固定FPS保证，Tab5/network不继承。
 时间与程序身份冻结于真实采集，preview样本序号不代表guest重绘或与Unit状态的原子快照；真实CoreS3的条件请求、程序/重置失效、历史和导出边界已验收。
 独立有界帧请求与owner/decode隔离、CoreS3 PIR/Relay共享帧与双向控制已验；六leaf另有CoreS3真实网页输入/DOM读回，Encoder/8Encoder的3D灯与旋转仍缺确认binding（UNIT-HOST-29），不称完整动画PASS。
-其它 Unit、多文件/资源、二进制 `.mpy`、保存开机、Preview/Run、SSE 与 AIFlow
-checkpoint/虚拟目标接入仍开放，见[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。
+`/program`新增完整文件/资源和纯字节码`.mpy`依赖，同guest校验发布与托管模块替换，范围见[文件包证据](evidence/2026-10-26-live-package-and-detent/README.md)。
+其它Unit、二进制入口、保存开机、Preview/Run、SSE与AIFlow目标仍开放，见[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。
 interrupt-only 不保证清空 native/定时器/IRQ/线程，断流/重连缺口保持 unknown。
 启动取消已有生命周期事务、pending自动收尾、停止意图版本、Network child收据和draining所有权门禁，见[取消回归](evidence/2026-10-26-session-cancellation-f309/README.md)。
 Unit客户端旧请求/队列和装配污染已有[响应隔离](evidence/2026-10-26-preview-client-fencing/README.md)；

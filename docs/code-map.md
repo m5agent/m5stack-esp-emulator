@@ -81,6 +81,10 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
 | `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
 | `platform/tools/program_revisions.py` | 完整 Python 文件快照的不可变身份、完整性校验与有界存储 | program 执行记录与 evidence |
+| `platform/tools/program_packages.py` | 完整源码、字节码依赖与资源的不可变文件包；规范路径、内容哈希和有界磁盘存储 | `files` program 请求、包证据 |
+| `platform/tools/micropython_repl.py` | 单 owner 的有限 raw REPL RPC、raw-paste credit、双 EOF 与错误恢复门禁；不 soft reset | guest 文件传输与读回 |
+| `platform/tools/uiflow_package_runtime.py` | guest 文件暂存、逐文件 SHA/size 读回、发布与工作目录/托管模块切换 | 同 guest 文件包部署 |
+| `platform/tools/mpy_bytecode.py` | 固定官方 v6 容器与指令边界的有界静态检查，递归拒绝 native；非 VM 类型验证或沙箱 | `.mpy` 依赖准入、负控测试 |
 | `platform/tools/frame_cache.py` | QEMU预览显式按需single-flight/TTL样本、采集身份和失效门禁；默认fresh取证不进入缓存 | `preview_frame`、条件GET与Live sessions |
 | `platform/tools/unit_runtime.py` | 外接 Unit 目录、物理口准入、输入范围与同 guest QOM 读回；不在 Python 执行芯片协议 | Device Service、Unit panel、契约检查 |
 | `platform/tools/unit_adc_fixture.py` | 绑定已知应用字节的合成 S3 ADC eFuse 校准与独立数值 oracle；不访问物理硬件 | Angle/Light 测试、会话 eFuse fixture 与证据 |

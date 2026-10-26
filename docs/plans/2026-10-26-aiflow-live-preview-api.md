@@ -10,7 +10,25 @@ QEMU 按需共享帧与条件 GET 已验证；Preview 编排、SSE、AIFlow接�
 `origin/main@f2061759897955e6017d4aa2a41bd5ba962c35b6`，结果为 Already up to date。
 执行优先级只维护在[项目Backlog](../project-backlog.md)，本页定义本任务的方案与门禁。
 
-## 当前工作块：直接创建与 Web 连续运行
+## 当前工作块：同 guest 文件快照与资源
+
+保留单文件 `source` 请求及其哈希语义，新增独立、不可变的完整文件包：
+`main.py`、Python 模块、纯字节码 `.mpy` 依赖及资源文件。所有文件通过现有
+guest UART raw REPL 写入隔离的暂存目录，逐文件读回大小与 SHA256，验证完整后
+再发布目录、切换工作目录和导入路径；不重组固件、不重启 VM。失败和取消不能
+把部分包标为已激活。guest 复用的文件仍需重验，不能信任上次部署后的可变目录。
+
+本块已以四款准入主机×PIR/Relay真实guest验证跨文件导入、`.mpy`原生导入与资源读取、
+A/B 模块缓存替换、同 PID/固件/VM、Unit 输入输出、异常恢复与停止前 evidence。
+宿主测试只验证存储、协议、边界和取消，不替代 guest 文件系统或执行结果。
+仅清除托管目录来源的 Python 模块；native、IRQ、timer 和 thread 的完整清场
+仍未实现。`.mpy` 的版本与 small-int 限制由该 session 的 guest 能力决定，首版
+明确拒绝 native emitter；二进制 `main.mpy` 的入口语义另行实现，不伪装成 `.py`。
+
+限定结果已通过，见[文件包与detent证据](../evidence/2026-10-26-live-package-and-detent/README.md)。
+图片文件路径接口保留UNIT-HOST-30 OPEN，实际资源读取后用官方bytes接口显示。
+
+## 前置基线：直接创建与 Web 连续运行
 
 在已有同 guest UART 路径上，增加显式 `program_mode=uiflow-live` 创建入口：
 仅从已准入 reference 初始化一次 UART boot，拒绝与上传固件/source pin 混用，
@@ -66,7 +84,7 @@ workspace；相关十文件前后哈希稳定。本观察不代表部署版本�
 | 主机/Unit交互 | input、unit-input、QOM、真实帧/串口/设备态；Unit装配在创建时固定 | 能复用；运行中hotplug未实现，新装配需新执行实例 |
 | 实时画面 | 默认GET仍直采；QEMU显式max_age_ms复用同session样本/在途采集，ETag/304；网页每visual独立有界请求 | 减少重复采集和慢session阻塞；采集元数据不证明应用ready，不保证8FPS或端到端SLA |
 | 实时状态/日志 | events为JSON读取，串口/设备态/Unit各自轮询 | 缺订阅、背压、断线游标和统一run/revision标签；现串口按offset返回但读全日志 |
-| 资源文件 | `/program` 只接受至多64KiB的UTF-8源码；composer 接收`.py`集合，整体JSON受1MiB限制 | 当前同 guest 路径不写入多文件或二进制资源；图片/字体/音频另需受控 asset manifest 与真实传输 |
+| 资源文件 | `/program` 保留64KiB `source`，并新增完整 `files` 包；guest UART真实写入、哈希读回与托管模块切换 | 同guest多文件/纯字节码`.mpy`依赖和资源；总decoded 1MiB/64文件，原生emitter及开机保存不准入 |
 | AIFlow消费者 | 有SSE/sequence恢复；file_ready在runner完成后整批发，下载读当前workspace | 可做任务结束后预览；持续预览还需中途checkpoint和不可变多文件快照 |
 | AIFlow目标 | direct-run/server部署接物理DevicePusher；当前身份/部分配额依赖物理设备 | 虚拟预览需独立执行目标，不能误用物理push或伪造真机MAC |
 
@@ -101,13 +119,13 @@ UART REPL 的固件需使用其实际路由。`program_transport` 只配置宿�
 
 | 当前接口 | 行为 |
 | --- | --- |
-| `POST /api/v1/sessions/{id}/program` | 接收 `source`、`expected_execution_id` 和可选 `timeout_seconds`，经同一 guest 的 UART raw REPL 编译执行；成功返回当前程序状态 |
+| `POST /api/v1/sessions/{id}/program` | 互斥接收 `source` 或完整 `files`，附 `expected_execution_id` 和可选 `timeout_seconds`，经同一guest UART传输与执行 |
 | `GET /api/v1/sessions/{id}/program` | 返回 session 的程序传输、当前 execution/revision 身份及观测状态；不是 SSE 订阅 |
 
-`source` 必须是有效 UTF-8 字符串，编码后至多 65536 字节；接口不是多文件上传
-或固件刷写。首次执行的 `expected_execution_id` 为 `null`，后续使用查询得到的
+`source` 必须是有效 UTF-8 字符串，编码后至多65536字节；完整文件改用 `files`，
+细节见[Agent指南](../unit-agent-api.md#同一-vm-的完整文件包)。首次 `expected_execution_id` 为 `null`，后续使用查询得到的
 当前执行 ID；过期 ID 和并发传输返回 409。`timeout_seconds` 为 1–30 秒，默认
-10 秒，约束传输和执行确认等待，不是用户程序的最长运行时间。两个接口继承
+10秒；`files`为1–120秒/默认120秒。预算约束部署与开始确认，不限制程序运行时长。接口继承
 现有 Bearer 授权规则。
 
 执行记录声明 `execution_mode="same-guest-uart-repl"` 和
@@ -116,10 +134,10 @@ UART REPL 的固件需使用其实际路由。`program_transport` 只配置宿�
 确认超时保留 `unknown` 和执行 ID，调用方应查询后续状态，不能把超时当成代码
 未执行而盲目重试。停止与替换的记录也必须区分中断请求和实际同步确认。
 
-该路径不重启 VM、不重组 Flash，也不把源码写回 guest 文件系统。新 globals
-字典不代表完整清场：native 模块、已导入模块、timer、IRQ、其它 thread 和外设
-状态都可能继续存在。新 checkpoint 引用的其它文件仍来自初始化时的文件系统；
-不能把单源码执行称为原子多文件热部署。无法中断或路由失效时应保留明确失败/
+该路径不重启VM、不重组Flash；`source`在内存执行，`files`写入专用guest目录。
+托管包替换会清理其来源模块及namespace，完整文件和目录在复用时仍重验；
+native、timer、IRQ、其它thread和外设状态仍可能存在。单源码引用初始化文件，
+完整包也不保证native资源原子切换。无法中断或路由失效时应保留明确失败/
 未确认状态，由调用方显式选择兼容的新 session 路径，不能暗中切换执行实例。
 
 ## 后续 Preview 资源与调用关系（未实现）
@@ -173,10 +191,10 @@ SSE/帧订阅不自动无限续租。具体租期、续租及保留配额在实�
 
 当前交付定义为**完整源码 checkpoint 保存后，在已初始化的同一 guest 中执行**。
 早期评估中“首版每次创建新 guest、同 guest 执行留待以后”的方案已由当前主路径
-替代，不再作为实施要求。当前 Revision 使用 `source_kind=uiflow2-python`，
-`/program` 冻结本次 `main.py` 源码；composer 仍用于完整 `.py` 集合初始化。
-逐 token 执行、运行中 Unit hotplug、完整 VM 清理及任意二进制资源不在已支持范围。
-后续 asset blob/manifest 保持独立扩展点。
+替代，不再作为实施要求。原 `uiflow2-python` 冻结单源码，新 `uiflow2-package`
+冻结完整文件/资源集合，两个store及哈希语义独立；composer保留初始化用途。
+逐token、运行中Unit hotplug、完整VM清理、native emitter及开机保存仍未支持。
+后续独立Revision HTTP、CAS增量blob/manifest与Preview编排保持扩展点。
 
 后续 Preview 编排应放在独立模块，通过 DeviceService 现有方法管理执行；保持
 `/sessions`、固件元数据、source pin、历史恢复与 evidence 契约兼容。先完成下列
@@ -264,15 +282,15 @@ FrameProducer与EventHub仍待做；控制输入不应被慢客户端采集占�
 
 实际双向 guest UART 传输与程序执行接口已新增；普通 session 的串口 API 仍为
 只读日志，不能直接把任意 file-backed session 当成 raw REPL。当前主路径是
-中断旧程序→确认 raw REPL→流控传输源码→guest 编译/执行标记；不是原子写入
-完整文件或资源。应用 READY、同 guest 程序替换、真实主机/Unit 反馈与保留证据
+中断旧程序→确认raw REPL→传输源码或完整文件包→guest编译/执行标记；
+文件包在真实guest文件系统校验发布，native资源切换并非原子。应用READY、替换、Unit反馈与证据
 已在上述四主机PIR/Relay逐例绑定固件、源码和运行时验证；其它Unit、固件与运行方式
 仍需各自验证，不能从本批继承同 guest 结论。
 
 完整 VM/native 模块、timer、IRQ、thread 清理尚无通用保证；native 阻塞、IRQ
 关闭或 caller 改写 UART/dupterm 时，不能承诺可靠中断或自动恢复。显式重建
 guest 与在原 guest 中继续执行必须分别记载，不能拼接为同一执行成功。不直接
-修改运行中的 Flash，不在 host 执行 caller Python。
+修改运行中的Flash镜像；包仅经guest文件系统写入，不在host执行caller Python。
 
 独立 WASM 页的 `window.m5emu.execPython` 不能作为 Device Service 已具备传输的
 依据；其延迟 UART 回调还缺 worker/epoch fence，静态风险记为 `UNIT-HOST-26`，

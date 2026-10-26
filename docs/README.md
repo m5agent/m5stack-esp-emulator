@@ -131,7 +131,7 @@
 | [CoreS3 三渲染器](cores3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [StickS3 三渲染器](sticks3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [多设备模拟器设计](plans/2026-10-20-multi-device-emulator-design.md) | 历史设计 | `2026-10-20` | 早期后端和能力分层，不代表当前设备状态 |
-| [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md) | 实现设计 | `2026-10-26` | 同guest程序、限定Unit原驱动与QEMU按需共享采样；其余Unit、AIFlow/Preview/SSE、多文件及保存开机仍开放；视觉与功能协议分别验收 |
+| [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md) | 实现设计 | `2026-10-26` | 同guest程序、限定Unit原驱动与QEMU按需共享采样；完整文件包/纯字节码依赖已接入；其余Unit、AIFlow/Preview/SSE及保存开机仍开放；视觉与功能协议分别验收 |
 | [Unit 接入问题](unit-integration-host-issues.md) | 参考记录 | `2026-10-26` | 接入期间发现的主机问题与处理边界 |
 | [Unit 源码 API 首批验收](evidence/2026-10-26-unit-source-api-29d8/README.md) | 历史证据 | `2026-10-26` | 五例源码 API 与逐字 Button/HUB+ENV/NCIR 示例；同 guest/Web/QOM/sourcepin/ZIP 和清理，限 CoreS3，硬件 NOT RUN |
 | [Unit 源码 API 扩展验收](evidence/2026-10-26-unit-source-api-expanded-29d8/README.md) | 历史证据 | `2026-10-26` | 传感器、IO、控制类及显式 custom；原 IR 待审、原 Buzzer 自然归零失败、Thermal 负控与功能例分开，公开研究和可重放原始证据，限 CoreS3 |
@@ -142,6 +142,9 @@
 | [UIFlow同guest实时程序验证](evidence/2026-10-26-uiflow-live-program/README.md) | 历史证据 | `2026-10-26` | AtomS3R同固件/VM程序替换、PIR原驱动、应用帧与语法错误恢复；其它主机、AIFlow接入和硬件不继承 |
 | [UIFlow实时Web与四主机](evidence/2026-10-26-live-program-web-and-hosts/README.md) | 历史证据 | `2026-10-26` | 四主机×PIR/Relay八会话/40次预期提交；真实CoreS3两例Web像素、输入输出、同PID/固件替换与语法恢复；picker失败负控及13项fixture，非AIFlow/SSE/硬件结论 |
 | [同guest Unit与共享预览](evidence/2026-10-26-live-unit-preview/README.md) | 历史证据 | `2026-10-26` | 四主机限定HUB传感器/控制leaf原驱动、同guest程序替换与QEMU共享样本/ETag/304、默认fresh兼容；独立browser故障回归与真实CoreS3 PIR/Relay网页链路，非AIFlow/SSE/其它后端或硬件结论 |
+| [同guest文件包与detent事件](evidence/2026-10-26-live-package-and-detent/README.md) | 历史证据 | `2026-10-26` | 完整源码/纯字节码依赖/资源经真实UART部署、模块替换与完整性；detent位置事件fixture，不关闭整体动画或AIFlow集成 |
+| [图片路径固定源码调查](evidence/2026-10-26-live-package-and-detent/image-path-research/audit.md) | 历史证据 | `2026-10-26` | 同guest六格bytes/路径差异与官方绑定/VFS源码；当前binary分支仍有证据边界 |
+| [显示绑定逐字节审计](evidence/2026-10-26-live-package-and-detent/image-path-research/cached-binding/audit.md) | 历史证据 | `2026-10-26` | 固定官方与缓存binding一致、boxed长度63/64分支推导，不等于binary符号级执行证明 |
 | [Encoder与8Encoder视觉绑定审计](evidence/2026-10-26-live-unit-preview/encoder-binding-research/README.md) | 历史证据 | `2026-10-26` | 固定官方电气链、物理光孔与计数资料；通道和角度映射仍缺证据，不改变生产绑定或授予动画PASS |
 | [公开外壳更新48667b7](evidence/2026-10-26-visual-refresh-48667b7/README.md) | 历史证据 | `2026-10-26` | 固定公开Git、65许可PNG与依赖闭包、14主机/29视觉Unit浏览器回归；Scroll/Roller485仅视觉，内部协议仍27种，不继承固件或机械保真PASS |
 | [AIFlow实时预览API审查证据](evidence/2026-10-26-aiflow-preview-api-audit/README.md) | 历史证据 | `2026-10-26` | 两仓固定源码与调用链、24原ZIP timeline分析、确定性host取消竞态；非AIFlow端到端/首帧/性能SLA或新接口PASS |

@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "checked_at": "2026-10-26T12:26:19.343452+00:00",
+  "category": "independent read-only virtual-device evidence audit",
+  "hardware_validation": "NOT RUN",
+  "method": "stdlib ZIP/JSON/SHA/raw-UART byte reconstruction, independent package revision computation, existing cleanup API GETs; no import of runner validation helpers and no guest launch",
+  "source_stable": true,
+  "worker_generation": 24,
+  "counts": {
+    "assertions": 3874,
+    "serial_windows": 136,
+    "executions": 96,
+    "state_completed": 24,
+    "package_file_checks": 512,
+    "state_interrupted": 24,
+    "state_failed": 40,
+    "state_running": 8,
+    "http409": 40,
+    "unit_samples": 32,
+    "zip_members": 672
+  },
+  "cases": [
+    {
+      "case": "atoms3r-pir",
+      "session_id": "ce36b86ac781458fb2c5bce3d69ac379",
+      "pid": 81818,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "zip_sha256": "4049339b8780b90635ad47271492050adc410fcc60289f9ab24e40ab84d61614",
+      "execution_states": {
+        "completed": 3,
+        "interrupted": 3,
+        "failed": 5,
+        "running": 1
+      },
+      "same_vm_nonce": "/m5-live-package-b98b9c4ff121447a8dde8251dce51d91",
+      "pid_gone": true
+    },
+    {
+      "case": "atoms3r-relay",
+      "session_id": "e19f93aceb2c4aeea1d2f45271fb8bc3",
+      "pid": 81835,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "zip_sha256": "143529ee23b9139a7187d7d4aaf46ca6e4cace2864e85ac4b7e5ee884f876871",
+      "execution_states": {
+        "completed": 3,
+        "interrupted": 3,
+        "failed": 5,
+        "running": 1
+      },
+      "same_vm_nonce": "/m5-live-package-167f6f8b32434fc1869d9f60af47be5c",
+      "pid_gone": true
+    },
+    {
+      "case": "cores3-pir",
+      "session_id": "8241ad6faeaa43369e45f82052484b47",
+      "pid": 81711,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "zip_sha256": "9177c336a422959da78fd1ae760deb463854d9321d53c93a5de47e558f185756",
+      "execution_states": {
+        "completed": 3,
+        "interrupted": 3,
+        "failed": 5,
+        "running": 1
+      },
+      "same_vm_nonce": "/m5-live-package-104ebd947dfb4eaaae06549da34ad586",
+      "pid_gone": true
+    },
+    {
+      "case": "cores3-relay",
+      "session_id": "6305f64ec4ff4e57a32e0aa66288807e",
+      "pid": 81710,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "zip_sha256": "6e2de358fd3ed0805f741106bf2b8914b227638f8dcd72ea903387c1de418128",
+      "execution_states": {
+        "completed": 3,
+        "interrupted": 3,
+        "failed": 5,
+        "running": 1
+      },
+      "same_vm_nonce": "/m5-live-package-01cbf1be130f416dbbaea0ef4b4769bf",
+      "pid_gone": true
+    },
+    {
+      "case": "sticks3-pir",
+      "session_id": "c41a9ff1bc714937b02d300d99f45172",
+      "pid": 81941,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "zip_sha256": "601bcbd68b0017f780b7869b8995d921d2b90ed1ae8c88053017821b313918fd",
+      "execution_states": {
+        "completed": 3,
+        "interrupted": 3,
+        "failed": 5,
+        "running": 1
+      },
+      "same_vm_nonce": "/m5-live-package-a5877479c99c4dcaac61a4214d500d83",
+      "pid_gone": true
+    },
+    {
+      "case": "sticks3-relay",
+      "session_id": "d6e7aa2538c94d1e94ea1ea8a1f51e59",
+      "pid": 81948,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "zip_sha256": "5cb84f9d545d6e13256236756de9603a279b6b45f8babd429d853de19588dfd3",
+      "execution_states": {
+        "completed": 3,
+        "interrupted": 3,
+        "failed": 5,
+        "running": 1
+      },
+      "same_vm_nonce": "/m5-live-package-d5d3b5c148ee41638f20fb42828ffea8",
+      "pid_gone": true
+    },
+    {
+      "case": "stopwatch-pir",
+      "session_id": "21e93e5082554bf5a472e801e9bd40d1",
+      "pid": 82033,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "zip_sha256": "7f3f42a387e602275fe930ffb37c1415ace4653d48d11ea5236d6ec9f8ab1a33",
+      "execution_states": {
+        "completed": 3,
+        "interrupted": 3,
+        "failed": 5,
+        "running": 1
+      },
+      "same_vm_nonce": "/m5-live-package-d7ce89a36d264f6988515aa1e75e35c7",
+      "pid_gone": true
+    },
+    {
+      "case": "stopwatch-relay",
+      "session_id": "ff7337d2a0084df2a30b776a25361d64",
+      "pid": 82069,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "zip_sha256": "af692fbf0defb279ee6037bfb1ba6740dafa47e1fae020635000658fbbbfb8a0",
+      "execution_states": {
+        "completed": 3,
+        "interrupted": 3,
+        "failed": 5,
+        "running": 1
+      },
+      "same_vm_nonce": "/m5-live-package-096b07fef71747a1aa62f9d31fc40352",
+      "pid_gone": true
+    }
+  ],
+  "errors": [],
+  "limits": [
+    "Same guest PID/firmware/VM is required within each case; eight separate visible sessions are intentional.",
+    "96 execution records include 40 expected failures; 40 HTTP409 requests include eight stale requests without new execution.",
+    "Firmware/bootstrap is prepared once per session; this audit does not claim physical hardware, IRQ/thread/timer cleanup or sandbox equivalence."
+  ],
+  "service_start_source_verified": true,
+  "compiled_source_display_audit": {
+    "status": "PASS",
+    "reviewer": "independent package/source/display subagent",
+    "official_micropython_commit": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+    "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+    "official_checkout_tracked_diff_empty": true,
+    "recompiled_helpers_byte_identical": 24,
+    "same_main_py_bytes_for_ABC_per_case": true,
+    "dependency_values": {
+      "helper": [
+        17,
+        29,
+        41
+      ],
+      "lib_and_namespace": [
+        101,
+        202,
+        303
+      ],
+      "logic": [
+        3,
+        5,
+        7
+      ]
+    },
+    "guest_ready_and_calculation_match": true,
+    "original_unit_driver_imports_no_replacement": true,
+    "old_module_removed_and_unimportable": true,
+    "vm_nonce_preserved_and_managed_paths_origins_asserted": true,
+    "local_png_frames_verified": 40,
+    "zip_current_png_frames_verified": 8,
+    "asset_color_exact_pixels_per_frame": 576,
+    "asset_size": [
+      24,
+      24
+    ],
+    "colors_ABC": [
+      [
+        255,
+        0,
+        0
+      ],
+      [
+        0,
+        255,
+        0
+      ],
+      [
+        0,
+        0,
+        255
+      ]
+    ],
+    "prior_version_asset_color_absent": true,
+    "method": "Pinned official compiler and tracked source checked; all 24 helpers recompiled to stdout and compared byte-for-byte; independent PIL pixel counts of saved and ZIP frames. No guest was launched."
+  },
+  "completed_at": "2026-10-26T12:28:27.424742+00:00"
+}

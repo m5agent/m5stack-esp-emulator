@@ -217,3 +217,21 @@ RGB/Fan/Buzzer 输出专用 case 必须保持零输入 POST。三路 native fram
 原流程保留和输入绑定。`platform/tests/test_unit_ledc_readback_patch.py` 随平台
 unittest 在 CI 中长期检查 0037 的 S3 地址范围/掩码及 classic 隔离；其中的 C
 片段测试不执行 QEMU 或固件，不能授予 IO 功能 PASS。
+
+## 同 guest 文件包探针
+
+`run_live_package.py` 默认只输出plan；`--execute`须显式指定`--mpy-cross`、精确
+`--expected-runtime-sha256`及全新`--out-dir`。支持四款准入主机的PIR/Relay，
+通过8787可见session验证相同入口配不同`.mpy`、Python/namespace模块、JSON和PNG。
+覆盖A/B替换、SyntaxError恢复、stale身份、字节码不兼容、额外空目录及文件篡改拒绝、
+新C恢复；ZIP逐字节核验后才停止，保留历史并释放Flash。图片读bytes显示并放在
+圆屏有效区域；该scaffold不修改原驱动或替代Unit控制器。
+
+```sh
+PYTHONPATH=platform/tools:tests/units:.work/py312 python3.12 tests/units/run_live_package.py \
+  --execute --device cores3 --unit pir --mpy-cross /path/to/official/mpy-cross \
+  --expected-runtime-sha256 <required-qemu-sha256> --out-dir /tmp/m5-live-package
+```
+
+限纯字节码依赖，不支持native emitter、二进制入口或保存为boot。
+实际范围与失败记录见[文件包证据](../../docs/evidence/2026-10-26-live-package-and-detent/README.md)。

@@ -1,0 +1,312 @@
+{
+  "version": "A",
+  "execution_id": "039fa811d754464486dedfcb6caaebd4",
+  "guest_ready": {
+    "version": "A",
+    "helper_file": "/flash/.m5-live-packages/4b6922fc1bc8166ca086b27715c6d4a81054b46a5432dc9b8fda9ac1288f2c6f/helper.mpy",
+    "cwd": "/flash/.m5-live-packages/4b6922fc1bc8166ca086b27715c6d4a81054b46a5432dc9b8fda9ac1288f2c6f",
+    "managed_paths": [
+      "/flash/.m5-live-packages/4b6922fc1bc8166ca086b27715c6d4a81054b46a5432dc9b8fda9ac1288f2c6f"
+    ],
+    "helper": 17,
+    "init": 101,
+    "old_absent": false,
+    "logic": 3,
+    "logic_file": "/flash/.m5-live-packages/4b6922fc1bc8166ca086b27715c6d4a81054b46a5432dc9b8fda9ac1288f2c6f/lib/logic.py"
+  },
+  "inputs": [
+    {
+      "value": 0,
+      "serial_window": {
+        "session_id": "ff7337d2a0084df2a30b776a25361d64",
+        "offset": 4124,
+        "next_offset": 4246,
+        "data": "LIVE_PACKAGE_SAMPLE {\"value\": 0, \"computed\": 20, \"init\": 101, \"unit\": \"relay\", \"logic\": 3, \"helper\": 17, \"version\": \"A\"}\r\n",
+        "bytes": 122
+      },
+      "qom": {
+        "session_id": "ff7337d2a0084df2a30b776a25361d64",
+        "state": "running",
+        "source": "live",
+        "captured_at": "2026-10-26T12:21:05.126972+00:00",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "relay",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 10,
+              "white": 11
+            },
+            "visual_port": "grove",
+            "initial": {},
+            "source": "guest-qom",
+            "available": true,
+            "properties": {
+              "output-level": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 1
+            },
+            "errors": {}
+          }
+        ],
+        "definitions": [
+          {
+            "id": "relay",
+            "name": "Relay",
+            "sku": "U023",
+            "visual_asset": {
+              "entry": "src/units/relay/index.js",
+              "export": "GroveModule"
+            },
+            "official_docs": "https://docs.m5stack.com/en/unit/relay",
+            "checked_at": "2026-10-26",
+            "chips": [
+              {
+                "part": "HK4100F-DC5V-SHG",
+                "status": "officially-documented"
+              }
+            ],
+            "interface": {
+              "bus": "gpio",
+              "connector": "HY2.0-4P",
+              "address_7bit": [],
+              "pins": {
+                "red": {
+                  "signal": "5V",
+                  "direction": "power"
+                },
+                "black": {
+                  "signal": "GND",
+                  "direction": "ground"
+                },
+                "yellow": {
+                  "signal": "DIN",
+                  "direction": "host-to-unit",
+                  "active_level": 1
+                },
+                "white": {
+                  "signal": "NC",
+                  "direction": "none"
+                }
+              },
+              "power": {
+                "nominal_v": 5,
+                "source": "official-product-PinMap",
+                "logic_v": null,
+                "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+              }
+            },
+            "protocol": {
+              "status": "documented",
+              "summary": "GPIO high energizes relay; GPIO low releases it. DIN is the yellow wire. The unit has no protocol address; relay contact state is derived from the guest-driven GPIO.",
+              "registers": [],
+              "gaps": [
+                "Electrical contact timing, load switching and physical isolation require separate hardware evidence."
+              ]
+            },
+            "inputs": {},
+            "outputs": {
+              "output-level": {
+                "type": "boolean",
+                "label": "继电器驱动电平",
+                "default": false,
+                "default_source": "synthetic-test-fixture",
+                "readOnly": true
+              }
+            },
+            "evidence": [
+              {
+                "kind": "official-product",
+                "url": "https://docs.m5stack.com/en/unit/relay",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "SKU and chip identity",
+                  "PinMap wire colors",
+                  "documented electrical and functional limits"
+                ]
+              },
+              {
+                "kind": "official-driver",
+                "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/relay.py",
+                "checked_at": "2026-10-26",
+                "claims": [
+                  "guest driver transaction path and encoding"
+                ],
+                "sha256": "a3100b40bc7c77827b0fc6190964d54241e6be6c1fdd62d59b4192db3410118e"
+              },
+              {
+                "kind": "official-linked-datasheet-or-schematic",
+                "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/4relay/Datasheet-Realy-HK4100F-DC5V-SHG(1).pdf",
+                "checked_at": "2026-10-26",
+                "retrieval_status": "linked-by-verified-product-page",
+                "claims": [
+                  "reference for implementation; linked document content is not claimed to have been independently reviewed"
+                ]
+              }
+            ],
+            "research_status": "confirmed-contract",
+            "model_status": "implemented",
+            "runtime": {
+              "status": "implemented",
+              "hosts": [
+                "cores3",
+                "atoms3r",
+                "sticks3",
+                "stopwatch"
+              ],
+              "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+              "inputs": {},
+              "state": {
+                "output-level": {
+                  "property": "output-level"
+                },
+                "transactions": {
+                  "property": "transactions"
+                },
+                "read-bytes": {
+                  "property": "read-bytes"
+                },
+                "written-bytes": {
+                  "property": "written-bytes"
+                },
+                "input-events": {
+                  "property": "input-events"
+                },
+                "output-transitions": {
+                  "property": "output-transitions"
+                }
+              },
+              "guest_validation": {
+                "status": "PASS",
+                "device_id": "cores3",
+                "runtime": "qemu",
+                "firmware_sha256": "67a68945395da60b604e45209b46e5b38071a464edab86044193321b09444600",
+                "firmware_flavor": "reference-app-with-original-unit-drivers",
+                "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/relay/report.json",
+                "report_sha256": "cfef4b7fc8523949218c82f8fc019855502334f8d91cc835b8e6f2557416b9e2",
+                "evidence_sha256": "185cb5989db63a65c3f84b7c0c1587a94a3e3fad806d761244951a98ef43440d",
+                "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                "runtime_proof_kind": "direct-pid",
+                "worker_generation": 7,
+                "live_browser": "PASS",
+                "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+                "hardware": "NOT RUN"
+              },
+              "host_validation": {
+                "atoms3r": {
+                  "status": "PASS",
+                  "validation": "virtual-device validation",
+                  "device_id": "atoms3r",
+                  "runtime": "qemu",
+                  "session_id": "18007f73e66b4603a049fa0517b903db",
+                  "firmware_sha256": "8e57c552d8d599bb448082f095721cee86ad5a98a04a5c9d582b2076e5b8b72f",
+                  "firmware_flavor": "reference-app-with-original-unit-drivers",
+                  "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/atoms3r/relay/report.json",
+                  "report_sha256": "e2e543660051e4dcf7de5cc4c80b0fe307263ee99789cdc423708284e167b3b5",
+                  "evidence_sha256": "2b104c1370bf2da469ef5bc1b95195583c5291cd2a8f17a9c52f619b40d5b425",
+                  "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                  "runtime_proof_kind": "direct-pid",
+                  "worker_generation": 9,
+                  "guest_controller": "PASS",
+                  "live_browser": "PASS",
+                  "browser_framing": "PASS",
+                  "native_frame": "PASS",
+                  "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/atoms3r/selection.json",
+                  "batch_selection_sha256": "2c0e03a4c92e4ea06abbeedc3583b96b21388638d66766942afa0d94ac6de8a2",
+                  "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                  "hardware": "NOT RUN",
+                  "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited."
+                },
+                "sticks3": {
+                  "status": "PASS",
+                  "validation": "virtual-device validation",
+                  "device_id": "sticks3",
+                  "runtime": "qemu",
+                  "session_id": "61ab0ac1b0aa42e9b83bd481698e725b",
+                  "firmware_sha256": "6c590bd88e36d0eb9ccca6fb9c4cb097123babc395ce9fcc42ea63c2a821800f",
+                  "firmware_flavor": "reference-app-with-original-unit-drivers",
+                  "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/relay/report.json",
+                  "report_sha256": "987bdb8e9c53f46e9580f2a3e4bce53c7bdd6c6c5665d681f86604dc1fecd754",
+                  "evidence_sha256": "547eaf17379f76eb98cf4791e99ae84879b6a11ddd5841d42310d4ce3162fd7f",
+                  "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                  "runtime_proof_kind": "direct-pid",
+                  "worker_generation": 9,
+                  "guest_controller": "PASS",
+                  "live_browser": "PASS",
+                  "browser_framing": "PASS",
+                  "native_frame": "PASS",
+                  "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/sticks3/selection.json",
+                  "batch_selection_sha256": "eb4845dc43c208fb3bf8c176ea8d63dec9e2839327f61c8a476120e7f4c34fae",
+                  "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                  "hardware": "NOT RUN",
+                  "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited."
+                },
+                "stopwatch": {
+                  "status": "PASS",
+                  "validation": "virtual-device validation",
+                  "device_id": "stopwatch",
+                  "runtime": "qemu",
+                  "session_id": "823b7f0ab2774f5c83ee3b41d61c1f0f",
+                  "firmware_sha256": "3296947b7e495ef63f6e62bd7066c13afbfcd44a357ee99bb9c5fce65663ec81",
+                  "firmware_flavor": "reference-app-with-original-unit-drivers",
+                  "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/relay/report.json",
+                  "report_sha256": "f1d8266277721dfd7c2c622de6e754274ed8de217a1470c888032cf13a872191",
+                  "evidence_sha256": "ecc5482efae761b01e7c0027a8e89395f25d33e698bc78544d4238fd79917335",
+                  "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+                  "runtime_proof_kind": "direct-pid",
+                  "worker_generation": 9,
+                  "guest_controller": "PASS",
+                  "live_browser": "PASS",
+                  "browser_framing": "PASS",
+                  "native_frame": "PASS",
+                  "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/stopwatch/selection.json",
+                  "batch_selection_sha256": "9f5361faf2b643ab3af76d6163fef371452a021add731d4507add2e244aa3d86",
+                  "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+                  "hardware": "NOT RUN",
+                  "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Physical, RF, electrical and visual-binding equivalence are not inherited."
+                }
+              }
+            },
+            "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+            "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+            "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+            "limitations": [
+              "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+              "This catalog alone does not authorize a simulated or functional-PASS claim."
+            ],
+            "research_snapshot": {
+              "scope": "protocol research only; not current runtime capability",
+              "model_status": "planned",
+              "runtime_status": "unsupported",
+              "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Electrical contact timing, load switching and physical isolation require separate hardware evidence."
+            }
+          }
+        ],
+        "contract_hashes": {
+          "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+          "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+          "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+        },
+        "contract_status": "frozen"
+      },
+      "frame": {
+        "path": "frame-a-0.png",
+        "sha256": "5e995c5c23a4969189444669025107e3f9298fbbf5ce267e36a2719502f6d742",
+        "size": [
+          466,
+          466
+        ],
+        "asset_rgb": [
+          255,
+          0,
+          0
+        ],
+        "asset_color_pixels": 576
+      }
+    }
+  ]
+}
