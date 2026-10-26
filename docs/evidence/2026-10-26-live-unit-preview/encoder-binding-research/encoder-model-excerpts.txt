@@ -1,0 +1,20 @@
+Source: visual-provider source src/units/encoder/assembly.js @48667b728736fbfd4365a06575473ce538d3c972
+Full source SHA256: 6120c4e66937d8ca86112550cc9d380e332fabaec2a9283aab54a83d4674999f
+Only the indicated source lines are reproduced.
+
+8: // Collar centre is fitted to the unchanged official z=6 ring. Ø10 is from
+9: // U135's own drawing. Concealed package/board/press dimensions remain inferred.
+10: export const ENCODER_ASSEMBLY=Object.freeze({axis:Object.freeze([-.0130000268,7.9499998353,6]),capRadius:5,capBottom:6.45,capTop:19.38,pcbZ:-3.9,pcbThickness:.8,ledPositions:Object.freeze([Object.freeze([-6.8,-10.4,-3.1]),Object.freeze([6.8,-10.4,-3.1])])});
+
+83:  mesh(cap,new THREE.CylinderGeometry(2.25,2.25,10.3,48).rotateX(Math.PI/2),materials.metal(0x8c9189,{roughness:.5}),[0,0,4.35],'Encoder moving shaft');
+84:  const press=host.add(new Button({id:'press',label:'Encoder press',mesh:cap,position:[x,y,0],travel:.35,meta:{role:'visual-control',travelSource:'Photo-derived visual travel; no switch or pulse emulation'}}));
+85:  const rotation=host.add(new VisualJoint({id:'rotation',label:'Encoder knob rotation',position:[x,y,6],axis:[0,0,1],continuous:true,meta:{axisEvidence:'Official U135 native collar circle fit; cap Ø10 from own drawing',demoRpmMax:60}}));rotation.adopt(press.object3d);
+86:  const diffuse=shellDiffusion(host),leds=[];
+87:  for(const [i,position]of ENCODER_ASSEMBLY.ledPositions.entries()){
+88:   const [lx,ly,lz]=position;
+89:   slab(host.body,3.2,3.2,1.25,.18,[lx,ly,lz],materials.plastic(0xd8deca,{roughness:.68}),[],.04).name='Encoder internal SK6812 package '+i;
+90:   const lens=new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,.12,32).rotateX(Math.PI/2),materials.glossy(0xbec6b1,{roughness:.32}));
+91:   const led=host.add(new EncoderLed({id:'led'+i,label:'Encoder lower RGB '+i,position:[lx,ly,lz+1.31],mesh:lens,radius:1.05,glowSize:2,lensColor:0xbec6b1,meta:{role:'externally-driven-visual',physicalPlacement:'Inside the lower white shell beside Grove; official PCB photo and lit video',mapping:'left/right are visual addresses, schematic LED1/LED2 order unconfirmed'}}));
+92:   led.glow.visible=false;led.onDiffusion=(color,value)=>diffuse(i,color,value);leds.push(led);
+93:  }
+94:  host.encoderAssembly={press,rotation,cap,leds,dimensions:ENCODER_ASSEMBLY};

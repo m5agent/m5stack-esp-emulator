@@ -81,6 +81,7 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 | `platform/tools/guest_console.py` | QEMU UART socket 单写日志、双向有界传输、流控等待与断流报告 | 同 guest UIFlow2 程序接口 |
 | `platform/tools/uiflow_runtime.py` | guest raw REPL/raw-paste 传输、编译执行及增量状态标记；不在 host 执行用户代码 | Device Service program、协议测试 |
 | `platform/tools/program_revisions.py` | 完整 Python 文件快照的不可变身份、完整性校验与有界存储 | program 执行记录与 evidence |
+| `platform/tools/frame_cache.py` | QEMU预览显式按需single-flight/TTL样本、采集身份和失效门禁；默认fresh取证不进入缓存 | `preview_frame`、条件GET与Live sessions |
 | `platform/tools/unit_runtime.py` | 外接 Unit 目录、物理口准入、输入范围与同 guest QOM 读回；不在 Python 执行芯片协议 | Device Service、Unit panel、契约检查 |
 | `platform/tools/unit_adc_fixture.py` | 绑定已知应用字节的合成 S3 ADC eFuse 校准与独立数值 oracle；不访问物理硬件 | Angle/Light 测试、会话 eFuse fixture 与证据 |
 | `platform/tools/sync_visual_models.py` | 从固定公开模型 commit 显式导入运行源码、许可、Three.js 依赖与 hash 清单 | 外壳更新、来源复核 |
@@ -126,7 +127,9 @@ CLI、HTTP 或测试契约，而不是导入对方的内部实现细节。
 Unit 集成的其他入口：`platform/web/unit-visual-mappings.js` 与
 `unit-panel.js` 负责控件和模型读回；`tests/units/run_service_cases.py`、
 `run_sensor_cases.py`、`run_control_cases.py`、`run_io_cases.py` 分组执行
-Device Service 固件探针。`scripts/bootstrap-unit-runtime.py` 和
+Device Service 固件探针；`run_live_unit_batch.py` 验证同guest多Unit连续程序，
+`run_frame_preview.py` 与 `platform/tests/test_frame_preview.mjs` 分别验证实际预览和浏览器异步隔离。
+`scripts/bootstrap-unit-runtime.py` 和
 `patches/qemu-unit-runtime/README.md` 固定公开源码、依赖与补丁顺序；
 `platform/tests/test_unit_runtime.py` 校验冻结 schema、拓扑和输入准入，
 并通过 `_unit_host_control_evidence.py` 核对显式控制类/Web证据契约：原始

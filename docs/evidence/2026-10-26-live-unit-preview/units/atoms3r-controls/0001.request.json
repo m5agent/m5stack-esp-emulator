@@ -1,0 +1,64 @@
+{
+  "device_id": "atoms3r",
+  "runtime": "qemu",
+  "program_mode": "uiflow-live",
+  "ttl_seconds": 600,
+  "ready_timeout_seconds": 40,
+  "units": [
+    {
+      "id": "hub1",
+      "unit_id": "hub",
+      "port_id": "custom"
+    },
+    {
+      "id": "encoder",
+      "unit_id": "encoder",
+      "parent_id": "hub1",
+      "port_id": "grove-1",
+      "initial": {
+        "counter": 0,
+        "pressed": false
+      }
+    },
+    {
+      "id": "eight",
+      "unit_id": "8encoder",
+      "parent_id": "hub1",
+      "port_id": "grove-2",
+      "initial": {
+        "counters": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "pressed": [
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "switch-on": false
+      }
+    },
+    {
+      "id": "joystick",
+      "unit_id": "joystick-v11",
+      "parent_id": "hub1",
+      "port_id": "grove-3",
+      "initial": {
+        "x-raw": 128,
+        "y-raw": 128,
+        "button-raw": 0
+      }
+    }
+  ]
+}

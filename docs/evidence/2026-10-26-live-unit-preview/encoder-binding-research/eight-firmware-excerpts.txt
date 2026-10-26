@@ -1,0 +1,145 @@
+Source: official M5Unit-8Encoder-Internal-FW@1b3074078e07c46d144e328867996babe151cbbf/8encoder/Core/Src/main.c
+Full source SHA256: 3c5ee0a35f1a785a27751d0905657bd5b60566f6d3b4d7940cdb6c5488afb7f3
+Only the indicated source lines are reproduced.
+
+311:   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;;
+312:   GPIO_InitStruct.Pull = GPIO_NOPULL;
+313:   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);  
+314: 
+315:   /*Configure GPIO pins : EN_S8_A_Pin EN_S8_B_Pin EN_S7_A_Pin EN_S7_B_Pin
+316:                            EN_S6_A_Pin EN_S6_B_Pin EN_S5_A_Pin EN_S5_B_Pin
+317:                            EN_S2_A_Pin EN_S2_B_Pin EN_S1_A_Pin EN_S1_B_Pin */
+318:   GPIO_InitStruct.Pin = EN_S8_A_Pin|EN_S8_B_Pin|EN_S7_A_Pin|EN_S7_B_Pin
+319:                           |EN_S6_A_Pin|EN_S6_B_Pin|EN_S5_A_Pin|EN_S5_B_Pin
+320:                           |EN_S2_A_Pin|EN_S2_B_Pin|EN_S1_A_Pin|EN_S1_B_Pin;
+321:   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;;
+322:   GPIO_InitStruct.Pull = GPIO_NOPULL;
+323:   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+324: }
+325: 
+326: void switch_phase_a_gpio_input(void)
+327: {
+328:   GPIO_InitTypeDef GPIO_InitStruct = {0};
+329: 
+330:   GPIO_InitStruct.Pin = EN_S8_A_Pin|EN_S7_A_Pin|EN_S6_A_Pin
+331:                         |EN_S5_A_Pin|EN_S2_A_Pin|EN_S1_A_Pin;
+332:   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+333:   GPIO_InitStruct.Pull = GPIO_NOPULL;
+334:   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); 
+335: 
+336:   GPIO_InitStruct.Pin = EN_S4_A_Pin|EN_S3_A_Pin;
+337:   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+338:   GPIO_InitStruct.Pull = GPIO_NOPULL;
+339:   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);  
+340: }
+341: 
+342: void switch_phase_a_gpio_interrupt(void)
+343: {
+344:   GPIO_InitTypeDef GPIO_InitStruct = {0};
+345: 
+346:   GPIO_InitStruct.Pin = EN_S8_A_Pin|EN_S7_A_Pin|EN_S6_A_Pin
+347:                         |EN_S5_A_Pin|EN_S2_A_Pin|EN_S1_A_Pin;
+348:   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+349:   GPIO_InitStruct.Pull = GPIO_NOPULL;
+350:   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); 
+
+430:   // else if(len == 1 && (rx_data[0] == 0x00)) 
+431:   // {
+432:   //   i2c2_set_send_data((uint8_t *)&g_mode_sel, 1);
+433: 	// }
+434:   if (len > 1 && (rx_data[0] <= 0x1F))
+435:   {
+436:     if ((len - 1) % 4 == 0) {
+437:       for(int i = 0; i < (len - 1) / 4; i++) {
+438:         g_counter[(rx_data[0]+i*4) / 4] = (rx_data[4+i*4] << 24) | (rx_data[3+i*4] << 16) | (rx_data[2+i*4] << 8) | (rx_data[1+i*4]);  
+439:       }
+440:     }
+441:   }
+442:   else if (len == 1 && (rx_data[0] <= 0x1F))
+443:   {
+444:     i2c2_set_send_data((uint8_t *)&g_counter[(rx_data[0])/4], 4);
+445:   }
+446:   else if (len == 1 && ((rx_data[0] >= 0x20) & (rx_data[0] <= 0x3F)))
+447:   {
+448:     i2c2_set_send_data((uint8_t *)&g_inc_counter[(rx_data[0]-0x20)/4], 4);
+449:     g_inc_counter[(rx_data[0]-0x20)/4] = 0;
+450:   }
+
+514: 	else if (len > 1 && ((rx_data[0] >= 0x70) & (rx_data[0] <= 0x8A))) 
+515: 	{
+516:     if ((len-1) % 3 == 0) {
+517:       for (int i = 0; i < (len - 1) / 3; i++) {
+518:         neopixel_set_color(((rx_data[0]+i*3 - 0x70)/3), ((rx_data[1+i*3] << 16) | (rx_data[2+i*3] << 8) | (rx_data[3+i*3])));   
+519:       }
+520:       ws2812_show();
+521:     }
+522:   }
+523: 	else if (len == 1 && ((rx_data[0] >= 0x70) & (rx_data[0] <= 0x8A))) 
+524: 	{
+525:     i2c_buff[0] = (color_buf[((rx_data[0] - 0x70)/3)] >> 16) & 0xff;
+526:     i2c_buff[1] = (color_buf[((rx_data[0] - 0x70)/3)] >> 8) & 0xff;
+527:     i2c_buff[2] = (color_buf[((rx_data[0] - 0x70)/3)]) & 0xff;
+528:     i2c2_set_send_data(i2c_buff, 3);
+529:   }                  
+
+728:     switch (GPIO_Pin)
+729:     {
+730:     case EN_S1_A_Pin:
+731:       if (g_phase_a_last_encoder_status[index]) {
+732:         if (!(HAL_GPIO_ReadPin(GPIOA, EN_S1_B_Pin))) {
+733:           // if (g_counter[0] > -32768)
+734:           g_counter[0]--;
+735:           g_inc_counter[0]--;
+736:         }
+737:         else {
+738:           // if (g_counter[0] < 32767)
+739:           g_counter[0]++;
+740:           g_inc_counter[0]++;
+741:         }    
+742:       } else {
+743:         if (HAL_GPIO_ReadPin(GPIOA, EN_S1_B_Pin)) {
+744:           // if (g_counter[0] > -32768)
+745:           g_counter[0]--;
+746:           g_inc_counter[0]--;
+747:         }
+748:         else {
+749:           // if (g_counter[0] < 32767)
+750:           g_counter[0]++;
+751:           g_inc_counter[0]++;
+752:         }       
+753:       }
+754:       g_changed |= (1 << 0);
+755:       break;
+756:     case EN_S2_A_Pin:
+
+984:     switch (GPIO_Pin)
+985:     {
+986:     case EN_S1_B_Pin:
+987:       if (g_phase_b_last_encoder_status[index]) {
+988:         if (!(HAL_GPIO_ReadPin(GPIOA, EN_S1_A_Pin))) {
+989:           // if (g_counter[0] < 32767)
+990:           g_counter[0]++;
+991:           g_inc_counter[0]++;
+992:         }
+993:         else {
+994:           // if (g_counter[0] > -32768)
+995:           g_counter[0]--;
+996:           g_inc_counter[0]--;
+997:         }    
+998:       } else {
+999:         if (HAL_GPIO_ReadPin(GPIOA, EN_S1_A_Pin)) {
+1000:           // if (g_counter[0] < 32767)
+1001:           g_counter[0]++;
+1002:           g_inc_counter[0]++;
+1003:         }
+1004:         else {
+1005:           // if (g_counter[0] > -32768)
+1006:           g_counter[0]--;
+1007:           g_inc_counter[0]--;
+1008:         }       
+1009:       }
+1010:       g_changed |= (1 << 0); 
+1011:       break;
+1012:     case EN_S2_B_Pin:
+1013:       if (g_phase_b_last_encoder_status[index]) {
+1014:         if (!(HAL_GPIO_ReadPin(GPIOA, EN_S2_A_Pin))) {

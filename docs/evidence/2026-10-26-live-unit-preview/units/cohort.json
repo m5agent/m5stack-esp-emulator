@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "started_at": "2026-10-26T10:28:24.552937+00:00",
+  "status": "PASS",
+  "service_pid": 45439,
+  "service_start_sha256": "0fe592679687cf93156226a410dd94340cbd229f6ea7d37e1c2ac99dd313c624",
+  "runner_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+  "test_sha256": "cf16b87bd8a5d826d5495e755a694985a5d8b2e17fbff4987e2a0e996551495c",
+  "expected_runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+  "cases": [
+    {
+      "name": "cores3-sensors",
+      "device_id": "cores3",
+      "group": "sensors",
+      "exit_code": 0,
+      "elapsed_seconds": 50.85974533390254,
+      "status": "PASS",
+      "session_id": "55c8b5bcd1854b73871dd0987ff35b86",
+      "pid": 45665,
+      "report_sha256": "a4e5d3f987c233c9817e09d9b638c59c8591fcc7e6bbf7988ce846d097438b80",
+      "runner_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "programs": 5,
+      "input_vectors": 12,
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "history_retained": true
+      },
+      "error": null
+    },
+    {
+      "name": "cores3-controls",
+      "device_id": "cores3",
+      "group": "controls",
+      "exit_code": 0,
+      "elapsed_seconds": 8.2589925408829,
+      "status": "PASS",
+      "session_id": "33795821e1af476f8cb5b17acefd4782",
+      "pid": 45985,
+      "report_sha256": "2ba4a36bcaef17d57d6d753b7e9f48819dbc72433cd2ace508a009b7d084287c",
+      "runner_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "programs": 5,
+      "input_vectors": 12,
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "history_retained": true
+      },
+      "error": null
+    },
+    {
+      "name": "atoms3r-sensors",
+      "device_id": "atoms3r",
+      "group": "sensors",
+      "exit_code": 0,
+      "elapsed_seconds": 50.1803395410534,
+      "status": "PASS",
+      "session_id": "4d7175ffb18a4a5bbc7acfe59a1d5066",
+      "pid": 46029,
+      "report_sha256": "b5bb84d56073344a506da36d3a8293eae8a9416f433a3bab44f61c3d4cf97243",
+      "runner_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "programs": 5,
+      "input_vectors": 12,
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "history_retained": true
+      },
+      "error": null
+    },
+    {
+      "name": "atoms3r-controls",
+      "device_id": "atoms3r",
+      "group": "controls",
+      "exit_code": 0,
+      "elapsed_seconds": 7.7561087920330465,
+      "status": "PASS",
+      "session_id": "420bed7bff4a4d1fa3e924f04746eb48",
+      "pid": 46294,
+      "report_sha256": "fd6844c534eb4fead7b8ff79fb14179cdc7f8590029e02f906c7acc23bc1a090",
+      "runner_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "programs": 5,
+      "input_vectors": 12,
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "history_retained": true
+      },
+      "error": null
+    },
+    {
+      "name": "sticks3-sensors",
+      "device_id": "sticks3",
+      "group": "sensors",
+      "exit_code": 0,
+      "elapsed_seconds": 49.96887345891446,
+      "status": "PASS",
+      "session_id": "99be4454883f40429ea2f3bd15a9021e",
+      "pid": 46362,
+      "report_sha256": "eab901ed4343c66655b9531360a90d16d4edc628867f24e2a1f288a4ec87f7d8",
+      "runner_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "programs": 5,
+      "input_vectors": 12,
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "history_retained": true
+      },
+      "error": null
+    },
+    {
+      "name": "sticks3-controls",
+      "device_id": "sticks3",
+      "group": "controls",
+      "exit_code": 0,
+      "elapsed_seconds": 7.339409040985629,
+      "status": "PASS",
+      "session_id": "733b16e4049b4d44a784cdb282119bd9",
+      "pid": 46672,
+      "report_sha256": "a4da93e3e695869ba02a30820b6ade4542abf33b0de8e573ec2c6b689daed201",
+      "runner_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "programs": 5,
+      "input_vectors": 12,
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "history_retained": true
+      },
+      "error": null
+    },
+    {
+      "name": "stopwatch-sensors",
+      "device_id": "stopwatch",
+      "group": "sensors",
+      "exit_code": 0,
+      "elapsed_seconds": 49.90201845788397,
+      "status": "PASS",
+      "session_id": "96f5f620e5c74d32a7a8d3cd8eee1268",
+      "pid": 46706,
+      "report_sha256": "dd18f90f3db31a2e9049aaafef25d10fb32c67fd533403e79d4a6772e322bf60",
+      "runner_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "programs": 5,
+      "input_vectors": 12,
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "history_retained": true
+      },
+      "error": null
+    },
+    {
+      "name": "stopwatch-controls",
+      "device_id": "stopwatch",
+      "group": "controls",
+      "exit_code": 0,
+      "elapsed_seconds": 7.366136834025383,
+      "status": "PASS",
+      "session_id": "d6512a69384a41e68b579f8fa121452c",
+      "pid": 46890,
+      "report_sha256": "ba1e92d038ffcd046f12384f9bc0f72553d3eb8ee7faa0917fbe23aea2773938",
+      "runner_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "programs": 5,
+      "input_vectors": 12,
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "history_retained": true
+      },
+      "error": null
+    }
+  ],
+  "offline_tests_exit_code": 0,
+  "finished_at": "2026-10-26T10:32:16.311200+00:00",
+  "final_health": {
+    "ok": true,
+    "service": "m5stack-device-service",
+    "api_version": "v1",
+    "capacity": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "54d56930d5094617a7af231e2fc0b685",
+        "generation": 20,
+        "state": "ready",
+        "pid": 45439,
+        "started_at": "2026-10-26T10:27:37.666656+00:00",
+        "heartbeat_at": "2026-10-26T10:32:16.264200+00:00",
+        "heartbeat_age_seconds": 0.048,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    }
+  }
+}

@@ -1,0 +1,73 @@
+Source: tests/units/controls_probe/control_drivers/encoder8.py; official upstream URL/hash recorded in tests/units/controls_probe/control_drivers/source-manifest.json
+Full source SHA256: 38bf8e2d7e5cea08aed605cda075d614f1275a2010898358426c53059d649e72
+Only the indicated source methods are reproduced.
+
+94:     def get_counter_value(self, channel: int = 1) -> int:
+95:         """
+96:         note:
+97:             en: Get the current counter value of the specified channel.
+98: 
+99:         params:
+100:             channel:
+101:                 note: The encoder channel (1-8). Default is 1.
+102: 
+103:         returns:
+104:             note: The current counter value as an integer.
+105:         """
+106:         channel = min(8, max(channel, 1)) - 1
+107:         channel *= 4
+108:         if not (channel >= self._ENCODER_CNT_START_REG and channel <= self._ENCODER_CNT_END_REG):
+109:             channel = self._ENCODER_CNT_START_REG
+110:         buf = self.read_reg_data(channel, 4)
+111:         return struct.unpack("<i", buf)[0]
+
+113:     def set_counter_value(self, channel: int = 1, value: int = 0) -> None:
+114:         """
+115:         note:
+116:             en: Set the counter value for the specified channel.
+117: 
+118:         params:
+119:             channel:
+120:                 note: The encoder channel (1-8). Default is 1.
+121:             value:
+122:                 note: The counter value to set.
+123:         """
+124:         channel = min(8, max(channel, 1)) - 1
+125:         channel *= 4
+126:         if not (channel >= self._ENCODER_CNT_START_REG and channel <= self._ENCODER_CNT_END_REG):
+127:             channel = self._ENCODER_CNT_START_REG
+128:         self.write_reg_data(channel, struct.pack("<i", value))
+
+149:     def reset_counter_value(self, channel: int = 1) -> None:
+150:         """
+151:         note:
+152:             en: Reset the counter value for the specified channel.
+153: 
+154:         params:
+155:             channel:
+156:                 note: The encoder channel (1-8). Default is 1.
+157:         """
+158:         channel = min(8, max(channel, 1)) - 1
+159:         channel += self._ENCODER_CNT_RST_START_REG
+160:         if not (
+161:             channel >= self._ENCODER_CNT_RST_START_REG and channel <= self._ENCODER_CNT_RST_END_REG
+162:         ):
+163:             channel = self._ENCODER_CNT_RST_START_REG
+164:         self.write_reg_data(channel, [0x01])
+
+199:     def set_led_rgb(self, channel: int = 1, rgb: int = 0) -> None:
+200:         """
+201:         note:
+202:             en: Set the RGB color of the specified channel's LED.
+203: 
+204:         params:
+205:             channel:
+206:                 note: The encoder channel (1-8). Default is 1.
+207:             rgb:
+208:                 note: The RGB color value (0-0xFFFFFF). Default is 0.
+209:         """
+210:         channel = min(8, max(channel, 1)) - 1
+211:         channel = self._ENCODER_RGB_START_REG + (channel * 3)
+212:         if not (channel >= self._ENCODER_RGB_START_REG and channel <= self._ENCODER_RGB_END_REG):
+213:             channel = self._ENCODER_RGB_START_REG
+214:         self.write_reg_data(channel, rgb.to_bytes(3, "big"))

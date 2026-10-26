@@ -1,0 +1,48 @@
+import sys
+import time
+import json
+import M5
+from machine import I2C, Pin
+from unit import EncoderUnit, Encoder8Unit, JoystickUnit
+assert '/m5-live-batch-25a05b7b071e4db58b899f75ce711b54' in sys.path, "MicroPython VM was reset"
+M5.begin()
+screen = M5.Display
+screen.setBrightness(255)
+screen.fillScreen(16777215)
+screen.setFont(screen.FONTS.Montserrat12)
+screen.setTextSize(1)
+screen.setTextColor(0, 16777215)
+x, y = (96, 120) if screen.width() > 400 else (4, 4)
+screen.setCursor(x, y)
+screen.print('A controls')
+bus = I2C(0, scl=Pin(11), sda=Pin(10), freq=100000)
+scan = sorted(bus.scan())
+assert scan == [64, 65, 82], "HUB address set differs or onboard bus leaked"
+encoder = EncoderUnit(bus)
+eight = Encoder8Unit(bus)
+joystick = JoystickUnit(bus, 0x52)
+encoder.set_color(1, 1122867)
+encoder.set_color(2, 2241348)
+for _channel, _color in enumerate([66051, 132102, 198153, 264204, 330255, 396306, 462357, 528408], 1):
+ eight.set_led_rgb(_channel, _color)
+# Official high-level set_led_rgb clamps to 1..8. Its original register helper
+# writes the separate ninth/switch LED triplet without replacing the driver.
+eight.write_reg_data(0x88, [25, 41, 57])
+
+print('LIVE_BATCH_A_CONTROLS_READY', json.dumps(scan))
+while True:
+ M5.update()
+ values = {
+  "encoder": {"counter": encoder.get_rotary_value(), "pressed": bool(encoder.get_button_status())},
+  "eight": {"counters": [eight.get_counter_value(i) for i in range(1, 9)],
+            "pressed": [bool(eight.get_button_status(i)) for i in range(1, 9)], "switch-on": bool(eight.get_switch_status())},
+  "joystick": {"x-raw": joystick.get_x_raw(), "y-raw": joystick.get_y_raw(), "button-raw": int(joystick.get_button_status())},
+ }
+ lines = ["ENC %d" % values["encoder"]["counter"], "8ENC %d %d" % tuple(values["eight"]["counters"][:2]),
+          "JOY %d %d" % (values["joystick"]["x-raw"], values["joystick"]["y-raw"])]
+ print('LIVE_BATCH_A_CONTROLS_SAMPLE', json.dumps(values))
+ screen.fillRect(x, y + 18, min(120, screen.width() - x), 54, 16777215)
+ for row, text in enumerate(lines):
+  screen.setCursor(x, y + 18 + row * 18)
+  screen.print(text)
+ time.sleep_ms(200)

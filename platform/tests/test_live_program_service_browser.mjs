@@ -24,7 +24,7 @@ const fingerprints = async () => Object.fromEntries(await Promise.all(sources.ma
 const report = {category: 'virtual-device-live-program-browser', status: 'FAIL', device_id: 'cores3', runtime: 'qemu',
   hardware_validation: 'NOT RUN', captured_at: new Date().toISOString(), source_sha256: await fingerprints(),
   instrumentation: 'Only window.__liveProgramProbe={state,SessionVisual}; product methods and API data remain unchanged.',
-  cases: [], page_errors: [], resource_errors: []};
+  cases: [], page_errors: [], resource_errors: [], shared_frame_responses: []};
 const api = async (path, options = {}, timeout = 30000) => {
   const deadline = AbortSignal.timeout(Math.max(1, Math.ceil(timeout)));
   const signal = options.signal ? AbortSignal.any([options.signal, deadline]) : deadline;
@@ -75,6 +75,12 @@ try {
   page = await browser.newPage({viewport: {width: 1440, height: 1080}});
   page.on('pageerror', error => report.page_errors.push(error.message));
   page.on('response', response => { if (response.status() >= 400 && response.url().includes('/vendor/')) report.resource_errors.push({url: response.url(), status: response.status()}); });
+  page.on('response', response => {
+    const url = new URL(response.url());
+    if (url.pathname.endsWith('/frame.png') && url.searchParams.get('max_age_ms') === '125') {
+      report.shared_frame_responses.push({path: url.pathname, max_age_ms: 125, status: response.status()});
+    }
+  });
   await page.route('**/platform/web/sessions.js*', async route => {
     const response = await route.fetch(); const actual = await response.text();
     assert.equal(createHash('sha256').update(actual).digest('hex'), report.source_sha256['platform/web/sessions.js']);
@@ -186,6 +192,13 @@ try {
     const frameB = await api(prefix + '/frame.png'); await writeFile(`${output}/${unit}-b-frame.png`, frameB);
     assert.notEqual(createHash('sha256').update(frameA).digest('hex'), createHash('sha256').update(frameB).digest('hex'));
     result.frame_b_corner_rgb = await displayedFrame(frameB);
+    result.web_preview = await eventually(() => page.evaluate(id => {
+      const visual = window.__liveProgramProbe.state.visuals.get(id);
+      return {etag: visual?.frameEtag, metadata: visual?.frameMetadata};
+    }, currentId), value => value.etag && value.metadata?.['x-frame-execution-id'] === expected);
+    assert.equal(result.web_preview.metadata['x-frame-source'], 'live');
+    assert.ok(result.web_preview.metadata['x-frame-captured-at']);
+    result.checks.actual_web_uses_shared_frame_metadata = true;
     result.checks.actual_guest_frame_updates_web_model_display = true;
     await execute('def broken(:\n', null);
     await eventually(() => api(prefix + '/program'), value => value.program.state === 'failed');
@@ -212,6 +225,7 @@ try {
     result.status = 'PASS';
   }
   assert.deepEqual(report.page_errors, []); assert.deepEqual(report.resource_errors, []);
+  assert.ok(report.shared_frame_responses.some(row => row.status === 200));
   assert.deepEqual(await fingerprints(), report.source_sha256);
   report.status = 'PASS';
 } catch (error) { report.error = error.stack || String(error); }

@@ -1,0 +1,50 @@
+Source: official M5Unit-8Encoder@a75ab1a0975f034cca4588b2c539d9dbb669cc2d/examples/unit_8encoder_testing/unit_8encoder_testing.ino
+Full source SHA256: ff2fe2506755f5260986bf10c75877e647302d405a70659a48627e531c3f37f7
+Only the indicated source lines are reproduced.
+
+15: 
+16: void show_rgb_led(void) {
+17:     sensor.setAllLEDColor(0xff0000);
+18:     delay(1000);
+19:     sensor.setAllLEDColor(0x00ff00);
+20:     delay(1000);
+21:     sensor.setAllLEDColor(0x0000ff);
+22:     delay(1000);
+23:     sensor.setAllLEDColor(0x000000);
+24: }
+25: 
+
+60: 
+61:     canvas.setTextColor(GREEN);
+62:     for (int i = 0; i < 8; i++) {
+63:         encoder[i]    = sensor.getEncoderValue(i);
+64:         btn_stauts[i] = sensor.getButtonStatus(i);
+65:     }
+66:     for (int i = 0; i < 8; i++) {
+67:         if (!btn_stauts[i]) {
+68:             if (i < 4)
+69:                 canvas.fillRect(60 + 65 * i, 30, 65, 25, GREEN);
+70:             else
+71:                 canvas.fillRect(60 + 65 * (i - 4), 60, 65, 25, GREEN);
+72:         }
+73:     }
+74:     canvas.drawString(String(encoder[0]), 60, 30);
+
+111:     canvas.setColorDepth(8);  // mono color
+112:     // canvas.setFont(&fonts::efontCN_12);
+113:     canvas.createSprite(display.width(), display.height());
+114: 
+115:     delay_time = millis() + 10;
+116: }
+117: 
+118: void loop() {
+119:     show_encoder_value();
+120:     M5.update();
+121:     if (M5.BtnA.wasPressed()) {
+122:         show_rgb_led();
+123:     } else if (M5.BtnB.wasPressed()) {
+124:         for (int i = 0; i < 8; i++) {
+125:             sensor.resetCounter(i);
+126:         }
+127:     }
+128: }

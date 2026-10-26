@@ -1,0 +1,20 @@
+Source: tests/units/controls_probe/control_drivers/encoder.py; official upstream URL/hash recorded in tests/units/controls_probe/control_drivers/source-manifest.json
+Full source SHA256: 703a35a0f57e400fc33b41f4b14574844bca9bd11238ad501e4bcf9cb519b255
+Only the indicated source methods are reproduced.
+
+43:     def set_rotary_value(self, value: int) -> None:
+44:         self._start_value = value
+
+46:     def reset_rotary_value(self):
+47:         self._zero_value = self._get_rotary_value()
+48:         self._last_value = self._zero_value
+49:         self._start_value = 0
+
+55:     def set_color(self, index: int = 0, rgb: int = 0) -> None:
+56:         buf = self._buffer[1:5]
+57:         buf[0] = index
+58:         buf[1:] = rgb.to_bytes(3, "big")
+59:         self._write_reg_bytes(self._ENCODER_RGB_LED_REG, buf)
+
+61:     def fill_color(self, rgb: int = 0) -> None:
+62:         self.set_color(0, rgb)

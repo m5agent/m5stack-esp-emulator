@@ -1,8 +1,8 @@
 # AIFlow 实时编程与预览 API：评估与实施计划
 
 日期：2026-10-26。归属 `UNIT-01`，模块边界与 `SVC-03` 协同。
-状态：**四款主机的 UIFlow 同 guest PIR/Relay 程序下发与 CoreS3 真实 Web 已验证；Preview 编排、SSE、
-共享帧生产者缓存及性能目标尚未实现/验收**。
+状态：**四款主机的 UIFlow 同 guest 与多 Unit 连续程序、CoreS3 真实 Web、
+QEMU 按需共享帧与条件 GET 已验证；Preview 编排、SSE、AIFlow接入及性能SLA仍待实现/验收**。
 生命周期修复已提交并完成限定验证，结果见
 [取消与 Unit 回归](../evidence/2026-10-26-session-cancellation-f309/README.md)；
 该结果与下述同 guest 程序执行属于不同验证范围。
@@ -33,8 +33,8 @@ session 路径保留为初始化、兼容运行及显式重建入口。
 
 现有真实 guest、总线控制器、Unit 数据面、固件身份与 Device Service lease/evidence
 继续复用；每次程序执行另有 `execution_id`、`revision_id` 和源码哈希。逻辑
-Preview/Run 编排、统一实时事件与共享帧缓存仍待实现，不能从同 guest 接口的
-存在推断 AIFlow 已接入这些能力。
+Preview/Run 编排、统一实时事件与后台订阅采样仍待实现；当前增加独立按需共享帧
+缓存，不从同 guest 或该缓存推断 AIFlow 已接入这些能力。
 
 当前实际 guest 验证覆盖 **CoreS3、AtomS3R、StickS3、StopWatch 各自的 PIR/Relay**，
 8组合、40次程序，均由直接模式创建。CoreS3 另有真实网页两例，验证程序 A/B 替换、
@@ -64,7 +64,7 @@ workspace；相关十文件前后哈希稳定。本观察不代表部署版本�
 | 初始化与兼容 | `program_mode=uiflow-live`一次初始化已准入reference；`/firmware/uiflow`保留完整`.py`集合手动准备入口 | 用于首次 UART 路由准备、完整文件初始化与兼容运行；每次编辑只需提交源码 |
 | 更新/取消 | `/program` 使用 `expected_execution_id` 和单个传输 owner；session 生命周期已有取消 fence | 可拒绝过期/并发提交；旧程序中断需 raw REPL 同步确认，尚无 Preview latest-wins 编排 |
 | 主机/Unit交互 | input、unit-input、QOM、真实帧/串口/设备态；Unit装配在创建时固定 | 能复用；运行中hotplug未实现，新装配需新执行实例 |
-| 实时画面 | 页面目标125ms轮询，服务每请求QMP screendump→PPM→PNG，跨session await-all | 不是保证8FPS的帧流；多个观察者会重复采集/编码，慢请求影响刷新 |
+| 实时画面 | 默认GET仍直采；QEMU显式max_age_ms复用同session样本/在途采集，ETag/304；网页每visual独立有界请求 | 减少重复采集和慢session阻塞；采集元数据不证明应用ready，不保证8FPS或端到端SLA |
 | 实时状态/日志 | events为JSON读取，串口/设备态/Unit各自轮询 | 缺订阅、背压、断线游标和统一run/revision标签；现串口按offset返回但读全日志 |
 | 资源文件 | `/program` 只接受至多64KiB的UTF-8源码；composer 接收`.py`集合，整体JSON受1MiB限制 | 当前同 guest 路径不写入多文件或二进制资源；图片/字体/音频另需受控 asset manifest 与真实传输 |
 | AIFlow消费者 | 有SSE/sequence恢复；file_ready在runner完成后整批发，下载读当前workspace | 可做任务结束后预览；持续预览还需中途checkpoint和不可变多文件快照 |
@@ -255,8 +255,9 @@ AIFlow 消费端接入、稳定 Preview/Run 与 latest-wins 编排另做；其�
 security/source SHA校验，和串口烧录验证类别分开。不要全局改变任意固件的验证
 策略。本次尚未测量该模式，不能用静态路径推断优化后的实际秒数。
 
-下一阶段为多订阅者增加每guest FrameProducer和EventHub、缓存帧/ETag、请求超时
-与可见性节流；控制输入不被慢客户端采集占用。验收实测完整编辑→第一张新版本帧、输入
+当前已补每session按需共享样本、缓存帧/ETag、单visual请求超时及owner/decode隔离，
+见[多Unit与共享预览](../evidence/2026-10-26-live-unit-preview/README.md)。后台订阅
+FrameProducer与EventHub仍待做；控制输入不应被慢客户端采集占用。后续实测完整编辑→第一张新版本帧、输入
 →guest→反馈、丢弃旧帧、断线恢复、慢消费者内存、同设备多客户端与并发容量。
 
 ### 同 guest 路径的剩余验收与状态清理

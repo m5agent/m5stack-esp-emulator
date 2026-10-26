@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "reviewed_at": "2026-10-26T10:32:58.104604+00:00",
+  "scope": "Only these captured final native guest frames; not Web framing or arbitrary UI states",
+  "hardware": "NOT RUN",
+  "frames": [
+    {
+      "device_id": "cores3",
+      "group": "sensors",
+      "path": "cores3-sensors/frame-b.png",
+      "sha256": "4bde67ede519141138f243dcf8275645424b880cac39b3c085a7c0070d61bc38",
+      "review": "Four text rows readable, no visible clipping."
+    },
+    {
+      "device_id": "cores3",
+      "group": "controls",
+      "path": "cores3-controls/frame-b.png",
+      "sha256": "7ba6d03b4eff060efd70adc4e9b2ebb7098130adaddbb8bac5003838dfeac3bb",
+      "review": "Four text rows readable, no visible clipping."
+    },
+    {
+      "device_id": "atoms3r",
+      "group": "sensors",
+      "path": "atoms3r-sensors/frame-b.png",
+      "sha256": "18360bbf83b5d8f651278b9ad28854a0934f8210a9b738f58b7b0d0e6c385249",
+      "review": "Four text rows readable, no visible clipping."
+    },
+    {
+      "device_id": "atoms3r",
+      "group": "controls",
+      "path": "atoms3r-controls/frame-b.png",
+      "sha256": "a60e5255b4946d3bc4c3df59d3e716ae4f7bbffbcc36ced6e1d93524211b41d2",
+      "review": "Four text rows readable, no visible clipping."
+    },
+    {
+      "device_id": "sticks3",
+      "group": "sensors",
+      "path": "sticks3-sensors/frame-b.png",
+      "sha256": "13b410649a21170ca8568d0a83702416cbd63b280064b00c5a2537bfe2c9a629",
+      "review": "Four text rows readable, no visible clipping."
+    },
+    {
+      "device_id": "sticks3",
+      "group": "controls",
+      "path": "sticks3-controls/frame-b.png",
+      "sha256": "c040a35949f2179cd93bda876847a417af1e28a3b6a7ee216152b92cdab63dc1",
+      "review": "Four text rows readable, no visible clipping."
+    },
+    {
+      "device_id": "stopwatch",
+      "group": "sensors",
+      "path": "stopwatch-sensors/frame-b.png",
+      "sha256": "ac9f9a127ebb90225eb2720caa35dda2701040a9fe2d4f6ea7d67c2f5078b740",
+      "review": "Four text rows readable, no visible clipping; StopWatch text is inside the circular active display."
+    },
+    {
+      "device_id": "stopwatch",
+      "group": "controls",
+      "path": "stopwatch-controls/frame-b.png",
+      "sha256": "816b79ea7c7378e768116264646414423aff6ff113f4094d8cb96653b7148c60",
+      "review": "Four text rows readable, no visible clipping; StopWatch text is inside the circular active display."
+    }
+  ]
+}

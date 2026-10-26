@@ -1,0 +1,16 @@
+Source: visual-provider source src/units/8encoder/index.js @48667b728736fbfd4365a06575473ce538d3c972
+Full source SHA256: dbb970f29ebf9bb1e785460faa4655f9c9764558506da353185cd40bee17a642
+Only the indicated source lines are reproduced.
+
+53:  cylinder(host.body,3.15,1.18,[0,y,4.16],metal,`CH${number} fixed shaft bushing`);
+54:  cylinder(host.body,spec.knob.shaftRadius,5.8,[0,y,6.9],metal,`CH${number} fixed encoder shaft`);
+55:  const press=host.add(new Button({id:item.press,label:`CH${number} knob press`,mesh:capGeometry(number),position:[0,y,spec.knob.baseZ],travel:spec.knob.pressTravel,axis:[0,0,-1],meta:{role:'visual-control',channel:number,visualMotion:'linear',travelEvidence:'0.35 mm visual travel estimate; rated EC11A pretravel/overtravel unconfirmed',scope:'no-switch-state-or-encoder-count'}}));
+56:  // Register the child before the adopting parent so each mesh is disposed once.
+57:  const rotation=host.add(new VisualJoint({id:item.rotation,label:`CH${number} knob rotation`,position:[0,y,spec.knob.baseZ],axis:[0,0,1],continuous:true,meta:{channel:number,axisEvidence:'Official U153 EC11A rotary encoder; cap axis normal to front shell',demoRpmMax:60,scope:'no-quadrature-or-numeric-value'}}));
+58:  rotation.adopt(press.object3d);
+59:  return {press,rotation};
+60: }
+61: function light(host,{number,y}){
+62:  const pipe=new THREE.Mesh(new THREE.BoxGeometry(spec.led.w,spec.led.h,spec.led.depth),materials.plastic(0x8f9b91,{roughness:.62}));pipe.position.z=-spec.led.depth/2;pipe.name=`RGB${number} recessed physical light pipe`;
+63:  const led=host.add(new Led({id:'rgb-'+number,label:number<9?`CH${number} external RGB`:'Switch external RGB',mesh:pipe,position:[spec.led.x,y,spec.led.z],radius:.45,glowSize:3,lensColor:0x8f9b91,meta:{role:'externally-driven-visual',visualLocation:number<9?'CH'+number:'switch',mapping:'Physical location only; not the schematic U1-U9 chain order',scope:'no-automatic-key-or-power-response'}}));
+64:  return led;

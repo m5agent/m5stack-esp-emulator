@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "checked_at": "2026-10-26T11:05:51.136222+00:00",
+  "saved_source_count": 19,
+  "current_production_and_test_sources_match": true,
+  "loaded_service_source_hashes_match": true,
+  "sources": [
+    {
+      "source": "platform/tools/device_service.py",
+      "expected_sha256": "81f834d2e1b5fa8ed4b88b62b2d44e8e1ddc0049010af595ca33287ee8b75969",
+      "current_sha256": "81f834d2e1b5fa8ed4b88b62b2d44e8e1ddc0049010af595ca33287ee8b75969",
+      "saved_sha256": "81f834d2e1b5fa8ed4b88b62b2d44e8e1ddc0049010af595ca33287ee8b75969",
+      "matches": true
+    },
+    {
+      "source": "platform/tools/serve.py",
+      "expected_sha256": "9479a29f83a658b14e378eff5cb49b5a26e9c75f47fe2594e745a70560e27dc3",
+      "current_sha256": "9479a29f83a658b14e378eff5cb49b5a26e9c75f47fe2594e745a70560e27dc3",
+      "saved_sha256": "9479a29f83a658b14e378eff5cb49b5a26e9c75f47fe2594e745a70560e27dc3",
+      "matches": true
+    },
+    {
+      "source": "platform/tools/frame_cache.py",
+      "expected_sha256": "2e6a119a07e9d83cbe9737a99531cea37ab61321e0a759a8d0a932ae99537073",
+      "current_sha256": "2e6a119a07e9d83cbe9737a99531cea37ab61321e0a759a8d0a932ae99537073",
+      "saved_sha256": "2e6a119a07e9d83cbe9737a99531cea37ab61321e0a759a8d0a932ae99537073",
+      "matches": true
+    },
+    {
+      "source": "platform/tools/guest_console.py",
+      "expected_sha256": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+      "current_sha256": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+      "saved_sha256": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+      "matches": true
+    },
+    {
+      "source": "platform/tools/uiflow_runtime.py",
+      "expected_sha256": "1bf19db1c75f7c3acd6462f1e59dac8d9f12f5e45da6a253a8eef3b8e23ebf0b",
+      "current_sha256": "1bf19db1c75f7c3acd6462f1e59dac8d9f12f5e45da6a253a8eef3b8e23ebf0b",
+      "saved_sha256": "1bf19db1c75f7c3acd6462f1e59dac8d9f12f5e45da6a253a8eef3b8e23ebf0b",
+      "matches": true
+    },
+    {
+      "source": "platform/tools/program_revisions.py",
+      "expected_sha256": "bcc4352623ee73743900ee2b75141ddc630b9e1712831316206005de49db40ad",
+      "current_sha256": "bcc4352623ee73743900ee2b75141ddc630b9e1712831316206005de49db40ad",
+      "saved_sha256": "bcc4352623ee73743900ee2b75141ddc630b9e1712831316206005de49db40ad",
+      "matches": true
+    },
+    {
+      "source": "platform/tools/unit_runtime.py",
+      "expected_sha256": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+      "current_sha256": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+      "saved_sha256": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199",
+      "matches": true
+    },
+    {
+      "source": "platform/web/sessions.js",
+      "expected_sha256": "3ab3c579b24608b6fad9571e5895ce2cafd4fb19355f0fa97a9320933f20abea",
+      "current_sha256": "3ab3c579b24608b6fad9571e5895ce2cafd4fb19355f0fa97a9320933f20abea",
+      "saved_sha256": "3ab3c579b24608b6fad9571e5895ce2cafd4fb19355f0fa97a9320933f20abea",
+      "matches": true
+    },
+    {
+      "source": "platform/web/sessions.html",
+      "expected_sha256": "345a0592cda94f18399f0851462918cc06084091378ad6c897b552246fad13de",
+      "current_sha256": "345a0592cda94f18399f0851462918cc06084091378ad6c897b552246fad13de",
+      "saved_sha256": "345a0592cda94f18399f0851462918cc06084091378ad6c897b552246fad13de",
+      "matches": true
+    },
+    {
+      "source": "platform/web/model-shell.js",
+      "expected_sha256": "5f1802e49412342216044ee056b292e0039edb605fbdbb34f0ff32580a2d5fa6",
+      "current_sha256": "5f1802e49412342216044ee056b292e0039edb605fbdbb34f0ff32580a2d5fa6",
+      "saved_sha256": "5f1802e49412342216044ee056b292e0039edb605fbdbb34f0ff32580a2d5fa6",
+      "matches": true
+    },
+    {
+      "source": "platform/web/three-device-viewer.js",
+      "expected_sha256": "4dfc936622da7d79b0be3ec92b95884c7574edafdff2ba23e1f7549c4e773517",
+      "current_sha256": "4dfc936622da7d79b0be3ec92b95884c7574edafdff2ba23e1f7549c4e773517",
+      "saved_sha256": "4dfc936622da7d79b0be3ec92b95884c7574edafdff2ba23e1f7549c4e773517",
+      "matches": true
+    },
+    {
+      "source": "platform/web/device-shell-factory.js",
+      "expected_sha256": "563089fb6fd537d35442561b108f5df7d86e6b9fa8157fcd8b45cb77526cafa9",
+      "current_sha256": "563089fb6fd537d35442561b108f5df7d86e6b9fa8157fcd8b45cb77526cafa9",
+      "saved_sha256": "563089fb6fd537d35442561b108f5df7d86e6b9fa8157fcd8b45cb77526cafa9",
+      "matches": true
+    },
+    {
+      "source": "platform/tests/test_frame_cache.py",
+      "expected_sha256": "a52e199e74c860f5dd17813c77abcadf11c85eda30923a493a6f79cbdbbb9365",
+      "current_sha256": "a52e199e74c860f5dd17813c77abcadf11c85eda30923a493a6f79cbdbbb9365",
+      "saved_sha256": "a52e199e74c860f5dd17813c77abcadf11c85eda30923a493a6f79cbdbbb9365",
+      "matches": true
+    },
+    {
+      "source": "platform/tests/test_device_frame_preview.py",
+      "expected_sha256": "7535745b63cb8883e71ef2405514ab3a7784312808efae33340467de687116be",
+      "current_sha256": "7535745b63cb8883e71ef2405514ab3a7784312808efae33340467de687116be",
+      "saved_sha256": "7535745b63cb8883e71ef2405514ab3a7784312808efae33340467de687116be",
+      "matches": true
+    },
+    {
+      "source": "platform/tests/test_frame_preview.mjs",
+      "expected_sha256": "424af2651dfef37bc2e3d4391400e101292a84f225483a2aa5cda104474207ad",
+      "current_sha256": "424af2651dfef37bc2e3d4391400e101292a84f225483a2aa5cda104474207ad",
+      "saved_sha256": "424af2651dfef37bc2e3d4391400e101292a84f225483a2aa5cda104474207ad",
+      "matches": true
+    },
+    {
+      "source": "platform/tests/test_live_program_service_browser.mjs",
+      "expected_sha256": "6b7a046a51b54db52161efd5358e1920ccb0af0926efdc4f72abca577aee4551",
+      "current_sha256": "6b7a046a51b54db52161efd5358e1920ccb0af0926efdc4f72abca577aee4551",
+      "saved_sha256": "6b7a046a51b54db52161efd5358e1920ccb0af0926efdc4f72abca577aee4551",
+      "matches": true
+    },
+    {
+      "source": "tests/units/run_live_unit_batch.py",
+      "expected_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "current_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "saved_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+      "matches": true
+    },
+    {
+      "source": "tests/units/test_live_unit_batch.py",
+      "expected_sha256": "cf16b87bd8a5d826d5495e755a694985a5d8b2e17fbff4987e2a0e996551495c",
+      "current_sha256": "cf16b87bd8a5d826d5495e755a694985a5d8b2e17fbff4987e2a0e996551495c",
+      "saved_sha256": "cf16b87bd8a5d826d5495e755a694985a5d8b2e17fbff4987e2a0e996551495c",
+      "matches": true
+    },
+    {
+      "source": "tests/units/run_frame_preview.py",
+      "expected_sha256": "f0b209d8edbe40cd8dfc4e2bc4572d039818be16041800b41d4db305ff6beea6",
+      "current_sha256": "f0b209d8edbe40cd8dfc4e2bc4572d039818be16041800b41d4db305ff6beea6",
+      "saved_sha256": "f0b209d8edbe40cd8dfc4e2bc4572d039818be16041800b41d4db305ff6beea6",
+      "matches": true
+    }
+  ],
+  "loaded_service_pid": 45439,
+  "loaded_service_generation": 20,
+  "post_platform_format_only_change": {
+    "path": "platform/tests/test_device_frame_preview.py",
+    "kind": "format-only",
+    "change": "Removed one redundant EOF blank line; all prior bytes and executable statements unchanged. Production and guest code unchanged.",
+    "before_sha256": "cdfa9660fbaee05eec960802bf12af37d8ca883e99e56d2320528230c0bc6e0e",
+    "after_sha256": "7535745b63cb8883e71ef2405514ab3a7784312808efae33340467de687116be",
+    "validation": {
+      "status": "PASS",
+      "tests": 9,
+      "log": "verification/frame-preview-format-final.txt"
+    }
+  }
+}

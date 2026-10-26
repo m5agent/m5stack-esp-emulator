@@ -49,6 +49,7 @@ from ble_runtime_limits import (  # noqa: E402
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
 from uiflow_source import UIFlowSourceError, build_uiflow_source_image  # noqa: E402
 from program_revisions import ProgramRevisionStore, RevisionError  # noqa: E402
+from frame_cache import CaptureResult, FrameCache, FrameGenerationChanged  # noqa: E402
 from uiflow_runtime import (  # noqa: E402
     ExecutionStateScanner, LIVE_PROGRAM_DEVICES, LIVE_READY_MARKER,
     UIFlowRuntimeError, live_bootstrap_files, run_source,
@@ -3074,6 +3075,8 @@ class DeviceSession:
         self._purged_snapshot: dict | None = None
         self._provision_error: str | None = None
         self._last_frame_persisted_at = 0.0
+        self._preview_frames = FrameCache()
+        self._frame_epoch = 0
         self.unified_frame_changed: bool | None = None
         self.events: list[dict] = [dict(event) for event in (events or [])]
         self.restored = restored
@@ -4213,7 +4216,7 @@ class DeviceSession:
                     probe_log.encode()
                 ).hexdigest(),
                 "frame": {
-                    key: value for key, value in frame.items() if key != "png"
+                    key: value for key, value in frame.items() if key not in {"png", "captured_monotonic"}
                 },
                 "rmt": {
                     "bytes": len(rmt_bytes),
@@ -6127,7 +6130,7 @@ class DeviceSession:
                         {
                             key: value
                             for key, value in last_frame.items()
-                            if key != "png"
+                            if key not in {"png", "captured_monotonic"}
                         }
                         if last_frame
                         else None
@@ -6266,6 +6269,7 @@ class DeviceSession:
                     "execution_mode": "same-guest-uart-repl", "cleanup_mode": "interrupt-only",
                     "serial_offset": console.offset(),
                 }
+                self._preview_frames.invalidate()
                 self._persist_program()
                 self._record_event("program_submitted", **self._program)
 
@@ -6310,6 +6314,48 @@ class DeviceSession:
         finally:
             self._program_lock.release()
 
+    def _frame_generation(self) -> tuple:
+        with self._lock:
+            return (self.state, self._stop_event.is_set(), self.pid,
+                    self.process_start_token, self._frame_epoch,
+                    self._proc.poll() if self._proc is not None else None,
+                    self._program.get("execution_id") if self._program else None)
+
+    def preview_frame(self, max_age_ms: int) -> dict:
+        """Opt-in shared sample. Ordinary frame/evidence captures remain fresh."""
+        if self.runtime == "tab5" or self.runtime == "network":
+            raise ServiceError("frame_preview_not_available", "shared preview capture is currently admitted for QEMU runtimes only; omit max_age_ms for the existing backend capture", 409)
+        generation = self._frame_generation()
+        if generation[1] and generation[0] not in {"stopped", "failed"}:
+            raise ServiceError("session_stopping", "session is stopping; wait for retained history", 409)
+
+        def capture():
+            metrics = self.frame_metrics(analyze=False)
+            return CaptureResult(
+                png=metrics["png"], width=metrics["width"], height=metrics["height"],
+                source=metrics.get("source", "live"), captured_at=metrics.get("captured_at"),
+                captured_monotonic=metrics.get("captured_monotonic"),
+                execution_id=metrics.get("execution_id"), revision_id=metrics.get("revision_id"),
+                program_state=metrics.get("program_state"),
+            )
+
+        try:
+            sample = self._preview_frames.get(
+                capture, generation=generation, max_age_ms=max_age_ms,
+                is_current=lambda value: self._frame_generation() == value,
+            )
+        except FrameGenerationChanged as error:
+            raise ServiceError("frame_generation_changed", "session changed during frame capture; request its current frame", 409) from error
+        return sample.as_dict()
+
+    def _frame_program_context(self) -> dict:
+        # This labels the execution current during capture, not application
+        # readiness or an atomic snapshot with separately sampled Unit state.
+        program = self._program or {}
+        return {"execution_id": program.get("execution_id"),
+                "revision_id": program.get("revision_id"),
+                "program_state": program.get("state")}
+
     def frame_metrics(
         self, *, analyze: bool = True, force_persist: bool = False
     ) -> dict:
@@ -6319,18 +6365,21 @@ class DeviceSession:
                 "this device has no framebuffer display",
                 409,
             )
-        if self.state not in {"running", "booting"}:
-            persisted = self.persisted_frame_metrics()
-            if persisted:
-                return persisted
-            raise ServiceError(
-                "session_not_running", f"session state is {self.state}", 409
-            )
         with self._lock:
+            if self.state not in {"running", "booting"}:
+                persisted = self.persisted_frame_metrics()
+                if persisted:
+                    return persisted
+                raise ServiceError(
+                    "session_not_running", f"session state is {self.state}", 409
+                )
             ppm = self.dir / f"frame-{uuid.uuid4().hex}.ppm"
             png = ppm.with_suffix(".png")
             try:
                 self._qmp_call("screendump", filename=str(ppm))
+                captured_at = iso_now()
+                captured_monotonic = time.monotonic()
+                program_context = self._frame_program_context()
                 width, height, pixels = read_ppm(ppm)
                 write_rgb_png(png, width, height, pixels)
                 png_bytes = png.read_bytes()
@@ -6340,6 +6389,9 @@ class DeviceSession:
                     "height": height,
                     "png_bytes": len(png_bytes),
                     "source": "live",
+                    "captured_at": captured_at,
+                    "captured_monotonic": captured_monotonic,
+                    **program_context,
                 }
                 if analyze:
                     nonblack, unique_colors = rgb_metrics(pixels)
@@ -6353,38 +6405,40 @@ class DeviceSession:
                 png.unlink(missing_ok=True)
 
     def _persist_frame(self, metrics: dict) -> None:
-        self.last_frame_path.write_bytes(metrics["png"])
-        self.last_frame_meta_path.write_text(
-            json.dumps(
-                {
-                    key: value
-                    for key, value in metrics.items()
-                    if key != "png"
-                }
-                | {"captured_at": iso_now()},
-                ensure_ascii=False,
-                indent=2,
+        with self._lock:
+            self.last_frame_path.write_bytes(metrics["png"])
+            self.last_frame_meta_path.write_text(
+                json.dumps(
+                    {
+                        key: value
+                        for key, value in metrics.items()
+                        if key not in {"png", "captured_monotonic"}
+                    }
+                    | {"captured_at": metrics.get("captured_at") or iso_now()},
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                + "\n"
             )
-            + "\n"
-        )
-        self._last_frame_persisted_at = time.monotonic()
+            self._last_frame_persisted_at = time.monotonic()
 
     def persisted_frame_metrics(self) -> dict | None:
-        if not self.last_frame_path.is_file():
-            return None
-        meta = {}
-        if self.last_frame_meta_path.is_file():
-            try:
-                meta = json.loads(self.last_frame_meta_path.read_text())
-            except json.JSONDecodeError:
-                meta = {}
-        png = self.last_frame_path.read_bytes()
-        return {
-            **meta,
-            "png": png,
-            "png_bytes": len(png),
-            "source": "persisted",
-        }
+        with self._lock:
+            if not self.last_frame_path.is_file():
+                return None
+            meta = {}
+            if self.last_frame_meta_path.is_file():
+                try:
+                    meta = json.loads(self.last_frame_meta_path.read_text())
+                except json.JSONDecodeError:
+                    meta = {}
+            png = self.last_frame_path.read_bytes()
+            return {
+                **meta,
+                "png": png,
+                "png_bytes": len(png),
+                "source": "persisted",
+            }
 
     def frame_png(self) -> tuple[bytes, int, int]:
         metrics = self.frame_metrics(analyze=False)
@@ -7074,7 +7128,7 @@ class DeviceSession:
                 frame = self.frame_metrics()
                 files["frames/current.png"] = frame["png"]
                 manifest["frame"] = {
-                    key: value for key, value in frame.items() if key != "png"
+                    key: value for key, value in frame.items() if key not in {"png", "captured_monotonic"}
                 }
             except ServiceError as error:
                 manifest["frame"] = {"status": "NOT_AVAILABLE", "reason": error.message}
@@ -7247,6 +7301,8 @@ class DeviceSession:
                 raise ServiceError("program_busy", "a program transfer owns the console", 409)
         try:
             with self._lock:
+                self._frame_epoch += 1
+                self._preview_frames.invalidate()
                 self._qmp_call("system_reset")
                 if self.program_transport and self._program:
                     self._program.update(state="interrupted", interrupted_at=iso_now())
@@ -7444,6 +7500,7 @@ class DeviceSession:
     ) -> dict:
         with self._stop_request_lock:
             self._stop_event.set()
+            self._preview_frames.invalidate()
             previous = (self._stop_purge, self._stop_retain_flash)
             self._stop_purge = self._stop_purge or purge
             retain = (

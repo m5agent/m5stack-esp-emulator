@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-26`.
 
-Status: local MVP with unified-device runtime contract `1.37.0` and bounded
+Status: local MVP with unified-device runtime contract `1.38.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -18,7 +18,9 @@ source revision identities. Source is limited to 64 KiB UTF-8; submissions requi
 `expected_execution_id` (null initially). Cleanup is interrupt-only: native module,
 timer, callback and thread state is not guaranteed to reset. See the
 [Unit Agent API](unit-agent-api.md) for initialization and exact boundaries;
-Preview orchestration, SSE and shared frame producers remain future work.
+Preview orchestration and SSE remain future work. QEMU readers can explicitly
+share demand-driven frame samples with `max_age_ms` and conditional GET; this
+does not create a background stream or an AIFlow consumer integration.
 The mode rejects uploaded firmware/source-pin parameters and incompatible
 runtime/readiness settings. Existing caller-prepared firmware sessions can
 still opt into `program_transport="uart-repl"` explicitly; this lower-level
@@ -2093,7 +2095,44 @@ curl -sS \
 ```
 
 The response headers include `X-Frame-Width`, `X-Frame-Height` and
-`X-Frame-SHA256`. The Live Sessions page polls active framebuffers independently
+`X-Frame-SHA256`. With no `max_age_ms` (or zero), every request retains the
+fresh capture path, even when `If-None-Match` is sent. Evidence, readiness and
+stop also capture directly. QEMU clients may opt into shared preview sampling:
+
+```bash
+curl -sS -D /tmp/m5-frame-headers.txt \
+  'http://127.0.0.1:8787/api/v1/sessions/<session-id>/frame.png?max_age_ms=125' \
+  -o /tmp/m5-frame.png
+```
+
+`max_age_ms` accepts an integer from 1 to 1000. The cache is per session,
+demand-driven and single-flight: callers share one successful sample/capture
+inside the requested age; no background frame worker or SSE is implied. TTL
+starts at source capture, so PNG encoding does not extend it. A slow capture
+can already be older than the reuse window when delivered; this parameter is
+not a guest-to-browser latency guarantee. Failures do not return an older
+successful frame. Program replacement, reset, stop and process identity changes
+invalidate prior reuse. Tab5 and network sessions reject shared preview with
+`frame_preview_not_available`; their existing default capture behavior remains.
+
+Opt-in replies add quoted PNG SHA256 `ETag`, `X-Frame-Captured-At`,
+`X-Frame-Capture-Seq` and `X-Frame-Source` (`live` or `persisted`). When recorded,
+they also carry `X-Frame-Execution-ID`, `X-Frame-Revision-ID` and
+`X-Frame-Program-State`. These label the execution current during capture;
+they do not prove application readiness or atomic sampling with Unit/serial
+state. Cache hits retain the original timestamp/context. A stopped session
+returns retained history with its old timestamp; unknown legacy fields stay
+absent. The sequence counts preview samples published by this process,
+including re-read history; it is neither guest draws nor all fresh API captures.
+Internal monotonic TTL clocks are excluded from JSON, persisted metadata and ZIPs.
+
+Send the previous `ETag` as `If-None-Match` on the opt-in URL. Matching pixels
+return 304 with no body and the current sample metadata headers, even when a
+new execution produces identical pixels. Retain the displayed blob on 304 and
+process its metadata separately. Headers are CORS-exposed; conditional access
+keeps existing Bearer authorization and does not enable disk caching.
+
+The Live Sessions page uses 125 ms shared sampling for QEMU and polls active framebuffers independently
 from session metadata, targets about 8 FPS, and skips texture updates when the
 frame hash is unchanged. For a recently stopped session it returns the persisted
 last-known frame.

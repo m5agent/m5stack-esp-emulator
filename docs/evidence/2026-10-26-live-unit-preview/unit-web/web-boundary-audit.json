@@ -1,0 +1,595 @@
+{
+  "schema_version": 1,
+  "status": "PARTIAL",
+  "captured_at": "2026-10-26T10:46:32.210148+00:00",
+  "scope": "Real DOM Unit input -> same guest original drivers -> QOM -> actual product DOM/model observations. Encoder/8Encoder 3D LED and rotation bindings are absent.",
+  "functional_status": "PASS",
+  "full_3d_animation_status": "NOT ACHIEVED",
+  "hardware": "NOT RUN",
+  "cases": [
+    {
+      "group": "sensors",
+      "session_id": "31b6e9b0f49b4a6481a1da2603629d0c",
+      "functional_status": "PASS",
+      "api_report_sha256": "9316653565a6113411c33ca778cba3a3f93ceb8d9c74b4b537e1adf9a81110c9",
+      "bridge_report_sha256": "22f570ef4f6acae0a7b09802b0babf6d411378373f8874366eda64cb2b55bcb1",
+      "runtime_provenance_sha256": "2d1fde0f2d85babdbf7748af1a91fb883428bde51cd278141ff9898f491232aa",
+      "programs": 5,
+      "input_vectors": 12,
+      "actual_unit_input_post_count": 36,
+      "actual_unit_get_count": 108,
+      "dom_model_snapshots": 29,
+      "evidence": {
+        "members": 26,
+        "sha256": "208934ab9eec2d83f1e55c06bafbc8f6ed0aeb7c0afdc0f8a8c587a077e7858b",
+        "member_index_verified": true
+      },
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "history_retained": true
+      },
+      "screenshots": [
+        {
+          "path": "sensors/bridge/31b6e9b0f49b4a6481a1da2603629d0c/028-before-evidence.png",
+          "sha256": "86a6797621717f4139418286f455017c131ebc97a94e65ed0977dc1f00c5633b",
+          "size": [
+            980,
+            3457
+          ],
+          "phase": "before-evidence"
+        }
+      ],
+      "actual_3d_led_output_status": "NOT APPLICABLE"
+    },
+    {
+      "group": "controls",
+      "session_id": "2585ebdc177e4a17b9a0f54bf05333dc",
+      "functional_status": "PASS",
+      "api_report_sha256": "eb90f17f65f6d3c33dece3173d5fed60cee08cdcb0cdc8f7cd9ee67c756a7265",
+      "bridge_report_sha256": "a398f51533e57f322d3372e62de8b7276a31bdb4b8bdd5308f9acb15a2629c77",
+      "runtime_provenance_sha256": "51e21441dfd935f53de6914ba135bb5f3ce654069e5e0392e0edd61eee63081a",
+      "programs": 5,
+      "input_vectors": 12,
+      "actual_unit_input_post_count": 56,
+      "actual_unit_get_count": 60,
+      "dom_model_snapshots": 29,
+      "evidence": {
+        "members": 26,
+        "sha256": "fb6a39ca3a94618d49699748b3b35c97613623516671367f467c66b9a529336a",
+        "member_index_verified": true
+      },
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "history_retained": true
+      },
+      "screenshots": [
+        {
+          "path": "controls/bridge/2585ebdc177e4a17b9a0f54bf05333dc/028-before-evidence.png",
+          "sha256": "14df387ea9f6816509cf5b3f7acb459aabcc86614f7526514dfc205328dea183",
+          "size": [
+            980,
+            3707
+          ],
+          "phase": "before-evidence"
+        }
+      ],
+      "actual_3d_led_output_status": "NOT REFLECTING GUEST: bindings absent; model LEDs remain default/off",
+      "actual_3d_joint_output_status": "NOT REFLECTING COUNTERS: all rotations remain angleDeg=0",
+      "led_phases": [
+        {
+          "version": "A",
+          "units": [
+            {
+              "instance": "encoder",
+              "qom_rgb": [
+                1122867,
+                2241348
+              ],
+              "dom_rgb": [
+                "LED[0] #112233",
+                "LED[1] #223344"
+              ],
+              "dom_rgb_matches_qom": true,
+              "verified_led_visual_commands": 0,
+              "actual_led_component_states": [
+                {
+                  "path": "grove/grove-1/led0",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-1/led1",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                }
+              ]
+            },
+            {
+              "instance": "eight",
+              "qom_rgb": [
+                66051,
+                132102,
+                198153,
+                264204,
+                330255,
+                396306,
+                462357,
+                528408,
+                1648953
+              ],
+              "dom_rgb": [
+                "LED[0] #010203",
+                "LED[1] #020406",
+                "LED[2] #030609",
+                "LED[3] #04080c",
+                "LED[4] #050a0f",
+                "LED[5] #060c12",
+                "LED[6] #070e15",
+                "LED[7] #081018",
+                "LED[8] #192939"
+              ],
+              "dom_rgb_matches_qom": true,
+              "verified_led_visual_commands": 0,
+              "actual_led_component_states": [
+                {
+                  "path": "grove/grove-2/rgb-1",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-2",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-3",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-4",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-5",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-6",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-7",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-8",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-9",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "version": "B",
+          "units": [
+            {
+              "instance": "encoder",
+              "qom_rgb": [
+                3368601,
+                6724044
+              ],
+              "dom_rgb": [
+                "LED[0] #336699",
+                "LED[1] #6699cc"
+              ],
+              "dom_rgb_matches_qom": true,
+              "verified_led_visual_commands": 0,
+              "actual_led_component_states": [
+                {
+                  "path": "grove/grove-1/led0",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-1/led1",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                }
+              ]
+            },
+            {
+              "instance": "eight",
+              "qom_rgb": [
+                198153,
+                396306,
+                594459,
+                792612,
+                990765,
+                1188918,
+                1387071,
+                1585224,
+                4946859
+              ],
+              "dom_rgb": [
+                "LED[0] #030609",
+                "LED[1] #060c12",
+                "LED[2] #09121b",
+                "LED[3] #0c1824",
+                "LED[4] #0f1e2d",
+                "LED[5] #122436",
+                "LED[6] #152a3f",
+                "LED[7] #183048",
+                "LED[8] #4b7bab"
+              ],
+              "dom_rgb_matches_qom": true,
+              "verified_led_visual_commands": 0,
+              "actual_led_component_states": [
+                {
+                  "path": "grove/grove-2/rgb-1",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-2",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-3",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-4",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-5",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-6",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-7",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-8",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                },
+                {
+                  "path": "grove/grove-2/rgb-9",
+                  "kind": "led",
+                  "state": {
+                    "color": "#ff2020",
+                    "brightness": 0
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "final_joint_states": [
+        {
+          "instance": "encoder",
+          "counters": 32767,
+          "joints": [
+            {
+              "path": "grove/grove-1/rotation",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            }
+          ]
+        },
+        {
+          "instance": "eight",
+          "counters": [
+            -17,
+            42,
+            -300,
+            400,
+            -500,
+            600,
+            -700,
+            800
+          ],
+          "joints": [
+            {
+              "path": "grove/grove-2/rotation-1",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            },
+            {
+              "path": "grove/grove-2/rotation-2",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            },
+            {
+              "path": "grove/grove-2/rotation-3",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            },
+            {
+              "path": "grove/grove-2/rotation-4",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            },
+            {
+              "path": "grove/grove-2/rotation-5",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            },
+            {
+              "path": "grove/grove-2/rotation-6",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            },
+            {
+              "path": "grove/grove-2/rotation-7",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            },
+            {
+              "path": "grove/grove-2/rotation-8",
+              "kind": "joint",
+              "state": {
+                "angleDeg": 0,
+                "targetAngleDeg": 0,
+                "rpm": 0,
+                "transitioning": false,
+                "mode": "continuous",
+                "continuous": true,
+                "rangeDeg": null,
+                "visualRangeDeg": null,
+                "demoRpmMax": 60
+              }
+            }
+          ]
+        }
+      ],
+      "button_feedback_commands_verified": {
+        "hub1": 0,
+        "encoder": 1,
+        "eight": 8,
+        "joystick": 0
+      }
+    }
+  ],
+  "active_sessions": [],
+  "source_snapshot_comparison": {
+    "platform/web/sessions.js": {
+      "observed_web_sha256": "3ab3c579b24608b6fad9571e5895ce2cafd4fb19355f0fa97a9320933f20abea",
+      "current_sha256": "3ab3c579b24608b6fad9571e5895ce2cafd4fb19355f0fa97a9320933f20abea",
+      "matches": true
+    },
+    "platform/web/sessions.html": {
+      "observed_web_sha256": "345a0592cda94f18399f0851462918cc06084091378ad6c897b552246fad13de",
+      "current_sha256": "345a0592cda94f18399f0851462918cc06084091378ad6c897b552246fad13de",
+      "matches": true
+    },
+    "platform/web/unit-panel.js": {
+      "observed_web_sha256": "f26a8179150c6b5ed7457b77a0324fcd883d30842f3b0f9262ea61277b0e70b5",
+      "current_sha256": "f26a8179150c6b5ed7457b77a0324fcd883d30842f3b0f9262ea61277b0e70b5",
+      "matches": true
+    },
+    "platform/web/unit-panel.css": {
+      "observed_web_sha256": "3b85b78e8c2389d680343e5c8af1c48ed35a75294a164c2a0e0aa528c949e36a",
+      "current_sha256": "3b85b78e8c2389d680343e5c8af1c48ed35a75294a164c2a0e0aa528c949e36a",
+      "matches": true
+    },
+    "platform/web/unit-visual-mappings.js": {
+      "observed_web_sha256": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+      "current_sha256": "878edec2ea3ca6f4390f5e41a7df218f8cd64323cccb6916306feced9b3954b4",
+      "matches": true
+    },
+    "platform/web/unit-annotations.js": {
+      "observed_web_sha256": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "current_sha256": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "matches": true
+    },
+    "platform/web/unit-assembly-layout.js": {
+      "observed_web_sha256": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+      "current_sha256": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+      "matches": true
+    },
+    "platform/web/model-shell.js": {
+      "observed_web_sha256": "5f1802e49412342216044ee056b292e0039edb605fbdbb34f0ff32580a2d5fa6",
+      "current_sha256": "5f1802e49412342216044ee056b292e0039edb605fbdbb34f0ff32580a2d5fa6",
+      "matches": true
+    },
+    "platform/web/device-shell-factory.js": {
+      "observed_web_sha256": "563089fb6fd537d35442561b108f5df7d86e6b9fa8157fcd8b45cb77526cafa9",
+      "current_sha256": "563089fb6fd537d35442561b108f5df7d86e6b9fa8157fcd8b45cb77526cafa9",
+      "matches": true
+    },
+    "platform/tests/unit_web_bridge.mjs": {
+      "observed_web_sha256": "2cf7a92aabbfc0af21f0d5278f4b74a898eba44676b83195fec78612675650e0",
+      "current_sha256": "2cf7a92aabbfc0af21f0d5278f4b74a898eba44676b83195fec78612675650e0",
+      "matches": true
+    },
+    "tests/units/web_ui_bridge.py": {
+      "observed_web_sha256": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+      "current_sha256": "d35fbbc5b1754110f1ad20fe8f3c47f6bb9202399d04d2ac75a8cb429b9ebfc8",
+      "matches": true
+    },
+    "tests/units/run_service_cases.py": {
+      "observed_web_sha256": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+      "current_sha256": "0e28929b4f62988f5df79a5b13f8413dad7bbea415da7f7259fb913c0a9d3e5b",
+      "matches": true
+    }
+  },
+  "runner_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+  "service_receipt_sha256": "0fe592679687cf93156226a410dd94340cbd229f6ea7d37e1c2ac99dd313c624",
+  "totals": {
+    "programs": 10,
+    "input_vectors": 24,
+    "actual_unit_input_posts": 92,
+    "actual_unit_gets": 168,
+    "dom_model_snapshots": 58,
+    "owned_active_sessions": 0
+  }
+}

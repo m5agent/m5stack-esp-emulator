@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "checked_at": "2026-10-26T11:06:32.989951+00:00",
+  "records_scanned": 763,
+  "binary_images_skipped": 46,
+  "coverage": "All final archive files and decompressed ZIP members except this generated report and the final root SHA256SUMS. UART bytes decoded with UTF-8 replacement so binary raw-paste control bytes do not skip serial scanning. PNG/JPEG/WebP pixels are excluded; ZIP paths/CRC/binary firmware exclusions are independently checked in zip-index.",
+  "rules": [
+    "private_key",
+    "credential_assignment",
+    "bearer_token",
+    "provider_key",
+    "private_endpoint",
+    "mac_address"
+  ],
+  "classified": [
+    {
+      "path": "sources/platform__tests__test_frame_preview.mjs.txt",
+      "member": "",
+      "rule": "bearer_token",
+      "count": 1,
+      "lines": [
+        119
+      ],
+      "reason": "Explicit browser-test fixture token in pinned test source; not an account credential."
+    },
+    {
+      "path": "sources/platform__tools__device_service.py.txt",
+      "member": "",
+      "rule": "private_endpoint",
+      "count": 9,
+      "lines": [
+        362,
+        380,
+        687,
+        695,
+        696,
+        716,
+        5674,
+        5785,
+        5790
+      ],
+      "reason": "Public QEMU SLiRP fixture literals in the source pinned by source-snapshot and loaded-service receipt."
+    },
+    {
+      "path": "units/loaded-sources/device_service.py.txt",
+      "member": "",
+      "rule": "private_endpoint",
+      "count": 9,
+      "lines": [
+        362,
+        380,
+        687,
+        695,
+        696,
+        716,
+        5674,
+        5785,
+        5790
+      ],
+      "reason": "Public QEMU SLiRP fixture literals in the source pinned by source-snapshot and loaded-service receipt."
+    }
+  ],
+  "unresolved": []
+}

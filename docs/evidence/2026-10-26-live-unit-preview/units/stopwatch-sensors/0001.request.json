@@ -1,0 +1,47 @@
+{
+  "device_id": "stopwatch",
+  "runtime": "qemu",
+  "program_mode": "uiflow-live",
+  "ttl_seconds": 600,
+  "ready_timeout_seconds": 40,
+  "units": [
+    {
+      "id": "hub1",
+      "unit_id": "hub",
+      "port_id": "port-a"
+    },
+    {
+      "id": "env",
+      "unit_id": "env-iii",
+      "parent_id": "hub1",
+      "port_id": "grove-1",
+      "initial": {
+        "temperature-c": 25,
+        "humidity-pct": 50,
+        "pressure-pa": 101325
+      }
+    },
+    {
+      "id": "ncir",
+      "unit_id": "ncir",
+      "parent_id": "hub1",
+      "port_id": "grove-2",
+      "initial": {
+        "ambient-c": 25,
+        "object-c": 32
+      }
+    },
+    {
+      "id": "tvoc",
+      "unit_id": "tvoc",
+      "parent_id": "hub1",
+      "port_id": "grove-3",
+      "initial": {
+        "eco2-ppm": 800,
+        "tvoc-ppb": 40,
+        "raw-h2": 21000,
+        "raw-ethanol": 22000
+      }
+    }
+  ]
+}

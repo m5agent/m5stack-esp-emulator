@@ -251,11 +251,11 @@ export class ModelDeviceShell {
     return true;
   }
 
-  async setImage(image, sequence = this.frameSeq + 1) {
-    if (!this.display || this.disposed) return false;
+  async setImage(image, sequence = this.frameSeq + 1, commitGuard = () => true) {
+    if (!this.display || this.disposed || !commitGuard()) return false;
     const bitmap = await createImageBitmap(image);
     try {
-      if (this.disposed) return false;
+      if (this.disposed || !commitGuard()) return false;
       const rotated = this.display.meta.nativeRasterRotation === 90 && bitmap.width === this.display.height && bitmap.height === this.display.width;
       if (!rotated && (bitmap.width !== this.display.width || bitmap.height !== this.display.height)) {
         this.showOverlay('Framebuffer mismatch', `收到 ${bitmap.width}×${bitmap.height}，面板为 ${this.display.width}×${this.display.height}`);

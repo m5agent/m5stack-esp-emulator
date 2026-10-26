@@ -1,0 +1,47 @@
+import sys
+import time
+import json
+import M5
+from machine import I2C, Pin
+from unit import ENVUnit, NCIRUnit, TVOCUnit
+assert '/m5-live-batch-8d67214274604ae88cb215ccf3244678' in sys.path, "MicroPython VM was reset"
+M5.begin()
+screen = M5.Display
+screen.setBrightness(255)
+screen.fillScreen(16777215)
+screen.setFont(screen.FONTS.Montserrat12)
+screen.setTextSize(1)
+screen.setTextColor(0, 16777215)
+x, y = (96, 120) if screen.width() > 400 else (4, 4)
+screen.setCursor(x, y)
+screen.print('A sensors')
+bus = I2C(0, scl=Pin(11), sda=Pin(10), freq=100000)
+scan = sorted(bus.scan())
+assert scan == [68, 88, 90, 112], "HUB address set differs or onboard bus leaked"
+env = ENVUnit(i2c=bus, type=3)
+ncir = NCIRUnit(bus)
+tvoc = TVOCUnit(bus)
+# SGP30 returns its fixed 400ppm/0ppb output during real IAQ initialization.
+for _second in range(16):
+ M5.update()
+ print("LIVE_BATCH_WARMUP", _second)
+ time.sleep_ms(1000)
+
+print('LIVE_BATCH_A_SENSORS_READY', json.dumps(scan))
+while True:
+ M5.update()
+ iaq = tvoc.measure_iaq()
+ raw = tvoc.measure_raw()
+ values = {
+  "env": {"temperature-c": env.read_temperature(), "humidity-pct": env.read_humidity(), "pressure-pa": env.read_pressure() * 100},
+  "ncir": {"ambient-c": ncir.get_ambient_temperature(), "object-c": ncir.get_object_temperature()},
+  "tvoc": {"eco2-ppm": iaq[0], "tvoc-ppb": iaq[1], "raw-h2": raw[0], "raw-ethanol": raw[1]},
+ }
+ lines = ["ENV %.1fC %.0f%%" % (values["env"]["temperature-c"], values["env"]["humidity-pct"]),
+          "NCIR %.1fC" % values["ncir"]["object-c"], "TVOC %d ppb" % iaq[1]]
+ print('LIVE_BATCH_A_SENSORS_SAMPLE', json.dumps(values))
+ screen.fillRect(x, y + 18, min(120, screen.width() - x), 54, 16777215)
+ for row, text in enumerate(lines):
+  screen.setCursor(x, y + 18 + row * 18)
+  screen.print(text)
+ time.sleep_ms(1000)

@@ -1,0 +1,32 @@
+Source: official M5Unit-8Encoder-Internal-FW@1b3074078e07c46d144e328867996babe151cbbf/8encoder/Core/Src/ws2812.c
+Full source SHA256: b616daed25b609c44c0ddb6f2b73304e2c59431175ab2577cee7f790e5fc4a21
+Only the indicated source lines are reproduced.
+
+53: 
+54: void sk6812_init(uint8_t num) {
+55:     color_buf = (uint32_t *)calloc(num, sizeof(uint32_t));
+56: }
+57: 
+58: void neopixel_set_color(uint8_t num, uint32_t color) {
+59:     rled[num]      = (color >> 16) & 0xff;
+60:     gled[num]      = (color >> 8) & 0xff;
+61:     bled[num]      = color & 0xff;
+62:     color_buf[num] = color;
+63: }
+64: 
+65: void ws2812_show(void) {
+66:     uint8_t i, j;
+67: 
+68:     for (i = 0; i < PIXEL_MAX; i++) {
+69:         for (j = 0; j < 8; j++) {  // G->R->B
+70:             frame.data[24 * i + j] =
+71:                 (gled[i] & (0x80 >> j)) ? BIT_1 : BIT_0;  // 将高低位扩展到16bit
+72:             frame.data[24 * i + j + 8] =
+73:                 (rled[i] & (0x80 >> j)) ? BIT_1 : BIT_0;
+74:             frame.data[24 * i + j + 16] =
+75:                 (bled[i] & (0x80 >> j)) ? BIT_1 : BIT_0;
+76:         }
+77:     }
+78: 
+79:     HAL_TIM_PWM_Start_DMA(&htim3, TIM_CHANNEL_3, (uint32_t *)&frame,
+80:                           3 + 24 * PIXEL_MAX + WS2812_RESET_SLOTS);

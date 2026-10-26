@@ -12,21 +12,22 @@
 
 ## 一页结论
 
-UIFlow 实时编程已增加 `program_mode=uiflow-live` 与同 guest `/program`：首次准备
-UART REPL 后，源码在原 MicroPython VM 中传输、编译和运行，不重复刷固件。
-CoreS3/AtomS3R/StickS3/StopWatch × PIR/Relay 八会话、40次提交的预期结果通过，
-已验证同 PID/固件/VM、原驱动、应用帧、无限循环替换及 SyntaxError 恢复。
-真实 CoreS3 Web 编辑器两例另验证输入/输出、实际帧像素送达屏幕和错误恢复。
-证据见[同 guest Web 与四主机](evidence/2026-10-26-live-program-web-and-hosts/README.md)及[Agent 指南](unit-agent-api.md)。
-其它 Unit、多文件/资源、二进制 `.mpy` 与保存开机程序仍开放；interrupt-only不保证清空 native/定时器/IRQ/线程，断流/重连缺口保持 unknown。
-启动取消已有生命周期事务、pending确认与自动收尾、停止意图版本、Network
-child 收据及 draining 所有权门禁；其它后端实际同场景执行不继承宿主回归。
-拟定 Preview 编排、实时分发与共享帧缓存仍未实现，门禁见
-[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)，取消证据见
-[取消回归](evidence/2026-10-26-session-cancellation-f309/README.md)。Unit客户端另已修复旧请求/队列及装配跨session污染，离线browser回归与旧源码
-负控见[响应隔离](evidence/2026-10-26-preview-client-fencing/README.md)；不建立多客户端
-server快照全序。程序执行 API 可供 Agent 调用；AIFlow 完整 checkpoint 与虚拟
-执行目标的实际集成尚未验收。
+UIFlow 的 `program_mode=uiflow-live` 与 `/program` 在原 MicroPython VM 传输、
+编译、运行和替换源码，首次准备 UART REPL 后不重复刷固件。四款准入主机的
+PIR/Relay 已验证同 PID/固件/VM、原驱动、应用帧、循环替换与 SyntaxError 恢复。
+真实 CoreS3 Web 编辑器另验证双向输入/输出和实际帧像素送达屏幕，见[既有程序证据](evidence/2026-10-26-live-program-web-and-hosts/README.md)。
+CoreS3/AtomS3R/StickS3/StopWatch 的 HUB 下 ENV III/NCIR/TVOC 与
+Encoder/8Encoder/Joystick v1.1 已验证同 guest 原驱动、独立leaf输入、I2C/QOM和guest LED写回，见[本轮证据](evidence/2026-10-26-live-unit-preview/README.md)。
+QEMU 新增显式 `max_age_ms=1..1000` 的按需共享帧样本和 ETag/304；默认 GET、
+evidence、wait 与 stop 仍采集新帧。无后台采样或固定FPS保证，Tab5/network不继承。
+时间与程序身份冻结于真实采集，preview样本序号不代表guest重绘或与Unit状态的原子快照；真实CoreS3的条件请求、程序/重置失效、历史和导出边界已验收。
+独立有界帧请求与owner/decode隔离、CoreS3 PIR/Relay共享帧与双向控制已验；六leaf另有CoreS3真实网页输入/DOM读回，Encoder/8Encoder的3D灯与旋转仍缺确认binding（UNIT-HOST-29），不称完整动画PASS。
+其它 Unit、多文件/资源、二进制 `.mpy`、保存开机、Preview/Run、SSE 与 AIFlow
+checkpoint/虚拟目标接入仍开放，见[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。
+interrupt-only 不保证清空 native/定时器/IRQ/线程，断流/重连缺口保持 unknown。
+启动取消已有生命周期事务、pending自动收尾、停止意图版本、Network child收据和draining所有权门禁，见[取消回归](evidence/2026-10-26-session-cancellation-f309/README.md)。
+Unit客户端旧请求/队列和装配污染已有[响应隔离](evidence/2026-10-26-preview-client-fencing/README.md)；
+本客户端隔离不建立多客户端server快照全序，其它后端现场执行不继承宿主回归。
 
 项目已经不是单固件 PoC，而是可执行的多设备 virtual-device 平台：
 

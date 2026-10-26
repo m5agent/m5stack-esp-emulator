@@ -1,0 +1,4 @@
+{
+  "source": "import M5\nimport time\nM5.begin()\nM5.Display.setBrightness(255)\nM5.Display.fillScreen(16777215)\nM5.Display.setTextColor(0)\nM5.Display.setTextSize(2)\nM5.Display.setCursor(5, 5)\nM5.Display.print(\"PREVIEW A\")\nprint(\"FRAME_PREVIEW_A_READY\")\nwhile True:\n M5.update()\n time.sleep_ms(25)\n",
+  "expected_execution_id": null
+}

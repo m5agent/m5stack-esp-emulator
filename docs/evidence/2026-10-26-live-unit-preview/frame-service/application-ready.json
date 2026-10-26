@@ -1,0 +1,185 @@
+{
+  "session_id": "586e63ec364c41d78bb80507e9c9e530",
+  "device_id": "cores3",
+  "state": "running",
+  "pid": 45632,
+  "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "firmware_source": "uploaded",
+  "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+  "source_artifacts": [
+    "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+  ],
+  "program_transport": "uart-repl",
+  "program": {
+    "execution_id": "ce3ef614246841d8844362b595112393",
+    "revision_id": "200addfbf05e45c4ab304ff17242f5d2e3c445205af6ccb9d7238db5742a61b9",
+    "source_sha256": "81f81c598576998de7c0011469db28e4efe9ab26b24f363e95c213fde053902a",
+    "source_bytes": 280,
+    "state": "running",
+    "submitted_at": "2026-10-26T10:28:18.855419+00:00",
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "pid": 45632,
+    "execution_mode": "same-guest-uart-repl",
+    "cleanup_mode": "interrupt-only",
+    "serial_offset": 491,
+    "next_offset": 552,
+    "acknowledged": true,
+    "transfer_mode": "raw-paste",
+    "observed_at": "2026-10-26T10:28:19.082630+00:00"
+  },
+  "firmware_provenance": {
+    "kind": "uiflow",
+    "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+    "metadata": {
+      "schema_version": 1,
+      "kind": "uiflow2-source-composition",
+      "status": "COMPOSED_NOT_EXECUTED",
+      "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+      "entrypoint": "main.py",
+      "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+      "base_size": 16121856,
+      "flash_size": 16777216,
+      "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+      "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+      "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+      "files": [
+        {
+          "path": "boot.py",
+          "size": 245,
+          "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+          "origin": "caller"
+        },
+        {
+          "path": "main.py",
+          "size": 5,
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+          "origin": "caller"
+        }
+      ],
+      "caller_file_count": 2,
+      "caller_source_bytes": 250,
+      "generated_files": [],
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "vfs": {
+        "label": "vfs",
+        "type": 1,
+        "subtype": 129,
+        "flags": 0,
+        "offset": 11141120,
+        "size": 4980736,
+        "partition_table_offset": 32768,
+        "source": "actual-base-partition-table",
+        "filesystem": "LittleFS",
+        "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+        "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+        "base_disk_version": 131072,
+        "derived_disk_version": 131073
+      },
+      "preservation": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "toolchain": {
+        "builder": "uiflow_source/1",
+        "python": "3.12.8",
+        "python_abi": "cpython-312",
+        "littlefs_python": "0.19.0",
+        "littlefs_library": "(2, 11)",
+        "littlefs_disk": "(2, 1)",
+        "config": {
+          "block_size": 4096,
+          "read_size": 128,
+          "prog_size": 32,
+          "lookahead_size": 128,
+          "block_cycles": 100
+        }
+      }
+    }
+  },
+  "runtime_env": {},
+  "runtime": "qemu",
+  "runtime_memory": {
+    "requested_psram_mib": null,
+    "cli_requested_psram_mib": null,
+    "effective_psram_mib": null,
+    "effective_source": "qemu-cli-request",
+    "policy": "not-configured",
+    "claim": "qemu-memory-configuration-only",
+    "physical_cache_psram_timing": "NOT RUN"
+  },
+  "network": null,
+  "storage": null,
+  "units": [],
+  "nvs": null,
+  "flash": {
+    "transport": "cache",
+    "verified": true,
+    "flash_size": 16777216,
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "session_isolated_copy": true
+  },
+  "flash_retained": true,
+  "serial_bytes": 577,
+  "created_at": "2026-10-26T10:28:16.375740+00:00",
+  "expires_at": "2026-10-26T10:33:16.375743+00:00",
+  "error": null,
+  "display": {
+    "driver": "ILI9342C / ILI9342E",
+    "width": 320,
+    "height": 240,
+    "shape": "rect",
+    "touch": true
+  },
+  "display_available": true,
+  "last_frame_available": true,
+  "last_frame_captured_at": "2026-10-26T10:28:19.199439+00:00",
+  "device_state_supported": true,
+  "last_device_state_available": false,
+  "last_device_state_at": null,
+  "completed_at": null,
+  "event_count": 12,
+  "restored": false,
+  "interrupted": false,
+  "reattached_process": false,
+  "recovery_scope": null,
+  "companions": {
+    "http_fixture": {
+      "required": false
+    },
+    "ble_probe": {
+      "required": false
+    }
+  },
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 20,
+    "lease_active": true
+  },
+  "ready": true,
+  "ready_reason": [
+    "frame_nonblank"
+  ],
+  "serial_markers": [],
+  "first_serial_at": null,
+  "first_frame_at": "2026-10-26T10:28:19.215136+00:00",
+  "frame": {
+    "width": 320,
+    "height": 240,
+    "png_bytes": 753,
+    "source": "live",
+    "captured_at": "2026-10-26T10:28:19.206238+00:00",
+    "execution_id": "ce3ef614246841d8844362b595112393",
+    "revision_id": "200addfbf05e45c4ab304ff17242f5d2e3c445205af6ccb9d7238db5742a61b9",
+    "program_state": "running",
+    "nonblack_pixels": 75432,
+    "unique_colors": 1
+  }
+}

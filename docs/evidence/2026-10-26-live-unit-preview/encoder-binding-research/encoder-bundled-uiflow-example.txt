@@ -1,0 +1,25 @@
+Source: uiflow2-coder bundled official docs/unit/encoder.md; local snapshot, upstream URL not independently retrieved in this audit
+Full source SHA256: 1d1c547487467694a3a8c7430fa7a0c8d3cc4c450569021c41b83398f83d2ddf
+Only the indicated source lines are reproduced.
+
+31: small_radius = None
+32: 
+33: # Describe this function...
+34: def move_small_circle():
+35:     global \
+36:         angle, \
+37:         x, \
+38:         y, \
+39:         direction, \
+40:         big_radius, \
+41:         small_radius, \
+42:         title0, \
+43:         circle0, \
+44:         circle1, \
+45:         circle2, \
+46:         label0, \
+47:         i2c0, \
+48:         encoder_0
+49:     angle = ((encoder_0.get_rotary_value()) / 58) * 360
+50:     x = big_radius * math.cos(angle / 180.0 * math.pi)
+51:     y = big_radius * math.sin(angle / 180.0 * math.pi)

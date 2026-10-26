@@ -1,0 +1,1679 @@
+{
+  "category": "virtual-device-live-program-browser",
+  "status": "PASS",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "hardware_validation": "NOT RUN",
+  "captured_at": "2026-10-26T10:32:27.182Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "3ab3c579b24608b6fad9571e5895ce2cafd4fb19355f0fa97a9320933f20abea",
+    "platform/web/sessions.html": "345a0592cda94f18399f0851462918cc06084091378ad6c897b552246fad13de",
+    "platform/web/program-panel.js": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+    "platform/web/program-panel.css": "0a9a8ce32a02fa962ca6d569b1d779275dd2d5b17f79595f3cb9bb91cd4add9a",
+    "platform/web/unit-panel.js": "f26a8179150c6b5ed7457b77a0324fcd883d30842f3b0f9262ea61277b0e70b5",
+    "platform/web/model-shell.js": "5f1802e49412342216044ee056b292e0039edb605fbdbb34f0ff32580a2d5fa6",
+    "platform/web/vendor/m5stack-models/vendor-manifest.json": "a26ae90cd9f4eef4c1379cc513911650253ef226070629d8001185a38dd5386a",
+    "platform/tests/test_live_program_service_browser.mjs": "6b7a046a51b54db52161efd5358e1920ccb0af0926efdc4f72abca577aee4551"
+  },
+  "instrumentation": "Only window.__liveProgramProbe={state,SessionVisual}; product methods and API data remain unchanged.",
+  "cases": [
+    {
+      "unit_id": "pir",
+      "checks": {
+        "web_input_to_same_guest_gpio_and_driver": true,
+        "actual_web_uses_shared_frame_metadata": true,
+        "actual_guest_frame_updates_web_model_display": true,
+        "syntax_error_dom_status_and_serial": true,
+        "ui_replaces_program_without_reflash_or_process_change": true,
+        "syntax_error_visible_and_recoverable": true,
+        "evidence_before_stop_and_retained_history": true
+      },
+      "submissions": [
+        {
+          "request": {
+            "source": "import M5\nimport time\nM5.begin()\nfrom unit import PIRUnit\nunit = PIRUnit((1, 2))\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0xFFFFFF)\nscreen.setTextSize(2)\nscreen.setTextColor(0)\nprint(\"WEB_A_READY\")\nprevious=None\nwhile True:\n M5.update()\n value=int(unit.get_status())\n if value!=previous:\n  print(\"WEB_A_PIR\",value)\n  screen.fillRect(0,0,128,90,0xFFFFFF)\n  screen.setCursor(4,4)\n  screen.print(\"WEB A\")\n  screen.setCursor(4,32)\n  screen.print(\"PIR \"+str(value))\n  previous=value\n time.sleep_ms(25)\n",
+            "expected_execution_id": null
+          },
+          "response": {
+            "session_id": "b22114225b8d46899f82b9ab5e46b93f",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "486b2d94247c4702b044b6dcb36a3886",
+              "revision_id": "f4946bca797d6fe87e4d0dbe4a42424949f00527a74ced313b9c28c5c6f64259",
+              "source_sha256": "7cc4efb9f71585c0681eb19e8f5b0cfecb290aed1336c71fb212633fa2571d6e",
+              "source_bytes": 518,
+              "state": "running",
+              "submitted_at": "2026-10-26T10:32:50.593352+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 47082,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 491,
+              "next_offset": 556,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:32:50.876655+00:00"
+            },
+            "history_error": null
+          }
+        },
+        {
+          "request": {
+            "source": "import M5\nimport time\nM5.begin()\nfrom unit import PIRUnit\nunit = PIRUnit((1, 2))\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0x88FF88)\nscreen.setTextSize(2)\nscreen.setTextColor(0)\nprint(\"WEB_B_READY\")\nprevious=None\nwhile True:\n M5.update()\n value=int(unit.get_status())\n if value!=previous:\n  print(\"WEB_B_PIR\",value)\n  screen.fillRect(0,0,128,90,0x88FF88)\n  screen.setCursor(4,4)\n  screen.print(\"WEB B\")\n  screen.setCursor(4,32)\n  screen.print(\"PIR \"+str(value))\n  previous=value\n time.sleep_ms(25)\n",
+            "expected_execution_id": "486b2d94247c4702b044b6dcb36a3886"
+          },
+          "response": {
+            "session_id": "b22114225b8d46899f82b9ab5e46b93f",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "dc2a01dbc4e946fcada5b746f481cd74",
+              "revision_id": "cf9761744b4ce3fe709cb10e043a58ce5ca3412b770b6043080f8bb051d18973",
+              "source_sha256": "206e2cb8f3c114c54f2283837b1d37c406aab51021f661b41da3557253c59216",
+              "source_bytes": 518,
+              "state": "running",
+              "submitted_at": "2026-10-26T10:32:53.194665+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 47082,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 856,
+              "next_offset": 919,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:32:53.476222+00:00"
+            },
+            "history_error": null
+          }
+        },
+        {
+          "request": {
+            "source": "def broken(:\n",
+            "expected_execution_id": "dc2a01dbc4e946fcada5b746f481cd74"
+          },
+          "response": {
+            "session_id": "b22114225b8d46899f82b9ab5e46b93f",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "7e7216c21a9a485093c0919953e96e23",
+              "revision_id": "ee6d99b65e348c103d6778bd3190b53180c45507d77744c6c6cea65514d338cf",
+              "source_sha256": "4803f262333502d83e1bed493d5e97cafb0d615e19b67a3b20548cb06c9b6299",
+              "source_bytes": 13,
+              "state": "failed",
+              "submitted_at": "2026-10-26T10:32:53.760088+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 47082,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 1195,
+              "next_offset": 1414,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:32:53.945642+00:00"
+            },
+            "history_error": null
+          }
+        },
+        {
+          "request": {
+            "source": "print(\"WEB_RECOVERED\")\n",
+            "expected_execution_id": "7e7216c21a9a485093c0919953e96e23"
+          },
+          "response": {
+            "session_id": "b22114225b8d46899f82b9ab5e46b93f",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "413e3a5c10ec4406966da2ec066c9fc8",
+              "revision_id": "01e8cb7dba6e95ed2a0b4f88b58217a7e1b2261aa051c937f48f98740aa545e7",
+              "source_sha256": "3671b7577b432ad18d79fc8ec6eaaf4fb09e47d886b994f8012adad8eb61a6c3",
+              "source_bytes": 23,
+              "state": "completed",
+              "submitted_at": "2026-10-26T10:32:54.493456+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 47082,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 1446,
+              "next_offset": 1505,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:32:54.684184+00:00"
+            },
+            "history_error": null
+          }
+        }
+      ],
+      "unit_posts": [
+        {
+          "id": "external1",
+          "values": {
+            "motion": true
+          }
+        },
+        {
+          "id": "external1",
+          "values": {
+            "motion": false
+          }
+        },
+        {
+          "id": "external1",
+          "values": {
+            "motion": true
+          }
+        },
+        {
+          "id": "external1",
+          "values": {
+            "motion": false
+          }
+        }
+      ],
+      "creation_request": {
+        "device_id": "cores3",
+        "ttl_seconds": 600,
+        "program_mode": "uiflow-live",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a"
+          }
+        ]
+      },
+      "creation_response": {
+        "session_id": "b22114225b8d46899f82b9ab5e46b93f",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_artifacts": [
+          "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+        ],
+        "program_transport": "uart-repl",
+        "program": null,
+        "firmware_provenance": {
+          "kind": "uiflow",
+          "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "metadata": {
+            "schema_version": 1,
+            "kind": "uiflow2-source-composition",
+            "status": "COMPOSED_NOT_EXECUTED",
+            "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+            "entrypoint": "main.py",
+            "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+            "base_size": 16121856,
+            "flash_size": 16777216,
+            "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+            "files": [
+              {
+                "path": "boot.py",
+                "size": 245,
+                "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+                "origin": "caller"
+              },
+              {
+                "path": "main.py",
+                "size": 5,
+                "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+                "origin": "caller"
+              }
+            ],
+            "caller_file_count": 2,
+            "caller_source_bytes": 250,
+            "generated_files": [],
+            "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+            "vfs": {
+              "label": "vfs",
+              "type": 1,
+              "subtype": 129,
+              "flags": 0,
+              "offset": 11141120,
+              "size": 4980736,
+              "partition_table_offset": 32768,
+              "source": "actual-base-partition-table",
+              "filesystem": "LittleFS",
+              "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+              "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+              "base_disk_version": 131072,
+              "derived_disk_version": 131073
+            },
+            "preservation": {
+              "base_file_count": 17,
+              "preserved_file_count": 15,
+              "overwritten_files": [
+                "boot.py",
+                "main.py"
+              ],
+              "outside_vfs_unchanged": true,
+              "existing_files_readback_verified": true,
+              "source_readback_verified": true
+            },
+            "toolchain": {
+              "builder": "uiflow_source/1",
+              "python": "3.12.8",
+              "python_abi": "cpython-312",
+              "littlefs_python": "0.19.0",
+              "littlefs_library": "(2, 11)",
+              "littlefs_disk": "(2, 1)",
+              "config": {
+                "block_size": 4096,
+                "read_size": 128,
+                "prog_size": 32,
+                "lookahead_size": 128,
+                "block_cycles": 100
+              }
+            }
+          }
+        },
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T10:32:41.959238+00:00",
+        "expires_at": "2026-10-26T10:42:41.959241+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 20,
+          "lease_active": true
+        },
+        "idempotent_replay": false
+      },
+      "session_id": "b22114225b8d46899f82b9ab5e46b93f",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 47082,
+      "runtime_identity": {
+        "pid": 47082,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff"
+      },
+      "frame_a_corner_rgb": [
+        255,
+        255,
+        255
+      ],
+      "frame_b_corner_rgb": [
+        139,
+        255,
+        139
+      ],
+      "web_preview": {
+        "etag": "\"e56d8383f5824a89c4a732b69cdbd838a2e14ec8bb66d0484a994e5adbb14939\"",
+        "metadata": {
+          "x-frame-capture-seq": "28",
+          "x-frame-captured-at": "2026-10-26T10:32:53.708480+00:00",
+          "x-frame-execution-id": "dc2a01dbc4e946fcada5b746f481cd74",
+          "x-frame-height": "240",
+          "x-frame-program-state": "running",
+          "x-frame-revision-id": "cf9761744b4ce3fe709cb10e043a58ce5ca3412b770b6043080f8bb051d18973",
+          "x-frame-sha256": "e56d8383f5824a89c4a732b69cdbd838a2e14ec8bb66d0484a994e5adbb14939",
+          "x-frame-source": "live",
+          "x-frame-width": "320"
+        }
+      },
+      "syntax_error_status_text": "执行失败",
+      "evidence_sha256": "efd23275df2c085bc49274e5c9b37253baf7516b952716fcf773eabd263ea410",
+      "stopped": {
+        "session_id": "b22114225b8d46899f82b9ab5e46b93f",
+        "device_id": "cores3",
+        "state": "stopped",
+        "pid": 47082,
+        "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_artifacts": [
+          "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+        ],
+        "program_transport": "uart-repl",
+        "program": {
+          "execution_id": "413e3a5c10ec4406966da2ec066c9fc8",
+          "revision_id": "01e8cb7dba6e95ed2a0b4f88b58217a7e1b2261aa051c937f48f98740aa545e7",
+          "source_sha256": "3671b7577b432ad18d79fc8ec6eaaf4fb09e47d886b994f8012adad8eb61a6c3",
+          "source_bytes": 23,
+          "state": "completed",
+          "submitted_at": "2026-10-26T10:32:54.493456+00:00",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "pid": 47082,
+          "execution_mode": "same-guest-uart-repl",
+          "cleanup_mode": "interrupt-only",
+          "serial_offset": 1446,
+          "next_offset": 1505,
+          "acknowledged": true,
+          "transfer_mode": "raw-paste",
+          "observed_at": "2026-10-26T10:32:54.684184+00:00"
+        },
+        "firmware_provenance": {
+          "kind": "uiflow",
+          "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "metadata": {
+            "schema_version": 1,
+            "kind": "uiflow2-source-composition",
+            "status": "COMPOSED_NOT_EXECUTED",
+            "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+            "entrypoint": "main.py",
+            "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+            "base_size": 16121856,
+            "flash_size": 16777216,
+            "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+            "files": [
+              {
+                "path": "boot.py",
+                "size": 245,
+                "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+                "origin": "caller"
+              },
+              {
+                "path": "main.py",
+                "size": 5,
+                "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+                "origin": "caller"
+              }
+            ],
+            "caller_file_count": 2,
+            "caller_source_bytes": 250,
+            "generated_files": [],
+            "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+            "vfs": {
+              "label": "vfs",
+              "type": 1,
+              "subtype": 129,
+              "flags": 0,
+              "offset": 11141120,
+              "size": 4980736,
+              "partition_table_offset": 32768,
+              "source": "actual-base-partition-table",
+              "filesystem": "LittleFS",
+              "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+              "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+              "base_disk_version": 131072,
+              "derived_disk_version": 131073
+            },
+            "preservation": {
+              "base_file_count": 17,
+              "preserved_file_count": 15,
+              "overwritten_files": [
+                "boot.py",
+                "main.py"
+              ],
+              "outside_vfs_unchanged": true,
+              "existing_files_readback_verified": true,
+              "source_readback_verified": true
+            },
+            "toolchain": {
+              "builder": "uiflow_source/1",
+              "python": "3.12.8",
+              "python_abi": "cpython-312",
+              "littlefs_python": "0.19.0",
+              "littlefs_library": "(2, 11)",
+              "littlefs_disk": "(2, 1)",
+              "config": {
+                "block_size": 4096,
+                "read_size": 128,
+                "prog_size": 32,
+                "lookahead_size": 128,
+                "block_cycles": 100
+              }
+            }
+          }
+        },
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": {
+          "transport": "cache",
+          "verified": true,
+          "flash_size": 16777216,
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "session_isolated_copy": true
+        },
+        "flash_retained": false,
+        "serial_bytes": 1576,
+        "created_at": "2026-10-26T10:32:41.959238+00:00",
+        "expires_at": "2026-10-26T10:42:41.959241+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": true,
+        "last_frame_captured_at": "2026-10-26T10:32:54.972182+00:00",
+        "device_state_supported": true,
+        "last_device_state_available": true,
+        "last_device_state_at": "2026-10-26T10:32:54.983302+00:00",
+        "completed_at": "2026-10-26T10:32:54.989341+00:00",
+        "event_count": 25,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 20,
+          "lease_active": false
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "unit_id": "relay",
+      "checks": {
+        "guest_relay_output_to_controller_and_web_readback": true,
+        "actual_web_uses_shared_frame_metadata": true,
+        "actual_guest_frame_updates_web_model_display": true,
+        "syntax_error_dom_status_and_serial": true,
+        "ui_replaces_program_without_reflash_or_process_change": true,
+        "syntax_error_visible_and_recoverable": true,
+        "evidence_before_stop_and_retained_history": true
+      },
+      "submissions": [
+        {
+          "request": {
+            "source": "import M5\nimport time\nM5.begin()\nfrom unit import RelayUnit\nunit = RelayUnit((1, 2))\nunit.set_status(False)\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0xFFFFFF)\nscreen.setTextSize(2)\nscreen.setTextColor(0)\nprint(\"WEB_A_READY\")\nprevious=None\nwhile True:\n M5.update()\n value=int(unit.get_status())\n if value!=previous:\n  print(\"WEB_A_RELAY\",value)\n  screen.fillRect(0,0,128,90,0xFFFFFF)\n  screen.setCursor(4,4)\n  screen.print(\"WEB A\")\n  screen.setCursor(4,32)\n  screen.print(\"RELAY \"+str(value))\n  previous=value\n time.sleep_ms(25)\n",
+            "expected_execution_id": null
+          },
+          "response": {
+            "session_id": "b543f0c6b4b145dfb552577600895b32",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "637e53e0176049a782ddc9d6ace8b75b",
+              "revision_id": "eba4c61ba390dc70abdb070a1e43bbf5df357258cddbbd4e66891c0c1d7e446f",
+              "source_sha256": "b744f20ac5d2708b6d53f560ff92df6d63bffb836f4bfbb2a7f008b964b15055",
+              "source_bytes": 549,
+              "state": "running",
+              "submitted_at": "2026-10-26T10:33:00.643606+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 47136,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 491,
+              "next_offset": 554,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:33:00.931239+00:00"
+            },
+            "history_error": null
+          }
+        },
+        {
+          "request": {
+            "source": "import M5\nimport time\nM5.begin()\nfrom unit import RelayUnit\nunit = RelayUnit((1, 2))\nunit.set_status(True)\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0x88FF88)\nscreen.setTextSize(2)\nscreen.setTextColor(0)\nprint(\"WEB_B_READY\")\nprevious=None\nwhile True:\n M5.update()\n value=int(unit.get_status())\n if value!=previous:\n  print(\"WEB_B_RELAY\",value)\n  screen.fillRect(0,0,128,90,0x88FF88)\n  screen.setCursor(4,4)\n  screen.print(\"WEB B\")\n  screen.setCursor(4,32)\n  screen.print(\"RELAY \"+str(value))\n  previous=value\n time.sleep_ms(25)\n",
+            "expected_execution_id": "637e53e0176049a782ddc9d6ace8b75b"
+          },
+          "response": {
+            "session_id": "b543f0c6b4b145dfb552577600895b32",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "a06bda4a843343f586da732ad8dbd2b5",
+              "revision_id": "cbbac555663df177f1eee4b0da64f58d99e2304bec2c60f24c1a423865a82382",
+              "source_sha256": "e4cef58455719953d4c2132c8570eb3d2abd9282e9a9054cac2ce966893fe4f0",
+              "source_bytes": 548,
+              "state": "running",
+              "submitted_at": "2026-10-26T10:33:01.192856+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 47136,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 832,
+              "next_offset": 895,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:33:01.475832+00:00"
+            },
+            "history_error": null
+          }
+        },
+        {
+          "request": {
+            "source": "def broken(:\n",
+            "expected_execution_id": "a06bda4a843343f586da732ad8dbd2b5"
+          },
+          "response": {
+            "session_id": "b543f0c6b4b145dfb552577600895b32",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "d850b3dd66fe43fcb3dc765ae5a4f59a",
+              "revision_id": "ee6d99b65e348c103d6778bd3190b53180c45507d77744c6c6cea65514d338cf",
+              "source_sha256": "4803f262333502d83e1bed493d5e97cafb0d615e19b67a3b20548cb06c9b6299",
+              "source_bytes": 13,
+              "state": "failed",
+              "submitted_at": "2026-10-26T10:33:01.742318+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 47136,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 1173,
+              "next_offset": 1392,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:33:01.926176+00:00"
+            },
+            "history_error": null
+          }
+        },
+        {
+          "request": {
+            "source": "print(\"WEB_RECOVERED\")\n",
+            "expected_execution_id": "d850b3dd66fe43fcb3dc765ae5a4f59a"
+          },
+          "response": {
+            "session_id": "b543f0c6b4b145dfb552577600895b32",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "967a4aa744bf4ead81610142093d63b2",
+              "revision_id": "01e8cb7dba6e95ed2a0b4f88b58217a7e1b2261aa051c937f48f98740aa545e7",
+              "source_sha256": "3671b7577b432ad18d79fc8ec6eaaf4fb09e47d886b994f8012adad8eb61a6c3",
+              "source_bytes": 23,
+              "state": "completed",
+              "submitted_at": "2026-10-26T10:33:02.610011+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 47136,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 1424,
+              "next_offset": 1483,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:33:02.794720+00:00"
+            },
+            "history_error": null
+          }
+        }
+      ],
+      "unit_posts": [],
+      "creation_request": {
+        "device_id": "cores3",
+        "ttl_seconds": 600,
+        "program_mode": "uiflow-live",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "relay",
+            "port_id": "port-a"
+          }
+        ]
+      },
+      "creation_response": {
+        "session_id": "b543f0c6b4b145dfb552577600895b32",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_artifacts": [
+          "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+        ],
+        "program_transport": "uart-repl",
+        "program": null,
+        "firmware_provenance": {
+          "kind": "uiflow",
+          "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "metadata": {
+            "schema_version": 1,
+            "kind": "uiflow2-source-composition",
+            "status": "COMPOSED_NOT_EXECUTED",
+            "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+            "entrypoint": "main.py",
+            "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+            "base_size": 16121856,
+            "flash_size": 16777216,
+            "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+            "files": [
+              {
+                "path": "boot.py",
+                "size": 245,
+                "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+                "origin": "caller"
+              },
+              {
+                "path": "main.py",
+                "size": 5,
+                "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+                "origin": "caller"
+              }
+            ],
+            "caller_file_count": 2,
+            "caller_source_bytes": 250,
+            "generated_files": [],
+            "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+            "vfs": {
+              "label": "vfs",
+              "type": 1,
+              "subtype": 129,
+              "flags": 0,
+              "offset": 11141120,
+              "size": 4980736,
+              "partition_table_offset": 32768,
+              "source": "actual-base-partition-table",
+              "filesystem": "LittleFS",
+              "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+              "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+              "base_disk_version": 131072,
+              "derived_disk_version": 131073
+            },
+            "preservation": {
+              "base_file_count": 17,
+              "preserved_file_count": 15,
+              "overwritten_files": [
+                "boot.py",
+                "main.py"
+              ],
+              "outside_vfs_unchanged": true,
+              "existing_files_readback_verified": true,
+              "source_readback_verified": true
+            },
+            "toolchain": {
+              "builder": "uiflow_source/1",
+              "python": "3.12.8",
+              "python_abi": "cpython-312",
+              "littlefs_python": "0.19.0",
+              "littlefs_library": "(2, 11)",
+              "littlefs_disk": "(2, 1)",
+              "config": {
+                "block_size": 4096,
+                "read_size": 128,
+                "prog_size": 32,
+                "lookahead_size": 128,
+                "block_cycles": 100
+              }
+            }
+          }
+        },
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "relay",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T10:32:55.106666+00:00",
+        "expires_at": "2026-10-26T10:42:55.106669+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 20,
+          "lease_active": true
+        },
+        "idempotent_replay": false
+      },
+      "session_id": "b543f0c6b4b145dfb552577600895b32",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 47136,
+      "runtime_identity": {
+        "pid": 47136,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff"
+      },
+      "frame_a_corner_rgb": [
+        255,
+        255,
+        255
+      ],
+      "frame_b_corner_rgb": [
+        139,
+        255,
+        139
+      ],
+      "web_preview": {
+        "etag": "\"6c52c831b3c9df407d909b7028c17d1713c226c3892fc5d8cb3f0af64b720d3c\"",
+        "metadata": {
+          "x-frame-capture-seq": "14",
+          "x-frame-captured-at": "2026-10-26T10:33:01.529761+00:00",
+          "x-frame-execution-id": "a06bda4a843343f586da732ad8dbd2b5",
+          "x-frame-height": "240",
+          "x-frame-program-state": "running",
+          "x-frame-revision-id": "cbbac555663df177f1eee4b0da64f58d99e2304bec2c60f24c1a423865a82382",
+          "x-frame-sha256": "6c52c831b3c9df407d909b7028c17d1713c226c3892fc5d8cb3f0af64b720d3c",
+          "x-frame-source": "live",
+          "x-frame-width": "320"
+        }
+      },
+      "syntax_error_status_text": "执行失败",
+      "evidence_sha256": "4df0ca5f40182c655fdc0f425131fdd20fe69e617e34625d0e4a3f8356f67cca",
+      "stopped": {
+        "session_id": "b543f0c6b4b145dfb552577600895b32",
+        "device_id": "cores3",
+        "state": "stopped",
+        "pid": 47136,
+        "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_artifacts": [
+          "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+        ],
+        "program_transport": "uart-repl",
+        "program": {
+          "execution_id": "967a4aa744bf4ead81610142093d63b2",
+          "revision_id": "01e8cb7dba6e95ed2a0b4f88b58217a7e1b2261aa051c937f48f98740aa545e7",
+          "source_sha256": "3671b7577b432ad18d79fc8ec6eaaf4fb09e47d886b994f8012adad8eb61a6c3",
+          "source_bytes": 23,
+          "state": "completed",
+          "submitted_at": "2026-10-26T10:33:02.610011+00:00",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "pid": 47136,
+          "execution_mode": "same-guest-uart-repl",
+          "cleanup_mode": "interrupt-only",
+          "serial_offset": 1424,
+          "next_offset": 1483,
+          "acknowledged": true,
+          "transfer_mode": "raw-paste",
+          "observed_at": "2026-10-26T10:33:02.794720+00:00"
+        },
+        "firmware_provenance": {
+          "kind": "uiflow",
+          "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "metadata": {
+            "schema_version": 1,
+            "kind": "uiflow2-source-composition",
+            "status": "COMPOSED_NOT_EXECUTED",
+            "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+            "entrypoint": "main.py",
+            "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+            "base_size": 16121856,
+            "flash_size": 16777216,
+            "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+            "files": [
+              {
+                "path": "boot.py",
+                "size": 245,
+                "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+                "origin": "caller"
+              },
+              {
+                "path": "main.py",
+                "size": 5,
+                "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+                "origin": "caller"
+              }
+            ],
+            "caller_file_count": 2,
+            "caller_source_bytes": 250,
+            "generated_files": [],
+            "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+            "vfs": {
+              "label": "vfs",
+              "type": 1,
+              "subtype": 129,
+              "flags": 0,
+              "offset": 11141120,
+              "size": 4980736,
+              "partition_table_offset": 32768,
+              "source": "actual-base-partition-table",
+              "filesystem": "LittleFS",
+              "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+              "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+              "base_disk_version": 131072,
+              "derived_disk_version": 131073
+            },
+            "preservation": {
+              "base_file_count": 17,
+              "preserved_file_count": 15,
+              "overwritten_files": [
+                "boot.py",
+                "main.py"
+              ],
+              "outside_vfs_unchanged": true,
+              "existing_files_readback_verified": true,
+              "source_readback_verified": true
+            },
+            "toolchain": {
+              "builder": "uiflow_source/1",
+              "python": "3.12.8",
+              "python_abi": "cpython-312",
+              "littlefs_python": "0.19.0",
+              "littlefs_library": "(2, 11)",
+              "littlefs_disk": "(2, 1)",
+              "config": {
+                "block_size": 4096,
+                "read_size": 128,
+                "prog_size": 32,
+                "lookahead_size": 128,
+                "block_cycles": 100
+              }
+            }
+          }
+        },
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "relay",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": {
+          "transport": "cache",
+          "verified": true,
+          "flash_size": 16777216,
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "session_isolated_copy": true
+        },
+        "flash_retained": false,
+        "serial_bytes": 1554,
+        "created_at": "2026-10-26T10:32:55.106666+00:00",
+        "expires_at": "2026-10-26T10:42:55.106669+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": true,
+        "last_frame_captured_at": "2026-10-26T10:33:03.083779+00:00",
+        "device_state_supported": true,
+        "last_device_state_available": true,
+        "last_device_state_at": "2026-10-26T10:33:03.095698+00:00",
+        "completed_at": "2026-10-26T10:33:03.107641+00:00",
+        "event_count": 21,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 20,
+          "lease_active": false
+        }
+      },
+      "status": "PASS"
+    }
+  ],
+  "page_errors": [],
+  "resource_errors": [],
+  "shared_frame_responses": [
+    {
+      "path": "/api/v1/sessions/b82b4c044cdb4be082d554ab61529a2f/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/e888668ae94e4c98b744ed30d48d44ec/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/ebbfbe1dcbe344e4acd25ee372732e9e/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/03ad0ff9fa2a4319ab1352e5449e2399/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/8232cafc7d6a44c380eb22576edd6579/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/4d1b54a5a6e748edbbb2ab67499aee0c/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/f829410db8d14506b631909c80dee548/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/7a9ea69d36ac49299afc026de1a45b0d/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/d071acc7901a4a4a8e305780973c05ab/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/45b1ed3104614ebc835d37c17b93d099/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/2ca905dee717483c9a45acec5107aa38/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/291bbbd55a2a4a87925c454e5fec2b3c/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/99905c88333342ad925d5738f600674b/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/33795821e1af476f8cb5b17acefd4782/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/55c8b5bcd1854b73871dd0987ff35b86/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/586e63ec364c41d78bb80507e9c9e530/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/4d7175ffb18a4a5bbc7acfe59a1d5066/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/420bed7bff4a4d1fa3e924f04746eb48/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/99be4454883f40429ea2f3bd15a9021e/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/96f5f620e5c74d32a7a8d3cd8eee1268/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/d6512a69384a41e68b579f8fa121452c/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/733b16e4049b4d44a784cdb282119bd9/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/96f5f620e5c74d32a7a8d3cd8eee1268/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/d6512a69384a41e68b579f8fa121452c/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b22114225b8d46899f82b9ab5e46b93f/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 200
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    },
+    {
+      "path": "/api/v1/sessions/b543f0c6b4b145dfb552577600895b32/frame.png",
+      "max_age_ms": 125,
+      "status": 304
+    }
+  ],
+  "browser_version": "156.0.8078.48"
+}

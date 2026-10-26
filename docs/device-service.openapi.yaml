@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.37.0
+  version: 1.38.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -1435,8 +1435,30 @@ paths:
   /sessions/{session_id}/frame.png:
     get:
       summary: Capture the current framebuffer
+      description: >
+        By default, every request captures a fresh frame (or reads retained history
+        after stop). QEMU readers may explicitly opt into a per-session shared
+        sample with max_age_ms=1..1000. Its age bounds reuse since source capture,
+        not guest-to-browser latency. It is demand-driven, with no background
+        stream. Reset, stop, process identity and program replacement invalidate
+        reuse. Captured program context is not application readiness or an atomic
+        snapshot with Unit/serial state. Tab5/network do not admit shared capture;
+        omit max_age_ms to retain their existing capture behavior.
       parameters:
         - $ref: "#/components/parameters/SessionId"
+        - name: max_age_ms
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1000
+            default: 0
+          description: Zero or omitted always uses the existing fresh capture path.
+        - name: If-None-Match
+          in: header
+          schema:
+            type: string
+          description: Only positive max_age_ms requests use conditional image reuse.
       responses:
         "200":
           description: PNG framebuffer
@@ -1447,11 +1469,48 @@ paths:
             X-Frame-Height:
               schema:
                 type: integer
+            X-Frame-SHA256:
+              schema:
+                type: string
+            ETag:
+              description: Quoted PNG SHA256; present on opt-in shared responses.
+              schema:
+                type: string
+            X-Frame-Captured-At:
+              description: Source capture time, preserved on cache hits/history; absent for unknown legacy history.
+              schema:
+                type: string
+                format: date-time
+            X-Frame-Capture-Seq:
+              description: Process-local preview sample sequence, not guest draws or a sequence of all default/fresh captures. History may be republished with a new sequence.
+              schema:
+                type: integer
+            X-Frame-Source:
+              schema:
+                type: string
+                enum: [live, persisted]
+            X-Frame-Execution-ID:
+              description: Execution current at capture, when recorded; not proof that its application has drawn.
+              schema:
+                type: string
+            X-Frame-Revision-ID:
+              schema:
+                type: string
+            X-Frame-Program-State:
+              schema:
+                type: string
           content:
             image/png:
               schema:
                 type: string
                 format: binary
+        "304":
+          description: >
+            Opt-in shared image matches If-None-Match. No body; returns the same
+            frame metadata headers as 200. Even identical pixels under a new
+            execution return that capture's new program context.
+        "400":
+          $ref: "#/components/responses/Error"
         "409":
           $ref: "#/components/responses/Error"
   /sessions/{session_id}/input:

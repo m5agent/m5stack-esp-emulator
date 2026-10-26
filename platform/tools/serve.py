@@ -216,9 +216,15 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header(
             "Access-Control-Allow-Headers",
             (
-                "Authorization, Content-Type, X-Artifact-Name, "
+                "Authorization, Content-Type, If-None-Match, X-Artifact-Name, "
                 "X-Artifact-Type, X-Chunk-Offset, X-Chunk-SHA256"
             ),
+        )
+        self.send_header(
+            "Access-Control-Expose-Headers",
+            "ETag, X-Frame-Width, X-Frame-Height, X-Frame-SHA256, "
+            "X-Frame-Captured-At, X-Frame-Capture-Seq, X-Frame-Source, "
+            "X-Frame-Execution-ID, X-Frame-Revision-ID, X-Frame-Program-State",
         )
         super().end_headers()
 
@@ -618,6 +624,36 @@ class Handler(SimpleHTTPRequestHandler):
                 and parts[2] in {"frame", "frame.png"}
             ):
                 session = service.get_session(parts[1])
+                ages = query.get("max_age_ms", ["0"])
+                if len(ages) != 1 or not 1 <= len(ages[0]) <= 4 or not ages[0].isascii() or not ages[0].isdigit() or not 0 <= int(ages[0]) <= 1000:
+                    raise ServiceError("invalid_frame_age", "max_age_ms must be an integer between 0 and 1000", 400)
+                max_age_ms = int(ages[0])
+                if max_age_ms:
+                    frame = session.preview_frame(max_age_ms)
+                    frame_headers = {
+                        "X-Request-ID": request_id,
+                        "X-Frame-Width": str(frame["width"]),
+                        "X-Frame-Height": str(frame["height"]),
+                        "X-Frame-SHA256": frame["sha256"],
+                        "X-Frame-Capture-Seq": str(frame["capture_seq"]),
+                        "X-Frame-Source": frame["source"],
+                        "ETag": '"' + frame["sha256"] + '"',
+                    }
+                    for field, header in (("captured_at", "X-Frame-Captured-At"),
+                                          ("execution_id", "X-Frame-Execution-ID"),
+                                          ("revision_id", "X-Frame-Revision-ID"),
+                                          ("program_state", "X-Frame-Program-State")):
+                        if frame.get(field) is not None:
+                            frame_headers[header] = str(frame[field])
+                    candidates = [value.strip().removeprefix("W/") for value in self.headers.get("If-None-Match", "").split(",")]
+                    if frame_headers["ETag"] in candidates or "*" in candidates:
+                        self.send_response(304)
+                        for key, value in frame_headers.items():
+                            self.send_header(key, value)
+                        self.end_headers()
+                    else:
+                        self._send_bytes(frame["png"], "image/png", extra_headers=frame_headers)
+                    return
                 png, width, height = session.frame_png()
                 self._send_bytes(
                     png,

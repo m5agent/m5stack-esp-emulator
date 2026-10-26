@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-26",
+  "category": "read-only-official-and-fixed-model-binding-research",
+  "status": "OPEN",
+  "proposed_issue_id": "UNIT-HOST-29",
+  "execution": {
+    "browser": "NOT RUN in this research",
+    "virtual_device": "NOT RUN",
+    "physical_hardware": "NOT RUN",
+    "production_code_modified": false,
+    "default_3d_behavior_changed": false
+  },
+  "scope": "LED electrical/logical index to fixed visual-model physical location; encoder raw-count to physical joint angle",
+  "known": [
+    "Encoder protocol index 0 broadcasts to both LEDs; 1/2 select the two electrical LEDs. QEMU led-rgb[0]/[1] follow those indices. This does not identify which external left/right aperture contains LED1/LED2.",
+    "Encoder fixed model led0 is front-left X=-6.8; led1 front-right X=+6.8; both Y=-10.4. Its own metadata explicitly says schematic LED1/LED2 order is unconfirmed.",
+    "8Encoder I2C RGB register 0x70+3*i feeds neopixel_set_color(i), and ws2812_show emits i in ascending order. The schematic confirms U1 -> U2 -> ... -> U9 electrical chain.",
+    "8Encoder fixed model rgb-1..rgb-8 identify physical light pipes next to CH1..CH8; rgb-9 is next to the slide switch. Model metadata explicitly excludes schematic U1-U9 ordering.",
+    "8Encoder source maps EN_S1..EN_S8 to g_counter[0]..g_counter[7]. Model press-1..press-8 and rotation-1..rotation-8 are labelled CH1..CH8. The official front photo confirms CH1 nearest Grove, CH8 nearest switch.",
+    "8Encoder AB source handles both A and B rising/falling changes, and determines signed count from the other phase. This proves phase-sequence semantics, not the installed EC11 counts per physical revolution or front-view clockwise sign.",
+    "Encoder official product says 30 pulses per revolution; the bundled official UIFlow example uses angle=(get_rotary_value()/58)*360. These are distinct source statements and do not establish one conversion.",
+    "Encoder public firmware repository tree at 4b68d8b contains one .hex plus docs/README, no C source. No .hex/ROM/firmware binary is copied into this archive."
+  ],
+  "missing": [
+    "Encoder: authoritative PCB position/BOM or same-path physical single-LED evidence connecting electrical LED1/LED2 to front-left/front-right model locations.",
+    "8Encoder: authoritative PCB placement/assembly drawing or same-path physical per-index LED evidence connecting U1-U9 chain indices to CH1-CH8/switch apertures.",
+    "For physical joint angle: exact encoder part/PPR, firmware count mode and multiplication, installed phase-to-clockwise direction, neutral/zero reference, and counter-reset versus actual shaft-motion semantics."
+  ],
+  "manual_image_review": [
+    {
+      "source": "encoder-photo-2.webp (official encoder_03.webp)",
+      "result": "Bare PCB confirms two packages beside Grove, but reviewed photograph has no readable LED1/LED2 marks or decisive routed-chain-to-location evidence."
+    },
+    {
+      "source": "8Encoder-photo-0/1/3/4/5/6/8.webp",
+      "result": "Reviewed official front/side images show CH1..CH8 physical order and nine apertures; PCB and U1-U9 placement are hidden."
+    },
+    {
+      "source": "eight-schematic.pdf; rendered for inspection only",
+      "result": "One page shows U1-U9 chain and SW1-SW8/MCU nets as circuit symbols; no PCB placement or optical-aperture mapping."
+    },
+    {
+      "source": "encoder-sch.webp",
+      "result": "Shows PA0 -> LED1 -> LED2 electrical chain; schematic component positions are not physical front-left/front-right proof."
+    }
+  ],
+  "uniform_color_fact": {
+    "proved_mathematically": true,
+    "statement": "For colors=[c,...,c], every possible unknown bijection of electrical LEDs to the fixed model light positions produces the same per-position color c. Thus uniform/all-off readback is permutation-invariant.",
+    "limit": "This does not identify any nonuniform per-channel mapping; no production mapping or 3D default is changed by this audit."
+  },
+  "closure_criteria": [
+    "Freeze and cite a per-product electrical-index-to-physical-target table from authoritative placement data or a reproducible same-driver physical per-index test.",
+    "For rotation, freeze explicit mechanical conversion/direction/zero evidence and separate counter resets from actual shaft position; add corresponding runtime and browser evidence.",
+    "Wire only the proven mapping through production UnitPanel and verify controller state -> actual 3D component state in a visible Device Service session, with asymmetric colors/channel changes as the oracle."
+  ]
+}

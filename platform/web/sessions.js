@@ -1,10 +1,11 @@
-import { createDeviceShell } from './device-shell-factory.js?v=20261026a';
+import { createDeviceShell } from './device-shell-factory.js?v=20261026b';
 import { createUnitPanel, createUnitPicker } from './unit-panel.js';
 import { createProgramPanel } from './program-panel.js';
 
 const ACTIVE_STATES = new Set(['provisioning', 'flashing', 'booting', 'running']);
 const THREE_PREVIEW_LIMIT = 4;
 const FRAME_INTERVAL_MS = 125;
+const FRAME_REQUEST_TIMEOUT_MS = 3000;
 const HIDDEN_FRAME_INTERVAL_MS = 1000;
 const CONTROL_RELEASE_TIMEOUT_MS = 5000;
 
@@ -98,6 +99,11 @@ class SessionVisual {
     this.frameBlob = null;
     this.frameUrl = null;
     this.lastFrameHash = null;
+    this.frameEtag = null;
+    this.frameMetadata = null;
+    this.frameGeneration = 0;
+    this.frameRequest = null;
+    this.frameOwnerKey = this.frameOwner();
     this.lastFrameAt = 0;
     this.lastFrameAttemptAt = 0;
     this.frameApply = Promise.resolve();
@@ -129,7 +135,20 @@ class SessionVisual {
   }
 
   updateSession(session) {
+    const owner = this.frameOwner(session);
+    if (owner !== this.frameOwnerKey) {
+      this.invalidateFrame();
+      this.releaseActiveControls();
+      this.shellGeneration += 1;
+      this.threeAttempted = false;
+      this.unitPanel?.setShell(null);
+      this.shell?.dispose();
+      this.shell = null;
+      this.container.classList.remove('is-three', 'has-frame');
+      this.container.replaceChildren();
+    }
     this.session = session;
+    this.frameOwnerKey = owner;
     this.unitPanel?.updateSession(session);
     this.programPanel?.updateSession(session);
     if (!ACTIVE_STATES.has(session.state)) this.releaseActiveControls();
@@ -137,6 +156,28 @@ class SessionVisual {
       this.placeholder = framePlaceholder(session);
       this.setMessage(this.placeholder);
     }
+    if (this.allowThree && !this.threeAttempted) {
+      this.init().catch(error => console.warn('Session preview initialization failed.', error));
+    }
+  }
+
+  frameOwner(session = this.session) {
+    return JSON.stringify([session.session_id, session.created_at, session.device_id,
+      session.firmware_sha256, session.pid]);
+  }
+
+  invalidateFrame() {
+    this.frameGeneration = (this.frameGeneration || 0) + 1;
+    this.frameRequest?.cancel();
+    this.frameRequest = null;
+    this.frameApply = Promise.resolve();
+    this.frameBlob = null;
+    this.lastFrameHash = null;
+    this.frameEtag = null;
+    this.frameMetadata = null;
+    this.lastFrameAt = this.lastFrameAttemptAt = 0;
+    if (this.frameUrl) URL.revokeObjectURL(this.frameUrl);
+    this.frameUrl = null;
   }
 
   setThreeAllowed(allowThree) {
@@ -149,6 +190,7 @@ class SessionVisual {
       this.unitPanel?.setShell(null);
       this.shell?.dispose();
       this.shell = null;
+      this.frameApply = Promise.resolve();
       this.container.classList.remove('is-three');
       if (this.frameBlob) this.setGenericFrame(this.frameBlob);
       else this.setMessage(this.placeholder);
@@ -243,38 +285,58 @@ class SessionVisual {
     this.container.innerHTML = `<span class="no-frame">${escapeHtml(message)}</span>`;
   }
 
-  setFrame(blob, hash = null) {
+  async setFrame(blob, hash = null, commitGuard = () => true) {
+    const owner = this.frameOwner();
+    const current = () => !this.destroyed && this.frameOwner() === owner && commitGuard();
+    if (!current()) return false;
+    const applied = this.shell
+      ? await this.applyThreeFrame(blob, current)
+      : await this.setGenericFrame(blob, current);
+    if (!current() || applied === false) return false;
     this.frameBlob = blob;
     this.lastFrameHash = hash;
     this.lastFrameAt = Date.now();
-    if (this.shell) return this.applyThreeFrame();
-    this.setGenericFrame(blob);
-    return Promise.resolve();
+    return true;
   }
 
-  applyThreeFrame() {
-    this.frameApply = this.frameApply
+  applyThreeFrame(blob = this.frameBlob, commitGuard = null) {
+    const shell = this.shell, owner = this.frameOwner(), generation = this.shellGeneration;
+    const current = () => !this.destroyed && this.shell === shell &&
+      this.shellGeneration === generation && this.frameOwner() === owner &&
+      (commitGuard ? commitGuard() : this.frameBlob === blob);
+    this.frameApply = (this.frameApply || Promise.resolve())
       .catch(() => {})
       .then(async () => {
-        if (this.destroyed || !this.shell || !this.frameBlob) return;
-        await this.shell.setImage(this.frameBlob);
+        if (!shell || !blob || !current()) return false;
+        const applied = await shell.setImage(blob, undefined, current);
+        return current() && applied !== false;
       });
     return this.frameApply;
   }
 
-  setGenericFrame(blob) {
-    if (this.frameUrl) URL.revokeObjectURL(this.frameUrl);
-    this.frameUrl = URL.createObjectURL(blob);
-    let image = this.container.querySelector('img.session-frame');
-    if (!image) {
-      this.container.replaceChildren();
-      image = document.createElement('img');
+  async setGenericFrame(blob, commitGuard = null) {
+    const owner = this.frameOwner();
+    const url = URL.createObjectURL(blob);
+    let committed = false;
+    try {
+      const image = document.createElement('img');
       image.className = 'session-frame';
       image.alt = `${this.session.device_id} live frame`;
-      this.container.append(image);
+      image.src = url;
+      await image.decode();
+      if (this.destroyed || this.shell || this.frameOwner() !== owner ||
+          !(commitGuard ? commitGuard() : this.frameBlob === blob)) return false;
+      if (this.frameUrl) URL.revokeObjectURL(this.frameUrl);
+      this.frameUrl = url;
+      this.container.replaceChildren(image);
+      this.container.classList.add('has-frame');
+      committed = true;
+      return true;
+    } catch {
+      return false;
+    } finally {
+      if (!committed) URL.revokeObjectURL(url);
     }
-    image.src = this.frameUrl;
-    this.container.classList.add('has-frame');
   }
 
   controlKey(id) {
@@ -304,10 +366,11 @@ class SessionVisual {
   }
 
   enqueueControl(key, action, keepalive = false) {
+    const sessionId = this.session.session_id;
     const previous = this.controlQueues.get(key) || Promise.resolve();
     const request = previous
       .catch(() => {})
-      .then(() => api(`/api/v1/sessions/${encodeURIComponent(this.session.session_id)}/input`, {
+      .then(() => api(`/api/v1/sessions/${encodeURIComponent(sessionId)}/input`, {
         method: 'POST',
         keepalive,
         headers: { 'Content-Type': 'application/json' },
@@ -331,6 +394,7 @@ class SessionVisual {
 
   destroy() {
     this.destroyed = true;
+    this.invalidateFrame();
     this.releaseActiveControls();
     this.unitPanel?.dispose();
     this.programPanel?.dispose();
@@ -616,7 +680,8 @@ async function refreshSerial(session) {
 
 async function refreshFrame(session) {
   const visual = state.visuals.get(session.session_id);
-  if (!visual) return;
+  if (!visual || visual.destroyed || visual.frameOwner(session) !== visual.frameOwner()) return;
+  if (visual.frameRequest) return;
   const active = ACTIVE_STATES.has(session.state);
   if (!active) {
     if (visual.frameBlob || Date.now() - visual.lastFrameAttemptAt < 5000) return;
@@ -624,29 +689,72 @@ async function refreshFrame(session) {
   }
   const headers = new Headers();
   if (state.token) headers.set('Authorization', `Bearer ${state.token}`);
+  // Only the QMP-backed lane owns the capture/mutation lock used by previews.
+  const preview = session.runtime === 'qemu' || session.runtime?.startsWith('qemu-');
+  if (preview && visual.frameEtag && visual.frameBlob) headers.set('If-None-Match', visual.frameEtag);
+  const owner = visual.frameOwner(), generation = ++visual.frameGeneration;
+  const controller = new AbortController();
+  let cancel;
+  const cancelled = new Promise(resolve => { cancel = resolve; });
+  const request = {
+    cancelled: false,
+    cancel() {
+      if (this.cancelled) return;
+      this.cancelled = true;
+      controller.abort();
+      // A decoder cannot be aborted. Let the next request proceed, while its
+      // old commit guard prevents any eventual draw into the current owner.
+      if (visual.frameRequest === this) visual.frameApply = Promise.resolve();
+      cancel();
+    },
+  };
+  visual.frameRequest = request;
+  const current = () => !request.cancelled && !visual.destroyed &&
+    state.visuals.get(session.session_id) === visual && visual.frameOwner() === owner &&
+    visual.frameRequest === request && visual.frameGeneration === generation;
+  const timer = setTimeout(() => request.cancel(), FRAME_REQUEST_TIMEOUT_MS);
   try {
-    const response = await fetch(
-      `/api/v1/sessions/${encodeURIComponent(session.session_id)}/frame.png?t=${Date.now()}`,
-      { headers }
-    );
-    if (!response.ok) throw new Error(`frame ${response.status}`);
-    const hash = response.headers.get('X-Frame-SHA256');
-    if (hash && hash === visual.lastFrameHash) return;
-    await visual.setFrame(await response.blob(), hash);
+    await Promise.race([cancelled, (async () => {
+      const query = preview ? `max_age_ms=${FRAME_INTERVAL_MS}` : `t=${Date.now()}`;
+      const response = await fetch(
+        `/api/v1/sessions/${encodeURIComponent(session.session_id)}/frame.png?${query}`,
+        { headers, signal: controller.signal, cache: 'no-store' }
+      );
+      if (!current()) return;
+      const metadata = Object.fromEntries([...response.headers].filter(([name]) => name.startsWith('x-frame-')));
+      if (response.status === 304) {
+        if (preview && visual.frameBlob && headers.has('If-None-Match')) visual.frameMetadata = metadata;
+        return;
+      }
+      if (!response.ok) throw new Error(`frame ${response.status}`);
+      const blob = await response.blob();
+      if (!current()) return;
+      const applied = await visual.setFrame(blob, response.headers.get('X-Frame-SHA256'), current);
+      if (!current() || !applied) return;
+      // Capture context is informational, including executions started by an
+      // external agent. It is not an application-ready acknowledgement.
+      visual.frameMetadata = metadata;
+      visual.frameEtag = preview ? response.headers.get('ETag') : null;
+    })()]);
   } catch {
-    if (!visual.frameBlob) visual.setMessage(framePlaceholder(session));
+    if (current() && !visual.frameBlob) visual.setMessage(framePlaceholder(visual.session));
+  } finally {
+    clearTimeout(timer);
+    if (visual.frameRequest === request) visual.frameRequest = null;
   }
 }
 
 function startFrameLoop() {
   if (state.frameLoopStarted) return;
   state.frameLoopStarted = true;
-  const tick = async () => {
+  const tick = () => {
     const started = performance.now();
     const frameSessions = state.sessions.filter(
       session => ACTIVE_STATES.has(session.state) || session.last_frame_available
     );
-    await Promise.allSettled(frameSessions.map(refreshFrame));
+    // Each visual has one bounded request. A slow guest never delays another
+    // guest's next frame or starts overlapping requests for its own screen.
+    for (const session of frameSessions) void refreshFrame(session);
     const interval = document.hidden ? HIDDEN_FRAME_INTERVAL_MS : FRAME_INTERVAL_MS;
     const elapsed = performance.now() - started;
     setTimeout(tick, Math.max(16, interval - elapsed));

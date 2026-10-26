@@ -1,6 +1,6 @@
 # 外部 Agent：UIFlow 实时编程与 Unit 会话
 
-日期：`2026-10-26`。API 契约：`1.37.0`。
+日期：`2026-10-26`。API 契约：`1.38.0`。
 
 实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
 串口及 Unit 状态”的路径。每次改源码调用 `/sessions/{id}/program`，不重刷
@@ -67,7 +67,9 @@ Ctrl-C 中断并通过 raw REPL 执行，不保证清空 native 模块、定时�
 
 Unit 仍在创建 session 时接线；运行期间通过现有 `unit-input`、`units`、
 `serial`、`frame.png` 观察同一 guest 的控制器与应用效果。当前尚无运行中热插拔、
-Preview 编排、SSE 或共享帧生产者，也没有 AIFlow 前后端接入的验收结论。
+Preview 编排或 SSE，也没有 AIFlow 前后端接入的验收结论。QEMU 画面已增加显式
+`frame.png?max_age_ms=125` 的按需共享采样与 ETag/304；默认无参数仍直接采新帧。
+采集时间/程序身份是该帧的观察上下文，不等于应用 READY 或与 Unit 原子采样。
 可复现的四款主机同 guest/PIR、Relay/屏幕/程序异常恢复探针见
 [`run_live_program.py`](../tests/units/run_live_program.py)，以 Device Service
 创建可见 session，停止前取证，停止后保留历史。
@@ -80,6 +82,37 @@ CoreS3 另有真实网页创建、输入、程序替换、画面进入模型屏�
 每 session 最多保留 256 次 execution；当前服务级 revision 存储上限 256，额度
 耗尽返回明确错误，不自动删除历史或重跑未知提交。服务重连期间可能丢失串口输出，
 原活跃程序保持 unknown，不能仅根据旧 START 恢复 running。
+
+## 多 Unit 的同设备连续程序
+
+四款准入主机现分别验证了两组被动 HUB 装配：ENV III + NCIR + TVOC，以及
+Encoder + 8Encoder + Joystick v1.1。每组创建一次会话，A/B 两段源码在同一
+guest 中分别验证三片叶子的输入与原驱动读回；编码器组另核对 LED 输出。
+精确固件、串口窗口、控制器与源码见
+[多 Unit 与共享预览证据](evidence/2026-10-26-live-unit-preview/README.md)。
+
+CoreS3 传感器组可直接这样装配，后续通过同一个 `/program` 接口连续编程：
+
+```json
+{"device_id":"cores3","program_mode":"uiflow-live","units":[
+  {"id":"hub1","unit_id":"hub","port_id":"port-a"},
+  {"id":"env","unit_id":"env-iii","parent_id":"hub1","port_id":"grove-1"},
+  {"id":"ncir","unit_id":"ncir","parent_id":"hub1","port_id":"grove-2"},
+  {"id":"tvoc","unit_id":"tvoc","parent_id":"hub1","port_id":"grove-3"}
+]}
+```
+
+HUB 共享真实 I2C 总线；从返回的冻结白黄 GPIO 创建 `machine.I2C`，使用固件自带
+`ENVUnit`、`NCIRUnit`、`TVOCUnit`，不再上传替代驱动。源码与可重放探针见
+[`run_live_unit_batch.py`](../tests/units/run_live_unit_batch.py)，使用 `--device`
+及 `--group sensors|controls`，只有 `--execute` 才执行。TVOC 每次重新构造会
+进入真实 IAQ 初始化，探针等待16秒；这是传感器模型行为，不是代码下发延迟。
+温度、压力、气体和编码器输入是显式虚拟 fixture；反馈由 guest 真实驱动经过
+控制器读写获得，不代表外部物理测量或传感器完整化学/生理模型。
+
+被动 HUB 不提供地址复用；相同 I2C 地址不能同挂，也不支持任意 GPIO/UART
+并联。其它主机先从 `/units?device_id=...` 选其确认端口，不能照搬 CoreS3 的
+端口或 GPIO。新 Scroll/Roller485 仍只有外壳，不在功能附件准入中。
 
 ## 首次初始化与兼容固件流程
 

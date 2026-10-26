@@ -20,11 +20,11 @@ function genericShell(host, device) {
     }));
     return on(type, callback);
   };
-  shell.setImage = async (image, sequence = shell.frameSeq + 1) => {
-    if (disposed || !shell.canvas) return false;
+  shell.setImage = async (image, sequence = shell.frameSeq + 1, commitGuard = () => true) => {
+    if (disposed || !shell.canvas || !commitGuard()) return false;
     const bitmap = await createImageBitmap(image);
     try {
-      if (disposed) return false;
+      if (disposed || !commitGuard()) return false;
       shell.canvas.width = bitmap.width;
       shell.canvas.height = bitmap.height;
       shell.canvas.getContext('2d').drawImage(bitmap, 0, 0);

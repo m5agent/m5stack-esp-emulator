@@ -1,3 +1,5 @@
 # Unified patches encode empty context lines as a single leading space.
 *.patch whitespace=-blank-at-eol,-space-before-tab,-blank-at-eof
 platform/web/vendor/** whitespace=-blank-at-eol,-space-before-tab,-blank-at-eof
+# Line-numbered official-source extracts retain upstream trailing whitespace.
+docs/evidence/2026-10-26-live-unit-preview/encoder-binding-research/*.txt whitespace=-blank-at-eol

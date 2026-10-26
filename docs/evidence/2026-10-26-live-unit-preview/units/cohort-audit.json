@@ -1,0 +1,329 @@
+{
+  "status": "PASS",
+  "captured_at": "2026-10-26T10:32:48.566174+00:00",
+  "scope": "same-guest Unit source execution; no physical hardware or live Web claim",
+  "runner_sha256": "c792ef2dc9a25bac7d82a55df2d91e19d18b472d884edf944bf8381ac099ac0d",
+  "service_start_sha256": "0fe592679687cf93156226a410dd94340cbd229f6ea7d37e1c2ac99dd313c624",
+  "source_matches_receipt_before_and_after": true,
+  "cases": [
+    {
+      "name": "cores3-sensors",
+      "session_id": "55c8b5bcd1854b73871dd0987ff35b86",
+      "status": "PASS",
+      "programs": 5,
+      "input_vectors": 12,
+      "pid": 45665,
+      "owned_guest_pid_exists": false,
+      "history": "stopped",
+      "flash_retained": false,
+      "last_frame_retained": true,
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "evidence": {
+        "members": 26,
+        "sha256": "9002242f1dd3c44f2a0134f558c7cb9b6e140d66dcbce5500084793f59980320",
+        "member_index_verified": true
+      },
+      "manifest_frame_fields": [
+        "captured_at",
+        "execution_id",
+        "height",
+        "nonblack_pixels",
+        "png_bytes",
+        "program_state",
+        "revision_id",
+        "source",
+        "unique_colors",
+        "width"
+      ],
+      "manifest_frame_captured_monotonic_absent": true,
+      "all_exported_json_captured_monotonic_absent": true,
+      "exported_json_members_checked": 21
+    },
+    {
+      "name": "cores3-controls",
+      "session_id": "33795821e1af476f8cb5b17acefd4782",
+      "status": "PASS",
+      "programs": 5,
+      "input_vectors": 12,
+      "pid": 45985,
+      "owned_guest_pid_exists": false,
+      "history": "stopped",
+      "flash_retained": false,
+      "last_frame_retained": true,
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "evidence": {
+        "members": 26,
+        "sha256": "b296dabd98ae15a543f5cd8d3b6de4c481e6190ea7d55646ed036d179016be7c",
+        "member_index_verified": true
+      },
+      "manifest_frame_fields": [
+        "captured_at",
+        "execution_id",
+        "height",
+        "nonblack_pixels",
+        "png_bytes",
+        "program_state",
+        "revision_id",
+        "source",
+        "unique_colors",
+        "width"
+      ],
+      "manifest_frame_captured_monotonic_absent": true,
+      "all_exported_json_captured_monotonic_absent": true,
+      "exported_json_members_checked": 21
+    },
+    {
+      "name": "atoms3r-sensors",
+      "session_id": "4d7175ffb18a4a5bbc7acfe59a1d5066",
+      "status": "PASS",
+      "programs": 5,
+      "input_vectors": 12,
+      "pid": 46029,
+      "owned_guest_pid_exists": false,
+      "history": "stopped",
+      "flash_retained": false,
+      "last_frame_retained": true,
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "evidence": {
+        "members": 26,
+        "sha256": "712ab2faa1de3a647785969249bdbc4c97978ed2084812b0312c174ce9020215",
+        "member_index_verified": true
+      },
+      "manifest_frame_fields": [
+        "captured_at",
+        "execution_id",
+        "height",
+        "nonblack_pixels",
+        "png_bytes",
+        "program_state",
+        "revision_id",
+        "source",
+        "unique_colors",
+        "width"
+      ],
+      "manifest_frame_captured_monotonic_absent": true,
+      "all_exported_json_captured_monotonic_absent": true,
+      "exported_json_members_checked": 21
+    },
+    {
+      "name": "atoms3r-controls",
+      "session_id": "420bed7bff4a4d1fa3e924f04746eb48",
+      "status": "PASS",
+      "programs": 5,
+      "input_vectors": 12,
+      "pid": 46294,
+      "owned_guest_pid_exists": false,
+      "history": "stopped",
+      "flash_retained": false,
+      "last_frame_retained": true,
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "evidence": {
+        "members": 26,
+        "sha256": "4a059261dca372d509bd0614fdb4af9c1336c4d55656a3b40a3b45d370d9a65e",
+        "member_index_verified": true
+      },
+      "manifest_frame_fields": [
+        "captured_at",
+        "execution_id",
+        "height",
+        "nonblack_pixels",
+        "png_bytes",
+        "program_state",
+        "revision_id",
+        "source",
+        "unique_colors",
+        "width"
+      ],
+      "manifest_frame_captured_monotonic_absent": true,
+      "all_exported_json_captured_monotonic_absent": true,
+      "exported_json_members_checked": 21
+    },
+    {
+      "name": "sticks3-sensors",
+      "session_id": "99be4454883f40429ea2f3bd15a9021e",
+      "status": "PASS",
+      "programs": 5,
+      "input_vectors": 12,
+      "pid": 46362,
+      "owned_guest_pid_exists": false,
+      "history": "stopped",
+      "flash_retained": false,
+      "last_frame_retained": true,
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "evidence": {
+        "members": 26,
+        "sha256": "0bfc46d51a28a4476070af3334a4da0e6e37b562be6bb140fa20420d4bbde64b",
+        "member_index_verified": true
+      },
+      "manifest_frame_fields": [
+        "captured_at",
+        "execution_id",
+        "height",
+        "nonblack_pixels",
+        "png_bytes",
+        "program_state",
+        "revision_id",
+        "source",
+        "unique_colors",
+        "width"
+      ],
+      "manifest_frame_captured_monotonic_absent": true,
+      "all_exported_json_captured_monotonic_absent": true,
+      "exported_json_members_checked": 21
+    },
+    {
+      "name": "sticks3-controls",
+      "session_id": "733b16e4049b4d44a784cdb282119bd9",
+      "status": "PASS",
+      "programs": 5,
+      "input_vectors": 12,
+      "pid": 46672,
+      "owned_guest_pid_exists": false,
+      "history": "stopped",
+      "flash_retained": false,
+      "last_frame_retained": true,
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "evidence": {
+        "members": 26,
+        "sha256": "e080b50df6fbbd7559b77ac4cd400788f6092e0f2080abe04e04b800954c6946",
+        "member_index_verified": true
+      },
+      "manifest_frame_fields": [
+        "captured_at",
+        "execution_id",
+        "height",
+        "nonblack_pixels",
+        "png_bytes",
+        "program_state",
+        "revision_id",
+        "source",
+        "unique_colors",
+        "width"
+      ],
+      "manifest_frame_captured_monotonic_absent": true,
+      "all_exported_json_captured_monotonic_absent": true,
+      "exported_json_members_checked": 21
+    },
+    {
+      "name": "stopwatch-sensors",
+      "session_id": "96f5f620e5c74d32a7a8d3cd8eee1268",
+      "status": "PASS",
+      "programs": 5,
+      "input_vectors": 12,
+      "pid": 46706,
+      "owned_guest_pid_exists": false,
+      "history": "stopped",
+      "flash_retained": false,
+      "last_frame_retained": true,
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "evidence": {
+        "members": 26,
+        "sha256": "d81f95cb218b717700c8e88b2d5d8cf651ea7d2e725753a93298afb0527c0f1c",
+        "member_index_verified": true
+      },
+      "manifest_frame_fields": [
+        "captured_at",
+        "execution_id",
+        "height",
+        "nonblack_pixels",
+        "png_bytes",
+        "program_state",
+        "revision_id",
+        "source",
+        "unique_colors",
+        "width"
+      ],
+      "manifest_frame_captured_monotonic_absent": true,
+      "all_exported_json_captured_monotonic_absent": true,
+      "exported_json_members_checked": 21
+    },
+    {
+      "name": "stopwatch-controls",
+      "session_id": "d6512a69384a41e68b579f8fa121452c",
+      "status": "PASS",
+      "programs": 5,
+      "input_vectors": 12,
+      "pid": 46890,
+      "owned_guest_pid_exists": false,
+      "history": "stopped",
+      "flash_retained": false,
+      "last_frame_retained": true,
+      "runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "evidence": {
+        "members": 26,
+        "sha256": "7bab9ebb39e424d7e4a1446140eafa9b949b1346b52dc3ee2dc3e0065aafd942",
+        "member_index_verified": true
+      },
+      "manifest_frame_fields": [
+        "captured_at",
+        "execution_id",
+        "height",
+        "nonblack_pixels",
+        "png_bytes",
+        "program_state",
+        "revision_id",
+        "source",
+        "unique_colors",
+        "width"
+      ],
+      "manifest_frame_captured_monotonic_absent": true,
+      "all_exported_json_captured_monotonic_absent": true,
+      "exported_json_members_checked": 21
+    }
+  ],
+  "service_health": {
+    "ok": true,
+    "service": "m5stack-device-service",
+    "api_version": "v1",
+    "capacity": {
+      "max_sessions": 12,
+      "active_sessions": 1,
+      "available_sessions": 11,
+      "max_per_device": 8,
+      "by_device": {
+        "cores3": 1
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "54d56930d5094617a7af231e2fc0b685",
+        "generation": 20,
+        "state": "ready",
+        "pid": 45439,
+        "started_at": "2026-10-26T10:27:37.666656+00:00",
+        "heartbeat_at": "2026-10-26T10:32:47.948068+00:00",
+        "heartbeat_age_seconds": 0.939,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 1,
+        "active_lease_ids": [
+          "b22114225b8d46899f82b9ab5e46b93f"
+        ],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    }
+  },
+  "active_sessions": [
+    {
+      "session_id": "b22114225b8d46899f82b9ab5e46b93f",
+      "device_id": "cores3",
+      "state": "running",
+      "owned_by_cohort": false
+    }
+  ],
+  "totals": {
+    "sessions": 8,
+    "programs": 40,
+    "input_vectors": 96,
+    "group_leaf_units_per_host": 6,
+    "owned_active_sessions": 0,
+    "zip_frame_public_metadata_checks": 8
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "category": "browser-frame-preview-contract",
+  "status": "PASS",
+  "firmware_execution": "NOT RUN",
+  "hardware_execution": "NOT RUN",
+  "browser_version": "156.0.8078.48",
+  "source_sha256": {
+    "platform/web/sessions.js": "3ab3c579b24608b6fad9571e5895ce2cafd4fb19355f0fa97a9320933f20abea",
+    "platform/web/model-shell.js": "5f1802e49412342216044ee056b292e0039edb605fbdbb34f0ff32580a2d5fa6",
+    "platform/web/device-shell-factory.js": "563089fb6fd537d35442561b108f5df7d86e6b9fa8157fcd8b45cb77526cafa9",
+    "platform/web/three-device-viewer.js": "4dfc936622da7d79b0be3ec92b95884c7574edafdff2ba23e1f7549c4e773517"
+  },
+  "checks": [
+    "qemu-200-304-changed-body-and-external-program-context",
+    "tab5-network-and-unknown-runtime-retain-fresh-lane",
+    "late-response-after-session-owner-switch-is-not-read-or-decoded",
+    "same-id-created-firmware-and-pid-changes-fence-slow-blob",
+    "slow-generic-decode-cannot-overwrite-new-owner-or-tag",
+    "late-saved-frame-fallback-cannot-overwrite-newer-applied-body",
+    "dispose-and-reused-container-fence-response-blob-and-decode",
+    "owner-change-releases-queued-controls-to-original-session",
+    "response-blob-and-decode-timeouts-release-only-their-request",
+    "invalid-body-does-not-save-etag-or-discard-last-good-frame",
+    "real-model-and-generic-renderers-guard-after-bitmap-decode",
+    "slow-three-decode-times-out-without-serializing-new-generation",
+    "slow-session-does-not-delay-other-session-polling-or-overlap-itself"
+  ],
+  "errors": []
+}

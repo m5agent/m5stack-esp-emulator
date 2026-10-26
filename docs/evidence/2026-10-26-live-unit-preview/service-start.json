@@ -1,0 +1,61 @@
+{
+  "started_at": "2026-10-26T10:27:37.939734+00:00",
+  "pid": 45439,
+  "previous_pid": 43388,
+  "command": [
+    "${PYTHON312}",
+    "-B",
+    "platform/tools/serve.py",
+    "8787",
+    "--bind",
+    "127.0.0.1",
+    "--state-dir",
+    "${WORKTREE}/.work/unit-device-service"
+  ],
+  "health": {
+    "ok": true,
+    "service": "m5stack-device-service",
+    "api_version": "v1",
+    "capacity": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "54d56930d5094617a7af231e2fc0b685",
+        "generation": 20,
+        "state": "ready",
+        "pid": 45439,
+        "started_at": "2026-10-26T10:27:37.666656+00:00",
+        "heartbeat_at": "2026-10-26T10:27:37.666656+00:00",
+        "heartbeat_age_seconds": 0.26,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    }
+  },
+  "source_sha256": {
+    "platform/tools/device_service.py": "81f834d2e1b5fa8ed4b88b62b2d44e8e1ddc0049010af595ca33287ee8b75969",
+    "platform/tools/serve.py": "9479a29f83a658b14e378eff5cb49b5a26e9c75f47fe2594e745a70560e27dc3",
+    "platform/tools/frame_cache.py": "2e6a119a07e9d83cbe9737a99531cea37ab61321e0a759a8d0a932ae99537073",
+    "platform/tools/guest_console.py": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+    "platform/tools/uiflow_runtime.py": "1bf19db1c75f7c3acd6462f1e59dac8d9f12f5e45da6a253a8eef3b8e23ebf0b",
+    "platform/tools/program_revisions.py": "bcc4352623ee73743900ee2b75141ddc630b9e1712831316206005de49db40ad",
+    "platform/tools/unit_runtime.py": "78a582a8542d3a58d1f12b03fab9a0928b094a8b9cfdbf64a27cd88d64d3b199"
+  },
+  "source_stable_across_start": true,
+  "redaction": "Only machine-local Python/worktree paths are placeholders; module hashes preserved."
+}

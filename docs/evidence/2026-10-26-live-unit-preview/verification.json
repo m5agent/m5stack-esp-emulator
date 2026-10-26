@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "status": "PARTIAL",
+  "functional_status": "PASS",
+  "overall_3d_animation_status": "PARTIAL",
+  "actual_guest_cohort": {
+    "status": "PASS",
+    "sessions": 8,
+    "program_submissions": 40,
+    "input_vectors": 96
+  },
+  "frame_api": "PASS",
+  "real_web_pir_relay": "PASS",
+  "real_web_multi_unit": {
+    "functional_status": "PASS",
+    "full_3d_animation_status": "NOT ACHIEVED",
+    "sessions": 2,
+    "program_submissions": 10,
+    "input_vectors": 24,
+    "actual_input_posts": 92,
+    "actual_get_readbacks": 168,
+    "snapshots": 58,
+    "boundary": "unit-web/web-boundary-audit.json"
+  },
+  "binding_research": {
+    "status": "OPEN",
+    "issue": "UNIT-HOST-29",
+    "text_files": 17,
+    "readme": "encoder-binding-research/README.md"
+  },
+  "frame_browser_fixtures": 13,
+  "platform_unittest": {
+    "status": "PASS",
+    "tests": 852,
+    "log": "verification/platform-final.txt",
+    "source_run": ".work/live-unit-preview-20261026/platform-final-r2.txt"
+  },
+  "unit_runner_offline": {
+    "status": "PASS",
+    "tests": 11,
+    "log": "verification/unit-runner-offline-final.txt"
+  },
+  "validators": {
+    "runtime_coverage": {
+      "status": "PASS",
+      "log": "verification/runtime-coverage-final.txt"
+    },
+    "peripheral_catalog": {
+      "status": "PASS",
+      "log": "verification/peripheral-catalog-final.txt"
+    },
+    "qemu_profiles": {
+      "status": "PASS",
+      "log": "verification/qemu-profiles-final.txt"
+    },
+    "project_snapshot": {
+      "status": "PASS",
+      "log": "verification/project-snapshot-final.txt"
+    }
+  },
+  "final_docs_checks": {
+    "status": "PASS",
+    "tests": 48,
+    "log": "verification/docs-final.txt",
+    "boundary": "Final documentation follow-up after the 852-test platform run; all Markdown frozen before this check."
+  },
+  "hardware_validation": "NOT RUN",
+  "full_peripheral_matrix": "NOT RUN - no shared controller/QEMU/build change",
+  "zip_count": 13,
+  "zip_member_count": 326,
+  "zip_checks": "CRC, safe paths, no symlinks, manifest member SHA/size, no bin/rom and no internal captured_monotonic JSON fields",
+  "cleanup": "cleanup-summary.json",
+  "source_snapshot": "source-snapshot-audit.json",
+  "verification_complete": true,
+  "checks_complete": [
+    "platform 852",
+    "final docs 48",
+    "four validators",
+    "Unit runner offline 11",
+    "13 evidence ZIP/member checks",
+    "13 stopped sessions and absent guest PIDs",
+    "source snapshot/current code comparison",
+    "9 frame-preview tests after the test-only EOF formatting correction"
+  ],
+  "remaining_scope": [
+    "UNIT-HOST-29: Encoder/8Encoder nonuniform LED electrical-index to physical-target binding and physical rotation remain open",
+    "AIFlow checkpoint/virtual-target integration, resource Preview/Run and SSE subscriptions remain open",
+    "No physical-hardware validation in this archive"
+  ],
+  "sensitive_data_scan": {
+    "status": "PASS",
+    "log": "sensitive-data-scan.json",
+    "classified_groups": 3,
+    "unresolved": 0
+  },
+  "final_readonly_health": {
+    "checked_at": "2026-10-26T11:06:29.961641+00:00",
+    "service_pid": 45439,
+    "worker_generation": 20,
+    "active_sessions": 0
+  },
+  "post_platform_format_only_change": {
+    "path": "platform/tests/test_device_frame_preview.py",
+    "kind": "format-only",
+    "change": "Removed one redundant EOF blank line; all prior bytes and executable statements unchanged. Production and guest code unchanged.",
+    "before_sha256": "cdfa9660fbaee05eec960802bf12af37d8ca883e99e56d2320528230c0bc6e0e",
+    "after_sha256": "7535745b63cb8883e71ef2405514ab3a7784312808efae33340467de687116be",
+    "validation": {
+      "status": "PASS",
+      "tests": 9,
+      "log": "verification/frame-preview-format-final.txt"
+    }
+  }
+}
