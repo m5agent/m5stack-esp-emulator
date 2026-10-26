@@ -2,12 +2,12 @@
   "schema_version": 1,
   "status": "PASS",
   "algorithm": "SHA-256",
-  "scope": "Every regular file in this evidence directory except this manifest itself. Regenerated after integration receipts are added.",
+  "scope": "Every regular file in this evidence directory except this manifest itself. Includes final integration receipts.",
   "files": [
     {
       "path": "README.md",
-      "bytes": 4508,
-      "sha256": "c1f83ca799b2f017242b6c3ac811db030b719d2a2cd1420b5d008fdc6e1eca06"
+      "bytes": 4528,
+      "sha256": "0d740782ef23c6d4e9a49b228fda43ba1a577b55673ae0d5aa037a8e268ae75c"
     },
     {
       "path": "acceptance.json",
@@ -11681,6 +11681,11 @@
       "sha256": "5e11137c4e7f63c38209b9ecf020a8906ccc28348e918b13c673516fa772cbb6"
     },
     {
+      "path": "integration.json",
+      "bytes": 5783,
+      "sha256": "35d4e1377c9d5df79c168b57a58ea47c800d2135d552826f859ad84ace504e65"
+    },
+    {
       "path": "platform-final.log",
       "bytes": 8221,
       "sha256": "f90d763ff658d8cbd50515b1810d892f48e28da8421bbdaca18b6adb027998b8"
@@ -11688,7 +11693,7 @@
     {
       "path": "privacy-final.json",
       "bytes": 380,
-      "sha256": "13442d95c9e5de92fe77b7c6c9841e593c11ac5d60b1a649bd17b5e19856029a"
+      "sha256": "f22a4be00fbe401ef2e1e7de8229cecdf487c44813af291b1731e0bd779f7ff6"
     },
     {
       "path": "regression/core2-imu-diagnostic/core2-imu/after.png",
@@ -15968,7 +15973,7 @@
       "sha256": "7aeae8f830f8874b55cb86316058e9927415fe2585630947857c66b5734f399b"
     }
   ],
-  "files_count": 3183,
-  "total_bytes": 229194907,
-  "markdown_local_links_checked": 13
+  "files_count": 3184,
+  "total_bytes": 229200710,
+  "markdown_local_links_checked": 14
 }

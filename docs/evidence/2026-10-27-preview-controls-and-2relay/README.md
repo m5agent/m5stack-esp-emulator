@@ -57,4 +57,4 @@ main.mpy、保存开机、热插拔、SSE、AIFlow调用侧、完整native/IRQ/t
 
 [最终验证记录](verification.json)保存全平台日志的原始/归档SHA、收尾契约检查、
 独立文档及归档复核；[隐私检查](privacy-final.json)与[归档清单](artifact-manifest.json)
-用于核对本目录内容。主线同步结果另记录于 `integration.json`，不改变执行时快照。
+用于核对本目录内容。[主线同步结果](integration.json)保留提交及idle重载收据，不改变执行时快照。
