@@ -25,6 +25,7 @@ import uuid
 
 
 SOURCE_KIND = "uiflow2-package"
+ENTRYPOINTS = ("main.py", "main.mpy")
 MAX_PACKAGES = 256
 MAX_PACKAGE_BYTES = 1024 * 1024
 MAX_PACKAGE_FILES = 64
@@ -141,8 +142,9 @@ def _snapshot(payload: Any) -> tuple[dict, dict, dict[str, bytes]]:
         raise ProgramPackageError("invalid_program_package", "only source_kind, entrypoint and files are accepted")
     if payload.get("source_kind", SOURCE_KIND) != SOURCE_KIND:
         raise ProgramPackageError("unsupported_program_source_kind", "source_kind must be uiflow2-package", 409)
-    if payload.get("entrypoint", "main.py") != "main.py":
-        raise ProgramPackageError("unsupported_program_entrypoint", "package entrypoint must be main.py", 409)
+    entrypoint = payload.get("entrypoint", "main.py")
+    if entrypoint not in ENTRYPOINTS:
+        raise ProgramPackageError("unsupported_program_entrypoint", "package entrypoint must be main.py or main.mpy", 409)
     files = payload.get("files")
     if not isinstance(files, dict) or not files:
         raise ProgramPackageError("invalid_program_package", "files must be a non-empty object")
@@ -169,8 +171,18 @@ def _snapshot(payload: Any) -> tuple[dict, dict, dict[str, bytes]]:
         if total > MAX_PACKAGE_BYTES:
             raise ProgramPackageError("program_package_too_large", "package exceeds 1 MiB decoded bytes", 413)
         encoded[path] = data
-    if "main.py" not in encoded:
-        raise ProgramPackageError("invalid_program_package", "a root main.py file is required")
+    if entrypoint not in encoded:
+        raise ProgramPackageError("invalid_program_package", "the selected root entrypoint file is required")
+    if entrypoint == "main.mpy" and any(
+        _path_key(path) == "main.py" or _path_key(path.split("/", 1)[0]) == "main"
+        for path in encoded
+    ):
+        # The real importer searches a directory and then .py before .mpy.
+        # Reject these alternatives rather than allowing caller-selected
+        # bytecode to be silently replaced by another file at execution time.
+        raise ProgramPackageError(
+            "program_package_entrypoint_conflict", "main.mpy cannot coexist with main.py or a main path", 409
+        )
     for path in encoded:
         if any(_path_key(str(parent)) in seen for parent in PurePosixPath(path).parents if str(parent) != "."):
             raise ProgramPackageError("program_package_path_conflict", "a file is also used as a parent directory", 409)
@@ -179,14 +191,14 @@ def _snapshot(payload: Any) -> tuple[dict, dict, dict[str, bytes]]:
         for path, data in sorted(encoded.items())
     ]
     hashes = {row["path"]: row["sha256"] for row in rows}
-    identity = {"source_kind": SOURCE_KIND, "entrypoint": "main.py", "files": hashes}
-    source = {"source_kind": SOURCE_KIND, "entrypoint": "main.py", "files": {
+    identity = {"source_kind": SOURCE_KIND, "entrypoint": entrypoint, "files": hashes}
+    source = {"source_kind": SOURCE_KIND, "entrypoint": entrypoint, "files": {
         path: {"encoding": "base64", "data": base64.b64encode(data).decode("ascii")}
         for path, data in sorted(encoded.items())
     }}
     metadata = {
         "revision_id": _sha(_canonical(identity)), "source_sha256": _sha(_canonical(hashes)),
-        "source_kind": SOURCE_KIND, "entrypoint": "main.py", "total_file_bytes": total, "files": rows,
+        "source_kind": SOURCE_KIND, "entrypoint": entrypoint, "total_file_bytes": total, "files": rows,
     }
     return source, metadata, encoded
 

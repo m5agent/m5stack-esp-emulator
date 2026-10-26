@@ -9,6 +9,7 @@ from __future__ import annotations
 from contextlib import nullcontext
 from copy import deepcopy
 from datetime import datetime, timezone
+import base64
 import hashlib
 import io
 import json
@@ -30,6 +31,7 @@ from device_service import DeviceSession, ServiceError
 from preview_service import PreviewService
 from preview_store import LOCAL_OWNER, PreviewStore
 from program_packages import ProgramPackageStore
+from test_mpy_bytecode import HELPER
 from unit_runtime import UnitRegistry
 
 
@@ -374,6 +376,28 @@ class PreviewServiceTests(unittest.TestCase):
         self.assertEqual(self.preview(pid)["active_run_id"], old["run_id"])
         self.assertEqual(self.preview(pid)["generation"], old["generation"])
         self.assertEqual(self.get_run(pid, old["run_id"])["state"], "running")
+        self.assertTrue(context.admission)
+        if token is not None:
+            self.assertFalse(token.is_set())
+        self.assertEqual(len(session.run_calls), 1)
+        self.assertFalse(session.interrupt_calls)
+
+    def test_binary_checkpoint_does_not_change_active_run_or_cancel_input_admission(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        context = self.control._context(pid)
+        token = context.cancel_event
+        revision = self.service.program_packages.create({
+            "entrypoint": "main.mpy",
+            "files": {"main.mpy": {"encoding": "base64", "data": base64.b64encode(HELPER).decode("ascii")}},
+        })
+        before = self.preview(pid)
+        old_record = self.get_run(pid, old["run_id"])
+        with mock.patch.object(self.control.store, "admit_run", side_effect=AssertionError("unsupported entrypoint must not allocate a Run")):
+            self.assert_error(lambda: self.submit(pid, revision["revision_id"], key="binary"),
+                              "program_mpy_entrypoint_unsupported", 409)
+        self.assertEqual(self.preview(pid), before)
+        self.assertEqual(self.get_run(pid, old["run_id"]), old_record)
         self.assertTrue(context.admission)
         if token is not None:
             self.assertFalse(token.is_set())

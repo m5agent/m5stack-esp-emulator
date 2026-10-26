@@ -1,0 +1,45 @@
+diff --git a/esp-adf b/esp-adf
+--- a/esp-adf
++++ b/esp-adf
+@@ -1 +1 @@
+-Subproject commit 01488579932e18c327a151c5b61efff38c9af880
++Subproject commit 01488579932e18c327a151c5b61efff38c9af880-dirty
+diff --git a/m5stack/boards/M5STACK_CoreS3/mpconfigboard.h b/m5stack/boards/M5STACK_CoreS3/mpconfigboard.h
+index ba09ced..c395264 100644
+--- a/m5stack/boards/M5STACK_CoreS3/mpconfigboard.h
++++ b/m5stack/boards/M5STACK_CoreS3/mpconfigboard.h
+@@ -7,6 +7,10 @@
+ #define MICROPY_HW_BOARD_NAME               "M5STACK CoreS3"
+ #define MICROPY_HW_MCU_NAME                 "ESP32S3"
+ 
++// Local virtual-device loader admission candidate; not stock firmware.
++#define MICROPY_MODULE_OVERRIDE_MAIN_IMPORT (1)
++#define MICROPY_CPYTHON_COMPAT             (1)
++
+ #define MICROPY_PY_MACHINE_DAC              (0)
+ 
+ // Enable UART REPL for modules that have an external USB-UART and don't use native USB.
+diff --git a/m5stack/cmodules/lv_binding_micropython b/m5stack/cmodules/lv_binding_micropython
+--- a/m5stack/cmodules/lv_binding_micropython
++++ b/m5stack/cmodules/lv_binding_micropython
+@@ -1 +1 @@
+-Subproject commit 44f70b1e1adb087e00ea5d39fe45a0b0f3551646
++Subproject commit 44f70b1e1adb087e00ea5d39fe45a0b0f3551646-dirty
+diff --git a/m5stack/components/M5Unified/M5Unified b/m5stack/components/M5Unified/M5Unified
+--- a/m5stack/components/M5Unified/M5Unified
++++ b/m5stack/components/M5Unified/M5Unified
+@@ -1 +1 @@
+-Subproject commit 8530f5377d782e4a25a6c482de2e71c3f75ca8eb
++Subproject commit 8530f5377d782e4a25a6c482de2e71c3f75ca8eb-dirty
+diff --git a/m5stack/components/esp32-camera b/m5stack/components/esp32-camera
+--- a/m5stack/components/esp32-camera
++++ b/m5stack/components/esp32-camera
+@@ -1 +1 @@
+-Subproject commit b817e9b81041980608d1a3d3e0b08d86e3666382
++Subproject commit b817e9b81041980608d1a3d3e0b08d86e3666382-dirty
+diff --git a/micropython b/micropython
+--- a/micropython
++++ b/micropython
+@@ -1 +1 @@
+-Subproject commit 78ff170de9e32c79db6e64d3e33d2bd60002bdcd
++Subproject commit 78ff170de9e32c79db6e64d3e33d2bd60002bdcd-dirty

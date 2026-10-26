@@ -1,0 +1,21 @@
+{"argv": ["git", "ls-remote", "https://github.com/espressif/esp-idf.git", "refs/tags/v5.5.4", "refs/tags/v5.5.4^{}"], "cwd": "<WORKTREE>/.work/uiflow-main-loader-build-20261027"}
+{"argv": ["git", "init"], "cwd": "<WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow"}
+Initialized empty Git repository in <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/.git/
+{"argv": ["git", "remote", "add", "origin", "https://github.com/m5stack/uiflow-micropython.git"], "cwd": "<WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow"}
+{"argv": ["git", "fetch", "--no-tags", "--depth=1", "origin", "3a86d8f611b3639cca755a933e01a5a829771ef1"], "cwd": "<WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow"}
+From https://github.com/m5stack/uiflow-micropython
+ * branch            3a86d8f611b3639cca755a933e01a5a829771ef1 -> FETCH_HEAD
+{"argv": ["git", "checkout", "--detach", "FETCH_HEAD"], "cwd": "<WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow"}
+HEAD is now at 3a86d8f M5Unified: Sync RTC using UTC time
+{"argv": ["git", "rev-parse", "HEAD"], "cwd": "<WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow"}
+uiflow 3a86d8f611b3639cca755a933e01a5a829771ef1 READY
+{"argv": ["git", "init"], "cwd": "<WORKTREE>/.work/uiflow-main-loader-build-20261027/idf"}
+Initialized empty Git repository in <WORKTREE>/.work/uiflow-main-loader-build-20261027/idf/.git/
+{"argv": ["git", "remote", "add", "origin", "https://github.com/espressif/esp-idf.git"], "cwd": "<WORKTREE>/.work/uiflow-main-loader-build-20261027/idf"}
+{"argv": ["git", "fetch", "--no-tags", "--depth=1", "origin", "735507283d5b2f9fb363a1901172dbd9e847945d"], "cwd": "<WORKTREE>/.work/uiflow-main-loader-build-20261027/idf"}
+From https://github.com/espressif/esp-idf
+ * branch              735507283d5b2f9fb363a1901172dbd9e847945d -> FETCH_HEAD
+{"argv": ["git", "checkout", "--detach", "FETCH_HEAD"], "cwd": "<WORKTREE>/.work/uiflow-main-loader-build-20261027/idf"}
+HEAD is now at 73550728 change(version): Update version to 5.5.4
+{"argv": ["git", "rev-parse", "HEAD"], "cwd": "<WORKTREE>/.work/uiflow-main-loader-build-20261027/idf"}
+idf 735507283d5b2f9fb363a1901172dbd9e847945d READY

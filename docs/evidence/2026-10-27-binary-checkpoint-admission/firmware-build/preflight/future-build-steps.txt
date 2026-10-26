@@ -1,0 +1,24 @@
+# Future isolated build recipe; NOT EXECUTED by this preflight.
+# Run in a newly created owned directory, never against existing shared SDK trees.
+# Fetch pinned UIFlow commit 3a86d8f611b3639cca755a933e01a5a829771ef1.
+# Fetch ESP-IDF v5.5.4; record the resolved commit and all submodule pins.
+# Install host build prerequisites per official workflow (cmake, ninja, quilt,
+# flex, bison, gperf, Python virtual environment + IDF requirements).
+git clone --depth 1 --branch v5.5.4 https://github.com/espressif/esp-idf.git esp-idf
+git -C esp-idf submodule update --init --recursive
+./esp-idf/install.sh esp32s3
+. ./esp-idf/export.sh
+git clone https://github.com/m5stack/uiflow-micropython.git uiflow-micropython
+git -C uiflow-micropython checkout --detach 3a86d8f611b3639cca755a933e01a5a829771ef1
+# Official helper removes/repopulates only paths inside this NEW owned source tree.
+make -C uiflow-micropython/m5stack submodules
+make -C uiflow-micropython/m5stack patch
+make -C uiflow-micropython/m5stack littlefs
+make -C uiflow-micropython/m5stack mpy-cross
+# Add explicit board-scoped defines to the selected mpconfigboard.h:
+#   #define MICROPY_MODULE_OVERRIDE_MAIN_IMPORT (1)
+#   #define MICROPY_CPYTHON_COMPAT (1)
+# Record this source patch and all resulting output SHA values.
+make -C uiflow-micropython/m5stack BOARD=M5STACK_CoreS3 pack_all
+# Do not call flash/flash_all/deploy. This task uses virtual Device Service intake.
+# After CoreS3 admission, repeat for M5STACK_AtomS3R/M5STACK_StickS3/M5STACK_StopWatch.

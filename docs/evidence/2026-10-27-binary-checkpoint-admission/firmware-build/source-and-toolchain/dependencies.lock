@@ -1,0 +1,136 @@
+dependencies:
+  espressif/dl_fft:
+    component_hash: 965be7152132b365061abf5fc5fc7b85e525f73b94a204cdda61cfe9572c0d77
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 0.8.0
+  espressif/esp-dl:
+    dependencies:
+    - name: idf
+      version: '>=5.2'
+    source:
+      path: <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/components/esp_dl/esp-dl
+      type: local
+    targets:
+    - esp32s3
+    - esp32p4
+    version: 3.0.0~1-rc.1
+  espressif/esp-dsp:
+    component_hash: 619639efc18cfa361a9e423739b9b0ffc14991effc6c027f955c2f2c3bf1754b
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.2'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.6.0
+  espressif/esp_codec_dev:
+    component_hash: 0d9e9bc288156eb55f79338d312e1ebf8c9dfbd5e7d13ef0f20ccb031b4e15cf
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.5.4
+  espressif/esp_jpeg:
+    component_hash: 47d19eac5f76fac06798c04f4d2579c7ab26fd33280ed10f43d8895175376bdf
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.3.2
+  espressif/esp_websocket_client:
+    component_hash: dc00233af846f3a744ada283a300e0d586040aadc3ee67361645ecdce4523672
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.8.0
+  espressif/human_face_detect:
+    dependencies:
+    - name: espressif/esp-dl
+      override_path: ../../esp-dl
+      version: ^3.0.0-rc.1
+    source:
+      path: <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/components/esp_dl/models/human_face_detect
+      type: local
+    version: 0.1.0~1
+  espressif/mdns:
+    component_hash: 46ee81d32fbf850462d8af1e83303389602f6a6a9eddd2a55104cb4c063858ed
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.1.0
+  espressif/nghttp:
+    component_hash: e0429dc6ecf6fdfab077a52c3eb5846c1c4a4a6d969633e8d1227b438b78530a
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.69.0
+  espressif/quirc:
+    component_hash: 3be250a06364f0d71a7903b66ac93084d2ce3998c2e75a168b9f1f0621dd6218
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.3.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.2.0
+  espressif/tinyusb:
+    component_hash: ee1c962cff61eb975d508258d509974d58031cc27ff0d6c4117a67a613a49594
+    dependencies:
+    - name: idf
+      version: '>=5.0'
+    source:
+      git: https://github.com/micropython/tinyusb-espressif.git
+      path: .
+      type: git
+    targets:
+    - esp32s2
+    - esp32s3
+    - esp32p4
+    - esp32h4
+    version: e4c0ec3caab3d9c25374de7047653b9ced8f14ff
+  idf:
+    source:
+      type: idf
+    version: 5.5.4
+direct_dependencies:
+- espressif/dl_fft
+- espressif/esp-dl
+- espressif/esp-dsp
+- espressif/esp_codec_dev
+- espressif/esp_jpeg
+- espressif/esp_websocket_client
+- espressif/human_face_detect
+- espressif/mdns
+- espressif/nghttp
+- espressif/quirc
+- espressif/tinyusb
+- idf
+manifest_hash: f6f564b70e403aedfbc7a8872e585c8cca986f4d771b30c1530cb09754495c1a
+target: esp32s3
+version: 2.0.0

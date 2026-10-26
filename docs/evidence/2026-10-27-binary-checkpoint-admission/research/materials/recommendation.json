@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-27",
+  "category": "research-only",
+  "worktree_head": "6c1c333bac7eccf0b7cb571d6e3d48ba08477e07",
+  "product_changes": "NONE",
+  "guest": "NOT RUN",
+  "hardware": "NOT RUN",
+  "service_8787": "NOT TOUCHED",
+  "official_mcp": {
+    "searches_via_skill_cli": 6,
+    "feedback_via_service_tools_list_and_call": true,
+    "feedback_4relay": "3394191a27d3467c997f979f64fc94a1",
+    "feedback_flashlight": "38d08027166f4f45bc1dd36c4c715290"
+  },
+  "primary": {
+    "id": "4relay",
+    "sku": "U097",
+    "chip": "STM32F030F4P6",
+    "address_7bit": 38,
+    "mode_register": 16,
+    "control_register": 17,
+    "ready_for_full_physical_channel_model": false,
+    "blockers": [
+      "Official product table and unmodified UIFlow2 driver reverse the physical channel labels.",
+      "Unit MCU firmware source not located; Module13.2 source is a different board/protocol.",
+      "SYNC register readback/write preservation, mode transition and pointer transaction semantics remain unconfirmed."
+    ],
+    "visual_components": [
+      "led-1",
+      "led-2",
+      "led-3",
+      "led-4"
+    ],
+    "inputs": {},
+    "safe_observability": "Raw register-bit names only until physical mapping established; uniform four-LED state is permutation-invariant but does not complete full model."
+  },
+  "independent_candidate": {
+    "id": "flashlight",
+    "sku": "U152",
+    "chip": "AW3641EDNR",
+    "mcu": null,
+    "bus": "GPIO EN on yellow; white NC",
+    "mode_source": "Internal S1: FLASH high=Flash, low=Torch; not a guest-readable input",
+    "protocol_source": "AW3641E Feb2019 V1.3 pp12-14 Table1/Fig7, exact archived SHA",
+    "documented_pulses": [
+      {
+        "range": [
+          1,
+          8
+        ],
+        "brightness_pct": [
+          100,
+          90,
+          80,
+          70,
+          60,
+          50,
+          40,
+          30
+        ],
+        "timeout_nominal_ms": 220
+      },
+      {
+        "range": [
+          9,
+          16
+        ],
+        "brightness_pct": [
+          100,
+          90,
+          80,
+          70,
+          60,
+          50,
+          40,
+          30
+        ],
+        "timeout_nominal_ms": 1300
+      }
+    ],
+    "pulse_recommended_high_low_ns": [
+      750,
+      10000
+    ],
+    "en_low_reset_ns": 500000,
+    "visual_components": {
+      "light": "Fixed white LED, independent brightness; no glow/beam",
+      "mode": "Retained slide; pointer accessible only covers:false"
+    },
+    "ready_for_controller_implementation": true,
+    "ready_for_unqualified_original_driver_pass": false,
+    "original_driver_issue": "pulse=brightness*time gives wrong TIME1300 encoding for 7 of 8 levels, unchanged between 2.5.3 and current master",
+    "qemu_entry": "Observe real GPIO pad callbacks and QEMU virtual ns; do not infer edges from LEDC duty snapshot.",
+    "open_validation": [
+      "Measure actual Pin bit-bang timing through official UIFlow2 driver; do not widen 0.75..10us just to pass.",
+      "Explicitly define unsupported pulse/mid-burst/mode transition envelope where datasheet is silent.",
+      "Confirm visible mode detent orientation from own source artwork before automatic position binding.",
+      "Exercise guest reset lifecycle; UNIT-HOST-36 listener reset gap is inherited.",
+      "No physical optical/current/thermal/electrical equivalence."
+    ],
+    "mode_policy_recommendation": "Freeze S1 fixture at session creation/before first EN program; do not claim active live-switch semantics. Product/static truth table does not establish dynamic transition timing; power-down guidance is troubleshooting, not an exclusive hardware prohibition."
+  },
+  "not_selected": [
+    {
+      "id": "laser-tx",
+      "reason": "PIN_MODE independently clear, but full Unit also UART_MODE; existing m5_unit_uart_tx only observes bytes for rs485 and does not serialize bit-level optical output."
+    },
+    {
+      "id": "acssr",
+      "reason": "ESP32-C3 local firmware with I2C/RS485/button/RGB means not the small independent candidate."
+    },
+    {
+      "id": "hall",
+      "reason": "Digital AND-of-three A3144E path is clear, but hidden LED has no proven exterior light path and shell deliberately exposes no LED API; unsuitable to force new animation."
+    }
+  ]
+}

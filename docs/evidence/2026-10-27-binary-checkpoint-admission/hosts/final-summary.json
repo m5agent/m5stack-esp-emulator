@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "category": "final-r2-binary-checkpoint-admission-audit",
+  "devices": [
+    {
+      "device_id": "cores3",
+      "status": "PASS",
+      "source_sha256": "209c77a1a444f107b634fb410fffc69b337fea9f7bd78b46f0e2d320335a0372"
+    },
+    {
+      "device_id": "atoms3r",
+      "status": "PASS",
+      "source_sha256": "209c77a1a444f107b634fb410fffc69b337fea9f7bd78b46f0e2d320335a0372"
+    },
+    {
+      "device_id": "sticks3",
+      "status": "PASS",
+      "source_sha256": "209c77a1a444f107b634fb410fffc69b337fea9f7bd78b46f0e2d320335a0372"
+    },
+    {
+      "device_id": "stopwatch",
+      "status": "PASS",
+      "source_sha256": "209c77a1a444f107b634fb410fffc69b337fea9f7bd78b46f0e2d320335a0372"
+    }
+  ],
+  "lanes": 8,
+  "runs": 16,
+  "rejections": 12,
+  "observations": 36,
+  "http_responses": 1368,
+  "zip_members": 152,
+  "binary_executed": false,
+  "hardware": "NOT RUN",
+  "source_sha256": {
+    "tests/units/run_binary_checkpoint_admission.py": "209c77a1a444f107b634fb410fffc69b337fea9f7bd78b46f0e2d320335a0372",
+    "tests/units/test_binary_checkpoint_admission.py": "f1acb9d6fb3ea8da5469893b660cb998e5f5c930f8b956c5eaf93cc2e197ec6e"
+  },
+  "attempts": {
+    "r1_cores3_atoms3r_sticks3": "PASS / superseded by same-version r2",
+    "r1_stopwatch": "FAIL round-screen corner pixel oracle; owned cleanup PASS; no Preview created",
+    "r2_all_four": "PASS"
+  }
+}

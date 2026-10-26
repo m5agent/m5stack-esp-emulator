@@ -1,0 +1,124 @@
+# 下一批 Unit 研究（2026-10-27，仅研究）
+
+结论：4Relay 的官方位序冲突没有消失，不能凭原驱动的 getter/setter 自洽就声称四个物理通道和绿灯绑定正确。其 MCU 内部固件与 SYNC 细节仍缺关键依据。能独立推进的新视觉 Unit 是 FlashLight U152：公开原理图、AW3641E datasheet、原 UIFlow2 driver 和实际白灯/壳内开关都已定位；应按 AW 芯片真实脉冲协议建模，并把原驱动的 1300ms 编码错误准确暴露出来。
+
+本报告没有修改产品文件，没有运行 guest/矩阵，没有操作 8787；资料仅落本目录。它不是硬件或虚拟设备 PASS。已读项目 backlog，并使用 m5stack-assistant、uiflow2-coder；AW datasheet 按 pdf skill 提取并查看完整相关页。
+
+## 固定官方证据
+
+- UIFlow2 2.5.3：`50e440780492aa847378c7d3477ab912f7063bac`。2026-10-27 查询的当前 master：`3a86d8f611b3639cca755a933e01a5a829771ef1`。
+- `relay4.py` 在这两版原字节相同：6339 bytes，SHA-256 `8a4fee2b141724bf55585d9da0e0fc867d6066b934218c05036eb29f4318ccd7`。
+- `flash_light.py` 在这两版原字节相同：3639 bytes，SHA-256 `10546386ee156034c268404e96f4d086b88c52254da1fcd2aa19130ce2f6629f`。
+- 固定官方产品仓库 `m5-docs@e5354c5dcc61d16fdc1dff9d92c2c760728d0b60/docs/zh_CN/unit/4relay.md`，4768 bytes，SHA `eface9f12432904bf405a808eceeb3f4f73b225cc3ffbb94f203f2b4ae7493ad`。
+- 4Relay 官方原理图 `https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/589/Sch_UNIT-4RELAY_sch_01.png`，SHA `9b13baae39ff2dd57896bc4b564668a1a2fc15c4f3d820d4a03fbb6480202e35`，已查看。
+- FlashLight 官方产品页 `https://docs.m5stack.com/en/unit/FlashLight` 当前跳转规范页 Unit_FlashLight，原 HTML SHA `8dc3caa7ed7c4d3172f6ce23a1b9d8f7b6a18e2af83753ed2be0040e19b5f713`。
+- FlashLight 官方原理图 `https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/606/UNIT-FlashLight_sch_01.png`，SHA `06526f1c2a245a5b7642b06e8c3f3e742b3c99f8fb6a4be8e6d3cde18e6bac59`，已查看。
+- 产品页直接公开链接 AW3641E Feb2019 V1.3 datasheet：`https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/FlashLight/FLASHLEDDRIVER_2019-07-01.PDF`，SHA `ff6ee09ea120f612f43c39af6318d98e86a778d9cb3ecf1e643d794a94c52a6e`。已提取24页，查看完整 p12–14（及p7参数）；原 PDF带 Confidential 水印，原件保留本内部研究目录，不应将其原件顺手加入公开提交。
+- 新官方 Arduino `M5Unit-FLASHLIGHT@4071dde9ec5a60cb165628f7830effdf95f8eda1` 的 `src/unit/unit_AW3641E.hpp/.cpp` 与 datasheet 的1..16脉冲含义一致。
+- 每次 HTTP 的地址、状态、大小、SHA 在 `fetch-01-index.json` 到 `fetch-07-index.json`；失败404亦保留。官方 MCP 原文在 `mcp-*.txt/.info.txt`。没有把搜索摘要代替源文件。
+
+## 4Relay U097：最小完整数据面与准入缺口
+
+已证实：Grove 黑 GND/红5V/黄SDA/白SCL，STM32F030F4P6，默认7bit地址0x26。0x10 bit0为 Manual/Auto LED Sync；0x11低4位是继电器、高4位是LED。Manual允许独立LED，Auto描述LED跟随继电器。原理图 PA0..3→RL1..4；PA4..7分别→LED2/LED3/LED1/LED4，不是可直接按GPIO顺序猜通道的布线。
+
+**确实冲突：**官网0x11表 bit3..0写 RELAY1..4，bit7..4写 LED1..4；原 UIFlow2 driver 通道 n 写 bit(n-1) / bit(n+3)。`set_relay_state(1,1)` 发0x01，产品表却称 RELAY4。原 Arduino 的 number 定义是 bit number0..3，不能证明物理端子编号。getter和setter用相同位序得到一致读回，不足以解决此冲突。全灯一致对排列不敏感，只能算有限子集。
+
+实际外壳有 `led-1`..`led-4` 固定绿灯，编号从 Grove 端向远端递增；`terminal-1`..`terminal-4` 仅为机械端子，COM/NO/NC次序未确认。没有物理按键，不能杜撰四个可写QOM relay toggle。`inputs={}`，只读输出由 guest I2C命令驱动；Web操作经主机触摸/按键或代码→真实guest→I2C→Unit→状态/灯反馈。
+
+准入后建议放 `m5_unit_i2c_controls.c` 新 `CONTROL_RELAY4`：沿现有 `I2CSlave` 的START/SEND/RECV/FINISH，寄存器指针与数据阶段分开；读写计数/每通道边沿计数、raw command、mode和实际输出分开保存；只读QOM字段，不允许外部直接伪造输出。保留原 `relay4.py` 文件原字节并在guest核path/size/SHA。模式/原始寄存器和物理GPIO结果分别观察，以免自洽循环证明。
+
+**先补资料再作完整实现：**没有找到官方 U097 MCU内部源码。全量官方 M5Unit-RELAY tree 是Arduino库；官方搜索得到 M5Module-4Relay-Internal-FW，但这是 Module13.2：继电器寄存器0x10、PA1..4，和U097 0x10模式/0x11控制完全不同，已另存作排除证据。不能借用该源码补 Unit 证据。还需确认 SYNC下写LED nibble是忽略/保留/覆盖，读回0x11是命令锁存值还是同步后的实际值，模式切换是否立即生效，STOP/重复START/连续多字节/上电默认。资料没齐时不能编一个“合理”的协议然后叫完整模拟。
+
+已通过官方 `knowledge_feedback` 实际提交并 accepted：`3394191a27d3467c997f979f64fc94a1`。`mcp-feedback-schema.json` 是直接 tools/list 返回的能力；`feedback-4relay-{args,response}.json` 保存完整请求/受理结果。
+
+不能宣称：四通道物理顺序、完整MCU固件行为、异常I2C事务、持久化/地址变更、触点切换/隔离/安全负载、线圈/电流/机械/电气等价。即使未来虚拟同路径通过，也不等于硬件PASS。
+
+## FlashLight U152：可独立实现的视觉/功能模型
+
+硬件：没有MCU。黄线直连 AW3641EDNR EN，白NC；EN有10K下拉。板内 S1 控制 FLASH/TORCH，10K上拉+5V或接GND。RSET100K，Rsense0.22Ω。单颗D1白光；模式开关不连主机输入，guest不应该能凭空读出模式。
+
+AW datasheet p12：EN高且FLASH高→Flash；EN高且FLASH低→Torch。Torch不含Flash自动超时；EN拉低关。p13 Table1：1..8个上升沿→100/90/80/70/60/50/40/30% 与220ms；9..16个上升沿→相同8档与1.3s。p13–14建议脉冲HI/LO各0.75..10us，低复位至少500us（正文写长于500us，图标≥500us；安全测例用600us）。参数表Flash超时典型220ms/1.3s，实际范围180..310ms/1.05..1.85s。模型可用典型值但不得称实测精度。
+
+**原驱动缺陷不能迁就：**UIFlow2 `pulse=brightness*time`，TIME1300=2；应按表是brightness+8。例B100/T1300发2脉冲，实际是90%/220ms；B60/T1300发10脉冲，是90%/1.3s；只有B30/T1300的16脉冲碰巧正确。`flashlight-static-encoding-audit.json` 是纯AST/公式静态审计，不是guest执行。连续调用也没有显式EN低>500us保证。不要让模拟器用错误乘法解码、放宽真实脉冲窗口或直接根据Python参数点灯来伪造通过。
+
+最小完整的名义数字控制器方案：
+
+1. 以现有 `esp32_gpio_add_out_listener(yellow, ...)` 观察真实pad变化；在回调取 `QEMU_CLOCK_VIRTUAL` ns，记录每段HI/LO和上升沿，响应EN长低复位。只读公开EN、累计边沿、最近完整序列、解码档位、timeout、active、命令/时序不在资料覆盖范围的计数。任何在资料外的序列不能静默当有效。
+2. 按芯片表选择档位/定时，并用QEMU虚拟时钟timer执行Flash截止；Torch的持续开关由实际EN与S1模式共同决定。芯片的精确burst-latch瞬间/非法脉冲数/中途切模式无充分定义，需显式标出模型策略和验证范围，不能宣传成bit-exact AW内部实现。
+3. 外部唯一可写物理fixture是S1模式；可命名 `flash-mode` 或枚举，避免让其变成guest寄存器。实际电流、温度、过压/短路、LED光度/色温不造假模拟。若需给标称电流，仅作为由RSET/Rsense公式算出的nominal估计另列，不当测量值。
+4. `unit-visual-mappings.js` 从已观察的 `active + decoded-level` 驱动实际 `light`（固定白、默认关、不投射光束），从S1 fixture驱动实际稳定 `mode`。LED归一化亮度是控制档位的显示，不换算流明。
+5. 外壳 `mode` 只在 `{covers:false}` inspection配置允许指针。默认闭壳不能假装外部可按。`ModelShell.attachUnit` 已透传options，但 `unit-panel.js` 当前只传port，需要一项明确的inspection呈现选择才可现场点S1。用同源产品照片核模型0/1 detent朝向再绑定，不能仅把positions字符串当标定证据。
+6. 原driver→Pin→SoC GPIO→AW模型→QOM/白灯/主机UI完成同guest验收：8档220ms；全部1300ms映射错误要准确观察；通过新明确命名修正驱动或raw pulse程序做其余AW正确档位，不把修正驱动叫原驱动；Torch常亮/EN关闭/模式物理切换；短低不复位、长低复位、重复写不增边沿、取消后停稳与重新运行。
+7. 继续采用8787可见Preview session、同PID/nonce多次Run、冻结源SHA、Web真实input、guest串口/帧头+PNG、QOM状态、ZIP-before-stop、历史与Flash/PID/lease收尾。先CoreS3，另三主机设备本地依次验收。
+
+QEMU接口已有，但存在验收前置：GPIO reset `memset(g_regs)` 后不通知listeners（UNIT-HOST-36），动态Flash timer/reset可能沿用旧值，要明确限制连续未reset区间或修复并做相关回归；LEDC目前给 `m5_unit_pwm_observe` 的是计时器/占空比状态，不是完整脉冲波形。不能从一个duty快照冒称真实AW编程脉冲已发生。原driver是Pin bit-bang，可先真实测其虚拟时间序列；MicroPython调用开销可能超建议10us，是否满足必须靠实际观测，不能从 `sleep_us(2)` 文本断言。
+
+**Torch PWM文字矛盾：**官网写EN PWM，AW datasheet p14写FLASH脚PWM、20–50kHz、先EN高/FLASH低>2ms。U152 Grove只暴露EN，FLASH由内部S1配置；不能外推FLASH混合模式PWM可从Grove实现。具体EN门控光学平均效果另行验证，不把两种PWM当同一API。
+
+已通过官方 `knowledge_feedback` 实际提交并 accepted：`38d08027166f4f45bc1dd36c4c715290`，请求/受理见 `feedback-flashlight-{args,response}.json`。当前产品描述的5000–5700K与规格表6000–6500K也保留冲突，不给校准光谱结论。
+
+## 其它候选为何没有替代完整目标
+
+Laser TX U066 的GPIO PIN_MODE明确（AO3400A、黄DIN、固定红emitter），但完整Unit还包括UART_MODE，当前UART hook只为rs485按字节记录且不提供发射管脚逐bit波形，不能只做开关就叫完整LaserTX。ACSSR U139有ESP32-C3本地固件、I2C/RS485/RGB/按钮，范围更大。Hall U084三颗A3144E经74HC08逻辑与可以做真实数字fixture，但实际隐藏D1无已证外部光路，模型刻意不暴露Led组件；不能硬造外露红灯动画。额外MCP原文都留存，不授予任何运行准入。
+
+## 可执行设计补充：FlashLight 状态机与负控清单
+
+以下是建议实现契约，未实现/未运行。资料明确规定的协议事实与为了可重复执行所选的模型策略必须分开记录。不要把任何模型策略描述成已测芯片行为。
+
+### 控制器对象、接口与时钟
+
+可建独立 `M5UnitFlashLight/AW3641State` 并由既有 Unit runtime 创建，保存：yellow EN pin、`flash-mode` 物理fixture、last level/last-edge-ns、low-since-ns、burst-first-rise-ns、rising-count、上一段HI/LO、program generation、burst qualification、selected level、nominal timeout、active/timeout reason，以及与QEMU虚拟时钟绑定的长低reset、program-settle、flash-timeout三个timer。不能用JS/host wall time决定芯片状态。
+
+只写入口：`flash-mode`（bool，true=FLASH脚高/Flash，false=FLASH脚低/Torch）。它代表板内S1，不驱动主机输入，不是guest可读寄存器，不从程序文本推导。所有program/brightness/on字段只读。EN电平必须经 `esp32_gpio_get_line(yellow)` 和已注册真实pad listener读取。
+
+建议只读QOM：`en-level`、`mode-flash`、`program-state`（reset/programming/latched/unqualified）、`pulse-count`、`last-program-count`、`flash-level-pct`、`timeout-ms-nominal`、`active`、`output-known`、`low-duration-ns`、`last-edge-ns`、`output-transitions`、`decoded-programs`、`unqualified-programs`、`timeout-events`、`reset-events`。结构化边沿trace可有界保留（如256项）并给overflow，不能无界内存增长。
+
+### 边沿与定时
+
+- 初始化：10K下拉的fixture送真实输入bias低；读实际pad，禁止假定guest尚未设高。初始低用虚拟时间累积到长低reset门槛。S1初始fixture明确来自用户/默认测试配置，不冒称量产默认。
+- 同电平重复写不产生listener边沿，不增加pulse-count/transition。
+- EN低连续600us作为标准reset实验（在正文>500us和图≥500us之间留裕量）。reset timer在真实持续低满足门槛后清program计数和资格，撤销旧超时，记录reset。500us边界单列，避免从矛盾文字推出纳秒级硬边界。
+- 每个真实上升沿记录时间；首上升沿新建epoch，后续上升沿仅在前段HI/LO均处于资料推荐窗口时加入同一已资格化burst。任一段超范围则程序标unqualified；不是声称芯片一定拒绝，而是拒绝给未证物理结果授予known。
+- 合格1..16个上升沿用 Table1 解码：`level = 110 - 10*((N-1)%8+1)`；N<=8→220ms，N>=9→1300ms。N=0、N>16不能自行取模或clamp。后续脉冲出现时仍以真实新边沿更新候选，不允许UI代码提前指定N。
+- **明确模型策略**：资料没有给burst-latch判定瞬间和timeout参考边沿。为可执行可选择在最后边沿后稳定高、且至少跨过500us名义启动观察窗口时公布stable decode；timeout参考首上升沿并采用典型值，保留这些时间策略字段。实际同guest验收观察远离微秒边界，并不宣称burst内光强或纳秒级timeout等价。若工程要求芯片bit-exact时序，应先补芯片/波形证据，不能将此策略升级为芯片事实。
+- Flash timer使用同epoch/generation校验；每次重编程/长低reset/停止销毁都使旧timer不可改变新program状态。高保持时在所选典型timeout截止输出；不是靠guest后续off才截止。timeout后EN仍高也不能凭poll重新点亮。
+- Torch：EN高且S1为Torch时是持续状态，不能复用220/1300ms Flash timer。EN低退出；不杜撰原库安全cap为芯片硬件timeout。FLASH管脚20–50kHz PWM并非Grove可写能力；不从现有LEDC duty快照合成真实AW协议波形。
+- EN短低（例如100us）不是“新调用”标志，不能清program当新芯片上电；中途模式变更和timeout后的短低重触发若资料不足，将`output-known=false`直到明确长低reset和新合格序列。此保守边界应在API状态显示，不把灯灭当物理off证据。
+
+### Reset、stop与资源生命周期
+
+当前 UNIT-HOST-36 是真实前置：SoC GPIO reset清寄存器但不通知pad listener。新AW对象必须以真实EN reset变化推进状态，不能在Python端清变量冒充设备reset。优先修 `esp32_gpio_reset_hold` 的before/after pad通知并测其它GPIO/soft-I2C回归；guest SoC reset不一定断Unit5V，因此只在真实EN持续低达门槛后重置AW锁存，而不是把guestreset等同Unit掉电。若本块暂不修共享GPIO，明确禁止reset验收，只能在连续未reset同VM区间准入。
+
+定时暂停随QEMU virtual clock暂停；host睡眠不单独推动timeout。session stop/VM销毁释放三个timer和有界trace；若将来支持对象unrealize/hotplug，还需listener unregister，不得留下带已释放opaque的callback。现有session拓扑在进程启动时固定，不能凭新模型宣称运行时热插拔已实现。
+
+### 电气请求与3D表现分层
+
+state中的`flash-level-pct`是相对芯片电流设定档位，非实测光功率。若输出估计电流，按datasheet与板值算：IFLASH_nominal=(1.26V/100kΩ×10.2kΩ)/0.22Ω≈584mA，ITORCH_nominal=47mV/0.22Ω≈214mA；标nominal formula，不伪造电源/温升/实际电流传感器。
+
+3D只接 `light`：known&active时采用归一化显示level，unknown时撤销已知输出并标unknown；白色由模型固定。电流档位到材质brightness的映射是显示比例，必须明确不是流明/照度/光谱标定。不能用guest所请求档位直接点灯，必须取AW边沿解码后的读回。3D的`mode`读回使用`setPosition`而非press，避免回声；用户真实down带稳定detent时只写S1 fixture，up/cancel不能强制改成Torch/Flash。闭壳无pointer命中；inspection `covers:false`才可操纵S1。
+
+### 必须保留的测试矩阵
+
+离线控制器协议测试（测试真实listener入口/虚拟时钟状态机，不把Python stub当guest证据）：
+
+1. reset低600us后，1..16脉冲全表；每次HI/LO合格，验证脉冲/档位/timeout/status一致。
+2. 0脉冲、17/18脉冲、过短0.5us、过长20us、中途100us间隙：unqualified/unknown，无modulo/clamp伪成功；750ns/10000ns推荐边界与500us reset边界单列保留。
+3. 同电平重复写、初始高、连续低/连续高、EN取消、短低不reset、长低reset；trace overflow可观察且有界。
+4. 220ms与1300ms各自deadline前/后；旧epoch timeout不可熄灭新epoch；old reset timer不可清新burst；长低/重编程/stop后timer不重复触发，timeout后同高不自恢复。
+5. Torch持续超过1300ms仍开、EN低关；S1在EN低时切换再运行；mid-burst/mid-high模式切换按明确unknown边界处理，不能暗中授予精确过渡语义。
+6. hard reset实际pad变化/重置长低，QEMU virtual-clock pause/resume，stop/销毁timer/listener资源；共享GPIO修补需要affected host group回归。
+
+可见8787/UIFlow2正式验收：
+
+1. 原文件`flash_light.py`路径/大小/SHA核对；原8档220ms循环是正例，同时采真实边沿时间，不由`sleep_us(2)`文本推定合格。
+2. 原8档1300ms全部保留negative oracle：7/8编码与意图不符必须如实显示实际pulse表结果，不修原文件；B30是原函数唯一正确的该时间档位。留原源/hash、调用参数、串口/QOM与帧证据。
+3. 用不同文件名的明确修正版或raw pulse guest补全部正确1..16表；修正版若部署必须另外核SHA，不能把它叫官方原驱动。
+4. 保留`turn_off=False`真实自动timeout、`turn_off=True`guest关闭路径；重复调用无长低的原驱动negative，600us显式reset后的恢复；固定程序不调用host setters模拟芯片输出。
+5. Web inspection S1的真实trusted pointer→fixture→同guest/芯片效果→实际mounted白灯；闭壳不产生switch input；runtime readback零回声；主机触摸或按钮产生下一次guest flash，同PID多Run取消再运行。
+6. 五个Run身份帧头/PNG核对、稳定窗口灯材质/像素、原始QOM/串口、Evidence ZIP-before-stop、历史记录/Flash/PID/lease全部收尾。CoreS3先验，另三主机各自验，不以一个PASS授权全部。
+
+### 收尾决定：首块不授予运行中切S1语义
+
+对前述“唯一可写fixture”的最终建议收窄为**session创建/首次程序执行前的模式配置**：以明确Flash/Torch配置创建AW实例，首次EN program开始后冻结该S1配置；Web选择模式通过新建预览/会话生效。在当前材料下不实现active、EN-high、burst中途的S1 live切换。若希望以后支持EN低稳定reset后的同session切换，先把它作为独立虚拟fixture策略/验收项，并明确不等于硬件带电切换证明。
+
+依据边界：官方产品只说拆开外壳后按丝印切模式；新Arduino文档的“power down the unit and toggle ... before retrying”是排障建议，不能反推“芯片任何带电切换必定禁止”，也不能据datasheet的两个静态真值反推完整动态过渡。在收集新的模式过渡时序证据前，这项状态保持UNKNOWN/unsupported。这样既不假装已实现live switch，也不把无依据的硬件禁令写成事实。

@@ -1,0 +1,10 @@
+Creating a new Python environment in <WORKTREE>/.work/uiflow-main-loader-build-20261027/idf-python-env
+Traceback (most recent call last):
+  File "<WORKTREE>/.work/uiflow-main-loader-build-20261027/idf/tools/idf_tools.py", line 3606, in <module>
+    main(sys.argv[1:])
+  File "<WORKTREE>/.work/uiflow-main-loader-build-20261027/idf/tools/idf_tools.py", line 3596, in main
+    action_func(args)
+  File "<WORKTREE>/.work/uiflow-main-loader-build-20261027/idf/tools/idf_tools.py", line 2857, in action_install_python_env
+    elif os.listdir(environ_idf_python_env_path):  # show the message only if the directory is not empty
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<WORKTREE>/.work/uiflow-main-loader-build-20261027/idf-python-env'

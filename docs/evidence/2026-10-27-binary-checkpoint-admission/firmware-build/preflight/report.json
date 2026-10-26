@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "classification": "PREFLIGHT_ONLY_NO_FIRMWARE_BUILD",
+  "uiflow_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+  "micropython_commit": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+  "official_idf_version": "v5.5.4",
+  "official_workflow_git_blob_verified": true,
+  "machine": {
+    "idf_py_in_path": null,
+    "s3_cross_compiler_in_path": null,
+    "idf_path_configured": false,
+    "known_idf_roots_present": {
+      "<USER_HOME>/.espressif": false,
+      "<USER_HOME>/esp": false,
+      "/opt/esp": false,
+      "/opt/esp-idf": false
+    }
+  },
+  "existing_source": {
+    "micropython_compiler_tree": ".work/uiflow-package-live-20261026/mpy-cross-78ff170d/micropython",
+    "uiflow_tree": "ONLY_SELECTED_SOURCE_ARCHIVE",
+    "esp32_build_found": false,
+    "host_mpy_cross_build_found": true,
+    "full_submodules_populated": false
+  },
+  "firmware_build_started": false,
+  "large_download_started": false,
+  "override_main_route": {
+    "configuration": [
+      "MICROPY_MODULE_OVERRIDE_MAIN_IMPORT=1",
+      "MICROPY_CPYTHON_COMPAT=1 (already enabled by ESP32 EXTRA_FEATURES default; pin explicitly)"
+    ],
+    "call": "__import__('main', None, None, False, 0)",
+    "main_alias": "sets app __name__='__main__', app.__main__='main', sys.modules['__main__']=app before guest user bytecode",
+    "file": "set by real importer path main.mpy",
+    "start_contract": "import-dispatched acknowledgement before load/execute; cannot prove load-success START via stock importer",
+    "cleanup": "save exact prior main cache presence/object; remove managed entry and dependency caches before every run; restore prior __main__ on DONE/ERROR/KeyboardInterrupt; not a reset/native-thread cleanup guarantee"
+  },
+  "marshal_route": {
+    "configuration": [
+      "MICROPY_PY_MARSHAL=1",
+      "MICROPY_PY_BUILTINS_CODE=MICROPY_PY_BUILTINS_CODE_BASIC (minimum for separate reusable load then exec)"
+    ],
+    "call": "code=marshal.loads(bytes); START; exec(code, application_globals)",
+    "start_contract": "allows existing load-success START boundary",
+    "module_identity": "exec globals alone is not a true registered __main__ module; module creation/registration is additional work. type(sys) is not constructible (no make_new). Prefer official override-main for smallest complete module identity path or expose a narrow trusted C load/module API.",
+    "memory": "marshal.loads requires full bytes in guest RAM; validate guest limits"
+  },
+  "source_gitlinks": [
+    {
+      "path": "esp-adf",
+      "commit": "01488579932e18c327a151c5b61efff38c9af880"
+    },
+    {
+      "path": "m5stack/cmodules/lv_binding_micropython",
+      "commit": "44f70b1e1adb087e00ea5d39fe45a0b0f3551646"
+    },
+    {
+      "path": "m5stack/components/M5Unified/LGFX_Fonts",
+      "commit": "253cf549fe0b1aa932be68fe06a13c3077918d61"
+    },
+    {
+      "path": "m5stack/components/M5Unified/M5GFX",
+      "commit": "9bcedf4e19d4cab7a0793de0598ae5390b4689fe"
+    },
+    {
+      "path": "m5stack/components/M5Unified/M5Unified",
+      "commit": "8530f5377d782e4a25a6c482de2e71c3f75ca8eb"
+    },
+    {
+      "path": "m5stack/components/esp-code-scanner",
+      "commit": "d2c01ddd266132ff8c19f1aab1aa24e7a5b4d566"
+    },
+    {
+      "path": "m5stack/components/esp32-camera",
+      "commit": "b817e9b81041980608d1a3d3e0b08d86e3666382"
+    },
+    {
+      "path": "m5stack/components/esp_dl",
+      "commit": "6c0b7a1c2eb954212fe7bec3d9843edc3a086d96"
+    },
+    {
+      "path": "m5stack/components/esp_zigbee_host",
+      "commit": "52dda1ffd9a543af94f32cbd5de17f42620259ee"
+    },
+    {
+      "path": "micropython",
+      "commit": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd"
+    },
+    {
+      "path": "tools/littlefs/mbed-littlefs",
+      "commit": "70aa179fa7cfbf247e774ffd16175bacdbdc1e20"
+    }
+  ],
+  "recommended_next": "Keep current main.mpy Run blocked; implement new pinned firmware build lane in an owned directory, first CoreS3, then per-profile visible Device Service evidence before capability admission.",
+  "acceptance": [
+    "same PID/firmware/VM nonce across repeated Runs",
+    "if-main side effect",
+    "import __main__ identity matches application module",
+    "real main.mpy path",
+    "same revision imports again; new revision dependencies change",
+    "root relative import fails correctly; package relative imports preserve semantics",
+    "loader/top-level failure and Ctrl-C restore owner and allow source recovery",
+    "native emitter/forged native body rejected before guest import",
+    "ZIP before stop; purge0; lease/PID/Flash clean"
+  ],
+  "changed_files": [
+    "platform/tools/program_packages.py",
+    "platform/tools/uiflow_package_runtime.py",
+    "platform/tests/test_program_packages.py",
+    "platform/tests/test_uiflow_package_runtime.py"
+  ],
+  "verification": {
+    "command": "PYTHONPATH=platform/tools:platform/tests <HOST_PYTHON_PREFIX>/bin/python3.12 -m unittest test_program_packages test_uiflow_package_runtime test_mpy_bytecode -q",
+    "tests": 63,
+    "result": "PASS",
+    "main_mpy_guest_runtime": "NOT RUN / UNSUPPORTED_CURRENT_FIRMWARE"
+  }
+}

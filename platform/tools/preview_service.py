@@ -14,7 +14,7 @@ import math
 import threading
 import time
 
-from device_service import ServiceError, _validate_checkpoint_bytecode
+from device_service import ServiceError, _require_live_package_entrypoint, _validate_checkpoint_bytecode
 from program_packages import ProgramPackageError
 from preview_store import PreviewStore, PreviewStoreError, LOCAL_OWNER
 from uiflow_runtime import LIVE_PROGRAM_DEVICES
@@ -178,7 +178,8 @@ class PreviewService:
             raise ServiceError(error.code, error.message, error.status) from error
         # Known host rejection must precede any cancellation of the old program.
         try:
-            self.service.program_packages.get(payload["revision_id"])
+            revision = self.service.program_packages.get(payload["revision_id"])
+            _require_live_package_entrypoint(revision)
             files = self.service.program_packages.read_files(payload["revision_id"])
             _validate_checkpoint_bytecode(files)
         except ProgramPackageError as error:

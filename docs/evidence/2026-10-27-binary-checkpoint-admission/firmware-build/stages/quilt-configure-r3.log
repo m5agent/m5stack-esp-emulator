@@ -1,0 +1,26 @@
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether #! works in shell scripts... yes
+checking for bash... /bin/bash
+checking whether /bin/bash quoting works... yes
+checking for gcp... no
+checking for cp... /bin/cp
+configure: WARNING: Using internal date mechanism.  Use option '--with-date' to override
+checking for perl... /usr/bin/perl
+checking for grep... /usr/bin/grep
+checking whether /usr/bin/grep -q works... yes
+checking whether /usr/bin/grep understands (foo|bar)... yes
+checking for tail... /usr/bin/tail
+checking whether /usr/bin/tail -n works... yes
+checking for tr... /usr/bin/tr
+checking whether /usr/bin/tr understands a-z ... yes
+checking for stat... /usr/bin/stat
+checking whether /usr/bin/stat -c '%h' works... no
+checking whether /usr/bin/stat -f '%l' works... yes
+checking for sed... /usr/bin/sed
+checking whether /usr/bin/sed understands (foo|bar)... no
+configure: error: 
+Sorry, you have a version of sed which doesn't understand constructs
+of the form (foo|bar).  quilt needs it.  If you have access to
+a version of sed which does understand such constructs, you can supply
+its path with the '--with-sed=' option.
+

@@ -1,0 +1,62 @@
+{
+  "category": "historical-attempts",
+  "attempts": [
+    {
+      "device_id": "cores3",
+      "attempt": "r1",
+      "classification": "PASS-superseded",
+      "original_status": "PASS",
+      "superseded_by": "../../hosts/cores3/index.json",
+      "root_report": "report.json",
+      "source_receipts": "executed-source-index.json",
+      "cleanup_status": "PASS",
+      "note": "Original passing earlier marker/source version retained; final cohort uses r2 on all four hosts",
+      "path": "cores3-r1/index.json",
+      "files": 400,
+      "bytes": 1456983
+    },
+    {
+      "device_id": "atoms3r",
+      "attempt": "r1",
+      "classification": "PASS-superseded",
+      "original_status": "PASS",
+      "superseded_by": "../../hosts/atoms3r/index.json",
+      "root_report": "report.json",
+      "source_receipts": "executed-source-index.json",
+      "cleanup_status": "PASS",
+      "note": "Original passing earlier marker/source version retained; final cohort uses r2 on all four hosts",
+      "path": "atoms3r-r1/index.json",
+      "files": 399,
+      "bytes": 1427430
+    },
+    {
+      "device_id": "sticks3",
+      "attempt": "r1",
+      "classification": "PASS-superseded",
+      "original_status": "PASS",
+      "superseded_by": "../../hosts/sticks3/index.json",
+      "root_report": "report.json",
+      "source_receipts": "executed-source-index.json",
+      "cleanup_status": "PASS",
+      "note": "Original passing earlier marker/source version retained; final cohort uses r2 on all four hosts",
+      "path": "sticks3-r1/index.json",
+      "files": 381,
+      "bytes": 1354092
+    },
+    {
+      "device_id": "stopwatch",
+      "attempt": "r1",
+      "classification": "FAIL",
+      "original_status": "FAIL",
+      "superseded_by": "../../hosts/stopwatch/index.json",
+      "root_report": "report.json",
+      "source_receipts": "executed-source-index.json",
+      "cleanup_status": "PASS",
+      "note": "StopWatch corner marker outside round-display visible region; lane FAIL is preserved; cleanup PASS does not promote lane",
+      "path": "stopwatch-r1/index.json",
+      "files": 82,
+      "bytes": 341384
+    }
+  ],
+  "classification_rule": "original status immutable; cleanup success never promotes a failed lane; passing earlier source versions remain superseded"
+}

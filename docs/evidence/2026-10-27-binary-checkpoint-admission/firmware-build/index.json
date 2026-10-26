@@ -1,0 +1,1668 @@
+{
+  "schema_version": 1,
+  "classification": "LOCAL_BUILD_PASS_NOT_GUEST_ADMITTED",
+  "generated_at": "2026-10-26T20:26:08.082540+00:00",
+  "preflight_classification": "PREFLIGHT_ONLY_NO_FIRMWARE_BUILD",
+  "guest_runtime": "NOT RUN",
+  "hardware": "NOT RUN",
+  "published": false,
+  "reference_cache_modified": false,
+  "all_stages_terminal": true,
+  "no_binary_payloads_archived": true,
+  "path_redactions": {
+    "<WORKTREE>": "absolute integration worktree prefix",
+    "<USER_HOME>": "absolute user home prefix",
+    "<HOST_PYTHON_PREFIX>": "absolute existing host Python prefix"
+  },
+  "files": [
+    {
+      "path": "actual-build/build-receipt.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/build-receipt.json",
+      "original_size": 27614,
+      "original_sha256": "d1ec9a7b3f840d153e9029ce7c646c045bbc6895067b459af1ac94f884484925",
+      "archive_size": 25559,
+      "archive_sha256": "82cafa4956a42a7ba5a4424b0a58f4f64c6d0fef988b748e6a560303c9ccbfed",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 32,
+        "<HOST_PYTHON_PREFIX>": 5
+      }
+    },
+    {
+      "path": "actual-build/resolved-sources.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/resolved-sources.json",
+      "original_size": 418,
+      "original_sha256": "a4df806487485eb18e315fcacf3c36e00a65d077da6f6ab0f5b3d009efc2eee8",
+      "archive_size": 418,
+      "archive_sha256": "a4df806487485eb18e315fcacf3c36e00a65d077da6f6ab0f5b3d009efc2eee8",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "actual-build/preflight-tools.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/preflight-tools.json",
+      "original_size": 2056,
+      "original_sha256": "e31a41c213db1405af2043cd9c5ceb0fb85ee35b727dcbec05796c713636e5d7",
+      "archive_size": 2021,
+      "archive_sha256": "81eebc40df68f07cc655deac70b38974f093711bfc3c5e40deba2d63ff7822d6",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1,
+        "<HOST_PYTHON_PREFIX>": 6
+      }
+    },
+    {
+      "path": "actual-build/uiflow-gitlinks.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow-gitlinks.json",
+      "original_size": 1193,
+      "original_sha256": "65c0374a686716b11edecd5c7f13a01e6559ef7ac400c090487dd6480fb718de",
+      "archive_size": 1193,
+      "archive_sha256": "65c0374a686716b11edecd5c7f13a01e6559ef7ac400c090487dd6480fb718de",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "actual-build/uiflow-submodule-status.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow-submodule-status.txt",
+      "original_size": 3019,
+      "original_sha256": "5dd544c6785b6a88e885cb015f901bde6f7026a98b515b40093dd90a89823ae4",
+      "archive_size": 3019,
+      "archive_sha256": "5dd544c6785b6a88e885cb015f901bde6f7026a98b515b40093dd90a89823ae4",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "actual-build/idf-submodule-status.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/idf-submodule-status.txt",
+      "original_size": 2377,
+      "original_sha256": "3f2c9a24d7ba5f616c75d5a1fabeb9f1b34a841d3e6c5b07e7fb40ce09075e9e",
+      "archive_size": 2377,
+      "archive_sha256": "3f2c9a24d7ba5f616c75d5a1fabeb9f1b34a841d3e6c5b07e7fb40ce09075e9e",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "actual-build/main-loader-patch.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/main-loader-patch.json",
+      "original_size": 472,
+      "original_sha256": "39b5ff204ba713216a172b3723ebab0bcef739c0ab1d4b07c3a7511e59585fe5",
+      "archive_size": 472,
+      "archive_sha256": "39b5ff204ba713216a172b3723ebab0bcef739c0ab1d4b07c3a7511e59585fe5",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "actual-build/cores3-loader-macro-proof.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/cores3-loader-macro-proof.json",
+      "original_size": 54862,
+      "original_sha256": "cb3a995994fca9c016e92aeac39711775900426e34644038ce643d5a396a333e",
+      "archive_size": 35687,
+      "archive_sha256": "b83cd17a3a8da244d55e0890118bec8aa94eb54e4e1818d858ae2931c17ae187",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 295
+      }
+    },
+    {
+      "path": "actual-build/cores3-builtinimport-preprocessor-macros.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/cores3-builtinimport-preprocessor-macros.txt",
+      "original_size": 336512,
+      "original_sha256": "725a4f9c42f90b7d44a6824d2eb2af189390b8d118a221e8010d7eb3cec16139",
+      "archive_size": 336317,
+      "archive_sha256": "d83926135da684ee5206e22391fa4410562df6deb9985f2faf8ce249174f8a51",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 3
+      }
+    },
+    {
+      "path": "actual-build/quilt-download.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/quilt-download.json",
+      "original_size": 184,
+      "original_sha256": "15e6ef081449325f642ae95f27d42124e94749a081ebcb48c88a7ed9a21fda90",
+      "archive_size": 184,
+      "archive_sha256": "15e6ef081449325f642ae95f27d42124e94749a081ebcb48c88a7ed9a21fda90",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "actual-build/gnu-downloads.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/gnu-downloads.json",
+      "original_size": 662,
+      "original_sha256": "ba711ec76872a46b03eac8df67a893e05c9f727862b8f07770135c5971a56dcf",
+      "archive_size": 662,
+      "archive_sha256": "ba711ec76872a46b03eac8df67a893e05c9f727862b8f07770135c5971a56dcf",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "stages/adf-submodules.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/adf-submodules.json",
+      "original_size": 554,
+      "original_sha256": "9a1605ce40f938dc69c78b81591b2fe9c0e6d999f0ac31dd8c020cd49d5b7589",
+      "archive_size": 489,
+      "archive_sha256": "5aacafabac8d58b7150639db38a08755fa32da281f6771f39d9621d658e20740",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/adf-submodules.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/adf-submodules.log",
+      "original_size": 1006,
+      "original_sha256": "a57e3dae4644bb49c1282b9e28a9a8fe215aebf7e6e9a1994d8dc2ec6cecf72f",
+      "archive_size": 876,
+      "archive_sha256": "e4380218110f2a2c3df6b73592a88a01a76a423caabda5927ff26e5238cbed20",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 2
+      }
+    },
+    {
+      "path": "stages/check-idf-environment.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/check-idf-environment.json",
+      "original_size": 449,
+      "original_sha256": "32c27628862def5e8ed8ad4f320cb8b0bd2257ae6f9aaf5edfe8eab9b61384c2",
+      "archive_size": 384,
+      "archive_sha256": "e6fef444d264af792882ac645598598ed5778aed0c8239db83db380c6ff5d465",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/check-idf-environment.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/check-idf-environment.log",
+      "original_size": 2391,
+      "original_sha256": "08b7076236568e20dae20c070f1de0d188205c8cc84957d2da5fc119a778e05b",
+      "archive_size": 2326,
+      "archive_sha256": "db9a28d999e6ee1f601634ff16c86f7092947ee2862cf233461da5412694da99",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/cores3-pack-all.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/cores3-pack-all.json",
+      "original_size": 447,
+      "original_sha256": "be8e2ce2837b9c535ffc77f5739ae37d43f36ba5a47a2426048b513db14e5054",
+      "archive_size": 382,
+      "archive_sha256": "79385d797f09cf3a59f353fea999509ae19db19e5a5126df1c806389d24c256f",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/cores3-pack-all.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/cores3-pack-all.log",
+      "original_size": 2790324,
+      "original_sha256": "7f3774d19b40cd670efdfe9266dc4e0f32b787b25f68dad822da305aab907991",
+      "archive_size": 2186474,
+      "archive_sha256": "2618dc90c56660270b1d636c4b91dbbb444efb1b257eb6cd5eea12f601915275",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 9290
+      }
+    },
+    {
+      "path": "stages/gnu-host-tools.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/gnu-host-tools.json",
+      "original_size": 477,
+      "original_sha256": "7abc3b2c92558296b1f68bba84870b1bec7a1939fb55ad71466165f1d674031b",
+      "archive_size": 417,
+      "archive_sha256": "d9e94ba889306e9a8797cc776df1dd4112aef34e8452511dcc5cee29b25df40f",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1,
+        "<HOST_PYTHON_PREFIX>": 1
+      }
+    },
+    {
+      "path": "stages/gnu-host-tools.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/gnu-host-tools.log",
+      "original_size": 105780,
+      "original_sha256": "e426b6ab61d64e8f84ea98aa9a220d777a0f2150bb172a7c7f0d538cf34187ca",
+      "archive_size": 102660,
+      "archive_sha256": "042e93003fe4c5566b8f5bc5480f99c5f85767ed01c6db71679044f485a779ce",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 48
+      }
+    },
+    {
+      "path": "stages/host-build-tools.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/host-build-tools.json",
+      "original_size": 538,
+      "original_sha256": "8d4e1285ace895f6139af29a003ff16e6ae92e4866f4df9e546b670b4301e1e3",
+      "archive_size": 473,
+      "archive_sha256": "c9f764ff3211cc648e493f4eb7d14f5ac5036aeb69d31b6483f4f459f2c3cc10",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/host-build-tools.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/host-build-tools.log",
+      "original_size": 887,
+      "original_sha256": "de8b7a74b84e3002f07e2ef89afb8bc40ee0e9f2f490610c598ca54792dccc1f",
+      "archive_size": 887,
+      "archive_sha256": "de8b7a74b84e3002f07e2ef89afb8bc40ee0e9f2f490610c598ca54792dccc1f",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "stages/host-env.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/host-env.json",
+      "original_size": 478,
+      "original_sha256": "bcde7e0acc68f4075fac3b5b83e07d10390f4fdac1fd9a623d13aeead63375f5",
+      "archive_size": 418,
+      "archive_sha256": "e74a0fa287e40a2ee27e598af5d99e5497173db6a9d871758d64d7d9b2533dc5",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1,
+        "<HOST_PYTHON_PREFIX>": 1
+      }
+    },
+    {
+      "path": "stages/host-env.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/host-env.log",
+      "original_size": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_size": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "stages/idf-python-env-r2.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/idf-python-env-r2.json",
+      "original_size": 529,
+      "original_sha256": "0964925f2526461cfcabb3c53c1e3d1aa0010d4ee7f51fb540a5042b1e6e8997",
+      "archive_size": 469,
+      "archive_sha256": "52df8298101cb3afe9f58a0cc977cc9aef65da1fa0a33bdad8141fd04f94ba98",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1,
+        "<HOST_PYTHON_PREFIX>": 1
+      }
+    },
+    {
+      "path": "stages/idf-python-env-r2.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/idf-python-env-r2.log",
+      "original_size": 23468,
+      "original_sha256": "72c0d4e88a092dd1aa2440707284d66f50fc2883a5075232c53fc8ca8a5ddb6c",
+      "archive_size": 19243,
+      "archive_sha256": "bc282f5f95a24189cc0a51460a8bbac4678160ab82e9bea0e1b25ae3409aa862",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 65
+      }
+    },
+    {
+      "path": "stages/idf-python-env.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/idf-python-env.json",
+      "original_size": 525,
+      "original_sha256": "51a4c0adc75aec9a93d78429ee41c89f6d46e9641927d54ea0e3ae23a5398bab",
+      "archive_size": 465,
+      "archive_sha256": "cd20a344ce63dfe439934b0c0b16f210216bce3d0a7e872a8dcc2ff3c26d1eb0",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1,
+        "<HOST_PYTHON_PREFIX>": 1
+      }
+    },
+    {
+      "path": "stages/idf-python-env.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/idf-python-env.log",
+      "original_size": 1120,
+      "original_sha256": "9b7ffa4da627b618f22442b17f7f66e6b24953ce2d29452f9413e47a7c5f5bc1",
+      "archive_size": 795,
+      "archive_sha256": "0192bd6c5d5a9e29196f4a0e99d3c04bcf3f23b52c4dc6e43068a004c0bf7ad0",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 5
+      }
+    },
+    {
+      "path": "stages/idf-python-future.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/idf-python-future.json",
+      "original_size": 501,
+      "original_sha256": "e14e2965a4d6b644f34f3c4479e3f0052fb82c5c7b7ce4de9823f7731d6e0d6d",
+      "archive_size": 436,
+      "archive_sha256": "fe3235a930ba5f61fe0dc4b7abdcfde3ff01d7c8067e164bb5295bf30295348c",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/idf-python-future.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/idf-python-future.log",
+      "original_size": 214,
+      "original_sha256": "69946c07a97235724f3de594d9bd22105b36281b41b22bad05bc05af517a6442",
+      "archive_size": 214,
+      "archive_sha256": "69946c07a97235724f3de594d9bd22105b36281b41b22bad05bc05af517a6442",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "stages/idf-submodules.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/idf-submodules.json",
+      "original_size": 506,
+      "original_sha256": "206277b9cd7a7bffa0f58faf528c435c676a0961c68c3ced911d66e4af752426",
+      "archive_size": 441,
+      "archive_sha256": "018ee4b0d869dca14a9d56e861b130c23e7e120dfffdb8a71fdf023fb8223d48",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/idf-submodules.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/idf-submodules.log",
+      "original_size": 14917,
+      "original_sha256": "929f9528593ece7ec03d0175f2f93a68ee1524682f02e51be89dd1438cf960fc",
+      "archive_size": 13162,
+      "archive_sha256": "f66f2f7be594d68c5531d829f19d3178d121da0529fdef914f11636de314a8d0",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 27
+      }
+    },
+    {
+      "path": "stages/idf-tools-install.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/idf-tools-install.json",
+      "original_size": 462,
+      "original_sha256": "474210ffa1304f3e5c511c1c1289b9f239840307e3050930340436b612453341",
+      "archive_size": 397,
+      "archive_sha256": "65c104a9d599764aa781b53a01b22eaae353e98704e6b36504f687cf986e5de0",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/idf-tools-install.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/idf-tools-install.log",
+      "original_size": 253683,
+      "original_sha256": "3442715f683ca64cbe7d98979be90daf7229e73ecf51510ea486d362dbf0e00b",
+      "archive_size": 252383,
+      "archive_sha256": "d4229b85b092b5c5b087525c430c66f4a4fdc6eeffe6323319455a4337411e13",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 20
+      }
+    },
+    {
+      "path": "stages/inspect-cores3-build-r2.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/inspect-cores3-build-r2.json",
+      "original_size": 459,
+      "original_sha256": "4a501ac29209573f872a2dd996ff2bc6f962ca1144c30766b0aa4d590d096d64",
+      "archive_size": 394,
+      "archive_sha256": "d1d4100de408642dc5a68f2c1d2c65a90412c1a0decbe97da82d33373d317395",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/inspect-cores3-build-r2.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/inspect-cores3-build-r2.log",
+      "original_size": 1831,
+      "original_sha256": "a8ec62e199fb6eea3a6e493354d26d376b457fefd553a95cbd6551b9efc523d8",
+      "archive_size": 1766,
+      "archive_sha256": "6a25a43ca55f632b69ed6da6c1a596fc09f368e124bbc218af7e503cde278066",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/inspect-cores3-build.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/inspect-cores3-build.json",
+      "original_size": 456,
+      "original_sha256": "0e2058cf805430e1de474fb30a518622f388098e049b8ba6dba322f8950d7d89",
+      "archive_size": 391,
+      "archive_sha256": "006d5f52fd9871d38d83ab5ab66c8be5e5c34aa93d34906a9b04b6a035c5e7ec",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/inspect-cores3-build.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/inspect-cores3-build.log",
+      "original_size": 1967,
+      "original_sha256": "757c51eb839682218cc7826307476a4c844f9f9e1fd12d2824f747d55a7d5b1f",
+      "archive_size": 1902,
+      "archive_sha256": "05d30affe6d0204070ee144e6d4a9ebb0fc5d278ff4418b8d19b5b08286c5dca",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/littlefs-tool-build.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/littlefs-tool-build.json",
+      "original_size": 473,
+      "original_sha256": "fd26018cf1dfd63391760b7d8f180019b6eaee33f53514f93fb50fa222347bef",
+      "archive_size": 408,
+      "archive_sha256": "a1f103c10d75024ffe35a8d53d42e9b86cf86641f59aa94b103f5f5a6331cf49",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/littlefs-tool-build.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/littlefs-tool-build.log",
+      "original_size": 1352,
+      "original_sha256": "d63f5db14c07041f60fb246173626642c3aef9d61025891d464c1dfa7f458fea",
+      "archive_size": 1287,
+      "archive_sha256": "101e0c86a31cd3990e6ccb16fdc192b9e0b1db28d21736d713d3c24f659026a0",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/lvgl-submodules.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/lvgl-submodules.json",
+      "original_size": 550,
+      "original_sha256": "1d975d359786c3ca28d4294121a6b3dc46384bb21ab5d79ec2f379dc04dee8c3",
+      "archive_size": 485,
+      "archive_sha256": "10b885c51f59710198ccf4a028a392ceab772b0d4a151302e7b264222c39a0c4",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/lvgl-submodules.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/lvgl-submodules.log",
+      "original_size": 952,
+      "original_sha256": "c5ca0ee15eb5a21b9aa86b0714891afa41bd10dc06fe3951b6baf835c02b8122",
+      "archive_size": 822,
+      "archive_sha256": "354dfcf6b3aaf59f6a90c8a261c3307f353e9f1dda8362163ce0f2ec4d4df6a6",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 2
+      }
+    },
+    {
+      "path": "stages/micropython-submodules.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/micropython-submodules.json",
+      "original_size": 583,
+      "original_sha256": "41695711c35f241f55aa7d9bde6268bce70eebf70ba366db1fddbf78c672787c",
+      "archive_size": 518,
+      "archive_sha256": "65d195cf533954260dd907cc0f222a7f00252b2ac2c49e52197f101c13e645f8",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/micropython-submodules.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/micropython-submodules.log",
+      "original_size": 1376,
+      "original_sha256": "865142255c368f1e05916ba89ee9468d4dccd51e033d5f4b271956ca77c5b427",
+      "archive_size": 1181,
+      "archive_sha256": "ea0035d7fafa4ae227362336aba703e5b844344c6cb5ff08bcdf96d3946ed5d0",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 3
+      }
+    },
+    {
+      "path": "stages/mpy-cross-build.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/mpy-cross-build.json",
+      "original_size": 478,
+      "original_sha256": "51c5b61f8191be8af0b95487614c97b46f0c4fd93af6136599382f74c3712eca",
+      "archive_size": 413,
+      "archive_sha256": "541e3c68e1373ca9a67d1bdd8f8e6b7ea39af31cbeee7a0b2076a4727d72f6d7",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/mpy-cross-build.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/mpy-cross-build.log",
+      "original_size": 3419,
+      "original_sha256": "76b2e59f408b1fa107fd5564c257a6c7d5ea355385102d8b5b251b65722f9bf1",
+      "archive_size": 3419,
+      "archive_sha256": "76b2e59f408b1fa107fd5564c257a6c7d5ea355385102d8b5b251b65722f9bf1",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "stages/official-patch-series.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/official-patch-series.json",
+      "original_size": 472,
+      "original_sha256": "e34ea67dbc4648ad1b2484a4ab6de1d33fcf4e793b7e681e029b61ebeb037f4e",
+      "archive_size": 407,
+      "archive_sha256": "b0acad2520f56df294b268b26544f498443977be67b3dbb5dc2b4c20b48b3a44",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/official-patch-series.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/official-patch-series.log",
+      "original_size": 17011,
+      "original_sha256": "396cccc0a286b092955f2cecb342807c829cd1df22f8513720b7afa440089908",
+      "archive_size": 13631,
+      "archive_sha256": "ac9627872de83bf199116966c4764c5af1cdc002325ed19dc06d2c700b4fd441",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 52
+      }
+    },
+    {
+      "path": "stages/prepare-sources.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/prepare-sources.json",
+      "original_size": 475,
+      "original_sha256": "fcd8277a99d53b4b298eb6582be9d9c6811012f9b286c125ddc79217f772eed5",
+      "archive_size": 415,
+      "archive_sha256": "3a147151517c125c0aa253e48ee91369e0a03c071d96ec3a054da2700a643217",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1,
+        "<HOST_PYTHON_PREFIX>": 1
+      }
+    },
+    {
+      "path": "stages/prepare-sources.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/prepare-sources.log",
+      "original_size": 3004,
+      "original_sha256": "8f02c1ee6f6917b31326cccf29b2b2776e8bc55a689558e4ccc7aa110188ec63",
+      "archive_size": 2159,
+      "archive_sha256": "176eb5f476e7caec44e30f9cc34b74643cebb804dfdd7636f09ae6ffe715eef5",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 13
+      }
+    },
+    {
+      "path": "stages/quilt-build.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-build.json",
+      "original_size": 452,
+      "original_sha256": "ffff6b54d30b04159454a2ad873d02bc2f5d1e2479d52a129323e0b5d2cffeda",
+      "archive_size": 387,
+      "archive_sha256": "37056690eb9474efb94812e0829220d527f95138928d59af9fab89059f59b0c5",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/quilt-build.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-build.log",
+      "original_size": 1531,
+      "original_sha256": "78541c6226df726d0b0ac36f15b59af9824b3b3ae316cb99377d91023b432a96",
+      "archive_size": 1531,
+      "archive_sha256": "78541c6226df726d0b0ac36f15b59af9824b3b3ae316cb99377d91023b432a96",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "stages/quilt-configure-r2.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-configure-r2.json",
+      "original_size": 619,
+      "original_sha256": "def487532ae32b7245ef09c10b2c08409276cf7081a3d2dee4fcaa21cb9634c2",
+      "archive_size": 489,
+      "archive_sha256": "a823de52cb0314b9e5b2608a54d909d4966691f334d1d9851f828585efc52912",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 2
+      }
+    },
+    {
+      "path": "stages/quilt-configure-r2.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-configure-r2.log",
+      "original_size": 503,
+      "original_sha256": "ac1d336ae86a5a1f0910ebf532eafe4ebf363084122a18c8c244182509018e20",
+      "archive_size": 503,
+      "archive_sha256": "ac1d336ae86a5a1f0910ebf532eafe4ebf363084122a18c8c244182509018e20",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "stages/quilt-configure-r3.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-configure-r3.json",
+      "original_size": 641,
+      "original_sha256": "5120e40519d49a4dfacd819d775e82cd593a7110ab4df8ef9f807deb70c0282b",
+      "archive_size": 511,
+      "archive_sha256": "c33c765bdccbcb21fd317869404160b2e6bf91ee8027b08970137e8dd499fcba",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 2
+      }
+    },
+    {
+      "path": "stages/quilt-configure-r3.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-configure-r3.log",
+      "original_size": 1164,
+      "original_sha256": "c0cb58eb58254884fe5e3ae1117232941eb7fc1fc21252bd0ef6c68b12849500",
+      "archive_size": 1164,
+      "archive_sha256": "c0cb58eb58254884fe5e3ae1117232941eb7fc1fc21252bd0ef6c68b12849500",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "stages/quilt-configure-r4.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-configure-r4.json",
+      "original_size": 641,
+      "original_sha256": "2bbdbcc9e815fbfce7cf18a98b9c52a689323920a36632d59be7c80357aa783f",
+      "archive_size": 511,
+      "archive_sha256": "20fc5a58502e92069fdcbf0e4e1e98c0203ee5351794979ddff6457819f599da",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 2
+      }
+    },
+    {
+      "path": "stages/quilt-configure-r4.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-configure-r4.log",
+      "original_size": 1629,
+      "original_sha256": "10ea1c2bf5c66ab2956d5e315ee81aeb370b7291b75f55273b91a34127b5cf93",
+      "archive_size": 1499,
+      "archive_sha256": "6a0ac9e085bcc886eaa99988d763f08b6e22c5bb0d84f2270d3bb6602341ee63",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 2
+      }
+    },
+    {
+      "path": "stages/quilt-configure-r5.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-configure-r5.json",
+      "original_size": 664,
+      "original_sha256": "eb50ff2391ca1095a54d88940c9950c8b266b475d2fd29fa9158f944f94fa275",
+      "archive_size": 534,
+      "archive_sha256": "2c1adfe2977640118c2387da5738b05b4749fc9cb7c5d397dca4e41db2ddb6ab",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 2
+      }
+    },
+    {
+      "path": "stages/quilt-configure-r5.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-configure-r5.log",
+      "original_size": 3465,
+      "original_sha256": "f07f7c610d141c7d0d3cc78a15ea68ed3e2481544b40f7fc82b2a7ffac55e4a7",
+      "archive_size": 3010,
+      "archive_sha256": "88137a0ea20d296b01d40ce29e823861e97e37518847718b259742ef61758de9",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 7
+      }
+    },
+    {
+      "path": "stages/quilt-configure.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-configure.json",
+      "original_size": 661,
+      "original_sha256": "aafe1192288950ca9e292887ad25793b3f7b4772ef3c527a107350aafc55dcc3",
+      "archive_size": 531,
+      "archive_sha256": "ee130f0d0b07d3a1818b741e58279244bdad1d0a41d8b3d02c0ee4afe2ae3097",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 2
+      }
+    },
+    {
+      "path": "stages/quilt-configure.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-configure.log",
+      "original_size": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_size": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "stages/quilt-install.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-install.json",
+      "original_size": 458,
+      "original_sha256": "51286db6ed4c00b1828cb0deab6ea58cd8fdff1c9078e7c162aa0a8255c9d028",
+      "archive_size": 393,
+      "archive_sha256": "9ba93068f2c4929045f7049071591ad2b3d67640df7269030139be8cf04c47da",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/quilt-install.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/quilt-install.log",
+      "original_size": 4476,
+      "original_sha256": "850d654658c4a7e2ca8294e3d786f90d3997c50b866da71539aaeedec2a61b23",
+      "archive_size": 3046,
+      "archive_sha256": "c43ae8f380040bc2b493baefee4732a4874e53071ce4570e12360911fc955685",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 22
+      }
+    },
+    {
+      "path": "stages/uiflow-submodules.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/uiflow-submodules.json",
+      "original_size": 493,
+      "original_sha256": "6703d9fc08cbf294a4b1cd9c03370c6c1d735b95a8828b545ba9308e96ac360e",
+      "archive_size": 428,
+      "archive_sha256": "84b451b1b33e4558e44d0baecd3eaccc0ade0401c3745f7dc5e28375bcd946c4",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "stages/uiflow-submodules.log",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/logs/uiflow-submodules.log",
+      "original_size": 5396,
+      "original_sha256": "feab1df926b242f3e71c8dd8b0cba772d9402c3686289726eae66b22770a4e19",
+      "archive_size": 4681,
+      "archive_sha256": "0ddfcfee9cfcdbb5a749a1fc43b0f396f2c7b76d08ea9f46805c8d08a1855354",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 11
+      }
+    },
+    {
+      "path": "source-and-toolchain/M5GFX-status.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/M5GFX-status.txt",
+      "original_size": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_size": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/M5GFX-tracked.diff",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/M5GFX-tracked.diff",
+      "original_size": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_size": 0,
+      "archive_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/M5Unified-status.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/M5Unified-status.txt",
+      "original_size": 391,
+      "original_sha256": "fff3dc2a3e9c293e455b50b9acddbc8acc0886604d5d436ebd3796da7df2f4d0",
+      "archive_size": 391,
+      "archive_sha256": "fff3dc2a3e9c293e455b50b9acddbc8acc0886604d5d436ebd3796da7df2f4d0",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/M5Unified-tracked.diff",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/M5Unified-tracked.diff",
+      "original_size": 38980,
+      "original_sha256": "131c55ff93be782637a145e111932edf6e0d7717751df2011e34cc95ab86d8e8",
+      "archive_size": 38980,
+      "archive_sha256": "131c55ff93be782637a145e111932edf6e0d7717751df2011e34cc95ab86d8e8",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/dependencies.lock",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/dependencies.lock",
+      "original_size": 3902,
+      "original_sha256": "d46169a24b008dc4e5cab20701a69a655d88d3ef79df7cdb5036e1ef87ee750d",
+      "archive_size": 3772,
+      "archive_sha256": "c80ccab41fa9bccac22180d02ef27b1e7ce24327920e8b113321a93f7fbed52e",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 2
+      }
+    },
+    {
+      "path": "source-and-toolchain/esp-adf-status.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/esp-adf-status.txt",
+      "original_size": 65,
+      "original_sha256": "94abe50c3876cb821b4b888305bbb2753cd45b0ad9b2bbd752f71277a2606306",
+      "archive_size": 65,
+      "archive_sha256": "94abe50c3876cb821b4b888305bbb2753cd45b0ad9b2bbd752f71277a2606306",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/esp-adf-tracked.diff",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/esp-adf-tracked.diff",
+      "original_size": 689,
+      "original_sha256": "c7b22ef4abdb68298507919ad9be7ea7f9ae7caeb2bdb4bc1da77628b832b4d0",
+      "archive_size": 689,
+      "archive_sha256": "c7b22ef4abdb68298507919ad9be7ea7f9ae7caeb2bdb4bc1da77628b832b4d0",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/esp32-camera-status.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/esp32-camera-status.txt",
+      "original_size": 68,
+      "original_sha256": "18ea79824e57d962f5fea5312d11b66b0d7565b7c41e4b7a6a6a62821bd18b22",
+      "archive_size": 68,
+      "archive_sha256": "18ea79824e57d962f5fea5312d11b66b0d7565b7c41e4b7a6a6a62821bd18b22",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/esp32-camera-tracked.diff",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/esp32-camera-tracked.diff",
+      "original_size": 30465,
+      "original_sha256": "5ad4be7633f597a13251f2c16814debe4a35321454c2ef1e22678fc51db0de66",
+      "archive_size": 30465,
+      "archive_sha256": "5ad4be7633f597a13251f2c16814debe4a35321454c2ef1e22678fc51db0de66",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/espidf.constraints.v5.5.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/espidf.constraints.v5.5.txt",
+      "original_size": 3766,
+      "original_sha256": "6b53b3657a924b8ba10c5e4eea0628e1675d2dadb7b2f9ecc48c8d130a117aa1",
+      "archive_size": 3766,
+      "archive_sha256": "6b53b3657a924b8ba10c5e4eea0628e1675d2dadb7b2f9ecc48c8d130a117aa1",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/host-python-freeze.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/host-python-freeze.txt",
+      "original_size": 56,
+      "original_sha256": "b55bf26dee084ec149ab297ea5b30a6c4bff0913afc9a9ec8883f99b80b419a7",
+      "archive_size": 56,
+      "archive_sha256": "b55bf26dee084ec149ab297ea5b30a6c4bff0913afc9a9ec8883f99b80b419a7",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/idf-python-freeze.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/idf-python-freeze.txt",
+      "original_size": 1151,
+      "original_sha256": "82b167661251e9e4a63f394e0a84f8084183c26170d2e8b903db11a330a4d1b1",
+      "archive_size": 1151,
+      "archive_sha256": "82b167661251e9e4a63f394e0a84f8084183c26170d2e8b903db11a330a4d1b1",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/idf-status.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/idf-status.txt",
+      "original_size": 121,
+      "original_sha256": "661c7d931afd02fa39d75fbf5c9614dcac34260b43f6eba281d72db0d232bc4b",
+      "archive_size": 121,
+      "archive_sha256": "661c7d931afd02fa39d75fbf5c9614dcac34260b43f6eba281d72db0d232bc4b",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/idf-submodules.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/idf-submodules.txt",
+      "original_size": 2377,
+      "original_sha256": "3f2c9a24d7ba5f616c75d5a1fabeb9f1b34a841d3e6c5b07e7fb40ce09075e9e",
+      "archive_size": 2377,
+      "archive_sha256": "3f2c9a24d7ba5f616c75d5a1fabeb9f1b34a841d3e6c5b07e7fb40ce09075e9e",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/idf-tracked.diff",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/idf-tracked.diff",
+      "original_size": 3470,
+      "original_sha256": "3c2166c41bac31cab1059039457423c6128b9b72d143e85c8d65b1c9e37afdac",
+      "archive_size": 3470,
+      "archive_sha256": "3c2166c41bac31cab1059039457423c6128b9b72d143e85c8d65b1c9e37afdac",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/lv_binding-status.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/lv_binding-status.txt",
+      "original_size": 80,
+      "original_sha256": "e228d66c028c68e28fba69801dba59510a0dcbb4d68496d483a7a94d20d5eac7",
+      "archive_size": 80,
+      "archive_sha256": "e228d66c028c68e28fba69801dba59510a0dcbb4d68496d483a7a94d20d5eac7",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/lv_binding-tracked.diff",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/lv_binding-tracked.diff",
+      "original_size": 4869,
+      "original_sha256": "0f777d75c86c9cdd44d1652654a455bd1d04d03ffc5dde08ec7800d0251b1ce0",
+      "archive_size": 4869,
+      "archive_sha256": "0f777d75c86c9cdd44d1652654a455bd1d04d03ffc5dde08ec7800d0251b1ce0",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/micropython-status.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/micropython-status.txt",
+      "original_size": 486,
+      "original_sha256": "7efc4124c671e63c486743dc2e9e42034d392f315569b56811b75605fc482e08",
+      "archive_size": 486,
+      "archive_sha256": "7efc4124c671e63c486743dc2e9e42034d392f315569b56811b75605fc482e08",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/micropython-tracked.diff",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/micropython-tracked.diff",
+      "original_size": 40624,
+      "original_sha256": "06e10d67998fd3c84a91ccdf000a1fc585315cba6ccf201e01e2c68d776843b5",
+      "archive_size": 40624,
+      "archive_sha256": "06e10d67998fd3c84a91ccdf000a1fc585315cba6ccf201e01e2c68d776843b5",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/sdkconfig",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/sdkconfig",
+      "original_size": 94277,
+      "original_sha256": "5c5b70accf53966c763ff0dc60da6677f724bcfab0e1e1d6f2f469d16de8f9dc",
+      "archive_size": 94277,
+      "archive_sha256": "5c5b70accf53966c763ff0dc60da6677f724bcfab0e1e1d6f2f469d16de8f9dc",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/tools.json",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/tools.json",
+      "original_size": 42371,
+      "original_sha256": "113bf865724ddf0c6e554c2da3cd55b39655f0b220fdf5a52ab0518d04dffde3",
+      "archive_size": 42371,
+      "archive_sha256": "113bf865724ddf0c6e554c2da3cd55b39655f0b220fdf5a52ab0518d04dffde3",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/uiflow-status.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/uiflow-status.txt",
+      "original_size": 195,
+      "original_sha256": "6507c800d827428b2b71436ae01f3d6774398060a26bed6d0db9fa1bb2de26e9",
+      "archive_size": 195,
+      "archive_sha256": "6507c800d827428b2b71436ae01f3d6774398060a26bed6d0db9fa1bb2de26e9",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/uiflow-submodules.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/uiflow-submodules.txt",
+      "original_size": 3019,
+      "original_sha256": "5dd544c6785b6a88e885cb015f901bde6f7026a98b515b40093dd90a89823ae4",
+      "archive_size": 3019,
+      "archive_sha256": "5dd544c6785b6a88e885cb015f901bde6f7026a98b515b40093dd90a89823ae4",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "source-and-toolchain/uiflow-tracked.diff",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/uiflow-tracked.diff",
+      "original_size": 2039,
+      "original_sha256": "6669a3a514823f36a3c188c449ed47546a800790c0f367a4b99d7d584b01072b",
+      "archive_size": 2039,
+      "archive_sha256": "6669a3a514823f36a3c188c449ed47546a800790c0f367a4b99d7d584b01072b",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "patches/main-loader-cores3.patch",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/patches/main-loader-cores3.patch",
+      "original_size": 690,
+      "original_sha256": "a5d40246e296cae595c03bbde37d03f20ef7b636e96012e4c005d34549fff3c0",
+      "archive_size": 690,
+      "archive_sha256": "a5d40246e296cae595c03bbde37d03f20ef7b636e96012e4c005d34549fff3c0",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "commands/run-stage.py.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/run-stage.py",
+      "original_size": 2353,
+      "original_sha256": "c408d14190dfcd1a041a4c26bfa190a5f1e4eecc0ccbb4f9163f9a2f33681c17",
+      "archive_size": 2353,
+      "archive_sha256": "c408d14190dfcd1a041a4c26bfa190a5f1e4eecc0ccbb4f9163f9a2f33681c17",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "commands/prepare-sources.py.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/prepare-sources.py",
+      "original_size": 1436,
+      "original_sha256": "a3e8db77dae7710592d1ea308f388895842c8f1c6a5e719e3651d7d84fbdc3c4",
+      "archive_size": 1436,
+      "archive_sha256": "a3e8db77dae7710592d1ea308f388895842c8f1c6a5e719e3651d7d84fbdc3c4",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "commands/prepare-gnu-tools.py.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/prepare-gnu-tools.py",
+      "original_size": 1316,
+      "original_sha256": "6d98cf7a057becdbc565838e19a91b5e5c27ccca56971c3f4b62150c50156179",
+      "archive_size": 1316,
+      "archive_sha256": "6d98cf7a057becdbc565838e19a91b5e5c27ccca56971c3f4b62150c50156179",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "commands/build-cores3.sh.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/build-cores3.sh",
+      "original_size": 225,
+      "original_sha256": "e632af29043a0cc6728f0c584e104769820036750893646222e60eb144b06bcf",
+      "archive_size": 225,
+      "archive_sha256": "e632af29043a0cc6728f0c584e104769820036750893646222e60eb144b06bcf",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "commands/check-idf-env.sh.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/check-idf-env.sh",
+      "original_size": 174,
+      "original_sha256": "da0703be9490c6991c96afa7e3d15610db1ed534d2a30a4f10f4c3a047f81602",
+      "archive_size": 174,
+      "archive_sha256": "da0703be9490c6991c96afa7e3d15610db1ed534d2a30a4f10f4c3a047f81602",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "commands/inspect-cores3-build.sh.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/inspect-cores3-build.sh",
+      "original_size": 322,
+      "original_sha256": "2e43a553c910e3ff3175fc5db8b01348185c30a2cb71ef3330f1031f1c628ebb",
+      "archive_size": 322,
+      "archive_sha256": "2e43a553c910e3ff3175fc5db8b01348185c30a2cb71ef3330f1031f1c628ebb",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "commands/collect-receipt.py.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/collect-receipt.py",
+      "original_size": 4719,
+      "original_sha256": "1eb4b5c7abffc41a2468b2d9520d743fef8439dbf4243499802d3b8e23541adf",
+      "archive_size": 4719,
+      "archive_sha256": "1eb4b5c7abffc41a2468b2d9520d743fef8439dbf4243499802d3b8e23541adf",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "commands/ninja-parallel-cap.sh.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/build-tools/ninja",
+      "original_size": 161,
+      "original_sha256": "11a07eb0c28535fd45bb4fdc3624df488462d5825d9842542df36617ff7e7f35",
+      "archive_size": 96,
+      "archive_sha256": "5171d438c516ef1fc5b823e384a8d7695b49d58cb7a313719815b7dbe38d5a0f",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 1
+      }
+    },
+    {
+      "path": "preflight/future-build-steps.txt",
+      "source_kind": "copied",
+      "original_path": ".work/main-mpy-build-preflight-20261027/future-build-steps.txt",
+      "original_size": 1514,
+      "original_sha256": "4054796976839712004c93810892cbaa825afa146d90bb69d706fa5faa14c042",
+      "archive_size": 1514,
+      "archive_sha256": "4054796976839712004c93810892cbaa825afa146d90bb69d706fa5faa14c042",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "preflight/report.json",
+      "source_kind": "copied",
+      "original_path": ".work/main-mpy-build-preflight-20261027/report.json",
+      "original_size": 5104,
+      "original_sha256": "4f9a0243c788c18b007e09a38edcb1ef49894bf3832c46db9d8a29749afdc413",
+      "archive_size": 5107,
+      "archive_sha256": "f88c4b43ca2df666b4e4d6413ce4da7f3b9029271ba1cfb3d0fa99026f72132f",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<USER_HOME>": 2,
+        "<HOST_PYTHON_PREFIX>": 1
+      }
+    },
+    {
+      "path": "preflight/source/.github/workflows/build-firmware.yml",
+      "source_kind": "copied",
+      "original_path": ".work/main-mpy-build-preflight-20261027/source/.github/workflows/build-firmware.yml",
+      "original_size": 5534,
+      "original_sha256": "f4e493219ab1f928a7810a9c15044854fd348dda610473b50784280b57358e04",
+      "archive_size": 5534,
+      "archive_sha256": "f4e493219ab1f928a7810a9c15044854fd348dda610473b50784280b57358e04",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "preflight/source/.github/workflows/build-release.yml",
+      "source_kind": "copied",
+      "original_path": ".work/main-mpy-build-preflight-20261027/source/.github/workflows/build-release.yml",
+      "original_size": 296,
+      "original_sha256": "a4ecd96d8a0140c215f7144955985fd9589a606239dabb8194d3a03e9329b815",
+      "archive_size": 296,
+      "archive_sha256": "a4ecd96d8a0140c215f7144955985fd9589a606239dabb8194d3a03e9329b815",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "preflight/source/.github/workflows/nightly-build.yml",
+      "source_kind": "copied",
+      "original_path": ".work/main-mpy-build-preflight-20261027/source/.github/workflows/nightly-build.yml",
+      "original_size": 270,
+      "original_sha256": "2eea15d82ba7c68bfe0996c3ae02556f350455382b97910c87ee836655fbf2a7",
+      "archive_size": 270,
+      "archive_sha256": "2eea15d82ba7c68bfe0996c3ae02556f350455382b97910c87ee836655fbf2a7",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "preflight/source/.github/workflows/ports_m5stack.yml",
+      "source_kind": "copied",
+      "original_path": ".work/main-mpy-build-preflight-20261027/source/.github/workflows/ports_m5stack.yml",
+      "original_size": 448,
+      "original_sha256": "7d9cecdce3fa5e81923ce6cefc98e1021aaca0f88a2db7dcc620e982fa9e1658",
+      "archive_size": 448,
+      "archive_sha256": "7d9cecdce3fa5e81923ce6cefc98e1021aaca0f88a2db7dcc620e982fa9e1658",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "preflight/source/.gitmodules",
+      "source_kind": "copied",
+      "original_path": ".work/main-mpy-build-preflight-20261027/source/.gitmodules",
+      "original_size": 1603,
+      "original_sha256": "ec350683b7d609ed97703e421587ea317598aced06ebba0e93e14524497608e3",
+      "archive_size": 1603,
+      "archive_sha256": "ec350683b7d609ed97703e421587ea317598aced06ebba0e93e14524497608e3",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "preflight/source/README.md.txt",
+      "source_kind": "copied",
+      "original_path": ".work/main-mpy-build-preflight-20261027/source/README.md",
+      "original_size": 3462,
+      "original_sha256": "cb8c77e6626f029e5860daaf7e0b2247c7e8e56937bb24cced1c2b3ae81ba98c",
+      "archive_size": 3462,
+      "archive_sha256": "cb8c77e6626f029e5860daaf7e0b2247c7e8e56937bb24cced1c2b3ae81ba98c",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "preflight/source/micropython/py/objmodule.c",
+      "source_kind": "copied",
+      "original_path": ".work/main-mpy-build-preflight-20261027/source/micropython/py/objmodule.c",
+      "original_size": 10341,
+      "original_sha256": "3aaaf1a429ae72d646542e4506f564223e4c1cb814b6d690c26bb9311bf247b7",
+      "archive_size": 10341,
+      "archive_sha256": "3aaaf1a429ae72d646542e4506f564223e4c1cb814b6d690c26bb9311bf247b7",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "preflight/source-manifest.json",
+      "source_kind": "copied",
+      "original_path": ".work/main-mpy-build-preflight-20261027/source-manifest.json",
+      "original_size": 2164,
+      "original_sha256": "a89a953454693598f383c6f7d2752aa15b7531fe28f50fb948fb6304c173f9f9",
+      "archive_size": 2164,
+      "archive_sha256": "a89a953454693598f383c6f7d2752aa15b7531fe28f50fb948fb6304c173f9f9",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "actual-build/builtinimport-compile-command.json",
+      "source_kind": "derived",
+      "original_path": null,
+      "original_size": 51877,
+      "original_sha256": "b0751f3c38683d79fe3c9cab9490e33cb96fb3d98b02488bb38e480c9aed9b59",
+      "archive_size": 32572,
+      "archive_sha256": "595c9c9d5723542e9a61ecbf2a360fc52eba61010a8edde264d756761524a4df",
+      "byte_identical_to_original": false,
+      "redactions": {
+        "<WORKTREE>": 297
+      },
+      "derived_from": {
+        "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/compile_commands.json",
+        "size": 115848406,
+        "sha256": "2a86dce86703d9d775276221fa9a6da0c3e30ffc60a2f834e75e2a805cc08b9d",
+        "selector": "row.file.ends_with('/py/builtinimport.c')",
+        "row_count": 1,
+        "serialization": "UTF-8 JSON indent=2, trailing newline"
+      }
+    },
+    {
+      "path": "official-source/micropython/py/builtinimport.c.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow/micropython/py/builtinimport.c",
+      "original_size": 27743,
+      "original_sha256": "6fb99521996384efa8bbe55ba09f89dd19a4438f9e02815ff87b2c92d35ccc89",
+      "archive_size": 27743,
+      "archive_sha256": "6fb99521996384efa8bbe55ba09f89dd19a4438f9e02815ff87b2c92d35ccc89",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "official-source/micropython/py/builtinevex.c.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow/micropython/py/builtinevex.c",
+      "original_size": 7107,
+      "original_sha256": "8498d93520b9622514d37a8f6dfabc34a7e333798f9723c6ca8b4ad915354458",
+      "archive_size": 7107,
+      "archive_sha256": "8498d93520b9622514d37a8f6dfabc34a7e333798f9723c6ca8b4ad915354458",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "official-source/micropython/py/objcode.h.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow/micropython/py/objcode.h",
+      "original_size": 3398,
+      "original_sha256": "aff65d332172b93d2fdd59915bb58b748582edb562819506fce29e76a5ca3f4e",
+      "archive_size": 3398,
+      "archive_sha256": "aff65d332172b93d2fdd59915bb58b748582edb562819506fce29e76a5ca3f4e",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "official-source/micropython/py/objmodule.c.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow/micropython/py/objmodule.c",
+      "original_size": 10341,
+      "original_sha256": "3aaaf1a429ae72d646542e4506f564223e4c1cb814b6d690c26bb9311bf247b7",
+      "archive_size": 10341,
+      "archive_sha256": "3aaaf1a429ae72d646542e4506f564223e4c1cb814b6d690c26bb9311bf247b7",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "official-source/micropython/py/mpconfig.h.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow/micropython/py/mpconfig.h",
+      "original_size": 88039,
+      "original_sha256": "5bb74a59cb349b3d5e524d202ed150b1df3b866555ad663750b95a5087b7f4f5",
+      "archive_size": 88039,
+      "archive_sha256": "5bb74a59cb349b3d5e524d202ed150b1df3b866555ad663750b95a5087b7f4f5",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "official-source/micropython/ports/esp32/mpconfigport.h.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow/micropython/ports/esp32/mpconfigport.h",
+      "original_size": 16661,
+      "original_sha256": "fe9f8a227cba17fabeb5ce63bc39b121296cd8223410a4482edc4cefe02f46a6",
+      "archive_size": 16661,
+      "archive_sha256": "fe9f8a227cba17fabeb5ce63bc39b121296cd8223410a4482edc4cefe02f46a6",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "official-source/micropython/extmod/modmarshal.c.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow/micropython/extmod/modmarshal.c",
+      "original_size": 3473,
+      "original_sha256": "cd437fdfd1376ba0b123a7b7ff0531d0866c721f037f4323045d6f48116b6b3b",
+      "archive_size": 3473,
+      "archive_sha256": "cd437fdfd1376ba0b123a7b7ff0531d0866c721f037f4323045d6f48116b6b3b",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "official-source/uiflow/m5stack/boards/M5STACK_CoreS3/mpconfigboard.h.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow/m5stack/boards/M5STACK_CoreS3/mpconfigboard.h",
+      "original_size": 1299,
+      "original_sha256": "87fd41551c50b8b7dc5eaf3bb4dcef94f95095556a9a8d86c90d44a52727bc4b",
+      "archive_size": 1299,
+      "archive_sha256": "87fd41551c50b8b7dc5eaf3bb4dcef94f95095556a9a8d86c90d44a52727bc4b",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "official-source/uiflow/m5stack/boards/M5STACK_CoreS3/mpconfigboard.cmake.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow/m5stack/boards/M5STACK_CoreS3/mpconfigboard.cmake",
+      "original_size": 2521,
+      "original_sha256": "dabffaf6b795fb167d49b782116eaa5289a8cbd343a1e58a43af971afc321d4a",
+      "archive_size": 2521,
+      "archive_sha256": "dabffaf6b795fb167d49b782116eaa5289a8cbd343a1e58a43af971afc321d4a",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "official-source/uiflow/m5stack/Makefile.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow/m5stack/Makefile",
+      "original_size": 14838,
+      "original_sha256": "fa39ea193e33a6c3248b02af64e3958bbfbb7962e2d0afbca852af9a079c7448",
+      "archive_size": 14838,
+      "archive_sha256": "fa39ea193e33a6c3248b02af64e3958bbfbb7962e2d0afbca852af9a079c7448",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "official-source/uiflow/m5stack/include/files.mk.txt",
+      "source_kind": "copied",
+      "original_path": ".work/uiflow-main-loader-build-20261027/uiflow/m5stack/include/files.mk",
+      "original_size": 2561,
+      "original_sha256": "3135fe1ef1d3862c72ecc9cba6a7f3595e5a1ce66d7a07445bb2990eb3349fa0",
+      "archive_size": 2561,
+      "archive_sha256": "3135fe1ef1d3862c72ecc9cba6a7f3595e5a1ce66d7a07445bb2990eb3349fa0",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "official-source/uiflow/mpconfigboard-original.h.txt",
+      "source_kind": "copied",
+      "original_path": "git:uiflow@3a86d8f611b3639cca755a933e01a5a829771ef1:m5stack/boards/M5STACK_CoreS3/mpconfigboard.h",
+      "original_size": 1131,
+      "original_sha256": "dc4615b215c8b44cecec4304cb58415e74ed9460f47aec0aa77ffbe29bf7333b",
+      "archive_size": 1131,
+      "archive_sha256": "dc4615b215c8b44cecec4304cb58415e74ed9460f47aec0aa77ffbe29bf7333b",
+      "byte_identical_to_original": true,
+      "redactions": {}
+    },
+    {
+      "path": "stage-failures-and-repairs.json",
+      "source_kind": "generated",
+      "original_path": null,
+      "original_size": null,
+      "original_sha256": null,
+      "archive_size": 7526,
+      "archive_sha256": "450e0912c525400288af2664bddc2baddf73394385509fb9b31dac2a678f5c0d",
+      "byte_identical_to_original": false,
+      "redactions": {}
+    },
+    {
+      "path": "README.txt",
+      "source_kind": "generated",
+      "original_path": null,
+      "original_size": null,
+      "original_sha256": null,
+      "archive_size": 2797,
+      "archive_sha256": "8e4fe26aff5e0f5d2223b22172c877b9bb22e1e09588f83205bc496cef62bf8f",
+      "byte_identical_to_original": false,
+      "redactions": {}
+    },
+    {
+      "path": "privacy.json",
+      "source_kind": "generated",
+      "original_path": null,
+      "original_size": null,
+      "original_sha256": null,
+      "archive_size": 2604,
+      "archive_sha256": "84d6e699f5da0b82456d7946d3e7abb620c64c72a5ce44beb5dc9a06720519f9",
+      "byte_identical_to_original": false,
+      "redactions": {}
+    }
+  ],
+  "large_metadata_hash_only": [
+    {
+      "original_path": ".work/uiflow-main-loader-build-20261027/receipt-data/compile_commands.json",
+      "bytes": 115848406,
+      "sha256": "2a86dce86703d9d775276221fa9a6da0c3e30ffc60a2f834e75e2a805cc08b9d",
+      "reason": "115 MB repeated compile metadata; exact builtinimport target row and full command retained as explicit derived extraction."
+    }
+  ],
+  "binary_artifacts_hash_only": [
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/micropython.bin",
+      "bytes": 9944832,
+      "sha256": "a3bb30eb01428ec51fb08003950b228bdc57c7cf362354c4089b084d5abdc522"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/uiflow-3a86d8f.bin",
+      "bytes": 16121856,
+      "sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/fs-system.bin",
+      "bytes": 1048576,
+      "sha256": "b91347cc59450e92f2ac48d7d2425c3e1bd54c40b50e92448912ab4b64a9e041"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/fs-user.bin",
+      "bytes": 4980736,
+      "sha256": "3c51ab42fc4215e1bdcb9f37420df269c500280d2305cf08d76d3041dd92a624"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/nvs.bin",
+      "bytes": 24576,
+      "sha256": "41ae2ba19925c9bd4942527efcf6ffec93776331f87933a5286b614736b3879e"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/uiflow-3a86d8f-esp32s3-spiram-16mb-cores3-v2.5.3-20261027.bin",
+      "bytes": 16121856,
+      "sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/sx-uiflow-3a86d8f.uf2",
+      "bytes": 19889664,
+      "sha256": "e3061e04c1b3091d746ea0b3b587142fa73be098e7ed9a5457bfd79368613a35"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/micropython.elf",
+      "bytes": 80833000,
+      "sha256": "c54b0b507da47e185cd6e34decd50a53261b36966b9c3c2a9112538ffd329a0c"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/micropython.map",
+      "bytes": 38794307,
+      "sha256": "5b966c4de16248ebb34fcca253e089be74f051f472bc4bc401a79c64dba60999"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/bootloader/bootloader.bin",
+      "bytes": 17840,
+      "sha256": "a0355d2b5411d960afa19150480cc224266ddbbc27eca148fa6f2f58892a8c04"
+    },
+    {
+      "path": "uiflow/m5stack/build-M5STACK_CoreS3/partition_table/partition-table.bin",
+      "bytes": 3072,
+      "sha256": "5ffb11596e648a378ec1c637c646f428a64062620e12552e8c246aa48b1e3688"
+    }
+  ],
+  "tool_binaries_and_downloads_hash_only": [
+    {
+      "path": "idf-tools/dist/xtensa-esp-elf-14.2.0_20260121-aarch64-apple-darwin.tar.xz",
+      "bytes": 170666656,
+      "sha256": "a450db49cea5f191a96345c5b7f0e1a9671a9cf132fecfd9fb1faf6c2a30637e"
+    },
+    {
+      "path": "idf-tools/dist/xtensa-esp-elf-gdb-16.3_20250913-aarch64-apple-darwin24.5.tar.gz",
+      "bytes": 39809369,
+      "sha256": "251e3be9c9436d9ab7fee6c05519fd816a05e63bd47495e24ea4e354881a851c"
+    },
+    {
+      "path": "idf-tools/dist/esp32ulp-elf-2.38_20240113-macos-arm64.tar.gz",
+      "bytes": 15843725,
+      "sha256": "e3a4dfea043e2bce8cd00b3a0b260a59249fa61ca5931bf02f18a3d43c18deb4"
+    },
+    {
+      "path": "idf-tools/dist/openocd-esp32-macos-arm64-0.12.0-esp32-20251215.tar.gz",
+      "bytes": 2535504,
+      "sha256": "e6414c8db2ab09b687eaf765b1e69a92aecdcfe44e073d6f47ff829777e2e823"
+    },
+    {
+      "path": "idf-tools/dist/riscv32-esp-elf-14.2.0_20260121-aarch64-apple-darwin.tar.xz",
+      "bytes": 289213048,
+      "sha256": "caa7103e014c61939eea4656cd4effdc34930da0b76cd59ad1adb7bfaeef923c"
+    },
+    {
+      "path": "idf-tools/dist/esp-rom-elfs-20241011.tar.gz",
+      "bytes": 3540038,
+      "sha256": "921f000164a421c7628fbfee55b173384aafaa51883adc65cd27bf9b0af9e9a9"
+    },
+    {
+      "path": "host-tools/bin/cmp",
+      "bytes": 93696,
+      "sha256": "a5fa1ae8fc53208f26f0550909f1831e57361f306ce1ce5fb31dbec9c9044d49"
+    },
+    {
+      "path": "host-tools/bin/diff3",
+      "bytes": 113704,
+      "sha256": "8688028a68555a512ce39fef6f5e3525cf3c2b4346f9f1c503af87e80fea5e50"
+    },
+    {
+      "path": "host-tools/bin/sed",
+      "bytes": 266848,
+      "sha256": "b4b05d4b2bb5be83d1822fa361d16e09337c84b16fa8a369cbe450dd48326222"
+    },
+    {
+      "path": "host-tools/bin/quilt",
+      "bytes": 3660,
+      "sha256": "54a86f13a3b569ae8f8ae2d3a1a3deb1241d444694a4cc35079debfb6318ac0d"
+    },
+    {
+      "path": "host-tools/bin/diff",
+      "bytes": 305512,
+      "sha256": "772c0e7bf702bea04c20e7ccfe0156a51b486630a3125246777dd3d7f4f37d77"
+    },
+    {
+      "path": "host-tools/bin/patch",
+      "bytes": 274504,
+      "sha256": "203453ad961f3b14152f4810ff4906955819ef347bd4080f506814332723de5b"
+    },
+    {
+      "path": "host-tools/bin/sdiff",
+      "bytes": 97192,
+      "sha256": "db5211b9a4021ba07d5bb78c46a1b337354a424928553b315d885c699c6a62ba"
+    },
+    {
+      "path": "host-tools/bin/guards",
+      "bytes": 7266,
+      "sha256": "100a02e9e46f441ce816f5410054953d69f9680b5e60ccb7b157ea7a4f023d83"
+    },
+    {
+      "path": "uiflow/micropython/mpy-cross/build/mpy-cross",
+      "bytes": 481256,
+      "sha256": "b040a719cc169621e535fe4cf8807a368e1aeb9a5ddad8f67c0aee084016538c"
+    },
+    {
+      "path": "uiflow/tools/littlefs/prebuilt/littlefs2",
+      "bytes": 106744,
+      "sha256": "33f76efe2fad2f667803bde8197212993f22079af8cf39c87ee53aa59ddfce66"
+    }
+  ],
+  "bootstrap_cache_boundary": {
+    "observed_implementation": "idf-component-manager2.5.2 on macOS defaults to user Library/Caches/Espressif/ComponentManager and ignores XDG_CACHE_HOME",
+    "first_build_cache": "MAY_HAVE_WRITTEN_OUTSIDE_OWNED_ROOT",
+    "sdk_tools_python_sources": "ALL_IN_OWNED_ROOT",
+    "future_stage_override": "IDF_COMPONENT_CACHE_PATH=<owned>/cache/components",
+    "external_cache_deleted_or_moved": false
+  },
+  "privacy_report": "privacy.json",
+  "limitations": [
+    "Actual target macro proof and successful firmware build do not prove guest runtime behavior.",
+    "Stock importer combines load and execute; future API import acknowledgement requires separate admission.",
+    "No zero-outside-writes claim; macOS first Component Manager cache boundary retained."
+  ],
+  "manifest_integrity_scope": "All members except index.json itself. Root artifact index may fingerprint this index."
+}

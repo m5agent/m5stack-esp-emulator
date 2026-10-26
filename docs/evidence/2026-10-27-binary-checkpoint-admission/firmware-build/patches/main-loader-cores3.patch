@@ -1,0 +1,15 @@
+diff --git a/m5stack/boards/M5STACK_CoreS3/mpconfigboard.h b/m5stack/boards/M5STACK_CoreS3/mpconfigboard.h
+index ba09ced..c395264 100644
+--- a/m5stack/boards/M5STACK_CoreS3/mpconfigboard.h
++++ b/m5stack/boards/M5STACK_CoreS3/mpconfigboard.h
+@@ -7,6 +7,10 @@
+ #define MICROPY_HW_BOARD_NAME               "M5STACK CoreS3"
+ #define MICROPY_HW_MCU_NAME                 "ESP32S3"
+ 
++// Local virtual-device loader admission candidate; not stock firmware.
++#define MICROPY_MODULE_OVERRIDE_MAIN_IMPORT (1)
++#define MICROPY_CPYTHON_COMPAT             (1)
++
+ #define MICROPY_PY_MACHINE_DAC              (0)
+ 
+ // Enable UART REPL for modules that have an external USB-UART and don't use native USB.

@@ -1,0 +1,14 @@
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether #! works in shell scripts... yes
+checking for bash... /bin/bash
+checking whether /bin/bash quoting works... yes
+checking for gcp... no
+checking for cp... /bin/cp
+checking for gdate... no
+checking for date... /bin/date
+checking whether /bin/date --rfc-822 works... configure: error: no
+
+If you don't have a version of `date' that supports --rfc-822, you
+can specify '--without-date' and quilt will use its own
+internal date.
+

@@ -1,0 +1,62 @@
+[
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "runtime_coverage",
+      "cmd": "PYTHONPATH=platform/tools:platform/tests:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 platform/tools/runtime_coverage.py --check",
+      "chunk_id": "f600ca",
+      "wall_time_seconds": 0.000006083,
+      "exit_code": 0,
+      "original_token_count": 5,
+      "output": "RUNTIME_COVERAGE_OK\n"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "peripheral_catalog",
+      "cmd": "PYTHONPATH=platform/tools:platform/tests:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 platform/tools/peripheral_catalog.py --check",
+      "chunk_id": "db8bec",
+      "wall_time_seconds": 0.000013,
+      "exit_code": 0,
+      "original_token_count": 6,
+      "output": "PERIPHERAL_CATALOG_OK\n"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "qemu_profiles",
+      "cmd": "PYTHONPATH=platform/tools:platform/tests:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 platform/tools/qemu_profiles.py --check",
+      "chunk_id": "481eb8",
+      "wall_time_seconds": 0.000003959,
+      "exit_code": 0,
+      "original_token_count": 5,
+      "output": "QEMU_PROFILES_OK\n"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "runner_offline",
+      "cmd": "PYTHONPATH=platform/tools:platform/tests:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 -m unittest test_binary_checkpoint_admission",
+      "chunk_id": "6bb33c",
+      "wall_time_seconds": 0.019196625,
+      "exit_code": 0,
+      "original_token_count": 29,
+      "output": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.006s\n\nOK\n"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "diff_check",
+      "cmd": "git diff --check",
+      "chunk_id": "3e9b16",
+      "wall_time_seconds": 0.000004292,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  }
+]

@@ -1,0 +1,159 @@
+{
+  "available_feedback_tools": [
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true,
+        "readOnlyHint": false
+      },
+      "description": "向 M5Stack 提交知识缺失、内容错误、未支持功能、损坏示例或工具 bug。\n\n反馈会重点写入云日志并进入人工评估。鼓励 Agent 在检索或回答不完整时大胆反馈，说明\n原始问题、相关产品、缺失内容、复现方式和期望资料，不必等待用户明确要求。",
+      "inputSchema": {
+        "properties": {
+          "category": {
+            "description": "反馈分类",
+            "enum": [
+              "missing_documentation",
+              "incorrect_information",
+              "unsupported_feature",
+              "broken_example",
+              "tool_error",
+              "other"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "feedback": {
+            "description": "可复现的问题或缺失资料",
+            "maxLength": 8000,
+            "minLength": 10,
+            "title": "Feedback",
+            "type": "string"
+          },
+          "original_question": {
+            "anyOf": [
+              {
+                "maxLength": 8000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "触发反馈的原始问题",
+            "title": "Original Question"
+          },
+          "product": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "相关产品、芯片、Unit、Module 或 SDK",
+            "title": "Product"
+          },
+          "expected_information": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "期望补充或修正的资料",
+            "title": "Expected Information"
+          },
+          "severity": {
+            "default": "medium",
+            "description": "影响程度",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "source_tool": {
+            "default": "knowledge_search",
+            "description": "发现问题时使用的工具",
+            "enum": [
+              "knowledge_search",
+              "knowledge_answer",
+              "other"
+            ],
+            "title": "Source Tool",
+            "type": "string"
+          }
+        },
+        "required": [
+          "category",
+          "feedback"
+        ],
+        "type": "object",
+        "title": "knowledge_feedback_toolArguments"
+      },
+      "name": "knowledge_feedback",
+      "outputSchema": {
+        "properties": {
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "outcome": {
+            "title": "Outcome",
+            "type": "string"
+          },
+          "accepted": {
+            "title": "Accepted",
+            "type": "boolean"
+          },
+          "feedback_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Feedback Id"
+          }
+        },
+        "required": [
+          "text",
+          "outcome",
+          "accepted"
+        ],
+        "type": "object",
+        "title": "FeedbackToolOutput"
+      },
+      "title": "反馈给 M5Stack FAE"
+    }
+  ],
+  "feedback": {
+    "content": [
+      {
+        "text": "反馈已接收并排队进入 M5Stack 人工评估流程。feedback_id=3394191a27d3467c997f979f64fc94a1",
+        "type": "text"
+      }
+    ],
+    "isError": false,
+    "structuredContent": {
+      "text": "反馈已接收并排队进入 M5Stack 人工评估流程。feedback_id=3394191a27d3467c997f979f64fc94a1",
+      "outcome": "success",
+      "accepted": true,
+      "feedback_id": "3394191a27d3467c997f979f64fc94a1"
+    }
+  }
+}

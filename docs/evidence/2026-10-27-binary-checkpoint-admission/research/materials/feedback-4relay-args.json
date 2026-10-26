@@ -1,0 +1,9 @@
+{
+  "category": "incorrect_information",
+  "product": "Unit 4Relay U097 / UIFlow2 Relay4Unit",
+  "original_question": "为Unit 4Relay建立与原驱动、真实通道编号和LED同步读回一致的控制器模型，需要确认0x11位序和SYNC语义。",
+  "feedback": "2026-10-27复查官方产品文档（固定m5-docs e5354c5dcc61d16fdc1dff9d92c2c760728d0b60 docs/zh_CN/unit/4relay.md，SHA256 eface9f12432904bf405a808eceeb3f4f73b225cc3ffbb94f203f2b4ae7493ad）及 knowledge_search：0x11表写bit7..4=LED1..4、bit3..0=RELAY1..4。UIFlow2 2.5.3 commit50e440780492aa847378c7d3477ab912f7063bac和当前master3a86d8f611b3639cca755a933e01a5a829771ef1的m5stack/libs/unit/relay4.py（两者相同SHA256 8a4fee2b141724bf55585d9da0e0fc867d6066b934218c05036eb29f4318ccd7）却在set_relay_state(n)用bit(n-1)，set_led_state(n)用bit(n+3)。因此set_relay_state(1,1)/set_led_state(1,1)发0x01/0x10，产品表标为RELAY4/LED4。Arduino M5Unit-RELAY@63fea6153fa6db13aff1c743403b86f09383fc71只把number称bit number 0..3，不能决定物理丝印编号。官方原理图将PA0..3接RL1..4、PA4..7接LED2/LED3/LED1/LED4，因此不能只由引脚连续编号推断位序。检索到的M5Module-4Relay-Internal-FW属于Module13.2，协议0x10继电器而非Unit0x10模式/0x11控制，不能用作U097固件依据。",
+  "expected_information": "请确认哪一个通道表/驱动编号正确；提供U097内置STM32F030F4P6固件或准确协议说明，尤其SYNC下写LED高半字节是否保留、读0x11返回原命令还是同步后的实际LED、切换模式即时/后续更新语义；并确认I2C STOP、重复START、连续多字节/寄存器指针和上电默认值。",
+  "severity": "medium",
+  "source_tool": "knowledge_search"
+}

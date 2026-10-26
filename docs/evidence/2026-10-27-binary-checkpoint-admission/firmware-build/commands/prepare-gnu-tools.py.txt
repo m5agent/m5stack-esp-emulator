@@ -1,0 +1,21 @@
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
+import urllib.request,hashlib,json,tarfile,subprocess
+base=Path(__file__).resolve().parent
+packages=[('sed','4.9','xz'),('diffutils','3.10','xz'),('patch','2.7.6','xz')]
+def fetch(row):
+ name,version,extension=row
+ url=f'https://ftp.gnu.org/gnu/{name}/{name}-{version}.tar.{extension}'
+ dest=base/'downloads'/f'{name}-{version}.tar.{extension}'
+ with urllib.request.urlopen(url,timeout=60) as response: data=response.read(16*1024*1024)
+ assert len(data)<16*1024*1024
+ dest.write_bytes(data)
+ with tarfile.open(dest) as archive:archive.extractall(base/'host-sources',filter='data')
+ result={'name':name,'version':version,'url':url,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)}
+ print(json.dumps(result),flush=True);return result
+with ThreadPoolExecutor(max_workers=3) as pool: fetched=list(pool.map(fetch,packages))
+(base/'gnu-downloads.json').write_text(json.dumps(fetched,indent=2)+'\n')
+for name,version,_ in packages:
+ cwd=base/'host-sources'/f'{name}-{version}'
+ for argv,timeout in ((['./configure','--prefix='+str(base/'host-tools'),'--disable-nls'],180),(['make','-j4'],300),(['make','install'],120)):
+  print(json.dumps({'argv':argv,'cwd':str(cwd)}),flush=True);subprocess.run(argv,cwd=cwd,check=True,timeout=timeout)

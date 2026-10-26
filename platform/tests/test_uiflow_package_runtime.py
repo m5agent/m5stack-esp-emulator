@@ -251,6 +251,19 @@ class PackagePublicationTests(unittest.TestCase):
         self.assertLess(phases.index("published"), phases.index("activated"))
         self.assertEqual(next(value for value in reversed(progress) if value["phase"] == "writing")["written_bytes"], sum(map(len, self.files.values())))
 
+    def test_binary_entrypoint_is_explicitly_rejected_before_guest_access(self):
+        self.files = {"main.mpy": HELPER}
+        self.revision["entrypoint"] = "main.mpy"
+        wire = _ReplyREPL(self.files)
+        with mock.patch.object(runtime, "RawREPL", return_value=wire) as factory:
+            with self.assertRaises(UIFlowRuntimeError) as caught:
+                runtime.deploy_package(self.console, self.files, self.revision, timeout=120,
+                                       cancelled=lambda: False)
+        self.assertEqual(caught.exception.code, "program_mpy_entrypoint_unsupported")
+        factory.assert_not_called()
+        self.assertEqual(wire.synchronized, 0)
+        self.assertEqual(wire.sources, [])
+
     def test_reused_package_is_verified_again_without_writes_or_rename(self):
         wire = _ReplyREPL(self.files, existing=True)
         wire.capabilities.update(free_bytes=0, directory_count=runtime.MAX_GUEST_PACKAGES)

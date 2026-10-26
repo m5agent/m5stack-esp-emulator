@@ -1,0 +1,44 @@
+Checking "python3" ...
+Python 3.12.8
+"python3" has been detected
+Activating ESP-IDF 5.5
+Setting IDF_PATH to '<WORKTREE>/.work/uiflow-main-loader-build-20261027/idf'.
+* Checking python version ... 3.12.8
+* Checking python dependencies ... OK
+* Deactivating the current ESP-IDF environment (if any) ... OK
+* Establishing a new ESP-IDF environment ... OK
+* Identifying shell ... bash
+* Detecting outdated tools in system ... OK - no outdated tools found
+* Shell completion ... Autocompletion code generated
+WARNING: Failed to load shell autocompletion for bash version: 3.2.57(1)-release!
+
+Done! You can now compile ESP-IDF projects.
+Go to the project directory and run:
+
+  idf.py build
+esptool.py v4.12.0
+File size: 9944832 (bytes)
+Detected image type: ESP32-S3
+Image version: 1
+Entry point: 40375578
+7 segments
+
+Segment 1: len 0x5a6a38 load 0x3c3b0020 file_offs 0x00000018 [DROM]
+Segment 2: len 0x0785c load 0x3fca2400 file_offs 0x005a6a58 [BYTE_ACCESSIBLE,MEM_INTERNAL,DRAM]
+Segment 3: len 0x01d54 load 0x40374000 file_offs 0x005ae2bc [MEM_INTERNAL,IRAM]
+Segment 4: len 0x3af7e0 load 0x42000020 file_offs 0x005b0018 [IROM]
+Segment 5: len 0x1c664 load 0x40375d54 file_offs 0x0095f800 [MEM_INTERNAL,IRAM]
+Segment 6: len 0x00020 load 0x50001000 file_offs 0x0097be6c [RTC_DATA]
+Segment 7: len 0x00038 load 0x600fe000 file_offs 0x0097be94 [RTC_DRAM,RTC_IRAM]
+Checksum: 6b (valid)
+Validation Hash: b57c6b426115ddb53392a5a05398e927b73c34ab1f418908ef346294824adfb0 (valid)
+Parsing binary partition input...
+Verifying table...
+# ESP-IDF Partition Table
+# Name, Type, SubType, Offset, Size, Flags
+nvs,data,nvs,0x9000,24K,
+phy_init,data,phy,0xf000,4K,
+factory,app,factory,0x10000,9792K,
+sys,data,fat,0x9a0000,1M,
+vfs,data,fat,0xaa0000,4864K,
+storage,data,spiffs,0xf60000,640K,

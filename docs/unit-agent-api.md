@@ -1,6 +1,6 @@
 # 外部 Agent：UIFlow 实时编程与 Unit 会话
 
-日期：`2026-10-27`。API 契约：`1.43.0`。
+日期：`2026-10-27`。API 契约：`1.44.0`。
 
 实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
 串口及 Unit 状态”的路径。AIFlow/外部 Agent 推荐创建一次 `/previews`，将完整
@@ -128,6 +128,15 @@ CoreS3 另有真实网页创建、输入、程序替换、画面进入模型屏�
 响应`revision`含不可变`revision_id`、全部文件SHA/大小和`created_at`；`limits`公开实际包配额和`gc_enabled=false`。
 相同文件bytes使用utf8/base64均得到同ID，重复POST仍201且保留原created_at。
 `GET /api/v1/program-revisions/{revision_id}`核验存储完整性并返回metadata；保存成功还没有运行程序。
+
+1.44还允许显式保存`entrypoint="main.mpy"`的完整纯字节码checkpoint，并从
+`/files`取回原字节。该包必须含根`main.mpy`，不能含会遮蔽它的根`main.py`或
+`main/`目录。原`main.py`包和revision ID保持兼容，包括历史同名MPY依赖。
+当前固定UIFlow固件没有完整二进制脚本loader，`program_features.mpy_entrypoint`
+和Preview的`main_mpy`仍为false。普通session与Preview提交返回409
+`program_mpy_entrypoint_unsupported`，在分配新execution/Run、取消旧程序或
+碰触UART之前拒绝；inline运行请求也不占用新checkpoint配额。存储成功不代表
+可以执行；Web继续编辑并运行`main.py`。官方兼容固件路径仍在实施。
 
 在已初始化的普通非托管session中，将返回的ID放入`POST /api/v1/sessions/{id}/program`的`revision_id`，
 同时带当前`expected_execution_id`（首次null）和可选1..120秒timeout。该请求只能有这三个字段，

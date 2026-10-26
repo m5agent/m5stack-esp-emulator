@@ -1,0 +1,732 @@
+#!/usr/bin/env python3
+"""Plan, or explicitly test, inert MPY checkpoint admission on local guests.
+
+Only --execute contacts port 8787. The official compiler fixture is saved and
+read back, never deployed or executed. Source A/B use the real guest UART,
+PIR GPIO model and framebuffer. This is virtual evidence, not hardware proof.
+"""
+from __future__ import annotations
+
+import argparse
+import base64
+import ctypes
+from datetime import datetime, timezone
+import hashlib
+import io
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+import uuid
+import zipfile
+
+ROOT = Path(__file__).resolve().parents[2]
+DEVICES = ("cores3", "atoms3r", "sticks3", "stopwatch")
+PORTS = {"cores3": "port-a", "atoms3r": "custom", "sticks3": "custom", "stopwatch": "port-a"}
+EXPECTED_RUNTIME = "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+MPY_SHA = "583a0028999b53b0ba576f0a2c79c6a7cb2b7243b91725215e3de284a18a41fd"
+PREFIX = "BINARY_ADMISSION "
+ERROR_CODE = "program_mpy_entrypoint_unsupported"
+MAX_RESPONSE = 128 * 1024 * 1024
+SOURCES = ("tests/units/run_binary_checkpoint_admission.py", "tests/units/test_binary_checkpoint_admission.py",
+           "platform/tools/device_service.py", "platform/tools/preview_service.py", "platform/tools/program_packages.py",
+           "platform/tools/uiflow_package_runtime.py", "platform/tools/mpy_bytecode.py", "platform/tests/test_mpy_bytecode.py")
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8")
+
+
+def save(path, value):
+    path.write_bytes(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False).encode("utf-8") + b"\n")
+
+
+def plan(devices):
+    require(all(device in DEVICES for device in devices), "unsupported host")
+    return {"category": "binary-checkpoint-admission-plan", "status": "NOT RUN", "api_contacted": False,
+            "guests_started": 0, "devices": list(devices), "lanes": ["session", "preview"],
+            "expected_runtime_sha256": EXPECTED_RUNTIME,
+            "fixture": {"source": "platform/tests/test_mpy_bytecode.py:HELPER", "sha256": MPY_SHA,
+                        "compiler_commit": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd", "executed": False},
+            "checks": ["main.mpy immutable save/GET/files bytes and identity", "409 before execution allocation or old Run cancellation",
+                       "inline rejection does not allocate package", "same PID/firmware/runtime and VM nonce",
+                       "fresh PIR input -> real UART sequence -> independent QOM -> selected PNG pixels",
+                       "source B recovery in same VM", "ZIP before close/stop; history frame/Flash/PID/owned lease cleanup"],
+            "limits": ["main_mpy remains false; binary fixture never executes", "no browser/UI claim", "hardware NOT RUN",
+                       "PIR raw GPIO fixture only; no AS312 physical timing/electrical claim", "interrupt-only cleanup"]}
+
+
+def fixture():
+    sys.path.insert(0, str(ROOT / "platform/tests"))
+    sys.path.insert(0, str(ROOT / "platform/tools"))
+    from test_mpy_bytecode import HELPER
+    from mpy_bytecode import validate_bytecode
+    require(sha(HELPER) == MPY_SHA, "official fixture bytes changed")
+    validate_bytecode(HELPER)
+    return HELPER
+
+
+def binary_payload(marker):
+    require(re.fullmatch(r"[0-9a-f]{32}", marker or ""), "invalid checkpoint marker")
+    return {"source_kind": "uiflow2-package", "entrypoint": "main.mpy", "files": {
+        "main.mpy": {"encoding": "base64", "data": base64.b64encode(fixture()).decode("ascii")},
+        "assets/admission.txt": {"encoding": "utf8", "data": marker}}}
+
+
+def decoded_files(payload):
+    return {path: (row["data"].encode("utf-8") if row["encoding"] == "utf8"
+                   else base64.b64decode(row["data"], validate=True)) for path, row in payload["files"].items()}
+
+
+def package_identity(payload):
+    hashes = {path: sha(data) for path, data in decoded_files(payload).items()}
+    return sha(canonical({"source_kind": "uiflow2-package", "entrypoint": payload["entrypoint"], "files": hashes}))
+
+
+def verify_checkpoint(response, payload):
+    revision = response["revision"]
+    expected = decoded_files(payload)
+    require(revision["entrypoint"] == "main.mpy" and revision["source_kind"] == "uiflow2-package", "checkpoint entrypoint identity")
+    require(revision["revision_id"] == package_identity(payload), "checkpoint content identity")
+    hashes = {path: sha(data) for path, data in expected.items()}
+    require(revision["source_sha256"] == sha(canonical(hashes)), "checkpoint file-set identity")
+    require(revision["total_file_bytes"] == sum(map(len, expected.values())), "checkpoint total size")
+    rows = {row["path"]: row for row in revision["files"]}
+    require(len(rows) == len(revision["files"]) and set(rows) == set(expected), "checkpoint inventory")
+    for path, data in expected.items():
+        require(rows[path] == {"path": path, "size": len(data), "sha256": sha(data),
+                               "kind": "mpy" if path.endswith(".mpy") else "resource"}, "checkpoint member hash")
+    if "files" in response:
+        require(set(response["files"]) == set(expected), "checkpoint download membership")
+        for path, row in response["files"].items():
+            require(row.get("encoding") == "base64" and base64.b64decode(row["data"], validate=True) == expected[path], "checkpoint original bytes")
+    return revision
+
+
+def read_token(path):
+    descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK | getattr(os, "O_NOFOLLOW", 0))
+    with os.fdopen(descriptor, "rb") as stream:
+        info = os.fstat(stream.fileno())
+        require(stat.S_ISREG(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o600, "token must be a regular mode-600 file")
+        require(info.st_uid == os.getuid(), "token must be owned by this user")
+        raw = stream.read(8193)
+    require(0 < len(raw) <= 8192, "token file size invalid")
+    token = raw.decode("utf-8").strip()
+    require(token and not any(character.isspace() for character in token), "token format invalid")
+    return token
+
+
+class HTTPFailure(RuntimeError):
+    def __init__(self, status, body=None, *, complete=True):
+        super().__init__(f"HTTP {status}")
+        self.status, self.body, self.complete = status, body, complete
+
+
+class Client:
+    def __init__(self, base, token, output, *, opener=None, timeout=30):
+        parsed = urllib.parse.urlparse(base)
+        require(parsed.scheme == "http" and parsed.hostname in {"127.0.0.1", "localhost", "::1"}
+                and parsed.port == 8787 and parsed.path in {"", "/"} and not parsed.username and not parsed.password
+                and not parsed.query and not parsed.fragment, "local HTTP port 8787 root required")
+        self.base, self.token, self.output, self.timeout = base.rstrip("/"), token, output, timeout
+        self.opener = opener or urllib.request.build_opener(NoRedirect())
+        self.http = []
+
+    def request(self, path, method="GET", body=None, key=None, *, timeout=None, expected=None, binary=False):
+        require(not path.startswith(("/", "http")) and ".." not in path.split("/"), "invalid API relative path")
+        index = len(self.http)
+        row = {"path": path, "method": method, "started_at": datetime.now(timezone.utc).isoformat()}
+        self.http.append(row)
+        if body is not None:
+            save(self.output / f"http-{index:04d}.request.json", body)
+        headers = {"Authorization": "Bearer " + self.token}
+        if body is not None:
+            headers["Content-Type"] = "application/json"
+        if key:
+            headers["Idempotency-Key"] = key
+        request = urllib.request.Request(self.base + "/api/v1/" + path,
+                                         data=None if body is None else canonical(body), headers=headers, method=method)
+        started = time.monotonic()
+        try:
+            try:
+                response = self.opener.open(request, timeout=self.timeout if timeout is None else timeout)
+            except urllib.error.HTTPError as error:
+                response = error
+            with response:
+                raw = response.read(MAX_RESPONSE + 1)
+                require(len(raw) <= MAX_RESPONSE, "HTTP response exceeded bound")
+                status_code = response.status
+                public_headers = {name.lower(): value for name, value in response.headers.items()
+                                  if name.lower().startswith(("x-frame-", "x-preview-", "x-run-"))
+                                  or name.lower() in {"content-type", "content-length", "x-request-id", "etag", "location"}}
+            row.update(status=status_code, bytes=len(raw), sha256=sha(raw), headers=public_headers)
+            (self.output / f"http-{index:04d}.response").write_bytes(raw)
+            value = raw if binary else json.loads(raw)
+            if expected is not None:
+                require(status_code == expected, f"expected HTTP {expected}, observed {status_code}")
+            elif status_code >= 400:
+                raise HTTPFailure(status_code, value)
+            return value, public_headers
+        except BaseException as error:
+            row["error_type"] = type(error).__name__
+            raise
+        finally:
+            row["elapsed_seconds"] = time.monotonic() - started
+            save(self.output / "http.json", self.http)
+
+    def json(self, *args, **kwargs):
+        return self.request(*args, **kwargs)[0]
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def poll(read, predicate, timeout=60):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        value = read()
+        if predicate(value):
+            return value
+        time.sleep(.1)
+    raise TimeoutError("bounded observation deadline exceeded")
+
+
+def source_package(nonce, phase, pins):
+    require(re.fullmatch(r"[0-9a-f]{32}", nonce or "") and phase in {"A", "B"}, "invalid source identity")
+    require(set(pins) == {"white", "yellow"} and all(type(value) is int and 0 <= value <= 48 for value in pins.values()), "invalid frozen pins")
+    nonce_path = "/m5-binary-admission-" + nonce
+    nonce_code = (f"assert {nonce_path!r} not in sys.path\nsys.path.append({nonce_path!r})" if phase == "A"
+                  else f"assert {nonce_path!r} in sys.path, 'VM nonce lost'")
+    source = f'''import sys,json,time
+import M5
+from unit import PIRUnit
+{nonce_code}
+M5.begin()
+screen=M5.Display
+screen.setBrightness(255)
+screen.fillScreen(0)
+unit=PIRUnit(({pins['white']},{pins['yellow']}))
+screen.fillRect(screen.width()//2-4,screen.height()//2-4,8,8,{0xFF0000 if phase == 'A' else 0x00FF00})
+print({PREFIX!r}+json.dumps({{'kind':'ready','nonce':{nonce!r},'phase':{phase!r}}}))
+sequence=0
+previous=None
+while True:
+ M5.update()
+ motion=bool(unit.get_status())
+ if motion != previous:
+  screen.fillRect(4,4,8,8,0xFFFFFF if motion else 0)
+  previous=motion
+ sequence+=1
+ print({PREFIX!r}+json.dumps({{'kind':'sample','nonce':{nonce!r},'phase':{phase!r},'sequence':sequence,'motion':motion}}))
+ time.sleep_ms(200)
+'''
+    compile(source, "main.py", "exec")
+    return {"source_kind": "uiflow2-package", "entrypoint": "main.py", "files": {"main.py": {"encoding": "utf8", "data": source}}}
+
+
+def parse_sample(text, execution_id, nonce, phase, *, fresh=None, minimum=0, motion=None):
+    require(re.fullmatch(r"[0-9a-f]{32}", execution_id or ""), "invalid execution ID")
+    marker = "__M5_EXEC_" + execution_id + "__:START"
+    found = re.search(re.escape(marker) + r"\r?\n", text)
+    if found is None:
+        return None
+    rows = []
+    for line in text[found.end():].splitlines(keepends=True):
+        if line.endswith("\n") and line.startswith(PREFIX):
+            try:
+                rows.append(json.loads(line[len(PREFIX):]))
+            except ValueError:
+                pass
+    if not any(row.get("kind") == "ready" and row.get("nonce") == nonce and row.get("phase") == phase
+               for row in rows if type(row) is dict):
+        return None
+    if fresh is not None:
+        rows = []
+        for line in fresh.splitlines(keepends=True):
+            if line.endswith("\n") and line.startswith(PREFIX):
+                try:
+                    rows.append(json.loads(line[len(PREFIX):]))
+                except ValueError:
+                    pass
+    for row in reversed(rows):
+        if type(row) is not dict or row.get("kind") != "sample" or row.get("nonce") != nonce or row.get("phase") != phase:
+            continue
+        require(type(row.get("sequence")) is int and row["sequence"] > 0 and type(row.get("motion")) is bool, "invalid guest sample")
+        if row["sequence"] > minimum and (motion is None or row["motion"] is motion):
+            return row
+    return None
+
+
+def runtime_identity(pid):
+    require(type(pid) is int and pid > 0, "runtime PID missing")
+    if sys.platform == "darwin":
+        buffer = ctypes.create_string_buffer(4096)
+        require(ctypes.CDLL("/usr/lib/libproc.dylib").proc_pidpath(pid, buffer, len(buffer)) > 0, "runtime executable unavailable")
+        path = Path(buffer.value.decode())
+    else:
+        path = Path("/proc") / str(pid) / "exe"
+    with path.open("rb") as stream:
+        digest = hashlib.file_digest(stream, "sha256").hexdigest()
+    return {"pid": pid, "executable_name": path.resolve().name, "sha256": digest}
+
+
+def bounded_bytes(path, maximum=4 * 1024 * 1024):
+    require(not path.is_symlink(), "owned evidence path must not be a symlink")
+    with path.open("rb") as stream:
+        value = stream.read(maximum + 1)
+    require(len(value) <= maximum, "owned evidence file exceeded bound")
+    return value
+
+
+def disk_programs(state_dir, session_id):
+    require(re.fullmatch(r"[0-9a-f]{32}", session_id or ""), "invalid owned session ID")
+    folder = state_dir / "sessions" / session_id
+    paths = [folder / "program.json", *sorted((folder / "programs").glob("*.json"))]
+    return {str(path.relative_to(folder)): {"sha256": sha(bounded_bytes(path)), "bytes": path.stat().st_size}
+            for path in paths if path.exists()}
+
+
+def store_snapshot(state_dir):
+    folder = state_dir / "program-packages"
+    require(folder.is_dir() and not folder.is_symlink(), "local immutable package store unavailable")
+    return {path.name: sha(bounded_bytes(path)) for path in sorted(folder.glob("*.json"))}
+
+
+def no_execution_changed(before, after, before_disk, after_disk):
+    require(before == after, "old REST execution changed after rejected MPY request")
+    require(before_disk == after_disk, "old durable execution changed or another execution was allocated")
+
+
+def preview_projection(preview, run):
+    return {"preview": {key: preview.get(key) for key in ("preview_id", "owner_epoch", "generation", "state", "session_id",
+            "active_run_id", "desired_run_id", "transition_run_id")},
+            "run": {key: run.get(key) for key in ("run_id", "execution_id", "revision_id", "generation", "state", "request",
+            "cancel_intent", "interrupt_ack", "error", "application_ready")}}
+
+
+def assert_rejection(body):
+    require(isinstance(body, dict) and isinstance(body.get("error"), dict)
+            and body["error"].get("code") == ERROR_CODE, "wrong unsupported-MPY error")
+
+
+def remember_preview(owned, receipt):
+    for key in ("preview_id", "owner_epoch"):
+        require(re.fullmatch(r"[0-9a-f]{32}", receipt.get(key, "")), "owned Preview identity unavailable")
+        require(not owned.get(key) or owned[key] == receipt[key], "owned Preview identity changed")
+        owned[key] = receipt[key]
+    if receipt.get("session_id"):
+        require(not owned.get("session_id") or owned["session_id"] == receipt["session_id"], "owned session changed")
+        owned["session_id"] = receipt["session_id"]
+
+
+def recover_preview(owned, client):
+    if owned.get("preview_id") or owned.get("creation_outcome") != "unknown":
+        return
+    receipt = client.json("previews", "POST", owned["create_body"], owned["create_key"])
+    remember_preview(owned, receipt)
+    owned["creation_recovered_for_cleanup"] = True
+
+
+def pid_gone(pid):
+    if type(pid) is not int or pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return True
+    return False
+
+
+def verify_zip(raw, session, runs):
+    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+        names = archive.namelist()
+        require(len(names) == len(set(names)) and all(not name.startswith("/") and ".." not in name.split("/") for name in names), "unsafe ZIP members")
+        require(sum(row.file_size for row in archive.infolist()) <= MAX_RESPONSE, "ZIP expanded size bound")
+        require(archive.testzip() is None, "ZIP CRC mismatch")
+        manifest = json.loads(archive.read("manifest.json"))
+        require(set(manifest["files"]) == set(names) - {"manifest.json"}, "ZIP inventory mismatch")
+        require(manifest["session"]["state"] == "running", "ZIP was not captured before stop")
+        for key in ("session_id", "device_id", "pid", "firmware_sha256"):
+            require(manifest["session"][key] == session[key], "ZIP runtime identity mismatch")
+        for name, row in manifest["files"].items():
+            data = archive.read(name)
+            require(row == {"size": len(data), "sha256": sha(data)}, "ZIP original byte mismatch")
+        for run in runs:
+            row = json.loads(archive.read("programs/" + run["execution_id"] + ".json"))
+            for key in ("execution_id", "revision_id"):
+                require(row[key] == run[key], "ZIP execution identity mismatch")
+        return {"status": "PASS", "members": len(names), "sha256": sha(raw)}
+
+
+class Lane:
+    def __init__(self, client, args, device, kind, output):
+        self.client, self.args, self.device, self.kind, self.output = client, args, device, kind, output
+        self.owned = {"lane": kind}
+        self.session = None
+        self.report = {"status": "FAIL", "device_id": device, "lane": kind, "binary_executed": False,
+                       "hardware": "NOT RUN", "runs": [], "observations": [], "rejections": []}
+        self.nonce = uuid.uuid4().hex
+        self.report["nonce"] = self.nonce
+
+    @property
+    def sid(self):
+        return self.owned["session_id"]
+
+    def serial(self, offset=0):
+        return self.client.json(f"sessions/{self.sid}/serial?offset={offset}&limit=1048576")
+
+    def same_vm(self):
+        current = self.client.json("sessions/" + self.sid)
+        require(current["state"] == "running", "guest no longer running")
+        for key in ("session_id", "pid", "firmware_sha256", "worker"):
+            require(current[key] == self.session[key], "guest runtime/firmware/worker changed")
+        require(runtime_identity(current["pid"]) == self.report["runtime"], "actual runtime changed")
+        return current
+
+    def create(self):
+        units = [{"id": "pir", "unit_id": "pir", "port_id": PORTS[self.device]}]
+        body = {"device_id": self.device, "runtime": "qemu", "ttl_seconds": 900, "units": units}
+        self.owned.update(create_body=body, creation_outcome="unknown")
+        if self.kind == "preview":
+            self.owned["create_key"] = uuid.uuid4().hex
+            save(self.output / "create-intent.json", {"body": body, "key": self.owned["create_key"]})
+            try:
+                created = self.client.json("previews", "POST", body, self.owned["create_key"])
+                remember_preview(self.owned, created)
+            except HTTPFailure as error:
+                if error.complete and 400 <= error.status < 500 and error.status != 408:
+                    self.owned["creation_outcome"] = "rejected"
+                raise
+            self.owned["creation_outcome"] = "confirmed"
+            preview = poll(lambda: self.client.json("previews/" + self.owned["preview_id"]),
+                           lambda row: row["state"] in {"ready", "failed"}, 120)
+            remember_preview(self.owned, preview)
+            require(preview["state"] == "ready" and preview["capabilities"]["main_mpy"] is False, "Preview readiness/capability mismatch")
+            self.report["preview_id"] = preview["preview_id"]
+        else:
+            body.update(program_mode="uiflow-live", ready_timeout_seconds=40)
+            save(self.output / "create-intent.json", body)
+            # Ordinary session creation has no idempotency contract. Never retry
+            # an unknown creation; record unconfirmed cleanup in the report.
+            try:
+                created = self.client.json("sessions", "POST", body, timeout=120)
+                require(re.fullmatch(r"[0-9a-f]{32}", created.get("session_id", "")), "ordinary session receipt missing identity")
+                self.owned["session_id"] = created["session_id"]
+            except HTTPFailure as error:
+                if error.complete and 400 <= error.status < 500 and error.status != 408:
+                    self.owned["creation_outcome"] = "rejected"
+                raise
+            self.owned["creation_outcome"] = "confirmed"
+        self.session = poll(lambda: self.client.json("sessions/" + self.sid), lambda row: row["state"] in {"running", "failed", "stopped"}, 120)
+        require(self.session["state"] == "running", "owned session did not run")
+        self.owned["pid"] = self.session["pid"]
+        runtime = runtime_identity(self.session["pid"])
+        require(runtime["sha256"] == self.args.expected_runtime_sha256, "frozen runtime SHA mismatch")
+        self.report.update(session_id=self.sid, pid=self.session["pid"], firmware_sha256=self.session["firmware_sha256"],
+                           worker=self.session["worker"], runtime=runtime)
+        require(len(self.session["units"]) == 1 and self.session["units"][0]["id"] == "pir", "owned PIR attachment mismatch")
+
+    def run_source(self, phase):
+        offset = self.serial()["next_offset"]
+        payload = source_package(self.nonce, phase, self.session["units"][0]["pins"])
+        checkpoint = self.client.json("program-revisions", "POST", payload)["revision"]
+        if self.kind == "preview":
+            preview = self.client.json("previews/" + self.owned["preview_id"])
+            receipt = self.client.json("previews/" + self.owned["preview_id"] + "/runs", "POST", {
+                "revision_id": checkpoint["revision_id"], "expected_owner_epoch": self.owned["owner_epoch"],
+                "expected_generation": preview["generation"], "client_generation": "binary-admission-" + self.nonce + phase,
+                "timeout_seconds": 120}, uuid.uuid4().hex)
+            run = poll(lambda: self.client.json(f"previews/{self.owned['preview_id']}/runs/{receipt['run_id']}"),
+                       lambda row: row["state"] in {"running", "failed", "unknown", "completed"}, 120)
+            require(run["state"] == "running", "source Preview Run did not run")
+        else:
+            status = self.client.json("sessions/" + self.sid + "/program")
+            response = self.client.json("sessions/" + self.sid + "/program", "POST", {
+                "revision_id": checkpoint["revision_id"], "expected_execution_id": (status["program"] or {}).get("execution_id"),
+                "timeout_seconds": 120}, timeout=130)
+            run = response["program"]
+            require(run["state"] == "running", "source session program did not run")
+        require(run["revision_id"] == checkpoint["revision_id"], "source revision identity mismatch")
+        run = {**run, "phase": phase, "probe_serial_offset": offset}
+        self.report["runs"].append(run)
+        self.observe(run)
+        self.same_vm()
+        return run
+
+    def observe(self, run, *, fresh=None, minimum=0, motion=None):
+        def read():
+            complete = self.serial(run["probe_serial_offset"])
+            window = None if fresh is None else self.serial(fresh)
+            sample = parse_sample(complete["data"], run["execution_id"], self.nonce, run["phase"],
+                                  fresh=None if window is None else window["data"], minimum=minimum, motion=motion)
+            return {"complete": complete, "fresh": window, "sample": sample}
+        result = poll(read, lambda value: value["sample"] is not None, 40)
+        return result["sample"]
+
+    def input(self, run, motion):
+        offset = self.serial()["next_offset"]
+        previous = self.observe(run)
+        body = {"id": "pir", "values": {"motion": motion}}
+        if self.kind == "preview":
+            response = self.client.json(f"previews/{self.owned['preview_id']}/input", "POST", {
+                "expected_owner_epoch": self.owned["owner_epoch"], "expected_run_id": run["run_id"], "unit_input": body})
+            for key in ("run_id", "execution_id", "revision_id"):
+                require(response[key] == run[key], "input targeted another Run")
+        else:
+            response = self.client.json("sessions/" + self.sid + "/unit-input", "POST", body)
+        sample = self.observe(run, fresh=offset, minimum=previous["sequence"], motion=motion)
+        qom = self.client.json(f"sessions/{self.sid}/qom?path=%2Fmachine%2Funits%2Fpir&property=input-level")
+        require(qom["session_id"] == self.sid and qom["path"] == "/machine/units/pir"
+                and qom["property"] == "input-level" and qom["value"] is motion, "independent PIR QOM mismatch")
+        frame = self.frame(run, sample, f"{run['phase']}-{int(motion)}")
+        row = {"phase": run["phase"], "fresh_serial_offset": offset, "sample": sample, "qom": qom, "frame": frame}
+        self.report["observations"].append(row)
+        self.same_vm()
+        return sample
+
+    def frame(self, run, sample, label):
+        from PIL import Image
+        route = (f"previews/{self.owned['preview_id']}/runs/{run['run_id']}/frame.png" if self.kind == "preview"
+                 else f"sessions/{self.sid}/frame.png?max_age_ms=1")
+        raw, headers = self.client.request(route, binary=True)
+        require(headers.get("x-frame-sha256") == sha(raw) and headers.get("x-frame-execution-id") == run["execution_id"]
+                and headers.get("x-frame-revision-id") == run["revision_id"], "frame identity or SHA mismatch")
+        with Image.open(io.BytesIO(raw)) as image:
+            rgb = image.convert("RGB")
+            phase = list(rgb.getpixel((image.width // 2, image.height // 2)))
+            motion = list(rgb.getpixel((8, 8)))
+            require(phase == ([255, 0, 0] if run["phase"] == "A" else [0, 255, 0]), "phase framebuffer pixel mismatch")
+            require(motion == ([255, 255, 255] if sample["motion"] else [0, 0, 0]), "PIR framebuffer pixel mismatch")
+            size = list(image.size)
+            require(headers.get("x-frame-width") == str(image.width) and headers.get("x-frame-height") == str(image.height), "frame dimension headers mismatch")
+        (self.output / (label + ".png")).write_bytes(raw)
+        self.report["last_frame_sha256"] = sha(raw)
+        return {"sha256": sha(raw), "headers": headers, "size": size, "selected_phase_pixel": phase, "selected_motion_pixel": motion}
+
+    def save_binary(self):
+        payload = binary_payload(uuid.uuid4().hex)
+        created = self.client.json("program-revisions", "POST", payload)
+        revision = verify_checkpoint(created, payload)
+        rid = revision["revision_id"]
+        duplicate = self.client.json("program-revisions", "POST", payload)
+        metadata = self.client.json("program-revisions/" + rid)
+        downloaded = self.client.json("program-revisions/" + rid + "/files")
+        require(duplicate["revision"] == metadata["revision"] == downloaded["revision"] == revision, "immutable metadata changed")
+        verify_checkpoint(downloaded, payload)
+        self.report["binary_checkpoint"] = {"revision": revision, "fixture_sha256": MPY_SHA,
+                                             "original_bytes_verified": True, "executed": False}
+        save(self.output / "binary-checkpoint.json", downloaded)
+        return rid
+
+    def reject(self, run, rid, *, inline=False):
+        before = self.client.json("sessions/" + self.sid + "/program")
+        before_disk = disk_programs(self.args.state_dir, self.sid)
+        packages_before = store_snapshot(self.args.state_dir)
+        projection = None
+        if self.kind == "preview":
+            p = self.client.json("previews/" + self.owned["preview_id"])
+            old = self.client.json(f"previews/{self.owned['preview_id']}/runs/{run['run_id']}")
+            projection = preview_projection(p, old)
+            body = {"revision_id": rid, "expected_owner_epoch": self.owned["owner_epoch"], "expected_generation": p["generation"]}
+            route, key = f"previews/{self.owned['preview_id']}/runs", uuid.uuid4().hex
+        else:
+            body = (binary_payload(uuid.uuid4().hex) if inline else {"revision_id": rid})
+            body["expected_execution_id"] = run["execution_id"]
+            route, key = "sessions/" + self.sid + "/program", None
+        response = self.client.json(route, "POST", body, key, expected=409)
+        assert_rejection(response)
+        after = self.client.json("sessions/" + self.sid + "/program")
+        after_disk = disk_programs(self.args.state_dir, self.sid)
+        no_execution_changed(before, after, before_disk, after_disk)
+        require(store_snapshot(self.args.state_dir) == packages_before, "rejected execution changed immutable package store")
+        if projection is not None:
+            p = self.client.json("previews/" + self.owned["preview_id"])
+            old = self.client.json(f"previews/{self.owned['preview_id']}/runs/{run['run_id']}")
+            require(preview_projection(p, old) == projection, "rejected Run changed prior Preview generation/ownership/state")
+        self.report["rejections"].append({"form": "inline" if inline else "reference", "status": 409, "code": ERROR_CODE,
+            "old_rest_execution": before, "durable_programs": before_disk, "preview_state": projection,
+            "package_store_count": len(packages_before), "package_store_unchanged": True, "execution_allocation": False})
+
+    def capture_zip(self):
+        raw = self.client.json("sessions/" + self.sid + "/evidence", binary=True)
+        (self.output / "evidence-before-stop.zip").write_bytes(raw)
+        self.owned["zip_before_stop"] = True
+        self.report["evidence_zip"] = verify_zip(raw, self.session, self.report["runs"])
+
+    def cleanup(self):
+        errors = []
+        if self.kind == "preview" and not self.owned.get("preview_id"):
+            try:
+                recover_preview(self.owned, self.client)
+            except BaseException as error:
+                errors.append({"step": "recover-creation", "error_type": type(error).__name__})
+        if self.kind == "preview" and self.owned.get("preview_id"):
+            try:
+                remember_preview(self.owned, self.client.json("previews/" + self.owned["preview_id"]))
+            except BaseException as error:
+                errors.append({"step": "read-preview", "error_type": type(error).__name__})
+        sid = self.owned.get("session_id")
+        if sid and not self.session:
+            try:
+                self.session = self.client.json("sessions/" + sid)
+                if type(self.session.get("pid")) is int:
+                    self.owned["pid"] = self.session["pid"]
+            except BaseException as error:
+                errors.append({"step": "read-session", "error_type": type(error).__name__})
+        if sid and not self.owned.get("zip_before_stop"):
+            try:
+                self.capture_zip()
+            except BaseException as error:
+                errors.append({"step": "evidence-before-stop", "error_type": type(error).__name__})
+        # Reads and evidence failures never suppress release of known ownership.
+        if self.kind == "preview" and self.owned.get("preview_id"):
+            try:
+                self.client.json("previews/" + self.owned["preview_id"] + "/close", "POST", {"expected_owner_epoch": self.owned["owner_epoch"]})
+            except BaseException as error:
+                errors.append({"step": "close-receipt", "error_type": type(error).__name__})
+            try:
+                closed = poll(lambda: self.client.json("previews/" + self.owned["preview_id"]), lambda row: row["state"] == "closed", 120)
+                remember_preview(self.owned, closed)
+                self.report["closed_preview"] = closed
+                sid = self.owned.get("session_id")
+            except BaseException as error:
+                errors.append({"step": "confirm-close", "error_type": type(error).__name__})
+        elif sid:
+            try:
+                self.client.json("sessions/" + sid + "?purge=0", "DELETE", timeout=60)
+            except BaseException as error:
+                errors.append({"step": "stop-receipt", "error_type": type(error).__name__})
+        if not sid:
+            unconfirmed = self.owned.get("creation_outcome") == "unknown"
+            return {"status": "UNCONFIRMED" if unconfirmed or errors else "NO ALLOCATION", "errors": errors,
+                    "unknown_ordinary_creation_not_retried": self.kind == "session" and unconfirmed}
+        try:
+            stopped = poll(lambda: self.client.json("sessions/" + sid), lambda row: row["state"] == "stopped", 30)
+            require(stopped["flash_retained"] is False and stopped["worker"]["lease_active"] is False, "owned Flash/lease not released")
+            gone = poll(lambda: pid_gone(self.owned.get("pid")), bool, 15)
+            raw = self.client.json("sessions/" + sid + "/frame.png", binary=True)
+            (self.output / "history-last.png").write_bytes(raw)
+            expected_frame = self.report.get("last_frame_sha256")
+            require(expected_frame is not None and sha(raw) == expected_frame, "history frame does not retain final stable byte SHA")
+            require(self.owned.get("zip_before_stop") is True, "before-stop ZIP unavailable")
+            return {"status": "PASS" if not errors else "INCOMPLETE", "session": stopped, "pid_gone": gone,
+                    "zip_before_stop": True, "history_frame_sha256": sha(raw), "errors": errors,
+                    "capacity_snapshot": self.client.json("capacity"), "scope": "owned session lease only; unrelated sessions ignored"}
+        except BaseException as error:
+            errors.append({"step": "confirm-resources-and-history", "error_type": type(error).__name__, "message": str(error)})
+            return {"status": "UNCONFIRMED", "errors": errors}
+
+    def execute(self):
+        try:
+            self.create()
+            a = self.run_source("A")
+            self.input(a, False)
+            rid = self.save_binary()
+            self.reject(a, rid)
+            self.input(a, True)
+            if self.kind == "session":
+                self.reject(a, rid, inline=True)
+                self.input(a, False)
+            b = self.run_source("B")
+            self.input(b, True)
+            self.input(b, False)
+            self.capture_zip()
+            self.report["status"] = "PASS"
+        except BaseException as error:
+            self.report["error"] = {"type": type(error).__name__, "message": str(error)}
+        finally:
+            try:
+                self.report["cleanup"] = self.cleanup()
+            except BaseException as error:
+                self.report["cleanup"] = {"status": "UNCONFIRMED", "error_type": type(error).__name__}
+            if self.report["cleanup"]["status"] != "PASS":
+                self.report["status"] = "FAIL"
+            self.report["creation"] = self.owned
+            save(self.output / "report.json", self.report)
+        return self.report
+
+
+def validate_local_state(args, health):
+    pid = health["capacity"]["worker"]["pid"]
+    require(type(pid) is int and pid > 0, "local service PID missing")
+    command = subprocess.check_output(["ps", "-ww", "-p", str(pid), "-o", "command="], text=True, timeout=5)
+    # This is a same-host evidence reader, not a service configuration writer.
+    import shlex
+    argv = shlex.split(command)
+    require("platform/tools/serve.py" in argv and "--state-dir" in argv, "service command identity unavailable")
+    selected = Path(argv[argv.index("--state-dir") + 1]).resolve()
+    require(selected == args.state_dir.resolve(), "service state directory differs from owned evidence source")
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--execute", action="store_true")
+    parser.add_argument("--device", choices=(*DEVICES, "all"), default="cores3")
+    parser.add_argument("--base-url", default="http://127.0.0.1:8787")
+    parser.add_argument("--token-file", type=Path, default=ROOT / ".work/preview-control-token")
+    parser.add_argument("--state-dir", type=Path, default=ROOT / ".work/unit-device-service")
+    parser.add_argument("--expected-runtime-sha256", default=EXPECTED_RUNTIME)
+    parser.add_argument("--out-dir", type=Path)
+    args = parser.parse_args(argv)
+    devices = DEVICES if args.device == "all" else (args.device,)
+    if not args.execute:
+        print(json.dumps(plan(devices), ensure_ascii=False, indent=2))
+        return 0
+    require(args.expected_runtime_sha256 == EXPECTED_RUNTIME, "this acceptance requires its fixed frozen runtime")
+    require(args.out_dir is not None, "--out-dir is required with --execute")
+    token = read_token(args.token_file)
+    args.out_dir.mkdir(parents=True, exist_ok=False)
+    output = args.out_dir.resolve()
+    report = {"schema_version": 1, "category": "virtual-binary-checkpoint-admission", "status": "FAIL",
+              "hardware": "NOT RUN", "binary_executed": False, "lanes": [], "started_at": datetime.now(timezone.utc).isoformat()}
+    fingerprints = {path: sha((ROOT / path).read_bytes()) for path in SOURCES}
+    report["source_sha256"] = fingerprints
+    client = Client(args.base_url, token, output)
+    try:
+        health = client.json("health")
+        validate_local_state(args, health)
+        report["service_worker"] = health["capacity"]["worker"]
+        devices_response = client.json("devices")
+        for device in devices:
+            public = next(row for row in devices_response["devices"] if row["device_id"] == device)
+            require(public["program_features"]["mpy_entrypoint"] is False and public["program_features"]["entrypoints"] == ["main.py"], "runtime capability incorrectly enables MPY")
+            for kind in ("session", "preview"):
+                folder = output / f"{device}-{kind}"
+                folder.mkdir()
+                lane = Lane(Client(args.base_url, token, folder), args, device, kind, folder)
+                result = lane.execute()
+                report["lanes"].append({"device_id": device, "lane": kind, "status": result["status"], "report": str(folder.relative_to(output) / "report.json")})
+                save(output / "report.json", report)
+                require(result["status"] == "PASS", "owned lane failed; inspect retained lane evidence")
+                print(f"BINARY_CHECKPOINT_ADMISSION_PASS {device} {kind}", flush=True)
+        require(fingerprints == {path: sha((ROOT / path).read_bytes()) for path in SOURCES}, "frozen implementation changed during acceptance")
+        report["final_capacity_snapshot"] = client.json("capacity")
+        report["status"] = "PASS"
+    except BaseException as error:
+        report["error"] = {"type": type(error).__name__, "message": str(error)}
+    finally:
+        save(output / "report.json", report)
+    print("BINARY_CHECKPOINT_ADMISSION_" + report["status"], flush=True)
+    return 0 if report["status"] == "PASS" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,1173 @@
+{
+  "status": "PASS",
+  "device_id": "cores3",
+  "lane": "session",
+  "binary_executed": false,
+  "hardware": "NOT RUN",
+  "runs": [
+    {
+      "execution_id": "527e0fb1cf0d45b0b5b640d72cd29820",
+      "revision_id": "987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+      "source_sha256": "d1f146c949a9f3b1fc4a086ca88957d9338441b9f4667586b0a12a3a1e8327d9",
+      "source_bytes": 883,
+      "state": "running",
+      "submitted_at": "2026-10-26T20:18:56.858489+00:00",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 36446,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 1358,
+      "source_kind": "uiflow2-package",
+      "total_file_bytes": 883,
+      "file_count": 1,
+      "deployment": {
+        "phase": "activated",
+        "staging_path": "/flash/.m5-live-packages/.stage-05ba8e55e0f04ac3be4997b9dcb4361e",
+        "package_path": "/flash/.m5-live-packages/987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+        "events": [
+          {
+            "phase": "preflight",
+            "staging_path": "/flash/.m5-live-packages/.stage-05ba8e55e0f04ac3be4997b9dcb4361e",
+            "package_path": "/flash/.m5-live-packages/987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+            "observed_at": "2026-10-26T20:18:56.965803+00:00"
+          },
+          {
+            "phase": "capabilities",
+            "capabilities": {
+              "existing": false,
+              "directory_count": 0,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4800512
+            },
+            "observed_at": "2026-10-26T20:18:57.245042+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "main.py",
+            "written_bytes": 883,
+            "observed_at": "2026-10-26T20:18:57.758170+00:00"
+          },
+          {
+            "phase": "verified",
+            "inventory": {
+              "main.py": {
+                "size": 883,
+                "sha256": "4964bdeee27314461e3b56d9dc2f4e00e10b96ac5b065b954a8fa717ad054eef"
+              }
+            },
+            "observed_at": "2026-10-26T20:18:57.813865+00:00"
+          },
+          {
+            "phase": "published",
+            "inventory": {
+              "main.py": {
+                "size": 883,
+                "sha256": "4964bdeee27314461e3b56d9dc2f4e00e10b96ac5b065b954a8fa717ad054eef"
+              }
+            },
+            "reused": false,
+            "observed_at": "2026-10-26T20:18:57.856116+00:00"
+          },
+          {
+            "phase": "activated",
+            "package_path": "/flash/.m5-live-packages/987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+            "inventory": {
+              "main.py": {
+                "size": 883,
+                "sha256": "4964bdeee27314461e3b56d9dc2f4e00e10b96ac5b065b954a8fa717ad054eef"
+              }
+            },
+            "reused": false,
+            "capabilities": {
+              "existing": false,
+              "directory_count": 0,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4800512
+            },
+            "removed_modules": [],
+            "staging_path": "/flash/.m5-live-packages/.stage-05ba8e55e0f04ac3be4997b9dcb4361e",
+            "observed_at": "2026-10-26T20:18:58.146526+00:00"
+          }
+        ],
+        "capabilities": {
+          "existing": false,
+          "directory_count": 0,
+          "mpy": 11014,
+          "small_int_bits": 31,
+          "free_bytes": 4800512
+        },
+        "path": "main.py",
+        "written_bytes": 883,
+        "inventory": {
+          "main.py": {
+            "size": 883,
+            "sha256": "4964bdeee27314461e3b56d9dc2f4e00e10b96ac5b065b954a8fa717ad054eef"
+          }
+        },
+        "reused": false,
+        "removed_modules": []
+      },
+      "next_offset": 1417,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T20:18:58.347717+00:00",
+      "phase": "A",
+      "probe_serial_offset": 444
+    },
+    {
+      "execution_id": "7db23a4ec4d747cf845cdd3a3a2db0c6",
+      "revision_id": "b4d27e56b380c0fc29717017c3874fcb5e2f22a1168cfc1df13fa0c9c4b4fc1d",
+      "source_sha256": "8c348b7dacd4f4be19919f4417e70b209063ce4174b15b4924e7503b461fe6b9",
+      "source_bytes": 820,
+      "state": "running",
+      "submitted_at": "2026-10-26T20:19:01.031117+00:00",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 36446,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 4286,
+      "source_kind": "uiflow2-package",
+      "total_file_bytes": 820,
+      "file_count": 1,
+      "deployment": {
+        "phase": "activated",
+        "staging_path": "/flash/.m5-live-packages/.stage-c8f10529e0084354ac2e3890fdc95a6a",
+        "package_path": "/flash/.m5-live-packages/b4d27e56b380c0fc29717017c3874fcb5e2f22a1168cfc1df13fa0c9c4b4fc1d",
+        "events": [
+          {
+            "phase": "preflight",
+            "staging_path": "/flash/.m5-live-packages/.stage-c8f10529e0084354ac2e3890fdc95a6a",
+            "package_path": "/flash/.m5-live-packages/b4d27e56b380c0fc29717017c3874fcb5e2f22a1168cfc1df13fa0c9c4b4fc1d",
+            "observed_at": "2026-10-26T20:19:01.139941+00:00"
+          },
+          {
+            "phase": "capabilities",
+            "capabilities": {
+              "existing": false,
+              "directory_count": 1,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4780032
+            },
+            "observed_at": "2026-10-26T20:19:01.476626+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "main.py",
+            "written_bytes": 820,
+            "observed_at": "2026-10-26T20:19:01.965015+00:00"
+          },
+          {
+            "phase": "verified",
+            "inventory": {
+              "main.py": {
+                "size": 820,
+                "sha256": "8f49eace3cc8022ed29307c5b358ed45ac7df6ccaf2637bde07b2a4be00e4e3b"
+              }
+            },
+            "observed_at": "2026-10-26T20:19:02.022709+00:00"
+          },
+          {
+            "phase": "published",
+            "inventory": {
+              "main.py": {
+                "size": 820,
+                "sha256": "8f49eace3cc8022ed29307c5b358ed45ac7df6ccaf2637bde07b2a4be00e4e3b"
+              }
+            },
+            "reused": false,
+            "observed_at": "2026-10-26T20:19:02.064867+00:00"
+          },
+          {
+            "phase": "activated",
+            "package_path": "/flash/.m5-live-packages/b4d27e56b380c0fc29717017c3874fcb5e2f22a1168cfc1df13fa0c9c4b4fc1d",
+            "inventory": {
+              "main.py": {
+                "size": 820,
+                "sha256": "8f49eace3cc8022ed29307c5b358ed45ac7df6ccaf2637bde07b2a4be00e4e3b"
+              }
+            },
+            "reused": false,
+            "capabilities": {
+              "existing": false,
+              "directory_count": 1,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4780032
+            },
+            "removed_modules": [],
+            "staging_path": "/flash/.m5-live-packages/.stage-c8f10529e0084354ac2e3890fdc95a6a",
+            "observed_at": "2026-10-26T20:19:02.352301+00:00"
+          }
+        ],
+        "capabilities": {
+          "existing": false,
+          "directory_count": 1,
+          "mpy": 11014,
+          "small_int_bits": 31,
+          "free_bytes": 4780032
+        },
+        "path": "main.py",
+        "written_bytes": 820,
+        "inventory": {
+          "main.py": {
+            "size": 820,
+            "sha256": "8f49eace3cc8022ed29307c5b358ed45ac7df6ccaf2637bde07b2a4be00e4e3b"
+          }
+        },
+        "reused": false,
+        "removed_modules": []
+      },
+      "next_offset": 4347,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T20:19:02.541764+00:00",
+      "phase": "B",
+      "probe_serial_offset": 3172
+    }
+  ],
+  "observations": [
+    {
+      "phase": "A",
+      "fresh_serial_offset": 1642,
+      "sample": {
+        "nonce": "ed8b54444363475f99903046cf1fe809",
+        "phase": "A",
+        "sequence": 2,
+        "motion": false,
+        "kind": "sample"
+      },
+      "qom": {
+        "session_id": "729ecec1a5664e8696bcd706a0e0b70b",
+        "path": "/machine/units/pir",
+        "property": "input-level",
+        "value": false
+      },
+      "frame": {
+        "sha256": "3d597357233e9d0dede2cb32a9b01f3b8e2bf6bea67ba55bc9ee21697e428a55",
+        "headers": {
+          "content-type": "image/png",
+          "content-length": "318",
+          "x-request-id": "c049d8ae96a247cd8a72231bd68d3af3",
+          "x-frame-width": "320",
+          "x-frame-height": "240",
+          "x-frame-sha256": "3d597357233e9d0dede2cb32a9b01f3b8e2bf6bea67ba55bc9ee21697e428a55",
+          "x-frame-capture-seq": "1",
+          "x-frame-source": "live",
+          "etag": "\"3d597357233e9d0dede2cb32a9b01f3b8e2bf6bea67ba55bc9ee21697e428a55\"",
+          "x-frame-captured-at": "2026-10-26T20:18:58.808082+00:00",
+          "x-frame-execution-id": "527e0fb1cf0d45b0b5b640d72cd29820",
+          "x-frame-revision-id": "987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+          "x-frame-program-state": "running"
+        },
+        "size": [
+          320,
+          240
+        ],
+        "selected_positions": {
+          "phase": [
+            160,
+            120
+          ],
+          "motion": [
+            160,
+            140
+          ]
+        },
+        "selected_phase_pixel": [
+          255,
+          0,
+          0
+        ],
+        "selected_motion_pixel": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "phase": "A",
+      "fresh_serial_offset": 1770,
+      "sample": {
+        "nonce": "ed8b54444363475f99903046cf1fe809",
+        "phase": "A",
+        "sequence": 3,
+        "motion": true,
+        "kind": "sample"
+      },
+      "qom": {
+        "session_id": "729ecec1a5664e8696bcd706a0e0b70b",
+        "path": "/machine/units/pir",
+        "property": "input-level",
+        "value": true
+      },
+      "frame": {
+        "sha256": "462ce9ec6fe924235a2572b50d86d670e0a6cc7647a9d0156cfbc2313b42f473",
+        "headers": {
+          "content-type": "image/png",
+          "content-length": "333",
+          "x-request-id": "54fcc11b4760429895a6bb3f12677e6a",
+          "x-frame-width": "320",
+          "x-frame-height": "240",
+          "x-frame-sha256": "462ce9ec6fe924235a2572b50d86d670e0a6cc7647a9d0156cfbc2313b42f473",
+          "x-frame-capture-seq": "2",
+          "x-frame-source": "live",
+          "etag": "\"462ce9ec6fe924235a2572b50d86d670e0a6cc7647a9d0156cfbc2313b42f473\"",
+          "x-frame-captured-at": "2026-10-26T20:18:58.991712+00:00",
+          "x-frame-execution-id": "527e0fb1cf0d45b0b5b640d72cd29820",
+          "x-frame-revision-id": "987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+          "x-frame-program-state": "running"
+        },
+        "size": [
+          320,
+          240
+        ],
+        "selected_positions": {
+          "phase": [
+            160,
+            120
+          ],
+          "motion": [
+            160,
+            140
+          ]
+        },
+        "selected_phase_pixel": [
+          255,
+          0,
+          0
+        ],
+        "selected_motion_pixel": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "phase": "A",
+      "fresh_serial_offset": 1897,
+      "sample": {
+        "nonce": "ed8b54444363475f99903046cf1fe809",
+        "phase": "A",
+        "sequence": 13,
+        "motion": false,
+        "kind": "sample"
+      },
+      "qom": {
+        "session_id": "729ecec1a5664e8696bcd706a0e0b70b",
+        "path": "/machine/units/pir",
+        "property": "input-level",
+        "value": false
+      },
+      "frame": {
+        "sha256": "3d597357233e9d0dede2cb32a9b01f3b8e2bf6bea67ba55bc9ee21697e428a55",
+        "headers": {
+          "content-type": "image/png",
+          "content-length": "318",
+          "x-request-id": "67971fae588140fa8f81db2fea653434",
+          "x-frame-width": "320",
+          "x-frame-height": "240",
+          "x-frame-sha256": "3d597357233e9d0dede2cb32a9b01f3b8e2bf6bea67ba55bc9ee21697e428a55",
+          "x-frame-capture-seq": "3",
+          "x-frame-source": "live",
+          "etag": "\"3d597357233e9d0dede2cb32a9b01f3b8e2bf6bea67ba55bc9ee21697e428a55\"",
+          "x-frame-captured-at": "2026-10-26T20:19:01.010606+00:00",
+          "x-frame-execution-id": "527e0fb1cf0d45b0b5b640d72cd29820",
+          "x-frame-revision-id": "987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+          "x-frame-program-state": "running"
+        },
+        "size": [
+          320,
+          240
+        ],
+        "selected_positions": {
+          "phase": [
+            160,
+            120
+          ],
+          "motion": [
+            160,
+            140
+          ]
+        },
+        "selected_phase_pixel": [
+          255,
+          0,
+          0
+        ],
+        "selected_motion_pixel": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "phase": "B",
+      "fresh_serial_offset": 4570,
+      "sample": {
+        "nonce": "ed8b54444363475f99903046cf1fe809",
+        "phase": "B",
+        "sequence": 2,
+        "motion": true,
+        "kind": "sample"
+      },
+      "qom": {
+        "session_id": "729ecec1a5664e8696bcd706a0e0b70b",
+        "path": "/machine/units/pir",
+        "property": "input-level",
+        "value": true
+      },
+      "frame": {
+        "sha256": "3376c2a717dad4f4b8bf6c7a18aea1504053426b6fbc2fa64e2ff7cf7a456b1c",
+        "headers": {
+          "content-type": "image/png",
+          "content-length": "333",
+          "x-request-id": "6632ad7de2394141b7deda62983eb0a9",
+          "x-frame-width": "320",
+          "x-frame-height": "240",
+          "x-frame-sha256": "3376c2a717dad4f4b8bf6c7a18aea1504053426b6fbc2fa64e2ff7cf7a456b1c",
+          "x-frame-capture-seq": "4",
+          "x-frame-source": "live",
+          "etag": "\"3376c2a717dad4f4b8bf6c7a18aea1504053426b6fbc2fa64e2ff7cf7a456b1c\"",
+          "x-frame-captured-at": "2026-10-26T20:19:02.898636+00:00",
+          "x-frame-execution-id": "7db23a4ec4d747cf845cdd3a3a2db0c6",
+          "x-frame-revision-id": "b4d27e56b380c0fc29717017c3874fcb5e2f22a1168cfc1df13fa0c9c4b4fc1d",
+          "x-frame-program-state": "running"
+        },
+        "size": [
+          320,
+          240
+        ],
+        "selected_positions": {
+          "phase": [
+            160,
+            120
+          ],
+          "motion": [
+            160,
+            140
+          ]
+        },
+        "selected_phase_pixel": [
+          0,
+          255,
+          0
+        ],
+        "selected_motion_pixel": [
+          255,
+          255,
+          255
+        ]
+      }
+    },
+    {
+      "phase": "B",
+      "fresh_serial_offset": 4697,
+      "sample": {
+        "nonce": "ed8b54444363475f99903046cf1fe809",
+        "phase": "B",
+        "sequence": 12,
+        "motion": false,
+        "kind": "sample"
+      },
+      "qom": {
+        "session_id": "729ecec1a5664e8696bcd706a0e0b70b",
+        "path": "/machine/units/pir",
+        "property": "input-level",
+        "value": false
+      },
+      "frame": {
+        "sha256": "5414638e92337cff821e3110cc8633712a39503b4b504221e01a57d4bc399b09",
+        "headers": {
+          "content-type": "image/png",
+          "content-length": "318",
+          "x-request-id": "fffa3771d6f34ad3a2e1034cafdc877b",
+          "x-frame-width": "320",
+          "x-frame-height": "240",
+          "x-frame-sha256": "5414638e92337cff821e3110cc8633712a39503b4b504221e01a57d4bc399b09",
+          "x-frame-capture-seq": "5",
+          "x-frame-source": "live",
+          "etag": "\"5414638e92337cff821e3110cc8633712a39503b4b504221e01a57d4bc399b09\"",
+          "x-frame-captured-at": "2026-10-26T20:19:04.936254+00:00",
+          "x-frame-execution-id": "7db23a4ec4d747cf845cdd3a3a2db0c6",
+          "x-frame-revision-id": "b4d27e56b380c0fc29717017c3874fcb5e2f22a1168cfc1df13fa0c9c4b4fc1d",
+          "x-frame-program-state": "running"
+        },
+        "size": [
+          320,
+          240
+        ],
+        "selected_positions": {
+          "phase": [
+            160,
+            120
+          ],
+          "motion": [
+            160,
+            140
+          ]
+        },
+        "selected_phase_pixel": [
+          0,
+          255,
+          0
+        ],
+        "selected_motion_pixel": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  ],
+  "rejections": [
+    {
+      "form": "reference",
+      "status": 409,
+      "code": "program_mpy_entrypoint_unsupported",
+      "old_rest_execution": {
+        "session_id": "729ecec1a5664e8696bcd706a0e0b70b",
+        "program_transport": "uart-repl",
+        "program": {
+          "execution_id": "527e0fb1cf0d45b0b5b640d72cd29820",
+          "revision_id": "987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+          "source_sha256": "d1f146c949a9f3b1fc4a086ca88957d9338441b9f4667586b0a12a3a1e8327d9",
+          "source_bytes": 883,
+          "state": "running",
+          "submitted_at": "2026-10-26T20:18:56.858489+00:00",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "pid": 36446,
+          "execution_mode": "same-guest-uart-repl",
+          "cleanup_mode": "interrupt-only",
+          "serial_offset": 1358,
+          "source_kind": "uiflow2-package",
+          "total_file_bytes": 883,
+          "file_count": 1,
+          "deployment": {
+            "phase": "activated",
+            "staging_path": "/flash/.m5-live-packages/.stage-05ba8e55e0f04ac3be4997b9dcb4361e",
+            "package_path": "/flash/.m5-live-packages/987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+            "events": [
+              {
+                "phase": "preflight",
+                "staging_path": "/flash/.m5-live-packages/.stage-05ba8e55e0f04ac3be4997b9dcb4361e",
+                "package_path": "/flash/.m5-live-packages/987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+                "observed_at": "2026-10-26T20:18:56.965803+00:00"
+              },
+              {
+                "phase": "capabilities",
+                "capabilities": {
+                  "existing": false,
+                  "directory_count": 0,
+                  "mpy": 11014,
+                  "small_int_bits": 31,
+                  "free_bytes": 4800512
+                },
+                "observed_at": "2026-10-26T20:18:57.245042+00:00"
+              },
+              {
+                "phase": "writing",
+                "path": "main.py",
+                "written_bytes": 883,
+                "observed_at": "2026-10-26T20:18:57.758170+00:00"
+              },
+              {
+                "phase": "verified",
+                "inventory": {
+                  "main.py": {
+                    "size": 883,
+                    "sha256": "4964bdeee27314461e3b56d9dc2f4e00e10b96ac5b065b954a8fa717ad054eef"
+                  }
+                },
+                "observed_at": "2026-10-26T20:18:57.813865+00:00"
+              },
+              {
+                "phase": "published",
+                "inventory": {
+                  "main.py": {
+                    "size": 883,
+                    "sha256": "4964bdeee27314461e3b56d9dc2f4e00e10b96ac5b065b954a8fa717ad054eef"
+                  }
+                },
+                "reused": false,
+                "observed_at": "2026-10-26T20:18:57.856116+00:00"
+              },
+              {
+                "phase": "activated",
+                "package_path": "/flash/.m5-live-packages/987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+                "inventory": {
+                  "main.py": {
+                    "size": 883,
+                    "sha256": "4964bdeee27314461e3b56d9dc2f4e00e10b96ac5b065b954a8fa717ad054eef"
+                  }
+                },
+                "reused": false,
+                "capabilities": {
+                  "existing": false,
+                  "directory_count": 0,
+                  "mpy": 11014,
+                  "small_int_bits": 31,
+                  "free_bytes": 4800512
+                },
+                "removed_modules": [],
+                "staging_path": "/flash/.m5-live-packages/.stage-05ba8e55e0f04ac3be4997b9dcb4361e",
+                "observed_at": "2026-10-26T20:18:58.146526+00:00"
+              }
+            ],
+            "capabilities": {
+              "existing": false,
+              "directory_count": 0,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4800512
+            },
+            "path": "main.py",
+            "written_bytes": 883,
+            "inventory": {
+              "main.py": {
+                "size": 883,
+                "sha256": "4964bdeee27314461e3b56d9dc2f4e00e10b96ac5b065b954a8fa717ad054eef"
+              }
+            },
+            "reused": false,
+            "removed_modules": []
+          },
+          "next_offset": 1417,
+          "acknowledged": true,
+          "transfer_mode": "raw-paste",
+          "observed_at": "2026-10-26T20:18:58.347717+00:00"
+        },
+        "history_error": null
+      },
+      "durable_programs": {
+        "program.json": {
+          "sha256": "01bc242a4c6303a6a8c1e50fee471da6cb648e379f10e28d6b51a89b19f56385",
+          "bytes": 3544
+        },
+        "programs/527e0fb1cf0d45b0b5b640d72cd29820.json": {
+          "sha256": "01bc242a4c6303a6a8c1e50fee471da6cb648e379f10e28d6b51a89b19f56385",
+          "bytes": 3544
+        }
+      },
+      "preview_state": null,
+      "package_store_count": 211,
+      "package_store_unchanged": true,
+      "execution_allocation": false
+    },
+    {
+      "form": "inline",
+      "status": 409,
+      "code": "program_mpy_entrypoint_unsupported",
+      "old_rest_execution": {
+        "session_id": "729ecec1a5664e8696bcd706a0e0b70b",
+        "program_transport": "uart-repl",
+        "program": {
+          "execution_id": "527e0fb1cf0d45b0b5b640d72cd29820",
+          "revision_id": "987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+          "source_sha256": "d1f146c949a9f3b1fc4a086ca88957d9338441b9f4667586b0a12a3a1e8327d9",
+          "source_bytes": 883,
+          "state": "running",
+          "submitted_at": "2026-10-26T20:18:56.858489+00:00",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "pid": 36446,
+          "execution_mode": "same-guest-uart-repl",
+          "cleanup_mode": "interrupt-only",
+          "serial_offset": 1358,
+          "source_kind": "uiflow2-package",
+          "total_file_bytes": 883,
+          "file_count": 1,
+          "deployment": {
+            "phase": "activated",
+            "staging_path": "/flash/.m5-live-packages/.stage-05ba8e55e0f04ac3be4997b9dcb4361e",
+            "package_path": "/flash/.m5-live-packages/987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+            "events": [
+              {
+                "phase": "preflight",
+                "staging_path": "/flash/.m5-live-packages/.stage-05ba8e55e0f04ac3be4997b9dcb4361e",
+                "package_path": "/flash/.m5-live-packages/987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+                "observed_at": "2026-10-26T20:18:56.965803+00:00"
+              },
+              {
+                "phase": "capabilities",
+                "capabilities": {
+                  "existing": false,
+                  "directory_count": 0,
+                  "mpy": 11014,
+                  "small_int_bits": 31,
+                  "free_bytes": 4800512
+                },
+                "observed_at": "2026-10-26T20:18:57.245042+00:00"
+              },
+              {
+                "phase": "writing",
+                "path": "main.py",
+                "written_bytes": 883,
+                "observed_at": "2026-10-26T20:18:57.758170+00:00"
+              },
+              {
+                "phase": "verified",
+                "inventory": {
+                  "main.py": {
+                    "size": 883,
+                    "sha256": "4964bdeee27314461e3b56d9dc2f4e00e10b96ac5b065b954a8fa717ad054eef"
+                  }
+                },
+                "observed_at": "2026-10-26T20:18:57.813865+00:00"
+              },
+              {
+                "phase": "published",
+                "inventory": {
+                  "main.py": {
+                    "size": 883,
+                    "sha256": "4964bdeee27314461e3b56d9dc2f4e00e10b96ac5b065b954a8fa717ad054eef"
+                  }
+                },
+                "reused": false,
+                "observed_at": "2026-10-26T20:18:57.856116+00:00"
+              },
+              {
+                "phase": "activated",
+                "package_path": "/flash/.m5-live-packages/987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+                "inventory": {
+                  "main.py": {
+                    "size": 883,
+                    "sha256": "4964bdeee27314461e3b56d9dc2f4e00e10b96ac5b065b954a8fa717ad054eef"
+                  }
+                },
+                "reused": false,
+                "capabilities": {
+                  "existing": false,
+                  "directory_count": 0,
+                  "mpy": 11014,
+                  "small_int_bits": 31,
+                  "free_bytes": 4800512
+                },
+                "removed_modules": [],
+                "staging_path": "/flash/.m5-live-packages/.stage-05ba8e55e0f04ac3be4997b9dcb4361e",
+                "observed_at": "2026-10-26T20:18:58.146526+00:00"
+              }
+            ],
+            "capabilities": {
+              "existing": false,
+              "directory_count": 0,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4800512
+            },
+            "path": "main.py",
+            "written_bytes": 883,
+            "inventory": {
+              "main.py": {
+                "size": 883,
+                "sha256": "4964bdeee27314461e3b56d9dc2f4e00e10b96ac5b065b954a8fa717ad054eef"
+              }
+            },
+            "reused": false,
+            "removed_modules": []
+          },
+          "next_offset": 1417,
+          "acknowledged": true,
+          "transfer_mode": "raw-paste",
+          "observed_at": "2026-10-26T20:18:58.347717+00:00"
+        },
+        "history_error": null
+      },
+      "durable_programs": {
+        "program.json": {
+          "sha256": "01bc242a4c6303a6a8c1e50fee471da6cb648e379f10e28d6b51a89b19f56385",
+          "bytes": 3544
+        },
+        "programs/527e0fb1cf0d45b0b5b640d72cd29820.json": {
+          "sha256": "01bc242a4c6303a6a8c1e50fee471da6cb648e379f10e28d6b51a89b19f56385",
+          "bytes": 3544
+        }
+      },
+      "preview_state": null,
+      "package_store_count": 211,
+      "package_store_unchanged": true,
+      "execution_allocation": false
+    }
+  ],
+  "nonce": "ed8b54444363475f99903046cf1fe809",
+  "session_id": "729ecec1a5664e8696bcd706a0e0b70b",
+  "pid": 36446,
+  "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+  "worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "generation": 38,
+    "lease_active": true
+  },
+  "runtime": {
+    "pid": 36446,
+    "executable_name": "qemu-system-xtensa",
+    "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+  },
+  "last_frame_sha256": "5414638e92337cff821e3110cc8633712a39503b4b504221e01a57d4bc399b09",
+  "binary_checkpoint": {
+    "revision": {
+      "created_at": "2026-10-26T20:18:58.837528+00:00",
+      "entrypoint": "main.mpy",
+      "files": [
+        {
+          "kind": "resource",
+          "path": "assets/admission.txt",
+          "sha256": "fcd7c3f6d5a6e7c87fc094aa817d3ed1874fc21438c2d729c160408e3e721816",
+          "size": 32
+        },
+        {
+          "kind": "mpy",
+          "path": "main.mpy",
+          "sha256": "583a0028999b53b0ba576f0a2c79c6a7cb2b7243b91725215e3de284a18a41fd",
+          "size": 170
+        }
+      ],
+      "revision_id": "11f49927658ebc54c686605129c79d317242b9b493d604fc368f612f39ab88a6",
+      "source_kind": "uiflow2-package",
+      "source_sha256": "e13fd9cfa2ec907f39fde288a5e0b5d5fc6d73888e74e6ec620a98b6c35d6825",
+      "total_file_bytes": 202
+    },
+    "fixture_sha256": "583a0028999b53b0ba576f0a2c79c6a7cb2b7243b91725215e3de284a18a41fd",
+    "original_bytes_verified": true,
+    "executed": false
+  },
+  "evidence_zip": {
+    "status": "PASS",
+    "members": 19,
+    "sha256": "a171a79d7d1f6d4428f7c249e33efc2d7408ec3b277f8b9a4fe7dcbb3739067d"
+  },
+  "cleanup": {
+    "status": "PASS",
+    "session": {
+      "session_id": "729ecec1a5664e8696bcd706a0e0b70b",
+      "device_id": "cores3",
+      "state": "stopped",
+      "pid": 36446,
+      "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "firmware_source": "uploaded",
+      "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+      "source_artifacts": [
+        "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+      ],
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "7db23a4ec4d747cf845cdd3a3a2db0c6",
+        "revision_id": "b4d27e56b380c0fc29717017c3874fcb5e2f22a1168cfc1df13fa0c9c4b4fc1d",
+        "source_sha256": "8c348b7dacd4f4be19919f4417e70b209063ce4174b15b4924e7503b461fe6b9",
+        "source_bytes": 820,
+        "state": "interrupted",
+        "submitted_at": "2026-10-26T20:19:01.031117+00:00",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "pid": 36446,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 4286,
+        "source_kind": "uiflow2-package",
+        "total_file_bytes": 820,
+        "file_count": 1,
+        "deployment": {
+          "phase": "activated",
+          "staging_path": "/flash/.m5-live-packages/.stage-c8f10529e0084354ac2e3890fdc95a6a",
+          "package_path": "/flash/.m5-live-packages/b4d27e56b380c0fc29717017c3874fcb5e2f22a1168cfc1df13fa0c9c4b4fc1d",
+          "events": [
+            {
+              "phase": "preflight",
+              "staging_path": "/flash/.m5-live-packages/.stage-c8f10529e0084354ac2e3890fdc95a6a",
+              "package_path": "/flash/.m5-live-packages/b4d27e56b380c0fc29717017c3874fcb5e2f22a1168cfc1df13fa0c9c4b4fc1d",
+              "observed_at": "2026-10-26T20:19:01.139941+00:00"
+            },
+            {
+              "phase": "capabilities",
+              "capabilities": {
+                "existing": false,
+                "directory_count": 1,
+                "mpy": 11014,
+                "small_int_bits": 31,
+                "free_bytes": 4780032
+              },
+              "observed_at": "2026-10-26T20:19:01.476626+00:00"
+            },
+            {
+              "phase": "writing",
+              "path": "main.py",
+              "written_bytes": 820,
+              "observed_at": "2026-10-26T20:19:01.965015+00:00"
+            },
+            {
+              "phase": "verified",
+              "inventory": {
+                "main.py": {
+                  "size": 820,
+                  "sha256": "8f49eace3cc8022ed29307c5b358ed45ac7df6ccaf2637bde07b2a4be00e4e3b"
+                }
+              },
+              "observed_at": "2026-10-26T20:19:02.022709+00:00"
+            },
+            {
+              "phase": "published",
+              "inventory": {
+                "main.py": {
+                  "size": 820,
+                  "sha256": "8f49eace3cc8022ed29307c5b358ed45ac7df6ccaf2637bde07b2a4be00e4e3b"
+                }
+              },
+              "reused": false,
+              "observed_at": "2026-10-26T20:19:02.064867+00:00"
+            },
+            {
+              "phase": "activated",
+              "package_path": "/flash/.m5-live-packages/b4d27e56b380c0fc29717017c3874fcb5e2f22a1168cfc1df13fa0c9c4b4fc1d",
+              "inventory": {
+                "main.py": {
+                  "size": 820,
+                  "sha256": "8f49eace3cc8022ed29307c5b358ed45ac7df6ccaf2637bde07b2a4be00e4e3b"
+                }
+              },
+              "reused": false,
+              "capabilities": {
+                "existing": false,
+                "directory_count": 1,
+                "mpy": 11014,
+                "small_int_bits": 31,
+                "free_bytes": 4780032
+              },
+              "removed_modules": [],
+              "staging_path": "/flash/.m5-live-packages/.stage-c8f10529e0084354ac2e3890fdc95a6a",
+              "observed_at": "2026-10-26T20:19:02.352301+00:00"
+            }
+          ],
+          "capabilities": {
+            "existing": false,
+            "directory_count": 1,
+            "mpy": 11014,
+            "small_int_bits": 31,
+            "free_bytes": 4780032
+          },
+          "path": "main.py",
+          "written_bytes": 820,
+          "inventory": {
+            "main.py": {
+              "size": 820,
+              "sha256": "8f49eace3cc8022ed29307c5b358ed45ac7df6ccaf2637bde07b2a4be00e4e3b"
+            }
+          },
+          "reused": false,
+          "removed_modules": []
+        },
+        "next_offset": 4347,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T20:19:02.541764+00:00",
+        "interrupted_at": "2026-10-26T20:19:05.098711+00:00"
+      },
+      "firmware_provenance": {
+        "kind": "uiflow",
+        "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "metadata": {
+          "schema_version": 1,
+          "kind": "uiflow2-source-composition",
+          "status": "COMPOSED_NOT_EXECUTED",
+          "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+          "entrypoint": "main.py",
+          "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+          "base_size": 16121856,
+          "flash_size": 16777216,
+          "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+          "files": [
+            {
+              "path": "boot.py",
+              "size": 245,
+              "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+              "origin": "caller"
+            },
+            {
+              "path": "main.py",
+              "size": 5,
+              "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+              "origin": "caller"
+            }
+          ],
+          "caller_file_count": 2,
+          "caller_source_bytes": 250,
+          "generated_files": [],
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "vfs": {
+            "label": "vfs",
+            "type": 1,
+            "subtype": 129,
+            "flags": 0,
+            "offset": 11141120,
+            "size": 4980736,
+            "partition_table_offset": 32768,
+            "source": "actual-base-partition-table",
+            "filesystem": "LittleFS",
+            "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+            "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+            "base_disk_version": 131072,
+            "derived_disk_version": 131073
+          },
+          "preservation": {
+            "base_file_count": 17,
+            "preserved_file_count": 15,
+            "overwritten_files": [
+              "boot.py",
+              "main.py"
+            ],
+            "outside_vfs_unchanged": true,
+            "existing_files_readback_verified": true,
+            "source_readback_verified": true
+          },
+          "toolchain": {
+            "builder": "uiflow_source/1",
+            "python": "3.12.8",
+            "python_abi": "cpython-312",
+            "littlefs_python": "0.19.0",
+            "littlefs_library": "(2, 11)",
+            "littlefs_disk": "(2, 1)",
+            "config": {
+              "block_size": 4096,
+              "read_size": 128,
+              "prog_size": 32,
+              "lookahead_size": 128,
+              "block_cycles": 100
+            }
+          }
+        }
+      },
+      "runtime_env": {},
+      "runtime": "qemu",
+      "runtime_memory": {
+        "requested_psram_mib": null,
+        "cli_requested_psram_mib": null,
+        "effective_psram_mib": null,
+        "effective_source": "qemu-cli-request",
+        "policy": "not-configured",
+        "claim": "qemu-memory-configuration-only",
+        "physical_cache_psram_timing": "NOT RUN"
+      },
+      "network": null,
+      "storage": null,
+      "units": [
+        {
+          "id": "pir",
+          "unit_id": "pir",
+          "port_id": "port-a",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {}
+        }
+      ],
+      "nvs": null,
+      "flash": {
+        "transport": "cache",
+        "verified": true,
+        "flash_size": 16777216,
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "session_isolated_copy": true
+      },
+      "flash_retained": false,
+      "serial_bytes": 6100,
+      "created_at": "2026-10-26T20:18:54.336093+00:00",
+      "expires_at": "2026-10-26T20:33:54.336096+00:00",
+      "error": null,
+      "display": {
+        "driver": "ILI9342C / ILI9342E",
+        "width": 320,
+        "height": 240,
+        "shape": "rect",
+        "touch": true
+      },
+      "display_available": true,
+      "last_frame_available": true,
+      "last_frame_captured_at": "2026-10-26T20:19:05.083193+00:00",
+      "device_state_supported": true,
+      "last_device_state_available": true,
+      "last_device_state_at": "2026-10-26T20:19:05.091809+00:00",
+      "completed_at": "2026-10-26T20:19:05.099301+00:00",
+      "event_count": 22,
+      "restored": false,
+      "interrupted": false,
+      "reattached_process": false,
+      "recovery_scope": null,
+      "companions": {
+        "http_fixture": {
+          "required": false
+        },
+        "ble_probe": {
+          "required": false
+        }
+      },
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "generation": 38,
+        "lease_active": false
+      }
+    },
+    "pid_gone": true,
+    "zip_before_stop": true,
+    "history_frame_sha256": "5414638e92337cff821e3110cc8633712a39503b4b504221e01a57d4bc399b09",
+    "errors": [],
+    "capacity_snapshot": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "ffdc714e893a45a886996031f509a0c7",
+        "generation": 38,
+        "state": "ready",
+        "pid": 88359,
+        "started_at": "2026-10-26T20:10:07.801055+00:00",
+        "heartbeat_at": "2026-10-26T20:19:05.099571+00:00",
+        "heartbeat_age_seconds": 0.007,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    },
+    "scope": "owned session lease only; unrelated sessions ignored"
+  },
+  "creation": {
+    "lane": "session",
+    "create_body": {
+      "device_id": "cores3",
+      "runtime": "qemu",
+      "ttl_seconds": 900,
+      "units": [
+        {
+          "id": "pir",
+          "unit_id": "pir",
+          "port_id": "port-a"
+        }
+      ],
+      "program_mode": "uiflow-live",
+      "ready_timeout_seconds": 40
+    },
+    "creation_outcome": "confirmed",
+    "session_id": "729ecec1a5664e8696bcd706a0e0b70b",
+    "pid": 36446,
+    "zip_before_stop": true
+  }
+}

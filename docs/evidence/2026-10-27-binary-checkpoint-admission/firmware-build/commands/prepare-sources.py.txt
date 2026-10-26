@@ -1,0 +1,23 @@
+from pathlib import Path
+import subprocess,json,hashlib,datetime
+base=Path(__file__).resolve().parent
+pins={'uiflow':{'url':'https://github.com/m5stack/uiflow-micropython.git','commit':'3a86d8f611b3639cca755a933e01a5a829771ef1'},'idf':{'url':'https://github.com/espressif/esp-idf.git','tag':'v5.5.4'}}
+def run(argv,cwd=base,timeout=180,capture=False):
+ print(json.dumps({'argv':argv,'cwd':str(cwd)}),flush=True)
+ return subprocess.run(argv,cwd=cwd,timeout=timeout,check=True,text=True,stdout=subprocess.PIPE if capture else None).stdout
+resolved=run(['git','ls-remote',pins['idf']['url'],'refs/tags/v5.5.4','refs/tags/v5.5.4^{}'],capture=True)
+lines=[x.split() for x in resolved.splitlines()]
+pins['idf']['commit']=next((sha for sha,ref in lines if ref.endswith('^{}')),lines[0][0])
+(base/'resolved-sources.json').write_text(json.dumps(pins,indent=2)+'\n')
+for name,details in pins.items():
+ target=base/name
+ target.mkdir(exist_ok=False)
+ run(['git','init'],target)
+ run(['git','remote','add','origin',details['url']],target)
+ run(['git','fetch','--no-tags','--depth=1','origin',details['commit']],target,timeout=600)
+ run(['git','checkout','--detach','FETCH_HEAD'],target)
+ actual=run(['git','rev-parse','HEAD'],target,capture=True).strip()
+ assert actual==details['commit'],(name,actual)
+ details['actual_head']=actual
+ (base/'resolved-sources.json').write_text(json.dumps(pins,indent=2)+'\n')
+ print(name,actual,'READY',flush=True)

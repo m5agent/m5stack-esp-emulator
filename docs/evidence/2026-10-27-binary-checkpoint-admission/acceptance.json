@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-27",
+  "category": "bounded-binary-checkpoint-storage-and-source-liveness",
+  "status": "PASS",
+  "api_contract": "1.44.0",
+  "scope": "Save/read original binary checkpoint bytes and reject unsupported execution without changing active source programs; this is not binary script execution.",
+  "runtime_binary_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+  "summary": {
+    "status": "PASS",
+    "category": "final-r2-binary-checkpoint-admission-audit",
+    "devices": [
+      {
+        "device_id": "cores3",
+        "status": "PASS",
+        "source_sha256": "209c77a1a444f107b634fb410fffc69b337fea9f7bd78b46f0e2d320335a0372"
+      },
+      {
+        "device_id": "atoms3r",
+        "status": "PASS",
+        "source_sha256": "209c77a1a444f107b634fb410fffc69b337fea9f7bd78b46f0e2d320335a0372"
+      },
+      {
+        "device_id": "sticks3",
+        "status": "PASS",
+        "source_sha256": "209c77a1a444f107b634fb410fffc69b337fea9f7bd78b46f0e2d320335a0372"
+      },
+      {
+        "device_id": "stopwatch",
+        "status": "PASS",
+        "source_sha256": "209c77a1a444f107b634fb410fffc69b337fea9f7bd78b46f0e2d320335a0372"
+      }
+    ],
+    "lanes": 8,
+    "runs": 16,
+    "rejections": 12,
+    "observations": 36,
+    "http_responses": 1368,
+    "zip_members": 152,
+    "binary_executed": false,
+    "hardware": "NOT RUN",
+    "source_sha256": {
+      "tests/units/run_binary_checkpoint_admission.py": "209c77a1a444f107b634fb410fffc69b337fea9f7bd78b46f0e2d320335a0372",
+      "tests/units/test_binary_checkpoint_admission.py": "f1acb9d6fb3ea8da5469893b660cb998e5f5c930f8b956c5eaf93cc2e197ec6e"
+    },
+    "attempts": {
+      "r1_cores3_atoms3r_sticks3": "PASS / superseded by same-version r2",
+      "r1_stopwatch": "FAIL round-screen corner pixel oracle; owned cleanup PASS; no Preview created",
+      "r2_all_four": "PASS"
+    }
+  },
+  "lanes": [
+    {
+      "device_id": "cores3",
+      "lane": "session",
+      "status": "PASS",
+      "report": "hosts/cores3/cores3-session/report.json",
+      "original_report_sha256": "40473781d2b038fe0f89b7fd9de43712161675412b7ac60643d959bb97106ac2",
+      "session_id": "729ecec1a5664e8696bcd706a0e0b70b",
+      "pid": 36446,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime": {
+        "pid": 36446,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "runs": 2,
+      "rejections": 2,
+      "observations": 5,
+      "binary_executed": false,
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "cores3",
+      "lane": "preview",
+      "status": "PASS",
+      "report": "hosts/cores3/cores3-preview/report.json",
+      "original_report_sha256": "400c7565dad61a37c24e9c68d67dc13884c6c4b5f27359c6a1e7b201d8377e14",
+      "session_id": "dd962413ab3e44b3998eb2b6d4380193",
+      "pid": 37407,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime": {
+        "pid": 37407,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "runs": 2,
+      "rejections": 1,
+      "observations": 4,
+      "binary_executed": false,
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "lane": "session",
+      "status": "PASS",
+      "report": "hosts/atoms3r/atoms3r-session/report.json",
+      "original_report_sha256": "2e4bdeb632c606caf1d1c1ec435e115dd9aa7f39229b2ec718b7c0083eb21183",
+      "session_id": "bcdfc40a771943cd89778e747c412bc6",
+      "pid": 38712,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "runtime": {
+        "pid": 38712,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "runs": 2,
+      "rejections": 2,
+      "observations": 5,
+      "binary_executed": false,
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "lane": "preview",
+      "status": "PASS",
+      "report": "hosts/atoms3r/atoms3r-preview/report.json",
+      "original_report_sha256": "5d250eafc83595fb566a1aad8885f3090dba18e7486ad38012d518df6ab0a113",
+      "session_id": "0571879c242b4d96a24055bdebb2a266",
+      "pid": 39874,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "runtime": {
+        "pid": 39874,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "runs": 2,
+      "rejections": 1,
+      "observations": 4,
+      "binary_executed": false,
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "lane": "session",
+      "status": "PASS",
+      "report": "hosts/sticks3/sticks3-session/report.json",
+      "original_report_sha256": "6328028fd0eb43be50226bb9a200d841c6b416c10c86e005b9e50a05c20812d3",
+      "session_id": "c4ad040161804f0594617f6188cfe7cc",
+      "pid": 40079,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "runtime": {
+        "pid": 40079,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "runs": 2,
+      "rejections": 2,
+      "observations": 5,
+      "binary_executed": false,
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "lane": "preview",
+      "status": "PASS",
+      "report": "hosts/sticks3/sticks3-preview/report.json",
+      "original_report_sha256": "9b01d088562cfd4ba13707c2bae3bd629d012ad2b5d0c86690a24d4542e9ba0a",
+      "session_id": "442e13daf09148a3b4edec0b414e8b6a",
+      "pid": 40117,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "runtime": {
+        "pid": 40117,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "runs": 2,
+      "rejections": 1,
+      "observations": 4,
+      "binary_executed": false,
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "lane": "session",
+      "status": "PASS",
+      "report": "hosts/stopwatch/stopwatch-session/report.json",
+      "original_report_sha256": "8edc54fb4e6f7b6e15433042f557aa6b996b9b82deac7b83d02bcf945ac023dd",
+      "session_id": "ab28c23a968e4b229cd8fab39ca71745",
+      "pid": 34390,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "runtime": {
+        "pid": 34390,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "runs": 2,
+      "rejections": 2,
+      "observations": 5,
+      "binary_executed": false,
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "lane": "preview",
+      "status": "PASS",
+      "report": "hosts/stopwatch/stopwatch-preview/report.json",
+      "original_report_sha256": "e514af44831a4831388390dc8311472f4a7942918e4dfc405e27aa26d4d7059b",
+      "session_id": "86284a504fe34aa3821a2b47f8115f90",
+      "pid": 34638,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "runtime": {
+        "pid": 34638,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75"
+      },
+      "runs": 2,
+      "rejections": 1,
+      "observations": 4,
+      "binary_executed": false,
+      "hardware": "NOT RUN"
+    }
+  ],
+  "compatibility_candidate": {
+    "status": "LOCAL_BUILD_PASS_NOT_GUEST_ADMITTED",
+    "device_id": "cores3",
+    "uiflow_commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+    "micropython_commit": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+    "esp_idf_commit": "735507283d5b2f9fb363a1901172dbd9e847945d",
+    "merged_image_size": 16121856,
+    "merged_image_sha256": "7ce5ca0744a27508913c4dd69dd06f30454fb27c54a920faf486d3350cf2267b",
+    "binary_archived": false,
+    "stock_reference_replaced": false,
+    "public_binary_entrypoint_enabled": false
+  },
+  "limits": [
+    "No binary deployment/execution, browser, hardware or physical PIR timing claim.",
+    "All final hosts use the same r2; original StopWatch r1 oracle failure remains FAIL.",
+    "Shared-controller full matrix NOT RUN for this API-only change; prior runtime matrix remains 66/67, not a new PASS.",
+    "Future compatible firmware requires per-SHA/profile visible guest evidence before admission.",
+    "4Relay/FlashLight research and accepted feedback do not grant Unit runtime admission."
+  ]
+}

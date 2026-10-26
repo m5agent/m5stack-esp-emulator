@@ -1,0 +1,318 @@
+请忽略以下参考资料的语种信息。以下是参考资料：
+文档属性:产品信息
+产品名:schematic Unit 4Relay
+分段标题:Unit 4Relay 原理图描述 快速信息 & 概述
+分段内容:| 项目 | 内容 |
+| --- | --- |
+| 产品 | Unit 4Relay |
+| SKU | U097 |
+| 产品 ID | `unit-4relay-30ce3c3f2670` |
+| 源文档 | `zh_CN/unit/4relay.md` |
+
+Unit 4Relay 以 U1 STM32F030F4P6 作为 I2C 控制器，PA0~PA3 经 RP2 和 Q1~Q4 驱动四只 5V 继电器，PA4~PA7 经 RP1 驱动四颗状态 LED。J5 Grove 提供 SCL、SDA、5V、GND，U2 XC6206 将 5V 稳压为 MCU 使用的 VCC，J6 提供 SWD。每路继电器线圈均有反向二极管，触点引到 J1~J4 四针端子，但图中未标清 COM/NO/NC 针序且未配置触点吸收网络。正文给出的 I2C 0x26、AC/DC 负载额定、LED 同步模式和物理隔离能力需结合固件、BOM、PCB 与测试确认。
+---
+文档属性:产品信息
+产品名:schematic Unit 4Relay
+分段标题:Unit 4Relay 原理图描述 检索关键词
+分段内容:`Unit 4Relay`、`U097`、`STM32F030F4P6`、`XC6206`、`I2C`、`0x26`、`Grove`、`SCL`、`SDA`、`PA0`、`PA1`、`PA2`、`PA3`、`PA4`、`PA5`、`PA6`、`PA7`、`RL1`、`RL2`、`RL3`、`RL4`、`LED1`、`LED2`、`LED3`、`LED4`、`SS8050 Y1`、`RELAY-TH_932-XXVDC-SL-AH`、`CON4`、`SWD`、`NRST`、`5V`、`VCC`、`AC 250V`、`DC 28V`、`10A`
+---
+文档属性:产品信息
+产品名:schematic Unit 4Relay
+分段标题:Unit 4Relay 原理图描述 主要器件
+分段内容:| 位号 | 型号 | 作用 | 证据 |
+| --- | --- | --- | --- |
+| U1 | STM32F030F4P6 | I2C 从设备 MCU，控制四路继电器和四颗状态 LED | 图 9b13baae39ff / 第 1 页 / 第 1 页 B2-C3 U1 STM32F030F4P6 |
+| U2 | XC6206 | 5V 到 VCC 的线性稳压器 | 图 9b13baae39ff / 第 1 页 / 第 1 页 B1 U2 XC6206 |
+| K1/K2/K3/K4 | RELAY-TH_932-XXVDC-SL-AH | 四路 5V 线圈机械继电器，触点分别接 J1/J2/J3/J4 | 图 9b13baae39ff / 第 1 页 / 第 1 页 A2-B3 K1-K4 |
+| Q1/Q2/Q3/Q4 | SS8050 Y1 | 四路继电器线圈低侧驱动晶体管 | 图 9b13baae39ff / 第 1 页 / 第 1 页 B1-C2 Q1-Q4 |
+| D1/D2/D3/D4 | 未标注 | 四路继电器线圈反向续流二极管 | 图 9b13baae39ff / 第 1 页 / 第 1 页 B2-B3 D1-D4 |
+| J1/J2/J3/J4 | CON4 | 四组继电器触点四针输出端子 | 图 9b13baae39ff / 第 1 页 / 第 1 页 A2 J1-J4 CON4 |
+| J5 | GROVE | SCL、SDA、5V、GND 四针 I2C/电源接口 | 图 9b13baae39ff / 第 1 页 / 第 1 页 B3-C3 J5 GROVE |
+| J6 | SWD_5p | VCC、SWCLK、SWDIO、NRST、GND 调试接口 | 图 9b13baae39ff / 第 1 页 / 第 1 页 C3-D3 J6 SWD_5p |
+| RP1/RP2 | 1K | 四路 LED 和四路继电器晶体管基极的电阻阵列 | 图 9b13baae39ff / 第 1 页 / 第 1 页 B2-C2 RP1/RP2 1K |
+| LED1/LED2/LED3/LED4 | LED | 四路由 MCU 独立控制的状态指示灯 | 图 9b13baae39ff / 第 1 页 / 第 1 页 C1-C2 LED1-LED4 |
+---
+文档属性:产品信息
+产品名:schematic Unit 4Relay
+分段标题:Unit 4Relay 原理图描述 系统结构 Unit 4Relay
+分段内容:U1 通过 J5 I2C 接收控制，使用 PA0~PA3 驱动四路继电器、PA4~PA7 驱动四颗 LED；U2 由 5V 生成 VCC，J6 提供 SWD。
+
+- 参数与网络：`mcu=U1 STM32F030F4P6`；`relays=K1-K4`；`drivers=Q1-Q4`；`indicators=LED1-LED4`；`host=J5 Grove I2C`；`regulator=U2 XC6206`
+- 证据：图 9b13baae39ff / 第 1 页 / 第 1 页完整功能分区
+---
+文档属性:产品信息
+产品名:schematic Unit 4Relay
+分段标题:Unit 4Relay 原理图描述 核心器件 K1-K4 线圈驱动
+分段内容:每只继电器线圈一端接 5V，另一端由对应 Q1~Q4 下拉；D1/D2/D3/D4 分别跨 K4/K3/K2/K1 线圈反向连接。
+
+- 参数与网络：`K1=Q1/RL1,D4 flyback`；`K2=Q2/RL2,D3 flyback`；`K3=Q3/RL3,D2 flyback`；`K4=Q4/RL4,D1 flyback`；`coil_supply=5V`
+- 证据：图 9b13baae39ff / 第 1 页 / 第 1 页 A2-B3 K1-K4/D1-D4 与 B1-C2 Q1-Q4
+---
+文档属性:产品信息
+���品名:schematic Unit 4Relay
+分段标题:Unit 4Relay 原理图描述 内存与 Flash 外部存储器 & SWD
+分段内容:完整原理图未展示 U1 之外的 Flash、EEPROM、RAM、SD 卡或其他存储器。
+
+- 参数与网络：`flash_shown=false`；`eeprom_shown=false`；`ram_shown=false`；`sd_shown=false`
+- 证据：图 9b13baae39ff / 第 1 页 / 第 1 页完整图无外部存储器
+
+J6.1=VCC、2=SWCLK、3=SWDIO、4=NRST、5=GND；SWCLK/SWDIO 连接 U1 PA14/PA13。
+
+- 参数与网络：`pin_1=VCC`；`pin_2=SWCLK U1 PA14`；`pin_3=SWDIO U1 PA13`；`pin_4=NRST`；`pin_5=GND`
+- 证据：图 9b13baae39ff / 第 1 页 / 第 1 页 C3-D3 J6
+---
+文档属性:产品信息
+产品名:schematic Unit 4Relay
+分段标题:Unit 4Relay 原理图描述 参数与信号索引
+分段内容:| 分类 | 对象 | 参数 |
+| --- | --- | --- |
+| 系统结构 | Unit 4Relay | `mcu=U1 STM32F030F4P6`；`relays=K1-K4`；`drivers=Q1-Q4`；`indicators=LED1-LED4`；`host=J5 Grove I2C`；`regulator=U2 XC6206` |
+| 总线 | U1 I2C | `scl=J5.4 -> U1 PA9 pin17`；`sda=J5.3 -> U1 PA10 pin18`；`pullups_shown=false`；`controller=external host`；`device=U1` |
+| 总线地址 | Unit 4Relay I2C 地址 | `documented_address=0x26`；`address_hardware_shown=false`；`firmware_controlled=true` |
+| 接口 | J5 GROVE | `pin_1=GND`；`pin_2=5V`；`pin_3=SDA`；`pin_4=SCL` |
+| GPIO 与控制信号 | 四路继电器控制 | `relay_1=U1 PA0 -> RP2 -> Q1 -> RL1`；`relay_2=U1 PA1 -> RP2 -> Q2 -> RL2`；`relay_3=U1 PA2 -> RP2 -> Q3 -> RL3`；`relay_4=U1 PA3 -> RP2 -> Q4 -> RL4`；`resistors=RP2 1K` |
+| GPIO 与控制信号 | 四路状态 LED | `PA4=LED2`；`PA5=LED3`；`PA6=LED1`；`PA7=LED4`；`resistors=RP1 1K`；`return=GND` |
+| 电源 | U2 XC6206 | `input=5V`；`output=VCC`；`input_caps=C1 104,C2 106`；`output_caps=C3 106,C4 104`；`relay_coil_rail=5V` |
+| 核心器件 | K1-K4 线圈驱动 | `K1=Q1/RL1,D4 flyback`；`K2=Q2/RL2,D3 flyback`；`K3=Q3/RL3,D2 flyback`；`K4=Q4/RL4,D1 flyback`；`coil_supply=5V` |
+| 接口 | J1-J4 CON4 | `relay_1=K1 -> J1`；`relay_2=K2 -> J2`；`relay_3=K3 -> J3`；`relay_4=K4 -> J4`；`connector_pins=1,2,3,4`；`com_no_nc_order=null` |
+| 保护电路 | 继电器线圈保护 | `diodes=D1,D2,D3,D4`；`protected=K4,K3,K2,K1 coils`；`drivers=Q4,Q3,Q2,Q1` |
+| 保护电路 | 继电器触点保护 | `snubber_shown=false`；`mov_shown=false`；`tvs_shown=false`；`fuse_shown=false`；`overcurrent_shown=false` |
+| 复位 | U1 NRST | `mcu_pin=U1.4 NRST`；`capacitor=C5 104`；`debug_pin=J6.4`；`external_pullup_shown=false` |
+| 调试与烧录 | J6 SWD | `pin_1=VCC`；`pin_2=SWCLK U1 PA14`；`pin_3=SWDIO U1 PA13`；`pin_4=NRST`；`pin_5=GND` |
+| 其他事实 | 正文控制寄存器与 LED 模式 | `mode_register=0x10`；`control_register=0x11`；`documented_modes=Manual,Auto LED sync`；`firmware_behavior_on_schematic=null` |
+| 其他事实 | 正文继电器额定 | `documented_ac=250V 10A`；`documented_dc=28V 10A`；`documented_inrush=16A`；`schematic_part=RELAY-TH_932-XXVDC-SL-AH`；`test_conditions=null` |
+| 时钟 | U1 时钟 | `PF1=NC`；`crystal_shown=false`；`oscillator_shown=false` |
+| 内存与 Flash | 外部存储器 | `flash_shown=false`；`eeprom_shown=false`；`ram_shown=false`；`sd_shown=false` |
+---
+文档属性:产品信息
+产品名:schematic Unit 4Relay
+分段标题:Unit 4Relay 原理图描述 待确认事项
+分段内容:- `address.documented-0x26`：正文和通信协议列出 I2C 地址 0x26，原理图没有地址选择硬件或地址标注，地址由 U1 固件决定。（证据：图 9b13baae39ff / 第 1 页 / 第 1 页 U1/J5 I2C 网络无地址标注）
+- `interface.relay-terminals`：K1/K2/K3/K4 的触点分别引到 J1/J2/J3/J4 四针端子；原理图未使用 COM/NO/NC 网络名，无法从本页可靠给出四针端子的功能顺序。（证据：图 9b13baae39ff / 第 1 页 / 第 1 页 A2 K1-K4 与 J1-J4，无触点网络名）
+- `other.documented-firmware`：正文定义 0x10 模式寄存器、0x11 继电器/LED 控制寄存器以及 Manual/Auto LED 同步模式；原理图只显示独立 GPIO 路径，不能确认寄存器和固件行为。（证据：图 9b13baae39ff / 第 1 页 / 第 1 页 U1 GPIO 硬件无寄存器标注）
+- `other.documented-ratings`：正文列出 AC 250V/DC 28V、10A 和 16A 瞬时电流；原理图继电器值为通用 RELAY-TH_932-XXVDC-SL-AH 占位式料号，未标负载类别、温升、寿命或安规条件。（证据：图 9b13baae39ff / 第 1 页 / 第 1 页 K1-K4 未标额定条件）
+- `review.i2c-address`：请通过固件或 I2C 扫描确认默认地址 0x26。；原因：原理图没有地址选择硬件或地址标注。
+- `review.terminal-pinout`：请依据 PCB/端子丝印确认 J1~J4 四针的 COM、NO、NC 及重复触点顺序。；原因：原理图只画触点到 1~4 针，没有功能网络名。
+- `review.firmware-registers`：请依据 U097 内置固件确认 0x10/0x11 寄存器位定义和 LED Manual/Auto 行为。；原因：这些行为不能由 GPIO 原理图推导。
+- `review.relay-ratings`：请依据量产继电器准确料号、PCB 间距和测试报告确认 AC/DC 额定、瞬时电流和隔离能力。；原因：原理图料号为通用占位形式且没有系统级额定条件。
+---
+文档属性:产品信息
+产品名:schematic Unit 4Relay
+分段标题:Unit 4Relay 原理图描述 原理图来源
+分段内容:| 资源 | 页码 | SHA-256 | 原始地址 |
+| --- | --- | --- | --- |
+| 1 | 1 | `9b13baae39ff2dd57896bc4b564668a1a2fc15c4f3d820d4a03fbb6480202e35` | `https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/589/Sch_UNIT-4RELAY_sch_01.png` |
+
+---
+
+源文档：`zh_CN/unit/4relay.md`
+
+源文档 SHA-256：`a74e094ee835082dabdc5996f5baf3f77e25cea5593093176277c5e5d1de9a0d`
+
+*该文档由专用原理图子智能体基于原理图证据自动生成；无法确认的内容集中列在“待确认事项”章节。*
+---
+文档属性:产品信息
+产品名:Unit 4Relay (SKU:U097)
+分段标题:Unit 4Relay
+分段内容:<span class="product-sku">SKU:U097</span>
+
+<PictureViewer>
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/4relay/4relay_01.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/4relay/4relay_02.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/4relay/4relay_03.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/4relay/4relay_04.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/4relay/4relay_05.webp">
+<img src="https://static-cdn.m5stack.com/resource/docs/products/unit/4relay/4relay_06.webp">
+</PictureViewer>
+---
+文档属性:产品信息
+产品名:Unit 4Relay (SKU:U097)
+分段标题:Unit 4Relay 描述
+分段内容:Unit 4Relay 是一款集成 4 路继电器控制的高压驱动单元。它基于 STM32F030F4P6 微控制器，通过 I2C 总线实现对 4 路机械继电器的独立控制，支持 AC 250V / DC 28V 高压切换。该单元通过 Grove HY2.0-4P 接口通信，具备物理隔离、可编程状态指示灯和过载能力，并采用 LEGO 兼容孔设计，便于灵活对接 LEGO 结构或使用螺丝固定。适用于智能家居、工业控制及大功率设备电源管理等高压负载切换场景。
+---
+文档属性:产品信息
+产品名:Unit 4Relay (SKU:U097)
+分段标题:Unit 4Relay 产品特性 & 规格参数
+分段内容:- 通道数量：4 路继电器独立控制
+- 负载能力：AC 250V@10A 或 DC 28V@10A
+- 状态指示：每路独立可编程 LED 指示灯
+- 隔离特性：高低压侧物理隔离
+- 2 x LEGO 兼容孔
+- 开发平台
+  - UiFlow1
+  - UiFlow2
+  - Arduino IDE
+
+- 1 x Unit 4Relay
+- 1 x HY2.0-4P Grove 连接线 (20cm)
+- 4 x HT3.96-4P 端子
+
+- 直流信号切换
+- 数字设备电源通断
+
+| 规格         | 参数                   |
+| ------------ | ---------------------- |
+| MCU          | STM32F030F4P6          |
+| 最大输入电压 | AC 250V / DC 28V       |
+| 额定电流     | 10A                    |
+| 最大瞬时电流 | 16A                    |
+| 通信接口     | I2C 通信 @ 0x26        |
+| 产品尺寸     | 112.0 x 23.0 x 18.0mm  |
+| 产品重量     | 40.0g                  |
+| 包装尺寸     | 163.0 x 100.0 x 20.0mm |
+| 毛重         | 84.0g                  |
+---
+文档属性:产品信息
+产品名:Unit 4Relay (SKU:U097)
+分段标题:Unit 4Relay 原理图
+分段内容:- [Unit 4Relay 原理图 PDF](https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/589/Sch_UNIT-4RELAY.pdf)
+
+<SchViewer>
+<img src="https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/589/Sch_UNIT-4RELAY_sch_01.png">
+</SchViewer>
+---
+文档属性:产品信息
+产品名:Unit 4Relay (SKU:U097)
+分段标题:Unit 4Relay 软件开发 UiFlow2 & Assistant
+分段内容:- [Unit 4Relay UiFlow2 文档](https://uiflow-micropython.readthedocs.io/zh-cn/latest/unit/relay4.html)
+
+- [Unit 4Relay Home Assistant 集成](/zh_CN/homeassistant/components/switch/unit_4relay)
+---
+文档属性:产品信息
+产品名:Unit 4Relay (SKU:U097)
+分段标题:Unit 4Relay 软件开发 通讯协议 & 0x10 & 0x11 & EasyLoader
+分段内容:- 协议类型: I2C
+- I2C Address: 0x26
+
+| Bit | Desc                          | R/W |
+| --- | ----------------------------- | --- |
+| 7   | R                             | R/W |
+| 6   | R                             | R/W |
+| 5   | R                             | R/W |
+| 4   | R                             | R/W |
+| 3   | R                             | R/W |
+| 2   | R                             | R/W |
+| 1   | R                             | R/W |
+| 0   | LED Sync Mode 0:Manual 1:Auto | R/W |
+
+\#> 工作模式说明 | Manual:LED 灯支持独立控制<br/>Auto:LED 跟随 Relay 状态变化，Relay ON 则点亮，OFF 则熄灭。
+
+| Bit | Desc                 | R/W |
+| --- | -------------------- | --- |
+| 7   | LED1 / 1: ON 0:OFF   | R/W |
+| 6   | LED2 / 1: ON 0:OFF   | R/W |
+| 5   | LED3 / 1: ON 0:OFF   | R/W |
+| 4   | LED4 / 1: ON 0:OFF   | R/W |
+| 3   | RELAY1 / 1: ON 0:OFF | R/W |
+| 2   | RELAY2 / 1: ON 0:OFF | R/W |
+| 1   | RELAY3 / 1: ON 0:OFF | R/W |
+| 0   | RELAY4 / 1: ON 0:OFF | R/W |
+
+| Easyloader                      | 下载链接                                                                                                                  | 备注                                                             |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Unit 4Relay Example with M5Core | [download](https://m5stack.oss-cn-shenzhen.aliyuncs.com/EasyLoader/Windows/UNIT/For%20M5Core/EasyLoader_4_Relay_Unit.exe) | A 键切换继电器序号，B 键切换 LED 同步 / 异步，C 键控制所有继电器 |
+---
+文档属性:产品信息
+产品名:Unit 4Relay (SKU:U097)
+分段标题:Unit 4Relay 相关视频
+分段内容:- Unit 4Relay Test with M5Core
+
+<video class="video-container" controls><source src="https://m5stack.oss-cn-shenzhen.aliyuncs.com/video/Product_example_video/Unit/4-RELAY_UNIT.mp4" type="video/mp4"></video>
+
+- UiFlow2 Unit 4Relay
+
+<TabPanel>
+  <template #tab-Bilibili>
+      <div class="video-iframe">
+        <iframe src="//player.bilibili.com/player.html?isOutside=true&aid=113066473686215&bvid=BV1KCHre3EEs&p=1&autoplay=0" loading="lazy" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+      </div>
+  </template>
+  <template #tab-Youtube>
+      <div class="video-iframe">
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/Y-wzaE-_U7I?si=Dc9Z2q29sFq7tMHt" title="YouTube video player" frameborder="0" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+  </template>
+</TabPanel>
+---
+文档属性:产品信息
+产品名:schematic Module13.2 4Relay v1.1
+分段标题:Module13.2 4Relay v1.1 原理图描述 模拟电路 HPWR 电压采样
+分段内容:HPWR 经 R16 210K 与 R19 30K 分压，分压节点再经 R18 1K 连接 U1.6 PA0。
+
+- 参数与网络：`input=HPWR`；`upper_resistor=R16 210K`；`lower_resistor=R19 30K`；`series_resistor=R18 1K`；`adc_pin=U1.6 PA0`；`nominal_divider=30K/(210K+30K)`
+- 证据：图 e9746e2be7b2 / 第 1 页 / C1-C2 HPWR-R16/R19 分压与 R18-PA0 网络
+---
+文档属性:产品信息
+产品名:schematic Module13.2 4Relay v1.1
+分段标题:Module13.2 4Relay v1.1 原理图描述 参数与信号索引
+分段内容:| 分类 | 对象 | 参数 |
+| --- | --- | --- |
+| 系统结构 | Module13.2 4Relay v1.1 | `controller=U1 STM32F030F4P6`；`relay_channels=4`；`buck=U2 AOZ1282CI HPWR to 3.3V_VCC`；`boost=U3 SY7088 3.3V_VCC to +5V`；`mode_bus=VIN/GND`；`host=J1 M5Stack_BUS` |
+| 核心器件 | U1 STM32F030F4P6 | `pin_6=PA0 voltage sample`；`pin_7=PA1 Relay1`；`pin_8=PA2 Relay2`；`pin_9=PA3 Relay3`；`pin_10=PA4 Relay4`；`pin_17=PA9 SCL`；`pin_18=PA10 SDA`；`pin_19=PA13 SWDIO`；`pin_20=PA14 SWCLK` |
+| 核心器件 | MCU 版本 | `schematic_model=STM32F030F4P6`；`document_feature_model=STM32G030F6`；`production_model=not confirmed` |
+| 总线 | SCL/SDA | `sda=J1.17 GPIO21 to U1.18 PA10`；`scl=J1.18 GPIO22 to U1.17 PA9`；`pullups=not shown`；`level_shifter=not shown` |
+| 总线地址 | 模块 I2C 地址 | `documented_address=0x26`；`schematic_address_label=not shown`；`address_straps=not shown`；`firmware_evidence=not shown` |
+| 接口 | J1 M5Stack_BUS | `ground=pins 1,3,5`；`3v3=pin 12`；`sda=pin 17 GPIO21`；`scl=pin 18 GPIO22`；`hpwr=pins 25,27,29`；`5v=pin 28`；`battery_pin_30=NC` |
+| GPIO 与控制信号 | Relay1~Relay4 | `channel_1=Relay1-R1-Q1-K1`；`channel_2=Relay2-R2-Q2-K2`；`channel_3=Relay3-R3-Q3-K3`；`channel_4=Relay4-R4-Q4-K4`；`base_resistors=R1-R4 1K`；`base_pulldowns=R10-R13 10K` |
+| 保护电路 | 继电器线圈续流 | `K1=D1 1N4148WS T4`；`K2=D2 1N4148WS T4`；`K3=D3 1N4148WS T4`；`K4=D4 1N4148WS T4` |
+| 接口 | 四路继电器输出 | `P2=K1, K1COM`；`P4=K2, K2COM`；`P6=K3, K3COM`；`P8=K4, K4COM` |
+| 接口 | P3/P5/P7/P9 模式跳线 | `channel_1=P3 K1/K1COM to VIN/GND`；`channel_2=P5 K2/K2COM to VIN/GND`；`channel_3=P7 K3/K3COM to VIN/GND`；`channel_4=P9 K4/K4COM to VIN/GND` |
+| 接口 | P10/P11 外部电源 | `source_selection=P10 HPWR/GND to VIN/GND`；`external_input=P11 Header 2`；`protection=D7 SMF30CA VIN-GND` |
+| 接口 | 外部电源连接器 | `documented_connector=DC5521 5.5x2.1mm`；`schematic_connector=P11 Header 2`；`production_connector=not confirmed` |
+| 模拟电路 | HPWR 电压采样 | `input=HPWR`；`upper_resistor=R16 210K`；`lower_resistor=R19 30K`；`series_resistor=R18 1K`；`adc_pin=U1.6 PA0`；`nominal_divider=30K/(210K+30K)` |
+| 电源 | U2 AOZ1282CI 降压级 | `input=HPWR`；`enable=R14 100K to HPWR`；`switch=U2.6 LX`；`inductor=L1 6.8uH`；`diode=D5 DSS34`；`output=3.3V_VCC`；`feedback=R7 200K / R8 62K`；`feedforward=C8 DNP` |
+| 电源 | U3 SY7088 升压级 | `input=3.3V_VCC`；`inductor=L2 2.2uH/3015`；`converter=U3 SY7088`；`output=+5V`；`feedback=R9 15K / R17 4.7K`；`output_caps=C12/C13 22uF/6.3V; C15 100uF/16V`；`clamp=D6 +5V-GND` |
+| 电源 | 3.3V 与 +5V 分配 | `3v3_loads=U1 VDD/VDDA; J1.12`；`5v_loads=K1-K4 coils; J1.28`；`mcu_decoupling=C2/C3 100nF; C4 10uF` |
+| 其他事实 | 继电器负载额定值 | `documented_rating=DC 24V@1A, 24W`；`schematic_relay_label=Relay-SPDT`；`relay_part_number=not shown`；`contact_rating=not shown` |
+| 复位 | BOOT0、NRST 与 SWD | `boot0=U1.1 via R5 10K to GND`；`nrst_pullup=R6 10K to +3.3V`；`nrst_cap=C1 100nF to GND`；`debug=P1 SWCLK/SWDIO/RST` |
+| 时钟 | U1 时钟 | `osc_in=U1.2 NC`；`osc_out=U1.3 NC`；`external_crystal=not shown` |
+| 保护电路 | VIN 输入保护 | `protector=D7 SMF30CA`；`protected_net=VIN`；`reference=GND` |
+---
+文档属性:产品信息
+产品名:schematic Module13.2 4Relay v1.1
+分段标题:Module13.2 4Relay v1.1 原理图描述 待确认事项
+分段内容:- `component.mcu-version-conflict`：原理图 U1 明确标注 STM32F030F4P6，产品正文特性却写 STM32G030F6；无法确认 M121-V11 量产板最终装配型号。（证据：图 e9746e2be7b2 / 第 1 页 / B1-C2 区域 U1 器件底部明确标注 STM32F030F4P6）
+- `address.i2c-0x26`：产品正文标注 I2C 地址为 0x26，但原理图未标注地址、地址选择网络或固件版本，无法仅由该页确认。（证据：图 e9746e2be7b2 / 第 1 页 / 全页 U1 与 SCL/SDA 网络，未见 0x26 或地址配置）
+- `interface.external-connector-type-conflict`：产品正文规格声明 DC5521 5.5×2.1mm 输入座，但原理图对应外部 VIN/GND 的 P11 标注为 Header 2，无法确认量产板连接器型号。（证据：图 e9746e2be7b2 / 第 1 页 / D4 区域外部电源母线末端 P11 明确标注 Header 2）
+- `other.relay-load-rating`：产品正文声明四通道最大负载为 DC 24V@1A/24W，但原理图中的 K1~K4 仅标注 Relay-SPDT，未给出继电器完整型号或触点额定值。（证据：图 e9746e2be7b2 / 第 1 页 / A1-A4 K1~K4 均只标注 Relay-SPDT，无触点额定参数）
+- `review.mcu-version`：M121-V11 量产板实际使用 STM32F030F4P6 还是 STM32G030F6？；原因：正式原理图 U1 标注 STM32F030F4P6，产品正文特性标注 STM32G030F6。
+- `review.i2c-address-0x26`：模块 I2C 地址 0x26 是否由 MCU 固件固定实现？；原因：原理图仅显示 SCL/SDA，不含地址或固件信息。
+- `review.external-connector`：外部 5~24V 输入的量产连接器是 DC5521 还是 P11 两针端子？；原因：正文规格和原理图连接器类型不一致。
+- `review.relay-rating`：K1~K4 实际继电器料号及 DC 24V@1A 触点额定条件是什么？；原因：原理图只写 Relay-SPDT，无法核对正文的负载额定值。
+---
+文档属性:产品信息
+产品名:schematic Unit Scales
+分段标题:Unit Scales 原理图描述 快速信息 & 概述
+分段内容:| 项目 | 内容 |
+| --- | --- |
+| 产品 | Unit Scales |
+| SKU | U108 |
+| 产品 ID | `unit-scales-b8e4bdd6bf8a` |
+| 源文档 | `zh_CN/unit/UNIT Scales.md` |
+
+Unit Scales 以 U1 STM32F030F4P6（原理图备注 XM1008F6P6）为主控，通过 J1 Grove 的 I2C_CLK/I2C_DATA 与外部主机通信。U2 HX711 连接 J3 四线称重桥，DOUT/PD_SCK 分别形成 HX711_SDA/HX711_CLK 并接到 U1 PA3/PA4，Q1 S8550 Y2 与 R1/R4 构成 HX711 模拟供电反馈。+5V 经 VR1 HT7333 生成 +3.3V，板上另有 SK6812 RGB、key 按键以及 J2 SWD 下载口。原理图没有标注 I2C 地址、称重量程、ADC 位数/增益/采样率或称重误差，这些正文参数需另行确认。
+---
+文档属性:产品信息
+产品名:schematic Unit Scales
+分段标题:Unit Scales 原理图描述 检索关键词
+分段内容:`Unit Scales`、`U108`、`STM32F030F4P6`、`XM1008F6P6`、`HX711`、`HT7333`、`S8550 Y2`、`SK6812`、`I2C`、`0x26`、`I2C_CLK`、`I2C_DATA`、`PA9`、`PA10`、`HX711_SDA`、`HX711_CLK`、`PA3`、`PA4`、`PA7 LED`、`PA2 key`、`SWCLK`、`SWDIO`、`NRST`、`BOOT0`、`Grove-4P(RED)`、`J1`、`J2 SIP-5`、`J3 SIP-4`、`RED WHITE BLUE GREEN`、`+5V`、`+3.3V`、`R6 R7 4.7K`、`R2 R3 4.7K`、`R1 20K`、`R4 8.2K`、`20kg load cell`、`24bit ADC`、`10SPS`、`tare button`、`weighing bridge`
+---
+文档属性:产品信息
+产品名:schematic Unit Scales
+分段标题:Unit Scales 原理图描述 主要器件
+分段内容:| 位号 | 型号 | 作用 | 证据 |
+| --- | --- | --- | --- |
+| U1 | STM32F030F4P6（备注 XM1008F6P6） | 主控 MCU，连接主机 I2C、HX711、RGB、按键、SWD、复位和 BOOT0 | 图 ad6ae5355bea / 第 1 页 / 第 1 页网格 A3，U1 STM32F030F4P6（备注 XM1008F6P6），pins1-20 |
+| U2 | HX711 | 称重桥模拟前端与 ADC，连接 J3、模拟电源反馈和 HX711_SDA/HX711_CLK | 图 ad6ae5355bea / 第 1 页 / 第 1 页网格 B3-C3，U2 HX711 pins1-16，VSUP/BASE/AVDD/VFB/AGND/VBG/INNA/INPA/INPB/INNB/PD_SCK/DOUT/XO/XI/RATE/DVDD |
+| VR1 | HT7333 | 将 +5V 转换为 +3.3V 的稳压器 | 图 ad6ae5355bea / 第 1 页 / 第 1 页网格 A2，VR1 HT7333，Vin/Vout/GND 与 C1/C3 |
+| Q1 | S8550 Y2 | 由 HX711 BASE 控制、参与 AVDD/称重桥激励供电的 PNP 晶体管 | 图 ad6ae5355bea / 第 1 页 / 第 1 页网格 B3，Q1 S8550 Y2 位于 +3.3V、U2 BASE/AVDD 与 R1/R4 反馈网络 |
+| J1 | Grove-4P(RED) | 主机 I2C 与电源接口，pin1 I2C_CLK、pin2 I2C_DATA、pin3 +5V、pin4 GND | 图 ad6ae5355bea / 第 1 页 / 第 1 页网格 A1，J1 Grove-4P(RED) pins1-4 与 I2C_CLK/I2C_DATA/+5/GND |
+| J2 | SIP-5 | +3.3V、SWCLK、SWDIO、NRST、GND 调试/下载接口 | 图 ad6ae5355bea / 第 1 页 / 第 1 页网格 A4，J2 SIP-5 pins1-5 与 +3.3/SWCLK/SWDIO/NRST/GND |
+| J3 | SIP-4 | 四线称重传感器接口，pin4 RED、pin3 WHITE、pin2 BLUE、pin1 GREEN | 图 ad6ae5355bea / 第 1 页 / 第 1 页网格 C2，J3 SIP-4 pins4/3/2/1 标注 RED/WHITE/BLUE/GREEN，并连接 U2 模拟前端网络 |
+| LED1 | sk6812 | +5V 供电、由 U1 PA7/LED 网络驱动的可编程 RGB LED | 图 ad6ae5355bea / 第 1 页 / 第 1 页网格 B1，LED1 sk6812，VDD pin1、DOUT pin2、VSS pin3、DIN pin4 |
+| SW1 | 未标注 | 按下将 key/PA2 接到 GND 的按键 | 图 ad6ae5355bea / 第 1 页 / 第 1 页网格 C1，SW1 位于 key 与 GND 之间 |
+| R6,R7 | 4.7KΩ | I2C_DATA 与 I2C_CLK 到 +3.3V 的上拉电阻 | 图 ad6ae5355bea / 第 1 页 / 第 1 页网格 A1，R6/R7 4.7KΩ 从 I2C_DATA/I2C_CLK 接 +3.3V |
+| R2,R3 | 4.7KΩ | HX711_SDA 与 HX711_CLK 到 +3.3V 的上拉电阻 | 图 ad6ae5355bea / 第 1 页 / 第 1 页网格 C4，R2/R3 4.7KΩ 从 HX711_SDA/HX711_CLK 接 +3.3V |
+| R1,R4,C5,C6 | 20KΩ / 8.2KΩ / 1uF / 1uF | HX711 AVDD/VFB/VBG 模拟电源反馈与旁路网络 | 图 ad6ae5355bea / 第 1 页 / 第 1 页网格 B3-C3，U2 左侧 Q1、R1 20KΩ、R4 8.2KΩ、C5/C6 1uF |
+---
+请忽略以上参考资料的语种信息。回复用户问题时需要首先判断用户的语种，以相同语种进行回复。

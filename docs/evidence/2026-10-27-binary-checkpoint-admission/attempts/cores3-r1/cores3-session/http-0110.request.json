@@ -1,0 +1,10 @@
+{
+  "source_kind": "uiflow2-package",
+  "entrypoint": "main.py",
+  "files": {
+    "main.py": {
+      "encoding": "utf8",
+      "data": "import sys,json,time\nimport M5\nfrom unit import PIRUnit\nassert '/m5-binary-admission-55042204f21e4b9ab227f74eb1dd403e' in sys.path, 'VM nonce lost'\nM5.begin()\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0)\nunit=PIRUnit((1,2))\nscreen.fillRect(screen.width()//2-4,screen.height()//2-4,8,8,65280)\nprint('BINARY_ADMISSION '+json.dumps({'kind':'ready','nonce':'55042204f21e4b9ab227f74eb1dd403e','phase':'B'}))\nsequence=0\nprevious=None\nwhile True:\n M5.update()\n motion=bool(unit.get_status())\n if motion != previous:\n  screen.fillRect(4,4,8,8,0xFFFFFF if motion else 0)\n  previous=motion\n sequence+=1\n print('BINARY_ADMISSION '+json.dumps({'kind':'sample','nonce':'55042204f21e4b9ab227f74eb1dd403e','phase':'B','sequence':sequence,'motion':motion}))\n time.sleep_ms(200)\n"
+    }
+  }
+}

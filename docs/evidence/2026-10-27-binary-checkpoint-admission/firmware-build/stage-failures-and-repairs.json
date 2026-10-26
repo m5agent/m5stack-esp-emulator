@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "classification": "LOCAL_BUILD_PASS_NOT_GUEST_ADMITTED",
+  "stage_count": 27,
+  "stages": [
+    {
+      "name": "adf-submodules",
+      "exit_code": 0,
+      "elapsed_seconds": 44.165,
+      "record": "stages/adf-submodules.json",
+      "log": "stages/adf-submodules.log",
+      "terminal": true
+    },
+    {
+      "name": "check-idf-environment",
+      "exit_code": 0,
+      "elapsed_seconds": 7.006,
+      "record": "stages/check-idf-environment.json",
+      "log": "stages/check-idf-environment.log",
+      "terminal": true
+    },
+    {
+      "name": "cores3-pack-all",
+      "exit_code": 0,
+      "elapsed_seconds": 173.692,
+      "record": "stages/cores3-pack-all.json",
+      "log": "stages/cores3-pack-all.log",
+      "terminal": true
+    },
+    {
+      "name": "gnu-host-tools",
+      "exit_code": 0,
+      "elapsed_seconds": 185.889,
+      "record": "stages/gnu-host-tools.json",
+      "log": "stages/gnu-host-tools.log",
+      "terminal": true
+    },
+    {
+      "name": "host-build-tools",
+      "exit_code": 0,
+      "elapsed_seconds": 5.375,
+      "record": "stages/host-build-tools.json",
+      "log": "stages/host-build-tools.log",
+      "terminal": true
+    },
+    {
+      "name": "host-env",
+      "exit_code": 0,
+      "elapsed_seconds": 1.101,
+      "record": "stages/host-env.json",
+      "log": "stages/host-env.log",
+      "terminal": true
+    },
+    {
+      "name": "idf-python-env-r2",
+      "exit_code": 0,
+      "elapsed_seconds": 26.178,
+      "record": "stages/idf-python-env-r2.json",
+      "log": "stages/idf-python-env-r2.log",
+      "terminal": true
+    },
+    {
+      "name": "idf-python-env",
+      "exit_code": 1,
+      "elapsed_seconds": 0.132,
+      "record": "stages/idf-python-env.json",
+      "log": "stages/idf-python-env.log",
+      "terminal": true,
+      "failure": "Official custom IDF_PYTHON_ENV_PATH branch assumed its directory existed.",
+      "repair": "Create empty owned directory; idf-python-env-r2 passed."
+    },
+    {
+      "name": "idf-python-future",
+      "exit_code": 0,
+      "elapsed_seconds": 0.453,
+      "record": "stages/idf-python-future.json",
+      "log": "stages/idf-python-future.log",
+      "terminal": true
+    },
+    {
+      "name": "idf-submodules",
+      "exit_code": 0,
+      "elapsed_seconds": 98.217,
+      "record": "stages/idf-submodules.json",
+      "log": "stages/idf-submodules.log",
+      "terminal": true
+    },
+    {
+      "name": "idf-tools-install",
+      "exit_code": 1,
+      "elapsed_seconds": 54.393,
+      "record": "stages/idf-tools-install.json",
+      "log": "stages/idf-tools-install.log",
+      "terminal": true,
+      "failure": "Tool binaries installed; official installer refused creating an IDF venv while invoked from host venv.",
+      "repair": "Retained installed tools; run only install-python-env using non-venv Python."
+    },
+    {
+      "name": "inspect-cores3-build-r2",
+      "exit_code": 0,
+      "elapsed_seconds": 1.095,
+      "record": "stages/inspect-cores3-build-r2.json",
+      "log": "stages/inspect-cores3-build-r2.log",
+      "terminal": true
+    },
+    {
+      "name": "inspect-cores3-build",
+      "exit_code": 2,
+      "elapsed_seconds": 1.156,
+      "record": "stages/inspect-cores3-build.json",
+      "log": "stages/inspect-cores3-build.log",
+      "terminal": true,
+      "failure": "Used image-info spelling; installed esptool 4.12 requires image_info. Only usage printed.",
+      "repair": "Use installed CLI operation image_info; inspect-cores3-build-r2 passed."
+    },
+    {
+      "name": "littlefs-tool-build",
+      "exit_code": 0,
+      "elapsed_seconds": 2.264,
+      "record": "stages/littlefs-tool-build.json",
+      "log": "stages/littlefs-tool-build.log",
+      "terminal": true
+    },
+    {
+      "name": "lvgl-submodules",
+      "exit_code": 0,
+      "elapsed_seconds": 17.881,
+      "record": "stages/lvgl-submodules.json",
+      "log": "stages/lvgl-submodules.log",
+      "terminal": true
+    },
+    {
+      "name": "micropython-submodules",
+      "exit_code": 0,
+      "elapsed_seconds": 9.698,
+      "record": "stages/micropython-submodules.json",
+      "log": "stages/micropython-submodules.log",
+      "terminal": true
+    },
+    {
+      "name": "mpy-cross-build",
+      "exit_code": 0,
+      "elapsed_seconds": 3.86,
+      "record": "stages/mpy-cross-build.json",
+      "log": "stages/mpy-cross-build.log",
+      "terminal": true
+    },
+    {
+      "name": "official-patch-series",
+      "exit_code": 0,
+      "elapsed_seconds": 2.032,
+      "record": "stages/official-patch-series.json",
+      "log": "stages/official-patch-series.log",
+      "terminal": true
+    },
+    {
+      "name": "prepare-sources",
+      "exit_code": 0,
+      "elapsed_seconds": 12.453,
+      "record": "stages/prepare-sources.json",
+      "log": "stages/prepare-sources.log",
+      "terminal": true
+    },
+    {
+      "name": "quilt-build",
+      "exit_code": 0,
+      "elapsed_seconds": 1.602,
+      "record": "stages/quilt-build.json",
+      "log": "stages/quilt-build.log",
+      "terminal": true
+    },
+    {
+      "name": "quilt-configure-r2",
+      "exit_code": 1,
+      "elapsed_seconds": 0.857,
+      "record": "stages/quilt-configure-r2.json",
+      "log": "stages/quilt-configure-r2.log",
+      "terminal": true,
+      "failure": "macOS date lacks --rfc-822.",
+      "repair": "Official configure --without-date selects internal implementation."
+    },
+    {
+      "name": "quilt-configure-r3",
+      "exit_code": 1,
+      "elapsed_seconds": 0.341,
+      "record": "stages/quilt-configure-r3.json",
+      "log": "stages/quilt-configure-r3.log",
+      "terminal": true,
+      "failure": "macOS sed lacks required GNU expression behavior.",
+      "repair": "Built GNU sed/diffutils/patch under owned local prefix."
+    },
+    {
+      "name": "quilt-configure-r4",
+      "exit_code": 1,
+      "elapsed_seconds": 0.378,
+      "record": "stages/quilt-configure-r4.json",
+      "log": "stages/quilt-configure-r4.log",
+      "terminal": true,
+      "failure": "macOS getopt lacks --long.",
+      "repair": "Official configure --without-getopt selects internal implementation; r5 passed."
+    },
+    {
+      "name": "quilt-configure-r5",
+      "exit_code": 0,
+      "elapsed_seconds": 1.09,
+      "record": "stages/quilt-configure-r5.json",
+      "log": "stages/quilt-configure-r5.log",
+      "terminal": true
+    },
+    {
+      "name": "quilt-configure",
+      "exit_code": 127,
+      "elapsed_seconds": null,
+      "record": "stages/quilt-configure.json",
+      "log": "stages/quilt-configure.log",
+      "terminal": true,
+      "failure": "System Python lacked tarfile extraction filter; configure working directory was absent and spawn failed.",
+      "repair": "Use explicit Python 3.12 for safe tar extraction; spawn failure recorded as terminal exit 127."
+    },
+    {
+      "name": "quilt-install",
+      "exit_code": 0,
+      "elapsed_seconds": 0.314,
+      "record": "stages/quilt-install.json",
+      "log": "stages/quilt-install.log",
+      "terminal": true
+    },
+    {
+      "name": "uiflow-submodules",
+      "exit_code": 0,
+      "elapsed_seconds": 49.765,
+      "record": "stages/uiflow-submodules.json",
+      "log": "stages/uiflow-submodules.log",
+      "terminal": true
+    }
+  ],
+  "failed_attempts_retained": 7,
+  "final_build_stage": "cores3-pack-all",
+  "final_inspection_stage": "inspect-cores3-build-r2",
+  "process_restart_policy": "New attempts only after previous stage terminal evidence; no observation timeout used to infer completion."
+}

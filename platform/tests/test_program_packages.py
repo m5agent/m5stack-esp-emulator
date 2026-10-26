@@ -108,6 +108,12 @@ class ProgramPackageTests(unittest.TestCase):
         self.assertEqual(len(list(self.root.glob("*.json"))), 1)
         self.assertEqual(list(self.root.glob("*.tmp")), [])
 
+    def test_existing_source_revision_identity_does_not_change(self):
+        implicit = self.store.create(self.payload("pass\n"))
+        explicit = self.store.create(self.payload("pass\n", entrypoint="main.py"))
+        self.assertEqual(implicit, explicit)
+        self.assertEqual(implicit["revision_id"], "ef0b5c61b07522b198de734f44d31ad9104047c2bcdb68929758f37b92929fd3")
+
     def test_snapshots_do_not_inherit_files_generate_boot_or_share_mutable_returns(self):
         payload = self.payload()
         payload["files"]["old.py"] = text("OLD = 1")
@@ -125,7 +131,7 @@ class ProgramPackageTests(unittest.TestCase):
         self.assertIn("old.py", self.store.read_files(original["revision_id"]))
         self.assertNotIn("boot.py", self.store.read_files(original["revision_id"]))
 
-    def test_missing_fields_other_kinds_and_compiled_entrypoint_are_rejected(self):
+    def test_missing_fields_other_kinds_and_unsupported_entrypoints_are_rejected(self):
         for payload in (None, [], {}, {"files": {}}, {"files": []}, {"files": {"helper.py": text("pass")}}):
             with self.subTest(payload=repr(payload)):
                 self.assert_error("invalid_program_package", self.store.create, payload, status=400)
@@ -133,8 +139,34 @@ class ProgramPackageTests(unittest.TestCase):
             self.assert_error("invalid_program_package", self.store.create, self.payload(**{field: []}), status=400)
         for kind in (None, [], "python", "uiflow2-python"):
             self.assert_error("unsupported_program_source_kind", self.store.create, self.payload(source_kind=kind), status=409)
-        for entry in (None, [], "main.mpy", "pkg/main.py", "MAIN.py"):
+        for entry in (None, [], "pkg/main.py", "pkg/main.mpy", "MAIN.py", "MAIN.mpy"):
             self.assert_error("unsupported_program_entrypoint", self.store.create, self.payload(entrypoint=entry), status=409)
+
+    def test_compiled_entrypoint_is_explicit_in_identity_and_preserves_binary_bytes(self):
+        # The store owns inert bytes; guest deployment separately validates
+        # the entire pure-bytecode container and the actual guest ABI.
+        bytecode = b"M\x06\x00\x1f\x01\x00\xff"
+        files = {"main.mpy": binary(bytecode), "helper.py": text("VALUE = 7\n")}
+        payload = {"entrypoint": "main.mpy", "files": files}
+        metadata = self.store.create(payload)
+        hashes = {path: sha(base64.b64decode(value["data"]) if value["encoding"] == "base64" else value["data"].encode()) for path, value in files.items()}
+        expected = sha(canonical({"source_kind": SOURCE_KIND, "entrypoint": "main.mpy", "files": hashes}))
+        self.assertEqual(metadata["entrypoint"], "main.mpy")
+        self.assertEqual(metadata["revision_id"], expected)
+        self.assertEqual(self.store.read_files(expected)["main.mpy"], bytecode)
+        self.assertEqual(self.store.source(expected), {
+            "entrypoint": "main.mpy", "files": {"main.mpy": binary(bytecode), "helper.py": binary(b"VALUE = 7\n")}
+        })
+        self.assertEqual(self.store.create(self.store.source(expected)), metadata)
+        self.assert_error("invalid_program_package", self.store.create, {"files": files})
+        self.assert_error("invalid_program_package", self.store.create, self.payload(entrypoint="main.mpy"))
+
+    def test_compiled_entrypoint_cannot_be_shadowed_by_source_or_a_main_path(self):
+        for path in ("main.py", "MAIN.PY", "main", "MAIN/data.bin", "main/__init__.py", "main/__init__.mpy"):
+            with self.subTest(path=path):
+                files = {"main.mpy": binary(b"M\x06\x00\x1f"), path: text("pass")}
+                self.assert_error("program_package_entrypoint_conflict", self.store.create,
+                                  {"entrypoint": "main.mpy", "files": files}, status=409)
 
     def test_paths_cannot_escape_alias_or_represent_symlinks(self):
         paths = ("../outside", "/flash/main.py", "a//b", "a/./b", "a/../b", "a\\b", "C:drive",

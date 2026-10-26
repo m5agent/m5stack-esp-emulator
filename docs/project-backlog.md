@@ -71,7 +71,7 @@ Scroll限定原驱动与按键/RGB闭环、公共完整checkpoint及同步revisi
 不能把逻辑counter写入/reset当轴运动。验收须核真实mounted组件。
 已有共享样本不关闭 Preview 执行资源或推送协议；Tab5原GDB帧与reset/stop的
 共同生命周期门禁按 `UNIT-HOST-28` 另做，不继承QEMU缓存准入。
-二进制入口须按`UNIT-HOST-33`先取得固件run-as-main/loader路径；普通`.mpy`导入不具备完整脚本入口语义。
+二进制入口须按`UNIT-HOST-33`先取得固件run-as-main/loader路径；普通`.mpy`导入不具备完整脚本入口语义。1.44已分开二进制checkpoint存储与执行，四host双lane旧Run保护已验；官方兼容CoreS3本地构建通过、尚未guest准入，继续按固定SHA验证模块身份/ack/重复Run/异常中断恢复。4Relay/FlashLight新协议冲突与模型边界见[本块证据](evidence/2026-10-27-binary-checkpoint-admission/README.md)。
 运行时不可中断、native/IRQ/thread 清理及重连缺口须保守处理，不承诺低秒级 SLA。验收见
 [AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
 checkpoint/artifact snapshot/virtual target也需衔接；Preview服务端与限定Web消费者已实现，SSE与AIFlow消费者未接。

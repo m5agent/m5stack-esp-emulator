@@ -1,0 +1,20 @@
+.......................................................F..............................................................
+======================================================================
+FAIL: test_public_post_requires_explicit_complete_package_fields (test_program_revision_api.ProgramRevisionApiTests.test_public_post_requires_explicit_complete_package_fields) (code='unsupported_program_entrypoint', payload={'files': {'main.py': {'encoding': 'utf8', 'data': "import helper\nprint('实时包')\n"}, 'helper.py': {'encoding': 'utf8', 'data': "VALUE = '中文'\n"}, 'driver.mpy': {'encoding': 'base64', 'data': 'TQYAHwoBEmhlbHBlci5weQAPEnRyYW5zZm9ybQAQZGVzY3JpYmUAECVzOiVkOiVzAAhET1dOAARVUAAGVEFHAIJFDnByZXNzZWQABRtvZmZpY2lhbC1tcHktY3Jvc3MtNzhmZjE3MGQAgRwABgFEZCMAFgcyABYCMgEWA1FjAlgRBgIIYLCD9IfyY4FoKgoDCAlgYBAEEgcSArA0AbFERBAFQkIQBioD+GM='}, 'assets/pixels.bin': {'encoding': 'base64', 'data': 'AP+JUE5HDQo='}, 'assets/empty': {'encoding': 'base64', 'data': ''}}, 'source_kind': 'uiflow2-package', 'entrypoint': 'main.mpy'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKTREE>/platform/tests/test_program_revision_api.py", line 288, in test_public_post_requires_explicit_complete_package_fields
+    self.assertEqual((status, body["error"]["code"]), (expected_status, code))
+AssertionError: Tuples differ: (400, 'invalid_program_package') != (409, 'unsupported_program_entrypoint')
+
+First differing element 0:
+400
+409
+
+- (400, 'invalid_program_package')
++ (409, 'unsupported_program_entrypoint')
+
+----------------------------------------------------------------------
+Ran 118 tests in 12.979s
+
+FAILED (failures=1)

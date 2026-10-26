@@ -15,6 +15,7 @@
 
 | 工作流 | 结果 | 证据 |
 | --- | --- | --- |
+| `UNIT-01` / 二进制checkpoint与兼容构建 | API1.44分开main.mpy不可变存储与执行；gen38/850426下四host统一r2双lane：16源码Run、12拒绝、36fresh PIR/UART/QOM/PNG、8ZIP152成员与精确历史帧/Flash/PID/lease清理通过，MPY始终未执行。r1三PASS/superseded与StopWatch圆屏角落oracle FAIL保留。官方固定CoreS3两宏候选pack_all及image/partition检查通过，但未guest准入、stock/能力声明不变；4Relay/FlashLight协议冲突已反馈，研究不授予功能准入 | [分层证据](evidence/2026-10-27-binary-checkpoint-admission/README.md) |
 | `UNIT-01` / 控制组提交与主线同步 | 9e2dc55b实现及55050f86原始日志提交后fetch/merge origin/main@f2061759，Already up to date；20份本块产品/runner SHA不变。owned idle重载为gen37，29 Unit及五类profile元数据与文件一致，runtime仍850426，active/lease均0；未重跑guest，不授予新执行结论，整体Unit/AIFlow继续 | [同步收据](evidence/2026-10-27-preview-controls-and-2relay/integration.json) |
 | `UNIT-01` / 托管控制组、U131与相机 | gen36/850426四主机各4Run HUB控制组与7Run 2Relay限定闭环通过；后者精确1512B官方源、GPIO/逐通道计数/两蓝灯、主机输入、取消再跑和精确历史帧SHA。相机四断点与长dt负控/修复、宿主负控通过；取证器RGB565 oracle、无界browser observer、IPC EOF与短按漏采的原失败/不完整轮保留，optional browser bodies缺失单列，不冒充mandatory缺证。新定向7PASS、原完整66/67，Core2单例PASS不拼全通过；硬件/AIFlow调用侧/main.mpy/SSE仍NOT RUN或开放 | [分层证据与原始SHA](evidence/2026-10-27-preview-controls-and-2relay/README.md) |
 | `UNIT-01` / Web块提交与主线同步 | f058d8d2提交后重新fetch并merge origin/main@f2061759，Already up to date；最终r4的12份产品/runner源码SHA不变，gen34 active/lease均0。整体Unit/AIFlow仍继续，窄屏构图/main.mpy/其它Unit组合等按Backlog推进 | [同步收据](evidence/2026-10-27-preview-web-consumer/integration.json) |

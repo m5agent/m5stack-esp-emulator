@@ -1741,6 +1741,17 @@ def _normalize_management_binding(value: dict) -> dict:
     return dict(value)
 
 
+def _require_live_package_entrypoint(revision: dict) -> None:
+    # Check before allocating an execution or interrupting its predecessor.
+    # Immutable storage admission does not imply a loader in the guest firmware.
+    if revision.get("entrypoint", "main.py") != "main.py":
+        raise ServiceError(
+            "program_mpy_entrypoint_unsupported",
+            "this UIFlow firmware supports main.py execution; main.mpy requires a compatible script loader",
+            409,
+        )
+
+
 def _validate_checkpoint_bytecode(files: dict[str, bytes]) -> None:
     """Reject known-invalid/native containers without touching the guest.
 
@@ -6341,6 +6352,10 @@ class DeviceSession:
         maximum_timeout = 120 if package else 30
         if type(timeout) not in {int, float} or not 1 <= timeout <= maximum_timeout:
             raise ServiceError("invalid_program", f"timeout_seconds must be between 1 and {maximum_timeout}", 400)
+        if package and not reference and payload.get("entrypoint", "main.py") == "main.mpy":
+            # Do not consume a persistent package slot for an unsupported
+            # inline Run; callers can explicitly save a checkpoint separately.
+            _require_live_package_entrypoint(payload)
         if not self._program_lock.acquire(blocking=False):
             raise ServiceError("program_busy", "a program transfer already owns this console", 409)
         try:
@@ -6359,6 +6374,7 @@ class DeviceSession:
             try:
                 if reference:
                     revision = self.service.program_packages.get(payload["revision_id"])
+                    _require_live_package_entrypoint(revision)
                     package_files = self.service.program_packages.read_files(payload["revision_id"])
                     _validate_checkpoint_bytecode(package_files)
                 elif package:

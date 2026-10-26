@@ -142,6 +142,8 @@
 | [同VM Preview/Run控制面](plans/2026-10-27-preview-run-control.md) | 实施计划 | `2026-10-27` | 持久化身份/幂等/latest-wins、真实prompt取消、managed session与输入/帧fence；CoreS3 PIR/Relay限定实际会话与宿主负控已验，PIR部署事务取消已验，AIFlow/其它Web组合/GC仍开放 |
 | [Preview Web消费者](plans/2026-10-27-preview-web-consumer.md) | 实施计划 | `2026-10-27` | 共享Preview身份、完整包保留编辑、主机/Unit输入、Run帧与生命周期；CoreS3 PIR/Relay限定真实Web验收完成，AIFlow/SSE仍开放；构图限定修复见下一块 |
 | [Preview 控制组与 2Relay](plans/2026-10-27-preview-controls-and-2relay.md) | 实施计划 | `2026-10-27` | 四主机同VM丰富HUB控制组、U131双GPIO/蓝灯和限定窄屏/长dt相机已验；新运行时定向7PASS、完整矩阵66/67，边界保留 |
+| [二进制checkpoint与Unit协议](plans/2026-10-27-binary-checkpoint-and-unit-protocols.md) | 实施计划 | `2026-10-27` | 分开不可变二进制包存储与固件loader能力，先验证旧Run不被不支持入口打断；兼容固件隔离构建与4Relay/FlashLight协议核对进行中 |
+| [二进制checkpoint与兼容构建证据](evidence/2026-10-27-binary-checkpoint-admission/README.md) | 验收证据 | `2026-10-27` | 四host双lane旧程序保护、8ZIP与圆屏oracle负控；官方CoreS3候选只完成本地build，未guest准入；Unit协议冲突与反馈分层 |
 | [Preview 控制组与 2Relay 证据](evidence/2026-10-27-preview-controls-and-2relay/README.md) | 验收证据 | `2026-10-27` | 官方U131研究、相机负控、四主机HUB与2Relay最终会话、失败/不完整尝试及清理；完整矩阵66/67独立保留，硬件NOT RUN |
 | [Preview Web与完整包验收](evidence/2026-10-27-preview-web-consumer/README.md) | 历史证据 | `2026-10-27` | 同VM外部完整包→Web保留MPY/资源编辑、PIR/Relay控制与Run选定像素、取消恢复/ZIP与清理；首次Token与raw-paste oracle失败、取消/松键独审负控保留 |
 | [同VM Preview/Run验收](evidence/2026-10-27-preview-run-control/README.md) | 历史证据 | `2026-10-27` | CoreS3 PIR/Relay同VM公共包/字节码、pending覆盖、真实prompt运行取消、帧/输入fence、ZIP及清理；宿主并发/恢复/保留独审与失败负控分别归档 |

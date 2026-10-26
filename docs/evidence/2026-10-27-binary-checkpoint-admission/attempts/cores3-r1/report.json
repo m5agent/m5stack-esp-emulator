@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "category": "virtual-binary-checkpoint-admission",
+  "status": "PASS",
+  "hardware": "NOT RUN",
+  "binary_executed": false,
+  "lanes": [
+    {
+      "device_id": "cores3",
+      "lane": "session",
+      "status": "PASS",
+      "report": "cores3-session/report.json"
+    },
+    {
+      "device_id": "cores3",
+      "lane": "preview",
+      "status": "PASS",
+      "report": "cores3-preview/report.json"
+    }
+  ],
+  "started_at": "2026-10-26T20:15:06.544625+00:00",
+  "source_sha256": {
+    "tests/units/run_binary_checkpoint_admission.py": "72a596b5097a810732abd37a27d693e354f0c2c09fda2f1cbab0de8385e92190",
+    "tests/units/test_binary_checkpoint_admission.py": "8d1092241cb9a4cfae4750ce44696a233ea5843ac2c8fe0851d9c8c435cc8131",
+    "platform/tools/device_service.py": "ead47e3c8cfc1bbcac22024f381aebcdb08e0fedf20830d788324966c5f7e1dc",
+    "platform/tools/preview_service.py": "df41ee4e77702b590fce52f08b6a7046db53af78c2f73af607ce58a5cc1e5565",
+    "platform/tools/program_packages.py": "e8801c4117271fbe61ceff08f32dbcb460246355f9cac8c3e431b703c13cb6bb",
+    "platform/tools/uiflow_package_runtime.py": "b3326f772cc9b85cc5af352877296d9f2bd8d6867b182fa516ee6366cbf81ecc",
+    "platform/tools/mpy_bytecode.py": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+    "platform/tests/test_mpy_bytecode.py": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0"
+  },
+  "service_worker": {
+    "worker_id": "worker-b71031d2aef3428b",
+    "instance_id": "ffdc714e893a45a886996031f509a0c7",
+    "generation": 38,
+    "state": "ready",
+    "pid": 88359,
+    "started_at": "2026-10-26T20:10:07.801055+00:00",
+    "heartbeat_at": "2026-10-26T20:15:03.083737+00:00",
+    "heartbeat_age_seconds": 3.478,
+    "stale": false,
+    "accepting_leases": true,
+    "active_lease_count": 0,
+    "active_lease_ids": [],
+    "drained_at": null
+  },
+  "final_capacity_snapshot": {
+    "max_sessions": 12,
+    "active_sessions": 0,
+    "available_sessions": 12,
+    "max_per_device": 8,
+    "by_device": {},
+    "worker": {
+      "worker_id": "worker-b71031d2aef3428b",
+      "instance_id": "ffdc714e893a45a886996031f509a0c7",
+      "generation": 38,
+      "state": "ready",
+      "pid": 88359,
+      "started_at": "2026-10-26T20:10:07.801055+00:00",
+      "heartbeat_at": "2026-10-26T20:15:26.415750+00:00",
+      "heartbeat_age_seconds": 0.097,
+      "stale": false,
+      "accepting_leases": true,
+      "active_lease_count": 0,
+      "active_lease_ids": [],
+      "drained_at": null
+    },
+    "modes": {
+      "network": "enabled-separate-lane",
+      "qemu-wifi": "enabled-s3",
+      "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+      "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+      "tab5": "enabled-partial",
+      "flash": "prepared-cache + exact artifact"
+    }
+  }
+}

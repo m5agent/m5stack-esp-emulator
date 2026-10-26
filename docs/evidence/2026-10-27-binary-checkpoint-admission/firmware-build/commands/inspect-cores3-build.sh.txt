@@ -1,0 +1,6 @@
+#!/bin/bash
+set -euo pipefail
+base=$(cd "$(dirname "$0")" && pwd)
+. "$IDF_PATH/export.sh"
+python -m esptool image_info "$base/uiflow/m5stack/build-M5STACK_CoreS3/micropython.bin"
+python "$IDF_PATH/components/partition_table/gen_esp32part.py" "$base/uiflow/m5stack/build-M5STACK_CoreS3/partition_table/partition-table.bin"

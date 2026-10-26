@@ -1,0 +1,28 @@
+Checking "python3" ...
+Python 3.12.8
+"python3" has been detected
+Activating ESP-IDF 5.5
+Setting IDF_PATH to '<WORKTREE>/.work/uiflow-main-loader-build-20261027/idf'.
+* Checking python version ... 3.12.8
+* Checking python dependencies ... OK
+* Deactivating the current ESP-IDF environment (if any) ... OK
+* Establishing a new ESP-IDF environment ... OK
+* Identifying shell ... bash
+* Detecting outdated tools in system ... OK - no outdated tools found
+* Shell completion ... Autocompletion code generated
+WARNING: Failed to load shell autocompletion for bash version: 3.2.57(1)-release!
+
+Done! You can now compile ESP-IDF projects.
+Go to the project directory and run:
+
+  idf.py build
+usage: esptool [-h]
+               [--chip {auto,esp8266,esp32,esp32s2,esp32s3beta2,esp32s3,esp32c3,esp32c6beta,esp32h2beta1,esp32h2beta2,esp32c2,esp32c6,esp32c61,esp32c5,esp32c5beta3,esp32h2,esp32h21,esp32p4,esp32h4}]
+               [--port PORT] [--baud BAUD] [--port-filter PORT_FILTER]
+               [--before {default_reset,usb_reset,no_reset,no_reset_no_sync}]
+               [--after {hard_reset,soft_reset,no_reset,no_reset_stub,watchdog_reset}]
+               [--no-stub] [--trace] [--override-vddsdio [{1.8V,1.9V,OFF}]]
+               [--connect-attempts CONNECT_ATTEMPTS]
+               {load_ram,dump_mem,read_mem,write_mem,write_flash,run,image_info,make_image,elf2image,read_mac,chip_id,flash_id,read_flash_status,write_flash_status,read_flash,verify_flash,erase_flash,erase_region,read_flash_sfdp,merge_bin,get_security_info,version}
+               ...
+esptool: error: argument operation: invalid choice: 'image-info' (choose from load_ram, dump_mem, read_mem, write_mem, write_flash, run, image_info, make_image, elf2image, read_mac, chip_id, flash_id, read_flash_status, write_flash_status, read_flash, verify_flash, erase_flash, erase_region, read_flash_sfdp, merge_bin, get_security_info, version)

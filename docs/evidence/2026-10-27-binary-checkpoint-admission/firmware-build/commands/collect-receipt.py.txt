@@ -1,0 +1,48 @@
+from pathlib import Path
+import datetime,hashlib,json,subprocess,os
+base=Path(__file__).resolve().parent
+out=base/'receipt-data';out.mkdir(exist_ok=True)
+def sha(path):
+ h=hashlib.sha256()
+ with path.open('rb') as f:
+  while data:=f.read(1024*1024):h.update(data)
+ return h.hexdigest()
+def row(path):return {'path':str(path.relative_to(base)),'bytes':path.stat().st_size,'sha256':sha(path)}
+def git(cwd,*args):return subprocess.run(['git',*args],cwd=cwd,check=True,capture_output=True,timeout=30).stdout
+roots={'uiflow':base/'uiflow','idf':base/'idf','micropython':base/'uiflow/micropython','lv_binding':base/'uiflow/m5stack/cmodules/lv_binding_micropython','M5Unified':base/'uiflow/m5stack/components/M5Unified/M5Unified','M5GFX':base/'uiflow/m5stack/components/M5Unified/M5GFX','esp-adf':base/'uiflow/esp-adf','esp32-camera':base/'uiflow/m5stack/components/esp32-camera'}
+source=[]
+for name,path in roots.items():
+ diff=out/(name+'-tracked.diff');diff.write_bytes(git(path,'diff','--binary','HEAD'))
+ status=out/(name+'-status.txt');status.write_bytes(git(path,'status','--porcelain'))
+ source.append({'name':name,'path':str(path.relative_to(base)),'head':git(path,'rev-parse','HEAD').decode().strip(),'tracked_diff':row(diff),'status':row(status)})
+for name in ('uiflow','idf'):
+ path=out/(name+'-submodules.txt');path.write_bytes(git(base/name,'submodule','status','--recursive'))
+freeze=subprocess.run([str(base/'idf-python-env/bin/python'),'-m','pip','freeze','--all'],check=True,timeout=30,capture_output=True).stdout
+(out/'idf-python-freeze.txt').write_bytes(freeze)
+freeze=subprocess.run([str(base/'host-env/bin/python'),'-m','pip','freeze','--all'],check=True,timeout=30,capture_output=True).stdout
+(out/'host-python-freeze.txt').write_bytes(freeze)
+provenance=[]
+for path in (base/'uiflow/m5stack/dependencies.lock',base/'idf-tools/espidf.constraints.v5.5.txt',base/'idf/tools/tools.json',base/'uiflow/m5stack/build-M5STACK_CoreS3/sdkconfig',base/'uiflow/m5stack/build-M5STACK_CoreS3/compile_commands.json'):
+ dest=out/path.name;dest.write_bytes(path.read_bytes());provenance.append({'original_path':str(path.relative_to(base)),**row(dest)})
+artifacts=[]
+build=base/'uiflow/m5stack/build-M5STACK_CoreS3'
+paths=list(build.glob('*.bin'))+list(build.glob('*.uf2'))+[build/'micropython.elf',build/'micropython.map',build/'bootloader/bootloader.bin',build/'partition_table/partition-table.bin']
+for path in paths:
+ if path.exists():artifacts.append(row(path))
+tools=[]
+for path in (base/'idf-tools/dist').glob('*'):
+ if path.is_file():tools.append(row(path))
+for path in (base/'host-tools/bin').glob('*'):
+ if path.is_file():tools.append(row(path))
+for path in (base/'uiflow/micropython/mpy-cross/build/mpy-cross',base/'uiflow/tools/littlefs/prebuilt/littlefs2'):
+ tools.append(row(path))
+# Inspect only owned stage PIDs, with no cross-thread process changes.
+active=[];stages=[]
+for path in sorted((base/'logs').glob('*.json')):
+ r=json.loads(path.read_text());stages.append(r)
+ if r.get('state')!='finished' and r.get('pid'):
+  try:os.kill(r['pid'],0);active.append({'stage':r['name'],'pid':r['pid']})
+  except ProcessLookupError:pass
+receipt={'schema_version':1,'generated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'classification':'LOCAL_BUILD_PASS_NOT_GUEST_ADMITTED','target':'CoreS3','uiflow_commit':'3a86d8f611b3639cca755a933e01a5a829771ef1','micropython_commit':'78ff170de9e32c79db6e64d3e33d2bd60002bdcd','idf_commit':'735507283d5b2f9fb363a1901172dbd9e847945d','idf_version':'v5.5.4','source':source,'provenance_files':provenance,'artifacts':artifacts,'tools':tools,'stages':stages,'active_owned_stages':active,'config_proof':'cores3-loader-macro-proof.json','external_cache_boundary':{'observed_implementation':'idf-component-manager2.5.2 on macOS defaults to user Library/Caches/Espressif/ComponentManager and ignores XDG_CACHE_HOME','first_build_cache':'MAY_HAVE_WRITTEN_OUTSIDE_OWNED_ROOT','sdk_tools_python_sources':'ALL_IN_OWNED_ROOT','future_stage_override':'IDF_COMPONENT_CACHE_PATH=<owned>/cache/components','external_cache_deleted_or_moved':False},'guest_runtime':'NOT RUN','hardware':'NOT RUN','reference_cache_modified':False,'published':False,'binary_repository_commit':'NOT COMMITTED','compatibility':'official source with local board override-main flags and resolved dependency lock; not stock-reference compatibility evidence'}
+(base/'build-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'classification':receipt['classification'],'artifacts':len(artifacts),'tool_files':len(tools),'source_roots':len(source),'active_owned_stages':active,'merged_image':next(x for x in artifacts if x['path'].endswith('/uiflow-3a86d8f.bin'))},indent=2))

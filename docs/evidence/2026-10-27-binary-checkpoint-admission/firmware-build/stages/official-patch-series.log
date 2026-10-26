@@ -1,0 +1,213 @@
+Cleaning patch state in <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/cmodules/lv_binding_micropython ...
+No series file found
+Cleaning patch state in <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/micropython ...
+No series file found
+Cleaning patch state in <WORKTREE>/.work/uiflow-main-loader-build-20261027/idf ...
+No series file found
+Cleaning patch state in <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/components/M5Unified/M5Unified ...
+No patch removed
+Cleaning patch state in <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/esp-adf ...
+No series file found
+Cleaning patch state in <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/components/M5Unified/M5GFX ...
+No patch removed
+Cleaning patch state in <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/components/esp32-camera ...
+No series file found
+Preparing <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/cmodules/lv_binding_micropython ...
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/6000-avoid-lv_bindings-compile-error.patch (stored as patches/6000-avoid-lv_bindings-compile-error.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/6001-avoid-lvgl-font-redefine.patch (stored as patches/6001-avoid-lvgl-font-redefine.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/6002-add-lvgl-usr-font.patch (stored as patches/6002-add-lvgl-usr-font.patch)
+Applying all patches in <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/cmodules/lv_binding_micropython ...
+Applying patch patches/6000-avoid-lv_bindings-compile-error.patch
+patching file driver/include/common.h
+patching file lib/fs_driver.py
+patching file lv_conf.h
+
+Applying patch patches/6001-avoid-lvgl-font-redefine.patch
+patching file lv_conf.h
+
+Applying patch patches/6002-add-lvgl-usr-font.patch
+patching file lv_conf.h
+
+Now at patch patches/6002-add-lvgl-usr-font.patch
+<WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack
+Preparing <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/micropython ...
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/0022-micropython-1.27.0-modtime.patch (stored as patches/0022-micropython-1.27.0-modtime.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/0023-micropython-1.27.0-add-set-default-netif-method.patch (stored as patches/0023-micropython-1.27.0-add-set-default-netif-method.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/0024-micropython-1.27.0-i2c-probe.patch (stored as patches/0024-micropython-1.27.0-i2c-probe.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/0025-micropython-1.27.0-add-uart-mode.patch (stored as patches/0025-micropython-1.27.0-add-uart-mode.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/0026-micropython-1.27.0-add-getsockname.patch (stored as patches/0026-micropython-1.27.0-add-getsockname.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/0027-micropython-1.27.0-fix-mpnimbleport.patch (stored as patches/0027-micropython-1.27.0-fix-mpnimbleport.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/0028-micropython-1.27.0-fix-mpy-cross-clang-on-macos.patch (stored as patches/0028-micropython-1.27.0-fix-mpy-cross-clang-on-macos.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/0029-micropython-1.27.0-select-esp32p4-usb-phy.patch (stored as patches/0029-micropython-1.27.0-select-esp32p4-usb-phy.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/0030-micropython-1.27.0-fix-nimble-dynamic-gatt.patch (stored as patches/0030-micropython-1.27.0-fix-nimble-dynamic-gatt.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/0031-micropython-1.27.0-support-esp32c61.patch (stored as patches/0031-micropython-1.27.0-support-esp32c61.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/0032-micropython-1.27.0-fix-esp-hosted-ble-lifecycle.patch (stored as patches/0032-micropython-1.27.0-fix-esp-hosted-ble-lifecycle.patch)
+Applying all patches in <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/micropython ...
+Applying patch patches/0022-micropython-1.27.0-modtime.patch
+patching file ports/esp32/mpconfigport.h
+patching file extmod/modtime.c
+patching file ports/esp32/modtime.c
+
+Applying patch patches/0023-micropython-1.27.0-add-set-default-netif-method.patch
+patching file ports/esp32/modnetwork.h
+patching file ports/esp32/network_common.c
+
+Applying patch patches/0024-micropython-1.27.0-i2c-probe.patch
+patching file extmod/modmachine.h
+patching file extmod/machine_i2c.c
+
+Applying patch patches/0025-micropython-1.27.0-add-uart-mode.patch
+patching file ports/esp32/machine_uart.c
+
+Applying patch patches/0026-micropython-1.27.0-add-getsockname.patch
+patching file ports/esp32/modsocket.c
+Hunk #1 succeeded at 782 (offset 6 lines).
+Hunk #2 succeeded at 928 (offset 6 lines).
+
+Applying patch patches/0027-micropython-1.27.0-fix-mpnimbleport.patch
+patching file ports/esp32/mpnimbleport.c
+
+Applying patch patches/0028-micropython-1.27.0-fix-mpy-cross-clang-on-macos.patch
+patching file mpy-cross/Makefile
+
+Applying patch patches/0029-micropython-1.27.0-select-esp32p4-usb-phy.patch
+patching file ports/esp32/usb.c
+Hunk #1 succeeded at 45 (offset 1 line).
+
+Applying patch patches/0030-micropython-1.27.0-fix-nimble-dynamic-gatt.patch
+patching file extmod/nimble/modbluetooth_nimble.c
+Hunk #1 succeeded at 584 with fuzz 2.
+
+Applying patch patches/0031-micropython-1.27.0-support-esp32c61.patch
+patching file ports/esp32/machine_adc.c
+patching file ports/esp32/machine_pin.c
+patching file ports/esp32/machine_pin.h
+patching file ports/esp32/modmachine.c
+patching file ports/esp32/mpconfigport.h
+
+Applying patch patches/0032-micropython-1.27.0-fix-esp-hosted-ble-lifecycle.patch
+patching file extmod/nimble/modbluetooth_nimble.c
+patching file ports/esp32/mpnimbleport.c
+
+Now at patch patches/0032-micropython-1.27.0-fix-esp-hosted-ble-lifecycle.patch
+<WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack
+Preparing <WORKTREE>/.work/uiflow-main-loader-build-20261027/idf ...
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/1005-idf_v5.5_freertos.patch (stored as patches/1005-idf_v5.5_freertos.patch)
+Applying all patches in <WORKTREE>/.work/uiflow-main-loader-build-20261027/idf ...
+Applying patch patches/1005-idf_v5.5_freertos.patch
+patching file components/freertos/esp_additions/freertos_tasks_c_additions.h
+patching file components/fatfs/CMakeLists.txt
+
+Now at patch patches/1005-idf_v5.5_freertos.patch
+<WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack
+Preparing <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/components/M5Unified/M5Unified ...
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/2006-Support-LTR553.patch (stored as patches/2006-Support-LTR553.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/2007-Support-UnitC6L.patch (stored as patches/2007-Support-UnitC6L.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/2009-fix-SoftI2C.patch (stored as patches/2009-fix-SoftI2C.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/2010-Support-Nesso-N1.patch (stored as patches/2010-Support-Nesso-N1.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/2019-fix-touch-sensor.patch (stored as patches/2019-fix-touch-sensor.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/2021-Fix-Tab5-charge-status-detection.patch (stored as patches/2021-Fix-Tab5-charge-status-detection.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/2023-Add-CoreMatrix-PWM-speaker-support.patch (stored as patches/2023-Add-CoreMatrix-PWM-speaker-support.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/2024-Add-ToughC5-PWM-speaker-support.patch (stored as patches/2024-Add-ToughC5-PWM-speaker-support.patch)
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/2026-Enable-StampS3Bat-camera-power.patch (stored as patches/2026-Enable-StampS3Bat-camera-power.patch)
+Applying all patches in <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/components/M5Unified/M5Unified ...
+Applying patch patches/2006-Support-LTR553.patch
+patching file src/M5Unified.cpp
+Hunk #1 succeeded at 2579 (offset 670 lines).
+Hunk #2 succeeded at 3336 (offset 834 lines).
+patching file src/M5Unified.hpp
+Hunk #1 succeeded at 65 (offset 2 lines).
+Hunk #2 succeeded at 148 (offset 3 lines).
+Hunk #3 succeeded at 238 (offset 14 lines).
+patching file src/utility/LTR553_Class.cpp
+patching file src/utility/LTR553_Class.hpp
+
+Applying patch patches/2007-Support-UnitC6L.patch
+patching file src/M5Unified.cpp
+Hunk #1 succeeded at 115 with fuzz 2 (offset 21 lines).
+Hunk #2 succeeded at 161 with fuzz 2 (offset 38 lines).
+Hunk #3 succeeded at 2135 (offset 752 lines).
+Hunk #4 succeeded at 3487 (offset 1141 lines).
+patching file src/utility/IOExpander_Base.hpp
+Hunk #1 succeeded at 7 with fuzz 2.
+Hunk #2 succeeded at 13 with fuzz 2.
+Hunk #3 succeeded at 32 (offset -1 lines).
+patching file src/utility/PI4IOE5V6408_Class.hpp
+patching file src/utility/SoftI2C_Class.cpp
+patching file src/utility/SoftI2C_Class.hpp
+
+Applying patch patches/2009-fix-SoftI2C.patch
+patching file src/utility/IOExpander_Base.hpp
+patching file src/utility/PI4IOE5V6408_Class.hpp
+patching file src/utility/SoftI2C_Class.hpp
+patching file src/M5Unified.cpp
+Hunk #1 succeeded at 2135 (offset 752 lines).
+patching file src/utility/SoftI2C_Class.cpp
+patching file src/utility/I2C_Class.hpp
+
+Applying patch patches/2010-Support-Nesso-N1.patch
+patching file src/M5Unified.cpp
+Hunk #1 succeeded at 2170 (offset 752 lines).
+
+Applying patch patches/2019-fix-touch-sensor.patch
+patching file src/M5Unified.cpp
+Hunk #1 succeeded at 19 with fuzz 2 (offset 9 lines).
+Hunk #2 succeeded at 1319 with fuzz 2 (offset 91 lines).
+
+Applying patch patches/2021-Fix-Tab5-charge-status-detection.patch
+patching file src/utility/Power_Class.cpp
+Hunk #1 succeeded at 156 (offset 17 lines).
+Hunk #2 succeeded at 167 (offset 17 lines).
+Hunk #3 succeeded at 2768 (offset 154 lines).
+
+Applying patch patches/2023-Add-CoreMatrix-PWM-speaker-support.patch
+patching file src/M5Unified.cpp
+Hunk #2 succeeded at 573 (offset 68 lines).
+Hunk #3 succeeded at 2619 (offset 356 lines).
+Hunk #4 succeeded at 2841 (offset 373 lines).
+Hunk #5 succeeded at 3322 (offset 390 lines).
+patching file src/M5Unified.hpp
+Hunk #1 succeeded at 701 (offset 21 lines).
+patching file src/utility/Speaker_Class.cpp
+Hunk #1 succeeded at 1008 (offset 62 lines).
+Hunk #2 succeeded at 1086 (offset 62 lines).
+Hunk #3 succeeded at 1141 (offset 62 lines).
+Hunk #4 succeeded at 1169 (offset 62 lines).
+Hunk #5 succeeded at 1191 (offset 62 lines).
+Hunk #6 succeeded at 1230 (offset 62 lines).
+Hunk #7 succeeded at 1315 (offset 62 lines).
+patching file src/utility/Speaker_Class.hpp
+
+Applying patch patches/2024-Add-ToughC5-PWM-speaker-support.patch
+patching file src/M5Unified.cpp
+Hunk #1 succeeded at 602 (offset 19 lines).
+patching file src/M5Unified.hpp
+Hunk #1 succeeded at 702 (offset 3 lines).
+patching file src/utility/Speaker_Class.cpp
+patching file src/utility/Speaker_Class.hpp
+
+Applying patch patches/2026-Enable-StampS3Bat-camera-power.patch
+patching file src/utility/Power_Class.cpp
+Hunk #1 succeeded at 869 (offset 1 line).
+
+Now at patch patches/2026-Enable-StampS3Bat-camera-power.patch
+<WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack
+Preparing <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/esp-adf ...
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/3003-modify-i2s_stream_idf5.5.patch (stored as patches/3003-modify-i2s_stream_idf5.5.patch)
+Applying all patches in <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/esp-adf ...
+Applying patch patches/3003-modify-i2s_stream_idf5.5.patch
+patching file components/audio_stream/i2s_stream_idf5.c
+
+Now at patch patches/3003-modify-i2s_stream_idf5.5.patch
+<WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack
+No patches required for <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/components/M5Unified/M5GFX; skipping.
+Preparing <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/components/esp32-camera ...
+Importing patch <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/patches/5002-Add-software-i2c-support.patch (stored as patches/5002-Add-software-i2c-support.patch)
+Applying all patches in <WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack/components/esp32-camera ...
+Applying patch patches/5002-Add-software-i2c-support.patch
+patching file Kconfig
+patching file driver/sccb.c
+patching file driver/sccb-ng.c
+
+Now at patch patches/5002-Add-software-i2c-support.patch
+<WORKTREE>/.work/uiflow-main-loader-build-20261027/uiflow/m5stack

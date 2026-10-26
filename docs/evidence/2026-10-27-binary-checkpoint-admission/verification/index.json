@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "files": [
+    {
+      "path": "binary-checkpoint-targeted-20261027.log",
+      "source_path": ".work/binary-checkpoint-targeted-20261027.log",
+      "original_bytes": 1757,
+      "original_sha256": "efc3cae96ee01b725d28c8067206cf2ae3cccd386d1d6b2dc1a91869298dd2d0",
+      "bytes": 1692,
+      "sha256": "df0db91ace4e2b71301ceaab8b69f90a775596ee6983bd0c1a26d1e47540630c",
+      "path_redacted": true
+    },
+    {
+      "path": "binary-checkpoint-targeted-r2-20261027.log",
+      "source_path": ".work/binary-checkpoint-targeted-r2-20261027.log",
+      "original_bytes": 219,
+      "original_sha256": "b77bcf09fde35bfca26831430a9bc98dc10ed5dad70ac924b60a309fc9b247ae",
+      "bytes": 219,
+      "sha256": "b77bcf09fde35bfca26831430a9bc98dc10ed5dad70ac924b60a309fc9b247ae",
+      "path_redacted": false
+    },
+    {
+      "path": "binary-checkpoint-legacy-records-20261027.json",
+      "source_path": ".work/binary-checkpoint-legacy-records-20261027.json",
+      "original_bytes": 969,
+      "original_sha256": "9e98b61c9505e4c5a342b05561fe3e8e67f565b48884afc072e24da70403b3c7",
+      "bytes": 969,
+      "sha256": "9e98b61c9505e4c5a342b05561fe3e8e67f565b48884afc072e24da70403b3c7",
+      "path_redacted": false
+    }
+  ],
+  "targeted_first": {
+    "tests": 118,
+    "fail": 1,
+    "cause": "old compiled-entrypoint rejection assertion; main.mpy with missing selected file is now invalid_package400"
+  },
+  "targeted_final": {
+    "tests": 118,
+    "result": "PASS"
+  },
+  "legacy_schema": {
+    "cases": 3,
+    "result": "PASS",
+    "baseline": "6c1c333b",
+    "byte_identity_and_mtime": true
+  }
+}

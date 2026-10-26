@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.43.0
+  version: 1.44.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -472,12 +472,15 @@ paths:
     post:
       summary: Store an immutable complete UIFlow package checkpoint without executing it
       description: >
-        Requires explicit source_kind=uiflow2-package, entrypoint=main.py and
+        Requires explicit source_kind=uiflow2-package, entrypoint=main.py or main.mpy and
         the complete files mapping. Uses the existing package canonical hash
         and independent package quota. Equivalent UTF-8/base64 bytes retain the
         same revision_id and original created_at, including duplicate POSTs.
         The HTTP JSON body is limited to 2 MiB. Structural bytecode checks do
-        not establish compatibility with a particular guest. No firmware or
+        not establish compatibility with a particular guest. main.mpy checkpoints
+        preserve original bytes but current session and Preview execution reject
+        them with 409 program_mpy_entrypoint_unsupported before cancelling an
+        active program or allocating a new execution. No firmware or
         session is created and no code is host-executed. Retention GC is not
         implemented; the returned package quota is independent of the source
         revision quota. This uses the service's existing authorization scope,
@@ -3427,7 +3430,10 @@ components:
       minProperties: 1
       maxProperties: 64
       description: >
-        Complete snapshot including root main.py. Canonical relative UTF-8
+        Complete snapshot including the selected root entrypoint. Stored
+        checkpoints allow main.py or main.mpy; current execution accepts only
+        main.py. A main.mpy checkpoint cannot also contain root main.py or a
+        main directory that would shadow the importer. Canonical relative UTF-8
         paths, at most 192 bytes/eight components, without traversal, aliases,
         casefold collisions, path-prefix collisions or boot.py. Individual
         decoded files are limited to 256 KiB; decoded total to 1 MiB.
@@ -3477,7 +3483,7 @@ components:
           enum: [uiflow2-package]
         entrypoint:
           type: string
-          enum: [main.py]
+          enum: [main.py, main.mpy]
         files:
           $ref: "#/components/schemas/ProgramPackageFiles"
     ProgramRevisionEnvelope:
@@ -3501,7 +3507,7 @@ components:
               enum: [uiflow2-package]
             entrypoint:
               type: string
-              enum: [main.py]
+              enum: [main.py, main.mpy]
             total_file_bytes:
               type: integer
               minimum: 0

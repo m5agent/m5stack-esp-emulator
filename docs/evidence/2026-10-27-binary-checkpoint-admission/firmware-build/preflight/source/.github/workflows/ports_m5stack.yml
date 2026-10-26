@@ -1,0 +1,22 @@
+name: m5stack port
+
+on:
+  push: {}
+  pull_request:
+    paths:
+      - '.github/workflows/*.yml'
+      - 'tools/**'
+      - 'micropython/py/**'
+      - 'micropython/extmod/**'
+      - 'micropython/lib/**'
+      - 'micropython/drivers/**'
+      - 'm5stack/**'
+      - "third-party/**"
+  workflow_dispatch: {}
+
+jobs:
+  build-firmware:
+    uses: ./.github/workflows/build-firmware.yml
+    with:
+      upload_artifacts: true
+      upload_release: false

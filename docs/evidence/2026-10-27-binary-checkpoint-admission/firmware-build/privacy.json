@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "classification": "PASS",
+  "checked_files": 124,
+  "utf8": "PASS",
+  "json_parse": "PASS",
+  "binary_payloads": "NONE",
+  "pdf_files": "NONE",
+  "markdown_suffix_policy": "PASS",
+  "known_credential_comparison": "PASS",
+  "secret_values_or_hashes_in_report": false,
+  "hits": [],
+  "numeric_false_positives": [
+    {
+      "file": "source-and-toolchain/espidf.constraints.v5.5.txt",
+      "line": 58,
+      "classification": "PEP440_PACKAGE_VERSION_NOT_ENDPOINT",
+      "package": "gdbgui"
+    },
+    {
+      "file": "source-and-toolchain/espidf.constraints.v5.5.txt",
+      "line": 62,
+      "classification": "PEP440_PACKAGE_VERSION_NOT_ENDPOINT",
+      "package": "pygdbmi"
+    },
+    {
+      "file": "source-and-toolchain/espidf.constraints.v5.5.txt",
+      "line": 62,
+      "classification": "PEP440_PACKAGE_VERSION_NOT_ENDPOINT",
+      "package": "pygdbmi/gdbgui"
+    },
+    {
+      "file": "source-and-toolchain/espidf.constraints.v5.5.txt",
+      "line": 62,
+      "classification": "PEP440_PACKAGE_VERSION_NOT_ENDPOINT",
+      "package": "pygdbmi/gdbgui"
+    },
+    {
+      "file": "source-and-toolchain/espidf.constraints.v5.5.txt",
+      "line": 63,
+      "classification": "PEP440_PACKAGE_VERSION_NOT_ENDPOINT",
+      "package": "pygdbmi"
+    },
+    {
+      "file": "source-and-toolchain/espidf.constraints.v5.5.txt",
+      "line": 69,
+      "classification": "PEP440_PACKAGE_VERSION_NOT_ENDPOINT",
+      "package": "gdbgui"
+    },
+    {
+      "file": "source-and-toolchain/idf-python-freeze.txt",
+      "line": 40,
+      "classification": "PEP440_PACKAGE_VERSION_NOT_ENDPOINT",
+      "package": "pygdbmi"
+    },
+    {
+      "file": "stages/check-idf-environment.log",
+      "line": 69,
+      "classification": "PEP440_PACKAGE_VERSION_NOT_ENDPOINT",
+      "package": "pygdbmi"
+    },
+    {
+      "file": "stages/idf-python-env-r2.log",
+      "line": 105,
+      "classification": "PEP440_PACKAGE_VERSION_NOT_ENDPOINT",
+      "package": "pygdbmi"
+    },
+    {
+      "file": "stages/idf-python-env-r2.log",
+      "line": 106,
+      "classification": "PEP440_PACKAGE_VERSION_NOT_ENDPOINT",
+      "package": "pygdbmi"
+    },
+    {
+      "file": "stages/idf-python-env-r2.log",
+      "line": 181,
+      "classification": "PEP440_PACKAGE_VERSION_NOT_ENDPOINT",
+      "package": "pygdbmi"
+    }
+  ],
+  "numeric_false_positive_reason": "Four-component pygdbmi/gdbgui package versions and version constraints, inspected in exact pip/constraints context; not endpoint addresses.",
+  "mac_scan": "PASS",
+  "private_ipv6_scan": "PASS",
+  "unredacted_user_path_scan": "PASS"
+}

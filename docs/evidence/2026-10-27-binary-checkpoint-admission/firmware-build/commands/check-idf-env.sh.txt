@@ -1,0 +1,9 @@
+#!/bin/bash
+set -euo pipefail
+. "$IDF_PATH/export.sh"
+python --version
+idf.py --version
+xtensa-esp32s3-elf-gcc --version
+cmake --version
+ninja --version
+python -m pip freeze

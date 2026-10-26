@@ -1,0 +1,1384 @@
+===== PAGE 1 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                           1       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+ 
+Flash Current & Flash Timer Programmable                 
+1A Flash LED Driver 
+FEATURES 
+ Flash LED Current up to 1A  Among Full 
+Power Supply Range 
+ 8 Flash LED Current Levels Selectable 
+by 1-wire Interface:  
+100%*IFLASH, 90%*IFLASH……30%*IFLASH 
+ 2 Flash Timeout Levels Selectable by 
+1-wire Interface:  220ms, 1.3s 
+ Ultra low R DSON: 0. 4Ω(1X Mode), 2Ω(2X 
+Mode) 
+ PWM Dimming Control in Torch Mode 
+ Automatic 1X/2X Mode Switchover 
+ Up to 92% Efficiency in Torch Mode 
+ Low 47mV Reference for Low Loss Sensing 
+ Built-In Soft Start Limits Inrush Current 
+ Over-Temperature Protection 
+ Over-Voltage and Short-Circuit Protection  
+ Low Ripple and EMI 
+ Available in 3mm*3mm-10L DFN Package 
+ 
+APPLICATIONS 
+ Mobile Phones 
+ PAD 
+ 
+GENERAL DESCRIPTION 
+The AW3641E is a current-regulated charge pump 
+ideal for powering high brightness LEDs for  
+camera flash applications. The charge pump can 
+be set to regulate two current levels for  FLASH 
+and TORCH modes. 
+The AW3641E in corporates a 1 -wire interface to 
+program the flash LED current at 8 levels and flash 
+timeout at 2 levels. 
+The AW3641E supports PWM dimming to adjust 
+the LED brightness during torch application by 
+simply providing a PWM signal to FLASH pin.  
+The AW3641E features an ultra low R DSON, and 
+automatically switches modes between  1X and 
+2X, not only  ensuring that LED current does not 
+depend on the forward voltage, but also optimizing 
+the efficiency at the whole power supply and load 
+range. 
+The AW3641E also featur es an automatic 
+soft-start mode to limit inrush current, as well as 
+over-temperature, over-voltage and short-circuit 
+protection. 
+The AW3641E  is available in a small 3mm*3mm 
+DFN-10L package and is specified over the -40℃ 
+to +85℃ ambient temperature range. 
+TYPICAL APPLICATION CIRCUIT 
+ENABLE
+TORCH/FLASH
+CIN
+10μF
+CF
+1μF
+COUT
+4.7μF
+RSENSE
+0.22Ω
+RSET
+86.6kΩ
+VIN  VOUT1
+11
+2
+3
+10
+9
+8
+7
+6
+4
+5
+C2
+VIN  
+FLASH
+C1
+EN RSET
+VOUT
+PGND
+FB
+SGND
+AW3641EDNR
+EXPOSED PADRdown
+47kΩ
+ 
+Figure 1   Typical Application Circuit of AW3641E 
+All trademarks are the property of their respective owners.
+awinic Confidential
+===== PAGE 2 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          2       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+PIN CONFIGURATION AND TOP MARK 
+AW3641EDNR MARKING
+3641E-AW3641EDNR
+XXXX-Manufacture Date Code
+3641E
+XXXX
+AW3641EDNR TOP VIEW
+DFN3x3-10L Package
+VIN
+EN
+11
+Exposed 
+Pad
+1
+2
+3
+4
+5
+10
+9
+8
+7
+6
+FLASH
+C2
+C1
+RSET
+FB
+SGND
+PGND
+VOUT
+ 
+Figure 2   Pin Configuration and Top Mark 
+PIN DEFINITION 
+No. NAME DESCRIPTION 
+1 VIN Input voltage for the charge pump. Decouple with 10µ F ceramic capacitor (X5R/X7R) close to the pins of the IC. 
+2 C1 Positive input for the external flying capacitor. Connect a ceramic 1µ F capacitor (X5R/X7R) close to the pins of the IC. 
+3 C2 Negative input for the external flying capacitor. Connect a ceramic 1µ F capacitor (X5R/X7R) close to the pins of the IC. 
+4 FLASH 
+Logic input to toggle operation between FLASH and TORCH mode. In 
+Torch mode, FB is regulated to the internal 47mV reference. In Flash 
+mode, FB reference voltage can be adjusted by changing the resistor from 
+RSET pin to ground. Choose the external current sense resistor (R SENSE) 
+based on desired current in Torch mode and Flash mode 
+5 EN 
+Shutdown control input. Connect to logic high for normal operation, and 
+logic low for shutdown. In FLASH mode, the flash current and timeout 
+period can be adjusted by EN 1-wire pulse control signal. 
+6 RSET 
+Connect a resistor from this pin to ground. When in FLASH mode (FLASH 
+= High), this resistor sets the current regulation point according to the 
+following equation:   VFB=(1.26V/RSET)× 10.2kΩ 
+7 FB Feedback input for the current control loop. Connect directly to the current sense resistor:  ILED=VFB/RSENSE 
+8 SGND Internal ground pin. Control circuitry returns current to this pin. 
+9 PGND Power ground pin. Flying capacitor current returns through this pin.  
+10 VOUT Charge Pump Output Voltage. Decouple with an external X5R/X7R capacitor. A 4.7µ F capacitor is recommended. 
+11 Exposed Pad Exposed Pad must be soldered to the PCB board and connected to GND. 
+awinic Confidential
+===== PAGE 3 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          3       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+FUNCTIONAL BLOCK DIAGRAM 
+VIN
+C1
+C2
+FLASH
+EN
+VOUT
+PGND
+SGND
+FB
+RSET
+1X/2X
+CHARGE
+PUMP
+MODE
+CONTROL
+RSET
+BLOCK
+OSC
+&
+TIMER
+VRSET
+VREF
+  
++ -
+REFERENCE
+AW3641E
+COMP
+47mV
+0
+1
+ 
+Figure 3   Functional Block Diagram 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+awinic Confidential
+===== PAGE 4 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          4       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+TYPICAL APPLICATION CIRCUITS 
+The typical application is shown Figure 4, where IFLASH=675mA，ITORCH=214mA. 
+ENABLE
+TORCH/FLASH
+CIN
+10μF
+CF
+1μF
+COUT
+4.7μF
+RSENSE
+0.22Ω
+RSET
+86.6kΩ
+VIN  VOUT1
+11
+2
+3
+10
+9
+8
+7
+6
+4
+5
+C2
+VIN  
+FLASH
+C1
+EN RSET
+VOUT
+PGND
+FB
+SGND
+AW3641EDNR
+EXPOSED PADRdown
+47kΩ
+ 
+Figure 4   Typical Application of 700mA Flash Current 
+ 
+ 
+The typical application is shown Figure 5, where IFLASH=1.04A，ITORCH=214mA. 
+ENABLE
+TORCH/FLASH
+CIN
+10μF
+CF
+1μF
+COUT
+4.7μF
+RSENSE
+0.22Ω
+RSET
+56kΩ
+VIN  VOUT1
+11
+2
+3
+10
+9
+8
+7
+6
+4
+5
+C2
+VIN  
+FLASH
+C1
+EN RSET
+VOUT
+PGND
+FB
+SGND
+AW3641EDNR
+EXPOSED PADRdown
+47kΩ
+ 
+Figure 5   Typical Application of 1A(NOTE1) Flash Current 
+NOTE1:  The exact flash current is 1.04A due to the typical value RSET=56kΩ and RSENSE=0.22Ω. 
+IFLASH=VFB / RSENSE=(1.26V/RSET )×10.2kΩ / RSENSE=1.04A. 
+ 
+  
+awinic Confidential
+===== PAGE 5 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          5       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+The AW3641E also can be used to drive two f lash LEDs in portable equipment , the schematic is shown in 
+Figure 6. In this application, IFLASH_D1=IFLASH_D2=488mA, ITORCH_D1=ITORCH_D2=100mA. 
+TORCH/FLASH
+CIN
+10μF
+CF
+1μF
+COUT
+4.7μF
+RSENSE
+0.47Ω
+RSET
+56kΩ
+VIN  VOUT1
+2
+3
+10
+9
+8
+7
+6
+RSENSE
+0.47Ω
+D2
+500mA LED
+D1
+500mA LED
+R1 R2
+10kΩ 10kΩ
+4
+5
+C2
+VIN  
+FLASH
+C1
+EN RSET
+VOUT
+PGND
+FB
+SGND
+AW3641EDNR
+EXPOSED PAD
+11
+ENABLE
+Rdown
+47kΩ
+ 
+Figure 6   Two Flash LEDs Application 
+ 
+Notice for Typical Application Circuits: 
+1. CIN, CF, COUT, RSET, RSENSE close to the pins of the IC, and the ground terminal of RSENSE close to the SGND/PGND 
+pins of the IC. 
+ 
+2. Red line is high current path. Consider driving ability, for example，IOUT=700mA，the power path 
+VOUT--LED--RSENSE--GND should be as short and wide as possible, at least 30mil trace is recommended 
+(IOUT=700mA).The power path between Battery and VIN, at least 60mil trace is recommended (IIN=1.4A@2X Mode). 
+ 
+3. For better thermal performance and noise performance, the Exposed Pad, PGND pin and SGND pin should be 
+connected directly to a large area of the PCB ground plane. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+awinic Confidential
+===== PAGE 6 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          6       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+ORDERING INFORMATION 
+Part Number Temperature Package Marking Delivery Form 
+AW3641EDNR -40℃～85℃ DFN 3mm*3mm-10L 3641E 6000 units/ Tape and Reel 
+ 
+AW3641E
+Shipping
+R: Tape & Reel
+Package Type
+DN: DFN
+ 
+ABSOLUTE MAXIMUM RATINGS(NOTE2)  
+PARAMETERS RANGE 
+Voltage at VIN,VOUT -0.3V to 6V 
+Voltage at EN, FLASH −0.3V to the lesser of (VIN+0.3V) w/ 6V max 
+Output Current Pulse(Flash) 1.2A 
+Output Current Continuous(Torch) 0.4A 
+Junction to Ambient Thermal Resistance θJA 57℃/W 
+Ambient Temperature -40℃ to 85℃ 
+Max Junction Temperature TJMAX 150℃ 
+Storage Temperature TSTG -65℃ to 150℃ 
+Lead Soldering Temperature, 10 Seconds 260℃ 
+ESD, All Pins(NOTE3) 
+HBM 8000V 
+CDM 2000V 
+MM 350V 
+Latch-up 
+Testing Standard： 
+JEDEC STANDARD NO.78B DECEMBER 2008 
++IT：+450mA 
+-IT：-450mA 
+ 
+NOTE2:  Stresses beyond those listed under absolute maximum ratings may cause permanent damage to the device. 
+These are stress ratings only, and functional operation of the device at these or any other conditions beyond those 
+indicated under recommended operating conditions is not implied. Exposure to absolute-maximum-rated conditions for 
+extended periods my affect device reliability. 
+NOTE3:  The human body model is a 100-pF capacitor discharged through a 1.5kΩ resistor into each pin. The machine 
+model is a 200-pF capacitor discharged directly into each pin. Testing standard：MIL-STD-883G Method 3015.7. 
+  
+awinic Confidential
+===== PAGE 7 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          7       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+ELECTRICAL CHARACTERISTICS 
+Test Condition: TA = 25℃, VIN = 3.6V, EN = VIN, FLASH =VIN (Unless otherwise specified) 
+PARAMETER TEST CONDITION MIN TYP MAX UNIT 
+SUPPLY VOLTAGE AND CURRENT 
+VIN Input voltage range  2.8  5.5 V 
+ISD Shutdown Current EN=0V  0.1 1 μA 
+IQ Quiescent Current 
+FLASH=0V，ILOAD=100uA  0.4  mA 
+FLASH=VIN，2X Mode  6  mA 
+FOSC Oscillator Frequency  1.4 1.9 2.4 MHz 
+RDSON_2X Charge Pump Equivalent Resistance (2X mode)    2  Ω 
+RDSON_1X Charge Pump Equivalent Resistance (1X mode)   0.4  Ω 
+VFB FB Reference Voltage 
+FLASH=VIN, RSET=86.6kΩ 137 150 160 
+mV 
+FLASH=GND 42 47 52 
+IFB FB Pin Current VFB=0.3V   1 μA 
+VIH EN, FLASH Logic High  1.3   V 
+VIL EN, FLASH Logic Low    0.4 V 
+IEN EN, FLASH Pin Current   5  μA 
+TON VOUT Turn-on Time VIN = 3.6V, FB within 90% of regulation  500  μs 
+TFLASH Flash Timeout Period 
+1-wire pulse rising edge 
+number: 1~8 180 220 310 ms 
+1-wire pulse rising edge 
+number: 9~16 1.05 1.3 1.85 s 
+TSD Thermal Shutdown Temperature   147  ℃ 
+ 
+  
+awinic Confidential
+===== PAGE 8 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          8       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+TYPICAL CHARACTERISTICS 
+Test Condition: CIN=10μF, COUT=4.7μF, CF=1μF (Unless otherwise specified) 
+VEN
+5V/div
+Time(200μs/div)
+Soft Start
+VOUT
+2V/div
+IIN
+0.5A/div
+VIN=4.2V, 1X Mode, Flash, IOUT=500mA
+IIN
+VOUT
+Time(200μs/div)
+2V/div
+0.5A/div
+Soft Start
+VIN=3.6V, 2X Mode, Flash, IOUT=500mA
+VEN
+5V/div
+VEN
+5V/div
+Time(200μs/div)
+Soft Start
+VOUT
+2V/div
+IIN
+0.5A/div
+VIN=4.2V, 1X Mode, Flash, IOUT=700mA
+IOUT
+VOUT
+Time(200μs/div)
+2V/div
+0.5A/div
+Soft Start
+VIN=3.6V, 2X Mode, Flash, IOUT=700mA
+VEN
+5V/div
+VEN
+5V/div
+Time(200μs/div)
+Soft Start
+VOUT
+2V/div
+Time(200μs/div)
+Soft Start
+IIN
+1A/div
+VIN=4.2V, 2X Mode, Flash, IOUT=1A
+VEN
+5V/div
+VOUT
+2V/div
+IIN
+1A/div
+VIN=3.4V, 2X Mode, Flash, IOUT=1A
+ 
+ 
+ 
+awinic Confidential
+===== PAGE 9 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          9       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+Test Condition: CIN=10μF, COUT=4.7μF, CF=1μF (Unless otherwise specified) 
+ 
+Time(50μs/div)
+PWM Dimming for Torch Current
+VIN=4.2V, IFLASH=1A, ITORCH=0.1A, Duty=20%
+PWM
+5V/div
+VOUT
+2V/div
+VFB
+200mV/div
+ILED
+200mA/div
+Time(200ms/div)
+Flash Current Setting by 1-Wire Interface
+VIN=4.2V, IFLASH=1A (Pulse=1)
+IFLASH
+250mA/div
+Pulse= 1 2 3 4 5 6 7 8
+100%*IF LASH
+90%*IF LASH
+80%*IF LASH
+70%*IF LASH
+60%*IFLASH
+50%*IF LASH
+40%*IF LASH
+30%*IF LASH
+Time(50ms/div)
+Flash time 220ms
+VFLASH
+2V/div
+ILED
+500mA/div
+VOUT
+5V/div
+VIN=4.2V, IFLASH=1A
+Time(200ms/div)
+VOUT
+5V/div
+VFLASH
+2V/div
+ILED
+1A/div
+VIN=4.2V, IFLASH=1A
+Flash time 1.3s
+VEN
+5V/div
+Time(200μs/div)
+Soft Start
+VOUT
+1V/div
+IIN
+0.2A/div
+VIN=3.6V, 1X Mode,Torch, IOUT=214mA
+Time(200μs/div)
+Soft Start
+VEN
+5V/div
+VOUT
+1V/div
+IIN
+0.2A/div
+VIN=3.6V, 1X Mode, Torch, IOUT=140mA
+ 
+  
+awinic Confidential
+===== PAGE 10 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          10       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+Test Condition: CIN=10μF, COUT=4.7μF, CF=1μF (Unless otherwise specified) 
+ 
+VFLASH
+5V/div
+Time(50ms/div)
+Torch 1X to Flash 2X
+VOUT
+2V/div
+Time(50ms/div)
+Torch 1X to Flash 1X
+ILED
+1A/div
+VIN=4.2V, IFLASH=500mA, ITORCH=214mA
+VFB
+200mV/div
+VFLASH
+5V/div
+VOUT
+2V/div
+VFB
+100mV/div
+ILED
+500mA/div
+VIN=3.6V, IFLASH=1A, ITORCH=214mA
+Output Ripple Output Ripple
+VOUT
+AC coupled
+20mV/div
+VIN
+AC coupled
+20mV/div
+Time(1μs/div) Time(1μs/div)
+VIN
+AC coupled
+20mV/div
+VIN=4.2V, 1X Mode, Torch, ILED=214mA VIN=4.2V, 1X Mode, Flash, ILED=500mA
+VOUT
+AC coupled
+20mV/div
+Output Ripple
+VIN=3.6V, 2X Mode, Flash, ILED=1A
+VOUT
+AC coupled
+100mV/div
+Time(1μs/div)
+VIN
+AC coupled
+100mV/div
+Output Ripple
+VOUT
+AC coupled
+100mV/div
+Time(1μs/div)
+VIN
+AC coupled
+100mV/div
+VIN=3.6V, 2X Mode, Flash, ILED=500mA
+ 
+  
+awinic Confidential
+===== PAGE 11 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          11       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+Test Condition: CIN=10μF, COUT=4.7μF, CF=1μF (Unless otherwise specified) 
+ 
+Output Current  vs.  Input Voltage
+0
+200
+400
+600
+800
+1000
+1200
+Input Voltage(V)
+Output Current(mA)
+3.0 3.4 3.6 3.8 4.0 4.23.2 4.4
+(1) Torch 100mA, VF=2.93V
+(3) Flash 300mA, VF=3.19V
+(5) Flash 700mA, VF=3.62V (6) Flash 1000mA, VF=3.98V
+(4) Flash 500mA, VF=3.46V 
+(2) Torch 200mA, VF=3.12V
+(1)
+(2)
+(3)
+(5)
+(4)
+(6)
+Battery Current vs. Input Voltage
+400
+800
+1200
+1600
+2000
+Input Voltage(V)
+Battery Current(mA)
+2400
+0 3.0 3.4 3.6 3.8 4.0 4.23.2 4.4
+(1) Torch 100mA, VF=2.93V
+(3) Flash 300mA, VF=3.19V
+(5) Flash 700mA, VF=3.62V (6) Flash 1000mA, VF=3.98V
+(4) Flash 500mA, VF=3.46V 
+(2) Torch 200mA, VF=3.12V
+(1)
+(2)
+(3)
+(5)
+(4)
+(6)
+0
+20
+40
+60
+80
+100
+Input Voltage(V)
+Efficiency  vs.  Input Voltage
+EFficiency(%)
+3.0 3.4 3.6 3.8 4.0 4.23.2 4.4
+(1) Torch 100mA, VF=2.93V
+(3) Flash 300mA, VF=3.19V
+(5) Flash 700mA, VF=3.62V (6) Flash 1000mA, VF=3.98V
+(4) Flash 500mA, VF=3.46V 
+(2) Torch 200mA, VF=3.12V
+(1)
+(2)
+(3)
+(5)
+(4)
+(6)
+ 
+ 
+ 
+  
+awinic Confidential
+===== PAGE 12 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          12       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+DETAILED FUNCTIONAL DESCRIPTION 
+The AW3641E is a charge pump regulator designed to drive  white LEDs supplied by a Li-Ion battery of 2.8V 
+to 4.4V for digital still camera Flash and Torch  applications. The AW3641E is pin selectable to operate in 
+either Flash or Torch mode. Flash mode is usually with a pulse of about 200 to 300 milliseconds to generate a 
+high intensity Flash. Torch can be used continuously at a lower output current than Flash and is often used for 
+several seconds in a digital still camera “movie” mode. 
+ 
+Adaptive Charge Pump  
+The AW3641E also has two operating modes to control the output current: the 1 X mode and 2X mode. After 
+50μs’ delay of the enable pin EN receiving logic high, the Bandgap reference wakes up. Then AW3641E goes 
+through a soft-start mode designed to limit inrush current. The AW3641E starts in the 1X mode firstly, which 
+acts like a linear regulator to control the output current by continuously monitoring the  feedback pin FB. In 1X 
+mode, if the FB pin is  below the reference voltage for more than 8μs, the AW3641E will automatically switch 
+to 2X mode. In 2X mode, if the working condition satisfy VIN > VOUT + IOUT*RDSON_1X + ΔV for more than 32μs, it 
+will switch back to 1X mode, otherwise stay in 2X mode. Wherein ΔV is a fixed hysteresis voltage, RDSON_1X is 
+the equivalent resistance in 1X mode. 
+ 
+Flash Mode 
+Flash mode is activated by pulling the EN and FLASH pin high . And the feedback regulation voltage V FB, 
+which is set by the resistor RSET connected between the RSET pin and SGND pin, equals to  
+VFB = (1.26V/RSET)*10.2kΩ (Flash mode) 
+Where 1.26V is the internal Bandgap reference voltage and 10.2kΩ is an internal resistance used to scale the 
+RSET current. Typically, RSET ranges from 42kΩ to 170kΩ, with VFB corresponding from 306mV to 76mV. Then, 
+the output current IOUT can be calculated for both Flash and Torch modes by the equation: 
+IOUT = VFB / RSENSE 
+For example , in Figure 4, RSENSE=0.22Ω，RSET=86.6kΩ，it’s obtained: 
+VFB = (1.26V/86.6kΩ)*10.2kΩ = 148.4mV 
+IFLASH = 148.4mV/0.22Ω = 675mA  
+Once the RSENSE and RSET is selected, the AW3641E provides 8 flash LED current levels from 100%* IFLASH to 
+30%* IFLASH in 10%* IFLASH steps by 1-wire interface in the EN pin. 
+ 
+Torch Mode 
+Setting the EN pin to logic  high and the FLASH pin to logic low, the AW3641 E will enter Torch mode. The 
+feedback voltage VFB is regulated to be 47mV, which can’t be adjusted by external components. 
+VFB = 47mV (Torch Mode) 
+For example , in Figure 4, RSENSE=0.22Ω，it’s obtained: 
+ITORCH = 47mV/0.22Ω = 214mA  
+awinic Confidential
+===== PAGE 13 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          13       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+Flash Timeout Protection 
+The duration of a single flash is limited automatically to TTIMEOUT, which applies only for Flash mode. This 
+protects the flash LED against thermal damage.  
+The AW3641E also provides 2 flash timeout levels (220ms/1.3s) by 1-wire interface in the EN pin. 
+ 
+1-wire Interface 
+The AW3641E incorporates a 1 -wire interface to program the flash LED current at 8 levels  and flash timeout 
+at 2 levels. 
+The relationship betwe en the number of 1-wire pulse rising edge and flash LED current & flash timeout is 
+shown in Table 1. 
+Table 1  flash LED current & flash timeout adjusting by 1-wire interface 
+Pulse EN Waveform 
+Flash Timeout 
+(TTIMEOUT) 
+Flash LED Current 
+1  
+220ms 
+100%*IFLASH 
+2  90%*IFLASH 
+3  80%*IFLASH 
+4  70%*IFLASH 
+5 ............ 60%*IFLASH 
+6 ............ 50%*IFLASH 
+7 ............ 40%*IFLASH 
+8 ............ 30%*IFLASH 
+9 ............ 
+1.3s 
+100%*IFLASH 
+10 ............ 90%*IFLASH 
+11 ............ 80%*IFLASH 
+12 ............ 70%*IFLASH 
+13 ............ 60%*IFLASH 
+14 ............ 50%*IFLASH 
+15 ............ 40%*IFLASH 
+16 ............ 30%*IFLASH 
+ 
+The 1-wire pulse timing sequence is shown in Figure 7. The duration of logic high (T HI) and logic low (T LO) is 
+recommended between 0.75us to 10us. And shutdown duration TOFF should be longer than 500us. 
+awinic Confidential
+===== PAGE 14 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          14       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+0.75μs≤THI≤10μs
+TOFF≥500μs
+SHUTDOWNEN
+0.75μs≤TLO≤10μs
+NORMAL STATE1 2 3
+ 
+Figure 7   1-wire pulse timing sequence（take 80%*IFLASH/220ms for example） 
+ 
+Flash Current & RDSON 
+For 1X/2X mode charge pump flash LED driver, the maximum drive capacity in 1X mode is: 
+VIN - IOUT*RDSON_1X = VOUT 
+The maximum drive capacity in 2X mode is:  
+2*VIN - IOUT*RDSON_2X = VOUT 
+The output voltage VOUT depends on the flash LED forward voltage V F. However, VF is widely dispersed. For 
+example, for 1A flash  LED, VF varies from minimum 2.95V to maximum 4.35V, whose deviation  
+reaches1.4V. Assuming such condition: the LED driver supplied by  a battery with voltage V IN = 3.6V ，and 
+driving a flash LED with V F=4.35V. It’s estimated that V OUT=VF+VFB≈4.5V. According to the fo rmula of 2X 
+mode charge pump, the equivalent resistance on 2X mode must satisfy: 
+RDSON_2X < (2*VIN - VOUT) / IOUT=(2*3.6V - 4.5V)/1A = 2.7Ω. 
+That means driving the  1A flash LED  with VF = 4.35V, R DSON_2X should not exceed 2.7Ω. The equivalent 
+resistance of AW3641E in is 2X mode RDSON_2X = 2Ω, equivalent resistance in 1X mode is RDSON_1X = 0.35Ω, 
+ensuring 1A output current in the whole battery voltage range, even for the worst VF.  
+When VF < VIN - IOUT*RDSON_1X = 3.6V - 1A*0.35Ω = 3.25V , the AW3641E can work in 1X mode, with higher 
+overall efficiency. 
+ 
+PWM Dimming 
+The AW3641E supports PWM dimming to adjust the LED brightness during Torch application by simply 
+providing a PWM signal to FLASH pin. In this condition, the AW3641E switches between FLASH mode and 
+TORCH mode.  For AW3641 E, the dimming frequency is recommended between 20kHz to 50kHz. The 
+relationship between the output current IOUT and the duty cycle of PWM signal D is written as below:  
+ITORCH_PWM = IFLASH*D + ITORCH*(1-D) 
+In which IFLASH is output current setting for FLASH mode and ITORCH is output current setting for TORCH mode. 
+For example, if ITORCH = 100mA, IFLASH = 700mA and D=20%, the output current increases to: 
+ITORCH_PWM＝700mA*20% + 100mA*(1-20%)=220mA(NOTE4) 
+The PWM dimming sequence is shown in Figure 8. Firstly, setting the EN pin to logic high and the FLASH pin 
+to logic low, the AW3641E will enter Torch mode. After a delay of TDELAY, PWM signal may be applied to the 
+Flash pin, where the TDELAY must be longer than 2ms. 
+ 
+awinic Confidential
+===== PAGE 15 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          15       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+TDELAY≥2ms
+EN
+FLASH
+PWM Dimming signal
+ 
+Figure 8   PWM dimming sequence 
+NOTE4:  The ITORCH_PWM must be less than the LED D C Forward Current which is described in the LED datasheet , and 
+usually Don’t exceed 350mA. 
+ 
+Over-Voltage Protection (OVP) 
+The AW3641E provides over-voltage protection. If the output  voltage rises above the threshold  of 5.5V, the 
+over voltage protection shuts down all the output switches , to prevent the output voltage from rising further. 
+After that, when the output voltage drops below 5.3V, the device resumes normal operation. 
+ 
+Over-Temperature Protection  
+When the temperature of the AW3641E rises above 135℃, the AW3641E begins to reduce the output current, 
+and when the temperature rises above 147 ℃, the over-temperature protection circuitry turns off the output 
+switches to prevent damage to the device. If the temperature drops back down below 1 25℃, the device 
+automatically recovers and executes a soft start cycle. 
+ 
+Short-Circuit Protection  
+When the VOUT pin is shorted to GND, which makes the V OUT falls below to 1V , the device stops switching 
+and operates as a current source limiting the output current to 70mA. 
+  
+awinic Confidential
+===== PAGE 16 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          16       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+APPLICATION INFORMATION 
+Capacitor Selection 
+The AW3641E requires three capacitors . The recommended value: Input Capacitance C IN = 10μF,  output 
+capacitor COUT = 4.7μF, flying capacitor CF = 1μF. 
+Use low-ESR ceramic capacitors with X7R or X5R dielectric. These capacitors allow good filtering and have a 
+wide temperature range. The connections of all external capacitors should be kept as short as possible. 
+Table 2  Recommended Capacitor Value and Size 
+Part Value Withstanding Voltage Size  Vendor  
+CIN 10μF 6.3V 0603 EYANG or Murata 
+COUT 4.7μF 6.3V 0402 EYANG or Murata 
+CF 1μF 5V 0402 EYANG or Murata 
+ 
+Resistor Selection/Current Setting 
+Step1: Select RSENSE 
+The sense resistor RSENSE is determined by the desired output current in Torch mode by the equation:  
+RSENSE = VFB_TORCH / ITORCH 
+Where VFB_TROCH = 47mV (Torch Mode) 
+Step2: Calculate VFB 
+Once the RSENSE resistor has been selected for Torch mode, the feedback voltage in Flash mode VFB_FLASH  is 
+obtained using the following equation: 
+VFB_FLASH = IFLASH*RSENSE (Flash Mode) 
+Where IFLASH is the flash LED current. 
+Step3: Select RSET 
+RSET resistor can be selected for Flash mode using the following equation: 
+RSET = (1.26V/VFB_FLASH)*10.2kΩ  (Flash Mode) 
+For an example of 200mA Torch mode and 800mA Flash mode: 
+1) the values RSENSE = 47mV/200mA = 0.235Ω; 
+2) VFB = 800mA× 0.235Ω = 188mV (Flash Mode); 
+3) RSET = (1.26V/188mV)×10.2kΩ = 68.4kΩ are calculated; 
+The power consumption on RSENSE in the Flash mode would be:  
+PRSENSE_FLASH = VFB_FLASH*IFLASH = 188mV*800mA = 150mW. 
+The normal 0603 surface mount resistor is rated as 0.1 Watt for continuous power and 0.2 Watt for pulsed 
+power, and the normal 0805 surface mount resistor is rated as 0.125 Watt for continuous power and 0.25 Watt 
+for pulsed power, the power 0805 surface mount resistor is rated as 0.25 Watt for continuous power and 0.5 
+Watt for pulsed power. The P RSENSE_FLASH power can be calculated and resistor size  selected accordingly. 
+awinic Confidential
+===== PAGE 17 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          17       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+Considering the power deviation, it is strongly recommended to use the power 0805 surface mount resistor.  
+Referring to the following Table 3 to choose RSENSE size. 
+Table 3  Typical RSENSE Resistor Value and Size 
+Part Resistance Tolerance(+/-) IFLASH(A) PRSENSE(W) Type Size 
+RSENSE 0.22Ω 1% 0.5 0.055 Normal 0603 
+RSENSE 0.22Ω 1% 0.7 0.108 Normal 0805 
+RSENSE 0.22Ω 1% 1.0 0.22 Power 0805 
+RSENSE 0.33Ω 1% 0.5 0.083 Normal 0805 
+RSENSE 0.33Ω 1% 0.7 0.16 Power 0805 
+RSENSE 0.47Ω 1% 0.5 0.12 Normal 0805 
+RSENSE 0.47Ω 1% 0.7 0.23 Power 0805 
+ 
+The range of normal RSET resistor values and sizes are shown here in Table 4. 
+Table 4  RSET Resistor Value and Size 
+Part Resistance Tolerance(+/-) Size Vendor 
+RSET 56kΩ 1% 0402 EYANG or Murata 
+RSET 61kΩ 1% 0402 EYANG or Murata 
+RSET 68kΩ 1% 0402 EYANG or Murata 
+RSET 75kΩ 1% 0402 EYANG or Murata 
+RSET 82kΩ 1% 0402 EYANG or Murata 
+RSET 91kΩ 1% 0402 EYANG or Murata 
+RSET 100kΩ 1% 0402 EYANG or Murata 
+RSET 110kΩ 1% 0402 EYANG or Murata 
+RSET 120kΩ 1% 0402 EYANG or Murata 
+RSET 130kΩ 1% 0402 EYANG or Murata 
+RSET 140kΩ 1% 0402 EYANG or Murata 
+RSET 150kΩ 1% 0402 EYANG or Murata 
+ 
+ 
+ 
+  
+awinic Confidential
+===== PAGE 18 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          18       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+PCB LAYOUT CONSIDERATION 
+To achieve adequate electrical and thermal performance, careful attention must be paid to the PCB layout. In 
+the worst-case operating condition, the chip must dissipate  considerable power at full load. Adequate 
+heat-sinking must be achieved to ensure intended operation. 
+1. The flying capacitor C F should be connected  close to the chip. Trace length should be kept short to  
+minimize path resistance and potential coupling. The  input and output capacitors should also be placed 
+as close to the chip as possible. 
+2. Keep the IC far from FM, RF and PA modules to avoid EMI interference. 
+3. The bottom of the package features an exposed  metal paddle. The exposed paddle acts, thermally, to  
+transfer heat from the chip and, electrically, as a ground connection. 
+ 
+Figure 9   AW3641E PCB Layout Consideration 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+awinic Confidential
+===== PAGE 19 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          19       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+TAPE AND REEL INFORMATION 
+Carrier Tape  
+0.30 ±.05
+R 0.3 MAX
+K0
+A0
+B0 =   3.30  
+A0 =   3.30
+K0 =   1.10  
+SECTION  A - A
+2.00 ±.05 SEE NOTE3
+4.00 SEE NOTE1
+Φ 1.5 +0.1/-0.0
+8.00
+Φ 1.50 MIN
+1.75 ±.10
+5.50 ±.05
+SEE NOTE 3
+12.0 ±.3
+0.25
+R.25
+A
+A
+B0
+NOTES:
+1.  10 SPROCKET HOLE CLIMULATIVE TOLERANCE ±0.2
+2.  CAMBER IN CMPLIANCE WITH EIA 481
+3.  POCKET POSITION RELATIVE TO SPROCKET HOLE MEASURED 
+     AS TRUE POSITION OF POCKET, NOT OCKET HOLE
+Unit: mm
+ 
+ 
+ 
+ 
+ 
+Pin 1 direction 
+Pin 1
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+awinic Confidential
+===== PAGE 20 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          20       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+Reel 
+ 
+R1  REF
+Φ 330±2
+0.5
+2.4±0.3
+12.4 +2.0-0
+R121  REF
+R127  REF
+SEE DETAIL C
+R159  REF
+6  TYP
+R6  TYP
+R48.00R50.00
+R55  REF
+k
+TX12 - 04 – EC1
+ 30o
+ 30o
+ 30o
+ 30o
+ 30o
+SEE DETAIL C
+NOTES:
+    UNLESS  OTHERWISE  SPECIFIED
+1.  MATERIAL:  DISSIPATIVE  (BLACK)
+2.  FLANGE  WARPAGE:  3  MM  MAXIMUM
+3.  ALL  DIMENSIONS  ARE  IN  MM
+4.  ESD  –  SURFACE  RESISTIVITY
+      –  105  TO  1011   OHMS/SQ  
+5.  GENERAL  TOLERANCE:     –X.X=±0.4 ,   –X.XX=±0.20
+6.  TOTAL  THICKNESS  OF  REEL:    18.4  MAX
+7.  PART  NO:   TX12–04-EC1
+ 
+ 
+  
+awinic Confidential
+===== PAGE 21 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          21       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+PACKAGE DESCRIPTION 
+3.000±0.100
+3.000±0.100
+10L DFN
+(3×3 mm)
+0.250±0.050
+0.500±0.100
+0.400±0.050
+1.650±0.100 
+Exp.DAP
+Top View Bottom View
+LASER MARK
+PIN 1    I.D.
+PIN #1 IDENTIFICATION 
+R 0.200 Ref
+2.400±0.100 
+Exp.DAP
+0.200 Ref.
+A
+0.000~0.050
+Side View
+A
+MAX
+NOM
+MIN
+DFN
+0.800
+0.750
+0.700
+unit : mm
+0.275±0.100
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+awinic Confidential
+===== PAGE 22 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          22       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+REFLOW 
+ 
+ 
+Figure 22 Package Reflow Oven Thermal Profile 
+ 
+Reflow Note spec 
+Average ramp-up rate (217℃ to Peak) Max. 3℃/sec 
+Time of Preheat temp.(from 150℃ to 200℃) 60-120sec 
+Time to be maintained above 217℃  60-150sec 
+Peak Temperature >260℃ 
+Time within 5℃ of actual peak temp 20-40sec. 
+Ramp-down rate  Max. 6℃/sec 
+Time from 25℃ to peak temp  Max. 8min. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+awinic Confidential
+===== PAGE 23 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          23       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+REVISION HISTORY 
+Vision Date Change Record 
+V0.9 Mar 2014 AW3641EDNR Datasheet Preliminary 
+V1.0 Oct 2014 AW3641EDNR Datasheet Released 
+V1.1 Feb 2015 Add PWM dimming sequence description  (Page14-15) 
+V1.2 Aug 2015 Add recommended land pattern (Page21) 
+V1.3 Mar 2019 Modify diagrams in typical characteristics (Page9-10) 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+awinic Confidential
+===== PAGE 24 =====
+ 
+ 
+ 
+ 
+  
+AW3641E 
+Feb 2019 V1.3 
+ 
+www.awinic.com.cn                          24       Copyright © 2014~2015 SHANGHAI AWINIC TECHNOLOGY CO., LTD 
+ 
+DISCLAIMER 
+Information in this document is believed to be accurate and reliable. However, Shanghai AWINIC Technology 
+Co., Ltd (AWINIC Technology) does not give any representations or warranties, expressed or implied, as to 
+the accuracy or completeness of such information and shall have no liability for the consequences of use of 
+such information. 
+AWINIC Technology reserves the right to make changes to information published in this document, including 
+without limitation specifications and product descriptions, at any time and without notice. Customers shall 
+obtain the latest relevant information before placing orders and shall verify that such information is current and 
+complete. This document supersedes and replaces all information supplied prior to the publication hereof. 
+AWINIC Technology products are not designed, authorized or warranted to be suitable for use in medical, 
+military, aircraft, space or life support equipment, nor in applications where failure or malfunction of an 
+AWINIC Technology product can reasonably be expected to result in personal injury, death or severe property 
+or environmental damage. AWINIC Technology accepts no liability for inclusion and/or use of AWINIC 
+Technology products in such equipment or applications and therefore such inclusion and/or use is at the 
+customer’s own risk. 
+Applications that are described herein for any of these products are for illustrative purposes only. AWINIC 
+Technology makes no representation or warranty that such applications will be suitable for the specified use 
+without further testing or modification. 
+All products are sold subject to the general terms and conditions of commercial sale supplied at the time of 
+order acknowledgement. 
+Nothing in this document may be interpreted or construed as an offer to sell products that is open for 
+acceptance or the grant, conveyance or implication of any license under any copyrights, patents or other 
+industrial or intellectual property rights. 
+Reproduction of AWINIC information in AWINIC data books or data sheets is permissible only if reproduction 
+is without alteration and is accompanied by all associated warranties, conditions, limitations, and notices. 
+AWINIC is not responsible or liable for such altered documentation. Information of third parties may be subject 
+to additional restrictions. 
+Resale of AWINIC components or services with statements different from or beyond the parameters stated by 
+AWINIC for that component or service voids all express and any implied warranties for the associated 
+AWINIC component or service and is an unfair and deceptive business practice. AWINIC is not responsible or 
+liable for any such statements. 
+awinic Confidential

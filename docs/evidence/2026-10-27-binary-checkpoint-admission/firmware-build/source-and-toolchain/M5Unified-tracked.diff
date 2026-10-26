@@ -1,0 +1,983 @@
+diff --git a/src/M5Unified.cpp b/src/M5Unified.cpp
+index e44dd99..ab40f69 100644
+--- a/src/M5Unified.cpp
++++ b/src/M5Unified.cpp
+@@ -7,6 +7,8 @@
+ #include "utility/PI4IOE5V6408_Class.hpp"
+ #include "utility/M5IOE1_Class.hpp"
+ 
++#include <math.h>
++
+ #if !defined (M5UNIFIED_PC_BUILD)
+ #include <soc/soc.h>
+ #include <soc/efuse_reg.h>
+@@ -19,12 +21,25 @@
+ #include <esp_chip_info.h>
+ #endif
+ 
+-#if !defined (CONFIG_IDF_TARGET) || defined (CONFIG_IDF_TARGET_ESP32)
+- #if __has_include (<driver/touch_sens.h>)
+- #include <driver/touch_sens.h>
+- #elif __has_include (<driver/touch_sensor.h>)
+- #include <driver/touch_sensor.h>
+- #endif
++#if SOC_TOUCH_SENSOR_SUPPORTED
++#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 3, 0)
++#if SOC_TOUCH_VERSION_1
++#define SOC_TOUCH_SENSOR_VERSION (1)
++#elif SOC_TOUCH_VERSION_2
++#define SOC_TOUCH_SENSOR_VERSION (2)
++#endif
++#endif
++
++#if SOC_TOUCH_SENSOR_VERSION == 1 // ESP32 only
++#include "driver/touch_pad.h"
++#elif SOC_TOUCH_SENSOR_VERSION == 2 // most ESP32
++#include "driver/touch_sensor.h"
++#elif SOC_TOUCH_SENSOR_VERSION == 3 // At present, it can only be used on ESP32P4.
++#include "driver/touch_sens.h"
++#include "soc/touch_sensor_channel.h"
++#else
++#error "Unknown touch hardware version"
++#endif
+ #endif
+ 
+ #if __has_include (<driver/i2s_type.h>)
+@@ -115,7 +130,7 @@ static constexpr const uint8_t _pin_table_i2c_ex_in[][5] = {
+ #elif defined (CONFIG_IDF_TARGET_ESP32C3)
+ { board_t::board_unknown      , 255        ,255         , GPIO_NUM_0 ,GPIO_NUM_1  },
+ #elif defined (CONFIG_IDF_TARGET_ESP32C6)
+-{ board_t::board_M5UnitC6L     ,GPIO_NUM_8 ,GPIO_NUM_10 , 255        ,255         },
++{ board_t::board_M5UnitC6L     , 255       , 255        , 255        ,255         },
+ { board_t::board_ArduinoNessoN1,GPIO_NUM_8 ,GPIO_NUM_10 , GPIO_NUM_8 ,GPIO_NUM_10 },
+ { board_t::board_M5NanoC6     , 255        ,255         , GPIO_NUM_1 ,GPIO_NUM_2  },
+ { board_t::board_unknown      , 255        ,255         , 255        ,255         },
+@@ -161,7 +176,7 @@ static constexpr const uint8_t _pin_table_port_bc[][5] = {
+ { board_t::board_M5ChainCaptain,GPIO_NUM_17,GPIO_NUM_18, 255        ,255         },
+ #elif defined (CONFIG_IDF_TARGET_ESP32C3)
+ #elif defined (CONFIG_IDF_TARGET_ESP32C6)
+-{ board_t::board_M5UnitC6L     ,GPIO_NUM_4 ,GPIO_NUM_5 , GPIO_NUM_4 ,GPIO_NUM_5  },
++{ board_t::board_M5UnitC6L     ,GPIO_NUM_4 ,GPIO_NUM_5 , 255        ,255         },
+ { board_t::board_ArduinoNessoN1,GPIO_NUM_4 ,GPIO_NUM_5 , GPIO_NUM_4 ,GPIO_NUM_5  },
+ #elif defined (CONFIG_IDF_TARGET_ESP32C61)
+ #elif defined (CONFIG_IDF_TARGET_ESP32H2)
+@@ -558,6 +573,59 @@ static constexpr const uint8_t _pin_table_mbus[][31] = {
+     return true;
+   }
+ 
++  void M5Unified::_speaker_tone_cb_corematrix(void* args, float frequency, uint8_t volume)
++  {
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++    auto self = (M5Unified*)args;
++    auto& ioe1 = static_cast<M5IOE1_Class&>(self->getIOExpander(0));
++    if (frequency > 0 && volume)
++    {
++      ioe1.digitalWrite(M5IOE1_Class::gpio2, false);
++      ioe1.setHighImpedance(M5IOE1_Class::gpio2, false);
++      ioe1.setDirection(M5IOE1_Class::gpio2, true);
++      ioe1.setHighImpedance(M5IOE1_Class::gpio11, false);
++      ioe1.setDirection(M5IOE1_Class::gpio11, true);
++      ioe1.setPwmDuty12bit(M5IOE1_Class::pwm_ch3, 0, pwm_polarity_t::normal, false);
++      ioe1.setPwmFrequency(lroundf(frequency));
++      ioe1.setPwmDuty12bit(M5IOE1_Class::pwm_ch3, ((uint16_t)volume * 2048 + 127) / 255);
++      ioe1.digitalWrite(M5IOE1_Class::gpio2, true);
++    }
++    else
++    {
++      ioe1.digitalWrite(M5IOE1_Class::gpio2, false);
++      ioe1.setPwmDuty12bit(M5IOE1_Class::pwm_ch3, 0, pwm_polarity_t::normal, false);
++    }
++#else
++    (void)args;
++    (void)frequency;
++    (void)volume;
++#endif
++  }
++
++  void M5Unified::_speaker_tone_cb_toughc5(void* args, float frequency, uint8_t volume)
++  {
++#if defined (CONFIG_IDF_TARGET_ESP32C5)
++    auto self = (M5Unified*)args;
++    auto& pm1 = self->Power.M5pm1;
++    if (frequency > 0 && volume)
++    {
++      pm1.setGPIOMode(M5PM1_Class::gpio4, M5PM1_Class::output);
++      pm1.setGPIOFunction(M5PM1_Class::gpio4, M5PM1_Class::special);
++      pm1.setPwmDuty12bit(M5PM1_Class::pwm_ch1, 0, pwm_polarity_t::normal, false);
++      pm1.setPwmFrequency(lroundf(frequency));
++      pm1.setPwmDuty12bit(M5PM1_Class::pwm_ch1, ((uint16_t)volume * 2048 + 127) / 255);
++    }
++    else
++    {
++      pm1.setPwmDuty12bit(M5PM1_Class::pwm_ch1, 0, pwm_polarity_t::normal, false);
++    }
++#else
++    (void)args;
++    (void)frequency;
++    (void)volume;
++#endif
++  }
++
+   bool M5Unified::_speaker_enabled_cb_cores3(void* args, bool enabled)
+   {
+     (void)args;
+@@ -1306,7 +1374,7 @@ static constexpr const uint8_t _pin_table_mbus[][31] = {
+   static bool _read_touch_pad(uint32_t* results, const int* channel, const size_t channel_count)
+   {
+     for (size_t i = 0; i < channel_count; ++i) { results[i] = 0; }
+-#if defined ( TOUCH_SENSOR_DEFAULT_FILTER_CONFIG )
++#if SOC_TOUCH_SENSOR_VERSION == 3
+     if (channel_count > TOUCH_TOTAL_CHAN_NUM) { return false; }
+ 
+     /* Step 1: Create a new touch sensor controller handle with default sample configuration */
+@@ -2135,9 +2203,32 @@ static constexpr const uint8_t _pin_table_mbus[][31] = {
+ #elif defined (CONFIG_IDF_TARGET_ESP32C6)
+     case board_t::board_M5UnitC6L:
+       {
+-        auto ioexp = new PI4IOE5V6408_Class(0x43);
++        In_SoftI2C.begin(I2C_NUM_0, 10, 8);
++        auto ioexp = new PI4IOE5V6408_Class(0x43, 400000, &In_SoftI2C);
+         ioexp->begin();
+         _io_expander[0].reset(ioexp);
++        // user button(P0) input pullup 
++        _io_expander[0]->setDirection(0, false);
++        _io_expander[0]->setPullMode(0, IOExpander_Base::pull_up);
++        _io_expander[0]->setHighImpedance(0, false);
++        // sx1262 reset(P7)
++        _io_expander[0]->setDirection(7, true);
++        _io_expander[0]->setPullMode(7, IOExpander_Base::pull_none);
++        _io_expander[0]->setHighImpedance(7, false);
++        _io_expander[0]->digitalWrite(7, false);
++        delay(10);
++        _io_expander[0]->digitalWrite(7, true);
++        delay(10);
++        // LAN EN
++        _io_expander[0]->setDirection(5, true);
++        _io_expander[0]->setPullMode(5, IOExpander_Base::pull_none);
++        _io_expander[0]->setHighImpedance(5, false);
++        _io_expander[0]->digitalWrite(5, true);
++        // SW EN
++        _io_expander[0]->setDirection(6, true);
++        _io_expander[0]->setPullMode(6, IOExpander_Base::pull_none);
++        _io_expander[0]->setHighImpedance(6, false);
++        _io_expander[0]->digitalWrite(6, true);
+       }
+       break;
+     case board_t::board_ArduinoNessoN1:
+@@ -2147,6 +2238,24 @@ static constexpr const uint8_t _pin_table_mbus[][31] = {
+         ioexp->begin();
+         _io_expander[i].reset(ioexp);
+       }
++        // sx1262 reset(P7)
++        _io_expander[0]->setDirection(7, true);
++        _io_expander[0]->setPullMode(7, IOExpander_Base::pull_none);
++        _io_expander[0]->setHighImpedance(7, false);
++        _io_expander[0]->digitalWrite(7, false);
++        delay(10);
++        _io_expander[0]->digitalWrite(7, true);
++        delay(10);
++        // LAN EN
++        _io_expander[0]->setDirection(5, true);
++        _io_expander[0]->setPullMode(5, IOExpander_Base::pull_none);
++        _io_expander[0]->setHighImpedance(5, false);
++        _io_expander[0]->digitalWrite(5, true);
++        // SW EN
++        _io_expander[0]->setDirection(6, true);
++        _io_expander[0]->setPullMode(6, IOExpander_Base::pull_none);
++        _io_expander[0]->setHighImpedance(6, false);
++        _io_expander[0]->digitalWrite(6, true);
+       break;
+ #elif defined (CONFIG_IDF_TARGET_ESP32S3)
+     case board_t::board_M5StampPLC:
+@@ -2534,6 +2643,7 @@ static constexpr const uint8_t _pin_table_mbus[][31] = {
+     auto mic_cfg = Mic.config();
+ 
+     bool(*spk_enable_cb)(void*, bool) = nullptr;
++    void(*spk_tone_cb)(void*, float, uint8_t) = nullptr;
+     auto spk_cfg = Speaker.config();
+ 
+     if (cfg.internal_mic)
+@@ -2579,6 +2689,7 @@ static constexpr const uint8_t _pin_table_mbus[][31] = {
+       case board_t::board_M5StackCoreS3:
+       case board_t::board_M5StackCoreS3SE:
+       case board_t::board_M5StackChan:
++        cfg.internal_als = true;
+         if (cfg.internal_mic)
+         {
+           mic_cfg.magnification = 2;
+@@ -2754,6 +2865,20 @@ static constexpr const uint8_t _pin_table_mbus[][31] = {
+       switch (_board)
+       {
+ #if defined (M5UNIFIED_PC_BUILD)
++#elif defined (CONFIG_IDF_TARGET_ESP32C61)
++      case board_t::board_M5CoreMatrix:
++        if (cfg.internal_spk)
++        {
++          spk_tone_cb = _speaker_tone_cb_corematrix;
++        }
++        break;
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++      case board_t::board_M5ToughC5:
++        if (cfg.internal_spk)
++        {
++          spk_tone_cb = _speaker_tone_cb_toughc5;
++        }
++        break;
+ #elif defined (CONFIG_IDF_TARGET_ESP32C6)
+       case board_t::board_M5UnitC6L:
+       case board_t::board_ArduinoNessoN1:
+@@ -3228,9 +3353,10 @@ static constexpr const uint8_t _pin_table_mbus[][31] = {
+       Mic.setCallback(this, mic_enable_cb);
+       Mic.config(mic_cfg);
+     }
+-    if (spk_cfg.pin_data_out >= 0)
++    if (spk_cfg.pin_data_out >= 0 || spk_tone_cb)
+     {
+       Speaker.setCallback(this, spk_enable_cb);
++      Speaker.setToneCallback(this, spk_tone_cb);
+       Speaker.config(spk_cfg);
+     }
+   }
+@@ -3335,6 +3461,9 @@ static constexpr const uint8_t _pin_table_mbus[][31] = {
+     {
+       port_a_used = M5.Imu.begin(&M5.Ex_I2C) || port_a_used;
+     }
++    if (cfg.internal_als && In_I2C.isEnabled()) {
++      M5.Als.begin();
++    }
+     return port_a_used;
+   }
+ 
+@@ -3460,6 +3589,15 @@ static constexpr const uint8_t _pin_table_mbus[][31] = {
+       btn_rawstate_bits |= (( raw_gpio32_39 >> (GPIO_NUM_37 & 31)) & 1    )  // gpio37 A
+                          | (((raw_gpio32_39 >> (GPIO_NUM_39 & 31)) & 1)<<1); // gpio39 B
+       break;
++    
++    case board_t::board_M5UnitC6L:
++    {
++      use_rawstate_bits = 0b00001;
++      auto exp = static_cast<PI4IOE5V6408_Class*>(_io_expander[0].get());
++      uint8_t value = exp->readRegister8(0x0F);
++      btn_rawstate_bits = (!(value & 0b00001) ? 0b00001 : 0); // BtnA
++      break;
++    }
+ 
+     default:
+       break;
+diff --git a/src/M5Unified.hpp b/src/M5Unified.hpp
+index aa228d8..5763f80 100644
+--- a/src/M5Unified.hpp
++++ b/src/M5Unified.hpp
+@@ -65,6 +65,7 @@ namespace m5
+ #include "utility/Log_Class.hpp"
+ #include "utility/LED_Class.hpp"
+ #include "utility/IMU_Class.hpp"
++#include "utility/LTR553_Class.hpp"
+ #include "utility/IOExpander_Base.hpp"
+ 
+ #include <memory>
+@@ -147,6 +148,9 @@ namespace m5
+       /// use the speaker.
+       bool internal_spk  = true;
+ 
++      /// use als
++      bool internal_als  = false;
++
+       /// use Unit Accel & Gyro.
+       bool external_imu  = false;
+ 
+@@ -234,6 +238,7 @@ namespace m5
+     Power_Class Power;
+     RTC_Class Rtc;
+     Touch_Class Touch;
++    LTR553_Class Als;
+     Speaker_Class Speaker;
+     Mic_Class Mic;
+     LED_Class Led;
+@@ -696,6 +701,8 @@ namespace m5
+     static bool _speaker_enabled_cb_atom_echos3r(void* args, bool enabled);
+     static bool _speaker_enabled_cb_atomic_echo(void* args, bool enabled);
+     static bool _speaker_enabled_cb_hat_spk(void* args, bool enabled);
++    static void _speaker_tone_cb_corematrix(void* args, float frequency, uint8_t volume);
++    static void _speaker_tone_cb_toughc5(void* args, float frequency, uint8_t volume);
+     static bool _microphone_enabled_cb_cores3(void* args, bool enabled);
+     static bool _microphone_enabled_cb_stickc(void* args, bool enabled);
+     static bool _microphone_enabled_cb_sticks3(void* args, bool enabled);
+diff --git a/src/utility/I2C_Class.hpp b/src/utility/I2C_Class.hpp
+index da1302a..16f1119 100644
+--- a/src/utility/I2C_Class.hpp
++++ b/src/utility/I2C_Class.hpp
+@@ -23,56 +23,56 @@ namespace m5
+     /// @param port_num I2C number. (I2C_NUM_0 or I2C_NUM_1).
+     /// @param pin_sda SDA pin number.
+     /// @param pin_scl SCL pin number.
+-    void setPort(i2c_port_t port_num, int pin_sda, int pin_scl);
++  virtual void setPort(i2c_port_t port_num, int pin_sda, int pin_scl);
+ 
+     /// setup and begin I2C peripheral. (No communication is performed.)
+     /// @param port_num I2C number. (I2C_NUM_0 or I2C_NUM_1).
+     /// @param pin_sda SDA pin number.
+     /// @param pin_scl SCL pin number.
+     /// @return success(true) or failed(false).
+-    bool begin(i2c_port_t port_num, int pin_sda, int pin_scl);
++  virtual bool begin(i2c_port_t port_num, int pin_sda, int pin_scl);
+ 
+     /// begin I2C peripheral. (No communication is performed.)
+     /// @return success(true) or failed(false).
+-    bool begin(void);
++  virtual bool begin(void);
+ 
+     /// release I2C peripheral.
+     /// @return success(true) or failed(false).
+-    bool release(void) const;
++  virtual bool release(void) const;
+ 
+     /// Sends the I2C start condition and the address of the slave.
+     /// @param address slave addr.
+     /// @param read bit of read flag. true=read / false=write.
+     /// @return success(true) or failed(false).
+-    bool start(std::uint8_t address, bool read, std::uint32_t freq) const;
++  virtual bool start(std::uint8_t address, bool read, std::uint32_t freq) const;
+ 
+     /// Sends the I2C repeated start condition and the address of the slave.
+     /// @param address slave addr.
+     /// @param read bit of read flag. true=read / false=write.
+     /// @return success(true) or failed(false).
+-    bool restart(std::uint8_t address, bool read, std::uint32_t freq) const;
++  virtual bool restart(std::uint8_t address, bool read, std::uint32_t freq) const;
+ 
+     /// Sends the I2C stop condition.
+     /// If an ACK error occurs, return false.
+     /// @return success(true) or failed(false).
+-    bool stop(void) const;
++  virtual bool stop(void) const;
+ 
+     /// Send 1 byte of data.
+     /// @param data write data.
+     /// @return success(true) or failed(false).
+-    bool write(std::uint8_t data) const;
++  virtual bool write(std::uint8_t data) const;
+ 
+     /// Send multiple bytes of data.
+     /// @param[in] data write data array.
+     /// @param     length data array length.
+     /// @return success(true) or failed(false).
+-    bool write(const std::uint8_t* data, std::size_t length) const;
++  virtual bool write(const std::uint8_t* data, std::size_t length) const;
+ 
+     /// Receive multiple bytes of data.
+     /// @param[out] result read data array.
+     /// @param      length data array length.
+     /// @return success(true) or failed(false).
+-    bool read(std::uint8_t* result, std::size_t length, bool last_nack = false) const;
++  virtual bool read(std::uint8_t* result, std::size_t length, bool last_nack = false) const;
+ 
+     //----------
+ 
+@@ -82,7 +82,7 @@ namespace m5
+     /// @param[in] data write data array.
+     /// @param     length data array length.
+     /// @return success(true) or failed(false).
+-    bool writeRegister(std::uint8_t address, std::uint8_t reg, const std::uint8_t* data, std::size_t length, std::uint32_t freq) const;
++  virtual bool writeRegister(std::uint8_t address, std::uint8_t reg, const std::uint8_t* data, std::size_t length, std::uint32_t freq) const;
+ 
+     /// Read multiple bytes value from the register. Performs a series of communications from START to STOP.
+     /// @param address slave addr.
+@@ -90,34 +90,34 @@ namespace m5
+     /// @param[out] result read data array.
+     /// @param      length data array length.
+     /// @return success(true) or failed(false).
+-    bool readRegister(std::uint8_t address, std::uint8_t reg, std::uint8_t* result, std::size_t length, std::uint32_t freq) const;
++  virtual bool readRegister(std::uint8_t address, std::uint8_t reg, std::uint8_t* result, std::size_t length, std::uint32_t freq) const;
+ 
+     /// Write a 1-byte value to the register. Performs a series of communications from START to STOP.
+     /// @param address slave addr.
+     /// @param reg     register number.
+     /// @param data    write data.
+     /// @return success(true) or failed(false).
+-    bool writeRegister8(std::uint8_t address, std::uint8_t reg, std::uint8_t data, std::uint32_t freq) const;
++  virtual bool writeRegister8(std::uint8_t address, std::uint8_t reg, std::uint8_t data, std::uint32_t freq) const;
+ 
+     /// Read a 1-byte value from the register. Performs a series of communications from START to STOP.
+     /// @param address slave addr.
+     /// @param reg     register number.
+     /// @return read value.
+-    std::uint8_t readRegister8(std::uint8_t address, std::uint8_t reg, std::uint32_t freq) const;
++  virtual std::uint8_t readRegister8(std::uint8_t address, std::uint8_t reg, std::uint32_t freq) const;
+ 
+     /// Write a 1-byte value to the register by bit add operation. Performs a series of communications from START to STOP.
+     /// @param address slave addr.
+     /// @param reg     register number.
+     /// @param data    add bit data.
+     /// @return success(true) or failed(false).
+-    bool bitOn(std::uint8_t address, std::uint8_t reg, std::uint8_t data, std::uint32_t freq) const;
++  virtual bool bitOn(std::uint8_t address, std::uint8_t reg, std::uint8_t data, std::uint32_t freq) const;
+ 
+     /// Write a 1-byte value to the register by bit erase operation. Performs a series of communications from START to STOP.
+     /// @param address slave addr.
+     /// @param reg     register number.
+     /// @param data    erase bit data.
+     /// @return success(true) or failed(false).
+-    bool bitOff(std::uint8_t address, std::uint8_t reg, std::uint8_t data, std::uint32_t freq) const;
++  virtual bool bitOff(std::uint8_t address, std::uint8_t reg, std::uint8_t data, std::uint32_t freq) const;
+ 
+     /// execute I2C scan. (for 7bit address)
+     /// @param[out] result data array needs 120 Bytes.
+diff --git a/src/utility/IOExpander_Base.hpp b/src/utility/IOExpander_Base.hpp
+index 32f901a..aec7887 100644
+--- a/src/utility/IOExpander_Base.hpp
++++ b/src/utility/IOExpander_Base.hpp
+@@ -6,6 +6,9 @@
+ 
+ #include <stdint.h>
+ #include "I2C_Class.hpp"
++#if CONFIG_IDF_TARGET_ESP32C6
++#include "SoftI2C_Class.hpp"
++#endif
+ 
+ namespace m5
+ {
+diff --git a/src/utility/PI4IOE5V6408_Class.hpp b/src/utility/PI4IOE5V6408_Class.hpp
+index 6948022..cc44f93 100644
+--- a/src/utility/PI4IOE5V6408_Class.hpp
++++ b/src/utility/PI4IOE5V6408_Class.hpp
+@@ -15,6 +15,9 @@
+ 
+ #include "IOExpander_Base.hpp"
+ #include "I2C_Class.hpp"
++#if CONFIG_IDF_TARGET_ESP32C6
++#include "SoftI2C_Class.hpp"
++#endif
+ 
+ namespace m5
+ {
+diff --git a/src/utility/Power_Class.cpp b/src/utility/Power_Class.cpp
+index c063f83..a02a627 100644
+--- a/src/utility/Power_Class.cpp
++++ b/src/utility/Power_Class.cpp
+@@ -156,7 +156,7 @@ namespace m5
+         };
+         static constexpr std::uint8_t reg_array_0x44[] =
+         { ///     +--------- CHG_EN
+-          ///     |+-------- CHG_STAT
++          ///     |+-------- CHG_STAT_LED (active low)
+           ///     ||+------- nCHG_QC_EN
+           ///     |||+------ PWROFF_PLUSE
+           ///     ||||+----- USB5V_EN
+@@ -167,8 +167,8 @@ namespace m5
+           0x05, 0b10000001,   // OUT_SET
+           0x03, 0b10110001,   // IO_DIR
+           0x07, 0b00000110,   // OUT_H_IM
+-          0x0D, 0b00001000,   // PULL_SEL
+-          0x0B, 0b00001000,   // PULL_EN
++          0x0D, 0b01001000,   // PULL_SEL (P6/P3 pull-up)
++          0x0B, 0b01001000,   // PULL_EN  (P6/P3 enabled)
+         };
+         M5.getIOExpander(0).writeRegister8Array(reg_array_0x43, sizeof(reg_array_0x43));
+         M5.getIOExpander(1).writeRegister8Array(reg_array_0x44, sizeof(reg_array_0x44));
+@@ -869,6 +869,12 @@ namespace m5
+     if (_pmic == pmic_t::pmic_m5pm1)
+     {
+       M5pm1.begin();
++
++      // StampS3Bat camera power is supplied by the PM1 3.3V DCDC rail.
++      if (M5.getBoard() == board_t::board_M5StampS3Bat)
++      {
++        M5pm1.setDCDCOutput(true);
++      }
+     }
+ #endif
+ 
+@@ -2768,8 +2774,9 @@ namespace m5
+ #if defined (CONFIG_IDF_TARGET_ESP32P4)
+       case board_t::board_M5Tab5:
+       case board_t::board_M5Tab5X:
+-        return M5.getIOExpander(1).digitalRead(6) // io1.gpio6 == CHG_STAT
+-          ? is_charging_t::is_charging : is_charging_t::is_discharging;
++        // P6 is wired to the IP2326 LED output: low while charging, high when idle.
++        return M5.getIOExpander(1).digitalRead(6)
++          ? is_charging_t::is_discharging : is_charging_t::is_charging;
+ #endif
+ #if defined (CONFIG_IDF_TARGET_ESP32C5)
+       case board_t::board_M5ToughC5:
+diff --git a/src/utility/Speaker_Class.cpp b/src/utility/Speaker_Class.cpp
+index a0df266..8d202bd 100644
+--- a/src/utility/Speaker_Class.cpp
++++ b/src/utility/Speaker_Class.cpp
+@@ -1008,6 +1008,108 @@ label_continue_sample:
+ #endif
+   }
+ 
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++  void Speaker_Class::external_tone_task(void* args)
++  {
++    auto self = (Speaker_Class*)args;
++    bool notified = false;
++
++    while (self->_task_running)
++    {
++      if (!notified) { ulTaskNotifyTake(pdTRUE, portMAX_DELAY); }
++      notified = false;
++      if (!self->_task_running) { break; }
++
++      self->_lock_external_tone();
++      const uint32_t generation = self->_external_tone_generation.load(std::memory_order_relaxed);
++      const uint32_t duration_ms = self->_external_tone_duration_ms;
++      const bool playing = self->_play_channel_bits.load() != 0;
++      self->_cb_set_tone(self->_cb_set_tone_args
++                       , playing ? self->_external_tone_frequency : 0
++                       , playing ? self->_external_tone_volume : 0);
++      self->_external_tone_lock.clear(std::memory_order_release);
++
++      if (!playing || duration_ms == UINT32_MAX) { continue; }
++
++      TickType_t wait_ticks = pdMS_TO_TICKS(duration_ms);
++      if (wait_ticks == 0) { wait_ticks = 1; }
++      notified = ulTaskNotifyTake(pdTRUE, wait_ticks) != 0;
++      if (notified) { continue; }
++
++      self->_lock_external_tone();
++      if (generation == self->_external_tone_generation.load(std::memory_order_relaxed))
++      {
++        self->_external_tone_duration_ms = 0;
++        self->_cb_set_tone(self->_cb_set_tone_args, 0, 0);
++        self->_play_channel_bits.store(0, std::memory_order_release);
++      }
++      self->_external_tone_lock.clear(std::memory_order_release);
++    }
++
++    self->_task_handle = nullptr;
++    vTaskDelete(nullptr);
++  }
++
++  void Speaker_Class::_lock_external_tone(void)
++  {
++    while (_external_tone_lock.test_and_set(std::memory_order_acquire))
++    {
++      vTaskDelay(1);
++    }
++  }
++#endif
++
++#if defined (CONFIG_IDF_TARGET_ESP32C5)
++  void Speaker_Class::external_tone_task(void* args)
++  {
++    auto self = (Speaker_Class*)args;
++    bool notified = false;
++
++    while (self->_task_running)
++    {
++      if (!notified) { ulTaskNotifyTake(pdTRUE, portMAX_DELAY); }
++      notified = false;
++      if (!self->_task_running) { break; }
++
++      self->_lock_external_tone();
++      const uint32_t generation = self->_external_tone_generation.load(std::memory_order_relaxed);
++      const uint32_t duration_ms = self->_external_tone_duration_ms;
++      const bool playing = self->_play_channel_bits.load() != 0;
++      self->_cb_set_tone(self->_cb_set_tone_args
++                       , playing ? self->_external_tone_frequency : 0
++                       , playing ? self->_external_tone_volume : 0);
++      self->_external_tone_lock.clear(std::memory_order_release);
++
++      if (!playing || duration_ms == UINT32_MAX) { continue; }
++
++      TickType_t wait_ticks = pdMS_TO_TICKS(duration_ms);
++      if (wait_ticks == 0) { wait_ticks = 1; }
++      notified = ulTaskNotifyTake(pdTRUE, wait_ticks) != 0;
++      if (notified) { continue; }
++
++      self->_lock_external_tone();
++      if (generation == self->_external_tone_generation.load(std::memory_order_relaxed))
++      {
++        self->_external_tone_duration_ms = 0;
++        self->_cb_set_tone(self->_cb_set_tone_args, 0, 0);
++        self->_play_channel_bits.store(0, std::memory_order_release);
++      }
++      self->_external_tone_lock.clear(std::memory_order_release);
++    }
++
++    self->_task_handle = nullptr;
++    vTaskDelete(nullptr);
++  }
++
++  void Speaker_Class::_lock_external_tone(void)
++  {
++    while (_external_tone_lock.test_and_set(std::memory_order_acquire))
++    {
++      vTaskDelay(1);
++    }
++  }
++#endif
++
+   bool Speaker_Class::begin(void)
+   {
+     if (_begun.load(std::memory_order_acquire)) { return true; }
+@@ -1035,13 +1137,55 @@ label_continue_sample:
+     bool res = true;
+     if (_cb_set_enabled) { res = _cb_set_enabled(_cb_set_enabled_args, true); }
+ 
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++    const bool external_tone = _cb_set_tone != nullptr;
++    res = (external_tone || ESP_OK == _setup_i2s()) && res;
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++    const bool external_tone = _cb_set_tone != nullptr;
++    res = (external_tone || ESP_OK == _setup_i2s()) && res;
++#else
+     res = (ESP_OK == _setup_i2s()) && res;
++#endif
+     if (res)
+     {
+       _task_running = true;
+ #if defined (SDL_h_)
+       _task_handle = SDL_CreateThread(reinterpret_cast<SDL_ThreadFunction>(spk_task), "spk_task", this);
+       res = (_task_handle != nullptr);
++#elif defined (CONFIG_IDF_TARGET_ESP32C61)
++      _lock_external_tone();
++      _external_tone_stopping = false;
++      size_t stack_size = external_tone ? 2048 : 1280 + (_cfg.dma_buf_len * sizeof(uint32_t));
++      auto task_func = external_tone ? external_tone_task : spk_task;
++
++#if portNUM_PROCESSORS > 1
++      if (_cfg.task_pinned_core < portNUM_PROCESSORS)
++      {
++        res = (pdPASS == xTaskCreatePinnedToCore(task_func, "spk_task", stack_size, this, _cfg.task_priority, &_task_handle, _cfg.task_pinned_core));
++      }
++      else
++#endif
++      {
++        res = (pdPASS == xTaskCreate(task_func, "spk_task", stack_size, this, _cfg.task_priority, &_task_handle));
++      }
++      _external_tone_lock.clear(std::memory_order_release);
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++      _lock_external_tone();
++      _external_tone_stopping = false;
++      size_t stack_size = external_tone ? 2048 : 1280 + (_cfg.dma_buf_len * sizeof(uint32_t));
++      auto task_func = external_tone ? external_tone_task : spk_task;
++
++#if portNUM_PROCESSORS > 1
++      if (_cfg.task_pinned_core < portNUM_PROCESSORS)
++      {
++        res = (pdPASS == xTaskCreatePinnedToCore(task_func, "spk_task", stack_size, this, _cfg.task_priority, &_task_handle, _cfg.task_pinned_core));
++      }
++      else
++#endif
++      {
++        res = (pdPASS == xTaskCreate(task_func, "spk_task", stack_size, this, _cfg.task_priority, &_task_handle));
++      }
++      _external_tone_lock.clear(std::memory_order_release);
+ #else
+       size_t stack_size = 1280 + (_cfg.dma_buf_len * sizeof(uint32_t));
+ 
+@@ -1068,6 +1212,23 @@ label_continue_sample:
+ 
+   void Speaker_Class::end(void)
+   {
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++    if (_cb_set_tone)
++    {
++      _lock_external_tone();
++      _external_tone_stopping = true;
++      _external_tone_generation.fetch_add(1, std::memory_order_relaxed);
++      _external_tone_lock.clear(std::memory_order_release);
++    }
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++    if (_cb_set_tone)
++    {
++      _lock_external_tone();
++      _external_tone_stopping = true;
++      _external_tone_generation.fetch_add(1, std::memory_order_relaxed);
++      _external_tone_lock.clear(std::memory_order_release);
++    }
++#endif
+     _begun.store(false, std::memory_order_release);
+     if (_cb_set_enabled) { _cb_set_enabled(_cb_set_enabled_args, false); }
+     if (_task_running)
+@@ -1087,6 +1248,27 @@ label_continue_sample:
+ #endif
+       }
+     }
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++    if (_cb_set_tone)
++    {
++      _lock_external_tone();
++      _external_tone_generation.fetch_add(1, std::memory_order_relaxed);
++      _external_tone_duration_ms = 0;
++      _cb_set_tone(_cb_set_tone_args, 0, 0);
++      _play_channel_bits.store(0, std::memory_order_release);
++      _external_tone_lock.clear(std::memory_order_release);
++    }
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++    if (_cb_set_tone)
++    {
++      _lock_external_tone();
++      _external_tone_generation.fetch_add(1, std::memory_order_relaxed);
++      _external_tone_duration_ms = 0;
++      _cb_set_tone(_cb_set_tone_args, 0, 0);
++      _play_channel_bits.store(0, std::memory_order_release);
++      _external_tone_lock.clear(std::memory_order_release);
++    }
++#endif
+     _play_channel_bits.store(0);
+     for (size_t ch = 0; ch < sound_channel_max; ++ch)
+     {
+@@ -1098,12 +1280,53 @@ label_continue_sample:
+       chinfo->current.clear();
+     }
+ #if !defined (SDL_h_)
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++    if (_cb_set_tone == nullptr) { _i2s_driver_uninstall(_cfg.i2s_port); }
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++    if (_cb_set_tone == nullptr) { _i2s_driver_uninstall(_cfg.i2s_port); }
++#else
+     _i2s_driver_uninstall(_cfg.i2s_port);
++#endif
+ #endif
+   }
+ 
+   void Speaker_Class::stop(void)
+   {
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++    if (_cb_set_tone)
++    {
++      _lock_external_tone();
++      if (_external_tone_stopping || _task_handle == nullptr)
++      {
++        _external_tone_lock.clear(std::memory_order_release);
++        return;
++      }
++      _external_tone_generation.fetch_add(1, std::memory_order_relaxed);
++      _external_tone_duration_ms = 0;
++      _cb_set_tone(_cb_set_tone_args, 0, 0);
++      _play_channel_bits.store(0, std::memory_order_release);
++      xTaskNotifyGive(_task_handle);
++      _external_tone_lock.clear(std::memory_order_release);
++      return;
++    }
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++    if (_cb_set_tone)
++    {
++      _lock_external_tone();
++      if (_external_tone_stopping || _task_handle == nullptr)
++      {
++        _external_tone_lock.clear(std::memory_order_release);
++        return;
++      }
++      _external_tone_generation.fetch_add(1, std::memory_order_relaxed);
++      _external_tone_duration_ms = 0;
++      _cb_set_tone(_cb_set_tone_args, 0, 0);
++      _play_channel_bits.store(0, std::memory_order_release);
++      xTaskNotifyGive(_task_handle);
++      _external_tone_lock.clear(std::memory_order_release);
++      return;
++    }
++#endif
+     wav_info_t tmp;
+     tmp.stop_current = 1;
+     uint8_t bits = _play_channel_bits.load();
+@@ -1115,6 +1338,19 @@ label_continue_sample:
+ 
+   void Speaker_Class::stop(uint8_t ch)
+   {
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++    if (_cb_set_tone)
++    {
++      if (ch >= sound_channel_max || (_play_channel_bits.load() & (1 << ch))) { stop(); }
++      return;
++    }
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++    if (_cb_set_tone)
++    {
++      if (ch >= sound_channel_max || (_play_channel_bits.load() & (1 << ch))) { stop(); }
++      return;
++    }
++#endif
+     if ((size_t)ch >= sound_channel_max)
+     {
+       stop();
+@@ -1193,6 +1429,88 @@ label_continue_sample:
+ 
+   bool Speaker_Class::_play_raw(const void* data, size_t array_len, bool flg_16bit, bool flg_signed, float sample_rate, bool flg_stereo, uint32_t repeat_count, int channel, bool stop_current_sound, bool no_clear_index)
+   {
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++    if (_cb_set_tone)
++    {
++      if (!no_clear_index) { return false; }
++      if (!begin() || (_task_handle == nullptr)) { return false; }
++      if (array_len == 0 || data == nullptr) { return true; }
++      size_t ch = (size_t)channel;
++      if (ch >= sound_channel_max) { ch = 0; }
++
++      _lock_external_tone();
++      if (_external_tone_stopping || _task_handle == nullptr)
++      {
++        _external_tone_lock.clear(std::memory_order_release);
++        return false;
++      }
++      if (_play_channel_bits.load() && !stop_current_sound)
++      {
++        _external_tone_lock.clear(std::memory_order_release);
++        return false;
++      }
++
++      const size_t sample_count = array_len >> flg_stereo;
++      const float frequency = sample_count ? sample_rate / sample_count : 0;
++      if (!(frequency > 0) || frequency > UINT16_MAX)
++      {
++        _external_tone_lock.clear(std::memory_order_release);
++        return false;
++      }
++
++      _external_tone_frequency = lroundf(frequency);
++      _external_tone_volume = ((uint16_t)_master_volume * _ch_info[ch].volume) / 255;
++      _external_tone_duration_ms = repeat_count == UINT32_MAX
++                                 ? UINT32_MAX
++                                 : std::max<uint32_t>(1, lroundf(std::max<uint32_t>(1, repeat_count) * 1000.0f / frequency));
++      _external_tone_generation.fetch_add(1, std::memory_order_relaxed);
++      _play_channel_bits.store(1 << ch);
++      xTaskNotifyGive(_task_handle);
++      _external_tone_lock.clear(std::memory_order_release);
++      return true;
++    }
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++    if (_cb_set_tone)
++    {
++      if (!no_clear_index) { return false; }
++      if (!begin() || (_task_handle == nullptr)) { return false; }
++      if (array_len == 0 || data == nullptr) { return true; }
++      size_t ch = (size_t)channel;
++      if (ch >= sound_channel_max) { ch = 0; }
++
++      _lock_external_tone();
++      if (_external_tone_stopping || _task_handle == nullptr)
++      {
++        _external_tone_lock.clear(std::memory_order_release);
++        return false;
++      }
++      if (_play_channel_bits.load() && !stop_current_sound)
++      {
++        _external_tone_lock.clear(std::memory_order_release);
++        return false;
++      }
++
++      const size_t sample_count = array_len >> flg_stereo;
++      const float frequency = sample_count ? sample_rate / sample_count : 0;
++      if (!(frequency > 0) || frequency > UINT16_MAX)
++      {
++        _external_tone_lock.clear(std::memory_order_release);
++        return false;
++      }
++
++      _external_tone_frequency = lroundf(frequency);
++      _external_tone_volume = ((uint16_t)_master_volume * _ch_info[ch].volume) / 255;
++      _external_tone_duration_ms = repeat_count == UINT32_MAX
++                                 ? UINT32_MAX
++                                 : std::max<uint32_t>(1, lroundf(std::max<uint32_t>(1, repeat_count) * 1000.0f / frequency));
++      _external_tone_generation.fetch_add(1, std::memory_order_relaxed);
++      _play_channel_bits.store(1 << ch);
++      xTaskNotifyGive(_task_handle);
++      _external_tone_lock.clear(std::memory_order_release);
++      return true;
++    }
++#endif
++
+     if (!begin() || (_task_handle == nullptr)) { return true; }
+     if (array_len == 0 || data == nullptr) { return true; }
+     size_t ch = (size_t)channel;
+diff --git a/src/utility/Speaker_Class.hpp b/src/utility/Speaker_Class.hpp
+index f24ea2f..01fcbb2 100644
+--- a/src/utility/Speaker_Class.hpp
++++ b/src/utility/Speaker_Class.hpp
+@@ -97,7 +97,13 @@ namespace m5
+     bool isEnabled(void) const
+     {
+ #if defined (ESP_PLATFORM)
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++      return _cfg.pin_data_out >= 0 || _cb_set_tone != nullptr;
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++      return _cfg.pin_data_out >= 0 || _cb_set_tone != nullptr;
++#else
+       return _cfg.pin_data_out >= 0;
++#endif
+ #else
+       return true;
+ #endif
+@@ -110,7 +116,16 @@ namespace m5
+     /// now in playing or not.
+     /// @param channel virtual channel number. (0~7), (default = automatically selected)
+     /// @return 0=not playing / 1=playing (There's room in the queue) / 2=playing (There's no room in the queue.)
+-    size_t isPlaying(uint8_t channel) const volatile { return (channel < sound_channel_max) ? _slot_occupied(_ch_info[channel].wavinfo[0]) + _slot_occupied(_ch_info[channel].wavinfo[1]) : 0; }
++    size_t isPlaying(uint8_t channel) const volatile
++    {
++      if (channel >= sound_channel_max) { return 0; }
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++      if (_cb_set_tone) { return (_play_channel_bits.load() >> channel) & 1; }
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++      if (_cb_set_tone) { return (_play_channel_bits.load() >> channel) & 1; }
++#endif
++      return _slot_occupied(_ch_info[channel].wavinfo[0]) + _slot_occupied(_ch_info[channel].wavinfo[1]);
++    }
+ 
+     /// Get the number of channels that are playing.
+     /// @return number of channels that are playing.
+@@ -240,6 +255,15 @@ namespace m5
+     static const uint8_t _default_tone_wav[16];
+ 
+     void setCallback(void* args, bool(*func)(void*, bool)) { _cb_set_enabled = func; _cb_set_enabled_args = args; }
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++    // A board-provided PWM tone backend. It supports tone(), but not PCM playback.
++    void setToneCallback(void* args, void(*func)(void*, float, uint8_t)) { _cb_set_tone = func; _cb_set_tone_args = args; }
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++    // A board-provided PWM tone backend. It supports tone(), but not PCM playback.
++    void setToneCallback(void* args, void(*func)(void*, float, uint8_t)) { _cb_set_tone = func; _cb_set_tone_args = args; }
++#else
++    void setToneCallback(void*, void(*)(void*, float, uint8_t)) {}
++#endif
+ 
+     struct wav_info_t
+     {
+@@ -306,8 +330,18 @@ namespace m5
+     channel_info_t _ch_info[sound_channel_max];
+ 
+     static void spk_task(void* args);
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++    static void external_tone_task(void* args);
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++    static void external_tone_task(void* args);
++#endif
+ 
+     esp_err_t _setup_i2s(void);
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++    void _lock_external_tone(void);
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++    void _lock_external_tone(void);
++#endif
+     bool _play_raw(const void* wav, size_t array_len, bool flg_16bit, bool flg_signed, float sample_rate, bool flg_stereo, uint32_t repeat_count, int channel, bool stop_current_sound, bool no_clear_index);
+     bool _set_next_wav(size_t ch, const wav_info_t& wav);
+ 
+@@ -316,6 +350,25 @@ namespace m5
+ 
+     bool (*_cb_set_enabled)(void* args, bool enabled) = nullptr;
+     void* _cb_set_enabled_args = nullptr;
++#if defined (CONFIG_IDF_TARGET_ESP32C61)
++    void (*_cb_set_tone)(void* args, float frequency, uint8_t volume) = nullptr;
++    void* _cb_set_tone_args = nullptr;
++    std::atomic_flag _external_tone_lock = ATOMIC_FLAG_INIT;
++    std::atomic<uint32_t> _external_tone_generation { 0 };
++    uint32_t _external_tone_frequency = 0;
++    uint32_t _external_tone_duration_ms = 0;
++    uint8_t _external_tone_volume = 0;
++    bool _external_tone_stopping = true;
++#elif defined (CONFIG_IDF_TARGET_ESP32C5)
++    void (*_cb_set_tone)(void* args, float frequency, uint8_t volume) = nullptr;
++    void* _cb_set_tone_args = nullptr;
++    std::atomic_flag _external_tone_lock = ATOMIC_FLAG_INIT;
++    std::atomic<uint32_t> _external_tone_generation { 0 };
++    uint32_t _external_tone_frequency = 0;
++    uint32_t _external_tone_duration_ms = 0;
++    uint8_t _external_tone_volume = 0;
++    bool _external_tone_stopping = true;
++#endif
+ 
+     volatile bool _task_running = false;
+     std::atomic<uint16_t> _play_channel_bits = { 0 };

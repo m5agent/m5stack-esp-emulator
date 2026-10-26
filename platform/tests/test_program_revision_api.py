@@ -129,6 +129,38 @@ class ProgramRevisionApiTests(_PackageFixture):
         self.assertEqual(status, 200)
         self.assertEqual(body["program"]["revision_id"], first["revision_id"])
 
+    def test_binary_checkpoint_roundtrips_but_run_rejection_preserves_active_program(self):
+        self.execute.return_value = {"state": "running", "acknowledged": True}
+        status, body, _ = self.run_request({"source": "while True: pass", "expected_execution_id": None})
+        self.assertEqual(status, 200)
+        old_id = body["program"]["execution_id"]
+        original = self.target.program_path.read_bytes()
+        payload = self.checkpoint(entrypoint="main.mpy", files={"main.mpy": _binary(HELPER)})
+        status, body, _ = self.request("POST", "/api/v1/program-revisions", payload=payload)
+        self.assertEqual(status, 201)
+        revision = body["revision"]
+        self.assertEqual(revision["entrypoint"], "main.mpy")
+        status, body, _ = self.request("GET", "/api/v1/program-revisions/" + revision["revision_id"] + "/files")
+        self.assertEqual(status, 200)
+        self.assertEqual(body["files"], payload["files"])
+        count = len(list(self.api.program_packages.root.glob("*.json")))
+        for command in (self.reference(revision, old_id),
+                        {**payload, "expected_execution_id": old_id}):
+            status, body, _ = self.run_request(command)
+            self.assertEqual((status, body["error"]["code"]), (409, "program_mpy_entrypoint_unsupported"))
+            self.assertEqual(self.target.program_path.read_bytes(), original)
+            self.assertEqual(len(list(self.api.program_packages.root.glob("*.json"))), count)
+            self.assertEqual(len(list((self.target.dir / "programs").glob("*.json"))), 1)
+        # A distinct inline payload must also fail before creating a revision.
+        payload["files"]["extra.txt"] = _binary(b"must not consume a slot")
+        status, body, _ = self.run_request({**payload, "expected_execution_id": old_id})
+        self.assertEqual((status, body["error"]["code"]), (409, "program_mpy_entrypoint_unsupported"))
+        self.assertEqual(len(list(self.api.program_packages.root.glob("*.json"))), count)
+        self.assertEqual(self.target.program_path.read_bytes(), original)
+        self.deploy.assert_not_called()
+        self.assertEqual(self.execute.call_count, 1)
+        self.assertFalse(self.target._program_lock.locked())
+
     def test_complete_file_read_preserves_binary_unicode_and_immutable_identity(self):
         payload = self.checkpoint()
         payload["files"]["assets/标记.dat"] = _binary(bytes(range(256)))
@@ -247,7 +279,8 @@ class ProgramRevisionApiTests(_PackageFixture):
         invalid += [({**good, "owner": "another"}, 400, "invalid_program_revision"),
                     ({**good, "source": "pass"}, 400, "invalid_program_revision"),
                     ({**good, "source_kind": "uiflow2-python"}, 409, "unsupported_program_source_kind"),
-                    ({**good, "entrypoint": "main.mpy"}, 409, "unsupported_program_entrypoint"),
+                    ({**good, "entrypoint": "other.mpy"}, 409, "unsupported_program_entrypoint"),
+                    ({**good, "entrypoint": "main.mpy"}, 400, "invalid_program_package"),
                     ({**good, "files": {"main.py": _binary(b"\xff")}}, 400, "invalid_program_package_source"),
                     ({**good, "files": {"main.py": {"encoding": "utf8", "data": "pass"}, "boot.py": _binary(b"pass")}}, 409, "reserved_program_package_path")]
         for payload, expected_status, code in invalid:

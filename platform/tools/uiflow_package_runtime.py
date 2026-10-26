@@ -88,12 +88,22 @@ def _verify_inventory(files, snapshot):
 
 def deploy_package(console, files, metadata, *, timeout, cancelled, on_synchronized=None,
                    on_progress=None):
-    """Verify, publish and activate one immutable package; do not start main.py.
+    """Verify, publish and activate one immutable package; do not start its entrypoint.
 
     A failed upload leaves only its unique staging directory. No partial package
     becomes the working directory. Quota exhaustion is explicit; old packages
     may still be referenced by native callbacks, so they are never auto-deleted.
     """
+    if metadata.get("entrypoint", "main.py") == "main.mpy":
+        # The currently admitted firmware has neither official override-main
+        # import nor a load-then-execute API. Ordinary import would skip the
+        # if-main guard and use an incorrect application module identity.
+        # A future capability admission must be tied to built firmware and
+        # same-guest evidence before this guard can be replaced.
+        raise UIFlowRuntimeError(
+            "program_mpy_entrypoint_unsupported",
+            "main.mpy requires an admitted firmware with a verified run-as-main loader",
+        )
     def progress(phase, **values):
         if on_progress is not None:
             on_progress({"phase": phase, **values})

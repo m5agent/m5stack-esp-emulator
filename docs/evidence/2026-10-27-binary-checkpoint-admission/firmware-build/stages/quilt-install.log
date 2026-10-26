@@ -1,0 +1,29 @@
+/usr/bin/install -c -d <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/bin
+/usr/bin/install -c -m 755 bin/quilt bin/guards <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/bin/
+/usr/bin/install -c -d <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/quilt
+/usr/bin/install -c -m 755 quilt/add quilt/annotate quilt/applied quilt/delete quilt/diff quilt/edit quilt/files quilt/fold quilt/fork quilt/graph quilt/grep quilt/header quilt/import quilt/mail quilt/new quilt/next quilt/patches quilt/pop quilt/previous quilt/push quilt/refresh quilt/remove quilt/rename quilt/revert quilt/series quilt/setup quilt/snapshot quilt/top quilt/unapplied quilt/upgrade <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/quilt/
+/usr/bin/install -c -d <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/quilt/scripts
+/usr/bin/install -c -m 755 quilt/scripts/inspect-wrapper quilt/scripts/dependency-graph quilt/scripts/edmail quilt/scripts/remove-trailing-ws quilt/scripts/backup-files		\
+		   <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/quilt/scripts
+/usr/bin/install -c -m 644 quilt/scripts/patchfns quilt/scripts/utilfns	\
+		   <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/quilt/scripts
+/usr/bin/install -c -d <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/doc/quilt/
+/usr/bin/install -c -m 644 doc/README					\
+		   <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/doc/quilt/
+/usr/bin/install -c -m 644 doc/quilt.pdf doc/README.MAIL			\
+		   <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/doc/quilt/
+/usr/bin/install -c -d <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/man/man1
+/usr/bin/install -c -m 644 doc/quilt.1 doc/guards.1 <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/man/man1/
+/usr/bin/install -c -d <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/etc
+/usr/bin/install -c -d <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/etc/bash_completion.d
+/usr/bin/install -c -m 644 bash_completion				\
+		   <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/etc/bash_completion.d/quilt
+/usr/bin/install -c -m 644 quilt.quiltrc <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/etc/
+/usr/bin/install -c -d <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/emacs/site-lisp/
+/usr/bin/install -c -m 644 lib/quilt.el <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/emacs/site-lisp/
+rm -rf <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/quilt/compat
+/usr/bin/install -c -d <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/quilt/compat
+/usr/bin/install -c -m 755 compat/date compat/getopt			\
+		   <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/quilt/compat
+ln -sf /usr/sbin/sendmail	\
+	       <WORKTREE>/.work/uiflow-main-loader-build-20261027/host-tools/share/quilt/compat/sendmail

@@ -1,0 +1,615 @@
+{
+  "category": "final-r2-cohort",
+  "status": "PASS",
+  "hosts": [
+    {
+      "device_id": "cores3",
+      "path": "cores3/index.json",
+      "status": "PASS",
+      "files": 400,
+      "bytes": 1423111
+    },
+    {
+      "device_id": "atoms3r",
+      "path": "atoms3r/index.json",
+      "status": "PASS",
+      "files": 390,
+      "bytes": 1359276
+    },
+    {
+      "device_id": "sticks3",
+      "path": "sticks3/index.json",
+      "status": "PASS",
+      "files": 388,
+      "bytes": 1346663
+    },
+    {
+      "device_id": "stopwatch",
+      "path": "stopwatch/index.json",
+      "status": "PASS",
+      "files": 386,
+      "bytes": 1360170
+    }
+  ],
+  "totals": {
+    "hosts": 4,
+    "lanes": 8,
+    "Device_Service_ZIPs": 8,
+    "source_runs": 16,
+    "rejections": 12,
+    "observations": 36,
+    "raw_http_responses": 1368,
+    "lane_http_responses": 1356,
+    "root_http_responses": 12
+  },
+  "independent_audits": [
+    {
+      "device_id": "cores3",
+      "lane": "session",
+      "status": "PASS",
+      "session_id": "729ecec1a5664e8696bcd706a0e0b70b",
+      "pid": 36446,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+      "nonce": "ed8b54444363475f99903046cf1fe809",
+      "run_ids": [
+        {
+          "phase": "A",
+          "execution_id": "527e0fb1cf0d45b0b5b640d72cd29820",
+          "revision_id": "987f554c7667db8b8aef448395acdc689dba8acc54160d28f4dd5f95462253de",
+          "run_id": null
+        },
+        {
+          "phase": "B",
+          "execution_id": "7db23a4ec4d747cf845cdd3a3a2db0c6",
+          "revision_id": "b4d27e56b380c0fc29717017c3874fcb5e2f22a1168cfc1df13fa0c9c4b4fc1d",
+          "run_id": null
+        }
+      ],
+      "source_runs": 2,
+      "rejections": 2,
+      "observations": 5,
+      "raw_http_responses": 176,
+      "evidence_zip_sha256": "a171a79d7d1f6d4428f7c249e33efc2d7408ec3b277f8b9a4fe7dcbb3739067d",
+      "evidence_zip_members": 19,
+      "history_exact_sha256": "5414638e92337cff821e3110cc8633712a39503b4b504221e01a57d4bc399b09",
+      "inline_nonpublication_checks": [
+        {
+          "computed_revision_id": "f89bb32b17c488a6379c87a406047c126e272b9d85b9c1219cf0cb47f399d6eb",
+          "post_run_store_present": false,
+          "evidence": "independent current immutable-store check; no GC is advertised; not a second mid-request observer"
+        }
+      ],
+      "checks": {
+        "raw_http_hashes": "PASS",
+        "immutable_checkpoint_original_bytes": "PASS",
+        "public_program_unchanged_on_409": "PASS",
+        "preview_generation_unchanged_on_409": "N/A",
+        "same_vm_nonce_source_and_UART": "PASS",
+        "serial_QOM_selected_frame_pixels": "PASS",
+        "ZIP_CRC_and_member_hashes": "PASS",
+        "Flash_PID_owned_lease_and_history": "PASS"
+      },
+      "durable_equality_scope": "runner captured before hashes and asserted equality after reject; independent audit validates raw REST and unique inline identity absent post-run, not a second concurrent disk observer",
+      "atomicity": "serial, QOM and frame are sequential observations with held input; no atomic cross-channel snapshot claim",
+      "binary_executed": false,
+      "browser": "NOT RUN",
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "cores3",
+      "lane": "preview",
+      "status": "PASS",
+      "session_id": "dd962413ab3e44b3998eb2b6d4380193",
+      "pid": 37407,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "runtime_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+      "nonce": "31542dbd635441e083d05cb71aa33499",
+      "run_ids": [
+        {
+          "phase": "A",
+          "execution_id": "3fd057afa5074923a42788e4101a70d2",
+          "revision_id": "439555fb2788667af4d263b62ab11ba933b22945eec54d4b04ccdf3226a978cd",
+          "run_id": "570d1ed7947d463f8ff976bce8085310"
+        },
+        {
+          "phase": "B",
+          "execution_id": "304b59c02f8b4c2599d32cb33d1a1aad",
+          "revision_id": "32bda0782da9834d868c073ccda1481265006c6d013648322a646d72fdfe340a",
+          "run_id": "d9f457c04b334c1dacd3a0acb57d868f"
+        }
+      ],
+      "source_runs": 2,
+      "rejections": 1,
+      "observations": 4,
+      "raw_http_responses": 172,
+      "evidence_zip_sha256": "197bf21ba15a16c128cf4bc28615d79835d1bbaf43d4a8a34af37a53a68d5270",
+      "evidence_zip_members": 19,
+      "history_exact_sha256": "5414638e92337cff821e3110cc8633712a39503b4b504221e01a57d4bc399b09",
+      "inline_nonpublication_checks": [],
+      "checks": {
+        "raw_http_hashes": "PASS",
+        "immutable_checkpoint_original_bytes": "PASS",
+        "public_program_unchanged_on_409": "PASS",
+        "preview_generation_unchanged_on_409": "PASS",
+        "same_vm_nonce_source_and_UART": "PASS",
+        "serial_QOM_selected_frame_pixels": "PASS",
+        "ZIP_CRC_and_member_hashes": "PASS",
+        "Flash_PID_owned_lease_and_history": "PASS"
+      },
+      "durable_equality_scope": "runner captured before hashes and asserted equality after reject; independent audit validates raw REST and unique inline identity absent post-run, not a second concurrent disk observer",
+      "atomicity": "serial, QOM and frame are sequential observations with held input; no atomic cross-channel snapshot claim",
+      "binary_executed": false,
+      "browser": "NOT RUN",
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "lane": "session",
+      "status": "PASS",
+      "session_id": "bcdfc40a771943cd89778e747c412bc6",
+      "pid": 38712,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "runtime_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+      "nonce": "1437145df1bb406b9cc91cf4f6473cfd",
+      "run_ids": [
+        {
+          "phase": "A",
+          "execution_id": "a5bfbee160f441c4bf3dd6077dd3b6a2",
+          "revision_id": "ec82252efb4b86612821124fb395cee4b7111b576f8826326a27013224c8f01d",
+          "run_id": null
+        },
+        {
+          "phase": "B",
+          "execution_id": "670285154dd64e7e9982a8c2db10f404",
+          "revision_id": "12e34412ec0a5c4922c197ad64585ed1503a9ccd25cfc5bfc12dbef8ed7e021d",
+          "run_id": null
+        }
+      ],
+      "source_runs": 2,
+      "rejections": 2,
+      "observations": 5,
+      "raw_http_responses": 172,
+      "evidence_zip_sha256": "50ab4e984d9c91cfab4afaf7927501cc14a11623dbdb42d97cb38f5183fc0153",
+      "evidence_zip_members": 19,
+      "history_exact_sha256": "5b7207ac5427dd0795a3ef6746154e5ab5ec9bc3332f82739062233c4fc93356",
+      "inline_nonpublication_checks": [
+        {
+          "computed_revision_id": "4f38038b6ccd6d3fc5874a5833908075eea32bf7e05fd725b7772b3da28a4352",
+          "post_run_store_present": false,
+          "evidence": "independent current immutable-store check; no GC is advertised; not a second mid-request observer"
+        }
+      ],
+      "checks": {
+        "raw_http_hashes": "PASS",
+        "immutable_checkpoint_original_bytes": "PASS",
+        "public_program_unchanged_on_409": "PASS",
+        "preview_generation_unchanged_on_409": "N/A",
+        "same_vm_nonce_source_and_UART": "PASS",
+        "serial_QOM_selected_frame_pixels": "PASS",
+        "ZIP_CRC_and_member_hashes": "PASS",
+        "Flash_PID_owned_lease_and_history": "PASS"
+      },
+      "durable_equality_scope": "runner captured before hashes and asserted equality after reject; independent audit validates raw REST and unique inline identity absent post-run, not a second concurrent disk observer",
+      "atomicity": "serial, QOM and frame are sequential observations with held input; no atomic cross-channel snapshot claim",
+      "binary_executed": false,
+      "browser": "NOT RUN",
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "lane": "preview",
+      "status": "PASS",
+      "session_id": "0571879c242b4d96a24055bdebb2a266",
+      "pid": 39874,
+      "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+      "runtime_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+      "nonce": "0f7200d923754e41a872fcc17bca010b",
+      "run_ids": [
+        {
+          "phase": "A",
+          "execution_id": "891b982fd39b473082b0ae2144fd9a33",
+          "revision_id": "6541658daee8c2f4d676dc6382ae2d28ee8424ff723f453febeff91061866ae7",
+          "run_id": "aacd1d2a2dd64d0389bc30b891135ec7"
+        },
+        {
+          "phase": "B",
+          "execution_id": "e3bcc3094f854cea80ac9232730bd482",
+          "revision_id": "ed1132b6cd3c77455536749b7b2207adb8ddc199beff6184a3c6ab5249587b5b",
+          "run_id": "3ff361fdcdd8423ea46825b81ca908eb"
+        }
+      ],
+      "source_runs": 2,
+      "rejections": 1,
+      "observations": 4,
+      "raw_http_responses": 166,
+      "evidence_zip_sha256": "6a5761430f51daa5eea095df92a841fab58e5ac3bb5bd27168efe56eaf7a5ab9",
+      "evidence_zip_members": 19,
+      "history_exact_sha256": "5b7207ac5427dd0795a3ef6746154e5ab5ec9bc3332f82739062233c4fc93356",
+      "inline_nonpublication_checks": [],
+      "checks": {
+        "raw_http_hashes": "PASS",
+        "immutable_checkpoint_original_bytes": "PASS",
+        "public_program_unchanged_on_409": "PASS",
+        "preview_generation_unchanged_on_409": "PASS",
+        "same_vm_nonce_source_and_UART": "PASS",
+        "serial_QOM_selected_frame_pixels": "PASS",
+        "ZIP_CRC_and_member_hashes": "PASS",
+        "Flash_PID_owned_lease_and_history": "PASS"
+      },
+      "durable_equality_scope": "runner captured before hashes and asserted equality after reject; independent audit validates raw REST and unique inline identity absent post-run, not a second concurrent disk observer",
+      "atomicity": "serial, QOM and frame are sequential observations with held input; no atomic cross-channel snapshot claim",
+      "binary_executed": false,
+      "browser": "NOT RUN",
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "lane": "session",
+      "status": "PASS",
+      "session_id": "c4ad040161804f0594617f6188cfe7cc",
+      "pid": 40079,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "runtime_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+      "nonce": "228091ed8ba042919e92accf60a722d4",
+      "run_ids": [
+        {
+          "phase": "A",
+          "execution_id": "4cc7e6facb2745aa88d20796b60e972b",
+          "revision_id": "d9e00783876c89a4f7e327a71f4ecd1cbcd386bfe130e37def5784671b3de735",
+          "run_id": null
+        },
+        {
+          "phase": "B",
+          "execution_id": "460621e4dc864f98bbf09654a85670e8",
+          "revision_id": "fa10387fc71601dbdb52d1d80634b3f76a4a5eebfe7a719b3fc3dd82bd17e79b",
+          "run_id": null
+        }
+      ],
+      "source_runs": 2,
+      "rejections": 2,
+      "observations": 5,
+      "raw_http_responses": 171,
+      "evidence_zip_sha256": "22aa742fcdf976f354f82b3c9abbd92af50a531cf6ef3c7e431ccb6097ff60f6",
+      "evidence_zip_members": 19,
+      "history_exact_sha256": "b60a2e8e1f83cd8df43d9053542ff3fabb9abfb2c961b4bd9fed6c88533dde2b",
+      "inline_nonpublication_checks": [
+        {
+          "computed_revision_id": "82ba9b71608afd41252fbcc51f491f303f90b2ad50617fb559cbe628e7ec20f0",
+          "post_run_store_present": false,
+          "evidence": "independent current immutable-store check; no GC is advertised; not a second mid-request observer"
+        }
+      ],
+      "checks": {
+        "raw_http_hashes": "PASS",
+        "immutable_checkpoint_original_bytes": "PASS",
+        "public_program_unchanged_on_409": "PASS",
+        "preview_generation_unchanged_on_409": "N/A",
+        "same_vm_nonce_source_and_UART": "PASS",
+        "serial_QOM_selected_frame_pixels": "PASS",
+        "ZIP_CRC_and_member_hashes": "PASS",
+        "Flash_PID_owned_lease_and_history": "PASS"
+      },
+      "durable_equality_scope": "runner captured before hashes and asserted equality after reject; independent audit validates raw REST and unique inline identity absent post-run, not a second concurrent disk observer",
+      "atomicity": "serial, QOM and frame are sequential observations with held input; no atomic cross-channel snapshot claim",
+      "binary_executed": false,
+      "browser": "NOT RUN",
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "lane": "preview",
+      "status": "PASS",
+      "session_id": "442e13daf09148a3b4edec0b414e8b6a",
+      "pid": 40117,
+      "firmware_sha256": "7b0c04bae8ce7bcd3e7f14f87d8336766b251f36c13f40b9b5823e05186236e1",
+      "runtime_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+      "nonce": "2499fb80076248c3b3716829a043472c",
+      "run_ids": [
+        {
+          "phase": "A",
+          "execution_id": "9abce6702c084fa2b7f0d36d2238b7ef",
+          "revision_id": "02f062e2c1fc7fa43e64b25ccce9f3224188dc2f1b8b1c06fd0341b231b88028",
+          "run_id": "3f1927b822014b04a294e983612e6c2f"
+        },
+        {
+          "phase": "B",
+          "execution_id": "86963c8683df4aafbb51a5fa5389247b",
+          "revision_id": "ade054b0da8edd7804a5931a0c56bb96e56caeef0472e96945b1c059cf89b613",
+          "run_id": "6ba24f3a9d1344e496baf62b6b32138b"
+        }
+      ],
+      "source_runs": 2,
+      "rejections": 1,
+      "observations": 4,
+      "raw_http_responses": 165,
+      "evidence_zip_sha256": "607086b7e016130e88ad07c54fca8528ca90e10579747c3fd1606645ec22cd51",
+      "evidence_zip_members": 19,
+      "history_exact_sha256": "b60a2e8e1f83cd8df43d9053542ff3fabb9abfb2c961b4bd9fed6c88533dde2b",
+      "inline_nonpublication_checks": [],
+      "checks": {
+        "raw_http_hashes": "PASS",
+        "immutable_checkpoint_original_bytes": "PASS",
+        "public_program_unchanged_on_409": "PASS",
+        "preview_generation_unchanged_on_409": "PASS",
+        "same_vm_nonce_source_and_UART": "PASS",
+        "serial_QOM_selected_frame_pixels": "PASS",
+        "ZIP_CRC_and_member_hashes": "PASS",
+        "Flash_PID_owned_lease_and_history": "PASS"
+      },
+      "durable_equality_scope": "runner captured before hashes and asserted equality after reject; independent audit validates raw REST and unique inline identity absent post-run, not a second concurrent disk observer",
+      "atomicity": "serial, QOM and frame are sequential observations with held input; no atomic cross-channel snapshot claim",
+      "binary_executed": false,
+      "browser": "NOT RUN",
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "lane": "session",
+      "status": "PASS",
+      "session_id": "ab28c23a968e4b229cd8fab39ca71745",
+      "pid": 34390,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "runtime_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+      "nonce": "bb6ba2309f104f96962c27182174a347",
+      "run_ids": [
+        {
+          "phase": "A",
+          "execution_id": "583f82b0a1d44043b848d00f9ed6655c",
+          "revision_id": "a89224da8de025b0d4897b8c5dcc4a0515f4ed5c2da515b010817d92bcc6f61d",
+          "run_id": null
+        },
+        {
+          "phase": "B",
+          "execution_id": "7582f709bf55429cb4f66f78b9a3dc30",
+          "revision_id": "c08f1df55344a6fa90190abdcfb3cedb8a21768cc558b4ddeead8efac75a8d5e",
+          "run_id": null
+        }
+      ],
+      "source_runs": 2,
+      "rejections": 2,
+      "observations": 5,
+      "raw_http_responses": 168,
+      "evidence_zip_sha256": "0ae64995d071ef826e2adec6c6a77a2fd531555d9a80073a961002337aa00076",
+      "evidence_zip_members": 19,
+      "history_exact_sha256": "3b833e15ef7146aea6d181893f1bfb6017ada064c943b94d9c9e5ab922323936",
+      "inline_nonpublication_checks": [
+        {
+          "computed_revision_id": "92bdf003fe2d9e8a312aacd1be9b2ac1c01307a7cf4fec75d406741f42e891c2",
+          "post_run_store_present": false,
+          "evidence": "independent current immutable-store check; no GC is advertised; not a second mid-request observer"
+        }
+      ],
+      "checks": {
+        "raw_http_hashes": "PASS",
+        "immutable_checkpoint_original_bytes": "PASS",
+        "public_program_unchanged_on_409": "PASS",
+        "preview_generation_unchanged_on_409": "N/A",
+        "same_vm_nonce_source_and_UART": "PASS",
+        "serial_QOM_selected_frame_pixels": "PASS",
+        "ZIP_CRC_and_member_hashes": "PASS",
+        "Flash_PID_owned_lease_and_history": "PASS"
+      },
+      "durable_equality_scope": "runner captured before hashes and asserted equality after reject; independent audit validates raw REST and unique inline identity absent post-run, not a second concurrent disk observer",
+      "atomicity": "serial, QOM and frame are sequential observations with held input; no atomic cross-channel snapshot claim",
+      "binary_executed": false,
+      "browser": "NOT RUN",
+      "hardware": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "lane": "preview",
+      "status": "PASS",
+      "session_id": "86284a504fe34aa3821a2b47f8115f90",
+      "pid": 34638,
+      "firmware_sha256": "2cc6fd6e86e6f91bd10ea9963bd8cc286e3111fa6574fade4adec41eb3141e7f",
+      "runtime_sha256": "850426a786d291ee2e50e7b36f13237873a961667196b98e3e3632885746bf75",
+      "nonce": "2712492f4121496f91381dbb1b8b180c",
+      "run_ids": [
+        {
+          "phase": "A",
+          "execution_id": "93fe6bf9f77d48d2a46462773de00292",
+          "revision_id": "ce12a4f6498461cfc965de177549c7047179d9ecd14d4c0585899a822beefc7b",
+          "run_id": "667312f43d1543f3b2d0c96c6e6b88e1"
+        },
+        {
+          "phase": "B",
+          "execution_id": "494904d8a1c347abb095edda9f8790f8",
+          "revision_id": "4a6294e456c18a4f7dd8fd80f53df625be060c4540cdc0817f3e1e059e41a0b1",
+          "run_id": "b3f771d63af84bdcae886acb16005694"
+        }
+      ],
+      "source_runs": 2,
+      "rejections": 1,
+      "observations": 4,
+      "raw_http_responses": 166,
+      "evidence_zip_sha256": "396927ea0e43f5adb2381915d8827fd37deee31cf6e0f953623b0847cdd3fc06",
+      "evidence_zip_members": 19,
+      "history_exact_sha256": "3b833e15ef7146aea6d181893f1bfb6017ada064c943b94d9c9e5ab922323936",
+      "inline_nonpublication_checks": [],
+      "checks": {
+        "raw_http_hashes": "PASS",
+        "immutable_checkpoint_original_bytes": "PASS",
+        "public_program_unchanged_on_409": "PASS",
+        "preview_generation_unchanged_on_409": "PASS",
+        "same_vm_nonce_source_and_UART": "PASS",
+        "serial_QOM_selected_frame_pixels": "PASS",
+        "ZIP_CRC_and_member_hashes": "PASS",
+        "Flash_PID_owned_lease_and_history": "PASS"
+      },
+      "durable_equality_scope": "runner captured before hashes and asserted equality after reject; independent audit validates raw REST and unique inline identity absent post-run, not a second concurrent disk observer",
+      "atomicity": "serial, QOM and frame are sequential observations with held input; no atomic cross-channel snapshot claim",
+      "binary_executed": false,
+      "browser": "NOT RUN",
+      "hardware": "NOT RUN"
+    }
+  ],
+  "summary": {
+    "path": "final-summary.json",
+    "original_path": ".work/binary-checkpoint-admission-final-summary-20261027.json",
+    "bytes": 1393,
+    "sha256": "e5436d0e9480d932ecc54b926d9574b63ef874e3a0dc2dc45307eb2aa2b521d3",
+    "original_bytes_preserved": true
+  },
+  "source_sha256": {
+    "tests/units/run_binary_checkpoint_admission.py": "209c77a1a444f107b634fb410fffc69b337fea9f7bd78b46f0e2d320335a0372",
+    "tests/units/test_binary_checkpoint_admission.py": "f1acb9d6fb3ea8da5469893b660cb998e5f5c930f8b956c5eaf93cc2e197ec6e",
+    "platform/tools/device_service.py": "ead47e3c8cfc1bbcac22024f381aebcdb08e0fedf20830d788324966c5f7e1dc",
+    "platform/tools/preview_service.py": "df41ee4e77702b590fce52f08b6a7046db53af78c2f73af607ce58a5cc1e5565",
+    "platform/tools/program_packages.py": "e8801c4117271fbe61ceff08f32dbcb460246355f9cac8c3e431b703c13cb6bb",
+    "platform/tools/uiflow_package_runtime.py": "b3326f772cc9b85cc5af352877296d9f2bd8d6867b182fa516ee6366cbf81ecc",
+    "platform/tools/mpy_bytecode.py": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+    "platform/tests/test_mpy_bytecode.py": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0"
+  },
+  "limits": [
+    "main.mpy storage and fail-closed rejection only; binary not executed",
+    "PIR raw GPIO fixture, not AS312 physical timing/electrical proof",
+    "no browser or physical hardware validation",
+    "durable/store equality is runner evidence plus raw REST and post-run unique inline nonpublication checks; no second concurrent disk observer",
+    "sequential serial/QOM/frame observations, not atomic snapshot",
+    "owned session lease cleanup only; unrelated sessions ignored"
+  ],
+  "root_client_audits": [
+    {
+      "device_id": "cores3",
+      "responses": 3,
+      "http_index_path": "cores3/http.json",
+      "files": [
+        {
+          "index": 0,
+          "path": "health",
+          "method": "GET",
+          "status": 200,
+          "bytes": 902,
+          "sha256": "932c6500b1876c41bc47e438329af474c6f187fd4cb6b11a3d467cca6f8d1fee",
+          "original_bytes_preserved": true
+        },
+        {
+          "index": 1,
+          "path": "devices",
+          "method": "GET",
+          "status": 200,
+          "bytes": 18781,
+          "sha256": "6eefeb2d5baa8b5d4a1d408b48e51246ac69b43a1a1ad9a9addc421b4ede6010",
+          "original_bytes_preserved": true
+        },
+        {
+          "index": 2,
+          "path": "capacity",
+          "method": "GET",
+          "status": 200,
+          "bytes": 818,
+          "sha256": "f24f480d6b6555b7c06d43d9bd36a435742c4a551f648a6ff320a35b08f63447",
+          "original_bytes_preserved": true
+        }
+      ],
+      "scope": "root client health/devices/final capacity; additional to session and Preview lane clients"
+    },
+    {
+      "device_id": "atoms3r",
+      "responses": 3,
+      "http_index_path": "atoms3r/http.json",
+      "files": [
+        {
+          "index": 0,
+          "path": "health",
+          "method": "GET",
+          "status": 200,
+          "bytes": 902,
+          "sha256": "e52fb3cb82589dc0a48859e091e62e61c74d3bf60a98892fb0350535f3277d43",
+          "original_bytes_preserved": true
+        },
+        {
+          "index": 1,
+          "path": "devices",
+          "method": "GET",
+          "status": 200,
+          "bytes": 18781,
+          "sha256": "6eefeb2d5baa8b5d4a1d408b48e51246ac69b43a1a1ad9a9addc421b4ede6010",
+          "original_bytes_preserved": true
+        },
+        {
+          "index": 2,
+          "path": "capacity",
+          "method": "GET",
+          "status": 200,
+          "bytes": 818,
+          "sha256": "d702d7cc4e2ebed649376657e50fa500106dff93af11b3bf575a896a4bda6705",
+          "original_bytes_preserved": true
+        }
+      ],
+      "scope": "root client health/devices/final capacity; additional to session and Preview lane clients"
+    },
+    {
+      "device_id": "sticks3",
+      "responses": 3,
+      "http_index_path": "sticks3/http.json",
+      "files": [
+        {
+          "index": 0,
+          "path": "health",
+          "method": "GET",
+          "status": 200,
+          "bytes": 902,
+          "sha256": "74909372d0668c143d0fc6bd9ba2d6e15b2e78c399fe8f0c5cf9124733d2b9d7",
+          "original_bytes_preserved": true
+        },
+        {
+          "index": 1,
+          "path": "devices",
+          "method": "GET",
+          "status": 200,
+          "bytes": 18781,
+          "sha256": "6eefeb2d5baa8b5d4a1d408b48e51246ac69b43a1a1ad9a9addc421b4ede6010",
+          "original_bytes_preserved": true
+        },
+        {
+          "index": 2,
+          "path": "capacity",
+          "method": "GET",
+          "status": 200,
+          "bytes": 818,
+          "sha256": "28034b72be0201c82fb75e07fe02bd75d7a0b972fdac5f6e2e1c7736f7cae9c7",
+          "original_bytes_preserved": true
+        }
+      ],
+      "scope": "root client health/devices/final capacity; additional to session and Preview lane clients"
+    },
+    {
+      "device_id": "stopwatch",
+      "responses": 3,
+      "http_index_path": "stopwatch/http.json",
+      "files": [
+        {
+          "index": 0,
+          "path": "health",
+          "method": "GET",
+          "status": 200,
+          "bytes": 902,
+          "sha256": "90e3ac1071409f2eda2475012dec00ae578d7c8b81e9fb1128485f9fbb5b149f",
+          "original_bytes_preserved": true
+        },
+        {
+          "index": 1,
+          "path": "devices",
+          "method": "GET",
+          "status": 200,
+          "bytes": 18781,
+          "sha256": "6eefeb2d5baa8b5d4a1d408b48e51246ac69b43a1a1ad9a9addc421b4ede6010",
+          "original_bytes_preserved": true
+        },
+        {
+          "index": 2,
+          "path": "capacity",
+          "method": "GET",
+          "status": 200,
+          "bytes": 818,
+          "sha256": "0a6098dafc7f4e4031b4c3408dc359bd87fdd2f9afff812c779658356d44349b",
+          "original_bytes_preserved": true
+        }
+      ],
+      "scope": "root client health/devices/final capacity; additional to session and Preview lane clients"
+    }
+  ],
+  "http_scope": "1368 total original responses = 1356 lane-client responses + 12 root-client health/devices/capacity responses; every original response and http.json preserved and SHA/size independently checked"
+}

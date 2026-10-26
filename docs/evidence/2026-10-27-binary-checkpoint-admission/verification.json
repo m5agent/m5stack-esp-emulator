@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-27",
+  "status": "PASS",
+  "scope": "Host/API checks plus separately retained virtual source-liveness acceptance. No binary guest or hardware PASS.",
+  "platform_suite": {
+    "tests": 1118,
+    "seconds": 108.262,
+    "status": "PASS",
+    "log": "verification/platform-final.log",
+    "original_sha256": "909225f2fac42f8c024c5b38c2475fedbced4497f1d9223aea7a56f6c720a84b",
+    "archive_sha256": "909225f2fac42f8c024c5b38c2475fedbced4497f1d9223aea7a56f6c720a84b",
+    "path_redacted": false
+  },
+  "targeted_suite": {
+    "tests": 118,
+    "status": "PASS",
+    "first_attempt": "one stale compiled-entrypoint assertion, original log retained"
+  },
+  "runner_offline_tests": 14,
+  "legacy_schema_records": {
+    "cases": 3,
+    "status": "PASS",
+    "baseline": "6c1c333b",
+    "bytes_ids_metadata_mtime_unchanged": true
+  },
+  "source_sha256": {
+    "tests/units/run_binary_checkpoint_admission.py": "209c77a1a444f107b634fb410fffc69b337fea9f7bd78b46f0e2d320335a0372",
+    "tests/units/test_binary_checkpoint_admission.py": "f1acb9d6fb3ea8da5469893b660cb998e5f5c930f8b956c5eaf93cc2e197ec6e",
+    "platform/tools/device_service.py": "ead47e3c8cfc1bbcac22024f381aebcdb08e0fedf20830d788324966c5f7e1dc",
+    "platform/tools/preview_service.py": "df41ee4e77702b590fce52f08b6a7046db53af78c2f73af607ce58a5cc1e5565",
+    "platform/tools/program_packages.py": "e8801c4117271fbe61ceff08f32dbcb460246355f9cac8c3e431b703c13cb6bb",
+    "platform/tools/uiflow_package_runtime.py": "b3326f772cc9b85cc5af352877296d9f2bd8d6867b182fa516ee6366cbf81ecc",
+    "platform/tools/mpy_bytecode.py": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+    "platform/tests/test_mpy_bytecode.py": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0"
+  },
+  "actual_execution_scope": {
+    "source_runs": 16,
+    "binary_runs": 0,
+    "rejections": 12,
+    "observations": 36,
+    "http_responses": 1368,
+    "lane_http": 1356,
+    "root_http": 12,
+    "evidence_zips": 8,
+    "evidence_zip_members": 152,
+    "hardware": "NOT RUN",
+    "browser": "NOT RUN"
+  },
+  "independent_archive_review": "hosts/index.json",
+  "command_results": "final-command-results.json",
+  "generated_snapshot": "PASS after docs/plans and evidence README registration",
+  "full_matrix": "NOT RUN: API/storage change only; previous runtime matrix remains 66/67, not a new matrix result",
+  "firmware_candidate": "LOCAL_BUILD_PASS_NOT_GUEST_ADMITTED; see firmware-build/index.json",
+  "privacy": "privacy-final.json",
+  "staged_diff_check": {
+    "product_and_authority_docs": "PASS",
+    "raw_evidence_whitespace": "Original upstream sources/logs/patch snapshots retain their SHA-bound bytes; whitespace findings are confined to the evidence directory.",
+    "raw_paths": [
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/actual-build/cores3-builtinimport-preprocessor-macros.txt",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/official-source/uiflow/m5stack/Makefile.txt",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/source-and-toolchain/M5Unified-tracked.diff",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/source-and-toolchain/esp-adf-tracked.diff",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/source-and-toolchain/esp32-camera-tracked.diff",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/source-and-toolchain/idf-tracked.diff",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/source-and-toolchain/lv_binding-tracked.diff",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/source-and-toolchain/micropython-tracked.diff",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/source-and-toolchain/uiflow-tracked.diff",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/stages/cores3-pack-all.log",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/stages/gnu-host-tools.log",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/stages/quilt-configure-r2.log",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/stages/quilt-configure-r3.log",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/firmware-build/stages/quilt-configure-r4.log",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/research/materials/AW3641EDNR-datasheet.txt",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/research/materials/FlashLight-product.html",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/research/materials/aw3641-README.md.txt",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/research/materials/module-fw-Drivers__STM32F0xx_HAL_Driver__Inc__stm32f0xx_hal_gpio.h",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/research/materials/module-fw-Drivers__STM32F0xx_HAL_Driver__Src__stm32f0xx_hal_gpio.c",
+      "docs/evidence/2026-10-27-binary-checkpoint-admission/research/materials/product-4relay-pinned.md.txt"
+    ]
+  }
+}

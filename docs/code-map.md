@@ -8,6 +8,10 @@
 [项目 Backlog](project-backlog.md)。完整文档分类和新鲜度规则见
 [文档导航](README.md)。
 
+二进制checkpoint与普通/托管旧程序保护入口为
+[`run_binary_checkpoint_admission.py`](../tests/units/run_binary_checkpoint_admission.py)，
+范围与兼容固件构建分层见[证据](evidence/2026-10-27-binary-checkpoint-admission/README.md)。
+
 ## 单一事实源
 
 | 问题 | 权威入口 |

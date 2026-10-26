@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-27`.
 
-Status: local MVP with unified-device runtime contract `1.43.0` and bounded
+Status: local MVP with unified-device runtime contract `1.44.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -54,7 +54,16 @@ timeout defaults to 120 seconds and covers both deployment and start
 acknowledgement, not application lifetime.
 
 Public checkpoints use `POST /program-revisions`, with exactly the required
-`source_kind="uiflow2-package"`, `entrypoint="main.py"` and complete `files`.
+`source_kind="uiflow2-package"`, an explicit root `entrypoint`, and complete `files`.
+Storage accepts `main.py` or `main.mpy`; the chosen file must exist. Binary
+entrypoint storage preserves the original bytes and rejects a root `main.py`
+or `main/` directory that would shadow `main.mpy`. It does not add a binary
+script loader to the current firmware. Session and Preview execution still
+advertise `mpy_entrypoint=false` / `main_mpy=false`, and reject that entrypoint
+with 409 `program_mpy_entrypoint_unsupported` before allocating an execution,
+admitting a Run or cancelling the previous program. Unsupported inline Run
+requests also fail before consuming a package slot. Existing Python package
+identities and stored records remain compatible.
 The response is `{revision, limits}`; duplicate content returns 201 with the
 same ID and original `created_at`. `GET /program-revisions/{revision_id}`
 returns verified metadata and limits. Stored does not mean compiled or run.
