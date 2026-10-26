@@ -1,0 +1,430 @@
+{
+  "category": "independent-offline-recorded-virtual-device-review",
+  "api_calls": "NOT RUN",
+  "new_guest_or_hardware_execution": "NOT RUN",
+  "current_runtime_or_hardware_claim": "none",
+  "batches": {
+    "live-five-r1": {
+      "status": "PASS",
+      "frozen_files_verified": 1699,
+      "source_negative_http": [
+        [
+          409,
+          "uiflow_base_hash_mismatch"
+        ],
+        [
+          400,
+          "invalid_uiflow_source_path"
+        ]
+      ],
+      "cases": [
+        {
+          "case": "button",
+          "status": "PASS",
+          "session_id": "206924532c08436c8b5f739a1f4b22ec",
+          "source_cas_sha256": "9fd07df4e797bc6a394a9c3154ef4e0f873773090b5d8bca3cd661860e319949",
+          "firmware_sha256": "631b086b15a1780c28fd18dfe3c16b5e007070b8834fd99b5d4972a0e3fdfafd",
+          "runtime": {
+            "sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+            "pid": 78469,
+            "generation": 11
+          },
+          "http_events_verified": 54,
+          "serial_http_chunks_verified": 13,
+          "fresh_serial_steps": [
+            {
+              "serial_offset": 399,
+              "values": {
+                "pressed": true
+              },
+              "fresh_serial": "UNIT_BUTTON 0\n"
+            },
+            {
+              "serial_offset": 413,
+              "values": {
+                "pressed": false
+              },
+              "fresh_serial": "UNIT_BUTTON 1\n"
+            },
+            {
+              "serial_offset": 427,
+              "values": {
+                "pressed": true
+              },
+              "fresh_serial": "UNIT_BUTTON 0\n"
+            },
+            {
+              "serial_offset": 441,
+              "values": {
+                "pressed": false
+              },
+              "fresh_serial": "UNIT_BUTTON 1\n"
+            }
+          ],
+          "final_properties": {
+            "pressed": false,
+            "transactions": 0,
+            "read-bytes": 0,
+            "written-bytes": 0,
+            "input-events": 4,
+            "output-transitions": 0,
+            "input-level": true
+          },
+          "evidence_sha256": "7ba0fb67b8e8896c63eed836fbf8c6fd3aee9d6bfdeee9f35973f1f2795d2006",
+          "web": {
+            "running_snapshots": 12,
+            "posts": 4,
+            "actions": 4
+          },
+          "cleanup": {
+            "retained_state": "stopped",
+            "flash_retained": false,
+            "active_sessions": 0,
+            "pid_gone_recorded": true
+          }
+        },
+        {
+          "case": "relay",
+          "status": "PASS",
+          "session_id": "912e127d5d754270b04de3dbe853cce9",
+          "source_cas_sha256": "db1a4f43b5ba991f826beb2ed91db99310c36eeabd91be38add1a8cab823eb9e",
+          "firmware_sha256": "80c8a19e2dca9d82788e726ed2ebcd4c74a8cd227e1a6e26c292b8c8764ed3ec",
+          "runtime": {
+            "sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+            "pid": 78694,
+            "generation": 11
+          },
+          "http_events_verified": 184,
+          "serial_http_chunks_verified": 78,
+          "fresh_serial_steps": [],
+          "final_properties": {
+            "output-level": false,
+            "transactions": 0,
+            "read-bytes": 0,
+            "written-bytes": 0,
+            "input-events": 0,
+            "output-transitions": 7
+          },
+          "evidence_sha256": "2b22fce8c7db4f57827144f7364b913291c5655e7365cb5d0e549c65915e9d17",
+          "web": {
+            "running_snapshots": 9,
+            "posts": 0,
+            "actions": 0
+          },
+          "cleanup": {
+            "retained_state": "stopped",
+            "flash_retained": false,
+            "active_sessions": 0,
+            "pid_gone_recorded": true
+          }
+        },
+        {
+          "case": "env-iii",
+          "status": "PASS",
+          "session_id": "8f1254ae215e4c41a033259df2b191d1",
+          "source_cas_sha256": "a7a12d798f87033848353cfdde28159336702751d39912a9c05f48a962ab5143",
+          "firmware_sha256": "4d49da20b05e14ecbb17a81aaabf6f1afcce0fe15615cb27ac95e13909b03670",
+          "runtime": {
+            "sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+            "pid": 78842,
+            "generation": 11
+          },
+          "http_events_verified": 152,
+          "serial_http_chunks_verified": 63,
+          "fresh_serial_steps": [
+            {
+              "serial_offset": 478,
+              "values": {
+                "temperature-c": 31.5,
+                "humidity-pct": 67.0,
+                "pressure-pa": 98765.0
+              },
+              "fresh_serial": "UNIT_ENV 31.500 67.000 101325.000\nUNIT_ENV 31.500 67.000 98765.000\n"
+            },
+            {
+              "serial_offset": 545,
+              "values": {
+                "temperature-c": 18.25,
+                "humidity-pct": 33.0,
+                "pressure-pa": 103250.0
+              },
+              "fresh_serial": "UNIT_ENV 18.250 33.000 103250.000\n"
+            }
+          ],
+          "final_properties": {
+            "temperature-c": 18.25,
+            "humidity-pct": 33,
+            "pressure-pa": 103250,
+            "transactions": 112,
+            "read-bytes": 226,
+            "written-bytes": 78,
+            "input-events": 6,
+            "output-transitions": 0
+          },
+          "evidence_sha256": "3400d033ac41a6feb35456ae5466e68357a4177d29fbcc7706986e3937651646",
+          "web": {
+            "running_snapshots": 7,
+            "posts": 6,
+            "actions": 6
+          },
+          "cleanup": {
+            "retained_state": "stopped",
+            "flash_retained": false,
+            "active_sessions": 0,
+            "pid_gone_recorded": true
+          }
+        },
+        {
+          "case": "rgb",
+          "status": "PASS",
+          "session_id": "56d9f029d781401c9bc000c24bf45922",
+          "source_cas_sha256": "a3a7d77b9d6296e6165eae43f8e7a675e46f3368755b98b7d8e87a042e6ba7cd",
+          "firmware_sha256": "639bf3458aaf997efb54bd76fc4f21ad7124cacf367ba6f02220fd1031163ffa",
+          "runtime": {
+            "sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+            "pid": 79009,
+            "generation": 11
+          },
+          "http_events_verified": 197,
+          "serial_http_chunks_verified": 83,
+          "fresh_serial_steps": [],
+          "final_properties": {
+            "led-rgb": [
+              10597059,
+              66051,
+              263430
+            ],
+            "led-frames": 7,
+            "incomplete-frames": 2,
+            "transactions": 0,
+            "read-bytes": 0,
+            "written-bytes": 0,
+            "input-events": 0,
+            "output-transitions": 7
+          },
+          "evidence_sha256": "df7c35e2931a365b74cef49328d929cce962ae3519105ec5b761d2cfb590dfe2",
+          "web": {
+            "running_snapshots": 5,
+            "posts": 0,
+            "actions": 0
+          },
+          "cleanup": {
+            "retained_state": "stopped",
+            "flash_retained": false,
+            "active_sessions": 0,
+            "pid_gone_recorded": true
+          },
+          "rgb_sequence": [
+            {
+              "marker": "IO_RGB_FULL 1",
+              "serial_offset": 0,
+              "state_file": "observations/0003-state.json",
+              "captured_at": "2026-10-26T03:15:18.282437+00:00",
+              "properties": {
+                "led-rgb": [
+                  1122867,
+                  4478310,
+                  7833753
+                ],
+                "led-frames": 4,
+                "incomplete-frames": 1,
+                "transactions": 0,
+                "read-bytes": 0,
+                "written-bytes": 0,
+                "input-events": 0,
+                "output-transitions": 4
+              }
+            },
+            {
+              "marker": "IO_RGB_SHORT 1",
+              "serial_offset": 364,
+              "state_file": "observations/0005-state.json",
+              "captured_at": "2026-10-26T03:15:21.832626+00:00",
+              "properties": {
+                "led-rgb": [
+                  1122867,
+                  4478310,
+                  7833753
+                ],
+                "led-frames": 4,
+                "incomplete-frames": 2,
+                "transactions": 0,
+                "read-bytes": 0,
+                "written-bytes": 0,
+                "input-events": 0,
+                "output-transitions": 4
+              }
+            },
+            {
+              "marker": "IO_RGB_FULL 2",
+              "serial_offset": 380,
+              "state_file": "observations/0007-state.json",
+              "captured_at": "2026-10-26T03:15:25.887758+00:00",
+              "properties": {
+                "led-rgb": [
+                  10597059,
+                  66051,
+                  263430
+                ],
+                "led-frames": 7,
+                "incomplete-frames": 2,
+                "transactions": 0,
+                "read-bytes": 0,
+                "written-bytes": 0,
+                "input-events": 0,
+                "output-transitions": 7
+              }
+            }
+          ],
+          "rmt": {
+            "tx-symbols": 552,
+            "tx-threshold-events": 23,
+            "tx-completions": 9,
+            "tx-errors": 0
+          }
+        },
+        {
+          "case": "encoder",
+          "status": "PASS",
+          "session_id": "4a74c9c61a6544b59ddbe0645bd85da7",
+          "source_cas_sha256": "5c2d78bf4a2eeb131fd37789fc9a372d058f182572f41615a47ff51fc193a50e",
+          "firmware_sha256": "6a973f045cd8db069fb0f6fcbcc0bc984d4898c5d6dfb8c61ea98451b80ddc27",
+          "runtime": {
+            "sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+            "pid": 79098,
+            "generation": 11
+          },
+          "http_events_verified": 129,
+          "serial_http_chunks_verified": 51,
+          "fresh_serial_steps": [
+            {
+              "serial_offset": 471,
+              "values": {
+                "counter": -12345,
+                "pressed": true
+              },
+              "fresh_serial": "CONTROL_ENCODER -12345 0\r\nCONTROL_ENCODER -12345 1\r\n"
+            },
+            {
+              "serial_offset": 523,
+              "values": {
+                "counter": 32767,
+                "pressed": false
+              },
+              "fresh_serial": "CONTROL_ENCODER 32767 1\r\nCONTROL_ENCODER 32767 0\r\n"
+            }
+          ],
+          "final_properties": {
+            "counter": 32767,
+            "pressed": false,
+            "led-rgb": [
+              1122867,
+              4478310
+            ],
+            "mode": 0,
+            "transactions": 123,
+            "read-bytes": 118,
+            "written-bytes": 74,
+            "input-events": 4,
+            "output-transitions": 2,
+            "i2c-address": 64
+          },
+          "evidence_sha256": "66ee574f459f5336a2191368af99775b59702e8a38bec8a6cb8844da7ce9a6c4",
+          "web": {
+            "running_snapshots": 8,
+            "posts": 4,
+            "actions": 4
+          },
+          "cleanup": {
+            "retained_state": "stopped",
+            "flash_retained": false,
+            "active_sessions": 0,
+            "pid_gone_recorded": true
+          }
+        }
+      ]
+    },
+    "live-button-r1": {
+      "status": "PASS",
+      "frozen_files_verified": 562,
+      "source_negative_http": [
+        [
+          409,
+          "uiflow_base_hash_mismatch"
+        ],
+        [
+          400,
+          "invalid_uiflow_source_path"
+        ]
+      ],
+      "cases": [
+        {
+          "case": "button",
+          "status": "PASS",
+          "session_id": "ddf890eceab84ec29c02e1be57eb95b7",
+          "source_cas_sha256": "9fd07df4e797bc6a394a9c3154ef4e0f873773090b5d8bca3cd661860e319949",
+          "firmware_sha256": "631b086b15a1780c28fd18dfe3c16b5e007070b8834fd99b5d4972a0e3fdfafd",
+          "runtime": {
+            "sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+            "pid": 78284,
+            "generation": 11
+          },
+          "http_events_verified": 240,
+          "serial_http_chunks_verified": 106,
+          "fresh_serial_steps": [
+            {
+              "serial_offset": 371,
+              "values": {
+                "pressed": true
+              },
+              "fresh_serial": "UNIT_BUTTON 0\n"
+            },
+            {
+              "serial_offset": 385,
+              "values": {
+                "pressed": false
+              },
+              "fresh_serial": "UNIT_BUTTON 1\n"
+            },
+            {
+              "serial_offset": 399,
+              "values": {
+                "pressed": true
+              },
+              "fresh_serial": "UNIT_BUTTON 0\n"
+            },
+            {
+              "serial_offset": 413,
+              "values": {
+                "pressed": false
+              },
+              "fresh_serial": "UNIT_BUTTON 1\n"
+            }
+          ],
+          "final_properties": {
+            "pressed": false,
+            "transactions": 0,
+            "read-bytes": 0,
+            "written-bytes": 0,
+            "input-events": 4,
+            "output-transitions": 0,
+            "input-level": true
+          },
+          "evidence_sha256": "8546dcf389256ac7e29cc1ba4af62de539fe6d3a29f6d92246350699227ef6ed",
+          "web": {
+            "running_snapshots": 12,
+            "posts": 4,
+            "actions": 4
+          },
+          "cleanup": {
+            "retained_state": "stopped",
+            "flash_retained": false,
+            "active_sessions": 0,
+            "pid_gone_recorded": true
+          }
+        }
+      ]
+    }
+  },
+  "status": "PASS"
+}

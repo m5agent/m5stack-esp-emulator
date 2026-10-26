@@ -1,0 +1,47 @@
+# UIFlow source API 文档与合同静态复核
+
+日期：2026-10-26。范围：当前 worktree 的新增源码 helper、service/HTTP 接线、源码身份与证据合同及三份调用文档。未操作任何服务、API、guest、QEMU 或物理设备；未执行服务测试。具体文档冻结 SHA 与离线限额样例见同目录 `review.json`。
+
+## 发现
+
+未发现本轮必须阻断的新增代码缺陷。已修正文档中容易误读的一处合同：HTTP 原始 JSON body 与解码后的 caller source 各自受 1 MiB 限制；不能承诺任意 1 MiB 源码均可提交。
+
+低优先级覆盖建议：`platform/tests/test_uiflow_source.py:129` 覆盖 helper 的数量、单文件及累计 UTF-8 字节限额，当前 source HTTP 测试尚无直接覆盖“源码仍在 helper 限额内，但完整 JSON 超过 HTTP 限额”的请求。可在既有 HTTP fixture 加一个源入口的超大 body 负例，断言 `413 body_too_large` 且不发布 artifact/firmware。这是公共请求边界的回归保护；本代理未修改测试或运行该 fixture。
+
+## 双限额证据
+
+- `platform/tools/serve.py:983` 的 `_read_json()` 仍调用 `_read_body(max_bytes=1024 * 1024)`；`:954` 对 Content-Length 超限返回 `413 body_too_large`，发生在 JSON 解析/固件 compose 之前。两条源码路由都使用该 JSON reader；未扩大旧 HTTP 限额。
+- `platform/tools/uiflow_source.py:23` 定义 128 caller files、累计 1,048,576 UTF-8 bytes、单文件 262,144 UTF-8 bytes；`:94` 和 `:97` 分别执行单文件与合计检查。生成的 boot.py 单独计入 effective sources，而非 caller 总量。
+- 仅用宿主 `json.dumps` 计算、没有发送请求：4 个文件各 262,144 个 ASCII 字符时，解码源码正好 1,048,576 bytes，而紧凑完整请求为 1,048,651 bytes；若每字符是 JSON 需转义的反斜杠，请求为 2,097,227 bytes。两个集合均在 helper caller 字节上限内，HTTP 层均应拒绝；这是静态预期，不是 live HTTP PASS。
+- API、OpenAPI（普通 `/firmware`、便利 `/firmware/uiflow`、共享 files schema）与 Agent 指南现都明确双限额，提到字段名、路径、JSON 语法/空白/转义的额外开销及 `body_too_large`。
+
+## 逐层合同复核
+
+| 层 | 代码证据 | 静态结论 |
+| --- | --- | --- |
+| HTTP/认证 | `platform/tools/serve.py:350` | 仍走既有 Bearer gate、统一 JSON reader/错误包装；无新 raw 下载路由 |
+| 源入口准入 | `platform/tools/device_service.py:2456` | 两条入口使用同一 `kind=uiflow` 路径；仅四个已声明主机和本地 reference；便利入口拒绝 kind；未知 source 顶层字段拒绝 |
+| 文件路径与字节 | `platform/tools/uiflow_source.py:54` | 根 main.py、POSIX .py 路径、UTF-8/NFC/casefold 冲突、NUL、数量/字节限制均在写 VFS 前检查 |
+| 原始 VFS | `platform/tools/uiflow_source.py:110` | 从真实 partition table 找唯一受支持 vfs，拒绝 flags/布局/范围问题；LittleFS mount=False 后显式 mount；失败不 format |
+| 写入与读回 | `platform/tools/uiflow_source.py:255` | 只覆盖指定路径，重新 mount 核对有效文件/保留文件，核对 VFS 外镜像字节，host 不执行 guest Python |
+| boot | `platform/tools/uiflow_source.py:102` | 缺 boot.py 生成 run-main flag；caller boot 不合并不改写，因此 caller 自负入口执行责任 |
+| caller/source/image 身份 | `platform/tools/device_service.py:2477` | caller canonical JSON SHA 与 helper metadata SHA 绑定；source CAS artifact 与完整 image SHA 含义分开 |
+| session source pin | `platform/tools/device_service.py:8725` | UIFlow source 缺 pin、格式无效、与 artifact/metadata 不符或 pin 给非 UIFlow 均在 start 之前拒绝；既有 replay 复用原请求/原 session，不重新选择 provenance |
+| 冻结/恢复/ZIP | `platform/tools/device_service.py:2938`、`:8142`、`:6672` | session 深拷贝 source；持久历史和 ZIP 保存同一 hash metadata，未加入 caller source 正文 |
+| CAS 保留 | `platform/tools/device_service.py:9340`、`:9380` | session source_artifacts 与 kept firmware source.artifact_id 进入现有 GC 引用集合 |
+
+## 已知剩余边界
+
+1. FirmwareStore 仍以完整 image SHA 命名 metadata，`:2680` 每次创建会覆盖该 image 的最新声明。同 image 的 generated/caller boot 声明，甚至不同 source kind，可能更新 metadata。source pin 能拒绝错配，避免静默错绑，但不能提供按 source 版本稳定查询 firmware metadata 的能力；客户端可能需重新 compose 再创建 session。已经创建的 session 使用冻结 provenance，不从后来 metadata 重建。指南已保留该 fail-closed/retry 边界。
+2. reference 的 UIFlow2 家族/设备准入来自服务的 DeviceSpec 和本地 reference 配置；helper 明确不把“可 mount LittleFS”当成家族鉴定。`expected_base_sha256` 是 caller 可选固定，不能把此入口扩展为任意 base、加密或签名固件导入。
+3. caller 源码正文确实存于内部 CAS；公开 metadata/session/ZIP 的 provenance 只有文件 hash/大小/路径和工具链。它不意味着 CAS 中不存在源码，也不意味着停止 session 会立即删除源码；保留/GC 走现有策略。
+4. `test_uiflow_service.py` 的 offline contract fixture mock 了 DeviceSession.start，四主机 composition 用同一合成 base；它们不能证明四主机真实启动/Unit 数据面/Web 或物理硬件。指南单 Button 与多 Unit 程序均保持 PENDING，hardware NOT RUN。
+5. helper 打包完成的 status 保持 COMPOSED_NOT_EXECUTED；实际 guest import、main 执行、ready marker、fresh serial、frame、Unit controller 计数和 evidence 仍需 root 通过真实可见 session 验证。原 Buzzer/IR、PWM 初始化观察缺口和共享 runtime 完整矩阵门禁没有被本入口关闭。
+
+## 本轮离线验证
+
+- OpenAPI 可解析；全部 schemas 通过 Draft 2020-12 schema 结构检查。
+- Guide 的 JSON 示例可解析；5 段 Python 仅做 AST 语法检查，没有 import/执行 guest 代码。
+- API 版本一致、文档索引完整、相对 Markdown 链接存在：3 项既有文档契约 PASS。
+- UTF-8 与 `git diff --check` PASS。
+- 本次只改 API、OpenAPI、Agent 指南的限额措辞；status/backlog/ledger/snapshot 未编辑。服务/API/运行时验证 NOT RUN。

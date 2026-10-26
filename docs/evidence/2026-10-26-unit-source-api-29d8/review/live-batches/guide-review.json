@@ -1,0 +1,337 @@
+{
+  "status": "PASS",
+  "category": "independent-offline-guide-virtual-device-evidence-review",
+  "api_calls": "NOT RUN",
+  "new_execution": "NOT RUN",
+  "hardware": "NOT RUN",
+  "original_guide_sha256": "ab01086d32920a3b47c98c8a2a5a39830539136fc06bc6eb89a48397f113f737",
+  "current_guide_sha256_at_review": "85c40a8f572bf9c41b9e71ed2ce31cc43363bcb581681bbf21c3f70f3077ad6a",
+  "full_guide_changed_after_execution": true,
+  "guest_snippets_unchanged": true,
+  "frozen_files_verified": 1258,
+  "cases": [
+    {
+      "case": "button",
+      "status": "PASS",
+      "session_id": "dd0879e0cb5c42b8a3c79d94011fb55c",
+      "guide_main_sha256": "5e2a868b27a8cf8b59addca785fa5baa3d39deaf9827a998e1520d0fb8b27f73",
+      "same_guest_snippet_in_current_guide": true,
+      "source_cas_sha256": "19d46b6db29e76694e94202551f527dd148c210c9b131b1272ee3be71c915047",
+      "effective_source_sha256": "9a9a228603c2bae39da27e20101b35cc8ac0a25634baa15d447c79b3c13d7153",
+      "firmware_sha256": "47f28465e5c75f18c94d1236130a8d5aebc5780b1bf332d6e88838b74d410fd5",
+      "generated_boot_verified": true,
+      "runtime_pid": 83363,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "steps": [
+        {
+          "input": {
+            "id": "button1",
+            "values": {
+              "pressed": true
+            }
+          },
+          "initial_cursor": 352,
+          "final_cursor": 376,
+          "fresh_serial": "AGENT_BUTTON pressed=1\r\n",
+          "before": {
+            "button1": {
+              "pressed": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0,
+              "input-level": true
+            }
+          },
+          "after": {
+            "button1": {
+              "pressed": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 1,
+              "output-transitions": 0,
+              "input-level": false
+            }
+          }
+        },
+        {
+          "input": {
+            "id": "button1",
+            "values": {
+              "pressed": false
+            }
+          },
+          "initial_cursor": 376,
+          "final_cursor": 400,
+          "fresh_serial": "AGENT_BUTTON pressed=0\r\n",
+          "before": {
+            "button1": {
+              "pressed": true,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 1,
+              "output-transitions": 0,
+              "input-level": false
+            }
+          },
+          "after": {
+            "button1": {
+              "pressed": false,
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 2,
+              "output-transitions": 0,
+              "input-level": true
+            }
+          }
+        }
+      ],
+      "final_properties": {
+        "button1": {
+          "pressed": false,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 2,
+          "output-transitions": 0,
+          "input-level": true
+        }
+      },
+      "http_events_verified": 292,
+      "web": {
+        "running_snapshots": 9,
+        "posts": 2,
+        "actions": 2
+      },
+      "evidence_sha256": "b437d97ccd648793b602ea334c37cf47354a2c2bb567f0412a53e706e8d6d04d",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_sessions": 0,
+        "pid_gone_recorded": true
+      }
+    },
+    {
+      "case": "hub-env-ncir",
+      "status": "PASS",
+      "session_id": "542bd4b899df4e1ea09e2d9ed8fe5597",
+      "guide_main_sha256": "ba19aa2304c48a3ec1e6c111676112792515e3aa43d70f0f4dd3670bc6a58230",
+      "same_guest_snippet_in_current_guide": true,
+      "source_cas_sha256": "50c4554a0f79a8d92af4550a20e7a1e1ea08681dc4ba415ba632648e7ec40054",
+      "effective_source_sha256": "70d86cb7a926c1d4933e83ec435cf0d3a7541ba948c16f68ec140038577a08a6",
+      "firmware_sha256": "815f33adce32466ff8aa24441ef4d2f2dfe70cfefe76d119ec61c5be55f0ad21",
+      "generated_boot_verified": true,
+      "runtime_pid": 83447,
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "worker_generation": 11,
+      "steps": [
+        {
+          "input": {
+            "id": "env1",
+            "values": {
+              "temperature-c": 28.5,
+              "humidity-pct": 61.0,
+              "pressure-pa": 100800
+            }
+          },
+          "initial_cursor": 469,
+          "final_cursor": 526,
+          "fresh_serial": "AGENT_ENV 28.50 61.00 100800.00\r\nAGENT_NCIR 24.99 31.99\r\n",
+          "before": {
+            "hub1": {
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "env1": {
+              "temperature-c": 25,
+              "humidity-pct": 50,
+              "pressure-pa": 101325,
+              "transactions": 22,
+              "read-bytes": 46,
+              "written-bytes": 15,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "ncir1": {
+              "ambient-c": 25,
+              "object-c": 32,
+              "transactions": 5,
+              "read-bytes": 4,
+              "written-bytes": 2,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 2,
+              "crc-errors": 0
+            }
+          },
+          "after": {
+            "hub1": {
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "env1": {
+              "temperature-c": 28.5,
+              "humidity-pct": 61,
+              "pressure-pa": 100800,
+              "transactions": 33,
+              "read-bytes": 66,
+              "written-bytes": 24,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "ncir1": {
+              "ambient-c": 25,
+              "object-c": 32,
+              "transactions": 9,
+              "read-bytes": 8,
+              "written-bytes": 4,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 3,
+              "crc-errors": 0
+            }
+          }
+        },
+        {
+          "input": {
+            "id": "ncir1",
+            "values": {
+              "ambient-c": 24.0,
+              "object-c": 37.5
+            }
+          },
+          "initial_cursor": 583,
+          "final_cursor": 640,
+          "fresh_serial": "AGENT_ENV 28.50 61.00 100800.00\r\nAGENT_NCIR 23.99 37.49\r\n",
+          "before": {
+            "hub1": {
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "env1": {
+              "temperature-c": 28.5,
+              "humidity-pct": 61,
+              "pressure-pa": 100800,
+              "transactions": 42,
+              "read-bytes": 86,
+              "written-bytes": 29,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "ncir1": {
+              "ambient-c": 25,
+              "object-c": 32,
+              "transactions": 13,
+              "read-bytes": 12,
+              "written-bytes": 6,
+              "input-events": 0,
+              "output-transitions": 0,
+              "samples-generated": 4,
+              "crc-errors": 0
+            }
+          },
+          "after": {
+            "hub1": {
+              "transactions": 0,
+              "read-bytes": 0,
+              "written-bytes": 0,
+              "input-events": 0,
+              "output-transitions": 0
+            },
+            "env1": {
+              "temperature-c": 28.5,
+              "humidity-pct": 61,
+              "pressure-pa": 100800,
+              "transactions": 52,
+              "read-bytes": 106,
+              "written-bytes": 36,
+              "input-events": 3,
+              "output-transitions": 0
+            },
+            "ncir1": {
+              "ambient-c": 24,
+              "object-c": 37.5,
+              "transactions": 17,
+              "read-bytes": 16,
+              "written-bytes": 8,
+              "input-events": 2,
+              "output-transitions": 0,
+              "samples-generated": 5,
+              "crc-errors": 0
+            }
+          }
+        }
+      ],
+      "final_properties": {
+        "hub1": {
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 0,
+          "output-transitions": 0
+        },
+        "env1": {
+          "temperature-c": 28.5,
+          "humidity-pct": 61,
+          "pressure-pa": 100800,
+          "transactions": 62,
+          "read-bytes": 126,
+          "written-bytes": 43,
+          "input-events": 3,
+          "output-transitions": 0
+        },
+        "ncir1": {
+          "ambient-c": 24,
+          "object-c": 37.5,
+          "transactions": 21,
+          "read-bytes": 20,
+          "written-bytes": 10,
+          "input-events": 2,
+          "output-transitions": 0,
+          "samples-generated": 6,
+          "crc-errors": 0
+        }
+      },
+      "http_events_verified": 282,
+      "web": {
+        "running_snapshots": 9,
+        "posts": 5,
+        "actions": 5
+      },
+      "evidence_sha256": "bf8ca0ea059429a16a33b90724b269fbca9d7447a1c05dbf7809709da7f14f17",
+      "cleanup": {
+        "state": "stopped",
+        "flash_retained": false,
+        "active_sessions": 0,
+        "pid_gone_recorded": true
+      }
+    }
+  ],
+  "visual_inspection": {
+    "button_steps": [
+      "PRESSED",
+      "RELEASED"
+    ],
+    "hub_native_frame": [
+      "T 28.5 C",
+      "RH 61.0 %",
+      "P 100800.0 Pa",
+      "IR 37.5 C"
+    ],
+    "hub_browser": "Complete HUB, ENV III, NCIR cards and live-reading cards visible; no general 3D/physical-equivalence claim"
+  }
+}

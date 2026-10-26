@@ -1,0 +1,53 @@
+{
+  "case": "hub-env-ncir",
+  "guide_sha256": "ab01086d32920a3b47c98c8a2a5a39830539136fc06bc6eb89a48397f113f737",
+  "main_sha256": "ba19aa2304c48a3ec1e6c111676112792515e3aa43d70f0f4dd3670bc6a58230",
+  "source_span": {
+    "start_line": 261,
+    "end_line": 290
+  },
+  "source_cas_sha256": "50c4554a0f79a8d92af4550a20e7a1e1ea08681dc4ba415ba632648e7ec40054",
+  "effective_source_sha256": "70d86cb7a926c1d4933e83ec435cf0d3a7541ba948c16f68ec140038577a08a6",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "ready_marker": "AGENT_UNIT_READY",
+  "attachments": [
+    {
+      "id": "hub1",
+      "unit_id": "hub",
+      "port_id": "port-a"
+    },
+    {
+      "id": "env1",
+      "unit_id": "env-iii",
+      "parent_id": "hub1",
+      "port_id": "grove-1"
+    },
+    {
+      "id": "ncir1",
+      "unit_id": "ncir",
+      "parent_id": "hub1",
+      "port_id": "grove-2"
+    }
+  ],
+  "guide_inputs": [
+    {
+      "id": "env1",
+      "values": {
+        "temperature-c": 28.5,
+        "humidity-pct": 61.0,
+        "pressure-pa": 100800
+      }
+    },
+    {
+      "id": "ncir1",
+      "values": {
+        "ambient-c": 24.0,
+        "object-c": 37.5
+      }
+    }
+  ],
+  "status": "PREPARED_NO_API_OR_RUNTIME"
+}

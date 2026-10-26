@@ -1,0 +1,90 @@
+{
+  "status": "READY_FOR_ROOT_LIVE_EXECUTION_NOT_RUN",
+  "guide_sha256": "ab01086d32920a3b47c98c8a2a5a39830539136fc06bc6eb89a48397f113f737",
+  "harness_sha256": "8d67e9cd1b83d32ebeffe173824e99654b64d323478e4ee753d32781353d73f6",
+  "common_sha256": "bd8ec912e22849bdbb7555c5c91e34acb466f1387f0a00e5013ed09ab508eba1",
+  "offline_self_check": "PASS",
+  "author_http_calls": 0,
+  "author_process_calls": 0,
+  "author_guest_host_exec": false,
+  "cases": [
+    {
+      "case": "button",
+      "main_sha256": "5e2a868b27a8cf8b59addca785fa5baa3d39deaf9827a998e1520d0fb8b27f73",
+      "source_span": {
+        "start_line": 42,
+        "end_line": 71
+      },
+      "source_cas_sha256": "19d46b6db29e76694e94202551f527dd148c210c9b131b1272ee3be71c915047",
+      "effective_source_sha256": "9a9a228603c2bae39da27e20101b35cc8ac0a25634baa15d447c79b3c13d7153",
+      "attachments": [
+        {
+          "id": "button1",
+          "unit_id": "button",
+          "port_id": "port-a"
+        }
+      ],
+      "guide_inputs": [
+        {
+          "id": "button1",
+          "values": {
+            "pressed": true
+          }
+        },
+        {
+          "id": "button1",
+          "values": {
+            "pressed": false
+          }
+        }
+      ]
+    },
+    {
+      "case": "hub-env-ncir",
+      "main_sha256": "ba19aa2304c48a3ec1e6c111676112792515e3aa43d70f0f4dd3670bc6a58230",
+      "source_span": {
+        "start_line": 261,
+        "end_line": 290
+      },
+      "source_cas_sha256": "50c4554a0f79a8d92af4550a20e7a1e1ea08681dc4ba415ba632648e7ec40054",
+      "effective_source_sha256": "70d86cb7a926c1d4933e83ec435cf0d3a7541ba948c16f68ec140038577a08a6",
+      "attachments": [
+        {
+          "id": "hub1",
+          "unit_id": "hub",
+          "port_id": "port-a"
+        },
+        {
+          "id": "env1",
+          "unit_id": "env-iii",
+          "parent_id": "hub1",
+          "port_id": "grove-1"
+        },
+        {
+          "id": "ncir1",
+          "unit_id": "ncir",
+          "parent_id": "hub1",
+          "port_id": "grove-2"
+        }
+      ],
+      "guide_inputs": [
+        {
+          "id": "env1",
+          "values": {
+            "temperature-c": 28.5,
+            "humidity-pct": 61.0,
+            "pressure-pa": 100800
+          }
+        },
+        {
+          "id": "ncir1",
+          "values": {
+            "ambient-c": 24.0,
+            "object-c": 37.5
+          }
+        }
+      ]
+    }
+  ],
+  "command": "M5_UNIT_WEB_BRIDGE=1 M5_PYTHON_DEPS=.work/py312 PYTHONPATH=.work/py312 /opt/miniconda3/bin/python3.12 -B .work/unit-guide-live-20261026/run_guide_acceptance.py --execute --out-dir .work/unit-guide-live-20261026/live-r1"
+}

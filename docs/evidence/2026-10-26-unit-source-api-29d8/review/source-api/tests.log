@@ -1,0 +1,52 @@
+test_existing_file_parent_directory_and_case_conflicts (test_uiflow_source.RealLittleFSTests.test_existing_file_parent_directory_and_case_conflicts) ... ok
+test_explicit_boot_bytes_are_preserved (test_uiflow_source.RealLittleFSTests.test_explicit_boot_bytes_are_preserved) ... ok
+test_fresh_mount_readback_detects_source_or_preserved_file_corruption (test_uiflow_source.RealLittleFSTests.test_fresh_mount_readback_detects_source_or_preserved_file_corruption) ... ok
+test_insufficient_vfs_space_is_structured_and_base_unchanged (test_uiflow_source.RealLittleFSTests.test_insufficient_vfs_space_is_structured_and_base_unchanged) ... ok
+test_preserve_base_binary_resources_recursive_utf8_and_generated_boot (test_uiflow_source.RealLittleFSTests.test_preserve_base_binary_resources_recursive_utf8_and_generated_boot) ... ok
+test_results_do_not_depend_on_mapping_insertion_order (test_uiflow_source.RealLittleFSTests.test_results_do_not_depend_on_mapping_insertion_order) ... ok
+test_short_base_only_pads_existing_trailing_flash (test_uiflow_source.RealLittleFSTests.test_short_base_only_pads_existing_trailing_flash) ... ok
+test_unmount_failure_is_not_swallowed (test_uiflow_source.RealLittleFSTests.test_unmount_failure_is_not_swallowed) ... ok
+test_unmountable_vfs_never_calls_format (test_uiflow_source.RealLittleFSTests.test_unmountable_vfs_never_calls_format) ... ok
+test_argument_types_and_required_main (test_uiflow_source.SourceValidationTests.test_argument_types_and_required_main) ... ok
+test_bad_partition_table (test_uiflow_source.SourceValidationTests.test_bad_partition_table) ... ok
+test_base_hash_validation (test_uiflow_source.SourceValidationTests.test_base_hash_validation) ... ok
+test_case_and_generated_boot_collisions (test_uiflow_source.SourceValidationTests.test_case_and_generated_boot_collisions) ... ok
+test_count_single_file_and_total_utf8_byte_limits (test_uiflow_source.SourceValidationTests.test_count_single_file_and_total_utf8_byte_limits) ... ok
+test_empty_overlapping_out_of_range_or_reserved_partitions (test_uiflow_source.SourceValidationTests.test_empty_overlapping_out_of_range_or_reserved_partitions) ... ok
+test_missing_duplicate_wrong_or_encrypted_vfs (test_uiflow_source.SourceValidationTests.test_missing_duplicate_wrong_or_encrypted_vfs) ... ok
+test_missing_littlefs_is_structured_and_not_silently_formatted (test_uiflow_source.SourceValidationTests.test_missing_littlefs_is_structured_and_not_silently_formatted) ... ok
+test_source_nul_or_surrogate (test_uiflow_source.SourceValidationTests.test_source_nul_or_surrogate) ... ok
+test_unaligned_or_truncated_existing_vfs (test_uiflow_source.SourceValidationTests.test_unaligned_or_truncated_existing_vfs) ... ok
+test_unsafe_and_noncanonical_paths (test_uiflow_source.SourceValidationTests.test_unsafe_and_noncanonical_paths) ... ok
+test_alias_rejects_every_explicit_kind_before_publishing (test_uiflow_service.UIFlowServiceAdmissionTests.test_alias_rejects_every_explicit_kind_before_publishing) ... ok
+test_expected_base_hash_drift_rejects_before_publishing (test_uiflow_service.UIFlowServiceAdmissionTests.test_expected_base_hash_drift_rejects_before_publishing) ... ok
+test_helper_dependency_error_preserves_code_status_and_zero_artifacts (test_uiflow_service.UIFlowServiceAdmissionTests.test_helper_dependency_error_preserves_code_status_and_zero_artifacts) ... ok
+test_missing_reference_is_structured_without_cas_side_effects (test_uiflow_service.UIFlowServiceAdmissionTests.test_missing_reference_is_structured_without_cas_side_effects) ... ok
+test_reference_read_failure_is_503_without_publishing (test_uiflow_service.UIFlowServiceAdmissionTests.test_reference_read_failure_is_503_without_publishing) ... ok
+test_supported_device_gate_is_distinct_from_unknown_device (test_uiflow_service.UIFlowServiceAdmissionTests.test_supported_device_gate_is_distinct_from_unknown_device) ... ok
+test_unknown_fields_and_bad_files_do_not_publish (test_uiflow_service.UIFlowServiceAdmissionTests.test_unknown_fields_and_bad_files_do_not_publish) ... ok
+test_all_four_supported_ids_use_their_reference_without_mutating_it (test_uiflow_service.UIFlowServiceCompositionTests.test_all_four_supported_ids_use_their_reference_without_mutating_it) ... ok
+test_bad_existing_filesystem_cannot_publish_a_source_bundle (test_uiflow_service.UIFlowServiceCompositionTests.test_bad_existing_filesystem_cannot_publish_a_source_bundle) ... ok
+test_explicit_boot_origin_and_generic_kind_are_supported (test_uiflow_service.UIFlowServiceCompositionTests.test_explicit_boot_origin_and_generic_kind_are_supported) ... ok
+test_generic_firmware_sessions_do_not_get_source_provenance (test_uiflow_service.UIFlowServiceCompositionTests.test_generic_firmware_sessions_do_not_get_source_provenance) ... ok
+test_helper_source_binding_mismatch_is_checked_before_artifact_creation (test_uiflow_service.UIFlowServiceCompositionTests.test_helper_source_binding_mismatch_is_checked_before_artifact_creation) ... ok
+test_real_source_to_cas_firmware_and_exact_helper_metadata (test_uiflow_service.UIFlowServiceCompositionTests.test_real_source_to_cas_firmware_and_exact_helper_metadata) ... ok
+test_same_image_different_source_declarations_cannot_silently_rebind_session (test_uiflow_service.UIFlowServiceCompositionTests.test_same_image_different_source_declarations_cannot_silently_rebind_session) ... ok
+test_session_provenance_persist_restore_zip_and_list_are_source_bound (test_uiflow_service.UIFlowServiceCompositionTests.test_session_provenance_persist_restore_zip_and_list_are_source_bound) ... ok
+test_source_pin_on_non_uiflow_firmware_is_rejected_before_start (test_uiflow_service.UIFlowServiceCompositionTests.test_source_pin_on_non_uiflow_firmware_is_rejected_before_start) ... ok
+test_uiflow_session_requires_a_matching_source_pin_before_start (test_uiflow_service.UIFlowServiceCompositionTests.test_uiflow_session_requires_a_matching_source_pin_before_start) ... ok
+test_alias_rejection_is_a_structured_http_400_without_artifacts (test_uiflow_service.UIFlowServiceHttpTests.test_alias_rejection_is_a_structured_http_400_without_artifacts) ... 127.0.0.1 - - [26/Oct/2026 11:19:28] "POST /api/v1/firmware/uiflow HTTP/1.1" 400 -
+ok
+test_http_body_limit_precedes_decoded_source_limit_without_publishing (test_uiflow_service.UIFlowServiceHttpTests.test_http_body_limit_precedes_decoded_source_limit_without_publishing) ... 127.0.0.1 - - [26/Oct/2026 11:19:28] "POST /api/v1/firmware/uiflow HTTP/1.1" 413 -
+ok
+test_public_alias_and_generic_source_route_return_identical_firmware (test_uiflow_service.UIFlowServiceHttpTests.test_public_alias_and_generic_source_route_return_identical_firmware) ... 127.0.0.1 - - [26/Oct/2026 11:19:28] "POST /api/v1/firmware/uiflow HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:19:28] "POST /api/v1/firmware HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:19:28] "GET /api/v1/firmware/0f6a64d82ce7aba6dac9a4a3b479e10e13232992bed4763147418530bbead18b HTTP/1.1" 200 -
+ok
+test_source_route_obeys_existing_bearer_auth_before_store_changes (test_uiflow_service.UIFlowServiceHttpTests.test_source_route_obeys_existing_bearer_auth_before_store_changes) ... 127.0.0.1 - - [26/Oct/2026 11:19:28] "POST /api/v1/firmware/uiflow HTTP/1.1" 401 -
+ok
+
+----------------------------------------------------------------------
+Ran 41 tests in 0.714s
+
+OK

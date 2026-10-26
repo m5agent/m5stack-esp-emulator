@@ -1,0 +1,79 @@
+[
+  {
+    "kind": "marker",
+    "marker": "IO_PROBE_READY rgb",
+    "offset": 0,
+    "file": "observations/0000-serial.txt",
+    "sha256": "a343c51d05ed605fe827280cad597b84ebdc2c6d091820bf9c7312bf3a24a234"
+  },
+  {
+    "kind": "state",
+    "phase": "IO_PROBE_READY rgb",
+    "file": "observations/0001-state.json"
+  },
+  {
+    "kind": "marker",
+    "marker": "IO_RGB_FULL 1",
+    "offset": 0,
+    "file": "observations/0002-serial.txt",
+    "sha256": "a343c51d05ed605fe827280cad597b84ebdc2c6d091820bf9c7312bf3a24a234"
+  },
+  {
+    "kind": "state",
+    "phase": "IO_RGB_FULL 1",
+    "file": "observations/0003-state.json"
+  },
+  {
+    "kind": "marker",
+    "marker": "IO_RGB_SHORT 1",
+    "offset": 364,
+    "file": "observations/0004-serial.txt",
+    "sha256": "63c117d78957bace72e7380167201563b1f8ee93ae3442bd542f5f350473c185"
+  },
+  {
+    "kind": "state",
+    "phase": "IO_RGB_SHORT 1",
+    "file": "observations/0005-state.json"
+  },
+  {
+    "kind": "marker",
+    "marker": "IO_RGB_FULL 2",
+    "offset": 380,
+    "file": "observations/0006-serial.txt",
+    "sha256": "5ee7f300e9c8a04563c5ad57bc5b9e18b6f7dd481f34a1bef0fe0c738dacca71"
+  },
+  {
+    "kind": "state",
+    "phase": "IO_RGB_FULL 2",
+    "file": "observations/0007-state.json"
+  },
+  {
+    "kind": "qom",
+    "path": "/machine/rmt0",
+    "property": "tx-symbols",
+    "value": 552
+  },
+  {
+    "kind": "qom",
+    "path": "/machine/rmt0",
+    "property": "tx-threshold-events",
+    "value": 23
+  },
+  {
+    "kind": "qom",
+    "path": "/machine/rmt0",
+    "property": "tx-completions",
+    "value": 9
+  },
+  {
+    "kind": "qom",
+    "path": "/machine/rmt0",
+    "property": "tx-errors",
+    "value": 0
+  },
+  {
+    "kind": "state",
+    "phase": "IO_RGB_FULL 2",
+    "file": "observations/0012-state.json"
+  }
+]

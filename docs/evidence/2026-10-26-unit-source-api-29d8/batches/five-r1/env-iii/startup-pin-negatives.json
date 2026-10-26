@@ -1,0 +1,43 @@
+[
+  {
+    "case": "missing-source-pin",
+    "request": {
+      "device_id": "cores3",
+      "firmware_id": "4d49da20b05e14ecbb17a81aaabf6f1afcce0fe15615cb27ac95e13909b03670",
+      "runtime": "qemu",
+      "ttl_seconds": 900,
+      "ready_marker": "UNIT_PROBE_READY",
+      "ready_timeout_seconds": 180,
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "env-iii",
+          "port_id": "port-a"
+        }
+      ]
+    },
+    "error": "POST sessions: HTTP 400 {\"error\": {\"code\": \"uiflow_source_binding_required\", \"message\": \"UIFlow sessions require the composed uiflow_source_sha256\"}}",
+    "status": "REJECTED"
+  },
+  {
+    "case": "wrong-source-pin",
+    "request": {
+      "device_id": "cores3",
+      "firmware_id": "4d49da20b05e14ecbb17a81aaabf6f1afcce0fe15615cb27ac95e13909b03670",
+      "runtime": "qemu",
+      "ttl_seconds": 900,
+      "ready_marker": "UNIT_PROBE_READY",
+      "ready_timeout_seconds": 180,
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "env-iii",
+          "port_id": "port-a"
+        }
+      ],
+      "uiflow_source_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "error": "POST sessions: HTTP 409 {\"error\": {\"code\": \"uiflow_source_binding_mismatch\", \"message\": \"firmware source changed or does not match the requested UIFlow source\"}}",
+    "status": "REJECTED"
+  }
+]

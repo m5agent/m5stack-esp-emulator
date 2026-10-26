@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.34.0
+  version: 1.35.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -796,6 +796,11 @@ paths:
   /firmware:
     post:
       summary: Compose and validate a flash-sized firmware image
+      description: >
+        The entire serialized HTTP JSON body is limited to 1 MiB (1048576
+        bytes), including keys, paths, syntax, whitespace and escaping.
+        Oversized bodies return 413 body_too_large. For kind=uiflow, the
+        separate decoded-source UTF-8 byte/file limits also apply.
       requestBody:
         required: true
         content:
@@ -805,6 +810,7 @@ paths:
                 - $ref: "#/components/schemas/MergedFirmwareRequest"
                 - $ref: "#/components/schemas/SegmentedFirmwareRequest"
                 - $ref: "#/components/schemas/ManifestFirmwareRequest"
+                - $ref: "#/components/schemas/UIFlowFirmwareRequest"
       responses:
         "201":
           description: Firmware metadata
@@ -813,6 +819,55 @@ paths:
               schema:
                 $ref: "#/components/schemas/Firmware"
         "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+        "507":
+          $ref: "#/components/responses/Error"
+  /firmware/uiflow:
+    post:
+      summary: Compose Python sources into a cached UIFlow2 reference image
+      description: >
+        Convenience form of POST /firmware with kind=uiflow. This endpoint
+        rejects a kind field and unknown fields with 400 invalid_uiflow_request.
+        Supports only the four admitted, cached S3 references. Mounts and
+        preserves the real LittleFS VFS, verifies persisted bytes and never
+        executes caller Python on the host. COMPOSED_NOT_EXECUTED is packaging
+        evidence; run the returned firmware in a visible session for runtime
+        validation. GET /artifacts/{artifact_id} returns metadata only; the
+        caller-source body remains in the service CAS. The entire serialized
+        HTTP JSON body is independently limited to 1 MiB (1048576 bytes),
+        including keys, paths, whitespace and escaping; excess returns 413
+        body_too_large before composition, even if decoded sources fit the
+        helper source-byte limit. Both source routes keep this HTTP limit.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UIFlowSourceRequest"
+      responses:
+        "201":
+          description: Derived image metadata with source provenance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Firmware"
+        "400":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "500":
+          $ref: "#/components/responses/Error"
+        "503":
           $ref: "#/components/responses/Error"
         "507":
           $ref: "#/components/responses/Error"
@@ -1904,6 +1959,194 @@ components:
             Encryption evidence in sdkconfig, signed/invalid image evidence or
             package-provided eFuse claims even when aggregate security fields
             are understated as unknown.
+    FirmwareKind:
+      type: string
+      enum: [merged, segmented, manifest, uiflow]
+    UIFlowSourceFiles:
+      type: object
+      minProperties: 1
+      maxProperties: 128
+      required: [main.py]
+      additionalProperties:
+        type: string
+      description: >
+        Canonical relative UTF-8 POSIX .py paths mapped to source strings.
+        Nested packages are allowed. The server rejects absolute/traversal,
+        empty, backslash, colon, control-character, non-NFC, case-normalization
+        collisions and existing-VFS file/directory conflicts. Path limits are
+        512 UTF-8 bytes, 32 components and 255 UTF-8 bytes per component.
+        Caller source limits are 256 KiB UTF-8 bytes per file and 1 MiB total;
+        JSON character counts do not enforce these byte limits. Independently,
+        both HTTP source routes limit the entire serialized JSON body to 1 MiB
+        (1048576 bytes), including keys/paths, syntax, whitespace and escaping.
+        A source set within the helper byte limit may still exceed the HTTP
+        body limit and receive 413 body_too_large. Both limits apply.
+        NUL is rejected.
+        main.py is required. Omitted boot.py is generated with the UIFlow2
+        _uiflow_run_main flag; caller boot.py is preserved unchanged and must
+        arrange its own main execution. Python is never executed on the host.
+    UIFlowSourceRequest:
+      type: object
+      additionalProperties: false
+      required: [device_id, files]
+      properties:
+        device_id:
+          type: string
+          enum: [cores3, atoms3r, sticks3, stopwatch]
+        files:
+          $ref: "#/components/schemas/UIFlowSourceFiles"
+        expected_base_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Optional cached-reference pin; mismatch returns 409 uiflow_base_hash_mismatch.
+    UIFlowFirmwareRequest:
+      type: object
+      additionalProperties: false
+      required: [device_id, kind, files]
+      properties:
+        device_id:
+          type: string
+          enum: [cores3, atoms3r, sticks3, stopwatch]
+        kind:
+          const: uiflow
+        files:
+          $ref: "#/components/schemas/UIFlowSourceFiles"
+        expected_base_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Optional cached-reference pin; mismatch returns 409 uiflow_base_hash_mismatch.
+    UIFlowSourceFile:
+      type: object
+      additionalProperties: false
+      required: [path, size, sha256, origin]
+      properties:
+        path:
+          type: string
+        size:
+          type: integer
+          minimum: 0
+          description: UTF-8 byte length.
+        sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        origin:
+          type: string
+          enum: [caller, generated]
+    UIFlowSourceMetadata:
+      type: object
+      additionalProperties: true
+      required:
+        - schema_version
+        - kind
+        - status
+        - entrypoint
+        - base_sha256
+        - source_sha256
+        - effective_source_sha256
+        - source_hash_format
+        - firmware_sha256
+        - files
+        - generated_files
+        - caller_file_count
+        - caller_source_bytes
+        - vfs
+        - preservation
+        - toolchain
+      properties:
+        schema_version:
+          const: 1
+        kind:
+          const: uiflow2-source-composition
+        status:
+          const: COMPOSED_NOT_EXECUTED
+          description: Filesystem composition and readback only; runtime results belong to the session.
+        firmware_family_precondition:
+          const: caller-admitted-UIFlow2-base
+        entrypoint:
+          const: main.py
+        base_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+        base_size:
+          type: integer
+        flash_size:
+          type: integer
+        source_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: SHA256 of the canonical caller-files JSON; equals source.artifact_id.
+        effective_source_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Canonical source hash including generated boot.py when present.
+        source_hash_format:
+          const: canonical-json-utf8-path-to-source/v1
+        firmware_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Derived full-flash image hash; differs in meaning from source_sha256.
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/UIFlowSourceFile"
+        generated_files:
+          type: array
+          items:
+            type: string
+        caller_file_count:
+          type: integer
+          minimum: 1
+          maximum: 128
+        caller_source_bytes:
+          type: integer
+          minimum: 0
+          maximum: 1048576
+        vfs:
+          type: object
+          additionalProperties: true
+          description: >
+            Actual base partition label/type/subtype/flags/offset/size and
+            partition_table_offset/source, filesystem=LittleFS, base_sha256,
+            derived_sha256 and base_disk_version/derived_disk_version.
+        preservation:
+          type: object
+          additionalProperties: true
+          required: [outside_vfs_unchanged, existing_files_readback_verified, source_readback_verified]
+          properties:
+            outside_vfs_unchanged:
+              const: true
+            existing_files_readback_verified:
+              const: true
+            source_readback_verified:
+              const: true
+            base_file_count:
+              type: integer
+            preserved_file_count:
+              type: integer
+            overwritten_files:
+              type: array
+              items:
+                type: string
+        toolchain:
+          type: object
+          additionalProperties: true
+          description: Builder, Python version/ABI, LittleFS Python/library/disk versions and exact filesystem config.
+    UIFlowFirmwareSource:
+      type: object
+      additionalProperties: false
+      required: [kind, artifact_id, metadata]
+      properties:
+        kind:
+          const: uiflow
+        artifact_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: >
+            Immutable canonical caller-files JSON artifact in the internal CAS,
+            including source code. GET /artifacts/{artifact_id} is metadata only.
+            Session snapshots and evidence expose hash-only provenance.
+        metadata:
+          $ref: "#/components/schemas/UIFlowSourceMetadata"
     Firmware:
       type: object
       additionalProperties: true
@@ -1918,11 +2161,21 @@ components:
         flash_size:
           type: integer
         kind:
-          type: string
+          $ref: "#/components/schemas/FirmwareKind"
         source:
           type: object
         header_magic:
           type: integer
+      allOf:
+        - if:
+            properties:
+              kind:
+                const: uiflow
+          then:
+            required: [source]
+            properties:
+              source:
+                $ref: "#/components/schemas/UIFlowFirmwareSource"
     UnitAttachment:
       type: object
       additionalProperties: false
@@ -1974,6 +2227,16 @@ components:
         firmware_id:
           type: string
           description: Omit to use the cached reference UIFlow2 image.
+        uiflow_source_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: >
+            Required when firmware_id resolves to kind=uiflow. Copy
+            firmware.source.metadata.source_sha256 from the compose response.
+            Missing returns 400 uiflow_source_binding_required; a mismatch or
+            a supplied pin on a non-uiflow firmware returns 409
+            uiflow_source_binding_mismatch before launch. This binds caller
+            source when identical image bytes have different source declarations.
         ttl_seconds:
           type: integer
           minimum: 30
@@ -2460,6 +2723,12 @@ components:
           type: string
         firmware_source:
           type: string
+        firmware_provenance:
+          $ref: "#/components/schemas/UIFlowFirmwareSource"
+          description: >
+            Optional frozen UIFlow source provenance, retained across history
+            restoration and as firmware/uiflow-source.json in the evidence ZIP.
+            Contains hashes/metadata, never source bodies.
         runtime:
           $ref: "#/components/schemas/RuntimeName"
         runtime_memory:
@@ -2479,6 +2748,7 @@ components:
           nullable: true
         source_artifacts:
           type: array
+          description: For uiflow, contains caller-source JSON artifact IDs, not image SHA256.
           items:
             type: string
         flash:

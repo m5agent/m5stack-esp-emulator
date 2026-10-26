@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "reviewed_at_utc": "2026-10-26T03:22:57.933828+00:00",
+  "status": "ORIGINAL_FAIL_RETAINED_INDEPENDENT_DIAGNOSTIC_AND_UNCHANGED_REPEAT_PASS",
+  "product_changed": false,
+  "original_test_changed": false,
+  "device_service_contacted": false,
+  "firmware_executed": false,
+  "acoustic_measurement": false,
+  "versions": {
+    "node": "v22.22.2",
+    "chrome": "156.0.8078.48"
+  },
+  "source_sha256": {
+    "platform/web/unit-audio.js": "c782dd7134f51bcb1a2d11f327f8ee45204bb0223574fbf8d5f17d13e9d3b714",
+    "platform/web/unit-panel.js": "a8b95a3db35ccfc542a6faedb3a98d9665c7bc6302526e38b9c013388459c06a",
+    "platform/web/unit-panel.css": "3b85b78e8c2389d680343e5c8af1c48ed35a75294a164c2a0e0aa528c949e36a",
+    "platform/tests/test_unit_audio.mjs": "949bb0c6e779c5ce6c0163a91168b81d353afff09265f031d78d9bec644e4440"
+  },
+  "all_four_sources_identical_to_prior_pass_receipt": true,
+  "original_failure": {
+    "path": "original-failure.log",
+    "assertion_line": 247,
+    "assertion": "real browser audio graph contains the PWM waveform",
+    "actual": false,
+    "peak_value": "NOT_RECORDED_BY_ORIGINAL_HARNESS",
+    "status": "FAIL"
+  },
+  "attempts": [
+    {
+      "id": "independent-r1",
+      "result": "HARNESS_IMPORT_ERROR_BEFORE_BROWSER_START",
+      "detail": "Copy location could not resolve platform/tests-local playwright; original log retained, only diagnostic copy import corrected."
+    },
+    {
+      "id": "independent-r2",
+      "result": "PASS",
+      "log": "independent-r2.log",
+      "native_diagnostic": "independent-r2/native-diagnostic.json",
+      "original_100ms_assertion_retained": true,
+      "first_read": {
+        "elapsedMs": 101.29999995231628,
+        "currentTime": 0.05333333333333334,
+        "state": "running",
+        "peak": 0.06942951679229736,
+        "frequency": 4000,
+        "gain": 0.11999999731779099,
+        "sampleRate": 48000,
+        "latency": 0.005333333333333333,
+        "outputLatency": 0.024,
+        "outputTimestamp": {
+          "contextTime": 0.020703000000000003,
+          "performanceTime": 336.2000000476837
+        }
+      },
+      "unit_assertions": 113,
+      "browser_checks": 15
+    },
+    {
+      "id": "original-unchanged-r1",
+      "result": "PASS",
+      "log": "original-unchanged-r1.log",
+      "receipt": "original-unchanged-r1/receipt.json",
+      "native_audio": {
+        "peak": 0.06943003088235855,
+        "frequency": 4000,
+        "sampleRate": 48000
+      },
+      "unit_assertions": 113,
+      "browser_checks": 15
+    }
+  ],
+  "conclusions": [
+    "There is no product or checked-in test source drift against the previous 113+15 PASS receipt.",
+    "The original failure is real but its harness recorded no AudioContext time, measured peak or browser/audio errors at failure, so the exact cause cannot be proven retrospectively.",
+    "The diagnostic retained the original first-read threshold and observed a nonzero waveform at 101.3ms. The audio context had advanced only 53.3ms at that wall-clock point; later samples remained nonzero.",
+    "A fresh, unchanged full audio suite then passed 113 logic assertions and 15 browser checks. This is a new run; it does not replace or relabel the earlier failure.",
+    "Fixed wall-clock sleep is sensitive to audio backend initialization and render scheduling. That is a plausible test flake mechanism, not a fully reproduced root cause from this investigation.",
+    "No concrete product audio defect or browser version regression was established. No product or checked-in test edit is justified by this evidence alone."
+  ],
+  "optional_harness_improvement": {
+    "recommendation": "Replace the single fixed 100ms read with bounded observation of the actual analyser waveform. Keep the same >0.001 threshold, retain all samples and context timing/state, and still fail at a finite deadline if no waveform appears.",
+    "purpose": "Test observed audio rendering rather than assume it starts within a fixed wall-clock sleep.",
+    "implemented": false
+  },
+  "limits": [
+    "Headless native Web Audio browser fixture only; does not prove Device Service, guest Unit behavior, physical acoustics or a final hardware output.",
+    "No timing stress, OS audio-device changes or global browser/audio services were performed."
+  ]
+}

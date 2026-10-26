@@ -1,0 +1,55 @@
+{
+  "unit_id": "button",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "source_cas_sha256": "9fd07df4e797bc6a394a9c3154ef4e0f873773090b5d8bca3cd661860e319949",
+  "files": {
+    "boot.py": {
+      "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+      "size": 24
+    },
+    "main.py": {
+      "sha256": "08c843c093250c50ccaf5459a7bca6704b0671a9be826337e5091518903ee303",
+      "size": 2287
+    },
+    "probe_config.py": {
+      "sha256": "d6e1decb12b503aac8c59e9f8bfe0185a9d6d940647171d7874ce3acecdb4d9b",
+      "size": 58
+    }
+  },
+  "port": {
+    "id": "port-a",
+    "label": "PORT.A",
+    "visual_port": "grove",
+    "connector": "HY2.0-4P",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    },
+    "power": {
+      "nominal_v": 5,
+      "control": "unknown"
+    },
+    "wiring_status": "confirmed",
+    "physical_presence": "main-device",
+    "evidence": [
+      {
+        "url": "https://docs.m5stack.com/en/core/CoreS3",
+        "checked_at": "2026-10-26",
+        "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+      }
+    ],
+    "limitations": []
+  },
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "button",
+      "port_id": "port-a"
+    }
+  ],
+  "ready_marker": "UNIT_PROBE_READY button",
+  "status": "PREPARED_NO_API_OR_RUNTIME"
+}

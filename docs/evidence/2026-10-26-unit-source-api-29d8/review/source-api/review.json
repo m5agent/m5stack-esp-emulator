@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "reviewed_at_utc": "2026-10-26T03:19:28.872958+00:00",
+  "scope": [
+    "platform/tools/uiflow_source.py",
+    "platform/tools/device_service.py",
+    "platform/tools/serve.py",
+    "platform/tests/test_uiflow_source.py",
+    "platform/tests/test_uiflow_service.py"
+  ],
+  "mode": "read-only product review; only this review receipt and test log written",
+  "result": "NO_ACTIONABLE_FINDINGS",
+  "findings": [],
+  "file_sha256": {
+    "platform/tools/uiflow_source.py": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+    "platform/tools/device_service.py": "093e4738efa6b505b1505e5b635249b9ac992583ff587791e16011d29f3b80a8",
+    "platform/tools/serve.py": "0eb620ca8fe8eabbea10929ae543fb68cff838b8f2825c2bcf2669fe8d0fcd46",
+    "platform/tests/test_uiflow_source.py": "07d2d4b57c47e3293d441f0e55c2c6fa037de9771c7d087c1082944bf1775516",
+    "platform/tests/test_uiflow_service.py": "c5d9683c878fa250ff5832e2b59b2b98738245b68bb300a6b0ebb6bbbaa05985"
+  },
+  "test": {
+    "command": "env M5_PYTHON_DEPS=.work/py312 PYTHONPATH=platform/tools:platform/tests:tests/units:.work/py312 /opt/miniconda3/bin/python3.12 -B -m unittest test_uiflow_source test_uiflow_service -v",
+    "exit_code": 0,
+    "test_count": 41,
+    "result": "PASS",
+    "log": "tests.log"
+  },
+  "verified_by_code_and_offline_tests": [
+    "The helper never executes, compiles or imports caller source; source bytes are only packaged in LittleFS and a canonical JSON artifact.",
+    "LittleFS construction uses mount=False and an explicit mount; a mount failure returns a structured error without calling format.",
+    "The original base is immutable; all VFS writes occur in a private bytearray. A separately mounted copy checks all submitted source bytes, original non-overwritten file hashes, directory preservation, and VFS membership.",
+    "The resulting complete image preserves original bytes outside the declared VFS and only pads a previously absent flash tail with 0xff.",
+    "File count, per-file/total UTF-8 byte limits, canonical relative Python paths, Unicode/case collisions, existing file/directory conflicts, flash layout, partition overlap, flags and VFS completeness are checked before publishing.",
+    "Source artifact identity equals the SHA256 of canonical caller-files JSON. Generated boot.py is separately marked and changes the effective-source hash but not the caller-source hash.",
+    "Source sessions require an explicit source pin matching both artifact ID and source metadata before any runtime start. Equal image bytes from generated versus explicit boot declarations cannot silently inherit another source declaration.",
+    "FirmwareStore read/write operations are protected by its lock. Session creation retains the loaded source dictionary and DeviceSession deep-copies provenance, so later equal-image metadata replacements do not mutate an existing session source binding.",
+    "Non-UIFlow firmware retains its existing intake paths and receives neither provenance nor the additional ZIP member. The new HTTP route uses the existing bearer-auth gate and 1 MiB JSON body limit.",
+    "The HTTP 1 MiB body ceiling includes JSON encoding overhead and is independent of the helper source-byte ceiling. Oversized JSON is rejected before builder invocation or store publication.",
+    "Source provenance survives session snapshot, persisted history restoration and evidence ZIP serialization without including caller source text."
+  ],
+  "limitations": [
+    "These are offline tests with real littlefs-python and an ephemeral local HTTP fixture; runtime start is mocked. They do not establish guest firmware, Device Service port 8787, browser, controller, Unit, physical-device or sandbox PASS.",
+    "The four admitted device IDs use a trusted repository reference base. This review does not independently certify a new base firmware family, signature, security mode or arbitrary MicroPython filesystem.",
+    "The equal-image/different-source case is covered by deterministic replacement tests and lock/source-snapshot analysis, not a timing-stress test against the running service.",
+    "Existing firmware/artifact storage operations are not a multi-object disk transaction; filesystem exhaustion during publication and unrelated pre-existing storage behavior were not fault-injected in this review.",
+    "Full platform regression, generated documentation validators and live end-to-end execution remain root-owned validation."
+  ]
+}

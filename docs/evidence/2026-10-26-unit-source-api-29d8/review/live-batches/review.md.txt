@@ -1,0 +1,57 @@
+# UIFlow source API 五例独立结果复核
+
+日期：2026-10-26。结论：**当前落盘批次的限定 virtual-device 结果支持 PASS**。这不是重新执行，也不是所有主机、完整 runtime 矩阵、指南精确示例或 hardware 的总完成结论。未调用任何服务/API，未修改产品或文档。
+
+## 范围与校验
+
+- 对 `live-five-r1` 的 Button、Relay、ENV III、RGB、Encoder 逐例交叉源请求/201 响应、session 请求/202 响应、caller-source pin、真实 HTTP transcript、serial、QOM、ZIP、Web DOM 和 cleanup。另核 `live-button-r1` 的首个独立 Button。
+- 当前 runner 的 `--check` 路径在创建 Client/浏览器之前直接返回，只读本地文件；两个批次均离线 PASS，原始输出分别见 `runner-five-check.json`、`runner-button-check.json`。
+- 独立脚本 `audit.py` 不导入 runner，未使用网络或进程 API；五例核对 1699 个冻结文件、首 Button 核对 562 个冻结文件；所有落盘 SHA256SUMS 项均相符。
+- 证据摘要见 `independent-review.json`。它独立记录每例实际 HTTP 数量、串口分块数、fresh delta、最终 QOM、PID/代际、source/firmware/ZIP SHA 和 RGB 分阶段值。
+
+| Case | Session | 记录 PID | HTTP / serial chunks | running DOM 快照 | 复核 |
+| --- | --- | ---: | ---: | ---: | --- |
+| button | `206924532c08436c8b5f739a1f4b22ec` | `78469` | `54` / `13` | `12` | PASS |
+| relay | `912e127d5d754270b04de3dbe853cce9` | `78694` | `184` / `78` | `9` | PASS |
+| env-iii | `8f1254ae215e4c41a033259df2b191d1` | `78842` | `152` / `63` | `7` | PASS |
+| rgb | `56d9f029d781401c9bc000c24bf45922` | `79009` | `197` / `83` | `5` | PASS |
+| encoder | `4a74c9c61a6544b59ddbe0645bd85da7` | `79098` | `129` / `51` | `8` | PASS |
+
+所有例子绑定 CoreS3 / `runtime=qemu` / worker generation 11。录制的 direct-PID proof 为 `kind=direct-pid`、`status=VERIFIED`，实际 runtime hash 均为 `29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d`。proof 与原始 running API response、ZIP 中 running PID、worker lease_active/identity/generation、firmware SHA 逐一相同；本次离线复核不能再次读取已退出进程的 executable，结论限定为验证当时录制的 proof 及其观察器源码与交叉身份。
+
+## 源码和会话身份
+
+每例从真实 `POST /api/v1/firmware/uiflow` 捕获的 request 重算 caller-files canonical UTF-8 JSON SHA，等于 response `source.artifact_id`、`metadata.source_sha256`、session request `uiflow_source_sha256`、ZIP `source_artifacts[0]`。每个原文文件的 UTF-8 byte 数、SHA、origin 均与落盘文件匹配。reference base 固定为 `1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264`；派生完整 image SHA 在 firmware/session/ZIP 一致，不与 source CAS 混用。
+
+每例都有真实 missing-source-pin `400 uiflow_source_binding_required` 和 wrong-source-pin `409 uiflow_source_binding_mismatch` transcript，且之后的原始 health 显示 active_sessions=0。批次真实 source 错 base 为 `409 uiflow_base_hash_mismatch`、路径越界为 `400 invalid_uiflow_source_path`。没有把这些拒绝写成执行成功。
+
+## Guest 和控制器
+
+- Button 的 4 个输入分别在新串口窗口产生 raw 0/1/0/1，最终 input-events=4；串口 prefix、cursor 和前后 SHA 均一致，不复用旧 marker。
+- Relay 的 fresh cursor 后同时出现 guest 0/1；独立 QOM 采到 False→True，output-transitions 新增，最终为 7。
+- ENV III 的两组新读回分别含 (31.5,67,98765 Pa) 和 (18.25,33,103250 Pa)，在规定补偿精度内；QOM 匹配输入；最终 transactions/read-bytes/written-bytes/input-events=112/226/78/6。
+- Encoder 新窗口包含 signed -12345/pressed=1 与 32767/pressed=0；QOM 相符；最终原 driver LED 两色为 #112233/#445566，I2C 计数=123/118/74/4。
+- 每一个停止前实际 GET serial response 的 offset/next_offset/bytes/data 都与同一 ZIP serial 字节区间一致；保存的完整 serial 是 ZIP serial 前缀。不是仅相信 result 中 fresh_serial 文本。
+
+### RGB：独立核对 FULL→SHORT→FULL
+
+| Guest phase | 三颗 LED 颜色 | led-frames | incomplete-frames | output-transitions | serial cursor |
+| --- | --- | ---: | ---: | ---: | ---: |
+| IO_RGB_FULL 1 | #112233, #445566, #778899 | 4 | 1 | 4 | `0` |
+| IO_RGB_SHORT 1 | #112233, #445566, #778899 | 4 | 2 | 4 | `364` |
+| IO_RGB_FULL 2 | #a1b2c3, #010203, #040506 | 7 | 2 | 7 | `380` |
+
+三次状态的 captured_at 严格递增，均能找到相同原始 `/units` HTTP response；phase marker 出现在各自 recorded cursor 之后的真实串口。SHORT 保持三颗完整颜色与 led-frames/output-transitions 不变，仅 incomplete-frames 从 1 增到 2；之后第二个 FULL 三颗颜色都更新，完整帧计数从 4 增到 7。因此不是只看布尔 check 或最终颜色。原生 RMT QOM 为 tx-symbols=552、threshold-events=23、tx-completions=9、tx-errors=0；保留原 driver/native RMT/GRB 与短帧拒绝断言。
+
+## Web、ZIP 与清理
+
+逐一重算 DOM 各字段的 text/RGB labels，并匹配浏览器捕获的真实 HTTP properties；没有只采用 `dom_matches_product_readback=true`。各 unit instance 为 external1，逻辑 PORT.A 对应视觉 grove；已记录的浏览器源码 hash 与当前未改产品文件一致。五例原生 320×240 frame 均已目视：Button raw=1、Relay on=False、ENV 实际读数、RGB 三色和 Encoder (32767,0) 可读。RGB 真实 Web 截图显示三颗 LED 分项值、frames=7、incomplete=2；不能据此扩大成材料/光学/3D 视觉保真 PASS。
+
+各 ZIP 无重复/损坏项，manifest 完整列举并逐个核对成员 size/SHA；取证时 session=running、same PID/image/source/worker。取证 HTTP 事件严格早于 DELETE `purge=0`；retained history=stopped、flash_retained=false、frozen source provenance 保持。实际 cleanup health 记录 active_sessions=0、active_lease_count=0；pid_gone 的录制 PID 与 runtime proof 一致。本次未重新探测 OS PID。
+
+## 尚未覆盖
+
+- 这里只确认这 5 个 CoreS3 新 source-API 执行及首 Button；不能继承到其他 Unit/主机/firmware/source。
+- 五例使用仓内已核 probe 的源文件组合，不是指南中 AGENT_UNIT_READY 两段精确程序；指南单独批次另核。
+- 硬件均 NOT RUN。原 Buzzer/IR、PWM 初始化观察问题与 shared runtime 完整矩阵门禁不因这五例关闭。
+- 启动串口保留了 UIFlow2 的 i2c.master port-not-initialized 警告；后续对应 guest 数据路径与读回通过，不应把本轮写成“启动完全无警告”。

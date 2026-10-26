@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-26",
+  "review_kind": "static-and-offline-doc-validation",
+  "head": "c53950a2b355283ecc24f44452bfcf3d915b7e0e",
+  "service_api_calls": "NOT RUN",
+  "guest_execution": "NOT RUN",
+  "hardware": "NOT RUN",
+  "source_examples": "PENDING",
+  "blocking_findings": [],
+  "limit_examples": {
+    "plain_ascii": {
+      "caller_files": 4,
+      "per_file_utf8_bytes": 262144,
+      "caller_source_utf8_bytes": 1048576,
+      "serialized_http_json_bytes": 1048651,
+      "http_expected": "413 body_too_large"
+    },
+    "json_escaping": {
+      "caller_files": 4,
+      "per_file_utf8_bytes": 262144,
+      "caller_source_utf8_bytes": 1048576,
+      "serialized_http_json_bytes": 2097227,
+      "http_expected": "413 body_too_large"
+    }
+  },
+  "documents": {
+    "docs/device-service-api.md": {
+      "sha256": "8ae8436183c6c1892198419a4757fdb5f545c9487f4189b86db503957395319d",
+      "lines": 2353
+    },
+    "docs/device-service.openapi.yaml": {
+      "sha256": "ee94b430be87a4bdf1f52258ce4bbbde9c607b909c056b09977da32c83ff3570",
+      "lines": 3371
+    },
+    "docs/unit-agent-api.md": {
+      "sha256": "ab01086d32920a3b47c98c8a2a5a39830539136fc06bc6eb89a48397f113f737",
+      "lines": 316
+    }
+  },
+  "validation": {
+    "all_openapi_schemas": "PASS",
+    "json_examples": "PASS",
+    "guide_python_ast_only": 5,
+    "dual_limit_contract": "PASS",
+    "utf8": "PASS",
+    "targeted_document_contract_tests": {
+      "ran": 3,
+      "status": "PASS"
+    },
+    "diff_check": "PASS"
+  },
+  "review_findings": [
+    {
+      "priority": "P3",
+      "kind": "coverage-gap",
+      "summary": "Add an HTTP-source negative case where decoded source is within helper limits but serialized JSON exceeds the existing 1 MiB body cap.",
+      "location": "platform/tests/test_uiflow_service.py",
+      "blocking": false
+    }
+  ],
+  "known_boundaries": [
+    "image-keyed firmware metadata is last-declaration-wins; session source pin fails closed and frozen session provenance is retained",
+    "UIFlow2 reference admission remains caller/service-owned; arbitrary bases are unsupported",
+    "source content resides in internal CAS; public provenance is hash metadata",
+    "offline packaging/contract checks are not live guest or hardware proof"
+  ]
+}

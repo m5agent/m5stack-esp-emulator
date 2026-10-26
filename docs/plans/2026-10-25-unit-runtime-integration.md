@@ -20,7 +20,8 @@ Python 源码运行，网页实时显示同一 guest/controller 的主机与 Uni
 - 从 `main@eff1561` 建立隔离工作树和 `codex/unit-runtime-integration` 分支。
 - 不修改另一个会话的模型源码；导入公开库固定 commit 的运行文件、来源
   清单和许可。后续同步必须显式，不能从不断变化的工作目录隐式加载。
-- 主机运行时、API 和已有固件路径保持兼容；新增请求字段是可选字段。
+- 主机运行时、API 和已有固件路径保持兼容；新增 source pin 只在新 UIFlow
+  源码固件的 session 中必填，旧固件路径保持原请求方式。
 - 私有研究素材、凭据、固件/ROM/运行时二进制不入 Git。
 - 用户已明确本任务不归档外部 `agent-work-logs`（`SKIPPED_BY_USER`）；
   仓库内的实现文档、验证台账和可复现 evidence 继续维护。
@@ -126,3 +127,13 @@ API；元数据更新后的源码已变化，再次执行需重新准备，不�
 三主机 IO 的默认准备/执行入口已完成，ADC 在执行前阻塞，原 IR/Buzzer 风险
 没有从 CoreS3 继承成新主机 FAIL；离线准备也不授予 PASS。合并主线导致来源
 变化时重新准备，后续接口源码打包沿用真实 Flash/VFS 与可见 Device Service。
+
+
+2026-10-26 已先 checkpoint `ca8245e`，再合入 `origin/main@f206175` 的
+21 个提交，merge 为 `c53950a`；只在隔离 worktree 继续开发。源码 API
+`/firmware/uiflow` 与强制 source pin 已接入真实 Flash/VFS 和 session
+provenance。gen11/29d8 下五例 Button/Relay/ENV III/RGB/Encoder，以及
+指南逐字 Button 和 HUB+ENV III+NCIR 两例全部实际通过；另一次独立 Button
+预检也通过。该批限 CoreS3，不能继承为其它三主机的源码执行或全部 Unit
+完成；具体固件、输入、源码与证据见
+[源码 API 归档](../evidence/2026-10-26-unit-source-api-29d8/README.md)。

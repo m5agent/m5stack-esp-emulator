@@ -1,0 +1,5 @@
+CASE = 'rgb'
+WHITE = 1
+YELLOW = 2
+DEVICE_ID = 'cores3'
+IR_CALLBACK_ROOT_PATCH = False

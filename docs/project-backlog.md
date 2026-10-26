@@ -61,8 +61,10 @@ eFuse 或生产 key。
 
 ## 当前执行顺序
 
-按最新用户优先级，`UNIT-01` 当前先补外部 Agent 的 UIFlow 源码提交→
-Device Service API→可见 session/多 Unit→实时读写控制闭环；实现契约见
+按最新用户优先级，`UNIT-01` 已交付 CoreS3 首批 UIFlow 源码提交→
+Device Service API→可见 session/多 Unit→实时读写控制闭环；七种 Unit 的
+范围与复现入口见[源码 API 指南](unit-agent-api.md)。接着扩展其它准入主机
+及剩余 IO/传感器组合；实现契约见
 [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md)。共享 runtime 的
 完整回归门禁仍 `OPEN`，单例复测不能拼接为全量通过；精确批次与证据见验证台账。
 
@@ -109,7 +111,7 @@ Device Service API→可见 session/多 Unit→实时读写控制闭环；实现
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
-| `UNIT-01` | 进行中 | 同步最新主线后，优先补外部 Agent 的 UIFlow 源码提交→可见 session/多 Unit→实时读写控制闭环；执行新三主机 IO，保留 ADC/Thermal/HUB、原 IR/Buzzer、PWM 初始化 QOM/完整回归、Heart 和视觉缺口 | 新固件重新验证；全批逐型号同 guest 读写、Web 输入/输出、可见 session 和 evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI状态；主机问题单独记录，不以诊断、custom guest 或桥契约替代原固件结论 |
+| `UNIT-01` | 进行中 | 已合最新主线并完成 CoreS3 七种 Unit 的源码 API 路径；下一步扩展其它准入主机和新三主机 IO，保留 ADC/Thermal、其它 HUB 拓扑、原 IR/Buzzer、PWM 初始化 QOM/完整回归、Heart 和视觉缺口 | 新固件重新验证；全批逐型号同 guest 读写、Web 输入/输出、可见 session 和 evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI状态；主机问题单独记录，不以诊断、custom guest 或桥契约替代原固件结论 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
 ## P0：Core2 legacy UIFlow 运行时

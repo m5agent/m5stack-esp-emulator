@@ -1,0 +1,7 @@
+{
+  "device_id": "cores3",
+  "files": {
+    "main.py": "import time\nimport M5\nfrom hardware import UART\nfrom machine import I2C, Pin\nfrom unit import ENVUnit, NCIRUnit\n\nconsole = UART(0, baudrate=115200, tx=43, rx=44)\nM5.begin()\nbus = I2C(0, scl=Pin(1), sda=Pin(2), freq=100000)\nenv = ENVUnit(i2c=bus, type=3)\nncir = NCIRUnit(bus)\nscreen = M5.Display\nscreen.setRotation(1)\nscreen.fillScreen(0xFFFFFF)\nscreen.setTextColor(0x0282CB, 0xFFFFFF)\nscreen.setTextSize(2)\nconsole.write(\"AGENT_UNIT_READY\\r\\n\")\nwhile True:\n    M5.update()\n    temperature = env.read_temperature()\n    humidity = env.read_humidity()\n    pressure_pa = env.read_pressure() * 100\n    ambient = ncir.get_ambient_temperature()\n    target = ncir.get_object_temperature()\n    console.write(\"AGENT_ENV %.2f %.2f %.2f\\r\\n\" % (temperature, humidity, pressure_pa))\n    console.write(\"AGENT_NCIR %.2f %.2f\\r\\n\" % (ambient, target))\n    screen.fillRect(0, 0, screen.width(), 180, 0xFFFFFF)\n    screen.setCursor(6, 6)\n    screen.print(\"T %.1f C\\nRH %.1f %%\\nP %.1f Pa\\nIR %.1f C\" % (temperature, humidity, pressure_pa, target))\n    time.sleep_ms(500)\n"
+  },
+  "expected_base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264"
+}

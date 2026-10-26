@@ -704,6 +704,9 @@ class Handler(SimpleHTTPRequestHandler):
             elif method == "POST" and parts == ["firmware", "import"]:
                 response = service.import_firmware_package(self._read_json())
                 status = 201
+            elif method == "POST" and parts == ["firmware", "uiflow"]:
+                response = service.create_uiflow_firmware(self._read_json())
+                status = 201
             elif method == "POST" and parts == ["firmware"]:
                 response = service.create_firmware(self._read_json())
                 status = 201

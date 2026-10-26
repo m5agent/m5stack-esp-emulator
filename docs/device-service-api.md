@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-26`.
 
-Status: local MVP with unified-device runtime contract `1.34.0` and bounded
+Status: local MVP with unified-device runtime contract `1.35.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -102,6 +102,11 @@ are still required to prove firmware consumption. The evidence ZIP includes
 `units/runtime.json`, `units/state.json` and `units/contract.json` alongside
 serial and framebuffer evidence. Request it before stop and retain history with
 `purge=0`.
+A copyable source-to-session workflow, including a Button input and a passive
+HUB with multiple I2C Units, is in [External Agent Unit API](unit-agent-api.md).
+Attachments are configured before the guest starts; changing the topology
+requires a new session. The guest must initialize the corresponding drivers.
+
 Controller-side rejection, such as a full UART FIFO, returns
 `409 unit_input_rejected` while preserving the healthy QMP connection. A broken
 transport remains `503`; a command timeout remains `504`.
@@ -858,6 +863,139 @@ The response includes `firmware_id`, `sha256`, `device_id`, `flash_size`,
 `artifact_sha256` identifies the uploaded source artifact. `firmware_id` and
 `firmware.sha256` identify the composed, flash-sized image after padding and
 segment composition. They intentionally do not have to be equal.
+
+### UIFlow2 Python source
+
+`POST /api/v1/firmware` also accepts `kind=uiflow`:
+
+```json
+{
+  "kind": "uiflow",
+  "device_id": "cores3",
+  "files": {
+    "main.py": "import M5\nM5.begin()\n",
+    "pkg/__init__.py": "",
+    "pkg/example.py": "VALUE = 1\n"
+  }
+}
+```
+
+The convenience endpoint `POST /api/v1/firmware/uiflow` accepts the same object
+**without `kind`**. Supplying `kind` there, or unknown source-request fields on
+either endpoint, returns `400 invalid_uiflow_request`. Optional
+`expected_base_sha256` pins the cached reference image to a lowercase SHA256;
+a mismatch returns `409 uiflow_base_hash_mismatch`.
+
+Source intake currently admits only `cores3`, `atoms3r`, `sticks3` and
+`stopwatch`, using each device's known, locally cached UIFlow2 reference.
+An enabled device outside that set returns `409 unsupported_uiflow_device`;
+a missing cached reference returns `409 reference_firmware_missing`. This is
+not a generic MicroPython, signed/encrypted image or arbitrary base importer.
+Existing merged, segmented and FirmwareManifest paths keep their own capability
+and security preflight.
+
+`files` is a path-to-source-string object with a root `main.py`. Nested Python
+packages are supported. Paths must be canonical relative UTF-8 POSIX `.py`
+paths: no absolute paths, traversal, empty components, backslashes, control
+characters or case/Unicode-normalization collisions. There are at most 128
+caller files, 256 KiB UTF-8 bytes per file and 1 MiB UTF-8 bytes total; these
+are byte limits, not JSON character limits. Independently, the existing HTTP
+JSON-body limit is 1 MiB (1,048,576 bytes) for both source endpoints. The
+serialized body includes field names, paths, JSON punctuation/whitespace and
+escaping; it can exceed the HTTP limit even when decoded caller-source bytes
+fit the helper's 1 MiB limit. Both limits apply; an HTTP body over the limit
+returns `413 body_too_large` before composition. Source strings cannot contain NUL.
+The current path limits are 512 UTF-8 bytes, 32 components and 255 UTF-8 bytes
+per component. Existing VFS file/directory collisions fail closed.
+
+The service mounts the real reference LittleFS `vfs` partition without
+formatting, overlays submitted paths, then remounts it to verify persisted
+bytes and preserved files. It preserves image bytes outside that partition
+and pads the final image to the device's flash size. It never executes caller
+Python on the host. An omitted `boot.py` produces
+`_uiflow_run_main = True\n` with `origin=generated`; a caller-supplied `boot.py`
+is retained unchanged and must arrange its own entrypoint execution.
+`main.py` source validity, imports and behavior are checked by running the
+resulting firmware in a Device Service session, not by a successful compose.
+
+The response is the normal Firmware object with `kind=uiflow` and:
+
+```json
+{
+  "source": {
+    "kind": "uiflow",
+    "artifact_id": "<canonical-caller-files-json-sha256>",
+    "metadata": {
+      "schema_version": 1,
+      "kind": "uiflow2-source-composition",
+      "status": "COMPOSED_NOT_EXECUTED",
+      "entrypoint": "main.py",
+      "base_sha256": "<cached-reference-sha256>",
+      "source_sha256": "<canonical-caller-files-json-sha256>",
+      "effective_source_sha256": "<caller-plus-generated-files-json-sha256>",
+      "firmware_sha256": "<derived-full-image-sha256>",
+      "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+      "files": [
+        {"path": "main.py", "size": 21, "sha256": "<file-sha256>", "origin": "caller"},
+        {"path": "boot.py", "size": 24, "sha256": "<file-sha256>", "origin": "generated"}
+      ]
+    }
+  }
+}
+```
+
+This abbreviated metadata example illustrates the shape; sizes and hashes must
+be taken from the real response. Canonical source JSON uses UTF-8,
+`ensure_ascii=False`, sorted keys and separators `(',', ':')`. Its artifact
+contains exactly the caller's `files` object, including code; a generated
+`boot.py` appears in the effective hash and file metadata, not in that artifact.
+`GET /artifacts/{artifact_id}` returns artifact metadata only.
+
+The complete composition metadata also records `base_size`, `flash_size`,
+`firmware_family_precondition`, `caller_file_count`, `caller_source_bytes`,
+`generated_files`, the actual partition layout and LittleFS hashes/versions in
+`vfs`, preservation/readback flags in `preservation`, and builder, Python,
+LittleFS versions and filesystem config in `toolchain`. Its status remains
+`COMPOSED_NOT_EXECUTED` even after a separate runtime test; runtime evidence
+belongs to the session and validation report.
+
+When creating a session for `kind=uiflow`, also supply
+`uiflow_source_sha256=source.metadata.source_sha256` from the compose response.
+The image ID alone cannot distinguish different caller-source declarations
+that produce identical image bytes. A missing source pin returns
+`400 uiflow_source_binding_required`; a mismatched pin, or a pin supplied for
+non-UIFlow firmware, returns `409 uiflow_source_binding_mismatch` before launch.
+An overwrite/race can therefore require re-composition and a fresh source pin;
+it must not silently select another source's provenance.
+
+For sessions created from this firmware, `firmware_provenance` contains the
+same `source` object and survives history restoration. The evidence ZIP adds
+`firmware/uiflow-source.json` with that hash-only provenance, not source code.
+`artifact_sha256` and `source_artifacts[0]` identify the caller-source JSON;
+`firmware_id`, `firmware_sha256` and `source.metadata.firmware_sha256` identify
+the derived complete image. Record both identities; do not compare them as if
+they were the same artifact. The mutable session Flash has its own lifecycle
+and hashes.
+
+Common source failures:
+
+| HTTP | Code | Meaning |
+| --- | --- | --- |
+| 400 | `invalid_uiflow_request` | Unknown request fields, or `kind` on the convenience endpoint |
+| 400 | `invalid_uiflow_source` / `invalid_uiflow_source_path` | Missing `main.py`, invalid source values or unsafe paths |
+| 409 | `uiflow_source_path_conflict` | Caller or existing VFS path collision |
+| 409 | `unsupported_uiflow_device` / `reference_firmware_missing` | Target or cached base is unavailable for source intake |
+| 409 | `uiflow_base_hash_mismatch` | Optional expected base hash does not match |
+| 409 | `unsupported_uiflow_vfs` / `uiflow_vfs_unmountable` | Unsupported layout or unmountable existing LittleFS; no format fallback |
+| 413 | `body_too_large` | Entire serialized HTTP JSON body exceeds 1 MiB, including escaping and keys |
+| 413 | `uiflow_source_too_large` / `uiflow_vfs_full` | Source limits or available filesystem capacity exceeded |
+| 503 | `uiflow_source_dependency_unavailable` / `reference_firmware_unreadable` | Required LittleFS dependency or cached base cannot be read |
+
+Composition alone proves filesystem packaging and readback. It does not prove
+that a driver imported, a Unit transaction occurred, an application displayed,
+or physical hardware worked. The workflow's current execution evidence and
+remaining gates are recorded in [the Agent guide](unit-agent-api.md) and the
+project authority pages.
 
 ### Session
 

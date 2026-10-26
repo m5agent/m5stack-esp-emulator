@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "status": "PASS_OFFLINE_COMPOSITION_ONLY",
+  "signature": "build_uiflow_source_image(base:bytes,flash_size:int,files:dict[str,str],*,expected_base_sha256:str|None=None)->tuple[bytes,dict]",
+  "error": "UIFlowSourceError.code/message/status",
+  "source_hash_format": "UTF-8 json.dumps(caller_files,ensure_ascii=False,sort_keys=True,separators=(comma,colon)), no trailing newline",
+  "files": {
+    "platform/tools/uiflow_source.py": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+    "platform/tests/test_uiflow_source.py": "07d2d4b57c47e3293d441f0e55c2c6fa037de9771c7d087c1082944bf1775516"
+  },
+  "validation": {
+    "unittest_count": 20,
+    "unittest_log_sha256": "e4fd04ee3d336c178d2d78c658b4ca3b54381f4b6e9d28d54cfe34c67f283e4a",
+    "real_reference_composition_count": 4,
+    "real_reference_receipt_sha256": "1cb87d6b6d75514e3227359602e0100d01f8a5bc22f8903b0d8ada602a73d761",
+    "ast_utf8_parse": true,
+    "absolute_install_paths_in_metadata": false,
+    "no_network_api_or_guest_execution": true
+  },
+  "boot_evidence": {
+    "official_skill": "/Users/yunyu/.codex/skills/uiflow2-coder/docs/get-started/_overview.md",
+    "official_doc_scope": "UIFlow2 family/board guidance; does not itself document the private boot flag",
+    "repository_convention": "tests/units/io_probe/boot.py and tests/uiflow2/*/boot.py",
+    "boundary": "Service must admit known UIFlow2 reference bases; a mountable VFS/private flag alone does not establish firmware family/security/guest execution."
+  }
+}

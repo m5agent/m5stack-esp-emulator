@@ -1,0 +1,32 @@
+# 指南精确两例的独立证据复核
+
+日期：2026-10-26。结论：录制的 CoreS3 Button 和 HUB+ENV III+NCIR 两个独立 session 的限定 virtual-device 结果支持 PASS。未调用任何服务/API，未修改 docs 或产品；没有重新执行 guest。不能扩展为其他主机/固件、共享 runtime 全矩阵或 hardware 完成。
+
+## 精确源码与自动 boot
+
+原始指南全文冻结 SHA 为 `ab01086d32920a3b47c98c8a2a5a39830539136fc06bc6eb89a48397f113f737`。按原始 source_span 行号重取两段 guest 源码，与提交的 main.py 原始 UTF-8 bytes 完全相同，并确认两段在当前指南中仍唯一原样存在。当前全文可因 root 更新验证结果而变化；不能因此覆盖运行时的原始指南快照。HUB 拓扑和两组输入还从原始 JSON code fences 直接解析对照，Button 的 units 从宿主 Python heredoc AST 的字面量抽取；没有执行 guest 文本。
+
+两个请求都只含 caller `main.py`，没有上传 boot.py：服务 metadata 的 caller_file_count=1，generated_files=[boot.py]，boot 24 bytes 的 hash 与 `_uiflow_run_main = True\n` 一致，origin=generated；main origin=caller。caller-only CAS 与包含 boot 的 effective-source SHA 分别重算一致且不相同，不把 generated boot 计入 caller artifact。
+
+| Case | Session | main SHA256 | Caller CAS | Effective source |
+| --- | --- | --- | --- | --- |
+| button | `dd0879e0cb5c42b8a3c79d94011fb55c` | `5e2a868b27a8cf8b59addca785fa5baa3d39deaf9827a998e1520d0fb8b27f73` | `19d46b6db29e76694e94202551f527dd148c210c9b131b1272ee3be71c915047` | `9a9a228603c2bae39da27e20101b35cc8ac0a25634baa15d447c79b3c13d7153` |
+| hub-env-ncir | `542bd4b899df4e1ea09e2d9ed8fe5597` | `ba19aa2304c48a3ec1e6c111676112792515e3aa43d70f0f4dd3670bc6a58230` | `50c4554a0f79a8d92af4550a20e7a1e1ea08681dc4ba415ba632648e7ec40054` | `70d86cb7a926c1d4933e83ec435cf0d3a7541ba948c16f68ec140038577a08a6` |
+
+原始 source request/201 response 与 session sourcepin request/202 response 逐字匹配 transcript。两例 PID 分别为 `83363`、`83447`；direct-PID proof 与 running response/ZIP 的同一 firmware/session/worker generation 11 一致，runtime 为 `29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d`。本次只核录制 proof，未重新读取已结束 PID。
+
+## Fresh input、隔离和控制器
+
+- Button cursor 352→376 后的新串口为 `AGENT_BUTTON pressed=1`，376→400 为 `pressed=0`；原生两帧已目视 PRESSED/RELEASED。active-low input-level 分别 false/true，input-events 逐步 0→1→2。
+- ENV 输入后的新串口为 `AGENT_ENV 28.50 61.00 100800.00`；NCIR 原输入仍 25/32，input-events 仍为 0。ENV 自身 input-events 从 0 增到 3；该状态的 ENV I2C transactions/read-bytes/written-bytes 为 33/66/24，NCIR 同时有自己的 9/8/4。
+- NCIR 输入后的新串口为 `AGENT_NCIR 23.99 37.49`，符合 0.021 °C 的量化容差；同一 fresh 窗口还保留 `AGENT_ENV 28.50 61.00 100800.00`。NCIR input-events 0→2，I2C 17/16/8；ENV 的物理输入和 input-events=3 保持不变，其后台 I2C 独立前进到 52/106/36。未把后台读数计数变化误当成另一 Unit 的输入改变。
+- 每步 before cursor 与每一分块均能在原始 serial HTTP response 找到；offset/next_offset/bytes 连续，fresh 文件 hash 与真实 chunk 拼接一致。before/after Unit 状态同样逐份匹配原始 HTTP bytes。
+- HUB 与两 leaf 都继承同一 CoreS3 white=1/yellow=2；是 passive shared bus，HUB 自身无虚构 I2C transaction。每个 leaf 均独立具有非零 transactions/read-bytes/written-bytes/input-events。
+
+## 显示、Web 与保留
+
+目视 HUB 原生 frame：T28.5、RH61.0、P100800.0 Pa、IR37.5，整张可读；真实 Web 截图完整显示 HUB、ENV III、NCIR 卡及各 leaf 的独立实时读数和计数。重新核每个 running DOM 字段和实际 browser HTTP properties，一共每例 9 个 running snapshots；Button 有 2 个真实 POST，HUB 有 5 个单字段真实 POST。没有只依赖 DOM 布尔断言。
+
+各 ZIP 的成员索引/size/SHA、before-stop running PID/worker、source provenance 与 caller CAS 一致；实际 evidence HTTP 严格先于 DELETE purge=0。retained session=stopped，flash_retained=false，原 source provenance 保持，cleanup health active_sessions/active_lease_count 均 0；记录的 pid_gone 为同一拥有 PID。hardware NOT RUN。
+
+原指南 runner 的只读 `--check` 独立重放 PASS，结果保存 `runner-guide-check.json`；独立审核脚本为 `guide_audit.py`、结果为 `guide-review.json`。共重算 1258 个冻结文件。没有删除或改写原始证据。完整共享 runtime 回归门禁、原 Buzzer/IR 和硬件边界不由本次两例关闭。

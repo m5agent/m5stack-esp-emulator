@@ -46,6 +46,7 @@ from ble_runtime_limits import (  # noqa: E402
     reconnect_workload_timeout_seconds,
 )
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
+from uiflow_source import UIFlowSourceError, build_uiflow_source_image  # noqa: E402
 from firmware_analysis import (  # noqa: E402
     analyze_esp_image,
     analyze_firmware,
@@ -2452,7 +2453,40 @@ class FirmwareStore:
         image = bytearray(b"\xff" * spec.flash_size)
         intervals: list[tuple[int, int]] = []
 
-        if kind == "merged":
+        if kind == "uiflow":
+            allowed = {"kind", "device_id", "files", "expected_base_sha256"}
+            if set(payload) - allowed:
+                raise ServiceError("invalid_uiflow_request", "unknown UIFlow source fields", 400)
+            if device_id not in {"cores3", "atoms3r", "sticks3", "stopwatch"}:
+                raise ServiceError(
+                    "unsupported_uiflow_device",
+                    "UIFlow source intake currently supports CoreS3, AtomS3R, StickS3 and StopWatch",
+                    409,
+                )
+            if not spec.reference_path or not spec.reference_path.is_file():
+                raise ServiceError("reference_firmware_missing", "cached UIFlow2 reference is required", 409)
+            try:
+                base = spec.reference_path.read_bytes()
+                composed, source_metadata = build_uiflow_source_image(
+                    base, spec.flash_size, payload.get("files"),
+                    expected_base_sha256=payload.get("expected_base_sha256"),
+                )
+            except UIFlowSourceError as error:
+                raise ServiceError(error.code, error.message, error.status) from error
+            except OSError as error:
+                raise ServiceError("reference_firmware_unreadable", "cannot read cached UIFlow2 reference", 503) from error
+            source_bytes = json.dumps(
+                payload["files"], ensure_ascii=False, sort_keys=True, separators=(",", ":"),
+            ).encode("utf-8")
+            if hashlib.sha256(source_bytes).hexdigest() != source_metadata["source_sha256"]:
+                raise ServiceError("uiflow_source_integrity_error", "source binding differs", 500)
+            artifact = self.artifacts.create(
+                source_bytes, name=f"{device_id}-uiflow-source.json", content_type="application/json",
+            )
+            image[:] = composed
+            intervals.append((0, len(composed)))
+            source = {"kind": "uiflow", "artifact_id": artifact["artifact_id"], "metadata": source_metadata}
+        elif kind == "merged":
             artifact_id = payload.get("artifact_id")
             data = self.artifacts.read(artifact_id)
             if len(data) > spec.flash_size:
@@ -2610,7 +2644,7 @@ class FirmwareStore:
         else:
             raise ServiceError(
                 "unsupported_firmware_kind",
-                "kind must be 'merged', 'segmented' or 'manifest'",
+                "kind must be 'merged', 'segmented', 'manifest' or 'uiflow'",
                 400,
             )
 
@@ -2891,6 +2925,7 @@ class DeviceSession:
         reattached_process: bool = False,
         companions: dict | None = None,
         persist: bool = True,
+        firmware_provenance: dict | None = None,
     ):
         self.service = service
         self.id = session_id
@@ -2900,6 +2935,9 @@ class DeviceSession:
         self.firmware_sha = firmware_sha
         self.firmware_source = firmware_source
         self.source_artifacts = source_artifacts
+        self.firmware_provenance = (
+            json.loads(json.dumps(firmware_provenance)) if firmware_provenance else None
+        )
         self.runtime_env = dict(runtime_env or {})
         self.units = json.loads(json.dumps(units or []))
         self.unit_contract = (
@@ -3065,6 +3103,7 @@ class DeviceSession:
             "firmware_sha256": self.firmware_sha,
             "firmware_source": self.firmware_source,
             "source_artifacts": list(self.source_artifacts),
+            **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
             "runtime_env": dict(self.runtime_env),
             "units": self.units,
             "unit_contract": self.unit_contract,
@@ -3558,6 +3597,7 @@ class DeviceSession:
                     self.source_artifacts[0] if self.source_artifacts else None
                 ),
                 "source_artifacts": list(self.source_artifacts),
+                **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
                 "runtime_env": dict(self.runtime_env),
                 "runtime": self.runtime,
                 "runtime_memory": (
@@ -6629,6 +6669,10 @@ class DeviceSession:
             "included": sorted(include),
             "files": {},
         }
+        if self.firmware_provenance:
+            files["firmware/uiflow-source.json"] = json.dumps(
+                self.firmware_provenance, ensure_ascii=False, indent=2,
+            ).encode("utf-8")
         if self.units:
             manifest["units"] = self.unit_state()
             if manifest["units"].get("contract_status") == "frozen":
@@ -8095,6 +8139,10 @@ class DeviceService:
                     for artifact in source_artifacts
                     if isinstance(artifact, str)
                 ],
+                firmware_provenance=(
+                    record.get("firmware_provenance")
+                    if isinstance(record.get("firmware_provenance"), dict) else None
+                ),
                 ttl_seconds=ttl_seconds,
                 ready_marker=(
                     record.get("ready_marker")
@@ -8452,6 +8500,11 @@ class DeviceService:
             self._ensure_storage_capacity(spec.flash_size)
         return self.firmware.create(payload)
 
+    def create_uiflow_firmware(self, payload: dict) -> dict:
+        if "kind" in payload:
+            raise ServiceError("invalid_uiflow_request", "kind is not accepted on the UIFlow source endpoint", 400)
+        return self.create_firmware({**payload, "kind": "uiflow"})
+
     def reference_info(self, spec: DeviceSpec) -> dict:
         with self._lock:
             if spec.id in self._reference_cache:
@@ -8653,7 +8706,7 @@ class DeviceService:
                 )
             source_artifacts = (
                 [firmware_source["artifact_id"]]
-                if firmware_source.get("kind") in {"merged", "manifest"}
+                if firmware_source.get("kind") in {"merged", "manifest", "uiflow"}
                 and firmware_source.get("artifact_id")
                 else [
                     segment["artifact_id"]
@@ -8668,6 +8721,30 @@ class DeviceService:
             firmware_sha = reference["sha256"]
             source = "reference"
             source_artifacts = []
+
+        source_pin = payload.get("uiflow_source_sha256")
+        is_uiflow_source = source == "uploaded" and firmware_source.get("kind") == "uiflow"
+        if is_uiflow_source and source_pin is None:
+            raise ServiceError(
+                "uiflow_source_binding_required",
+                "UIFlow sessions require the composed uiflow_source_sha256",
+                400,
+            )
+        if source_pin is not None:
+            if not isinstance(source_pin, str) or len(source_pin) != 64 or any(
+                char not in "0123456789abcdef" for char in source_pin
+            ):
+                raise ServiceError("invalid_uiflow_source_binding", "uiflow_source_sha256 must be a lowercase SHA256", 400)
+            if (
+                not is_uiflow_source
+                or source_pin != firmware_source.get("artifact_id")
+                or source_pin != firmware_source.get("metadata", {}).get("source_sha256")
+            ):
+                raise ServiceError(
+                    "uiflow_source_binding_mismatch",
+                    "firmware source changed or does not match the requested UIFlow source",
+                    409,
+                )
 
         runtime = payload.get("runtime", "qemu")
         if runtime not in QEMU_SESSION_RUNTIMES:
@@ -8936,6 +9013,8 @@ class DeviceService:
                     firmware_sha=firmware_sha,
                     firmware_source=source,
                     source_artifacts=source_artifacts,
+                    firmware_provenance=(firmware_source if firmware_source.get("kind") == "uiflow" else None)
+                    if source == "uploaded" else None,
                     ttl_seconds=ttl,
                     ready_marker=ready_marker,
                     ready_timeout=ready_timeout,

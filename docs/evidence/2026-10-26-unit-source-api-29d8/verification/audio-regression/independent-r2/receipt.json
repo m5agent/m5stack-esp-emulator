@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "category": "browser-audio-fixture",
+  "firmware_executed": false,
+  "device_service_contacted": false,
+  "acoustic_measurement": false,
+  "unit_assertions": 113,
+  "browser_checks": [
+    "default-muted-no-context-and-acoustic-boundary",
+    "explicit-click-resumes-native-audio-and-produces-waveform",
+    "continuous-actual-parameter-update-same-oscillator",
+    "user-mute-closes-native-context",
+    "stopped-destroys-native-graph-and-context",
+    "session-change-destroys-native-graph-and-context",
+    "unavailable-destroys-native-graph-and-context",
+    "persisted-destroys-native-graph-and-context",
+    "missing-unit-destroys-native-graph-and-context",
+    "invalid-field-destroys-native-graph-and-context",
+    "detach-destroys-native-graph-and-context",
+    "dispose-destroys-native-graph-and-context",
+    "transport-destroys-native-graph-and-context",
+    "late-native-resume-after-stop-does-not-revive-audio",
+    "no-post-no-runtime-api-no-browser-errors"
+  ],
+  "native_audio": {
+    "elapsedMs": 101.29999995231628,
+    "currentTime": 0.05333333333333334,
+    "state": "running",
+    "peak": 0.06942951679229736,
+    "frequency": 4000,
+    "gain": 0.11999999731779099,
+    "sampleRate": 48000,
+    "latency": 0.005333333333333333,
+    "outputLatency": 0.024,
+    "outputTimestamp": {
+      "contextTime": 0.020703000000000003,
+      "performanceTime": 336.2000000476837
+    },
+    "observations": [
+      {
+        "elapsedMs": 101.29999995231628,
+        "currentTime": 0.05333333333333334,
+        "state": "running",
+        "peak": 0.06942951679229736,
+        "frequency": 4000,
+        "gain": 0.11999999731779099,
+        "sampleRate": 48000,
+        "latency": 0.005333333333333333,
+        "outputLatency": 0.024,
+        "outputTimestamp": {
+          "contextTime": 0.020703000000000003,
+          "performanceTime": 336.2000000476837
+        }
+      },
+      {
+        "elapsedMs": 250.10000014305115,
+        "currentTime": 0.20266666666666666,
+        "state": "running",
+        "peak": 0.06943131238222122,
+        "frequency": 4000,
+        "gain": 0.11999999731779099,
+        "sampleRate": 48000,
+        "latency": 0.005333333333333333,
+        "outputLatency": 0.024,
+        "outputTimestamp": {
+          "contextTime": 0.17004133333333332,
+          "performanceTime": 485.5
+        }
+      },
+      {
+        "elapsedMs": 500.60000014305115,
+        "currentTime": 0.4533333333333333,
+        "state": "running",
+        "peak": 0.06943434476852417,
+        "frequency": 4000,
+        "gain": 0.11999999731779099,
+        "sampleRate": 48000,
+        "latency": 0.005333333333333333,
+        "outputLatency": 0.024,
+        "outputTimestamp": {
+          "contextTime": 0.420722,
+          "performanceTime": 736.2000000476837
+        }
+      },
+      {
+        "elapsedMs": 1001.2000000476837,
+        "currentTime": 0.9546666666666667,
+        "state": "running",
+        "peak": 0.06944039463996887,
+        "frequency": 4000,
+        "gain": 0.11999999731779099,
+        "sampleRate": 48000,
+        "latency": 0.005333333333333333,
+        "outputLatency": 0.024,
+        "outputTimestamp": {
+          "contextTime": 0.9220343333333334,
+          "performanceTime": 1237.5
+        }
+      },
+      {
+        "elapsedMs": 2001.2999999523163,
+        "currentTime": 1.952,
+        "state": "running",
+        "peak": 0.06945215910673141,
+        "frequency": 4000,
+        "gain": 0.11999999731779099,
+        "sampleRate": 48000,
+        "latency": 0.005333333333333333,
+        "outputLatency": 0.024,
+        "outputTimestamp": {
+          "contextTime": 1.924707,
+          "performanceTime": 2240.2000000476837
+        }
+      }
+    ],
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36"
+  },
+  "api_calls": [
+    {
+      "path": "/api/v1/sessions/browser-audio-fixture/units",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/units?device_id=cores3",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/sessions/browser-audio-fixture/units",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/units?device_id=cores3",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/sessions/browser-audio-fixture/units",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/units?device_id=cores3",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/sessions/browser-audio-fixture/units",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/units?device_id=cores3",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/sessions/browser-audio-fixture/units",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/units?device_id=cores3",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/sessions/browser-audio-fixture/units",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/units?device_id=cores3",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/sessions/browser-audio-fixture/units",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/units?device_id=cores3",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/sessions/browser-audio-fixture/units",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/units?device_id=cores3",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/sessions/browser-audio-fixture/units",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/units?device_id=cores3",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/sessions/browser-audio-fixture/units",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/units?device_id=cores3",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/sessions/browser-audio-fixture/units",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v1/units?device_id=cores3",
+      "method": "GET"
+    }
+  ],
+  "requests": [
+    {
+      "path": "/harness",
+      "method": "GET"
+    },
+    {
+      "path": "/platform/web/m5-tokens.css",
+      "method": "GET"
+    },
+    {
+      "path": "/platform/web/unit-panel.css",
+      "method": "GET"
+    },
+    {
+      "path": "/favicon.ico",
+      "method": "GET"
+    },
+    {
+      "path": "/platform/web/unit-panel.js",
+      "method": "GET"
+    },
+    {
+      "path": "/platform/web/unit-visual-mappings.js",
+      "method": "GET"
+    },
+    {
+      "path": "/platform/web/unit-audio.js",
+      "method": "GET"
+    },
+    {
+      "path": "/favicon.ico",
+      "method": "GET"
+    }
+  ],
+  "source_sha256": {
+    "platform/web/unit-audio.js": "c782dd7134f51bcb1a2d11f327f8ee45204bb0223574fbf8d5f17d13e9d3b714",
+    "platform/web/unit-panel.js": "a8b95a3db35ccfc542a6faedb3a98d9665c7bc6302526e38b9c013388459c06a",
+    "platform/web/unit-panel.css": "3b85b78e8c2389d680343e5c8af1c48ed35a75294a164c2a0e0aa528c949e36a",
+    "platform/tests/test_unit_audio.mjs": "949bb0c6e779c5ce6c0163a91168b81d353afff09265f031d78d9bec644e4440"
+  },
+  "captured_at": "2026-10-26T03:21:30.058Z"
+}

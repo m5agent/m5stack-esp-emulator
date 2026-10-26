@@ -18,6 +18,7 @@
 | 现在到底支持什么 | `devices/catalog.source.json`、`platform/peripherals/catalog.json`、最新测试与 [项目当前状态](project-status.md) |
 | 还有什么没做 | [项目 Backlog](project-backlog.md) |
 | Device Service 如何调用 | [Device Service API](device-service-api.md) 与 [OpenAPI](device-service.openapi.yaml) |
+| 外部 Agent 如何提交 Python、配置 Unit 和取证 | [UIFlow 源码到 Unit 会话](unit-agent-api.md) |
 | 单 lease 设备验收标准 | [统一设备运行时契约](unified-device-runtime.md) |
 | 固件如何规范化和拒绝 | [固件清单与 WebBurner 导入](firmware-manifest.md) |
 | 已知模拟器运行时缺口和关闭条件 | [运行时模型缺口登记](runtime-model-gap-register.md) |
@@ -291,6 +292,7 @@ HTTP / browser
 | --- | --- |
 | `platform/tools/serve.py` | HTTP 服务、静态页面和 `/api/v1` 路由入口 |
 | `platform/tools/device_service.py` | lease、artifact/firmware 存储、可恢复 chunk upload、会话生命周期、QEMU/esp-emu 编排、证据包 |
+| `platform/tools/uiflow_source.py` | 将获准 UIFlow2 reference 的真实 LittleFS VFS 叠加 caller Python，重新挂载核对持久字节、保留原文件并记录源码/镜像/工具链 provenance；不在宿主执行 guest 代码 |
 | `platform/tools/worker_registry.py` | 单 worker 的持久化 heartbeat、generation、租约和 drain 状态机 |
 | `platform/tools/worker_directory.py` | 远程 worker 持久注册表、identity/generation 校验、stale/drain/stop 和有界结果索引 |
 | `platform/tools/worker_queue.py` | 持久任务、幂等提交、能力匹配、worker lease、超时重试和 terminal result |

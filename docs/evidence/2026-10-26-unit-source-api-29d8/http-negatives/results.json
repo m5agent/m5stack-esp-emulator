@@ -1,0 +1,64 @@
+[
+  {
+    "request": {
+      "kind": "uiflow",
+      "device_id": "cores3",
+      "files": {
+        "main.py": "pass\n"
+      }
+    },
+    "status": 400,
+    "response": {
+      "error": {
+        "code": "invalid_uiflow_request",
+        "message": "kind is not accepted on the UIFlow source endpoint"
+      }
+    }
+  },
+  {
+    "request": {
+      "device_id": "cores3",
+      "files": {
+        "../main.py": "pass\n"
+      }
+    },
+    "status": 400,
+    "response": {
+      "error": {
+        "code": "invalid_uiflow_source_path",
+        "message": "paths must be canonical relative UTF-8 POSIX .py paths"
+      }
+    }
+  },
+  {
+    "request": {
+      "device_id": "tab5",
+      "files": {
+        "main.py": "pass\n"
+      }
+    },
+    "status": 409,
+    "response": {
+      "error": {
+        "code": "unsupported_uiflow_device",
+        "message": "UIFlow source intake currently supports CoreS3, AtomS3R, StickS3 and StopWatch"
+      }
+    }
+  },
+  {
+    "request": {
+      "device_id": "cores3",
+      "files": {
+        "main.py": "pass\n"
+      },
+      "expected_base_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "status": 409,
+    "response": {
+      "error": {
+        "code": "uiflow_base_hash_mismatch",
+        "message": "base SHA256 does not match the requested immutable base"
+      }
+    }
+  }
+]

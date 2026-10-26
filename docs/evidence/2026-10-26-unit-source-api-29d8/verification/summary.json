@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "status": "PASS_SCOPED",
+  "category": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "external_work_logs": "SKIPPED_BY_USER",
+  "merge_commit": "c53950a2b355283ecc24f44452bfcf3d915b7e0e",
+  "merged_main": "f2061759897955e6017d4aa2a41bd5ba962c35b6",
+  "cases": [
+    {
+      "batch": "button-smoke-r1",
+      "case": "button",
+      "session_id": "ddf890eceab84ec29c02e1be57eb95b7",
+      "firmware_sha256": "631b086b15a1780c28fd18dfe3c16b5e007070b8834fd99b5d4972a0e3fdfafd",
+      "source_sha256": "9fd07df4e797bc6a394a9c3154ef4e0f873773090b5d8bca3cd661860e319949",
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "result": "batches/button-smoke-r1/button/result.json"
+    },
+    {
+      "batch": "five-r1",
+      "case": "env-iii",
+      "session_id": "8f1254ae215e4c41a033259df2b191d1",
+      "firmware_sha256": "4d49da20b05e14ecbb17a81aaabf6f1afcce0fe15615cb27ac95e13909b03670",
+      "source_sha256": "a7a12d798f87033848353cfdde28159336702751d39912a9c05f48a962ab5143",
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "result": "batches/five-r1/env-iii/result.json"
+    },
+    {
+      "batch": "five-r1",
+      "case": "encoder",
+      "session_id": "4a74c9c61a6544b59ddbe0645bd85da7",
+      "firmware_sha256": "6a973f045cd8db069fb0f6fcbcc0bc984d4898c5d6dfb8c61ea98451b80ddc27",
+      "source_sha256": "5c2d78bf4a2eeb131fd37789fc9a372d058f182572f41615a47ff51fc193a50e",
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "result": "batches/five-r1/encoder/result.json"
+    },
+    {
+      "batch": "five-r1",
+      "case": "rgb",
+      "session_id": "56d9f029d781401c9bc000c24bf45922",
+      "firmware_sha256": "639bf3458aaf997efb54bd76fc4f21ad7124cacf367ba6f02220fd1031163ffa",
+      "source_sha256": "a3a7d77b9d6296e6165eae43f8e7a675e46f3368755b98b7d8e87a042e6ba7cd",
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "result": "batches/five-r1/rgb/result.json"
+    },
+    {
+      "batch": "five-r1",
+      "case": "button",
+      "session_id": "206924532c08436c8b5f739a1f4b22ec",
+      "firmware_sha256": "631b086b15a1780c28fd18dfe3c16b5e007070b8834fd99b5d4972a0e3fdfafd",
+      "source_sha256": "9fd07df4e797bc6a394a9c3154ef4e0f873773090b5d8bca3cd661860e319949",
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "result": "batches/five-r1/button/result.json"
+    },
+    {
+      "batch": "five-r1",
+      "case": "relay",
+      "session_id": "912e127d5d754270b04de3dbe853cce9",
+      "firmware_sha256": "80c8a19e2dca9d82788e726ed2ebcd4c74a8cd227e1a6e26c292b8c8764ed3ec",
+      "source_sha256": "db1a4f43b5ba991f826beb2ed91db99310c36eeabd91be38add1a8cab823eb9e",
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "result": "batches/five-r1/relay/result.json"
+    },
+    {
+      "batch": "guide-r1",
+      "case": "button",
+      "session_id": "dd0879e0cb5c42b8a3c79d94011fb55c",
+      "firmware_sha256": "47f28465e5c75f18c94d1236130a8d5aebc5780b1bf332d6e88838b74d410fd5",
+      "source_sha256": "19d46b6db29e76694e94202551f527dd148c210c9b131b1272ee3be71c915047",
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "result": "batches/guide-r1/button/result.json"
+    },
+    {
+      "batch": "guide-r1",
+      "case": "hub-env-ncir",
+      "session_id": "542bd4b899df4e1ea09e2d9ed8fe5597",
+      "firmware_sha256": "815f33adce32466ff8aa24441ef4d2f2dfe70cfefe76d119ec61c5be55f0ad21",
+      "source_sha256": "50c4554a0f79a8d92af4550a20e7a1e1ea08681dc4ba415ba632648e7ec40054",
+      "runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+      "result": "batches/guide-r1/hub-env-ncir/result.json"
+    }
+  ],
+  "unique_unit_types": [
+    "button",
+    "relay",
+    "env-iii",
+    "rgb",
+    "encoder",
+    "hub",
+    "ncir"
+  ],
+  "validation": {
+    "platform_tests": 648,
+    "unit_tests": 194,
+    "source_intake_tests_included_in_platform": 41,
+    "node_audio_unit_assertions": 113,
+    "node_audio_browser_checks": 15,
+    "node_contracts": [
+      "unit_panel",
+      "unit_visual_mappings",
+      "unit_web_bridge"
+    ],
+    "generated_checks": [
+      "runtime_coverage",
+      "peripheral_catalog",
+      "qemu_profiles",
+      "project_snapshot"
+    ],
+    "active_sessions_at_cleanup": 0
+  },
+  "remaining_boundaries": [
+    "Source API actual execution in this batch is CoreS3 only; other three admitted references only composed offline.",
+    "No runtime hotplug.",
+    "Latest frozen-runtime full matrix remains 66/67; no new full matrix in this source-API block.",
+    "Original Buzzer/IR, PWM initialization, other HUB topology, cross-host and physical equivalence remain separately tracked."
+  ],
+  "initial_failures_retained": [
+    "platform-initial-stale-snapshot.log",
+    "platform-intermediate-captured-markdown.log",
+    "audio-initial-failure.log"
+  ]
+}

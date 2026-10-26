@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "captured_at_utc": "2026-10-26T03:24:12.988988+00:00",
+  "status": "PASS",
+  "authorization": "root explicitly authorized test-only bounded native-analyser observation",
+  "changed_files": [
+    "platform/tests/test_unit_audio.mjs"
+  ],
+  "test_sha256": "55a46aadb47281b7bc5b07eee0989d8577a8b9ae97c67012a255046528d29c2d",
+  "product_audio_code_changed": false,
+  "sampling_contract": {
+    "first_sample_delay_ms": 100,
+    "subsequent_interval_ms": 50,
+    "deadline_ms": 2000,
+    "unchanged_peak_threshold": 0.001,
+    "actual_signal_required": true,
+    "analyser_disconnect_in_finally": true,
+    "records": [
+      "wallMs",
+      "contextTime",
+      "state",
+      "peak"
+    ],
+    "failure_diagnostic_file": "native-audio.json"
+  },
+  "validation": {
+    "command": "env M5_UNIT_AUDIO_OUT=.work/unit-uiflow-audio-regression-20261026/final-r1 node platform/tests/test_unit_audio.mjs",
+    "exit_code": 0,
+    "unit_assertions": 113,
+    "browser_checks": 15,
+    "receipt": "final-r1/receipt.json",
+    "native_audio": "final-r1/native-audio.json",
+    "log": "final-r1.log",
+    "native_observation": {
+      "peak": 0.06943003088235855,
+      "frequency": 4000,
+      "sampleRate": 48000,
+      "threshold": 0.001,
+      "deadlineMs": 2000,
+      "observations": [
+        {
+          "wallMs": 101.70000004768372,
+          "contextTime": 0.096,
+          "state": "running",
+          "peak": 0.06943003088235855
+        }
+      ],
+      "signalWithinDeadline": true
+    },
+    "diff_check": "PASS"
+  },
+  "earlier_evidence_preserved": [
+    "original-failure.log",
+    "report.json",
+    "independent-r2/native-diagnostic.json",
+    "original-unchanged-r1/receipt.json"
+  ],
+  "limits": [
+    "This change makes native rendering observation explicit and bounded; the root cause of the original zero-peak failure remains unproven.",
+    "Browser fixture evidence only; no Device Service, guest firmware, physical audio or Unit execution is claimed."
+  ]
+}

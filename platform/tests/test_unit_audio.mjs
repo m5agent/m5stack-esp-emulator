@@ -239,12 +239,30 @@ try {
   const realSignal = await page.evaluate(async () => {
     const analyser = window.audio.context.createAnalyser(); analyser.fftSize = 2048;
     window.audio.gain.connect(analyser);
-    await new Promise(resolve => setTimeout(resolve, 100));
-    const samples = new Float32Array(analyser.fftSize); analyser.getFloatTimeDomainData(samples);
-    analyser.disconnect();
-    return {peak: Math.max(...samples.map(Math.abs)), frequency: window.audio.oscillator.frequency.value, sampleRate: window.audio.context.sampleRate};
+    const deadlineMs = 2000, threshold = 0.001, started = performance.now(), observations = [];
+    const samples = new Float32Array(analyser.fftSize);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      while (true) {
+        analyser.getFloatTimeDomainData(samples);
+        const observation = {wallMs: performance.now() - started,
+          contextTime: window.audio.context.currentTime, state: window.audio.context.state,
+          peak: Math.max(...samples.map(Math.abs))};
+        observations.push(observation);
+        if (observation.peak > threshold || observation.wallMs >= deadlineMs) break;
+        await new Promise(resolve => setTimeout(resolve, Math.min(50, deadlineMs - observation.wallMs)));
+      }
+      const last = observations.at(-1);
+      return {peak: last.peak, frequency: window.audio.oscillator.frequency.value,
+        sampleRate: window.audio.context.sampleRate, threshold, deadlineMs, observations,
+        signalWithinDeadline: last.peak > threshold && last.wallMs <= deadlineMs};
+    } finally {
+      analyser.disconnect();
+    }
   });
+  await writeFile(`${output}/native-audio.json`, JSON.stringify(realSignal, null, 2) + '\n');
   assert.ok(realSignal.peak > 0.001, 'real browser audio graph contains the PWM waveform');
+  assert.ok(realSignal.signalWithinDeadline, 'real browser audio graph produces the waveform within its observation deadline');
   assert.equal(realSignal.frequency, 4000);
   browserChecks.push('explicit-click-resumes-native-audio-and-produces-waveform');
   await page.evaluate(() => { window.firstOscillator = window.audio.oscillator; window.panel.apply(window.payload(800, 25)); });

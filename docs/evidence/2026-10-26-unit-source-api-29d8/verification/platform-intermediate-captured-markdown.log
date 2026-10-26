@@ -1,0 +1,106 @@
+............................................................................127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/artifacts HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/firmware HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "GET /api/v1/firmware/1a90cd56bfcceb773020032623c28eb30eecdcb2f8053a39341efe2e4a293d03 HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:13] "GET /api/v1/sessions/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/device-state HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:13] "GET /api/v1/openapi.yaml HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/workers HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/jobs HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/jobs/claim HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/jobs/claim HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/jobs/job-2966429bd4be4c4ca968/result HTTP/1.1" 409 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/jobs/job-2966429bd4be4c4ca968/result HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/workers/fence-ee2041397c1e/stop HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/workers HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "GET /api/v1/workers HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/jobs HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/jobs HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/jobs/claim HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/jobs/job-f4ff4e7d13e642ae89f6/heartbeat HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/jobs/job-f4ff4e7d13e642ae89f6/result HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "GET /api/v1/jobs?status=completed&limit=10 HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/jobs HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/jobs/job-69a8b3e2d6ae4b30af19/cancel HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/workers/remote-ceea29d0daf1/heartbeat HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/workers/remote-ceea29d0daf1/results HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/workers/remote-ceea29d0daf1/drain HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/workers/remote-ceea29d0daf1/stop HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/workers/remote-ceea29d0daf1/heartbeat HTTP/1.1" 409 -
+.127.0.0.1 - - [26/Oct/2026 11:28:13] "GET /api/v1/storage HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/storage/prune?include_cache=0 HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/artifact-uploads HTTP/1.1" 202 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/artifact-uploads/cf4413ac6f9547798792a1dc82b97698/chunks HTTP/1.1" 202 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "GET /api/v1/artifact-uploads/cf4413ac6f9547798792a1dc82b97698 HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/artifact-uploads/cf4413ac6f9547798792a1dc82b97698/chunks HTTP/1.1" 202 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/artifact-uploads/cf4413ac6f9547798792a1dc82b97698/complete HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "GET /api/v1/artifacts/446e0eba25b871b7836d4ead0932b972024758b5fcaf8c1d9c60eadd2ec3cb57 HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/artifact-uploads HTTP/1.1" 202 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "DELETE /api/v1/artifact-uploads/abd3d8b8864044b3826f2c2ce953bfb2 HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:13] "GET /api/v1/devices HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "GET /api/v1/capacity HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/worker/drain HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/worker/resume HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/artifacts HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:13] "POST /api/v1/firmware/import HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:14] "POST /api/v1/firmware/import HTTP/1.1" 409 -
+127.0.0.1 - - [26/Oct/2026 11:28:14] "POST /api/v1/firmware/import HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:14] "POST /api/v1/firmware/import HTTP/1.1" 400 -
+................................................................................................127.0.0.1 - - [26/Oct/2026 11:28:19] "GET /api/devices HTTP/1.1" 401 -
+127.0.0.1 - - [26/Oct/2026 11:28:19] "GET /api/devices HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:19] "GET /api/v1/workers HTTP/1.1" 401 -
+127.0.0.1 - - [26/Oct/2026 11:28:19] "POST /api/v1/workers HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:19] "POST /api/v1/workers/auth-worker/heartbeat HTTP/1.1" 401 -
+127.0.0.1 - - [26/Oct/2026 11:28:19] "POST /api/v1/workers/auth-worker/heartbeat HTTP/1.1" 200 -
+.................................F.........F.....................................................................................................................................................................................................................................127.0.0.1 - - [26/Oct/2026 11:28:41] "GET /api/peripherals HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:41] "GET /api/v1/units?device_id=cores3 HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:41] "GET /api/peripheral-interfaces HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:41] "GET /api/peripheral-interfaces/bmi270 HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:41] "GET /api/peripherals/stackchan HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:41] "GET /api/peripherals/tab5 HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:41] "GET /api/v1/units/env-iii HTTP/1.1" 200 -
+....127.0.0.1 - - [26/Oct/2026 11:28:42] "GET /api/health HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:43] "GET /api/health HTTP/1.1" 200 -
+.generated 14 devices -> devices/catalog.json
+security configuration drain started
+security configuration reload canceled: request drain timed out
+.security configuration drain started
+security configuration reloaded
+....................127.0.0.1 - - [26/Oct/2026 11:28:46] "POST /api/v1/firmware/uiflow HTTP/1.1" 400 -
+.127.0.0.1 - - [26/Oct/2026 11:28:46] "POST /api/v1/firmware/uiflow HTTP/1.1" 413 -
+.127.0.0.1 - - [26/Oct/2026 11:28:46] "POST /api/v1/firmware/uiflow HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:46] "POST /api/v1/firmware HTTP/1.1" 201 -
+127.0.0.1 - - [26/Oct/2026 11:28:46] "GET /api/v1/firmware/0f6a64d82ce7aba6dac9a4a3b479e10e13232992bed4763147418530bbead18b HTTP/1.1" 200 -
+.127.0.0.1 - - [26/Oct/2026 11:28:46] "POST /api/v1/firmware/uiflow HTTP/1.1" 401 -
+..........................................................................................................worker credentials reloaded fingerprint=66867933d2ef2f8dea58e88fab501905ef907334a610e25d8db87c0326cce26a
+worker credential reload failed: invalid staged token
+.worker credentials reloaded fingerprint=8ce652cf14216cbdd248cbfaa56eebd1fdc8d8de3a74d70fd1868c6b6cdb6a56
+....worker runtime service unavailable; retrying
+worker runtime service reconnected
+worker runtime service unavailable; retrying
+worker runtime service reconnected
+worker runtime service unavailable; retrying
+worker runtime service reconnected
+...worker control plane unavailable; retrying
+worker control plane reconnected
+...........................127.0.0.1 - - [26/Oct/2026 11:29:30] "GET /worker-discovery/v1/beacon HTTP/1.1" 200 -
+127.0.0.1 - - [26/Oct/2026 11:29:30] "GET /worker-discovery/v1/beacon HTTP/1.1" 200 -
+.................
+======================================================================
+FAIL: test_documentation_index_covers_every_document (test_docs_index_contract.DocsIndexContractTests.test_documentation_index_covers_every_document)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_docs_index_contract.py", line 458, in test_documentation_index_covers_every_document
+    self.assertIn(relative, linked, relative)
+AssertionError: 'evidence/2026-10-26-unit-source-api-29d8/batches/guide-r1/guide-source.md' not found in {'core2-cache-panic-investigation.md', 'evidence/2026-10-26-unit-host-web-gen9-a8fe/README.md', 'evidence/2026-10-26-unit-host-sensors-gen9-a8fe/README.md', 'network-simulation-plan.md', 'sticks3-three-renderer.md', 'cores3-three-renderer.md', 'evidence/2026-10-26-qmp-startup-connection/README.md', 'device-center-adapter.md', 'workstreams.md', 'evidence/2026-10-26-unit-readout-browser-regression/README.md', 'tab5-deferred-backlog.md', 'unit-research/visual-bindings-and-component-gaps.md', '../tests/network/worker_cross_container/README.md', 'evidence/2026-10-26-unit-buzzer-once-a8fe/README.md', 'plans/2026-10-25-unit-runtime-integration.md', '../tests/network/idf_dns_udp/README.md', '../tests/network/worker_lifecycle/README.md', 'evidence/2026-10-26-unit-readout-semantic-review/README.md', '../tests/network/linux_isolation/README.md', '../tests/network/wrong_password/README.md', 'evidence/2026-10-26-unit-atom-controls-r1-a8fe/post-execution-review/DESIGN.md', 'stopwatch-uiflow2-qemu.md', '../AGENTS.md', 'evidence/2026-10-26-unit-browser-final/README.md', '../tests/network/worker_discovery/README.md', '../tests/network/tls_allowlist/README.md', '../tests/network/worker_queue/README.md', '../tests/network/session_idempotency/README.md', 'evidence/2026-10-26-unit-ledc-audio-29d8/replay/getter-independent-review/README.md', 'evidence/2026-10-26-core2-soft-i2c-handoff/README.md', 'user-firmware-simulation-matrix.md', 'evidence/2026-10-26-unit-ledc-audio-29d8/replay/README.md', 'evidence/2026-10-26-frontend-recovery-regression/README.md', 'unit-agent-api.md', '../tests/README.md', 'evidence/2026-10-26-unit-web-recovery-a8fe/README.md', 'evidence/2026-10-26-unit-atom-controls-r1-a8fe/README.md', 'deployment.md', '../patches/README.md', '../tests/uiflow2/core2_native_vhci/README.md', '../tests/network/worker_control_restart/README.md', '../tests/network/lab_fabric/README.md', 'uiflow2-cross-device-regression-audit.md', 'simulator-service-architecture.md', 'engineering-handoff.md', '../tests/network/idf_dhcp_renewal/README.md', '../devices/README.md', 'cores3-image-rendering-boundary.md', 'evidence/2026-10-26-unit-control-display-gen9-a8fe/README.md', 'device-functional-test-workflow.md', 'project-snapshot.md', '../tests/network/worker_tls/README.md', 'evidence/2026-10-26-unit-hub-layout/candidate/PLAN.md', 'evidence/2026-10-26-qmp-startup-connection/review-summary.md', '../tests/firmware/README.md', 'code-map.md', 'evidence/2026-10-26-unit-web-readiness-regression/README.md', '../tests/network/worker_cross_netns/README.md', 'evidence/2026-10-26-unit-final-selection-a8fe/README.md', '../tests/network/ipv6_end_to_end/README.md', 'evidence/2026-10-26-unit-readout-browser-regression/candidate/DESIGN.md', 'firmware-review-and-simulation-workflow.md', 'uiflow2-peripheral-test-matrix.md', 'unit-research/official-protocols.md', 'p4-peripheral-backend-requirements.md', 'evidence/2026-10-26-unit-hub-layout/README.md', '../tests/network/reconnect_probe/README.md', '../tests/network/worker_runtime_restart/README.md', 'evidence/2026-10-26-unit-readout-expanded-a8fe/README.md', 'evidence/2026-10-26-unit-readout-browser-regression/iterations.md', 'peripheral-simulation-architecture.md', 'evidence/2026-10-26-unit-controls-service/README.md', 'firmware-manifest.md', 'validation-ledger.md', 'unit-integration-host-issues.md', 'unit-research/host-runtime-compatibility.md', 'evidence/2026-10-26-visual-model-integration/README.md', '../tests/network/cname_guest_lifecycle/README.md', 'unit-research/esp32s3-adc-calibration.md', 'evidence/2026-10-26-unit-hub-layout/candidate/README.md', 'evidence/2026-10-26-unit-io-final/README.md', 'runtime-model-gap-register.md', 'network-lane.md', 'core2-native-hci-backend.md', 'project-status.md', 'evidence/2026-10-26-unit-readout-live-a8fe/README.md', 'device-visual-fidelity-backlog.md', 'evidence/2026-10-26-unit-host9-selection-a8fe/README.md', 'project-backlog.md', 'plans/2026-10-20-multi-device-emulator-design.md', 'evidence/2026-10-26-unit-controls-final/README.md', 'unit-research/encoder-protocol-conflicts.md', 'evidence/2026-10-26-unit-web-live-final/README.md', 'evidence/2026-10-26-unit-panel-readability-capture-regression/README.md', 'evidence/2026-10-26-unit-web-supplement-gen8-a8fe/README.md', 'evidence/2026-10-26-unit-hub-layout/candidate/DESIGN.md', 'unified-device-runtime.md', 'evidence/2026-10-26-unit-source-api-29d8/README.md', 'evidence/2026-10-26-unit-ledc-audio-29d8/README.md', 'evidence/2026-10-26-unit-runtime/README.md', 'evidence/2026-10-26-unit-web-flashing-gen8-a8fe/README.md', '../tests/network/worker_reattach/README.md', 'qemu-device-adaptation-matrix.md', 'evidence/2026-10-26-unit-buzzer-once-a8fe/getter-investigation/investigation.md', 'evidence/2026-10-26-unit-web-cohort-a8fe/README.md', '../tests/network/worker_executor/README.md', '../tests/network/egress_allowlist/README.md', 'device-service-api.md', '../tests/network/dns_cname_chain/README.md'} : evidence/2026-10-26-unit-source-api-29d8/batches/guide-r1/guide-source.md
+
+======================================================================
+FAIL: test_relative_markdown_links_exist (test_docs_index_contract.DocsIndexContractTests.test_relative_markdown_links_exist)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_docs_index_contract.py", line 686, in test_relative_markdown_links_exist
+    self.assertTrue(
+AssertionError: False is not true : docs/evidence/2026-10-26-unit-source-api-29d8/batches/guide-r1/guide-source.md -> project-status.md
+
+----------------------------------------------------------------------
+Ran 648 tests in 78.114s
+
+FAILED (failures=2)

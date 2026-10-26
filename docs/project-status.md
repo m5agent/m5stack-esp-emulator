@@ -263,8 +263,22 @@ Buzzer 浏览器试听由实际 guest-QOM 驱动、用户启用，停止时关�
 官方驱动保留；ADC 的 app calibration 与 ADC2 oracle 条件在 API 前阻塞。
 这些新准备包不授予功能 PASS，源码合并变化后必须重新准备。用户已将近期
 交付聚焦于外部 Agent 的 HTTP 链路：创建虚拟设备、选择 Unit、提交 UIFlow
-源码、运行和实时状态/双向控制；当前已有镜像入口与 Units/session 接口，
-直接 Python 源文件的服务端打包/运行入口仍待补齐。
+源码、运行和实时状态/双向控制。已合入最新主线 `f206175`（merge `c53950a`），
+新增 `POST /api/v1/firmware/uiflow`：在已知 reference 的真实 LittleFS 中写入
+源码、读回并保留其它资源，创建 session 时强制 caller-source SHA pin，
+provenance 随历史和 evidence ZIP 保存。当前仅准入 CoreS3/AtomS3R/StickS3/
+StopWatch 四主机 reference；源码 HTTP 与解码后累计源码分别限 1 MiB。
+
+CoreS3 的 Button/Relay/ENV III/RGB/Encoder 五例已通过该源码入口实际运行，
+包括 Web→guest 输入、guest→Web 输出和 RGB 短帧负控。指南逐字 Button 与
+HUB+ENV III+NCIR 另两个 session 也通过，验证自动 boot、两个 leaf 独立
+I2C 读写和同 guest 的屏幕反馈。合计覆盖七种 Unit 的源码 API 路径；HUB
+是被动接线，不凭其零事务值判失败或虚构控制器。所有八个会话（含单独 Button
+预检）停止前取 ZIP、保留历史、PID 退出并释放 Flash。其余三主机只有源码
+打包离线检查，不能继承 CoreS3 的此次运行 PASS。调用方式见
+[外部 Agent 指南](unit-agent-api.md)，精确 SHA/输入/原始证据见
+[本轮归档](evidence/2026-10-26-unit-source-api-29d8/README.md)。原 Buzzer/IR、
+PWM 初始化与完整矩阵 66/67 等缺口不因该接口子批次关闭。
 
 CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展开与真实端口
 线缆布置。ENV III/ToF/Color 四档场景、手机 Button 输入/聚焦和失败回滚共

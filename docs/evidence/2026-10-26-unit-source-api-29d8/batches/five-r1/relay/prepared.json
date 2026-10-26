@@ -1,0 +1,55 @@
+{
+  "unit_id": "relay",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+  "expected_runtime_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "source_cas_sha256": "db1a4f43b5ba991f826beb2ed91db99310c36eeabd91be38add1a8cab823eb9e",
+  "files": {
+    "boot.py": {
+      "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+      "size": 24
+    },
+    "main.py": {
+      "sha256": "08c843c093250c50ccaf5459a7bca6704b0671a9be826337e5091518903ee303",
+      "size": 2287
+    },
+    "probe_config.py": {
+      "sha256": "9141e8c0d1202183509c0b925524533b4a2862ee842b72982e9ff10eb59f808a",
+      "size": 57
+    }
+  },
+  "port": {
+    "id": "port-a",
+    "label": "PORT.A",
+    "visual_port": "grove",
+    "connector": "HY2.0-4P",
+    "pins": {
+      "yellow": 2,
+      "white": 1
+    },
+    "power": {
+      "nominal_v": 5,
+      "control": "unknown"
+    },
+    "wiring_status": "confirmed",
+    "physical_presence": "main-device",
+    "evidence": [
+      {
+        "url": "https://docs.m5stack.com/en/core/CoreS3",
+        "checked_at": "2026-10-26",
+        "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+      }
+    ],
+    "limitations": []
+  },
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "relay",
+      "port_id": "port-a"
+    }
+  ],
+  "ready_marker": "UNIT_PROBE_READY relay",
+  "status": "PREPARED_NO_API_OR_RUNTIME"
+}
