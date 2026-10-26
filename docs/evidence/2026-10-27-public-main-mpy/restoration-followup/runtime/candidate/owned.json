@@ -1,0 +1,23 @@
+{
+  "lane": "session",
+  "create_body": {
+    "device_id": "cores3",
+    "runtime": "qemu",
+    "ttl_seconds": 900,
+    "units": [
+      {
+        "id": "pir",
+        "unit_id": "pir",
+        "port_id": "port-a"
+      }
+    ],
+    "base_firmware_id": "3cb901cbfebd616a96292f234fe88ad1b145c3bb019f256dcb57257d78f878d8",
+    "expected_base_sha256": "3cb901cbfebd616a96292f234fe88ad1b145c3bb019f256dcb57257d78f878d8",
+    "program_mode": "uiflow-live",
+    "ready_timeout_seconds": 40
+  },
+  "creation_outcome": "confirmed",
+  "session_id": "aa5e018d94e14c069b4cf803e2164563",
+  "pid": 11218,
+  "zip_before_stop": true
+}

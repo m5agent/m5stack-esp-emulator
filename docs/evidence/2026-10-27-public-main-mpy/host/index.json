@@ -1,0 +1,1304 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "files": [
+    {
+      "archive_path": "tests/platform-r1.log",
+      "source": ".work/public-main-mpy-platform-tests-r1-20261027.log",
+      "bytes": 89567,
+      "original_sha256": "bd394c458b94c4de5fbe6b3d62abca622b707d5934e2cd5aeabb5dfd433057b8",
+      "archive_sha256": "bd394c458b94c4de5fbe6b3d62abca622b707d5934e2cd5aeabb5dfd433057b8",
+      "classification": "original",
+      "scope": "FAIL: code-map missing new loader module; intermediate Preview null-pair code"
+    },
+    {
+      "archive_path": "tests/platform-r2.log",
+      "source": ".work/public-main-mpy-platform-tests-r2-20261027.log",
+      "bytes": 9057,
+      "original_sha256": "31bd2862d2edbc5560f7125c1afb4489a1bc620d08887c3972a6ccbbb2c3d9ed",
+      "archive_sha256": "31bd2862d2edbc5560f7125c1afb4489a1bc620d08887c3972a6ccbbb2c3d9ed",
+      "classification": "original",
+      "scope": "PASS: final product code; 1213 tests / 115.835s"
+    },
+    {
+      "archive_path": "tests/device-r1.log",
+      "source": ".work/public-mpy-first-integration-tests-20261027.log",
+      "bytes": 30852,
+      "original_sha256": "d580da4c81281f94e785b6c4ef371a512ed21954a90b89056b9711fa22e41392",
+      "archive_sha256": "d580da4c81281f94e785b6c4ef371a512ed21954a90b89056b9711fa22e41392",
+      "classification": "original",
+      "scope": "FAIL: initial over-broad dependency preflight plus incorrect test module name; preserved diagnostic"
+    },
+    {
+      "archive_path": "tests/device-r2.log",
+      "source": ".work/public-mpy-device-integration-r2-20261027.log",
+      "bytes": 163,
+      "original_sha256": "e68a17ce6b8695b7b1039e6af9890bef9a3875a0cb2514ef997bd7f15b8cba23",
+      "archive_sha256": "e68a17ce6b8695b7b1039e6af9890bef9a3875a0cb2514ef997bd7f15b8cba23",
+      "classification": "original",
+      "scope": "PASS: 64 legacy source/package tests"
+    },
+    {
+      "archive_path": "tests/admission-r1.log",
+      "source": ".work/public-mpy-admission-r1-20261027.log",
+      "bytes": 5029,
+      "original_sha256": "a94532d97c3cc83a5f9951e01c63bb16710a3ef0ff4d4f26b2ef1533f8e0481d",
+      "archive_sha256": "a94532d97c3cc83a5f9951e01c63bb16710a3ef0ff4d4f26b2ef1533f8e0481d",
+      "classification": "original",
+      "scope": "PASS: 164 service/admission/retention tests"
+    },
+    {
+      "archive_path": "tests/device-final.log",
+      "source": ".work/public-main-mpy-device-final-narrow-20261027.log",
+      "bytes": 221,
+      "original_sha256": "076df55ed66c999264c8b935d8f849023d64edc9eb4a58c8c70848bb5e9787ef",
+      "archive_sha256": "076df55ed66c999264c8b935d8f849023d64edc9eb4a58c8c70848bb5e9787ef",
+      "classification": "original",
+      "scope": "PASS: 121 device/admission/retention tests"
+    },
+    {
+      "archive_path": "independent/r1/index.json",
+      "source": ".work/main-loader-admission-independent-20261027/r1/index.json",
+      "bytes": 2054,
+      "original_sha256": "3ec3e28f169f599993f344a1ed5491396b125c163c969a1ce2d05cae3d4fd7b2",
+      "archive_sha256": "3ec3e28f169f599993f344a1ed5491396b125c163c969a1ce2d05cae3d4fd7b2",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r1/sources/platform/tests/test_device_program_packages.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r1/sources/platform/tests/test_device_program_packages.py.txt",
+      "bytes": 23603,
+      "original_sha256": "ef84d5877882e0406091b34b6cf0caf0310bddc31ee49437739fa3d68d74b8b0",
+      "archive_sha256": "ef84d5877882e0406091b34b6cf0caf0310bddc31ee49437739fa3d68d74b8b0",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r1/sources/platform/tests/test_device_program_runtime.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r1/sources/platform/tests/test_device_program_runtime.py.txt",
+      "bytes": 58074,
+      "original_sha256": "a92f13b76e9f9bd80eb8b232d00cf5d2ea9af1ee2f255ce152df3cb2895a194f",
+      "archive_sha256": "a92f13b76e9f9bd80eb8b232d00cf5d2ea9af1ee2f255ce152df3cb2895a194f",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r1/sources/platform/tests/test_main_loader_admission.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r1/sources/platform/tests/test_main_loader_admission.py.txt",
+      "bytes": 24694,
+      "original_sha256": "10b856bbf5b3f4212374d593ff7ad2be08b3c57c352a0cda8027f7891c5d4d2f",
+      "archive_sha256": "10b856bbf5b3f4212374d593ff7ad2be08b3c57c352a0cda8027f7891c5d4d2f",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r1/sources/platform/tests/test_mpy_bytecode.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r1/sources/platform/tests/test_mpy_bytecode.py.txt",
+      "bytes": 13948,
+      "original_sha256": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0",
+      "archive_sha256": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r1/sources/platform/tests/test_uiflow_service.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r1/sources/platform/tests/test_uiflow_service.py.txt",
+      "bytes": 47220,
+      "original_sha256": "c6010aa6be1f98a33d837f4b0dea62e1859fcee34ff199ec273c3fcf15923aa3",
+      "archive_sha256": "c6010aa6be1f98a33d837f4b0dea62e1859fcee34ff199ec273c3fcf15923aa3",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r1/sources/platform/tools/device_service.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r1/sources/platform/tools/device_service.py.txt",
+      "bytes": 473131,
+      "original_sha256": "6b1db729568e6af980118020fa2e82520c27fa8741b4f5c12d689e11a64c5097",
+      "archive_sha256": "6b1db729568e6af980118020fa2e82520c27fa8741b4f5c12d689e11a64c5097",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r1/sources/platform/tools/program_packages.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r1/sources/platform/tools/program_packages.py.txt",
+      "bytes": 18040,
+      "original_sha256": "577e6b2e45d912db849676cb63a6cfa252c95fff2d109765ab57cb022b682a0c",
+      "archive_sha256": "577e6b2e45d912db849676cb63a6cfa252c95fff2d109765ab57cb022b682a0c",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r1/sources/platform/tools/uiflow_main_loader.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r1/sources/platform/tools/uiflow_main_loader.py.txt",
+      "bytes": 10828,
+      "original_sha256": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+      "archive_sha256": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r1/sources/platform/tools/uiflow_package_runtime.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r1/sources/platform/tools/uiflow_package_runtime.py.txt",
+      "bytes": 12749,
+      "original_sha256": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+      "archive_sha256": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r1/sources/platform/tools/uiflow_runtime.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r1/sources/platform/tools/uiflow_runtime.py.txt",
+      "bytes": 15637,
+      "original_sha256": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+      "archive_sha256": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r1/sources/platform/tools/uiflow_source.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r1/sources/platform/tools/uiflow_source.py.txt",
+      "bytes": 17001,
+      "original_sha256": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+      "archive_sha256": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r1/tests.log",
+      "source": ".work/main-loader-admission-independent-20261027/r1/tests.log",
+      "bytes": 12292,
+      "original_sha256": "41d659e6039bbea7c2a83d149e212989381db3c41f95cda603d717f1a1376725",
+      "archive_sha256": "41d659e6039bbea7c2a83d149e212989381db3c41f95cda603d717f1a1376725",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/index.json",
+      "source": ".work/main-loader-admission-independent-20261027/r2/index.json",
+      "bytes": 2249,
+      "original_sha256": "839cf2c41a2a4ca083850dbf4f508836907a2a8d6210defead1fbe196a27b178",
+      "archive_sha256": "839cf2c41a2a4ca083850dbf4f508836907a2a8d6210defead1fbe196a27b178",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/sources/platform/tests/test_device_program_packages.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r2/sources/platform/tests/test_device_program_packages.py.txt",
+      "bytes": 23603,
+      "original_sha256": "ef84d5877882e0406091b34b6cf0caf0310bddc31ee49437739fa3d68d74b8b0",
+      "archive_sha256": "ef84d5877882e0406091b34b6cf0caf0310bddc31ee49437739fa3d68d74b8b0",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/sources/platform/tests/test_device_program_runtime.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r2/sources/platform/tests/test_device_program_runtime.py.txt",
+      "bytes": 58074,
+      "original_sha256": "a92f13b76e9f9bd80eb8b232d00cf5d2ea9af1ee2f255ce152df3cb2895a194f",
+      "archive_sha256": "a92f13b76e9f9bd80eb8b232d00cf5d2ea9af1ee2f255ce152df3cb2895a194f",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/sources/platform/tests/test_main_loader_admission.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r2/sources/platform/tests/test_main_loader_admission.py.txt",
+      "bytes": 24575,
+      "original_sha256": "1932b2f2a71d5cb8b8ad43ffd619b57eefa7de6e41810e549b37872b6458803b",
+      "archive_sha256": "1932b2f2a71d5cb8b8ad43ffd619b57eefa7de6e41810e549b37872b6458803b",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/sources/platform/tests/test_mpy_bytecode.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r2/sources/platform/tests/test_mpy_bytecode.py.txt",
+      "bytes": 13948,
+      "original_sha256": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0",
+      "archive_sha256": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/sources/platform/tests/test_uiflow_service.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r2/sources/platform/tests/test_uiflow_service.py.txt",
+      "bytes": 47220,
+      "original_sha256": "c6010aa6be1f98a33d837f4b0dea62e1859fcee34ff199ec273c3fcf15923aa3",
+      "archive_sha256": "c6010aa6be1f98a33d837f4b0dea62e1859fcee34ff199ec273c3fcf15923aa3",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/sources/platform/tools/device_service.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r2/sources/platform/tools/device_service.py.txt",
+      "bytes": 473131,
+      "original_sha256": "6b1db729568e6af980118020fa2e82520c27fa8741b4f5c12d689e11a64c5097",
+      "archive_sha256": "6b1db729568e6af980118020fa2e82520c27fa8741b4f5c12d689e11a64c5097",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/sources/platform/tools/program_packages.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r2/sources/platform/tools/program_packages.py.txt",
+      "bytes": 18040,
+      "original_sha256": "577e6b2e45d912db849676cb63a6cfa252c95fff2d109765ab57cb022b682a0c",
+      "archive_sha256": "577e6b2e45d912db849676cb63a6cfa252c95fff2d109765ab57cb022b682a0c",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/sources/platform/tools/uiflow_main_loader.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r2/sources/platform/tools/uiflow_main_loader.py.txt",
+      "bytes": 10828,
+      "original_sha256": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+      "archive_sha256": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/sources/platform/tools/uiflow_package_runtime.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r2/sources/platform/tools/uiflow_package_runtime.py.txt",
+      "bytes": 12749,
+      "original_sha256": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+      "archive_sha256": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/sources/platform/tools/uiflow_runtime.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r2/sources/platform/tools/uiflow_runtime.py.txt",
+      "bytes": 15637,
+      "original_sha256": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+      "archive_sha256": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/sources/platform/tools/uiflow_source.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/r2/sources/platform/tools/uiflow_source.py.txt",
+      "bytes": 17001,
+      "original_sha256": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+      "archive_sha256": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/r2/tests.log",
+      "source": ".work/main-loader-admission-independent-20261027/r2/tests.log",
+      "bytes": 122,
+      "original_sha256": "545f9b4eace1c8509b5855477e2bd0e3b6cbbadc5c722399c6a847c53ec33e7e",
+      "archive_sha256": "545f9b4eace1c8509b5855477e2bd0e3b6cbbadc5c722399c6a847c53ec33e7e",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/preview-preflight-review-r1/index.json",
+      "source": ".work/main-loader-admission-independent-20261027/preview-preflight-review-r1/index.json",
+      "bytes": 1374,
+      "original_sha256": "b52b14b1badc7bfb6bd595fa6a4246a5b82b4574165785006442b5f3be2ec8c3",
+      "archive_sha256": "b52b14b1badc7bfb6bd595fa6a4246a5b82b4574165785006442b5f3be2ec8c3",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/preview-preflight-review-r1/probe.log",
+      "source": ".work/main-loader-admission-independent-20261027/preview-preflight-review-r1/probe.log",
+      "bytes": 1758,
+      "original_sha256": "3597acb2870a1d26ebed578c383e1411b977b770229d956635c100a5d03f4de8",
+      "archive_sha256": "3597acb2870a1d26ebed578c383e1411b977b770229d956635c100a5d03f4de8",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/preview-preflight-review-r1/probe.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/preview-preflight-review-r1/probe.py",
+      "bytes": 2873,
+      "original_sha256": "242559975275ff38eb662db30df8afd9150bb48f439013227501a3637ee44650",
+      "archive_sha256": "242559975275ff38eb662db30df8afd9150bb48f439013227501a3637ee44650",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/preview-preflight-review-r1/sources/platform/tests/test_main_loader_admission.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/preview-preflight-review-r1/sources/platform/tests/test_main_loader_admission.py.txt",
+      "bytes": 24575,
+      "original_sha256": "1932b2f2a71d5cb8b8ad43ffd619b57eefa7de6e41810e549b37872b6458803b",
+      "archive_sha256": "1932b2f2a71d5cb8b8ad43ffd619b57eefa7de6e41810e549b37872b6458803b",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/preview-preflight-review-r1/sources/platform/tests/test_mpy_bytecode.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/preview-preflight-review-r1/sources/platform/tests/test_mpy_bytecode.py.txt",
+      "bytes": 13948,
+      "original_sha256": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0",
+      "archive_sha256": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/preview-preflight-review-r1/sources/platform/tests/test_preview_service.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/preview-preflight-review-r1/sources/platform/tests/test_preview_service.py.txt",
+      "bytes": 55574,
+      "original_sha256": "c5acef38a01aed462e0fca27ab6e05360843585e9f9454ffce2f8f79c7c22b9c",
+      "archive_sha256": "c5acef38a01aed462e0fca27ab6e05360843585e9f9454ffce2f8f79c7c22b9c",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/preview-preflight-review-r1/sources/platform/tools/device_service.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/preview-preflight-review-r1/sources/platform/tools/device_service.py.txt",
+      "bytes": 473131,
+      "original_sha256": "6b1db729568e6af980118020fa2e82520c27fa8741b4f5c12d689e11a64c5097",
+      "archive_sha256": "6b1db729568e6af980118020fa2e82520c27fa8741b4f5c12d689e11a64c5097",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/preview-preflight-review-r1/sources/platform/tools/mpy_bytecode.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/preview-preflight-review-r1/sources/platform/tools/mpy_bytecode.py.txt",
+      "bytes": 15094,
+      "original_sha256": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+      "archive_sha256": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/preview-preflight-review-r1/sources/platform/tools/preview_service.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/preview-preflight-review-r1/sources/platform/tools/preview_service.py.txt",
+      "bytes": 45086,
+      "original_sha256": "24ce4d9f699a1fdce1bd94ea796dab828772800186785ad975d934860007e05b",
+      "archive_sha256": "24ce4d9f699a1fdce1bd94ea796dab828772800186785ad975d934860007e05b",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "independent/preview-preflight-review-r1/sources/platform/tools/uiflow_package_runtime.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/preview-preflight-review-r1/sources/platform/tools/uiflow_package_runtime.py.txt",
+      "bytes": 12749,
+      "original_sha256": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+      "archive_sha256": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+      "classification": "original",
+      "scope": "Historical host-only audit; original r1 failure remains a failure, r2 proof is separate"
+    },
+    {
+      "archive_path": "service/gen44/start.json",
+      "source": ".work/public-main-mpy-owned-start-gen44-20261027/start.json",
+      "bytes": 115565,
+      "original_sha256": "34969b0324403f6d7c85d621be9de1f5195cb876ed64a78de5a5de015b208412",
+      "archive_sha256": "34969b0324403f6d7c85d621be9de1f5195cb876ed64a78de5a5de015b208412",
+      "classification": "original",
+      "scope": "gen44: no guest; gen45: all three functional guests"
+    },
+    {
+      "archive_path": "service/gen45/start.json",
+      "source": ".work/public-main-mpy-owned-start-gen45-20261027/start.json",
+      "bytes": 115565,
+      "original_sha256": "98dbd0fe4f7ee931fe9d28b197d3475c2f57cd4f2714bbf3134c3a113c5095e0",
+      "archive_sha256": "98dbd0fe4f7ee931fe9d28b197d3475c2f57cd4f2714bbf3134c3a113c5095e0",
+      "classification": "original",
+      "scope": "gen44: no guest; gen45: all three functional guests"
+    },
+    {
+      "archive_path": "service/reload-helper.py.txt",
+      "source": ".work/public-main-mpy-owned-reload-20261027.py",
+      "bytes": 4813,
+      "original_sha256": "e584bee06d5041c88257a0924c1b5594f0b2a5f81046543e872a055f3ad6abac",
+      "archive_sha256": "e584bee06d5041c88257a0924c1b5594f0b2a5f81046543e872a055f3ad6abac",
+      "classification": "original"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/docs/device-service.openapi.yaml.txt",
+      "source": "docs/device-service.openapi.yaml",
+      "bytes": 164042,
+      "original_sha256": "c45fb670ae6906c09645580c3a686a1e5bf185688ad57303cab91a4afb783001",
+      "archive_sha256": "c45fb670ae6906c09645580c3a686a1e5bf185688ad57303cab91a4afb783001",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/ble_runtime_limits.py.txt",
+      "source": "platform/tools/ble_runtime_limits.py",
+      "bytes": 2400,
+      "original_sha256": "38626a437aa578f8268130def448e8bdf7c30ea0019c633abad3498c08aa7c09",
+      "archive_sha256": "38626a437aa578f8268130def448e8bdf7c30ea0019c633abad3498c08aa7c09",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/device_service.py.txt",
+      "source": "platform/tools/device_service.py",
+      "bytes": 473501,
+      "original_sha256": "5a22ed489240a92657e13bbb9cfb8ea6da6dec47123f2891d995455202152c5d",
+      "archive_sha256": "5a22ed489240a92657e13bbb9cfb8ea6da6dec47123f2891d995455202152c5d",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/export_bundle.py.txt",
+      "source": "platform/tools/export_bundle.py",
+      "bytes": 3456,
+      "original_sha256": "6170fd533ac212945dddda51b8d448190a136f5a95f90f72ad27ce0886ac0957",
+      "archive_sha256": "6170fd533ac212945dddda51b8d448190a136f5a95f90f72ad27ce0886ac0957",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/fetch_firmware.py.txt",
+      "source": "platform/tools/fetch_firmware.py",
+      "bytes": 18156,
+      "original_sha256": "07a1058768cda4162870043ddc0c4260b87cea5cfd073bbd421a15ba3dce9e77",
+      "archive_sha256": "07a1058768cda4162870043ddc0c4260b87cea5cfd073bbd421a15ba3dce9e77",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/firmware_analysis.py.txt",
+      "source": "platform/tools/firmware_analysis.py",
+      "bytes": 26138,
+      "original_sha256": "ae8688e9c0fd1c500696da3e06d70bd506a27d0abd0645524cc0c620dd6ab0f4",
+      "archive_sha256": "ae8688e9c0fd1c500696da3e06d70bd506a27d0abd0645524cc0c620dd6ab0f4",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/firmware_filesystems.py.txt",
+      "source": "platform/tools/firmware_filesystems.py",
+      "bytes": 51016,
+      "original_sha256": "f8c67de62aa45767bdfbfafdceb8278500705ed56a1bdc7af0a15572b5381e8a",
+      "archive_sha256": "f8c67de62aa45767bdfbfafdceb8278500705ed56a1bdc7af0a15572b5381e8a",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/firmware_manifest.py.txt",
+      "source": "platform/tools/firmware_manifest.py",
+      "bytes": 130371,
+      "original_sha256": "f2c99c54a2e264ad331f807b06a0eff6483a5c253d7c36ff69f77438c8d4e50b",
+      "archive_sha256": "f2c99c54a2e264ad331f807b06a0eff6483a5c253d7c36ff69f77438c8d4e50b",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/firmware_static_review.py.txt",
+      "source": "platform/tools/firmware_static_review.py",
+      "bytes": 12136,
+      "original_sha256": "4582419230b82627ce99db2f5f662652303cb5d179bd2038504119720d49955b",
+      "archive_sha256": "4582419230b82627ce99db2f5f662652303cb5d179bd2038504119720d49955b",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/frame_cache.py.txt",
+      "source": "platform/tools/frame_cache.py",
+      "bytes": 11465,
+      "original_sha256": "2e6a119a07e9d83cbe9737a99531cea37ab61321e0a759a8d0a932ae99537073",
+      "archive_sha256": "2e6a119a07e9d83cbe9737a99531cea37ab61321e0a759a8d0a932ae99537073",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/generate_catalog.py.txt",
+      "source": "platform/tools/generate_catalog.py",
+      "bytes": 8374,
+      "original_sha256": "657615ef3d951380609b213a5bb7422880cf508373e62aaecb4392583cb134d2",
+      "archive_sha256": "657615ef3d951380609b213a5bb7422880cf508373e62aaecb4392583cb134d2",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/guest_console.py.txt",
+      "source": "platform/tools/guest_console.py",
+      "bytes": 15212,
+      "original_sha256": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+      "archive_sha256": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/hci_stream.py.txt",
+      "source": "platform/tools/hci_stream.py",
+      "bytes": 1804,
+      "original_sha256": "76792f3df96c5edc962c3df04c71b77816e8cc4efbdc5e93ccfabc4d60092420",
+      "archive_sha256": "76792f3df96c5edc962c3df04c71b77816e8cc4efbdc5e93ccfabc4d60092420",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/micropython_repl.py.txt",
+      "source": "platform/tools/micropython_repl.py",
+      "bytes": 5867,
+      "original_sha256": "151df4dfb04e5c0255dee8677c843fe6b16462b60c70c603ff64e0219f3b24d9",
+      "archive_sha256": "151df4dfb04e5c0255dee8677c843fe6b16462b60c70c603ff64e0219f3b24d9",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/mpy_bytecode.py.txt",
+      "source": "platform/tools/mpy_bytecode.py",
+      "bytes": 15094,
+      "original_sha256": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+      "archive_sha256": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/network_egress.py.txt",
+      "source": "platform/tools/network_egress.py",
+      "bytes": 21695,
+      "original_sha256": "d098d0a32bf0d34c06374090267c501eda12ff8fe813a10b3339785bf3160df1",
+      "archive_sha256": "d098d0a32bf0d34c06374090267c501eda12ff8fe813a10b3339785bf3160df1",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/network_lane.py.txt",
+      "source": "platform/tools/network_lane.py",
+      "bytes": 48761,
+      "original_sha256": "04b2c8fc003f5789fd506b56dab147438d80df6b863613133198f71d9bd9905e",
+      "archive_sha256": "04b2c8fc003f5789fd506b56dab147438d80df6b863613133198f71d9bd9905e",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/network_policy.py.txt",
+      "source": "platform/tools/network_policy.py",
+      "bytes": 13191,
+      "original_sha256": "45cdba291b9351d69d326cc0adfaa84d107141023d9c1a7d9fdc5ba8ab00cd67",
+      "archive_sha256": "45cdba291b9351d69d326cc0adfaa84d107141023d9c1a7d9fdc5ba8ab00cd67",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/network_sandbox.py.txt",
+      "source": "platform/tools/network_sandbox.py",
+      "bytes": 57931,
+      "original_sha256": "ff095c3b17d0318a2959e107ec6a36696d889bbcb2a7f750f31d829ec5c16c55",
+      "archive_sha256": "ff095c3b17d0318a2959e107ec6a36696d889bbcb2a7f750f31d829ec5c16c55",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/nvs_image.py.txt",
+      "source": "platform/tools/nvs_image.py",
+      "bytes": 6543,
+      "original_sha256": "ffa8bf456ed0654f2eab5b2e5554d32bb949a54c1f59cb6c718c93be26ae1ccc",
+      "archive_sha256": "ffa8bf456ed0654f2eab5b2e5554d32bb949a54c1f59cb6c718c93be26ae1ccc",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/pcap_summary.py.txt",
+      "source": "platform/tools/pcap_summary.py",
+      "bytes": 23533,
+      "original_sha256": "162bf8b68542a929b68970d452e2f1c5482c69ecd2fefa17269e1c49d5e005c8",
+      "archive_sha256": "162bf8b68542a929b68970d452e2f1c5482c69ecd2fefa17269e1c49d5e005c8",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/peripheral_catalog.py.txt",
+      "source": "platform/tools/peripheral_catalog.py",
+      "bytes": 13352,
+      "original_sha256": "2a13b5ebb9f0861d8155afec1a14c04f2fd493ca2764f6bc2d94f1e87db66c04",
+      "archive_sha256": "2a13b5ebb9f0861d8155afec1a14c04f2fd493ca2764f6bc2d94f1e87db66c04",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/peripheral_inventory.py.txt",
+      "source": "platform/tools/peripheral_inventory.py",
+      "bytes": 8852,
+      "original_sha256": "d6e572e54f68c90a510c34ad75e7c9aea51ee503fe6a8d3e7f21dbe3f64448c2",
+      "archive_sha256": "d6e572e54f68c90a510c34ad75e7c9aea51ee503fe6a8d3e7f21dbe3f64448c2",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/preview_retention.py.txt",
+      "source": "platform/tools/preview_retention.py",
+      "bytes": 16012,
+      "original_sha256": "00294faae6a4afbc8d11a8879f25ae9ebba315c8b5a80409aadd0e920487d3da",
+      "archive_sha256": "00294faae6a4afbc8d11a8879f25ae9ebba315c8b5a80409aadd0e920487d3da",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/preview_service.py.txt",
+      "source": "platform/tools/preview_service.py",
+      "bytes": 46607,
+      "original_sha256": "0ff612a6675982cc1e899ca1d01964ce32c33eb5c92b27316ad753c6c9124d98",
+      "archive_sha256": "0ff612a6675982cc1e899ca1d01964ce32c33eb5c92b27316ad753c6c9124d98",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/preview_store.py.txt",
+      "source": "platform/tools/preview_store.py",
+      "bytes": 26740,
+      "original_sha256": "180af0978a5dd62c2df31fa1736063570b420221832670e8127e701aec0ccf43",
+      "archive_sha256": "180af0978a5dd62c2df31fa1736063570b420221832670e8127e701aec0ccf43",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/program_packages.py.txt",
+      "source": "platform/tools/program_packages.py",
+      "bytes": 18040,
+      "original_sha256": "577e6b2e45d912db849676cb63a6cfa252c95fff2d109765ab57cb022b682a0c",
+      "archive_sha256": "577e6b2e45d912db849676cb63a6cfa252c95fff2d109765ab57cb022b682a0c",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/program_revisions.py.txt",
+      "source": "platform/tools/program_revisions.py",
+      "bytes": 10593,
+      "original_sha256": "3839cd9464fe131a60574180c3cc2b613361409123158dbe613da7fd7f1ad54d",
+      "archive_sha256": "3839cd9464fe131a60574180c3cc2b613361409123158dbe613da7fd7f1ad54d",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/project_snapshot.py.txt",
+      "source": "platform/tools/project_snapshot.py",
+      "bytes": 31646,
+      "original_sha256": "37e4194762b2bc8828b2be689e6f1a3fb6f9f25fb3c21429f6be3d3cc65a4c01",
+      "archive_sha256": "37e4194762b2bc8828b2be689e6f1a3fb6f9f25fb3c21429f6be3d3cc65a4c01",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/qemu_accel.py.txt",
+      "source": "platform/tools/qemu_accel.py",
+      "bytes": 1064,
+      "original_sha256": "fda7aeef7943e5579d030931f8bf786eb9fdb80ae81b4b43fac11d422c02bc63",
+      "archive_sha256": "fda7aeef7943e5579d030931f8bf786eb9fdb80ae81b4b43fac11d422c02bc63",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/qemu_network_preflight.py.txt",
+      "source": "platform/tools/qemu_network_preflight.py",
+      "bytes": 3436,
+      "original_sha256": "3595651ece355eb852564320a2b71f2c8775d961f6e617f2b6b2b60f6513e6f3",
+      "archive_sha256": "3595651ece355eb852564320a2b71f2c8775d961f6e617f2b6b2b60f6513e6f3",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/qemu_profiles.py.txt",
+      "source": "platform/tools/qemu_profiles.py",
+      "bytes": 4057,
+      "original_sha256": "780a511442de2c9ff77b803fd0a1b6920935cf7de929770495401900fca1b235",
+      "archive_sha256": "780a511442de2c9ff77b803fd0a1b6920935cf7de929770495401900fca1b235",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/runtime_coverage.py.txt",
+      "source": "platform/tools/runtime_coverage.py",
+      "bytes": 12543,
+      "original_sha256": "1e45d1dee0c788ea2729f22b135e116e87afbb275cb94b8d3f7f763ecea0e706",
+      "archive_sha256": "1e45d1dee0c788ea2729f22b135e116e87afbb275cb94b8d3f7f763ecea0e706",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/runtime_interfaces.py.txt",
+      "source": "platform/tools/runtime_interfaces.py",
+      "bytes": 14980,
+      "original_sha256": "1d7f82d6354d903d0cf1e5ce5351a3199400f6d217d12d3c22a63b8177e4852a",
+      "archive_sha256": "1d7f82d6354d903d0cf1e5ce5351a3199400f6d217d12d3c22a63b8177e4852a",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/sd_image.py.txt",
+      "source": "platform/tools/sd_image.py",
+      "bytes": 10567,
+      "original_sha256": "a18f9a142c6a41f1659d6dcfd29485643bc633d276fd966918ba4f9299d1d768",
+      "archive_sha256": "a18f9a142c6a41f1659d6dcfd29485643bc633d276fd966918ba4f9299d1d768",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/serve.py.txt",
+      "source": "platform/tools/serve.py",
+      "bytes": 62098,
+      "original_sha256": "e370343e7e35da19d3c802239b77e0b0bcde923468a386b9da84a212fd3db025",
+      "archive_sha256": "e370343e7e35da19d3c802239b77e0b0bcde923468a386b9da84a212fd3db025",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/storage_policy.py.txt",
+      "source": "platform/tools/storage_policy.py",
+      "bytes": 3238,
+      "original_sha256": "b52048eaf4db9478b58578365a9fedab84b4283f64b2c401c15b81f93c999165",
+      "archive_sha256": "b52048eaf4db9478b58578365a9fedab84b4283f64b2c401c15b81f93c999165",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/sync_visual_models.py.txt",
+      "source": "platform/tools/sync_visual_models.py",
+      "bytes": 75405,
+      "original_sha256": "e5e02cb205ded1ea2574daa7afbd51fda7720403543a14a31b68e1a495213199",
+      "archive_sha256": "e5e02cb205ded1ea2574daa7afbd51fda7720403543a14a31b68e1a495213199",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/transport_security.py.txt",
+      "source": "platform/tools/transport_security.py",
+      "bytes": 3377,
+      "original_sha256": "bd8383a55337071233fd9f9634efb008e56a8b4402da2d241bf61728223d28e8",
+      "archive_sha256": "bd8383a55337071233fd9f9634efb008e56a8b4402da2d241bf61728223d28e8",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/uiflow_main_loader.py.txt",
+      "source": "platform/tools/uiflow_main_loader.py",
+      "bytes": 10828,
+      "original_sha256": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+      "archive_sha256": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/uiflow_package_runtime.py.txt",
+      "source": "platform/tools/uiflow_package_runtime.py",
+      "bytes": 12749,
+      "original_sha256": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+      "archive_sha256": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/uiflow_runtime.py.txt",
+      "source": "platform/tools/uiflow_runtime.py",
+      "bytes": 15637,
+      "original_sha256": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+      "archive_sha256": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/uiflow_source.py.txt",
+      "source": "platform/tools/uiflow_source.py",
+      "bytes": 17001,
+      "original_sha256": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+      "archive_sha256": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/unified_http_guestfwd.py.txt",
+      "source": "platform/tools/unified_http_guestfwd.py",
+      "bytes": 2800,
+      "original_sha256": "bdcfa9418108a717300e4546177e8c0b4db144489a1544d76bc22eb5f5a8977a",
+      "archive_sha256": "bdcfa9418108a717300e4546177e8c0b4db144489a1544d76bc22eb5f5a8977a",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/unit_adc_fixture.py.txt",
+      "source": "platform/tools/unit_adc_fixture.py",
+      "bytes": 11124,
+      "original_sha256": "dd7cea070f3353289de2819e139b2e71552bc27b46739557ca42247d1a602000",
+      "archive_sha256": "dd7cea070f3353289de2819e139b2e71552bc27b46739557ca42247d1a602000",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/unit_runtime.py.txt",
+      "source": "platform/tools/unit_runtime.py",
+      "bytes": 16798,
+      "original_sha256": "fb338f9f6167272c81c027cab033369ac47a4cbf0cd63363464493aca6306f8d",
+      "archive_sha256": "fb338f9f6167272c81c027cab033369ac47a4cbf0cd63363464493aca6306f8d",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/user_firmware_matrix.py.txt",
+      "source": "platform/tools/user_firmware_matrix.py",
+      "bytes": 77014,
+      "original_sha256": "ba83d864dfaf0f096d7bafb3ca0c1226fd8e1592a430568ac382634f836ba7ac",
+      "archive_sha256": "ba83d864dfaf0f096d7bafb3ca0c1226fd8e1592a430568ac382634f836ba7ac",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/worker_agent.py.txt",
+      "source": "platform/tools/worker_agent.py",
+      "bytes": 48368,
+      "original_sha256": "bf250820f879ce232df2d8df95827908cd4a6ebe7335c257129d022e6bf102cb",
+      "archive_sha256": "bf250820f879ce232df2d8df95827908cd4a6ebe7335c257129d022e6bf102cb",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/worker_auth.py.txt",
+      "source": "platform/tools/worker_auth.py",
+      "bytes": 9152,
+      "original_sha256": "d817f2264d7b39bea04daa152b0a703a91968846539a844f043e7c3b92026ffe",
+      "archive_sha256": "d817f2264d7b39bea04daa152b0a703a91968846539a844f043e7c3b92026ffe",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/worker_directory.py.txt",
+      "source": "platform/tools/worker_directory.py",
+      "bytes": 17290,
+      "original_sha256": "ba9ed35033cfbe3940dc2f0ccb3b80b537fd3970d562026aa7071b764cd777aa",
+      "archive_sha256": "ba9ed35033cfbe3940dc2f0ccb3b80b537fd3970d562026aa7071b764cd777aa",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/worker_discovery.py.txt",
+      "source": "platform/tools/worker_discovery.py",
+      "bytes": 17781,
+      "original_sha256": "396ef5ef26b946a74ab0ec5df11428b459cc5dd3d3600df3bc8a0a0fc221873f",
+      "archive_sha256": "396ef5ef26b946a74ab0ec5df11428b459cc5dd3d3600df3bc8a0a0fc221873f",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/worker_discovery_seed.py.txt",
+      "source": "platform/tools/worker_discovery_seed.py",
+      "bytes": 7136,
+      "original_sha256": "f0b4d49f51a78430c02b7d98d695087152869409f9dce7f688afe1cdafaa5403",
+      "archive_sha256": "f0b4d49f51a78430c02b7d98d695087152869409f9dce7f688afe1cdafaa5403",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/worker_queue.py.txt",
+      "source": "platform/tools/worker_queue.py",
+      "bytes": 24089,
+      "original_sha256": "94452175d4314cbbdbe582f270b09a5e0ebb6fb6837b6a6fcaa0ce19dd32476a",
+      "archive_sha256": "94452175d4314cbbdbe582f270b09a5e0ebb6fb6837b6a6fcaa0ce19dd32476a",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/worker_registry.py.txt",
+      "source": "platform/tools/worker_registry.py",
+      "bytes": 16068,
+      "original_sha256": "3fb1b2034c95fc8f34c65659bda274c5ec4fcae0882e06a4ae8eaade17489830",
+      "archive_sha256": "3fb1b2034c95fc8f34c65659bda274c5ec4fcae0882e06a4ae8eaade17489830",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/tools/xtensa_elf_symbols.py.txt",
+      "source": "platform/tools/xtensa_elf_symbols.py",
+      "bytes": 14088,
+      "original_sha256": "996497c1e1388ebafb6a687bafd7d8aad6d3826a125684d5ce6fd512fbeee645",
+      "archive_sha256": "996497c1e1388ebafb6a687bafd7d8aad6d3826a125684d5ce6fd512fbeee645",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/units/catalog.json.txt",
+      "source": "platform/units/catalog.json",
+      "bytes": 178700,
+      "original_sha256": "fdd14b933003c220dbbb7b8952be9c88ecd3b2793c5adda6ccf73a9fa36c3dbb",
+      "archive_sha256": "fdd14b933003c220dbbb7b8952be9c88ecd3b2793c5adda6ccf73a9fa36c3dbb",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/units/host-ports.json.txt",
+      "source": "platform/units/host-ports.json",
+      "bytes": 16710,
+      "original_sha256": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "archive_sha256": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/units/runtime-profiles.json.txt",
+      "source": "platform/units/runtime-profiles.json",
+      "bytes": 209397,
+      "original_sha256": "1bc6358a3776e1155733079983f160850da25b90be06ab248e0fd3d3847167fe",
+      "archive_sha256": "1bc6358a3776e1155733079983f160850da25b90be06ab248e0fd3d3847167fe",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/cores3-viewer.js.txt",
+      "source": "platform/web/cores3-viewer.js",
+      "bytes": 482,
+      "original_sha256": "95b4b0ecbd26639fd7f40d164a49e1bbb67bcfe0070cede78177411247f70e6c",
+      "archive_sha256": "95b4b0ecbd26639fd7f40d164a49e1bbb67bcfe0070cede78177411247f70e6c",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/device-shell-factory.js.txt",
+      "source": "platform/web/device-shell-factory.js",
+      "bytes": 3036,
+      "original_sha256": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2",
+      "archive_sha256": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/device-shell.js.txt",
+      "source": "platform/web/device-shell.js",
+      "bytes": 13043,
+      "original_sha256": "293533142888973bc6bd72b5238b9bcda496694e028db9c07583114db85665d5",
+      "archive_sha256": "293533142888973bc6bd72b5238b9bcda496694e028db9c07583114db85665d5",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/device.js.txt",
+      "source": "platform/web/device.js",
+      "bytes": 18699,
+      "original_sha256": "ad2a1d1f187c0e386a4f8f2364932a896499c16b75710ae1e0866c4166b6e6be",
+      "archive_sha256": "ad2a1d1f187c0e386a4f8f2364932a896499c16b75710ae1e0866c4166b6e6be",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/emulator-worker.js.txt",
+      "source": "platform/web/emulator-worker.js",
+      "bytes": 3802,
+      "original_sha256": "c1e9e59ff1f8610045bf67541f9da209d902958cc2a807b97d1c46fea02609e6",
+      "archive_sha256": "c1e9e59ff1f8610045bf67541f9da209d902958cc2a807b97d1c46fea02609e6",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/firmware-report.js.txt",
+      "source": "platform/web/firmware-report.js",
+      "bytes": 2749,
+      "original_sha256": "c9aa6819f536efa53ad05fa768019b8fe867838553451ec31acf23ded5c9086f",
+      "archive_sha256": "c9aa6819f536efa53ad05fa768019b8fe867838553451ec31acf23ded5c9086f",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/firmware-upload.js.txt",
+      "source": "platform/web/firmware-upload.js",
+      "bytes": 8360,
+      "original_sha256": "071da8695ee3f23262855cf2272d83751e5f58abe3d3602340b8243fdecb7b51",
+      "archive_sha256": "071da8695ee3f23262855cf2272d83751e5f58abe3d3602340b8243fdecb7b51",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/firmware.js.txt",
+      "source": "platform/web/firmware.js",
+      "bytes": 14777,
+      "original_sha256": "ef9b418824c548221829b2f904d40c4fda142cac08d498c0205d1e2da956827b",
+      "archive_sha256": "ef9b418824c548221829b2f904d40c4fda142cac08d498c0205d1e2da956827b",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/gallery.js.txt",
+      "source": "platform/web/gallery.js",
+      "bytes": 7811,
+      "original_sha256": "6b078f77b4524ae17e3172fdfbda28005a027178ffc160a2b1c3ed844a4ebd6a",
+      "archive_sha256": "6b078f77b4524ae17e3172fdfbda28005a027178ffc160a2b1c3ed844a4ebd6a",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/model-shell.js.txt",
+      "source": "platform/web/model-shell.js",
+      "bytes": 24899,
+      "original_sha256": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+      "archive_sha256": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/preview-client.js.txt",
+      "source": "platform/web/preview-client.js",
+      "bytes": 27778,
+      "original_sha256": "f6ef0b904e69c69c7e4b048ed9f1b7efe360d3d61c07c8931a185f9a71e39a51",
+      "archive_sha256": "f6ef0b904e69c69c7e4b048ed9f1b7efe360d3d61c07c8931a185f9a71e39a51",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/program-panel.js.txt",
+      "source": "platform/web/program-panel.js",
+      "bytes": 37624,
+      "original_sha256": "10514e428d475a8aeffcdbc4eb8e9ccbf7cb144dc646aa445173be7ec05fbac1",
+      "archive_sha256": "10514e428d475a8aeffcdbc4eb8e9ccbf7cb144dc646aa445173be7ec05fbac1",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/sessions.html.txt",
+      "source": "platform/web/sessions.html",
+      "bytes": 5728,
+      "original_sha256": "3b915d136642a3270eac7378570bf1d25aae6efdaa3bcf7b4466728e0b53b0ac",
+      "archive_sha256": "3b915d136642a3270eac7378570bf1d25aae6efdaa3bcf7b4466728e0b53b0ac",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/sessions.js.txt",
+      "source": "platform/web/sessions.js",
+      "bytes": 55623,
+      "original_sha256": "ded1e36f76abba9cffb11730328ea71b8998a607f3ead9463e0d8fac37c33fae",
+      "archive_sha256": "ded1e36f76abba9cffb11730328ea71b8998a607f3ead9463e0d8fac37c33fae",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/sha256.js.txt",
+      "source": "platform/web/sha256.js",
+      "bytes": 6009,
+      "original_sha256": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413",
+      "archive_sha256": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/sticks3-viewer.js.txt",
+      "source": "platform/web/sticks3-viewer.js",
+      "bytes": 489,
+      "original_sha256": "9b35c2faaf0cd4b7ae078a504ea66125b77b0c68fbd2907853a491ac65fc1f63",
+      "archive_sha256": "9b35c2faaf0cd4b7ae078a504ea66125b77b0c68fbd2907853a491ac65fc1f63",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/three-device-viewer.js.txt",
+      "source": "platform/web/three-device-viewer.js",
+      "bytes": 7174,
+      "original_sha256": "4dfc936622da7d79b0be3ec92b95884c7574edafdff2ba23e1f7549c4e773517",
+      "archive_sha256": "4dfc936622da7d79b0be3ec92b95884c7574edafdff2ba23e1f7549c4e773517",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/uiflow-main-loader.js.txt",
+      "source": "platform/web/uiflow-main-loader.js",
+      "bytes": 2538,
+      "original_sha256": "bc90710babc4a08276b368c389b2c50c44250b11a90b965dec20883d3ee94a41",
+      "archive_sha256": "bc90710babc4a08276b368c389b2c50c44250b11a90b965dec20883d3ee94a41",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/unit-annotations.js.txt",
+      "source": "platform/web/unit-annotations.js",
+      "bytes": 9017,
+      "original_sha256": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "archive_sha256": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/unit-assembly-layout.js.txt",
+      "source": "platform/web/unit-assembly-layout.js",
+      "bytes": 7030,
+      "original_sha256": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+      "archive_sha256": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/unit-audio.js.txt",
+      "source": "platform/web/unit-audio.js",
+      "bytes": 7554,
+      "original_sha256": "c782dd7134f51bcb1a2d11f327f8ee45204bb0223574fbf8d5f17d13e9d3b714",
+      "archive_sha256": "c782dd7134f51bcb1a2d11f327f8ee45204bb0223574fbf8d5f17d13e9d3b714",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/unit-panel.js.txt",
+      "source": "platform/web/unit-panel.js",
+      "bytes": 52938,
+      "original_sha256": "252b1f60144a3bed1be5cd18f335f038f042803fee102331a0c74ee8f0f4f6e1",
+      "archive_sha256": "252b1f60144a3bed1be5cd18f335f038f042803fee102331a0c74ee8f0f4f6e1",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/gen45/platform/web/unit-visual-mappings.js.txt",
+      "source": "platform/web/unit-visual-mappings.js",
+      "bytes": 15511,
+      "original_sha256": "28868a42e2eb58d61efacc07a66e5725fc0c1c8b0597d85a56a680d37b6289da",
+      "archive_sha256": "28868a42e2eb58d61efacc07a66e5725fc0c1c8b0597d85a56a680d37b6289da",
+      "classification": "original",
+      "scope": "Copied after execution; exact SHA matches source receipt captured before/after owned service launch"
+    },
+    {
+      "archive_path": "source-snapshots/final-tests/platform/tests/test_main_loader_admission.py.txt",
+      "source": "platform/tests/test_main_loader_admission.py",
+      "bytes": 24575,
+      "original_sha256": "1932b2f2a71d5cb8b8ad43ffd619b57eefa7de6e41810e549b37872b6458803b",
+      "archive_sha256": "1932b2f2a71d5cb8b8ad43ffd619b57eefa7de6e41810e549b37872b6458803b",
+      "classification": "original",
+      "scope": "Final frozen host tests; no guest PASS implied by fixtures"
+    },
+    {
+      "archive_path": "source-snapshots/final-tests/platform/tests/test_uiflow_main_loader.py.txt",
+      "source": "platform/tests/test_uiflow_main_loader.py",
+      "bytes": 11301,
+      "original_sha256": "9d189dd90754a9a4306c1d6b650c174e8dbde2dbcaae86a0af542f07165980c9",
+      "archive_sha256": "9d189dd90754a9a4306c1d6b650c174e8dbde2dbcaae86a0af542f07165980c9",
+      "classification": "original",
+      "scope": "Final frozen host tests; no guest PASS implied by fixtures"
+    },
+    {
+      "archive_path": "source-snapshots/final-tests/platform/tests/test_uiflow_runtime.py.txt",
+      "source": "platform/tests/test_uiflow_runtime.py",
+      "bytes": 36435,
+      "original_sha256": "1c8eb56e3428cc2e1ea0a17b00a2e59051bc3dba7bc12c6d91f7d8173b1a4422",
+      "archive_sha256": "1c8eb56e3428cc2e1ea0a17b00a2e59051bc3dba7bc12c6d91f7d8173b1a4422",
+      "classification": "original",
+      "scope": "Final frozen host tests; no guest PASS implied by fixtures"
+    },
+    {
+      "archive_path": "source-snapshots/final-tests/platform/tests/test_uiflow_package_runtime.py.txt",
+      "source": "platform/tests/test_uiflow_package_runtime.py",
+      "bytes": 20651,
+      "original_sha256": "7f446c06bca1c9619b8ee3adb6ac2e61ff79daf5f31be115dd557fad0365b561",
+      "archive_sha256": "7f446c06bca1c9619b8ee3adb6ac2e61ff79daf5f31be115dd557fad0365b561",
+      "classification": "original",
+      "scope": "Final frozen host tests; no guest PASS implied by fixtures"
+    },
+    {
+      "archive_path": "source-snapshots/final-tests/platform/tests/test_preview_service.py.txt",
+      "source": "platform/tests/test_preview_service.py",
+      "bytes": 59348,
+      "original_sha256": "363c981b8152f41a31f28283287be9f138cdcccae98abf1da879e0eff2f39df3",
+      "archive_sha256": "363c981b8152f41a31f28283287be9f138cdcccae98abf1da879e0eff2f39df3",
+      "classification": "original",
+      "scope": "Final frozen host tests; no guest PASS implied by fixtures"
+    },
+    {
+      "archive_path": "source-snapshots/final-tests/platform/tests/test_preview_retention.py.txt",
+      "source": "platform/tests/test_preview_retention.py",
+      "bytes": 30651,
+      "original_sha256": "26f320f381d59b6e1f1513cda32fa19e0aeb2368b814c469663bc912e174ae1c",
+      "archive_sha256": "26f320f381d59b6e1f1513cda32fa19e0aeb2368b814c469663bc912e174ae1c",
+      "classification": "original",
+      "scope": "Final frozen host tests; no guest PASS implied by fixtures"
+    },
+    {
+      "archive_path": "summary.json",
+      "bytes": 2485,
+      "archive_sha256": "f0318bb53107ab1a96b526668866b4118b1d3ff52c118fbbf6395694407b5ce4",
+      "classification": "generated"
+    },
+    {
+      "archive_path": "independent/final-offline-audit-r1/index.json",
+      "source": ".work/main-loader-admission-independent-20261027/final-offline-audit-r1/index.json",
+      "bytes": 322447,
+      "original_sha256": "7047293a6b0c7f619c982c79984ac7afcfc026f934fd14443a234b6af22ec80e",
+      "archive_sha256": "7047293a6b0c7f619c982c79984ac7afcfc026f934fd14443a234b6af22ec80e",
+      "classification": "original",
+      "scope": "Fresh host-only offline audit; no new guest/API/hardware execution. Raw receipt/log retained; portable-copy trees intentionally not duplicated."
+    },
+    {
+      "archive_path": "independent/final-offline-audit-r1/api-runtime-portable.log",
+      "source": ".work/main-loader-admission-independent-20261027/final-offline-audit-r1/api-runtime-portable.log",
+      "bytes": 207,
+      "original_sha256": "5cf28e550ff720a590d6504346e66b55726744d9e6267a54b7240a752813baab",
+      "archive_sha256": "5cf28e550ff720a590d6504346e66b55726744d9e6267a54b7240a752813baab",
+      "classification": "original",
+      "scope": "Fresh host-only offline audit; no new guest/API/hardware execution. Raw receipt/log retained; portable-copy trees intentionally not duplicated."
+    },
+    {
+      "archive_path": "independent/final-offline-audit-r1/web-portable.log",
+      "source": ".work/main-loader-admission-independent-20261027/final-offline-audit-r1/web-portable.log",
+      "bytes": 296,
+      "original_sha256": "4247dea401a7790f7c89bb40e0f9868713ee4cd5bee646b5cd21094aa70af431",
+      "archive_sha256": "4247dea401a7790f7c89bb40e0f9868713ee4cd5bee646b5cd21094aa70af431",
+      "classification": "original",
+      "scope": "Fresh host-only offline audit; no new guest/API/hardware execution. Raw receipt/log retained; portable-copy trees intentionally not duplicated."
+    },
+    {
+      "archive_path": "independent/final-offline-audit-r1/original-preview-negative.log",
+      "source": ".work/main-loader-admission-independent-20261027/final-offline-audit-r1/original-preview-negative.log",
+      "bytes": 274,
+      "original_sha256": "e09c1f4f71ad258d0069e8c96a21e01b261159c2ad54e5c3d51017d72161b313",
+      "archive_sha256": "e09c1f4f71ad258d0069e8c96a21e01b261159c2ad54e5c3d51017d72161b313",
+      "classification": "original",
+      "scope": "Fresh host-only offline audit; no new guest/API/hardware execution. Raw receipt/log retained; portable-copy trees intentionally not duplicated."
+    },
+    {
+      "archive_path": "independent/final-offline-audit-r1/old-run-preservation.log",
+      "source": ".work/main-loader-admission-independent-20261027/final-offline-audit-r1/old-run-preservation.log",
+      "bytes": 488,
+      "original_sha256": "76fa9be035ebfb27b859e74bf29a0926f94f77b571207f17456d45b1a661f5e6",
+      "archive_sha256": "76fa9be035ebfb27b859e74bf29a0926f94f77b571207f17456d45b1a661f5e6",
+      "classification": "original",
+      "scope": "Fresh host-only offline audit; no new guest/API/hardware execution. Raw receipt/log retained; portable-copy trees intentionally not duplicated."
+    },
+    {
+      "archive_path": "independent/final-offline-audit-r1/original-preview-negative.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/preview-preflight-review-r1/probe.py",
+      "bytes": 2873,
+      "original_sha256": "242559975275ff38eb662db30df8afd9150bb48f439013227501a3637ee44650",
+      "archive_sha256": "242559975275ff38eb662db30df8afd9150bb48f439013227501a3637ee44650",
+      "classification": "original",
+      "scope": "Original probe source reused by the fresh audit invocation; SHA is bound in audit receipt original_r1_sha256."
+    },
+    {
+      "archive_path": "independent/final-offline-audit-r1/state-preservation.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/final-offline-audit-r1/state-preservation.py",
+      "bytes": 2669,
+      "original_sha256": "e8cc8e9042621b14e56ebdc83b8501e34f59ce9e0bc20732af2544bd4121843f",
+      "archive_sha256": "e8cc8e9042621b14e56ebdc83b8501e34f59ce9e0bc20732af2544bd4121843f",
+      "classification": "original",
+      "scope": "Copied byte-for-byte after the independent audit; original receipt does not hash this script. This capture does not assert a pre-execution source binding."
+    },
+    {
+      "archive_path": "independent/final-offline-audit-r1/record.py.txt",
+      "source": ".work/main-loader-admission-independent-20261027/final-offline-audit-r1/record.py",
+      "bytes": 5610,
+      "original_sha256": "4262715d1113607be83f40b6746e4f5f6fa531ca941b3d5368b9711a04e51011",
+      "archive_sha256": "4262715d1113607be83f40b6746e4f5f6fa531ca941b3d5368b9711a04e51011",
+      "classification": "original",
+      "scope": "Original offline-audit orchestrator captured after execution; retained for workflow review, not a pre-execution source hash claim."
+    },
+    {
+      "archive_path": "README.md.txt",
+      "bytes": 1671,
+      "archive_sha256": "091ff94033949a5e2b470fa1fac23f0379338e081e3b83cdc286aa242ade76e1",
+      "classification": "generated",
+      "scope": "Portable host archive semantics and verification instructions"
+    },
+    {
+      "archive_path": "verify.py",
+      "bytes": 10979,
+      "archive_sha256": "bd03dc85a59d4965a16dfa2eccaa23fe11582232ab4f0be4261df24fb27fdf40",
+      "classification": "generated",
+      "scope": "Portable read-only host archive verifier; its own bytes are SHA-bound by this index."
+    }
+  ],
+  "excluded": [
+    {
+      "source": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "bytes": 16955,
+      "reason": "preexisting virtual-network MAC literals; source fingerprint only"
+    },
+    {
+      "source": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "bytes": 45221,
+      "reason": "preexisting virtual-network MAC literals; source fingerprint only"
+    }
+  ],
+  "inventory_controls": [
+    "index.json"
+  ],
+  "verification_scope": "Portable read-only host archive validation; no API or new guest/hardware proof.",
+  "verifier_sha256": "bd03dc85a59d4965a16dfa2eccaa23fe11582232ab4f0be4261df24fb27fdf40"
+}

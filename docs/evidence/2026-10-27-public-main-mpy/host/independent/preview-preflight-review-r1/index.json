@@ -1,0 +1,25 @@
+{
+  "scope": "host-only independent negative controls for Preview preflight; no guest or hardware",
+  "started_at": "2026-10-26T22:26:03.012209+00:00",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    ".work/main-loader-admission-independent-20261027/preview-preflight-review-r1/probe.py"
+  ],
+  "cwd": "repository-root",
+  "environment_overrides": {
+    "PYTHONPATH": "platform/tools:platform/tests:.work/py312"
+  },
+  "exit_code": 1,
+  "source_sha256": {
+    "platform/tools/preview_service.py": "24ce4d9f699a1fdce1bd94ea796dab828772800186785ad975d934860007e05b",
+    "platform/tools/device_service.py": "6b1db729568e6af980118020fa2e82520c27fa8741b4f5c12d689e11a64c5097",
+    "platform/tools/uiflow_package_runtime.py": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+    "platform/tools/mpy_bytecode.py": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+    "platform/tests/test_main_loader_admission.py": "1932b2f2a71d5cb8b8ad43ffd619b57eefa7de6e41810e549b37872b6458803b",
+    "platform/tests/test_preview_service.py": "c5acef38a01aed462e0fca27ab6e05360843585e9f9454ffce2f8f79c7c22b9c",
+    "platform/tests/test_mpy_bytecode.py": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0"
+  },
+  "sources_unchanged": true,
+  "log_sha256": "3597acb2870a1d26ebed578c383e1411b977b770229d956635c100a5d03f4de8"
+}

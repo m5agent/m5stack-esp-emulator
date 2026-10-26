@@ -1,0 +1,50 @@
+import base64, copy, json, threading, unittest
+from unittest import mock
+from test_preview_service import PreviewServiceTests
+from test_mpy_bytecode import HELPER
+from device_service import ServiceError
+
+class PreservationTests(PreviewServiceTests):
+    def check_case(self, *, bits32):
+        preview, session, old = self.active()
+        pid = preview['preview_id']
+        self.admit_binary_loader(session)
+        data = HELPER[:3] + bytes([32]) + HELPER[4:] if bits32 else HELPER
+        revision = self.service.program_packages.create({'entrypoint': 'main.mpy', 'files': {
+            'main.mpy': {'encoding': 'base64', 'data': base64.b64encode(data).decode('ascii')}}})['revision_id']
+        context = self.control._context(pid)
+        context.cancel_event = token = threading.Event()
+        old_before = self.get_run(pid, old['run_id'])
+        preview_before = self.preview(pid)
+        session_before = copy.deepcopy(session.program)
+        expected = 'program_mpy_incompatible' if bits32 else 'program_mpy_entrypoint_unsupported'
+        def attempt():
+            with self.assertRaises(ServiceError) as caught:
+                self.submit(pid, revision, key='independent-bits32' if bits32 else 'independent-revoke')
+            self.assertEqual(caught.exception.status, 409)
+            self.assertEqual(caught.exception.code, expected)
+        if bits32:
+            attempt()
+        else:
+            original = self.service.program_packages.read_files
+            def revoke(*args, **kwargs):
+                result = original(*args, **kwargs)
+                session._program_capabilities = {}
+                return result
+            with mock.patch.object(self.service.program_packages, 'read_files', side_effect=revoke):
+                attempt()
+        self.assertFalse(token.is_set(), 'rejected binary must not cancel prior run token')
+        self.assertEqual(self.get_run(pid, old['run_id']), old_before)
+        self.assertEqual(session.program, session_before)
+        after = self.preview(pid)
+        for key in ('generation', 'active_run_id', 'transition_run_id', 'state'):
+            self.assertEqual(after[key], preview_before[key], key)
+        print(json.dumps({'case': 'bits32' if bits32 else 'revoke', 'status': 409, 'code': expected,
+            'old_run_unchanged': True, 'session_program_unchanged': True, 'cancel_event_set': token.is_set(),
+            'generation_unchanged': True}), flush=True)
+    def test_bits32(self):
+        self.check_case(bits32=True)
+    def test_revoke(self):
+        self.check_case(bits32=False)
+
+unittest.main(defaultTest=['PreservationTests.test_bits32', 'PreservationTests.test_revoke'])

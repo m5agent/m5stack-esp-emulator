@@ -1,0 +1,27 @@
+{
+  "archive_notice": {
+    "classification": "redacted-json",
+    "original_bytes": 1776,
+    "original_sha256": "26591a95e3c532e28dd7303ca090a0406ec3dcf2a95a554d21bbd675897caa7c",
+    "original_source": "runtime/candidate/evidence-before-stop.zip!programs/ad4029fdd724dd93b730084ee08a81254362970036b4151cc46c863538a473ca/source.json",
+    "transformations": [
+      {
+        "decoded_bytes": 1275,
+        "decoded_sha256": "0ad87f9fb956308ff988b13af059446212349f4dd0ea2d8e8dd1ff374da9599f",
+        "kind": "base64-payload-omitted",
+        "path": "$.files.main.py"
+      }
+    ]
+  },
+  "document": {
+    "entrypoint": "main.py",
+    "files": {
+      "main.py": {
+        "archive_redacted_binary": true,
+        "decoded_bytes": 1275,
+        "decoded_sha256": "0ad87f9fb956308ff988b13af059446212349f4dd0ea2d8e8dd1ff374da9599f",
+        "original_encoding": "base64"
+      }
+    }
+  }
+}

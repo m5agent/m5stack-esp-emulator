@@ -2,7 +2,7 @@
 
 Last reviewed: `2026-10-27`.
 
-Status: local MVP with unified-device runtime contract `1.45.0` and bounded
+Status: local MVP with unified-device runtime contract `1.46.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
@@ -22,22 +22,71 @@ The Preview/Run coordinator below has bounded API and Web acceptance; SSE and
 the AIFlow consumer remain future work. QEMU readers can explicitly
 share demand-driven frame samples with `max_age_ms` and conditional GET; this
 does not create a background stream or an AIFlow consumer integration.
-The mode rejects uploaded firmware/source-pin parameters and incompatible
+The mode rejects direct firmware_id/source-pin parameters and incompatible
 runtime/readiness settings. Existing caller-prepared firmware sessions can
 still opt into `program_transport="uart-repl"` explicitly; this lower-level
 option leaves the guest UART route to the caller. The Live sessions page offers
 an explicit programming checkbox and a per-session editor with execution
 identity checks. A late response never replaces the local source draft.
 
+
+### Verified main.mpy entrypoints
+
+API 1.46 adds conditional binary execution to the same-guest path. Session
+`program_mode=uiflow-live` and Preview creation accept an optional
+`base_firmware_id` + `expected_base_sha256` pair. The base must pass the existing
+manifest, actual-byte, partition, security/capability and PSRAM checks; the SHA
+pins normalized stored Flash bytes. Ordinary sessions still omit firmware_id
+and uiflow_source_sha256 in this mode. Default creation uses the cached reference.
+
+After the service's inert UART bootstrap, while the Session is still booting,
+a fixed official-compiler bytecode canary executes through the actual importer.
+It proves if-main, real file, main/__main__/import module identity and restoration
+of the REPL owner/cache/cwd/path. The probe uses no M5 or Unit APIs, consumes no
+Program execution/package quota, and removes its exact fixture. Unexpected
+protocol/FS failure or unconfirmed restoration fails startup. Cleanly unsupported
+semantics leave main.py available. Manually prepared UART sessions are not
+interrupted for automatic probing.
+
+`GET /sessions/{id}` and `/program` return `program_capabilities`, with status
+verified/unsupported/unknown, mpy_entrypoint, fixed canary provenance and identity
+(session/device/firmware/runtime/PID/process start token/worker generation).
+Only current verified proof grants main.mpy. Reset, restore/reattach and owner
+restoration failure revoke or discard the old proof. Historical evidence stays
+in program-capabilities.json/events/ZIP; it does not re-enable live execution.
+Preview exposes independent runtime_capabilities and derives capabilities.main_mpy
+from its actual Session. Immutable create configuration never grants capability.
+Preparing/unknown submissions return 409 before Run allocation or cancellation.
+
+A complete binary package uses the same storage/deployment transaction, actual
+guest hashes and managed dependency cleanup. The importer runs
+`__import__('main', None, None, False, 0)` without rewriting caller bytecode.
+Binary LOAD means **import request dispatched**, not application body entry;
+state running therefore leaves application_started/application_ready null.
+Finite return proves completion. DONE/ERROR are emitted only after owner/cache/
+cwd/path restoration; RESTORE_ERROR leaves ownership unknown and revokes the
+capability. Application output, QOM and frame are separate functional evidence.
+After a confirmed raw prompt, LOAD without DONE/ERROR also leaves ownership
+unconfirmed and revokes MPY admission; a prompt alone proves interruption only.
+Ctrl-C still has the interrupt-only native/IRQ/thread boundary.
+
+The managed Web consumer loads main.mpy as a read-only original checkpoint and
+runs the same revision. “New main.py” forks a separate source draft, removes the
+root main.mpy and preserves dependencies/resources; it neither writes nor runs
+until the user submits. Old checkpoints remain immutable. Current virtual-device
+acceptance is recorded separately; this API description alone grants no PASS.
+
 ### Same-guest complete files
 
 `POST /sessions/{id}/program` accepts either the existing `source` string or a
-`files` object. `files` is a complete snapshot, with `main.py` as its script
+`files` object. `files` is a complete snapshot, with `main.py` or a session-admitted `main.mpy` as its script
 entrypoint; each path maps to `{encoding: "utf8"|"base64", data: string}`. Both
 forms use `expected_execution_id`, the same console owner and the same guest.
 `GET /devices` advertises `program_source_kinds` for admitted devices.
 Its `program_features` also declares admitted runtimes, `main.py` entrypoint,
-bytecode-only `.mpy` dependencies, unsupported binary/native entrypoints,
+bytecode-only `.mpy` dependencies and unsupported native emitters. These
+are cached-reference defaults; current `Session.program_capabilities` can
+add a verified binary entrypoint. Source uses
 `fresh-exec-globals` namespace and interrupt-only cleanup. Unadmitted devices
 return an empty object. `__name__` starts as `__main__` for script execution;
 the application dictionary does not replace the REPL module in
@@ -57,9 +106,9 @@ Public checkpoints use `POST /program-revisions`, with exactly the required
 `source_kind="uiflow2-package"`, an explicit root `entrypoint`, and complete `files`.
 Storage accepts `main.py` or `main.mpy`; the chosen file must exist. Binary
 entrypoint storage preserves the original bytes and rejects a root `main.py`
-or `main/` directory that would shadow `main.mpy`. It does not add a binary
-script loader to the current firmware. Session and Preview execution still
-advertise `mpy_entrypoint=false` / `main_mpy=false`, and reject that entrypoint
+or `main/` directory that would shadow `main.mpy`. Storage does not install a
+loader. Unsupported, booting or unknown sessions retain
+`mpy_entrypoint=false` / `main_mpy=false`, and reject that entrypoint
 with 409 `program_mpy_entrypoint_unsupported` before allocating an execution,
 admitting a Run or cancelling the previous program. Unsupported inline Run
 requests also fail before consuming a package slot. Existing Python package
@@ -195,7 +244,7 @@ Runs per Preview. Preview/package GC is disabled. Ledger reference/package pins,
 managed history and allocation barriers protect cache/history roots, including
 bulk/manual/TTL/pressure deletion. Unresolved allocation or corrupt retention
 metadata fails closed. This does not implement SSE, background sampling, an
-AIFlow editor target, main.mpy, save-to-boot or hotplug. The Live sessions UI
+AIFlow editor target, save-to-boot or hotplug. The Live sessions UI
 uses Preview-aware mutation controls and Run-bound frames within the bounded
 UNIT-HOST-34 acceptance above; other Unit/host combinations need their own evidence.
 Manual artifact deletion also protects recorded legacy session source artifacts
@@ -226,7 +275,8 @@ pinned MicroPython v6 container, instructions and all nested raw-code kinds;
 native emitters are rejected even with a forged bytecode header. Actual guest
 `sys.implementation._mpy` and the admitted ESP32 A/MPZ small-int configuration
 are checked separately. This is not VM stack/type verification or a sandbox.
-`main.mpy` entrypoints and save-as-boot-program are not implemented. Package
+`main.mpy` requires the verified loader contract above. Save-as-boot-program
+is not implemented. Package
 execution records include source kind, file totals, deployment phases, guest
 capabilities and hash inventory; evidence ZIPs retain canonical package source,
 metadata and original file bytes. Current validation scope is recorded in the
@@ -1171,8 +1221,9 @@ interchangeable.
 This endpoint composes a starting filesystem once. For AIFlow live programming,
 start that firmware in a UART REPL session, then submit programs repeatedly to
 the same ordinary UART session. Subsequent Run calls do not reflash or recreate
-the virtual device. Preview currently prepares its fixed cached reference and
-does not accept an explicit base_firmware_id. Executable `.mpy` entrypoints remain separately capability-gated;
+the virtual device. Preview accepts the same optional base_firmware_id and
+expected_base_sha256 pair; it pins the normalized bytes before allocation.
+Executable `.mpy` entrypoints remain separately capability-gated;
 selecting another base does not itself enable them. This is not a generic
 MicroPython, signed/encrypted image or arbitrary base importer. Existing merged,
 segmented and FirmwareManifest paths keep their own preflight.

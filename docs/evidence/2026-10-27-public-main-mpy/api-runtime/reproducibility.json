@@ -1,0 +1,97 @@
+{
+  "candidate_base_firmware_id": "3cb901cbfebd616a96292f234fe88ad1b145c3bb019f256dcb57257d78f878d8",
+  "category": "official-bytecode-reproduction",
+  "command": [
+    "<compiler>",
+    "-s",
+    "<source_name>",
+    "-o",
+    "<output>",
+    "<archived-source>"
+  ],
+  "compiler_commit": "78ff170de9e32c79db6e64d3e33d2bd60002bdcd",
+  "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b",
+  "firmware_rebuild_boundary": "This API archive preserves the explicit manifest/base metadata and exact hashes. Rebuilding the candidate loader firmware requires its separate source patch and build provenance archive.",
+  "nonce_source_files": {
+    "candidate": [
+      "prepared/candidate-seed.py",
+      "prepared/candidate-restore.py"
+    ],
+    "preview": [
+      "prepared/preview-seed.py",
+      "prepared/preview-restore.py"
+    ],
+    "stock": [
+      "prepared/stock-seed.py",
+      "prepared/stock-restore.py"
+    ]
+  },
+  "packages": {
+    "exception": {
+      "files": {
+        "dep.mpy": "2f5885b1ac530dff6d351d9658d51f00c1c301d667901b9ea01e55e9eaf2c890",
+        "main.mpy": "c55cb9ef5e491f3056cbb0153ca433c6608d359cf29161fa90591c08273f5cfb"
+      },
+      "revision_id": "0861ef5234b3b7438f99ed6414a2f751fecd5fce08a71d46ac04357258b60a25"
+    },
+    "loop": {
+      "files": {
+        "dep.mpy": "2f5885b1ac530dff6d351d9658d51f00c1c301d667901b9ea01e55e9eaf2c890",
+        "main.mpy": "22d6d0f9198ee61f401862681b1d10e372be4e72387c3f31c6ec912a2c686ef6"
+      },
+      "revision_id": "4e991555570cea0a9c38018b8a7a7d506879093382ef66d8fa134335a44ca12f"
+    },
+    "v1": {
+      "files": {
+        "dep.mpy": "a659eead9795924f90a7f6f325aa578e139fb597201e2ad888dc33bd81bda862",
+        "main.mpy": "b02b4d7456910a295e911fafecefe460e8a2051aa51acc9ac8f1626f78d4f029"
+      },
+      "revision_id": "7945ff56be645350a793dc0b80e8be6fee46ae441f51867f730c492d523222ee"
+    },
+    "v2": {
+      "files": {
+        "dep.mpy": "2f5885b1ac530dff6d351d9658d51f00c1c301d667901b9ea01e55e9eaf2c890",
+        "main.mpy": "b02b4d7456910a295e911fafecefe460e8a2051aa51acc9ac8f1626f78d4f029"
+      },
+      "revision_id": "3c46b5692c968596052ae11dd2b7adc23a1d5c78aa34d36f5e8fc650ac68de09"
+    }
+  },
+  "recipes": {
+    "dep-v1": {
+      "bytecode_sha256": "a659eead9795924f90a7f6f325aa578e139fb597201e2ad888dc33bd81bda862",
+      "bytes": 47,
+      "source": "prepared/dep-v1.py",
+      "source_name": "dep.py",
+      "source_sha256": "5ccfe78ffe4b89748f4e0d35f3769f4e2ec67f0c9186aa7ee22bfe67cdb01b41"
+    },
+    "dep-v2": {
+      "bytecode_sha256": "2f5885b1ac530dff6d351d9658d51f00c1c301d667901b9ea01e55e9eaf2c890",
+      "bytes": 45,
+      "source": "prepared/dep-v2.py",
+      "source_name": "dep.py",
+      "source_sha256": "0a46c251f41debb5c75219e42b942579916b8eb7ef9596bc3418cde01455aa43"
+    },
+    "exception": {
+      "bytecode_sha256": "c55cb9ef5e491f3056cbb0153ca433c6608d359cf29161fa90591c08273f5cfb",
+      "bytes": 733,
+      "source": "prepared/exception.py",
+      "source_name": "main.py",
+      "source_sha256": "fb001a4b99501bc62ca5a1cc7b6d503b9b4f6ea8a2507af827e143df6860fb9c"
+    },
+    "finite": {
+      "bytecode_sha256": "b02b4d7456910a295e911fafecefe460e8a2051aa51acc9ac8f1626f78d4f029",
+      "bytes": 677,
+      "source": "prepared/finite.py",
+      "source_name": "main.py",
+      "source_sha256": "aa0643983fbaca58645f089c5e1d3dcee39cac7267efc59456e21c39982aeb2c"
+    },
+    "loop": {
+      "bytecode_sha256": "22d6d0f9198ee61f401862681b1d10e372be4e72387c3f31c6ec912a2c686ef6",
+      "bytes": 1013,
+      "source": "prepared/loop.py",
+      "source_name": "main.py",
+      "source_sha256": "990c12e1a8760d56e19a8399a9020e098da865d7d88536d1febc37bcf3c1c259"
+    }
+  },
+  "runtime_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e"
+}

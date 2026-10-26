@@ -53,6 +53,14 @@
         <input class="field" id="ttlInput" type="number" min="30" value="600">
         <label class="program-mode"><input id="programModeInput" type="checkbox" disabled aria-describedby="programModeHint">开启实时编程（UIFlow）</label>
         <div class="hint" id="programModeHint">读取实时编程能力…</div>
+        <details id="programBaseFields" hidden>
+          <summary class="field-label">选择已上传的 UIFlow 基础固件（可选）</summary>
+          <label class="field-label" for="programBaseId">Firmware ID</label>
+          <input class="field" id="programBaseId" type="text" maxlength="64" autocomplete="off" spellcheck="false" placeholder="留空使用参考固件">
+          <label class="field-label" for="programBaseSha">基础固件 SHA256</label>
+          <input class="field" id="programBaseSha" type="text" maxlength="64" autocomplete="off" spellcheck="false" placeholder="填写存储后标准化镜像的 SHA256">
+          <div class="hint">两项需同时填写。MPY 主入口是否可用，以该虚拟设备启动后的实际能力检测为准。</div>
+        </details>
         <label class="program-mode"><input id="previewModeInput" type="checkbox" disabled aria-describedby="previewModeHint">持续预览（连续运行 / 取消）</label>
         <div class="hint" id="previewModeHint">持续预览需要服务控制 Token；同一虚拟设备反复执行程序。</div>
         <div class="hint" id="previewCreateStatus" role="status" aria-live="polite" hidden></div>

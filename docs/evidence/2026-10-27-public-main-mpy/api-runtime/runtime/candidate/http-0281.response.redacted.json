@@ -1,0 +1,68 @@
+{
+  "archive_notice": {
+    "classification": "redacted-json",
+    "original_bytes": 1816,
+    "original_sha256": "708af3ff795efa662ad6172fc991ffb73d4fc23d84e84101b3b0bec9fb01509e",
+    "original_source": "runtime/candidate/http-0281.response",
+    "transformations": [
+      {
+        "decoded_bytes": 45,
+        "decoded_sha256": "2f5885b1ac530dff6d351d9658d51f00c1c301d667901b9ea01e55e9eaf2c890",
+        "kind": "base64-payload-omitted",
+        "path": "$.files.dep.mpy"
+      },
+      {
+        "decoded_bytes": 677,
+        "decoded_sha256": "b02b4d7456910a295e911fafecefe460e8a2051aa51acc9ac8f1626f78d4f029",
+        "kind": "base64-payload-omitted",
+        "path": "$.files.main.mpy"
+      }
+    ]
+  },
+  "document": {
+    "files": {
+      "dep.mpy": {
+        "archive_redacted_binary": true,
+        "decoded_bytes": 45,
+        "decoded_sha256": "2f5885b1ac530dff6d351d9658d51f00c1c301d667901b9ea01e55e9eaf2c890",
+        "original_encoding": "base64"
+      },
+      "main.mpy": {
+        "archive_redacted_binary": true,
+        "decoded_bytes": 677,
+        "decoded_sha256": "b02b4d7456910a295e911fafecefe460e8a2051aa51acc9ac8f1626f78d4f029",
+        "original_encoding": "base64"
+      }
+    },
+    "limits": {
+      "gc_enabled": false,
+      "max_file_bytes": 262144,
+      "max_files": 64,
+      "max_http_body_bytes": 2097152,
+      "max_revisions": 1024,
+      "max_total_file_bytes": 1048576
+    },
+    "revision": {
+      "created_at": "2026-10-26T22:34:45.569780+00:00",
+      "entrypoint": "main.mpy",
+      "files": [
+        {
+          "kind": "mpy",
+          "path": "dep.mpy",
+          "sha256": "2f5885b1ac530dff6d351d9658d51f00c1c301d667901b9ea01e55e9eaf2c890",
+          "size": 45
+        },
+        {
+          "kind": "mpy",
+          "path": "main.mpy",
+          "sha256": "b02b4d7456910a295e911fafecefe460e8a2051aa51acc9ac8f1626f78d4f029",
+          "size": 677
+        }
+      ],
+      "revision_id": "3c46b5692c968596052ae11dd2b7adc23a1d5c78aa34d36f5e8fc650ac68de09",
+      "source_kind": "uiflow2-package",
+      "source_sha256": "dd748f4cf5ace8125414990f0949de561a8ee4e294b850ca9b59a6cf37f5c567",
+      "total_file_bytes": 722
+    }
+  }
+}

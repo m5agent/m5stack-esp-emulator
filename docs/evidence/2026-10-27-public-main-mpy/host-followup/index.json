@@ -1,0 +1,410 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "category": "HOST_ONLY_MISSING_OWNER_TERMINAL_PROOF_REGRESSION",
+  "r1": "BUG REPRODUCED / exit1 PRESERVED",
+  "r2": "PASS: same explicit corrupt importer behavior, actual trusted wrapper, fresh raw protocol prompt; owner unconfirmed and next MPY409",
+  "scope": "Does not execute caller MPY or a real guest; independent gen46 Device Service evidence is separate. Gen45 retains original code/source receipt.",
+  "admission_tests": 28,
+  "related_tests": 155,
+  "api_contacted": false,
+  "guest": "NOT RUN",
+  "hardware": "NOT RUN",
+  "files": [
+    {
+      "path": "missing-marker-r1/application-behavior.py.txt",
+      "bytes": 336,
+      "sha256": "fbf52f75bc656c99b3c28b59bab0ff8c3fcfe7776cdf91a52b37e08483a82ff3",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/application-behavior.py.txt"
+    },
+    {
+      "path": "missing-marker-r1/generated-trusted-wrapper.py.txt",
+      "bytes": 3673,
+      "sha256": "360c12ea969a17b9636535beb658d779d88a49ef8037d01580197d704ca14478",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/generated-trusted-wrapper.py.txt"
+    },
+    {
+      "path": "missing-marker-r1/observation.json",
+      "bytes": 661,
+      "sha256": "9025db130bd8aa08bad1407b6407be85c8dcafdb8754761603dc01d67f97c17a",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/observation.json"
+    },
+    {
+      "path": "missing-marker-r1/probe.log",
+      "bytes": 1575,
+      "sha256": "76868d7a2c2732765699598433abaf472db4424f66b27cc96b7c088ce2ecac8c",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/probe.log"
+    },
+    {
+      "path": "missing-marker-r1/probe.py.txt",
+      "bytes": 5478,
+      "sha256": "57468944c57f20ea3d56ddb0f9e54cbc4665c91418cc13495eb96c40e926bf43",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/probe.py"
+    },
+    {
+      "path": "missing-marker-r1/receipt.json",
+      "bytes": 3043,
+      "sha256": "e8156dcdfd21ad25bec1e32771e1243f2b73f22fb9aacb1649caef0176c31e6b",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/receipt.json"
+    },
+    {
+      "path": "missing-marker-r1/source-snapshot/docs/device-service-api.md.txt",
+      "bytes": 136195,
+      "sha256": "5a569a9304bb6ca2fe07a8c4d06d3cd5e52228f36c568770b96c0a51f0d700d3",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/source-snapshot/docs/device-service-api.md.txt"
+    },
+    {
+      "path": "missing-marker-r1/source-snapshot/platform/tests/test_device_program_packages.py.txt",
+      "bytes": 23603,
+      "sha256": "ef84d5877882e0406091b34b6cf0caf0310bddc31ee49437739fa3d68d74b8b0",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/source-snapshot/platform/tests/test_device_program_packages.py.txt"
+    },
+    {
+      "path": "missing-marker-r1/source-snapshot/platform/tests/test_device_program_runtime.py.txt",
+      "bytes": 58074,
+      "sha256": "a92f13b76e9f9bd80eb8b232d00cf5d2ea9af1ee2f255ce152df3cb2895a194f",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/source-snapshot/platform/tests/test_device_program_runtime.py.txt"
+    },
+    {
+      "path": "missing-marker-r1/source-snapshot/platform/tests/test_main_loader_admission.py.txt",
+      "bytes": 24575,
+      "sha256": "1932b2f2a71d5cb8b8ad43ffd619b57eefa7de6e41810e549b37872b6458803b",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/source-snapshot/platform/tests/test_main_loader_admission.py.txt"
+    },
+    {
+      "path": "missing-marker-r1/source-snapshot/platform/tests/test_mpy_bytecode.py.txt",
+      "bytes": 13948,
+      "sha256": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/source-snapshot/platform/tests/test_mpy_bytecode.py.txt"
+    },
+    {
+      "path": "missing-marker-r1/source-snapshot/platform/tests/test_uiflow_runtime.py.txt",
+      "bytes": 36435,
+      "sha256": "1c8eb56e3428cc2e1ea0a17b00a2e59051bc3dba7bc12c6d91f7d8173b1a4422",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/source-snapshot/platform/tests/test_uiflow_runtime.py.txt"
+    },
+    {
+      "path": "missing-marker-r1/source-snapshot/platform/tools/device_service.py.txt",
+      "bytes": 473501,
+      "sha256": "5a22ed489240a92657e13bbb9cfb8ea6da6dec47123f2891d995455202152c5d",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/source-snapshot/platform/tools/device_service.py.txt"
+    },
+    {
+      "path": "missing-marker-r1/source-snapshot/platform/tools/uiflow_main_loader.py.txt",
+      "bytes": 10828,
+      "sha256": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/source-snapshot/platform/tools/uiflow_main_loader.py.txt"
+    },
+    {
+      "path": "missing-marker-r1/source-snapshot/platform/tools/uiflow_runtime.py.txt",
+      "bytes": 15637,
+      "sha256": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/source-snapshot/platform/tools/uiflow_runtime.py.txt"
+    },
+    {
+      "path": "missing-marker-r2/application-behavior.py.txt",
+      "bytes": 336,
+      "sha256": "fbf52f75bc656c99b3c28b59bab0ff8c3fcfe7776cdf91a52b37e08483a82ff3",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r2/application-behavior.py.txt"
+    },
+    {
+      "path": "missing-marker-r2/generated-trusted-wrapper.py.txt",
+      "bytes": 3673,
+      "sha256": "084815f3ca8da1699a4c32bfe8249c111b364b868f531948fb34f3c2a28cc89c",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r2/generated-trusted-wrapper.py.txt"
+    },
+    {
+      "path": "missing-marker-r2/observation.json",
+      "bytes": 689,
+      "sha256": "ef0a24dc3e14059f099b797e544d1b1d04cdf507b2840e49a52b46c1a113d5b2",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r2/observation.json"
+    },
+    {
+      "path": "missing-marker-r2/probe.log",
+      "bytes": 739,
+      "sha256": "cc81f71d8ac0444e43d96cb3ef3df5c56e9aca53df03618da2e33bf028b85099",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r2/probe.log"
+    },
+    {
+      "path": "missing-marker-r2/probe.py.txt",
+      "bytes": 5478,
+      "sha256": "57468944c57f20ea3d56ddb0f9e54cbc4665c91418cc13495eb96c40e926bf43",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r2/probe.py"
+    },
+    {
+      "path": "missing-marker-r2/receipt.json",
+      "bytes": 2542,
+      "sha256": "aa1b134be53d36fc615becbce83596ce7bb7f369ca9bd951a89df26b5e4939fc",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r2/receipt.json"
+    },
+    {
+      "path": "fix-narrow/admission.log",
+      "bytes": 127,
+      "sha256": "fcd6659ee89ad438a2cb70bf0c2affa4cb13416609898a55c858e071677588e6",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/admission.log"
+    },
+    {
+      "path": "fix-narrow/product-diff.patch.txt",
+      "bytes": 8855,
+      "sha256": "46a6bc9dcefba500080abd47e123bee0ac00ce3a16dc9f9f174ccdb2d583b9b0",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/product-diff.patch.txt"
+    },
+    {
+      "path": "fix-narrow/receipt.json",
+      "bytes": 6274,
+      "sha256": "184aaac24fa543d6781efdbf177df502b2d995af2d984cca30a786edf72bd079",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/receipt.json"
+    },
+    {
+      "path": "fix-narrow/related.log",
+      "bytes": 255,
+      "sha256": "aa611ec938ed36ae02a7434b613d896252bd28b9a20cf986ec208c1e35bffb44",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/related.log"
+    },
+    {
+      "path": "fix-narrow/source-snapshot/platform/tests/test_device_program_packages.py.txt",
+      "bytes": 23603,
+      "sha256": "ef84d5877882e0406091b34b6cf0caf0310bddc31ee49437739fa3d68d74b8b0",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/source-snapshot/platform/tests/test_device_program_packages.py.txt"
+    },
+    {
+      "path": "fix-narrow/source-snapshot/platform/tests/test_device_program_runtime.py.txt",
+      "bytes": 58074,
+      "sha256": "a92f13b76e9f9bd80eb8b232d00cf5d2ea9af1ee2f255ce152df3cb2895a194f",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/source-snapshot/platform/tests/test_device_program_runtime.py.txt"
+    },
+    {
+      "path": "fix-narrow/source-snapshot/platform/tests/test_main_loader_admission.py.txt",
+      "bytes": 29205,
+      "sha256": "58d7edf3e0006ebe767a6d36d7e1fe887315342aa4ddc0a51d06969f49d1dd9d",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/source-snapshot/platform/tests/test_main_loader_admission.py.txt"
+    },
+    {
+      "path": "fix-narrow/source-snapshot/platform/tests/test_preview_service.py.txt",
+      "bytes": 59348,
+      "sha256": "363c981b8152f41a31f28283287be9f138cdcccae98abf1da879e0eff2f39df3",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/source-snapshot/platform/tests/test_preview_service.py.txt"
+    },
+    {
+      "path": "fix-narrow/source-snapshot/platform/tests/test_uiflow_main_loader.py.txt",
+      "bytes": 11301,
+      "sha256": "9d189dd90754a9a4306c1d6b650c174e8dbde2dbcaae86a0af542f07165980c9",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/source-snapshot/platform/tests/test_uiflow_main_loader.py.txt"
+    },
+    {
+      "path": "fix-narrow/source-snapshot/platform/tests/test_uiflow_runtime.py.txt",
+      "bytes": 36435,
+      "sha256": "1c8eb56e3428cc2e1ea0a17b00a2e59051bc3dba7bc12c6d91f7d8173b1a4422",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/source-snapshot/platform/tests/test_uiflow_runtime.py.txt"
+    },
+    {
+      "path": "fix-narrow/source-snapshot/platform/tools/device_service.py.txt",
+      "bytes": 474093,
+      "sha256": "14a9dcee94d5eba9b5190a957d3dee53fce1de3601ed0eb46af9d2cf01e13fa2",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/source-snapshot/platform/tools/device_service.py.txt"
+    },
+    {
+      "path": "fix-narrow/source-snapshot/platform/tools/preview_service.py.txt",
+      "bytes": 46607,
+      "sha256": "0ff612a6675982cc1e899ca1d01964ce32c33eb5c92b27316ad753c6c9124d98",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/source-snapshot/platform/tools/preview_service.py.txt"
+    },
+    {
+      "path": "fix-narrow/source-snapshot/platform/tools/uiflow_main_loader.py.txt",
+      "bytes": 10828,
+      "sha256": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/source-snapshot/platform/tools/uiflow_main_loader.py.txt"
+    },
+    {
+      "path": "fix-narrow/source-snapshot/platform/tools/uiflow_package_runtime.py.txt",
+      "bytes": 12749,
+      "sha256": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/source-snapshot/platform/tools/uiflow_package_runtime.py.txt"
+    },
+    {
+      "path": "fix-narrow/source-snapshot/platform/tools/uiflow_runtime.py.txt",
+      "bytes": 15637,
+      "sha256": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/source-snapshot/platform/tools/uiflow_runtime.py.txt"
+    },
+    {
+      "path": "platform-r3/receipt.json",
+      "bytes": 389,
+      "sha256": "d5ce379c5d989115cebf379f5e935a7cb8e4129a8efa647ad4efdea87e8e5b30",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-platform-tests-r3-20261027/receipt.json"
+    },
+    {
+      "path": "platform-r3/tests.log",
+      "bytes": 30792,
+      "sha256": "80051f750e3159b135a85775c5eb86694a7f25450a649f7bf69282b895d2b1e4",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-platform-tests-r3-20261027/tests.log"
+    },
+    {
+      "path": "platform-r4/receipt.json",
+      "bytes": 412,
+      "sha256": "d518b269f6f18f2419fd4337b2170c38d2c832878a31c96c906a776e1b5f14e8",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-platform-tests-r4-20261027/receipt.json"
+    },
+    {
+      "path": "platform-r4/tests.log",
+      "bytes": 9062,
+      "sha256": "57492178bdf25276fed2a6fbd9a7ab0164b51b2aba987dc80dd98b5541c63f3e",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-platform-tests-r4-20261027/tests.log"
+    },
+    {
+      "path": "final-checks-before-followup/0.log",
+      "bytes": 20,
+      "sha256": "ae22dc70eea81ac4f6d6918c0d694fc72cbc72cb589a13d93dac5b5c453d9311",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-final-checks-20261027-r1/0.log"
+    },
+    {
+      "path": "final-checks-before-followup/1.log",
+      "bytes": 22,
+      "sha256": "6e3c49ec0c80a56051031a4bf3ba0fe16aa118f2b31f8863c09ef0bc4cc89633",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-final-checks-20261027-r1/1.log"
+    },
+    {
+      "path": "final-checks-before-followup/2.log",
+      "bytes": 17,
+      "sha256": "04a26a35d775027ee0ce627c0888eeb20272591f8801dbd6e2f0dfb2e499281e",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-final-checks-20261027-r1/2.log"
+    },
+    {
+      "path": "final-checks-before-followup/3.log",
+      "bytes": 16,
+      "sha256": "1efb2a3be1293eb9bcdd1f5a0ac3529c03fdb0afd3d87655a81cbfa79bddfe4d",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-final-checks-20261027-r1/3.log"
+    },
+    {
+      "path": "final-checks-before-followup/4.log",
+      "bytes": 20,
+      "sha256": "05110c70ad2d40d6a4943005ed5d00f2780cb44d5288bcee45128d62b19d6f1d",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-final-checks-20261027-r1/4.log"
+    },
+    {
+      "path": "final-checks-before-followup/5.log",
+      "bytes": 148,
+      "sha256": "e4597a37365cb72e901f6176f26056d3def3a4e1ea0ec75dc2103f38d871f0a1",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-final-checks-20261027-r1/5.log"
+    },
+    {
+      "path": "final-checks-before-followup/6.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-final-checks-20261027-r1/6.log"
+    },
+    {
+      "path": "final-checks-before-followup/index.json",
+      "bytes": 2551,
+      "sha256": "f96c75b20b2feb1ef3d1fdfd7a1931612b1e9d070e0313872c52eb2c912a8ab7",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-final-checks-20261027-r1/index.json"
+    },
+    {
+      "path": "service/gen46/start.json",
+      "bytes": 116868,
+      "sha256": "f43db25a1591caa5a93c3fef6fa2e0fb929294bc5b1fba3d44b280cded69e133",
+      "classification": "original",
+      "original_source": ".work/public-main-mpy-owned-start-gen46-20261027/start.json",
+      "scope": "Actual owned service start before the gen46 functional followup"
+    },
+    {
+      "path": "source-overlay/docs/device-service.openapi.yaml.txt",
+      "bytes": 165574,
+      "sha256": "b27ad3d9db6d1efd2fbc76121295d0935f5677611af65bb6e94dfd5bcbd84c31",
+      "classification": "original",
+      "original_source": "docs/device-service.openapi.yaml",
+      "scope": "Captured after final host regression; byte SHA matches the gen46 service-start receipt"
+    },
+    {
+      "path": "source-overlay/platform/tools/device_service.py.txt",
+      "bytes": 474093,
+      "sha256": "14a9dcee94d5eba9b5190a957d3dee53fce1de3601ed0eb46af9d2cf01e13fa2",
+      "classification": "original",
+      "original_source": "platform/tools/device_service.py",
+      "scope": "Captured after final host regression; byte SHA matches the gen46 service-start receipt"
+    },
+    {
+      "path": "source-overlay/platform/tests/test_docs_current_state_contract.py.txt",
+      "bytes": 19326,
+      "sha256": "6aef23511c258f7375a437b43525d9cfd76c37bf2e3f205f3d1f350807249d70",
+      "classification": "original",
+      "original_source": "platform/tests/test_docs_current_state_contract.py",
+      "scope": "Captured after the final host regression; source archive, not a new execution"
+    },
+    {
+      "path": "source-map.json",
+      "bytes": 27494,
+      "sha256": "91425dfb4b6bb0028f233a2d10c11ff37bd901da705a12a1b82fe3730c3d50d9",
+      "classification": "generated"
+    },
+    {
+      "path": "verify.py",
+      "bytes": 2511,
+      "sha256": "e7c7c39e3d463411737f67b2c1d8d92ae5cf92d8403d66afd15d7df1490fe3d8",
+      "classification": "generated"
+    }
+  ],
+  "full_platform": {
+    "r3": {
+      "tests": 1218,
+      "status": "FAIL PRESERVED",
+      "reason": "generated snapshot not updated after five added admission tests",
+      "failures": 2
+    },
+    "r4": {
+      "tests": 1218,
+      "status": "PASS",
+      "seconds": 108.913,
+      "snapshot_regenerated_before_run": true
+    }
+  },
+  "real_negative_guest": "NOT RUN: additional environment-corruption scenario was blocked by automated security review; no guest PASS inferred from host tests"
+}

@@ -1,0 +1,141 @@
+--- before/platform/tools/device_service.py
++++ after/platform/tools/device_service.py
+@@ -6464,7 +6464,7 @@
+         with self._lock:
+             yield self.program_capabilities()
+ 
+-    def _check_program_loader_restoration(self, program: dict | None, console) -> bool:
++    def _check_program_loader_restoration(self, program: dict | None, console, *, prompt_confirmed: bool = False) -> bool:
+         if not program or program.get("entrypoint") != "main.mpy":
+             return True
+         scanner = getattr(self, "_program_scanner", None)
+@@ -6473,15 +6473,21 @@
+         end = console.offset()
+         while scanner.cursor < end:
+             scanner.scan(console)
+-        if not scanner.restore_failed:
++        # LOAD is only an import request. Once a fresh raw prompt confirms the
++        # binary has stopped, only DONE/ERROR positively prove wrapper cleanup.
++        # An actively running import has no terminal marker yet and keeps its
++        # proof; cancellation before LOAD never changed the importer owner.
++        missing_terminal = prompt_confirmed and scanner.load_requested and scanner.state not in {"completed", "failed"}
++        if not scanner.restore_failed and not missing_terminal:
+             return True
+-        self._invalidate_program_loader("binary-repl-owner-restoration-unconfirmed")
+-        program.update(loader_restore_failed=True, owner_restored=False,
+-                       execution_phase="owner-unconfirmed", state="unknown",
+-                       error={"code": "program_main_loader_restore_failed", "message": "Binary execution did not confirm its original REPL owner"})
+-        atomic_write_json(self.dir / "programs" / f"{program['execution_id']}.json", program)
+-        if self._program is program:
+-            self._persist_program()
++        with self._lock:
++            self._invalidate_program_loader("binary-repl-owner-restoration-unconfirmed")
++            program.update(loader_restore_failed=True, owner_restored=False,
++                           execution_phase="owner-unconfirmed", state="unknown",
++                           error={"code": "program_main_loader_restore_failed", "message": "Binary execution did not confirm its original REPL owner"})
++            atomic_write_json(self.dir / "programs" / f"{program['execution_id']}.json", program)
++            if self._program is program:
++                self._persist_program()
+         return False
+ 
+     def _probe_program_loader(self) -> None:
+@@ -6693,7 +6699,7 @@
+                 nonlocal synchronization_notified
+                 if transport_cancelled():
+                     raise UIFlowRuntimeError("program_cancelled", "session is stopping")
+-                if previous and not self._check_program_loader_restoration(previous, console):
++                if previous and not self._check_program_loader_restoration(previous, console, prompt_confirmed=True):
+                     self._record_event("program_previous_owner_unconfirmed", execution_id=previous["execution_id"])
+                 if previous and previous["state"] == "interrupt-requested":
+                     with self._lock:
+@@ -6808,7 +6814,7 @@
+                     self._persist_program()
+             try:
+                 receipt = synchronize_raw_repl(console, timeout=float(timeout_seconds), cancelled=self._stop_event.is_set)
+-                if not self._check_program_loader_restoration(self._program, console):
++                if not self._check_program_loader_restoration(self._program, console, prompt_confirmed=True):
+                     receipt["owner_restored"] = False
+             except (GuestConsoleError, UIFlowRuntimeError) as error:
+                 with self._lock:
+--- before/platform/tests/test_main_loader_admission.py
++++ after/platform/tests/test_main_loader_admission.py
+@@ -318,6 +318,79 @@
+         self.assert_early_rejection(session, self.binary_payload(expected_execution_id=program["execution_id"]))
+         self.assertEqual(runner.call_count, 1)
+ 
++    def test_running_binary_load_without_terminal_marker_does_not_revoke_proof(self):
++        session = self.target()
++        program, _ = self.active_binary(session)
++        session._console.append(execution_markers(program["execution_id"])["LOAD"] + b"\r\n")
++        observed = session.program_status()
++        self.assertEqual(observed["program"]["state"], "running")
++        self.assertTrue(observed["program_capabilities"]["mpy_entrypoint"])
++        self.assertNotIn("loader_restore_failed", observed["program"])
++
++    def test_cancel_after_load_requires_terminal_owner_proof_even_with_a_fresh_prompt(self):
++        session = self.target()
++        program, runner = self.active_binary(session)
++        self.deploy.reset_mock()
++        session._console.append(execution_markers(program["execution_id"])["LOAD"] + b"\r\n")
++        self.assertTrue(session.program_status()["program_capabilities"]["mpy_entrypoint"])
++        with mock.patch.object(service_module, "synchronize_raw_repl", return_value={
++            "interruption_confirmed": True, "serial_offset": session._console.offset(),
++            "prompt_end": session._console.offset() + 30,
++        }):
++            stopped = session.interrupt_program(expected_execution_id=program["execution_id"])
++        self.assertTrue(stopped["interrupt_ack"]["interruption_confirmed"])
++        self.assertIs(stopped["interrupt_ack"]["owner_restored"], False)
++        self.assertFalse(stopped["program_capabilities"]["mpy_entrypoint"])
++        self.assertEqual(stopped["program"]["error"]["code"], "program_main_loader_restore_failed")
++        self.assert_early_rejection(session, self.binary_payload(expected_execution_id=program["execution_id"]))
++        self.assertEqual(runner.call_count, 1)
++
++    def test_source_replacement_rechecks_loaded_binary_owner_at_its_sync_boundary(self):
++        session = self.target()
++        program, runner = self.active_binary(session)
++        session._console.append(execution_markers(program["execution_id"])["LOAD"] + b"\r\n")
++        observed = session.run_program({
++            "files": {"main.py": {"encoding": "utf8", "data": "print('source recovery')\n"}},
++            "expected_execution_id": program["execution_id"],
++        })
++        self.assertEqual(observed["program"]["state"], "completed")
++        self.assertFalse(observed["program_capabilities"]["mpy_entrypoint"])
++        previous = self.record(session, program["execution_id"])
++        self.assertEqual(previous["state"], "unknown")
++        self.assertIs(previous["owner_restored"], False)
++        self.assertEqual(previous["error"]["code"], "program_main_loader_restore_failed")
++        self.assertEqual(runner.call_count, 1)
++
++    def test_cancel_during_deployment_before_load_keeps_verified_loader_proof(self):
++        session = self.target()
++        program, _ = self.active_binary(session)
++        session._program.update(state="unknown", execution_phase="preparing", cancel_requested=True,
++                                deployment={"phase": "writing"})
++        session._console.append(b"package deployment was interrupted before import\r\n")
++        with mock.patch.object(service_module, "synchronize_raw_repl", return_value={
++            "interruption_confirmed": True, "serial_offset": session._console.offset(),
++            "prompt_end": session._console.offset() + 30,
++        }):
++            stopped = session.interrupt_program(expected_execution_id=program["execution_id"])
++        self.assertTrue(stopped["program_capabilities"]["mpy_entrypoint"])
++        self.assertNotIn("loader_restore_failed", stopped["program"])
++        self.assertNotIn("error", stopped["program"])
++
++    def test_loaded_binary_done_or_error_is_positive_owner_proof_after_prompt(self):
++        for terminal in ("DONE", "ERROR"):
++            session = self.target()
++            program, _ = self.active_binary(session)
++            markers = execution_markers(program["execution_id"])
++            session._console.append(markers["LOAD"] + b"\r\n" + markers[terminal] + b"\r\n")
++            with self.subTest(terminal=terminal), mock.patch.object(service_module, "synchronize_raw_repl", return_value={
++                "interruption_confirmed": True, "serial_offset": session._console.offset(),
++                "prompt_end": session._console.offset() + 30,
++            }):
++                stopped = session.interrupt_program(expected_execution_id=program["execution_id"])
++                self.assertTrue(stopped["program_capabilities"]["mpy_entrypoint"])
++                self.assertNotIn("loader_restore_failed", stopped["program"])
++                self.assertNotIn("error", stopped["program"])
++
+     def test_caller_capability_fields_cannot_authorize_an_inline_run(self):
+         session = self.target()
+         old = self.active_source(session)

@@ -1,0 +1,23 @@
+{"case": "bits32", "accepted": "queued", "cancelled_old": null, "old_state": "cancelling"}
+F{"case": "revoke", "accepted": "queued", "cancelled_old": null, "old_state": "cancelling"}
+F
+======================================================================
+FAIL: test_bits32_is_rejected_before_admit_or_old_run_cancellation (__main__.ReviewTests.test_bits32_is_rejected_before_admit_or_old_run_cancellation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/main-loader-admission-independent-20261027/preview-preflight-review-r1/probe.py", line 24, in test_bits32_is_rejected_before_admit_or_old_run_cancellation
+    self.fail('known-incompatible MPY was admitted before cancelling predecessor')
+AssertionError: known-incompatible MPY was admitted before cancelling predecessor
+
+======================================================================
+FAIL: test_revocation_during_store_read_is_rechecked_before_admit (__main__.ReviewTests.test_revocation_during_store_read_is_rechecked_before_admit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/main-loader-admission-independent-20261027/preview-preflight-review-r1/probe.py", line 44, in test_revocation_during_store_read_is_rechecked_before_admit
+    self.fail('revoked loader was admitted before cancelling predecessor')
+AssertionError: revoked loader was admitted before cancelling predecessor
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.052s
+
+FAILED (failures=2)

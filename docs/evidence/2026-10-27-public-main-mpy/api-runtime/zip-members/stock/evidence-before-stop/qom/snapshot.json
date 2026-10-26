@@ -1,0 +1,2081 @@
+{
+  "path": "/machine",
+  "depth": 2,
+  "created_at": "2026-10-26T22:34:11.799861+00:00",
+  "nodes": {
+    "append": {
+      "type": "string",
+      "value": ""
+    },
+    "aw88298": {
+      "__type__": "child<m5sw-i2c-dev>",
+      "children": {
+        "address": {
+          "type": "uint8",
+          "value": 54
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "model": {
+          "type": "str",
+          "value": "aw88298"
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/device[12]/i2c"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "type": {
+          "type": "string",
+          "value": "m5sw-i2c-dev"
+        }
+      }
+    },
+    "aw9523": {
+      "__type__": "child<m5sw-i2c-dev>",
+      "children": {
+        "address": {
+          "type": "uint8",
+          "value": 88
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "input-bits": {
+          "type": "int",
+          "value": 65535
+        },
+        "model": {
+          "type": "str",
+          "value": "aw9523"
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/device[12]/i2c"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "type": {
+          "type": "string",
+          "value": "m5sw-i2c-dev"
+        }
+      }
+    },
+    "axp2101": {
+      "__type__": "child<m5sw-i2c-dev>",
+      "children": {
+        "address": {
+          "type": "uint8",
+          "value": 52
+        },
+        "battery-level": {
+          "type": "int",
+          "value": 87
+        },
+        "charging": {
+          "type": "bool",
+          "value": true
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "model": {
+          "type": "str",
+          "value": "axp2101"
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/device[12]/i2c"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "speaker-enabled": {
+          "type": "bool",
+          "value": true
+        },
+        "type": {
+          "type": "string",
+          "value": "m5sw-i2c-dev"
+        },
+        "vbat-mv": {
+          "type": "int",
+          "value": 4000
+        },
+        "vin-mv": {
+          "type": "int",
+          "value": 5000
+        }
+      }
+    },
+    "bmi270": {
+      "__type__": "child<m5sw-i2c-dev>",
+      "children": {
+        "accel-x": {
+          "type": "number",
+          "value": 0
+        },
+        "accel-y": {
+          "type": "number",
+          "value": 0
+        },
+        "accel-z": {
+          "type": "number",
+          "value": 1
+        },
+        "address": {
+          "type": "uint8",
+          "value": 105
+        },
+        "gyro-x": {
+          "type": "number",
+          "value": 0
+        },
+        "gyro-y": {
+          "type": "number",
+          "value": 0
+        },
+        "gyro-z": {
+          "type": "number",
+          "value": 0
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "model": {
+          "type": "str",
+          "value": "bmi270"
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/device[12]/i2c"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "type": {
+          "type": "string",
+          "value": "m5sw-i2c-dev"
+        }
+      }
+    },
+    "bmm150": {
+      "__type__": "child<m5sw-i2c-dev>",
+      "children": {
+        "address": {
+          "type": "uint8",
+          "value": 16
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "mag-x": {
+          "type": "number",
+          "value": 0
+        },
+        "mag-y": {
+          "type": "number",
+          "value": 0
+        },
+        "mag-z": {
+          "type": "number",
+          "value": 0
+        },
+        "model": {
+          "type": "str",
+          "value": "bmm150"
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/device[12]/i2c"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "type": {
+          "type": "string",
+          "value": "m5sw-i2c-dev"
+        }
+      }
+    },
+    "boot": {
+      "type": "BootConfiguration",
+      "value": {}
+    },
+    "confidential-guest-support": {
+      "type": "link<confidential-guest-support>",
+      "value": ""
+    },
+    "dt-compatible": {
+      "type": "string",
+      "value": ""
+    },
+    "dtb": {
+      "type": "string",
+      "value": ""
+    },
+    "dump-guest-core": {
+      "type": "bool",
+      "value": true
+    },
+    "dumpdtb": {
+      "type": "string",
+      "value": ""
+    },
+    "es7210": {
+      "__type__": "child<m5sw-i2c-dev>",
+      "children": {
+        "address": {
+          "type": "uint8",
+          "value": 64
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "model": {
+          "type": "str",
+          "value": "es7210"
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/device[12]/i2c"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "type": {
+          "type": "string",
+          "value": "m5sw-i2c-dev"
+        }
+      }
+    },
+    "es8311": {
+      "__type__": "child<m5sw-i2c-dev>",
+      "children": {
+        "address": {
+          "type": "uint8",
+          "value": 24
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "model": {
+          "type": "str",
+          "value": "es8311"
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/device[12]/i2c"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "type": {
+          "type": "string",
+          "value": "m5sw-i2c-dev"
+        }
+      }
+    },
+    "firmware": {
+      "type": "string",
+      "value": ""
+    },
+    "ft5x06": {
+      "__type__": "child<m5sw-i2c-dev>",
+      "children": {
+        "address": {
+          "type": "uint8",
+          "value": 56
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "model": {
+          "type": "str",
+          "value": "ft5x06"
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/device[12]/i2c"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "type": {
+          "type": "string",
+          "value": "m5sw-i2c-dev"
+        }
+      }
+    },
+    "gc0308": {
+      "__type__": "child<m5sw-i2c-dev>",
+      "children": {
+        "address": {
+          "type": "uint8",
+          "value": 33
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "model": {
+          "type": "str",
+          "value": "gc0308"
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/device[12]/i2c"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "type": {
+          "type": "string",
+          "value": "m5sw-i2c-dev"
+        }
+      }
+    },
+    "graphics": {
+      "type": "bool",
+      "value": true
+    },
+    "initrd": {
+      "type": "string",
+      "value": ""
+    },
+    "kernel": {
+      "type": "string",
+      "value": ""
+    },
+    "ltr553": {
+      "__type__": "child<m5sw-i2c-dev>",
+      "children": {
+        "address": {
+          "type": "uint8",
+          "value": 35
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "light-level": {
+          "type": "int",
+          "value": 320
+        },
+        "model": {
+          "type": "str",
+          "value": "ltr553"
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/device[12]/i2c"
+        },
+        "proximity-level": {
+          "type": "int",
+          "value": 64
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "type": {
+          "type": "string",
+          "value": "m5sw-i2c-dev"
+        }
+      }
+    },
+    "m5-canbus": {
+      "__type__": "child<can-bus>",
+      "children": {
+        "type": {
+          "type": "string",
+          "value": "can-bus"
+        }
+      }
+    },
+    "m5-lcd-cam": {
+      "__type__": "child<m5.lcd-cam>",
+      "children": {
+        "auto-increment": {
+          "type": "bool",
+          "value": false
+        },
+        "frame-seed": {
+          "type": "uint32",
+          "value": 0
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "m5.lcd-cam[0]": {
+          "__type__": "child<memory-region>",
+          "children": {
+            "addr": {
+              "type": "uint64",
+              "value": 1610878976
+            },
+            "container": {
+              "type": "link<memory-region>",
+              "value": "/machine/unattached/system[0]"
+            },
+            "priority": {
+              "type": "uint32",
+              "value": 1
+            },
+            "size": {
+              "type": "uint64",
+              "value": 4096
+            },
+            "type": {
+              "type": "string",
+              "value": "memory-region"
+            }
+          }
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/sysbus"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "sysbus-irq[0]": {
+          "type": "link<irq>",
+          "value": "/machine/soc/intmatrix/unnamed-gpio-in[24]"
+        },
+        "type": {
+          "type": "string",
+          "value": "m5.lcd-cam"
+        }
+      }
+    },
+    "max3421e-usb": {
+      "__type__": "child<m5.max3421e>",
+      "children": {
+        "enumerated": {
+          "type": "int",
+          "value": 0
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": true
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "last-report": {
+          "type": "int",
+          "value": 0
+        },
+        "mouse-buttons": {
+          "type": "int",
+          "value": 0
+        },
+        "mouse-x": {
+          "type": "int",
+          "value": 0
+        },
+        "mouse-y": {
+          "type": "int",
+          "value": 0
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": ""
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "type": {
+          "type": "string",
+          "value": "m5.max3421e"
+        }
+      }
+    },
+    "mem-merge": {
+      "type": "bool",
+      "value": false
+    },
+    "memory": {
+      "type": "MemorySizeConfiguration",
+      "value": {
+        "size": 8388608
+      }
+    },
+    "memory-backend": {
+      "type": "link<memory-backend>",
+      "value": ""
+    },
+    "memory-encryption": {
+      "type": "string",
+      "value": ""
+    },
+    "pcf8563": {
+      "__type__": "child<m5sw-i2c-dev>",
+      "children": {
+        "address": {
+          "type": "uint8",
+          "value": 81
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "model": {
+          "type": "str",
+          "value": "pcf8563"
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/device[12]/i2c"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "rtc-offset": {
+          "type": "int",
+          "value": -1
+        },
+        "type": {
+          "type": "string",
+          "value": "m5sw-i2c-dev"
+        },
+        "unix-time": {
+          "type": "int",
+          "value": 1793054050
+        }
+      }
+    },
+    "peripheral": {
+      "__type__": "child<container>",
+      "children": {
+        "type": {
+          "type": "string",
+          "value": "container"
+        }
+      }
+    },
+    "peripheral-anon": {
+      "__type__": "child<container>",
+      "children": {
+        "type": {
+          "type": "string",
+          "value": "container"
+        }
+      }
+    },
+    "phandle-start": {
+      "type": "int",
+      "value": 0
+    },
+    "rmt0": {
+      "__type__": "child<m5.rmt>",
+      "children": {
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "m5.rmt.mem[0]": {
+          "__type__": "child<memory-region>",
+          "children": {
+            "addr": {
+              "type": "uint64",
+              "value": 1610704896
+            },
+            "container": {
+              "type": "link<memory-region>",
+              "value": "/machine/unattached/system[0]"
+            },
+            "priority": {
+              "type": "uint32",
+              "value": 1
+            },
+            "size": {
+              "type": "uint64",
+              "value": 2048
+            },
+            "type": {
+              "type": "string",
+              "value": "memory-region"
+            }
+          }
+        },
+        "m5.rmt[0]": {
+          "__type__": "child<memory-region>",
+          "children": {
+            "addr": {
+              "type": "uint64",
+              "value": 1610702848
+            },
+            "container": {
+              "type": "link<memory-region>",
+              "value": "/machine/unattached/system[0]"
+            },
+            "priority": {
+              "type": "uint32",
+              "value": 1
+            },
+            "size": {
+              "type": "uint64",
+              "value": 2048
+            },
+            "type": {
+              "type": "string",
+              "value": "memory-region"
+            }
+          }
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/sysbus"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "sysbus-irq[0]": {
+          "type": "link<irq>",
+          "value": "/machine/soc/intmatrix/unnamed-gpio-in[40]"
+        },
+        "tx-completions": {
+          "type": "uint64",
+          "value": 0
+        },
+        "tx-errors": {
+          "type": "uint64",
+          "value": 0
+        },
+        "tx-first-symbol": {
+          "type": "uint64",
+          "value": 0
+        },
+        "tx-last-clock": {
+          "type": "uint64",
+          "value": 0
+        },
+        "tx-last-conf": {
+          "type": "uint64",
+          "value": 0
+        },
+        "tx-last-tick-hz": {
+          "type": "uint64",
+          "value": 0
+        },
+        "tx-symbols": {
+          "type": "uint64",
+          "value": 0
+        },
+        "tx-threshold-events": {
+          "type": "uint64",
+          "value": 0
+        },
+        "type": {
+          "type": "string",
+          "value": "m5.rmt"
+        }
+      }
+    },
+    "rx8130": {
+      "__type__": "child<m5sw-i2c-dev>",
+      "children": {
+        "address": {
+          "type": "uint8",
+          "value": 50
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": false
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "model": {
+          "type": "str",
+          "value": "rx8130"
+        },
+        "parent_bus": {
+          "type": "link<bus>",
+          "value": "/machine/unattached/device[12]/i2c"
+        },
+        "realized": {
+          "type": "bool",
+          "value": true
+        },
+        "rtc-offset": {
+          "type": "int",
+          "value": 0
+        },
+        "type": {
+          "type": "string",
+          "value": "m5sw-i2c-dev"
+        },
+        "unix-time": {
+          "type": "int",
+          "value": 1793054051
+        }
+      }
+    },
+    "smp": {
+      "type": "SMPConfiguration",
+      "value": {
+        "modules": 1,
+        "cpus": 2,
+        "maxcpus": 2,
+        "books": 1,
+        "threads": 1,
+        "cores": 1,
+        "dies": 1,
+        "sockets": 1,
+        "clusters": 1,
+        "drawers": 1
+      }
+    },
+    "smp-cache": {
+      "type": "SmpCachePropertiesWrapper",
+      "value": [
+        {
+          "topology": "default",
+          "cache": "l1d"
+        },
+        {
+          "topology": "default",
+          "cache": "l1i"
+        },
+        {
+          "topology": "default",
+          "cache": "l2"
+        },
+        {
+          "topology": "default",
+          "cache": "l3"
+        }
+      ]
+    },
+    "soc": {
+      "__type__": "child<xtensa.esp32s3>",
+      "children": {
+        "aes": {
+          "__type__": "child<misc.esp32s3.aes>",
+          "children": {
+            "hotpluggable": {
+              "type": "bool",
+              "value": false
+            },
+            "hotplugged": {
+              "type": "bool",
+              "value": false
+            },
+            "misc.esp.aes[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/aes/misc.esp.aes[0]"
+            },
+            "parent_bus": {
+              "type": "link<bus>",
+              "value": "/machine/unattached/sysbus"
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "sysbus-irq[0]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[77]"
+            },
+            "type": {
+              "type": "string",
+              "value": "misc.esp32s3.aes"
+            }
+          }
+        },
+        "clk-update[0]": {
+          "__type__": "child<irq>",
+          "children": {
+            "type": {
+              "type": "string",
+              "value": "irq"
+            }
+          }
+        },
+        "clock": {
+          "__type__": "child<esp32s3.soc.clk>",
+          "children": {
+            "esp32s3.soc.clk[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/clock/esp32s3.soc.clk[0]"
+            },
+            "hotpluggable": {
+              "type": "bool",
+              "value": false
+            },
+            "hotplugged": {
+              "type": "bool",
+              "value": false
+            },
+            "parent_bus": {
+              "type": "link<bus>",
+              "value": "/machine/unattached/sysbus"
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "sysbus-irq[0]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[79]"
+            },
+            "sysbus-irq[1]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[80]"
+            },
+            "sysbus-irq[2]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[81]"
+            },
+            "sysbus-irq[3]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[82]"
+            },
+            "type": {
+              "type": "string",
+              "value": "esp32s3.soc.clk"
+            }
+          }
+        },
+        "cpu-reset[0]": {
+          "__type__": "child<irq>",
+          "children": {
+            "type": {
+              "type": "string",
+              "value": "irq"
+            }
+          }
+        },
+        "cpu-reset[1]": {
+          "__type__": "child<irq>",
+          "children": {
+            "type": {
+              "type": "string",
+              "value": "irq"
+            }
+          }
+        },
+        "cpu-stall[0]": {
+          "__type__": "child<irq>",
+          "children": {
+            "type": {
+              "type": "string",
+              "value": "irq"
+            }
+          }
+        },
+        "cpu-stall[1]": {
+          "__type__": "child<irq>",
+          "children": {
+            "type": {
+              "type": "string",
+              "value": "irq"
+            }
+          }
+        },
+        "cpu0": {
+          "__type__": "child<esp32s3-xtensa-cpu>",
+          "children": {
+            "clk-in": {
+              "type": "child<clock>",
+              "value": "/machine/soc/cpu0/clk-in"
+            },
+            "er[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/cpu0/er[0]"
+            },
+            "esp32s3.iomem[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/cpu0/esp32s3.iomem[0]"
+            },
+            "hotpluggable": {
+              "type": "bool",
+              "value": true
+            },
+            "hotplugged": {
+              "type": "bool",
+              "value": false
+            },
+            "legacy-memory": {
+              "type": "str",
+              "error": "QMP command failed: QMP qom-get failed: Property 'esp32s3-xtensa-cpu.legacy-memory' is not readable"
+            },
+            "memory": {
+              "type": "link<memory-region>",
+              "value": "/machine/unattached/cpu0-mem[0]"
+            },
+            "parent_bus": {
+              "type": "link<bus>",
+              "value": ""
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "start-powered-off": {
+              "type": "bool",
+              "value": false
+            },
+            "type": {
+              "type": "string",
+              "value": "esp32s3-xtensa-cpu"
+            }
+          }
+        },
+        "cpu1": {
+          "__type__": "child<esp32s3-xtensa-cpu>",
+          "children": {
+            "clk-in": {
+              "type": "child<clock>",
+              "value": "/machine/soc/cpu1/clk-in"
+            },
+            "er[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/cpu1/er[0]"
+            },
+            "hotpluggable": {
+              "type": "bool",
+              "value": true
+            },
+            "hotplugged": {
+              "type": "bool",
+              "value": false
+            },
+            "legacy-memory": {
+              "type": "str",
+              "error": "QMP command failed: QMP qom-get failed: Property 'esp32s3-xtensa-cpu.legacy-memory' is not readable"
+            },
+            "memory": {
+              "type": "link<memory-region>",
+              "value": "/machine/unattached/cpu1-mem[0]"
+            },
+            "parent_bus": {
+              "type": "link<bus>",
+              "value": ""
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "start-powered-off": {
+              "type": "bool",
+              "value": false
+            },
+            "type": {
+              "type": "string",
+              "value": "esp32s3-xtensa-cpu"
+            }
+          }
+        },
+        "dig-reset[0]": {
+          "__type__": "child<irq>",
+          "children": {
+            "type": {
+              "type": "string",
+              "value": "irq"
+            }
+          }
+        },
+        "ds": {
+          "__type__": "child<misc.esp32s3.ds>",
+          "children": {
+            "hotpluggable": {
+              "type": "bool",
+              "value": false
+            },
+            "hotplugged": {
+              "type": "bool",
+              "value": false
+            },
+            "misc.esp.ds[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/ds/misc.esp.ds[0]"
+            },
+            "parent_bus": {
+              "type": "link<bus>",
+              "value": "/machine/soc/esp32-periph-bus"
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "type": {
+              "type": "string",
+              "value": "misc.esp32s3.ds"
+            }
+          }
+        },
+        "efuse": {
+          "__type__": "child<nvram.esp32s3.efuse>",
+          "children": {
+            "drive": {
+              "type": "str",
+              "value": "efuse"
+            },
+            "hotpluggable": {
+              "type": "bool",
+              "value": false
+            },
+            "hotplugged": {
+              "type": "bool",
+              "value": false
+            },
+            "nvram.esp.efuse[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/efuse/nvram.esp.efuse[0]"
+            },
+            "parent_bus": {
+              "type": "link<bus>",
+              "value": "/machine/unattached/sysbus"
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "sysbus-irq[0]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[36]"
+            },
+            "type": {
+              "type": "string",
+              "value": "nvram.esp32s3.efuse"
+            }
+          }
+        },
+        "esp32-periph-bus": {
+          "__type__": "child<System>",
+          "children": {
+            "child[0]": {
+              "type": "link<misc.esp32s3.intmatrix>",
+              "value": "/machine/soc/intmatrix"
+            },
+            "child[1]": {
+              "type": "link<esp32s3_soc.uart>",
+              "value": "/machine/soc/uart0"
+            },
+            "child[2]": {
+              "type": "link<esp32s3_soc.uart>",
+              "value": "/machine/soc/uart1"
+            },
+            "child[3]": {
+              "type": "link<esp32s3_soc.uart>",
+              "value": "/machine/soc/uart2"
+            },
+            "child[4]": {
+              "type": "link<misc.esp32.ledc>",
+              "value": "/machine/soc/ledc"
+            },
+            "child[5]": {
+              "type": "link<dwc_sdmmc>",
+              "value": "/machine/soc/sdmmc"
+            },
+            "child[6]": {
+              "type": "link<misc.esp32s3.rng>",
+              "value": "/machine/soc/rng"
+            },
+            "child[7]": {
+              "type": "link<misc.esp32s3.hmac>",
+              "value": "/machine/soc/hmac"
+            },
+            "child[8]": {
+              "type": "link<misc.esp32s3.ds>",
+              "value": "/machine/soc/ds"
+            },
+            "child[9]": {
+              "type": "link<misc.esp32s3.xts_aes>",
+              "value": "/machine/soc/xts_aes"
+            },
+            "hotplug-handler": {
+              "type": "link<hotplug-handler>",
+              "value": ""
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "type": {
+              "type": "string",
+              "value": "System"
+            }
+          }
+        },
+        "esp32-rtc-bus": {
+          "__type__": "child<System>",
+          "children": {
+            "child[0]": {
+              "type": "link<misc.esp32s3.rtc_cntl>",
+              "value": "/machine/soc/rtc_cntl"
+            },
+            "hotplug-handler": {
+              "type": "link<hotplug-handler>",
+              "value": ""
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "type": {
+              "type": "string",
+              "value": "System"
+            }
+          }
+        },
+        "extmem": {
+          "__type__": "child<esp32s3.icache>",
+          "children": {
+            "esp32s3.cache.flash_mr[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/extmem/esp32s3.cache.flash_mr[0]"
+            },
+            "esp32s3.dcache[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/extmem/esp32s3.dcache[0]"
+            },
+            "esp32s3.icache[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/extmem/esp32s3.icache[0]"
+            },
+            "esp32s3.icache[1]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/extmem/esp32s3.icache[1]"
+            },
+            "esp32s3_iommu[0]": {
+              "type": "child<esp32s3-mmu-region>",
+              "value": "/machine/soc/extmem/esp32s3_iommu[0]"
+            },
+            "hotpluggable": {
+              "type": "bool",
+              "value": false
+            },
+            "hotplugged": {
+              "type": "bool",
+              "value": false
+            },
+            "parent_bus": {
+              "type": "link<bus>",
+              "value": "/machine/unattached/sysbus"
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "type": {
+              "type": "string",
+              "value": "esp32s3.icache"
+            }
+          }
+        },
+        "gdma": {
+          "__type__": "child<esp32s3.gdma>",
+          "children": {
+            "CHAN_IN[0]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[66]"
+            },
+            "CHAN_IN[1]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[67]"
+            },
+            "CHAN_IN[2]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[68]"
+            },
+            "CHAN_IN[3]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[69]"
+            },
+            "CHAN_IN[4]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[70]"
+            },
+            "CHAN_OUT[0]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[71]"
+            },
+            "CHAN_OUT[1]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[72]"
+            },
+            "CHAN_OUT[2]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[73]"
+            },
+            "CHAN_OUT[3]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[74]"
+            },
+            "CHAN_OUT[4]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[75]"
+            },
+            "esp32s3.gdma[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/gdma/esp32s3.gdma[0]"
+            },
+            "hotpluggable": {
+              "type": "bool",
+              "value": false
+            },
+            "hotplugged": {
+              "type": "bool",
+              "value": false
+            },
+            "legacy-soc_mr": {
+              "type": "str",
+              "error": "QMP command failed: QMP qom-get failed: Property 'esp32s3.gdma.legacy-soc_mr' is not readable"
+            },
+            "parent_bus": {
+              "type": "link<bus>",
+              "value": "/machine/unattached/sysbus"
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "soc_mr": {
+              "type": "link<memory-region>",
+              "value": "/machine/unattached/esp32s3.dram[0]"
+            },
+            "type": {
+              "type": "string",
+              "value": "esp32s3.gdma"
+            }
+          }
+        },
+        "gpio": {
+          "__type__": "child<esp32s3.gpio>",
+          "children": {
+            "esp32.gpio[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/gpio/esp32.gpio[0]"
+            },
+            "hotpluggable": {
+              "type": "bool",
+              "value": false
+            },
+            "hotplugged": {
+              "type": "bool",
+              "value": false
+            },
+            "parent_bus": {
+              "type": "link<bus>",
+              "value": "/machine/unattached/sysbus"
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "strap_mode": {
+              "type": "uint32",
+              "value": 4
+            },
+            "sysbus-irq[0]": {
+              "type": "link<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[16]"
+            },
+            "type": {
+              "type": "string",
+              "value": "esp32s3.gpio"
+            }
+          }
+        },
+        "hmac": {
+          "__type__": "child<misc.esp32s3.hmac>",
+          "children": {
+            "hotpluggable": {
+              "type": "bool",
+              "value": false
+            },
+            "hotplugged": {
+              "type": "bool",
+              "value": false
+            },
+            "misc.esp.hmac[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/hmac/misc.esp.hmac[0]"
+            },
+            "parent_bus": {
+              "type": "link<bus>",
+              "value": "/machine/soc/esp32-periph-bus"
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "type": {
+              "type": "string",
+              "value": "misc.esp32s3.hmac"
+            }
+          }
+        },
+        "hotpluggable": {
+          "type": "bool",
+          "value": true
+        },
+        "hotplugged": {
+          "type": "bool",
+          "value": false
+        },
+        "intmatrix": {
+          "__type__": "child<misc.esp32s3.intmatrix>",
+          "children": {
+            "cpu0": {
+              "type": "link<xtensa-cpu>",
+              "value": "/machine/soc/cpu0"
+            },
+            "cpu1": {
+              "type": "link<xtensa-cpu>",
+              "value": "/machine/soc/cpu1"
+            },
+            "hotpluggable": {
+              "type": "bool",
+              "value": false
+            },
+            "hotplugged": {
+              "type": "bool",
+              "value": false
+            },
+            "legacy-cpu0": {
+              "type": "str",
+              "error": "QMP command failed: QMP qom-get failed: Property 'misc.esp32s3.intmatrix.legacy-cpu0' is not readable"
+            },
+            "legacy-cpu1": {
+              "type": "str",
+              "error": "QMP command failed: QMP qom-get failed: Property 'misc.esp32s3.intmatrix.legacy-cpu1' is not readable"
+            },
+            "misc.esp32s3.intmatrix[0]": {
+              "type": "child<memory-region>",
+              "value": "/machine/soc/intmatrix/misc.esp32s3.intmatrix[0]"
+            },
+            "parent_bus": {
+              "type": "link<bus>",
+              "value": "/machine/soc/esp32-periph-bus"
+            },
+            "realized": {
+              "type": "bool",
+              "value": true
+            },
+            "type": {
+              "type": "string",
+              "value": "misc.esp32s3.intmatrix"
+            },
+            "unnamed-gpio-in[0]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[0]"
+            },
+            "unnamed-gpio-in[100]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[100]"
+            },
+            "unnamed-gpio-in[101]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[101]"
+            },
+            "unnamed-gpio-in[102]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[102]"
+            },
+            "unnamed-gpio-in[103]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[103]"
+            },
+            "unnamed-gpio-in[104]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[104]"
+            },
+            "unnamed-gpio-in[105]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[105]"
+            },
+            "unnamed-gpio-in[106]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[106]"
+            },
+            "unnamed-gpio-in[107]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[107]"
+            },
+            "unnamed-gpio-in[108]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[108]"
+            },
+            "unnamed-gpio-in[109]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[109]"
+            },
+            "unnamed-gpio-in[10]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[10]"
+            },
+            "unnamed-gpio-in[110]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[110]"
+            },
+            "unnamed-gpio-in[111]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[111]"
+            },
+            "unnamed-gpio-in[112]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[112]"
+            },
+            "unnamed-gpio-in[113]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[113]"
+            },
+            "unnamed-gpio-in[114]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[114]"
+            },
+            "unnamed-gpio-in[115]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[115]"
+            },
+            "unnamed-gpio-in[116]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[116]"
+            },
+            "unnamed-gpio-in[117]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[117]"
+            },
+            "unnamed-gpio-in[118]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[118]"
+            },
+            "unnamed-gpio-in[119]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[119]"
+            },
+            "unnamed-gpio-in[11]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[11]"
+            },
+            "unnamed-gpio-in[120]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[120]"
+            },
+            "unnamed-gpio-in[121]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[121]"
+            },
+            "unnamed-gpio-in[122]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[122]"
+            },
+            "unnamed-gpio-in[123]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[123]"
+            },
+            "unnamed-gpio-in[124]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[124]"
+            },
+            "unnamed-gpio-in[125]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[125]"
+            },
+            "unnamed-gpio-in[126]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[126]"
+            },
+            "unnamed-gpio-in[127]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[127]"
+            },
+            "unnamed-gpio-in[128]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[128]"
+            },
+            "unnamed-gpio-in[129]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[129]"
+            },
+            "unnamed-gpio-in[12]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[12]"
+            },
+            "unnamed-gpio-in[130]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[130]"
+            },
+            "unnamed-gpio-in[131]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[131]"
+            },
+            "unnamed-gpio-in[132]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[132]"
+            },
+            "unnamed-gpio-in[133]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[133]"
+            },
+            "unnamed-gpio-in[134]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[134]"
+            },
+            "unnamed-gpio-in[135]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[135]"
+            },
+            "unnamed-gpio-in[136]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[136]"
+            },
+            "unnamed-gpio-in[137]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[137]"
+            },
+            "unnamed-gpio-in[138]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[138]"
+            },
+            "unnamed-gpio-in[139]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[139]"
+            },
+            "unnamed-gpio-in[13]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[13]"
+            },
+            "unnamed-gpio-in[140]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[140]"
+            },
+            "unnamed-gpio-in[141]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[141]"
+            },
+            "unnamed-gpio-in[142]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[142]"
+            },
+            "unnamed-gpio-in[143]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[143]"
+            },
+            "unnamed-gpio-in[144]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[144]"
+            },
+            "unnamed-gpio-in[145]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[145]"
+            },
+            "unnamed-gpio-in[146]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[146]"
+            },
+            "unnamed-gpio-in[147]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[147]"
+            },
+            "unnamed-gpio-in[148]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[148]"
+            },
+            "unnamed-gpio-in[149]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[149]"
+            },
+            "unnamed-gpio-in[14]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[14]"
+            },
+            "unnamed-gpio-in[150]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[150]"
+            },
+            "unnamed-gpio-in[151]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[151]"
+            },
+            "unnamed-gpio-in[152]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[152]"
+            },
+            "unnamed-gpio-in[153]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[153]"
+            },
+            "unnamed-gpio-in[154]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[154]"
+            },
+            "unnamed-gpio-in[155]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[155]"
+            },
+            "unnamed-gpio-in[156]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[156]"
+            },
+            "unnamed-gpio-in[157]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[157]"
+            },
+            "unnamed-gpio-in[158]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[158]"
+            },
+            "unnamed-gpio-in[159]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[159]"
+            },
+            "unnamed-gpio-in[15]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[15]"
+            },
+            "unnamed-gpio-in[160]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[160]"
+            },
+            "unnamed-gpio-in[161]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[161]"
+            },
+            "unnamed-gpio-in[162]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[162]"
+            },
+            "unnamed-gpio-in[163]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[163]"
+            },
+            "unnamed-gpio-in[164]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[164]"
+            },
+            "unnamed-gpio-in[165]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[165]"
+            },
+            "unnamed-gpio-in[166]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[166]"
+            },
+            "unnamed-gpio-in[167]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[167]"
+            },
+            "unnamed-gpio-in[168]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[168]"
+            },
+            "unnamed-gpio-in[169]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[169]"
+            },
+            "unnamed-gpio-in[16]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[16]"
+            },
+            "unnamed-gpio-in[170]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[170]"
+            },
+            "unnamed-gpio-in[171]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[171]"
+            },
+            "unnamed-gpio-in[172]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[172]"
+            },
+            "unnamed-gpio-in[173]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[173]"
+            },
+            "unnamed-gpio-in[174]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[174]"
+            },
+            "unnamed-gpio-in[175]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[175]"
+            },
+            "unnamed-gpio-in[176]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[176]"
+            },
+            "unnamed-gpio-in[177]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[177]"
+            },
+            "unnamed-gpio-in[178]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[178]"
+            },
+            "unnamed-gpio-in[179]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[179]"
+            },
+            "unnamed-gpio-in[17]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[17]"
+            },
+            "unnamed-gpio-in[180]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[180]"
+            },
+            "unnamed-gpio-in[181]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[181]"
+            },
+            "unnamed-gpio-in[182]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[182]"
+            },
+            "unnamed-gpio-in[183]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[183]"
+            },
+            "unnamed-gpio-in[184]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[184]"
+            },
+            "unnamed-gpio-in[185]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[185]"
+            },
+            "unnamed-gpio-in[186]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[186]"
+            },
+            "unnamed-gpio-in[187]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[187]"
+            },
+            "unnamed-gpio-in[188]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[188]"
+            },
+            "unnamed-gpio-in[189]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[189]"
+            },
+            "unnamed-gpio-in[18]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[18]"
+            },
+            "unnamed-gpio-in[190]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[190]"
+            },
+            "unnamed-gpio-in[191]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[191]"
+            },
+            "unnamed-gpio-in[192]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[192]"
+            },
+            "unnamed-gpio-in[193]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[193]"
+            },
+            "unnamed-gpio-in[194]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[194]"
+            },
+            "unnamed-gpio-in[195]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[195]"
+            },
+            "unnamed-gpio-in[196]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[196]"
+            },
+            "unnamed-gpio-in[197]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[197]"
+            },
+            "unnamed-gpio-in[198]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[198]"
+            },
+            "unnamed-gpio-in[199]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[199]"
+            },
+            "unnamed-gpio-in[19]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[19]"
+            },
+            "unnamed-gpio-in[1]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[1]"
+            },
+            "unnamed-gpio-in[200]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[200]"
+            },
+            "unnamed-gpio-in[201]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[201]"
+            },
+            "unnamed-gpio-in[202]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[202]"
+            },
+            "unnamed-gpio-in[203]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[203]"
+            },
+            "unnamed-gpio-in[204]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[204]"
+            },
+            "unnamed-gpio-in[205]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[205]"
+            },
+            "unnamed-gpio-in[206]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[206]"
+            },
+            "unnamed-gpio-in[207]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[207]"
+            },
+            "unnamed-gpio-in[208]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[208]"
+            },
+            "unnamed-gpio-in[209]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[209]"
+            },
+            "unnamed-gpio-in[20]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[20]"
+            },
+            "unnamed-gpio-in[210]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[210]"
+            },
+            "unnamed-gpio-in[211]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[211]"
+            },
+            "unnamed-gpio-in[212]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[212]"
+            },
+            "unnamed-gpio-in[213]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[213]"
+            },
+            "unnamed-gpio-in[214]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[214]"
+            },
+            "unnamed-gpio-in[215]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[215]"
+            },
+            "unnamed-gpio-in[216]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[216]"
+            },
+            "unnamed-gpio-in[217]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[217]"
+            },
+            "unnamed-gpio-in[218]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[218]"
+            },
+            "unnamed-gpio-in[219]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[219]"
+            },
+            "unnamed-gpio-in[21]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[21]"
+            },
+            "unnamed-gpio-in[220]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[220]"
+            },
+            "unnamed-gpio-in[221]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[221]"
+            },
+            "unnamed-gpio-in[222]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[222]"
+            },
+            "unnamed-gpio-in[223]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[223]"
+            },
+            "unnamed-gpio-in[224]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[224]"
+            },
+            "unnamed-gpio-in[225]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[225]"
+            },
+            "unnamed-gpio-in[226]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[226]"
+            },
+            "unnamed-gpio-in[227]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[227]"
+            },
+            "unnamed-gpio-in[228]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[228]"
+            },
+            "unnamed-gpio-in[229]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[229]"
+            },
+            "unnamed-gpio-in[22]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[22]"
+            },
+            "unnamed-gpio-in[230]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[230]"
+            },
+            "unnamed-gpio-in[231]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[231]"
+            },
+            "unnamed-gpio-in[232]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[232]"
+            },
+            "unnamed-gpio-in[233]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[233]"
+            },
+            "unnamed-gpio-in[234]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[234]"
+            },
+            "unnamed-gpio-in[235]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[235]"
+            },
+            "unnamed-gpio-in[236]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[236]"
+            },
+            "unnamed-gpio-in[237]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[237]"
+            },
+            "unnamed-gpio-in[238]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[238]"
+            },
+            "unnamed-gpio-in[239]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[239]"
+            },
+            "unnamed-gpio-in[23]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[23]"
+            },
+            "unnamed-gpio-in[240]": {
+              "type": "child<irq>",
+              "value": "/machine/soc/intmatrix/unnamed-gpio-in[240]"
+            },
+            "__truncated__": true
+          }
+        },
+        "__truncated__": true
+      }
+    },
+    "__truncated__": true
+  }
+}

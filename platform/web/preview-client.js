@@ -1,5 +1,6 @@
 // One ownership-aware Preview coordinator shared by all panels of a session.
 // Receipts acknowledge requests; only fresh authoritative GETs publish state.
+import {mainMpyVerified} from './uiflow-main-loader.js';
 const ID = /^[0-9a-f]{32}$/;
 const SHA = /^[0-9a-f]{64}$/;
 const PREVIEW_STATES = new Set(['preparing', 'ready', 'closing', 'closed', 'failed', 'unknown']);
@@ -71,7 +72,14 @@ function validatePreview(row, session, binding) {
   require(object(row.request) && row.request.device_id === session.device_id);
   require(object(row.session_request) && row.session_request.device_id === session.device_id && row.session_request.reference_sha256 === binding.expected_reference_sha256);
   require(row.allocation_key === `preview:${binding.preview_id}:allocation:1`);
-  require(object(row.capabilities) && Object.entries(CAPABILITIES).every(([key, value]) => row.capabilities[key] === value));
+  require(object(row.capabilities) && Object.entries(CAPABILITIES).every(([key, value]) => key === 'main_mpy'
+    ? typeof row.capabilities[key] === 'boolean' : row.capabilities[key] === value));
+  if ('runtime_capabilities' in row) {
+    const runtime = row.runtime_capabilities;
+    require(object(runtime) && runtime.schema_version === 1 && ['verified', 'unsupported', 'unknown'].includes(runtime.status)
+      && typeof runtime.mpy_entrypoint === 'boolean');
+  }
+  require(row.capabilities.main_mpy === mainMpyVerified(row.runtime_capabilities, session), 'MPY 运行能力缺少当前会话的有效探针。');
   require(object(row.limits) && row.limits.gc_enabled === false && row.limits.retention_mode === 'retention-only'
     && Number.isSafeInteger(row.limits.max_previews) && row.limits.max_previews > 0
     && Number.isSafeInteger(row.limits.max_runs_per_preview) && row.limits.max_runs_per_preview > 0);
@@ -134,7 +142,8 @@ class PreviewClient {
     try { binding = bindingOf(session); } catch (cause) { fault = cause.message; }
     const key = JSON.stringify([session?.session_id, session?.created_at, session?.firmware_sha256, session?.management_binding]);
     const changed = key !== this.bindingKey;
-    const stateChanged = session?.state !== this.session?.state || session?.pid !== this.session?.pid;
+    const stateChanged = session?.state !== this.session?.state || session?.pid !== this.session?.pid
+      || session?.worker?.generation !== this.session?.worker?.generation || session?.runtime !== this.session?.runtime;
     this.session = clone(session || {});
     this.binding = binding;
     this.bindingFault = fault;

@@ -16,6 +16,18 @@ const results = [];
 let clock = Date.now();
 const stamp = () => new Date(clock += 10).toISOString();
 const future = () => new Date(Date.now() + 600_000).toISOString();
+function verifiedLoader(session) {
+  const nonce = id(99), canary = '0713a25c1bdfb35a2ba0ebf431ec1ccccaa32846eb0dd74f3ebb230ffeac9420';
+  return {schema_version: 1, status: 'verified', mpy_entrypoint: true, loader: 'micropython-override-main-v1', mpy: 11014, small_int_bits: 31,
+    identity: {session_id: session.session_id, device_id: session.device_id, firmware_sha256: session.firmware_sha256,
+      pid: session.pid, runtime: session.runtime, worker_generation: session.worker.generation, process_start_token: 'host-only-start-token'},
+    probe: {kind: 'uiflow-main-mpy-canary-v1', nonce, status: 'PASS', owner_restored: true, cleanup_complete: true, body_entered: true,
+      canary_sha256: canary, file_sha256: canary, file_bytes: 375, owner_before_id: 123, owner_after_id: 123,
+      source_sha256: 'e21b73a791266cea38d5c2050e0d4ae48180f4e3908bf748db4b10995908ed78',
+      compiler_sha256: 'c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b',
+      actual_identity: {if_main: true, name: '__main__', file: `/flash/.m5-loader-probe-${nonce}/main.mpy`, real_main_name: 'main',
+        nonce, main_id: 456, sys_main_id: 456, import_main_id: 456}}};
+}
 function gate() {
   let resolve, reject;
   const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
@@ -31,6 +43,7 @@ async function test(name, action) {
 }
 function service() {
   const session = {session_id: id(1), created_at: stamp(), device_id: 'cores3', state: 'running', pid: 1234,
+    runtime: 'qemu', worker: {generation: 44},
     firmware_sha256: revision('e'), program_transport: 'uart-repl',
     management_binding: {preview_id: id(2), owner_epoch: id(3), expected_reference_sha256: revision('f')}};
   const runs = new Map(), replays = new Map(), calls = [];
@@ -51,7 +64,7 @@ function service() {
     request: {device_id: 'cores3'}, session_request: {device_id: 'cores3', reference_sha256: revision('f')},
     allocation_state: 'bound', allocation_key: `preview:${id(2)}:allocation:1`, created_at: stamp(), updated_at: stamp(),
     expires_at: future(), active_run_id: first.run_id, desired_run_id: first.run_id, transition_run_id: null,
-    error: null, capabilities: cap, limits: {max_previews: 128, max_runs_per_preview: 256, gc_enabled: false, retention_mode: 'retention-only'}};
+    error: null, capabilities: copy(cap), limits: {max_previews: 128, max_runs_per_preview: 256, gc_enabled: false, retention_mode: 'retention-only'}};
   function activate(source = revision('b')) {
     for (const run of runs.values()) if (!['completed', 'cancelled'].includes(run.state)) {
       run.state = 'cancelled'; run.cancel_intent = true; run.interrupt_ack = 'confirmed'; run.updated_at = stamp();
@@ -389,6 +402,50 @@ await test('before-read bracket never reuses an earlier poll and two panel reade
   assert.equal(payloads.length, 2); assert.ok(payloads.every(x => x.session_id === server.session.session_id));
   assert.ok(server.calls.filter(x => x.path === `/api/v1/previews/${id(2)}`).length > oldCount);
   assert.ok(client.captureInput());
+});
+
+await test('MPY capability gains require full same-session canary identity and never freeze the request', async () => {
+  const {client, server} = await ready();
+  const request = copy(server.preview.session_request);
+  server.preview.runtime_capabilities = verifiedLoader(server.session); server.preview.capabilities.main_mpy = true;
+  await client.refresh();
+  assert.equal(client.snapshot().preview.capabilities.main_mpy, true);
+  assert.equal(client.snapshot().canSubmit, true); assert.equal(client.snapshot().canCancel, true);
+  assert.deepEqual(client.snapshot().preview.session_request, request);
+  assert.equal(Object.isFrozen(client.snapshot().preview.runtime_capabilities.probe.actual_identity), true);
+  for (const status of ['unsupported', 'unknown']) {
+    server.preview.runtime_capabilities = {schema_version: 1, status, mpy_entrypoint: false}; server.preview.capabilities.main_mpy = false;
+    await client.refresh(); assert.equal(client.snapshot().canSubmit, true); assert.equal(client.snapshot().canCancel, true); assert.equal(client.snapshot().canClose, true);
+    assert.equal(client.snapshot().preview.capabilities.main_mpy, false);
+  }
+});
+
+await test('a claimed MPY flag without exact process, ABI and restoration evidence fails closed', async () => {
+  const mutations = [row => { delete row.runtime_capabilities; }, row => { row.runtime_capabilities.status = 'unknown'; },
+    row => { row.runtime_capabilities.probe.owner_restored = false; }, row => { row.runtime_capabilities.probe.cleanup_complete = false; },
+    row => { row.runtime_capabilities.probe.actual_identity.if_main = false; }, row => { row.runtime_capabilities.probe.actual_identity.sys_main_id += 1; },
+    row => { row.runtime_capabilities.probe.file_sha256 = revision('0'); }, row => { row.runtime_capabilities.probe.nonce = 'not-a-nonce'; },
+    row => { row.runtime_capabilities.mpy = 5; }, row => { row.runtime_capabilities.small_int_bits = 32; },
+    row => { row.runtime_capabilities.identity.pid += 1; }, row => { row.runtime_capabilities.identity.worker_generation += 1; },
+    row => { row.runtime_capabilities.identity.session_id = id(99); }, row => { row.runtime_capabilities.identity.firmware_sha256 = revision('c'); },
+    row => { row.runtime_capabilities.identity.device_id = 'other'; }, row => { row.runtime_capabilities.identity.runtime = 'network'; },
+    row => { row.runtime_capabilities.identity.process_start_token = ''; }];
+  for (const mutate of mutations) {
+    const {client, server} = await ready(); server.preview.runtime_capabilities = verifiedLoader(server.session); server.preview.capabilities.main_mpy = true;
+    mutate(server.preview); await assert.rejects(client.refresh()); assert.equal(client.snapshot().synchronized, false);
+    client.dispose(); clients.delete(client);
+  }
+});
+
+await test('a late verified response from a prior worker cannot restore MPY admission', async () => {
+  const {client, server} = await ready(); const blocked = gate(); let old;
+  server.preview.runtime_capabilities = verifiedLoader(server.session); server.preview.capabilities.main_mpy = true;
+  server.hook = (request, reply) => { if (!old && request.path === `/api/v1/previews/${id(2)}`) { old = reply(); return blocked.promise; } return reply(); };
+  const reading = client.refresh(), rejected = assert.rejects(reading); await until(() => old);
+  server.session.worker.generation += 1;
+  server.preview.runtime_capabilities = {schema_version: 1, status: 'unknown', mpy_entrypoint: false}; server.preview.capabilities.main_mpy = false;
+  client.updateSession(server.session); await client.refresh(); blocked.resolve(old); await rejected;
+  assert.equal(client.snapshot().preview.capabilities.main_mpy, false); assert.equal(client.snapshot().canSubmit, true);
 });
 
 console.log(JSON.stringify({status: 'PASS', validation: 'HOST_ONLY_NOT_GUEST', count: results.length, checks: results}, null, 2));

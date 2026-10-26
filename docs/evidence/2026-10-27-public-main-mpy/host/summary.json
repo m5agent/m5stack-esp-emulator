@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "hardware": "NOT RUN",
+  "guest_evidence": "../api-runtime/index.json and ../web/index.json",
+  "full_platform": {
+    "r1": {
+      "tests": 1213,
+      "status": "FAIL",
+      "reason": "missing new module in code-map"
+    },
+    "r2": {
+      "tests": 1213,
+      "status": "PASS",
+      "seconds": 115.835
+    }
+  },
+  "controlled_service_generation": 45,
+  "captured_source_files": 81,
+  "source_receipt_files": 83,
+  "source_snapshots_capture_timing": "after real execution; all SHA equal before/after service-start receipt",
+  "excluded_source_fingerprints": [
+    {
+      "source": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "bytes": 16955,
+      "reason": "preexisting virtual-network MAC literals; source fingerprint only"
+    },
+    {
+      "source": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "bytes": 45221,
+      "reason": "preexisting virtual-network MAC literals; source fingerprint only"
+    }
+  ],
+  "original_failures_preserved": true,
+  "public_binary_admission": "conditional actual guest canary; stock false; no hardware attestation",
+  "independent_final_offline_audit": {
+    "status": "PASS",
+    "receipt": "independent/final-offline-audit-r1/index.json",
+    "api_contacted": false,
+    "guest": "NOT RUN",
+    "hardware": "NOT RUN",
+    "portable_verifiers": [
+      "api-runtime-portable",
+      "web-portable"
+    ],
+    "fresh_negative_commands": [
+      "original-preview-negative",
+      "old-run-preservation"
+    ],
+    "fresh_negative_tests": 4,
+    "probe_sources": [
+      "independent/final-offline-audit-r1/original-preview-negative.py.txt",
+      "independent/final-offline-audit-r1/state-preservation.py.txt"
+    ],
+    "source_binding_boundary": "The reused original preview-negative source SHA is bound in the audit receipt. state-preservation.py and record.py were copied after audit and were not hashed by that receipt; no pre-execution binding is claimed."
+  },
+  "portable_verification": {
+    "command": "python3 verify.py",
+    "api_contacted": false,
+    "guest": "NOT RUN",
+    "hardware": "NOT RUN",
+    "scope": "Exact host file inventory, classifications/UTF8/bytes/SHA, preserved failures, 1213 final platform tests, 81 captured sources + 2 exclusions matching gen45 83-source receipt, and independent offline-audit logs/probe receipts."
+  }
+}

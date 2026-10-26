@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "category": "OFFLINE_OPENAPI31_ORIGINAL_RESPONSE_AND_TYPED_CONTROLS",
+  "original_response_r1": "FAIL PRESERVED: nullable keyword and public Worker projection",
+  "original_response_r2": {
+    "status": "PASS",
+    "json_responses": 766,
+    "excluded_non_json": 17,
+    "errors": 0
+  },
+  "typed_r1": "FAIL PRESERVED: harness assumed unavailable date-time checker",
+  "typed_r2": {
+    "status": "PASS",
+    "cases": 48
+  },
+  "gen45_original_spec_sha256": "c45fb670ae6906c09645580c3a686a1e5bf185688ad57303cab91a4afb783001",
+  "corrected_spec_sha256": "b27ad3d9db6d1efd2fbc76121295d0935f5677611af65bb6e94dfd5bcbd84c31",
+  "scope": "Contract-only correction after gen45; final code and corrected spec loaded in gen46. Does not rewrite gen45 source receipts.",
+  "api_contacted": false,
+  "guest": "NOT RUN",
+  "hardware": "NOT RUN",
+  "files": [
+    {
+      "path": "original-response-r1/archive-index.json",
+      "bytes": 473443,
+      "sha256": "1ce0dd8ec0c41425c1750f592d22ec02fec558f4c2d86740efcdfbe1868c5a20",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r1/archive-index.json"
+    },
+    {
+      "path": "original-response-r1/command.json",
+      "bytes": 453,
+      "sha256": "f436bf4dde62d28493367f1f9e3c8f7ea95177c0e8fd4519f7d5e8747f3153db",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r1/command.json"
+    },
+    {
+      "path": "original-response-r1/device-service.openapi.yaml.txt",
+      "bytes": 164042,
+      "sha256": "c45fb670ae6906c09645580c3a686a1e5bf185688ad57303cab91a4afb783001",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r1/device-service.openapi.yaml.txt"
+    },
+    {
+      "path": "original-response-r1/receipt.json",
+      "bytes": 1067058,
+      "sha256": "509476965c21b9980b1309d60c937b988918e56a7bb4a2a3cac17b6b577b8599",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r1/receipt.json"
+    },
+    {
+      "path": "original-response-r1/validate.py.txt",
+      "bytes": 7803,
+      "sha256": "6a45ed792bc585e4445cfe4bee58889cac5adc6796f217bbbef4a9fd46c3845f",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r1/validate.py"
+    },
+    {
+      "path": "original-response-r1/validation.log",
+      "bytes": 13928,
+      "sha256": "bdb065b66e16dab4d88e963011bb3454392e93a857a1cf9df6e03b74b53caeb0",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r1/validation.log"
+    },
+    {
+      "path": "original-response-r2/archive-index.json",
+      "bytes": 473443,
+      "sha256": "1ce0dd8ec0c41425c1750f592d22ec02fec558f4c2d86740efcdfbe1868c5a20",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r2/archive-index.json"
+    },
+    {
+      "path": "original-response-r2/command.json",
+      "bytes": 453,
+      "sha256": "a840c34ef85821cd6695a4511fb6320525bcae82e490122db69f175cdadb536d",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r2/command.json"
+    },
+    {
+      "path": "original-response-r2/device-service.openapi.yaml.txt",
+      "bytes": 165574,
+      "sha256": "b27ad3d9db6d1efd2fbc76121295d0935f5677611af65bb6e94dfd5bcbd84c31",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r2/device-service.openapi.yaml.txt"
+    },
+    {
+      "path": "original-response-r2/receipt.json",
+      "bytes": 526065,
+      "sha256": "0c476b46e5fbf383593fe8643dcb52b39ba8e67f7ce3a3c6a990fe78a0a5e091",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r2/receipt.json"
+    },
+    {
+      "path": "original-response-r2/validate.py.txt",
+      "bytes": 7803,
+      "sha256": "6a45ed792bc585e4445cfe4bee58889cac5adc6796f217bbbef4a9fd46c3845f",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r2/validate.py"
+    },
+    {
+      "path": "original-response-r2/validation.log",
+      "bytes": 1106,
+      "sha256": "9d378ae10e1f5b99700feb50a09fe9b1216bd4a21dd486869e5136801317a0f8",
+      "classification": "original",
+      "original_source": ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r2/validation.log"
+    },
+    {
+      "path": "typed-control-r1/receipt.json",
+      "bytes": 624,
+      "sha256": "ec7ad34a28c2b3efa2857b01228055b32155c5beaf63c5e2c56de8404d9e0c82",
+      "classification": "original",
+      "original_source": ".work/openapi31-null-public-worker-negative-r1/receipt.json"
+    },
+    {
+      "path": "typed-control-r1/verify.py.txt",
+      "bytes": 4069,
+      "sha256": "af712b99580ac1606c0f9e53a98dbff2e64fc6abbf9690e28f4597d319928637",
+      "classification": "original",
+      "original_source": ".work/openapi31-null-public-worker-negative-r1/verify.py"
+    },
+    {
+      "path": "typed-control-r2/receipt.json",
+      "bytes": 12938,
+      "sha256": "3f20f73818e25bbc4b0fa63da86e86c2231bf345409102753a3c042e3afa64d0",
+      "classification": "original",
+      "original_source": ".work/openapi31-null-public-worker-negative-r2/receipt.json"
+    },
+    {
+      "path": "typed-control-r2/verify.py.txt",
+      "bytes": 4119,
+      "sha256": "e1ca29e7c6b3d7f5a790a0b485df771f12e19c2979470dc71d9f24ae3fa8f2e9",
+      "classification": "original",
+      "original_source": ".work/openapi31-null-public-worker-negative-r2/verify.py"
+    }
+  ]
+}

@@ -59,11 +59,12 @@ from program_packages import (  # noqa: E402
     ProgramPackageStore, ProgramPackageError, _snapshot as program_package_snapshot,
 )
 from mpy_bytecode import MPYBytecodeError, validate_bytecode  # noqa: E402
-from uiflow_package_runtime import deploy_package  # noqa: E402
+from uiflow_package_runtime import deploy_package, validate_mpy  # noqa: E402
+from uiflow_main_loader import main_loader_verified, probe_main_loader  # noqa: E402
 from frame_cache import CaptureResult, FrameCache, FrameGenerationChanged  # noqa: E402
 from uiflow_runtime import (  # noqa: E402
     ExecutionStateScanner, LIVE_PROGRAM_DEVICES, LIVE_READY_MARKER,
-    UIFlowRuntimeError, live_bootstrap_files, run_source, synchronize_raw_repl,
+    UIFlowRuntimeError, live_bootstrap_files, run_mpy, run_source, synchronize_raw_repl,
 )
 from firmware_analysis import (  # noqa: E402
     analyze_esp_image,
@@ -1744,13 +1745,14 @@ def _normalize_management_binding(value: dict) -> dict:
     return dict(value)
 
 
-def _require_live_package_entrypoint(revision: dict) -> None:
+def _require_live_package_entrypoint(revision: dict, loader_capabilities: dict | None = None) -> None:
     # Check before allocating an execution or interrupting its predecessor.
     # Immutable storage admission does not imply a loader in the guest firmware.
-    if revision.get("entrypoint", "main.py") != "main.py":
+    entrypoint = revision.get("entrypoint", "main.py")
+    if entrypoint != "main.py" and not (entrypoint == "main.mpy" and main_loader_verified(loader_capabilities)):
         raise ServiceError(
             "program_mpy_entrypoint_unsupported",
-            "this UIFlow firmware supports main.py execution; main.mpy requires a compatible script loader",
+            "main.mpy requires this session's verified bytecode run-as-main loader; wait for its bootstrap probe or use a compatible base",
             409,
         )
 
@@ -3178,6 +3180,7 @@ class DeviceSession:
         persist: bool = True,
         firmware_provenance: dict | None = None,
         program_transport: str | None = None,
+        program_bootstrap: bool = False,
         management_binding: dict | None = None,
     ):
         self.service = service
@@ -3200,6 +3203,11 @@ class DeviceSession:
         )
         self.runtime = runtime
         self.program_transport = program_transport
+        # Only service-owned bootstraps are safe to probe before the first Run.
+        # Never interrupt an arbitrary manually prepared application's startup.
+        self.program_bootstrap = program_bootstrap is True and program_transport == "uart-repl"
+        self._program_capabilities = {"status": "unknown", "mpy_entrypoint": False,
+                                      "reason": "bootstrap-probe-pending" if self.program_bootstrap and not restored else "not-probed"}
         self.management_binding = _normalize_management_binding(management_binding) if management_binding is not None else None
         self._management_handle = object() if self.management_binding is not None else None
         self._console = None
@@ -3398,6 +3406,8 @@ class DeviceSession:
             "firmware_source": self.firmware_source,
             "source_artifacts": list(self.source_artifacts),
             **({"program_transport": self.program_transport} if self.program_transport else {}),
+            **({"program_bootstrap": self.program_bootstrap,
+                "program_capabilities": self.program_capabilities()} if self.program_transport else {}),
             **({"management_binding": dict(self.management_binding)} if self.management_binding is not None else {}),
             **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
             "runtime_env": dict(self.runtime_env),
@@ -3915,7 +3925,8 @@ class DeviceSession:
                 ),
                 "source_artifacts": list(self.source_artifacts),
                 **({"program_transport": self.program_transport,
-                    "program": self._program} if self.program_transport else {}),
+                    "program": self._program,
+                    "program_capabilities": self.program_capabilities()} if self.program_transport else {}),
                 **({"management_binding": dict(self.management_binding)} if self.management_binding is not None else {}),
                 **({"firmware_provenance": self.firmware_provenance} if self.firmware_provenance else {}),
                 "runtime_env": dict(self.runtime_env),
@@ -4983,6 +4994,8 @@ class DeviceSession:
                 )
             elif self.ready_marker:
                 self.wait_for_marker(self.ready_marker, self.ready_timeout)
+        if self.program_bootstrap:
+            self._probe_program_loader()
         self._set_state("running")
 
     def _provision_qemu_radio(self, clean_flash: Path) -> None:
@@ -6415,6 +6428,87 @@ class DeviceSession:
             "bytes": len(chunk),
         }
 
+    def _program_identity(self) -> dict:
+        return {"session_id": self.id, "device_id": self.spec.id,
+                "firmware_sha256": self.firmware_sha, "runtime": self.runtime,
+                "pid": self.pid, "process_start_token": self.process_start_token,
+                "worker_generation": self.worker_generation}
+
+    def program_capabilities(self) -> dict:
+        """Resolve this live guest's evidence, never caller or historical claims."""
+        identity = self._program_identity()
+        record = getattr(self, "_program_capabilities", {})
+        process = getattr(self, "_proc", None)
+        if (self.state == "running" and self.program_transport == "uart-repl"
+                and (process is None or process.poll() is None)
+                and type(identity["pid"]) is int and identity["pid"] > 0
+                and isinstance(identity["process_start_token"], str) and identity["process_start_token"]
+                and record.get("identity") == identity):
+            if main_loader_verified(record):
+                return json.loads(json.dumps(record))
+            if record.get("status") == "unsupported" and record.get("mpy_entrypoint") is False:
+                return json.loads(json.dumps(record))
+        return {"schema_version": 1, "status": "unknown", "mpy_entrypoint": False, "identity": identity,
+                "reason": record.get("reason", "live-loader-evidence-unavailable")}
+
+    def _invalidate_program_loader(self, reason: str) -> None:
+        was_verified = main_loader_verified(getattr(self, "_program_capabilities", None))
+        self._program_capabilities = {"schema_version": 1, "status": "unknown", "mpy_entrypoint": False, "reason": reason}
+        if was_verified:
+            self._record_event("program_loader_invalidated", reason=reason)
+            self._persist_session()
+
+    @contextmanager
+    def program_admission(self):
+        """Keep a known loader revocation from racing a Preview intent write."""
+        with self._lock:
+            yield self.program_capabilities()
+
+    def _check_program_loader_restoration(self, program: dict | None, console, *, prompt_confirmed: bool = False) -> bool:
+        if not program or program.get("entrypoint") != "main.mpy":
+            return True
+        scanner = getattr(self, "_program_scanner", None)
+        if scanner is None or scanner.execution_id != program["execution_id"]:
+            scanner = ExecutionStateScanner(program["execution_id"], program.get("serial_offset", 0))
+        end = console.offset()
+        while scanner.cursor < end:
+            scanner.scan(console)
+        # LOAD is only an import request. Once a fresh raw prompt confirms the
+        # binary has stopped, only DONE/ERROR positively prove wrapper cleanup.
+        # An actively running import has no terminal marker yet and keeps its
+        # proof; cancellation before LOAD never changed the importer owner.
+        missing_terminal = prompt_confirmed and scanner.load_requested and scanner.state not in {"completed", "failed"}
+        if not scanner.restore_failed and not missing_terminal:
+            return True
+        with self._lock:
+            self._invalidate_program_loader("binary-repl-owner-restoration-unconfirmed")
+            program.update(loader_restore_failed=True, owner_restored=False,
+                           execution_phase="owner-unconfirmed", state="unknown",
+                           error={"code": "program_main_loader_restore_failed", "message": "Binary execution did not confirm its original REPL owner"})
+            atomic_write_json(self.dir / "programs" / f"{program['execution_id']}.json", program)
+            if self._program is program:
+                self._persist_program()
+        return False
+
+    def _probe_program_loader(self) -> None:
+        """Probe only our inert bootstrap, before public Run becomes available."""
+        self._check_cancelled()
+        if self._console is None or not self._program_lock.acquire(blocking=False):
+            raise UIFlowRuntimeError("program_loader_probe_unavailable", "bootstrap console ownership is unavailable")
+        try:
+            record = probe_main_loader(self._console, timeout=min(20.0, self.ready_timeout),
+                                       cancelled=self._stop_event.is_set)
+            self._check_cancelled()
+            if (not isinstance(record, dict) or record.get("status") not in {"verified", "unsupported"}
+                    or record.get("probe", {}).get("owner_restored") is not True
+                    or record.get("status") == "verified" and not main_loader_verified(record)):
+                raise UIFlowRuntimeError("program_loader_probe_unconfirmed", "guest loader proof or owner restoration is incomplete")
+            self._program_capabilities = {**record, "identity": self._program_identity(), "observed_at": iso_now()}
+            atomic_write_json(self.dir / "program-capabilities.json", self._program_capabilities)
+            self._record_event("program_loader_observed", capabilities=self._program_capabilities)
+        finally:
+            self._program_lock.release()
+
     def _persist_program(self) -> None:
         if self._stop_purge:
             return
@@ -6438,6 +6532,11 @@ class DeviceSession:
                         self._program_scanner = scanner
                     try:
                         state = scanner.scan(console)
+                        if scanner.restore_failed:
+                            self._check_program_loader_restoration(program, console)
+                            state = None
+                        elif program.get("entrypoint") == "main.mpy" and state in {"completed", "failed"}:
+                            program.update(owner_restored=True, execution_phase="import-returned" if state == "completed" else "load-or-execute-failed")
                         if state == "running" and program.get("output_gap_possible"):
                             state = "unknown"
                         if state not in {"completed", "failed"}:
@@ -6452,6 +6551,7 @@ class DeviceSession:
                         program.pop("error", None)
                         self._persist_program()
             return {"session_id": self.id, "program_transport": self.program_transport,
+                    "program_capabilities": self.program_capabilities(),
                     "program": json.loads(json.dumps(program)),
                     "history_error": self._program_restore_error}
 
@@ -6516,9 +6616,15 @@ class DeviceSession:
         if type(timeout) not in {int, float} or not 1 <= timeout <= maximum_timeout:
             raise ServiceError("invalid_program", f"timeout_seconds must be between 1 and {maximum_timeout}", 400)
         if package and not reference and payload.get("entrypoint", "main.py") == "main.mpy":
-            # Do not consume a persistent package slot for an unsupported
-            # inline Run; callers can explicitly save a checkpoint separately.
-            _require_live_package_entrypoint(payload)
+            # Known rejection precedes package publication or interruption.
+            _require_live_package_entrypoint(payload, self.program_capabilities())
+            try:
+                _, _, inline_files = program_package_snapshot({key: payload[key] for key in ("files", "entrypoint", "source_kind") if key in payload})
+                _validate_checkpoint_bytecode(inline_files)
+                if payload.get("entrypoint") == "main.mpy":
+                    validate_mpy(inline_files, self.program_capabilities())
+            except (ProgramPackageError, UIFlowRuntimeError) as error:
+                raise ServiceError(error.code, error.message, getattr(error, "status", 409)) from error
         if not self._program_lock.acquire(blocking=False):
             raise ServiceError("program_busy", "a program transfer already owns this console", 409)
         try:
@@ -6537,16 +6643,18 @@ class DeviceSession:
             try:
                 if reference:
                     revision = self.service.program_packages.get(payload["revision_id"])
-                    _require_live_package_entrypoint(revision)
+                    _require_live_package_entrypoint(revision, self.program_capabilities())
                     package_files = self.service.program_packages.read_files(payload["revision_id"])
                     _validate_checkpoint_bytecode(package_files)
+                    if revision["entrypoint"] == "main.mpy":
+                        validate_mpy(package_files, self.program_capabilities())
                 elif package:
                     revision = self.service.program_packages.create({key: payload[key] for key in ("files", "entrypoint", "source_kind") if key in payload})
                     package_files = self.service.program_packages.read_files(revision["revision_id"])
                 else:
                     revision = self.service.program_revisions.create({"files": {"main.py": source}})
-            except (RevisionError, ProgramPackageError) as error:
-                raise ServiceError(error.code, error.message, error.status) from error
+            except (RevisionError, ProgramPackageError, UIFlowRuntimeError) as error:
+                raise ServiceError(error.code, error.message, getattr(error, "status", 409)) from error
             if len(list((self.dir / "programs").glob("*.json"))) >= 256:
                 raise ServiceError("program_quota_exceeded", "this session retains at most 256 executions", 429)
             execution_id = reserved_execution_id or uuid.uuid4().hex
@@ -6558,6 +6666,8 @@ class DeviceSession:
                 console = self._console
                 if self.state != "running" or console is None:
                     raise ServiceError("program_transport_unavailable", "a running uart-repl session is required", 409)
+                if package and revision["entrypoint"] == "main.mpy":
+                    _require_live_package_entrypoint(revision, self.program_capabilities())
                 previous = self._program
                 if self._program and self._program["state"] in {"running", "unknown"}:
                     self._program.update(state="interrupt-requested", interruption_confirmed=False)
@@ -6571,8 +6681,12 @@ class DeviceSession:
                     "serial_offset": console.offset(),
                 }
                 if package:
-                    self._program.update(source_kind="uiflow2-package", source_bytes=len(package_files["main.py"]),
+                    self._program.update(source_kind="uiflow2-package", entrypoint=revision["entrypoint"],
+                                         source_bytes=len(package_files[revision["entrypoint"]]),
                                          total_file_bytes=revision["total_file_bytes"], file_count=len(package_files))
+                    if revision["entrypoint"] == "main.mpy":
+                        self._program.update(loader_capabilities=self.program_capabilities(),
+                                             execution_phase="preparing", application_started=None, application_ready=None)
                 if reserved_execution_id is not None and previous is not None:
                     self._program["replaces_execution_id"] = previous["execution_id"]
                 self._preview_frames.invalidate()
@@ -6585,6 +6699,8 @@ class DeviceSession:
                 nonlocal synchronization_notified
                 if transport_cancelled():
                     raise UIFlowRuntimeError("program_cancelled", "session is stopping")
+                if previous and not self._check_program_loader_restoration(previous, console, prompt_confirmed=True):
+                    self._record_event("program_previous_owner_unconfirmed", execution_id=previous["execution_id"])
                 if previous and previous["state"] == "interrupt-requested":
                     with self._lock:
                         if transport_cancelled():
@@ -6610,18 +6726,27 @@ class DeviceSession:
                 execution_timeout = float(timeout)
                 if package:
                     package_started = time.monotonic()
-                    deploy_package(console, package_files, revision, timeout=execution_timeout,
-                                   cancelled=transport_cancelled, on_synchronized=synchronized,
-                                   on_progress=package_progress)
+                    deployment = deploy_package(console, package_files, revision, timeout=execution_timeout,
+                                                cancelled=transport_cancelled, on_synchronized=synchronized,
+                                                on_progress=package_progress,
+                                                **({"loader_capabilities": self.program_capabilities()} if revision["entrypoint"] == "main.mpy" else {}))
                     execution_timeout -= time.monotonic() - package_started
                     if execution_timeout <= 0:
                         raise UIFlowRuntimeError("program_timeout", "package deployment used its execution acknowledgement budget")
-                result = run_source(console, source, execution_id,
-                                    timeout=execution_timeout, cancelled=transport_cancelled,
-                                    on_synchronized=synchronized,
-                                    **({"source_path": "main.py"} if package else {}))
+                if package and revision["entrypoint"] == "main.mpy":
+                    result = run_mpy(console, execution_id, package_path=deployment["package_path"],
+                                     entrypoint_sha256=hashlib.sha256(package_files["main.mpy"]).hexdigest(),
+                                     loader_capabilities=self.program_capabilities(), timeout=execution_timeout,
+                                     cancelled=transport_cancelled, on_synchronized=synchronized)
+                else:
+                    result = run_source(console, source, execution_id,
+                                        timeout=execution_timeout, cancelled=transport_cancelled,
+                                        on_synchronized=synchronized,
+                                        **({"source_path": "main.py"} if package else {}))
             except (GuestConsoleError, UIFlowRuntimeError) as error:
                 with self._lock:
+                    if error.code == "program_main_loader_restore_failed":
+                        self._invalidate_program_loader("binary-repl-owner-restoration-unconfirmed")
                     if self._stop_purge:
                         raise ServiceError("program_cancelled", "session was purged", 409,
                                            execution_id=execution_id) from error
@@ -6689,6 +6814,8 @@ class DeviceSession:
                     self._persist_program()
             try:
                 receipt = synchronize_raw_repl(console, timeout=float(timeout_seconds), cancelled=self._stop_event.is_set)
+                if not self._check_program_loader_restoration(self._program, console, prompt_confirmed=True):
+                    receipt["owner_restored"] = False
             except (GuestConsoleError, UIFlowRuntimeError) as error:
                 with self._lock:
                     if not self._stop_purge and self._program:
@@ -6702,7 +6829,8 @@ class DeviceSession:
                     raise ServiceError("program_cancelled", "session is stopping or stopped", 409, execution_id=expected_execution_id)
                 if self._program:
                     self._program.update(state="interrupted", interruption_confirmed=True, interrupted_at=iso_now(), interrupt_ack=receipt)
-                    self._program.pop("error", None)
+                    if receipt.get("owner_restored") is not False:
+                        self._program.pop("error", None)
                     self._persist_program()
                 previous_id = self._program.get("replaces_execution_id") if self._program else None
                 if previous_id:
@@ -7529,6 +7657,9 @@ class DeviceSession:
                 self.firmware_provenance, ensure_ascii=False, indent=2,
             ).encode("utf-8")
         if self.program_transport:
+            capability_path = self.dir / "program-capabilities.json"
+            if capability_path.is_file():
+                files["program-capabilities.json"] = capability_path.read_bytes()
             for record_path in sorted((self.dir / "programs").glob("*.json")):
                 raw = record_path.read_bytes()
                 files[f"programs/{record_path.name}"] = raw
@@ -7772,6 +7903,8 @@ class DeviceSession:
                 self._frame_epoch += 1
                 self._preview_frames.invalidate()
                 self._qmp_call("system_reset")
+                if self.program_transport:
+                    self._invalidate_program_loader("reset-requires-new-loader-proof")
                 if self.program_transport and self._program:
                     self._program.update(state="interrupted", interrupted_at=iso_now())
                     self._persist_program()
@@ -9164,6 +9297,7 @@ class DeviceService:
                 firmware_sha=str(record.get("firmware_sha256") or ""),
                 firmware_source=str(record.get("firmware_source") or "unknown"),
                 program_transport=record.get("program_transport"),
+                program_bootstrap=record.get("program_bootstrap") is True,
                 management_binding=record.get("management_binding"),
                 source_artifacts=[
                     artifact
@@ -9544,6 +9678,18 @@ class DeviceService:
             raise ServiceError("invalid_uiflow_request", "kind is not accepted on the UIFlow source endpoint", 400)
         return self.create_firmware({**payload, "kind": "uiflow"})
 
+    def program_base_info(self, spec: DeviceSpec, *, base_firmware_id=None, expected_base_sha256=None) -> dict:
+        """Re-admit an optional live-program base without publishing anything."""
+        if base_firmware_id is None and expected_base_sha256 is None:
+            return {**self.reference_info(spec), "kind": "cached-reference"}
+        if base_firmware_id is None or expected_base_sha256 is None:
+            raise ServiceError("invalid_program_base", "base_firmware_id and expected_base_sha256 must be supplied together", 400)
+        _, _, provenance = self.firmware._explicit_uiflow_base(spec, {
+            "base_firmware_id": base_firmware_id, "expected_base_sha256": expected_base_sha256,
+        })
+        return {"kind": "stored-manifest", "firmware_id": base_firmware_id,
+                "sha256": provenance["stored_sha256"], "size": provenance["stored_size"]}
+
     def reference_info(self, spec: DeviceSpec) -> dict:
         with self._lock:
             if spec.id in self._reference_cache:
@@ -9747,7 +9893,7 @@ class DeviceService:
             raise ServiceError("session_managed_by_preview", "idempotent session binding differs", 409)
 
     def create_session(self, payload: dict, *, _management_binding: dict | None = None) -> dict:
-        if any(key in payload for key in ("management_binding", "management_handle", "_management_binding", "preview_id", "owner_epoch", "expected_reference_sha256")):
+        if any(key in payload for key in ("management_binding", "management_handle", "_management_binding", "preview_id", "owner_epoch", "expected_reference_sha256", "program_capabilities", "runtime_capabilities", "loader_capabilities", "main_mpy", "mpy_entrypoint", "program_bootstrap")):
             raise ServiceError("invalid_request", "Preview management fields are internal and cannot be supplied in a session body", 400)
         if _management_binding is not None:
             _management_binding = _normalize_management_binding(_management_binding)
@@ -9759,6 +9905,13 @@ class DeviceService:
         program_mode = payload.get("program_mode")
         if program_mode not in (None, "uiflow-live"):
             raise ServiceError("unsupported_program_mode", "program_mode must be uiflow-live", 400)
+        explicit_program_base = "base_firmware_id" in payload or "expected_base_sha256" in payload
+        if explicit_program_base and (program_mode != "uiflow-live" or
+                not all(isinstance(payload.get(key), str) and _is_sha256(payload[key])
+                        for key in ("base_firmware_id", "expected_base_sha256"))):
+            raise ServiceError("invalid_program_base", "uiflow-live with a base_firmware_id and normalized expected_base_sha256 pair is required", 400)
+        if explicit_program_base and _management_binding is not None and payload["expected_base_sha256"] != _management_binding["expected_reference_sha256"]:
+            raise ServiceError("program_base_binding_mismatch", "Preview base pin differs from its frozen request", 409)
         device_id = payload.get("device_id")
         if not isinstance(device_id, str):
             raise ServiceError("invalid_request", "device_id is required", 400)
@@ -9773,7 +9926,7 @@ class DeviceService:
             if device_id not in LIVE_PROGRAM_DEVICES or payload.get("runtime", "qemu") != "qemu":
                 raise ServiceError("unsupported_program_mode", "uiflow-live requires an admitted S3 QEMU reference device", 409)
             if "firmware_id" in payload or "uiflow_source_sha256" in payload:
-                raise ServiceError("program_mode_firmware_conflict", "uiflow-live prepares the cached UIFlow2 reference; omit firmware_id and source pin", 409)
+                raise ServiceError("program_mode_firmware_conflict", "uiflow-live prepares its UIFlow2 base; omit firmware_id and source pin", 409)
             if payload.get("ready_marker", LIVE_READY_MARKER) != LIVE_READY_MARKER or payload.get("ready"):
                 raise ServiceError("program_mode_ready_conflict", "uiflow-live waits for its UART REPL bootstrap; application readiness belongs to each program", 400)
         if not spec.backend_ready:
@@ -9828,7 +9981,9 @@ class DeviceService:
             # Initialization uses the established immutable source/Flash path
             # once; subsequent /program requests only use the live guest UART.
             bootstrap = self.create_uiflow_firmware({"device_id": device_id, "files": live_bootstrap_files(),
-                **({"expected_base_sha256": _management_binding["expected_reference_sha256"]} if _management_binding is not None else {})})
+                **({"base_firmware_id": payload["base_firmware_id"], "expected_base_sha256": payload["expected_base_sha256"]}
+                   if explicit_program_base else
+                   {"expected_base_sha256": _management_binding["expected_reference_sha256"]} if _management_binding is not None else {})})
             payload = {**payload, "firmware_id": bootstrap["firmware_id"],
                        "uiflow_source_sha256": bootstrap["source"]["metadata"]["source_sha256"],
                        "ready_marker": LIVE_READY_MARKER}
@@ -10192,6 +10347,7 @@ class DeviceService:
                     firmware_sha=firmware_sha,
                     firmware_source=source,
                     program_transport=program_transport,
+                    program_bootstrap=program_mode == "uiflow-live",
                     management_binding=_management_binding,
                     source_artifacts=source_artifacts,
                     firmware_provenance=(firmware_source if firmware_source.get("kind") == "uiflow" else None)

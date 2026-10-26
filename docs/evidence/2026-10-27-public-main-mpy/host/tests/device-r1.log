@@ -1,0 +1,375 @@
+.............................................E...FFFFEFEE.FFFEFFFFFEFFFFFF
+======================================================================
+ERROR: test_live_program_creation (unittest.loader._FailedTest.test_live_program_creation)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_live_program_creation
+Traceback (most recent call last):
+  File "/opt/miniconda3/lib/python3.12/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'test_live_program_creation'
+
+
+======================================================================
+ERROR: test_default_120_seconds_is_one_budget_shared_with_entrypoint_acknowledgement (test_device_program_packages.DeviceProgramPackageTests.test_default_120_seconds_is_one_budget_shared_with_entrypoint_acknowledgement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 1776, in _validate_checkpoint_bytecode
+    validate_bytecode(data)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 331, in validate_bytecode
+    return _Inspector(data).inspect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 302, in inspect
+    self.qstr_count = self.bounded(reader.uint(), MAX_TABLE_ITEMS, "qstr table count", 1)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 102, in bounded
+    raise MPYBytecodeError(f"{label} outside [{minimum}, {maximum}]")
+mpy_bytecode.MPYBytecodeError: qstr table count outside [1, 4096]
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 130, in test_default_120_seconds_is_one_budget_shared_with_entrypoint_acknowledgement
+    session.run_program(self.payload())
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6515, in run_program
+    return self._run_program(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6577, in _run_program
+    _validate_checkpoint_bytecode(inline_files)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 1778, in _validate_checkpoint_bytecode
+    raise ServiceError(
+device_service.ServiceError: invalid or unsupported bytecode-only .mpy container
+
+======================================================================
+ERROR: test_evidence_retains_exact_resource_mpy_and_source_bytes_plus_identity (test_device_program_packages.DeviceProgramPackageTests.test_evidence_retains_exact_resource_mpy_and_source_bytes_plus_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 1776, in _validate_checkpoint_bytecode
+    validate_bytecode(data)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 331, in validate_bytecode
+    return _Inspector(data).inspect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 302, in inspect
+    self.qstr_count = self.bounded(reader.uint(), MAX_TABLE_ITEMS, "qstr table count", 1)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 102, in bounded
+    raise MPYBytecodeError(f"{label} outside [{minimum}, {maximum}]")
+mpy_bytecode.MPYBytecodeError: qstr table count outside [1, 4096]
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 313, in test_evidence_retains_exact_resource_mpy_and_source_bytes_plus_identity
+    record = session.run_program(payload)["program"]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6515, in run_program
+    return self._run_program(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6577, in _run_program
+    _validate_checkpoint_bytecode(inline_files)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 1778, in _validate_checkpoint_bytecode
+    raise ServiceError(
+device_service.ServiceError: invalid or unsupported bytecode-only .mpy container
+
+======================================================================
+ERROR: test_files_deploy_complete_bytes_and_publish_package_identity_before_launch (test_device_program_packages.DeviceProgramPackageTests.test_files_deploy_complete_bytes_and_publish_package_identity_before_launch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 1776, in _validate_checkpoint_bytecode
+    validate_bytecode(data)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 331, in validate_bytecode
+    return _Inspector(data).inspect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 302, in inspect
+    self.qstr_count = self.bounded(reader.uint(), MAX_TABLE_ITEMS, "qstr table count", 1)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 102, in bounded
+    raise MPYBytecodeError(f"{label} outside [{minimum}, {maximum}]")
+mpy_bytecode.MPYBytecodeError: qstr table count outside [1, 4096]
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 100, in test_files_deploy_complete_bytes_and_publish_package_identity_before_launch
+    result = session.run_program(payload)["program"]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6515, in run_program
+    return self._run_program(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6577, in _run_program
+    _validate_checkpoint_bytecode(inline_files)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 1778, in _validate_checkpoint_bytecode
+    raise ServiceError(
+device_service.ServiceError: invalid or unsupported bytecode-only .mpy container
+
+======================================================================
+ERROR: test_package_timeout_validation_does_not_borrow_the_legacy_30_second_limit (test_device_program_packages.DeviceProgramPackageTests.test_package_timeout_validation_does_not_borrow_the_legacy_30_second_limit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 1776, in _validate_checkpoint_bytecode
+    validate_bytecode(data)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 331, in validate_bytecode
+    return _Inspector(data).inspect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 302, in inspect
+    self.qstr_count = self.bounded(reader.uint(), MAX_TABLE_ITEMS, "qstr table count", 1)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 102, in bounded
+    raise MPYBytecodeError(f"{label} outside [{minimum}, {maximum}]")
+mpy_bytecode.MPYBytecodeError: qstr table count outside [1, 4096]
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 143, in test_package_timeout_validation_does_not_borrow_the_legacy_30_second_limit
+    session.run_program(self.payload(timeout_seconds=60))
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6515, in run_program
+    return self._run_program(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6577, in _run_program
+    _validate_checkpoint_bytecode(inline_files)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 1778, in _validate_checkpoint_bytecode
+    raise ServiceError(
+device_service.ServiceError: invalid or unsupported bytecode-only .mpy container
+
+======================================================================
+ERROR: test_stale_execution_fences_both_source_and_file_replacements (test_device_program_packages.DeviceProgramPackageTests.test_stale_execution_fences_both_source_and_file_replacements)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 1776, in _validate_checkpoint_bytecode
+    validate_bytecode(data)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 331, in validate_bytecode
+    return _Inspector(data).inspect()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 302, in inspect
+    self.qstr_count = self.bounded(reader.uint(), MAX_TABLE_ITEMS, "qstr table count", 1)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/mpy_bytecode.py", line 102, in bounded
+    raise MPYBytecodeError(f"{label} outside [{minimum}, {maximum}]")
+mpy_bytecode.MPYBytecodeError: qstr table count outside [1, 4096]
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 163, in test_stale_execution_fences_both_source_and_file_replacements
+    first = session.run_program(self.payload())["program"]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6515, in run_program
+    return self._run_program(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 6577, in _run_program
+    _validate_checkpoint_bytecode(inline_files)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py", line 1778, in _validate_checkpoint_bytecode
+    raise ServiceError(
+device_service.ServiceError: invalid or unsupported bytecode-only .mpy container
+
+======================================================================
+FAIL: test_program_http_boundary_accepts_two_mib_and_rejects_one_byte_more (test_device_program_packages.DeviceProgramPackageHttpTests.test_program_http_boundary_accepts_two_mib_and_rejects_one_byte_more)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 404, in test_program_http_boundary_accepts_two_mib_and_rejects_one_byte_more
+    self.assertEqual(status, 200)
+AssertionError: 409 != 200
+
+======================================================================
+FAIL: test_confirmed_stage_failures_never_start_the_entrypoint (test_device_program_packages.DeviceProgramPackageTests.test_confirmed_stage_failures_never_start_the_entrypoint) (code='program_package_integrity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 263, in test_confirmed_stage_failures_never_start_the_entrypoint
+    error = self.assert_service_error(lambda: session.run_program(self.payload()), code=code, status=409)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 170, in assert_service_error
+    self.assertEqual(caught.exception.code, code)
+AssertionError: 'program_mpy_invalid' != 'program_package_integrity'
+- program_mpy_invalid
++ program_package_integrity
+
+
+======================================================================
+FAIL: test_confirmed_stage_failures_never_start_the_entrypoint (test_device_program_packages.DeviceProgramPackageTests.test_confirmed_stage_failures_never_start_the_entrypoint) (code='program_mpy_incompatible')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 263, in test_confirmed_stage_failures_never_start_the_entrypoint
+    error = self.assert_service_error(lambda: session.run_program(self.payload()), code=code, status=409)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 170, in assert_service_error
+    self.assertEqual(caught.exception.code, code)
+AssertionError: 'program_mpy_invalid' != 'program_mpy_incompatible'
+- program_mpy_invalid
+?               ^  ^^
++ program_mpy_incompatible
+?               ^^^^ +++ ^
+
+
+======================================================================
+FAIL: test_confirmed_stage_failures_never_start_the_entrypoint (test_device_program_packages.DeviceProgramPackageTests.test_confirmed_stage_failures_never_start_the_entrypoint) (code='program_package_short_write')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 263, in test_confirmed_stage_failures_never_start_the_entrypoint
+    error = self.assert_service_error(lambda: session.run_program(self.payload()), code=code, status=409)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 170, in assert_service_error
+    self.assertEqual(caught.exception.code, code)
+AssertionError: 'program_mpy_invalid' != 'program_package_short_write'
+- program_mpy_invalid
++ program_package_short_write
+
+
+======================================================================
+FAIL: test_deployment_budget_exhaustion_prevents_entrypoint_launch (test_device_program_packages.DeviceProgramPackageTests.test_deployment_budget_exhaustion_prevents_entrypoint_launch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 156, in test_deployment_budget_exhaustion_prevents_entrypoint_launch
+    self.assert_service_error(lambda: session.run_program(self.payload()), code="program_timeout", status=504)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 170, in assert_service_error
+    self.assertEqual(caught.exception.code, code)
+AssertionError: 'program_mpy_invalid' != 'program_timeout'
+- program_mpy_invalid
++ program_timeout
+
+
+======================================================================
+FAIL: test_old_program_interruption_requires_guest_synchronization (test_device_program_packages.DeviceProgramPackageTests.test_old_program_interruption_requires_guest_synchronization) (synchronized=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 295, in test_old_program_interruption_requires_guest_synchronization
+    self.assert_service_error(lambda: session.run_program(self.payload(expected=old["execution_id"])), status=504)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 172, in assert_service_error
+    self.assertEqual(caught.exception.status, status)
+AssertionError: 409 != 504
+
+======================================================================
+FAIL: test_old_program_interruption_requires_guest_synchronization (test_device_program_packages.DeviceProgramPackageTests.test_old_program_interruption_requires_guest_synchronization) (synchronized=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 295, in test_old_program_interruption_requires_guest_synchronization
+    self.assert_service_error(lambda: session.run_program(self.payload(expected=old["execution_id"])), status=504)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 172, in assert_service_error
+    self.assertEqual(caught.exception.status, status)
+AssertionError: 409 != 504
+
+======================================================================
+FAIL: test_one_program_lock_fences_concurrent_packages_and_legacy_source (test_device_program_packages.DeviceProgramPackageTests.test_one_program_lock_fences_concurrent_packages_and_legacy_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 183, in test_one_program_lock_fences_concurrent_packages_and_legacy_source
+    self.assertTrue(entered.wait(1))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts (test_device_program_packages.DeviceProgramPackageTests.test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts) (phase='preflight')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 335, in test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts
+    self.assert_service_error(lambda: session.run_program(self.payload()), status=504)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 172, in assert_service_error
+    self.assertEqual(caught.exception.status, status)
+AssertionError: 409 != 504
+
+======================================================================
+FAIL: test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts (test_device_program_packages.DeviceProgramPackageTests.test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts) (phase='writing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 335, in test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts
+    self.assert_service_error(lambda: session.run_program(self.payload()), status=504)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 172, in assert_service_error
+    self.assertEqual(caught.exception.status, status)
+AssertionError: 409 != 504
+
+======================================================================
+FAIL: test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts (test_device_program_packages.DeviceProgramPackageTests.test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts) (phase='verified')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 335, in test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts
+    self.assert_service_error(lambda: session.run_program(self.payload()), status=504)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 172, in assert_service_error
+    self.assertEqual(caught.exception.status, status)
+AssertionError: 409 != 504
+
+======================================================================
+FAIL: test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts (test_device_program_packages.DeviceProgramPackageTests.test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts) (phase='published')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 335, in test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts
+    self.assert_service_error(lambda: session.run_program(self.payload()), status=504)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 172, in assert_service_error
+    self.assertEqual(caught.exception.status, status)
+AssertionError: 409 != 504
+
+======================================================================
+FAIL: test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts (test_device_program_packages.DeviceProgramPackageTests.test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts) (phase='activated')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 335, in test_restore_during_any_deployment_phase_is_unknown_and_preserves_receipts
+    self.assert_service_error(lambda: session.run_program(self.payload()), status=504)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 172, in assert_service_error
+    self.assertEqual(caught.exception.status, status)
+AssertionError: 409 != 504
+
+======================================================================
+FAIL: test_stop_and_purge_during_stage_fence_late_progress_and_launch (test_device_program_packages.DeviceProgramPackageTests.test_stop_and_purge_during_stage_fence_late_progress_and_launch) (purge=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 238, in test_stop_and_purge_during_stage_fence_late_progress_and_launch
+    self.assertTrue(entered.wait(1))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_stop_and_purge_during_stage_fence_late_progress_and_launch (test_device_program_packages.DeviceProgramPackageTests.test_stop_and_purge_during_stage_fence_late_progress_and_launch) (purge=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 238, in test_stop_and_purge_during_stage_fence_late_progress_and_launch
+    self.assertTrue(entered.wait(1))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_stop_during_package_storage_prevents_submission_or_any_guest_work (test_device_program_packages.DeviceProgramPackageTests.test_stop_during_package_storage_prevents_submission_or_any_guest_work)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 207, in test_stop_during_package_storage_prevents_submission_or_any_guest_work
+    self.assertTrue(entered.wait(1))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_store_errors_and_invalid_packages_do_not_submit_or_deploy (test_device_program_packages.DeviceProgramPackageTests.test_store_errors_and_invalid_packages_do_not_submit_or_deploy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 303, in test_store_errors_and_invalid_packages_do_not_submit_or_deploy
+    self.assert_service_error(lambda: session.run_program(self.payload()), code="program_package_storage_error", status=503)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 170, in assert_service_error
+    self.assertEqual(caught.exception.code, code)
+AssertionError: 'program_mpy_invalid' != 'program_package_storage_error'
+- program_mpy_invalid
++ program_package_storage_error
+
+
+======================================================================
+FAIL: test_unconfirmed_activation_or_transport_timeout_remains_unknown (test_device_program_packages.DeviceProgramPackageTests.test_unconfirmed_activation_or_transport_timeout_remains_unknown) (code='program_package_activation_unconfirmed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 279, in test_unconfirmed_activation_or_transport_timeout_remains_unknown
+    self.assert_service_error(lambda: session.run_program(self.payload()), code=code, status=504)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 170, in assert_service_error
+    self.assertEqual(caught.exception.code, code)
+AssertionError: 'program_mpy_invalid' != 'program_package_activation_unconfirmed'
+- program_mpy_invalid
++ program_package_activation_unconfirmed
+
+
+======================================================================
+FAIL: test_unconfirmed_activation_or_transport_timeout_remains_unknown (test_device_program_packages.DeviceProgramPackageTests.test_unconfirmed_activation_or_transport_timeout_remains_unknown) (code='program_timeout')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_packages.py", line 279, in test_unconfirmed_activation_or_transport_timeout_remains_unknown
+    self.assert_service_error(lambda: session.run_program(self.payload()), code=code, status=504)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_device_program_runtime.py", line 170, in assert_service_error
+    self.assertEqual(caught.exception.code, code)
+AssertionError: 'program_mpy_invalid' != 'program_timeout'
+- program_mpy_invalid
++ program_timeout
+
+
+----------------------------------------------------------------------
+Ran 65 tests in 8.978s
+
+FAILED (failures=19, errors=6)

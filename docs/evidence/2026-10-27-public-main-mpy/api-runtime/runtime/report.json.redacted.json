@@ -1,0 +1,182 @@
+{
+  "archive_notice": {
+    "classification": "redacted-json",
+    "original_bytes": 11573,
+    "original_sha256": "35611650c0d567297a801ad2aa246549f025f1dffbbb91751fb809bc9d35a982",
+    "original_source": "runtime/report.json",
+    "transformations": [
+      {
+        "kind": "local-path-or-address-redaction",
+        "path": "$.lanes[0].report"
+      },
+      {
+        "kind": "local-path-or-address-redaction",
+        "path": "$.lanes[1].report"
+      },
+      {
+        "kind": "local-path-or-address-redaction",
+        "path": "$.lanes[2].report"
+      }
+    ]
+  },
+  "document": {
+    "category": "public-main-mpy-runtime",
+    "final_capacity": {
+      "active_sessions": 1,
+      "available_sessions": 11,
+      "by_device": {
+        "cores3": 1
+      },
+      "max_per_device": 8,
+      "max_sessions": 12,
+      "modes": {
+        "flash": "prepared-cache + exact artifact",
+        "network": "enabled-separate-lane",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "qemu-wifi": "enabled-s3",
+        "tab5": "enabled-partial"
+      },
+      "worker": {
+        "accepting_leases": true,
+        "active_lease_count": 1,
+        "active_lease_ids": [
+          "263777684b274295adb352281d89c71d"
+        ],
+        "drained_at": null,
+        "generation": 45,
+        "heartbeat_age_seconds": 1.885,
+        "heartbeat_at": "2026-10-26T22:35:13.310455+00:00",
+        "instance_id": "382363fa5c874414bc22a82c7311a779",
+        "pid": 95400,
+        "stale": false,
+        "started_at": "2026-10-26T22:32:48.107107+00:00",
+        "state": "ready",
+        "worker_id": "worker-b71031d2aef3428b"
+      }
+    },
+    "hardware": "NOT RUN",
+    "lanes": [
+      {
+        "mode": "stock",
+        "report": "$REPO/.work/public-main-mpy-runtime-gen45-20261027-r1/stock/report.json",
+        "status": "PASS"
+      },
+      {
+        "mode": "candidate",
+        "report": "$REPO/.work/public-main-mpy-runtime-gen45-20261027-r1/candidate/report.json",
+        "status": "PASS"
+      },
+      {
+        "mode": "preview",
+        "report": "$REPO/.work/public-main-mpy-runtime-gen45-20261027-r1/preview/report.json",
+        "status": "HANDOFF READY"
+      }
+    ],
+    "prepared_record_sha256": "c2f83c6eac76930d982735d2efced0c67d19785a1fa5e67ab6eeb8ca621edc83",
+    "product_source_sha256": {
+      "docs/device-service.openapi.yaml": "c45fb670ae6906c09645580c3a686a1e5bf185688ad57303cab91a4afb783001",
+      "platform/tools/ble_probe.py": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "platform/tools/ble_runtime_limits.py": "38626a437aa578f8268130def448e8bdf7c30ea0019c633abad3498c08aa7c09",
+      "platform/tools/device_service.py": "5a22ed489240a92657e13bbb9cfb8ea6da6dec47123f2891d995455202152c5d",
+      "platform/tools/export_bundle.py": "6170fd533ac212945dddda51b8d448190a136f5a95f90f72ad27ce0886ac0957",
+      "platform/tools/fetch_firmware.py": "07a1058768cda4162870043ddc0c4260b87cea5cfd073bbd421a15ba3dce9e77",
+      "platform/tools/firmware_analysis.py": "ae8688e9c0fd1c500696da3e06d70bd506a27d0abd0645524cc0c620dd6ab0f4",
+      "platform/tools/firmware_filesystems.py": "f8c67de62aa45767bdfbfafdceb8278500705ed56a1bdc7af0a15572b5381e8a",
+      "platform/tools/firmware_manifest.py": "f2c99c54a2e264ad331f807b06a0eff6483a5c253d7c36ff69f77438c8d4e50b",
+      "platform/tools/firmware_static_review.py": "4582419230b82627ce99db2f5f662652303cb5d179bd2038504119720d49955b",
+      "platform/tools/frame_cache.py": "2e6a119a07e9d83cbe9737a99531cea37ab61321e0a759a8d0a932ae99537073",
+      "platform/tools/generate_catalog.py": "657615ef3d951380609b213a5bb7422880cf508373e62aaecb4392583cb134d2",
+      "platform/tools/guest_console.py": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+      "platform/tools/hci_stream.py": "76792f3df96c5edc962c3df04c71b77816e8cc4efbdc5e93ccfabc4d60092420",
+      "platform/tools/micropython_repl.py": "151df4dfb04e5c0255dee8677c843fe6b16462b60c70c603ff64e0219f3b24d9",
+      "platform/tools/mpy_bytecode.py": "b098a3e26f2dcaf859e0746f0e0335d8c291398c1690b18801a8f2b696cb2099",
+      "platform/tools/network_egress.py": "d098d0a32bf0d34c06374090267c501eda12ff8fe813a10b3339785bf3160df1",
+      "platform/tools/network_fabric.py": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "platform/tools/network_lane.py": "04b2c8fc003f5789fd506b56dab147438d80df6b863613133198f71d9bd9905e",
+      "platform/tools/network_policy.py": "45cdba291b9351d69d326cc0adfaa84d107141023d9c1a7d9fdc5ba8ab00cd67",
+      "platform/tools/network_sandbox.py": "ff095c3b17d0318a2959e107ec6a36696d889bbcb2a7f750f31d829ec5c16c55",
+      "platform/tools/nvs_image.py": "ffa8bf456ed0654f2eab5b2e5554d32bb949a54c1f59cb6c718c93be26ae1ccc",
+      "platform/tools/pcap_summary.py": "162bf8b68542a929b68970d452e2f1c5482c69ecd2fefa17269e1c49d5e005c8",
+      "platform/tools/peripheral_catalog.py": "2a13b5ebb9f0861d8155afec1a14c04f2fd493ca2764f6bc2d94f1e87db66c04",
+      "platform/tools/peripheral_inventory.py": "d6e572e54f68c90a510c34ad75e7c9aea51ee503fe6a8d3e7f21dbe3f64448c2",
+      "platform/tools/preview_retention.py": "00294faae6a4afbc8d11a8879f25ae9ebba315c8b5a80409aadd0e920487d3da",
+      "platform/tools/preview_service.py": "0ff612a6675982cc1e899ca1d01964ce32c33eb5c92b27316ad753c6c9124d98",
+      "platform/tools/preview_store.py": "180af0978a5dd62c2df31fa1736063570b420221832670e8127e701aec0ccf43",
+      "platform/tools/program_packages.py": "577e6b2e45d912db849676cb63a6cfa252c95fff2d109765ab57cb022b682a0c",
+      "platform/tools/program_revisions.py": "3839cd9464fe131a60574180c3cc2b613361409123158dbe613da7fd7f1ad54d",
+      "platform/tools/project_snapshot.py": "37e4194762b2bc8828b2be689e6f1a3fb6f9f25fb3c21429f6be3d3cc65a4c01",
+      "platform/tools/qemu_accel.py": "fda7aeef7943e5579d030931f8bf786eb9fdb80ae81b4b43fac11d422c02bc63",
+      "platform/tools/qemu_network_preflight.py": "3595651ece355eb852564320a2b71f2c8775d961f6e617f2b6b2b60f6513e6f3",
+      "platform/tools/qemu_profiles.py": "780a511442de2c9ff77b803fd0a1b6920935cf7de929770495401900fca1b235",
+      "platform/tools/runtime_coverage.py": "1e45d1dee0c788ea2729f22b135e116e87afbb275cb94b8d3f7f763ecea0e706",
+      "platform/tools/runtime_interfaces.py": "1d7f82d6354d903d0cf1e5ce5351a3199400f6d217d12d3c22a63b8177e4852a",
+      "platform/tools/sd_image.py": "a18f9a142c6a41f1659d6dcfd29485643bc633d276fd966918ba4f9299d1d768",
+      "platform/tools/serve.py": "e370343e7e35da19d3c802239b77e0b0bcde923468a386b9da84a212fd3db025",
+      "platform/tools/storage_policy.py": "b52048eaf4db9478b58578365a9fedab84b4283f64b2c401c15b81f93c999165",
+      "platform/tools/sync_visual_models.py": "e5e02cb205ded1ea2574daa7afbd51fda7720403543a14a31b68e1a495213199",
+      "platform/tools/transport_security.py": "bd8383a55337071233fd9f9634efb008e56a8b4402da2d241bf61728223d28e8",
+      "platform/tools/uiflow_main_loader.py": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+      "platform/tools/uiflow_package_runtime.py": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+      "platform/tools/uiflow_runtime.py": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+      "platform/tools/uiflow_source.py": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+      "platform/tools/unified_http_guestfwd.py": "bdcfa9418108a717300e4546177e8c0b4db144489a1544d76bc22eb5f5a8977a",
+      "platform/tools/unit_adc_fixture.py": "dd7cea070f3353289de2819e139b2e71552bc27b46739557ca42247d1a602000",
+      "platform/tools/unit_runtime.py": "fb338f9f6167272c81c027cab033369ac47a4cbf0cd63363464493aca6306f8d",
+      "platform/tools/user_firmware_matrix.py": "ba83d864dfaf0f096d7bafb3ca0c1226fd8e1592a430568ac382634f836ba7ac",
+      "platform/tools/worker_agent.py": "bf250820f879ce232df2d8df95827908cd4a6ebe7335c257129d022e6bf102cb",
+      "platform/tools/worker_auth.py": "d817f2264d7b39bea04daa152b0a703a91968846539a844f043e7c3b92026ffe",
+      "platform/tools/worker_directory.py": "ba9ed35033cfbe3940dc2f0ccb3b80b537fd3970d562026aa7071b764cd777aa",
+      "platform/tools/worker_discovery.py": "396ef5ef26b946a74ab0ec5df11428b459cc5dd3d3600df3bc8a0a0fc221873f",
+      "platform/tools/worker_discovery_seed.py": "f0b4d49f51a78430c02b7d98d695087152869409f9dce7f688afe1cdafaa5403",
+      "platform/tools/worker_queue.py": "94452175d4314cbbdbe582f270b09a5e0ebb6fb6837b6a6fcaa0ce19dd32476a",
+      "platform/tools/worker_registry.py": "3fb1b2034c95fc8f34c65659bda274c5ec4fcae0882e06a4ae8eaade17489830",
+      "platform/tools/xtensa_elf_symbols.py": "996497c1e1388ebafb6a687bafd7d8aad6d3826a125684d5ce6fd512fbeee645",
+      "platform/units/catalog.json": "fdd14b933003c220dbbb7b8952be9c88ecd3b2793c5adda6ccf73a9fa36c3dbb",
+      "platform/units/host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "platform/units/runtime-profiles.json": "1bc6358a3776e1155733079983f160850da25b90be06ab248e0fd3d3847167fe",
+      "platform/web/cores3-viewer.js": "95b4b0ecbd26639fd7f40d164a49e1bbb67bcfe0070cede78177411247f70e6c",
+      "platform/web/device-shell-factory.js": "1f5cbc60acea32ca3e936efbae19b7f91f935e9f8135362e4f96db7cbdb9f9b2",
+      "platform/web/device-shell.js": "293533142888973bc6bd72b5238b9bcda496694e028db9c07583114db85665d5",
+      "platform/web/device.js": "ad2a1d1f187c0e386a4f8f2364932a896499c16b75710ae1e0866c4166b6e6be",
+      "platform/web/emulator-worker.js": "c1e9e59ff1f8610045bf67541f9da209d902958cc2a807b97d1c46fea02609e6",
+      "platform/web/firmware-report.js": "c9aa6819f536efa53ad05fa768019b8fe867838553451ec31acf23ded5c9086f",
+      "platform/web/firmware-upload.js": "071da8695ee3f23262855cf2272d83751e5f58abe3d3602340b8243fdecb7b51",
+      "platform/web/firmware.js": "ef9b418824c548221829b2f904d40c4fda142cac08d498c0205d1e2da956827b",
+      "platform/web/gallery.js": "6b078f77b4524ae17e3172fdfbda28005a027178ffc160a2b1c3ed844a4ebd6a",
+      "platform/web/model-shell.js": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+      "platform/web/preview-client.js": "f6ef0b904e69c69c7e4b048ed9f1b7efe360d3d61c07c8931a185f9a71e39a51",
+      "platform/web/program-panel.js": "10514e428d475a8aeffcdbc4eb8e9ccbf7cb144dc646aa445173be7ec05fbac1",
+      "platform/web/sessions.html": "3b915d136642a3270eac7378570bf1d25aae6efdaa3bcf7b4466728e0b53b0ac",
+      "platform/web/sessions.js": "ded1e36f76abba9cffb11730328ea71b8998a607f3ead9463e0d8fac37c33fae",
+      "platform/web/sha256.js": "9f0f1a0951fe84f90abb02f0a57a43888725a5796ed9b616147b877f8c71f413",
+      "platform/web/sticks3-viewer.js": "9b35c2faaf0cd4b7ae078a504ea66125b77b0c68fbd2907853a491ac65fc1f63",
+      "platform/web/three-device-viewer.js": "4dfc936622da7d79b0be3ec92b95884c7574edafdff2ba23e1f7549c4e773517",
+      "platform/web/uiflow-main-loader.js": "bc90710babc4a08276b368c389b2c50c44250b11a90b965dec20883d3ee94a41",
+      "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+      "platform/web/unit-assembly-layout.js": "3999995ae4ba0c254b8204e88a5c8fd50edf688621c0c2246cfe2384db3041f9",
+      "platform/web/unit-audio.js": "c782dd7134f51bcb1a2d11f327f8ee45204bb0223574fbf8d5f17d13e9d3b714",
+      "platform/web/unit-panel.js": "252b1f60144a3bed1be5cd18f335f038f042803fee102331a0c74ee8f0f4f6e1",
+      "platform/web/unit-visual-mappings.js": "28868a42e2eb58d61efacc07a66e5725fc0c1c8b0597d85a56a680d37b6289da"
+    },
+    "runner_sha256": "c3f88e74bed7dbc03aa47009b52f2c127e3ce1ea68c8c5092ded7dd4eff65ec6",
+    "schema_version": 1,
+    "service_worker": {
+      "accepting_leases": true,
+      "active_lease_count": 0,
+      "active_lease_ids": [],
+      "drained_at": null,
+      "generation": 45,
+      "heartbeat_age_seconds": 0.91,
+      "heartbeat_at": "2026-10-26T22:34:03.214804+00:00",
+      "instance_id": "382363fa5c874414bc22a82c7311a779",
+      "pid": 95400,
+      "stale": false,
+      "started_at": "2026-10-26T22:32:48.107107+00:00",
+      "state": "ready",
+      "worker_id": "worker-b71031d2aef3428b"
+    },
+    "started_at": "2026-10-26T22:34:04.105341+00:00",
+    "status": "HANDOFF READY"
+  }
+}

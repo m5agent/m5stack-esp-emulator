@@ -1,0 +1,49 @@
+import base64, json, threading, unittest
+from unittest import mock
+from test_preview_service import PreviewServiceTests, LOCAL_OWNER
+from test_mpy_bytecode import HELPER
+from device_service import ServiceError
+
+class ReviewTests(PreviewServiceTests):
+    def test_bits32_is_rejected_before_admit_or_old_run_cancellation(self):
+        preview, session, old = self.active()
+        self.admit_binary_loader(session)
+        data = HELPER[:3] + bytes([32]) + HELPER[4:]
+        revision = self.service.program_packages.create({
+            'entrypoint': 'main.mpy', 'files': {'main.mpy': {
+                'encoding': 'base64', 'data': base64.b64encode(data).decode('ascii')}}})['revision_id']
+        context = self.control._context(preview['preview_id'])
+        token = context.cancel_event
+        before = self.preview(preview['preview_id'])
+        try:
+            result = self.submit(preview['preview_id'], revision, key='review-bits32')
+        except ServiceError as error:
+            print(json.dumps({'case': 'bits32', 'rejected': error.code, 'cancelled_old': token.is_set() if token else None}), flush=True)
+        else:
+            print(json.dumps({'case': 'bits32', 'accepted': result['state'], 'cancelled_old': token.is_set() if token else None, 'old_state': self.get_run(preview['preview_id'], old['run_id'])['state']}), flush=True)
+            self.fail('known-incompatible MPY was admitted before cancelling predecessor')
+
+    def test_revocation_during_store_read_is_rechecked_before_admit(self):
+        preview, session, old = self.active()
+        self.admit_binary_loader(session)
+        revision = self.binary_package()
+        context = self.control._context(preview['preview_id'])
+        token = context.cancel_event
+        original = self.service.program_packages.read_files
+        def revoked(*args, **kwargs):
+            result = original(*args, **kwargs)
+            session._program_capabilities = {}
+            return result
+        with mock.patch.object(self.service.program_packages, 'read_files', side_effect=revoked):
+            try:
+                result = self.submit(preview['preview_id'], revision, key='review-revoke')
+            except ServiceError as error:
+                print(json.dumps({'case': 'revoke', 'rejected': error.code, 'cancelled_old': token.is_set() if token else None}), flush=True)
+            else:
+                print(json.dumps({'case': 'revoke', 'accepted': result['state'], 'cancelled_old': token.is_set() if token else None, 'old_state': self.get_run(preview['preview_id'], old['run_id'])['state']}), flush=True)
+                self.fail('revoked loader was admitted before cancelling predecessor')
+
+unittest.main(defaultTest=[
+    'ReviewTests.test_bits32_is_rejected_before_admit_or_old_run_cancellation',
+    'ReviewTests.test_revocation_during_store_read_is_rechecked_before_admit',
+])

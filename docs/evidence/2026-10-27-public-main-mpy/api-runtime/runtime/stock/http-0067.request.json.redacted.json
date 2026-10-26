@@ -1,0 +1,41 @@
+{
+  "archive_notice": {
+    "classification": "redacted-json",
+    "original_bytes": 1254,
+    "original_sha256": "462520841cfd881f0a3444688d6a874c4f7fbd0cf8cb33800cfa63f05f4e68aa",
+    "original_source": "runtime/stock/http-0067.request.json",
+    "transformations": [
+      {
+        "decoded_bytes": 677,
+        "decoded_sha256": "b02b4d7456910a295e911fafecefe460e8a2051aa51acc9ac8f1626f78d4f029",
+        "kind": "base64-payload-omitted",
+        "path": "$.files.main.mpy"
+      },
+      {
+        "decoded_bytes": 47,
+        "decoded_sha256": "a659eead9795924f90a7f6f325aa578e139fb597201e2ad888dc33bd81bda862",
+        "kind": "base64-payload-omitted",
+        "path": "$.files.dep.mpy"
+      }
+    ]
+  },
+  "document": {
+    "entrypoint": "main.mpy",
+    "expected_execution_id": "a52d5d1e90c54dbda4a996c82fe27466",
+    "files": {
+      "dep.mpy": {
+        "archive_redacted_binary": true,
+        "decoded_bytes": 47,
+        "decoded_sha256": "a659eead9795924f90a7f6f325aa578e139fb597201e2ad888dc33bd81bda862",
+        "original_encoding": "base64"
+      },
+      "main.mpy": {
+        "archive_redacted_binary": true,
+        "decoded_bytes": 677,
+        "decoded_sha256": "b02b4d7456910a295e911fafecefe460e8a2051aa51acc9ac8f1626f78d4f029",
+        "original_encoding": "base64"
+      }
+    },
+    "source_kind": "uiflow2-package"
+  }
+}

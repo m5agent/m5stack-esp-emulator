@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "files_scanned": 2663,
+  "png_files_by_magic": 94,
+  "findings": [],
+  "reviewed_false_positives": [
+    {
+      "path": "host/independent/r1/sources/platform/tests/test_device_program_packages.py.txt",
+      "kind": "unchanged-local-test-fixture-auth-literal"
+    },
+    {
+      "path": "host/independent/r1/sources/platform/tests/test_device_program_runtime.py.txt",
+      "kind": "unchanged-local-test-fixture-auth-literal"
+    },
+    {
+      "path": "host/independent/r2/sources/platform/tests/test_device_program_packages.py.txt",
+      "kind": "unchanged-local-test-fixture-auth-literal"
+    },
+    {
+      "path": "host/independent/r2/sources/platform/tests/test_device_program_runtime.py.txt",
+      "kind": "unchanged-local-test-fixture-auth-literal"
+    },
+    {
+      "path": "host-followup/fix-narrow/source-snapshot/platform/tests/test_device_program_packages.py.txt",
+      "kind": "unchanged-local-test-fixture-auth-literal"
+    },
+    {
+      "path": "host-followup/fix-narrow/source-snapshot/platform/tests/test_device_program_runtime.py.txt",
+      "kind": "unchanged-local-test-fixture-auth-literal"
+    },
+    {
+      "path": "host-followup/missing-marker-r1/source-snapshot/platform/tests/test_device_program_packages.py.txt",
+      "kind": "unchanged-local-test-fixture-auth-literal"
+    },
+    {
+      "path": "host-followup/missing-marker-r1/source-snapshot/platform/tests/test_device_program_runtime.py.txt",
+      "kind": "unchanged-local-test-fixture-auth-literal"
+    }
+  ],
+  "actual_control_secret_and_digest_checked": true,
+  "sensitive_values_or_digests_recorded": false,
+  "scope": "Archive as present at scan time; final manifest and this generated receipt contain only inventory/verification metadata"
+}

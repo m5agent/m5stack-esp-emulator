@@ -1,0 +1,59 @@
+{
+  "status": "NOT RUN",
+  "api_contacted": false,
+  "guests_started": 0,
+  "hardware": "NOT RUN",
+  "scope": "Actual sessions page, PreviewProgramPanel, mounted PIR+frame, repeated immutable MPY Run and explicit new main.py recovery.",
+  "phases": [
+    "identity",
+    "load-binary",
+    "web-run",
+    "web-repeat",
+    "pir-true",
+    "pir-false",
+    "cancel",
+    "new-main-source",
+    "source-run"
+  ],
+  "mutations": "Product UI only: one owned Preview Run/cancel/input and new program-revision for recovery; never allocate/reset/stop.",
+  "instrumentation": "Append-only export of hash-verified sessions.js state/SessionVisual; no API substitution or synthetic Unit/frame values.",
+  "execution_arguments": [
+    "--execute",
+    "--handoff <root-owned.json>",
+    "--out-dir <fresh-directory>"
+  ],
+  "handoff_fields": [
+    "session_id",
+    "preview_id",
+    "owner_epoch",
+    "pid",
+    "firmware_sha256",
+    "worker_generation",
+    "service_pid",
+    "runtime_sha256",
+    "nonce",
+    "owner_id",
+    "count",
+    "binary_revision_id",
+    "binary_file_sha256",
+    "pir_id",
+    "source_restore_file",
+    "source_restore_sha256"
+  ],
+  "source_sha256": {
+    "platform/web/sessions.html": "3b915d136642a3270eac7378570bf1d25aae6efdaa3bcf7b4466728e0b53b0ac",
+    "platform/web/sessions.js": "ded1e36f76abba9cffb11730328ea71b8998a607f3ead9463e0d8fac37c33fae",
+    "platform/web/preview-client.js": "f6ef0b904e69c69c7e4b048ed9f1b7efe360d3d61c07c8931a185f9a71e39a51",
+    "platform/web/uiflow-main-loader.js": "bc90710babc4a08276b368c389b2c50c44250b11a90b965dec20883d3ee94a41",
+    "platform/web/program-panel.js": "10514e428d475a8aeffcdbc4eb8e9ccbf7cb144dc646aa445173be7ec05fbac1",
+    "platform/web/program-panel.css": "9e5ae1940705ab48843b2aea83eed506ba014e507fe58db8acad96d0fada460a",
+    "platform/web/unit-panel.js": "252b1f60144a3bed1be5cd18f335f038f042803fee102331a0c74ee8f0f4f6e1",
+    "platform/web/model-shell.js": "9cbbfa48150afeb1dd878fd4a7747e74ba4c40755908c705b07354d1de9ea5ad",
+    "platform/web/unit-annotations.js": "b16abb7326500bc99dcc6b5a66832fbcf41cb68e1bd3fbf895e7c8e219fea29f",
+    "platform/web/unit-visual-mappings.js": "28868a42e2eb58d61efacc07a66e5725fc0c1c8b0597d85a56a680d37b6289da",
+    "platform/tools/preview_service.py": "0ff612a6675982cc1e899ca1d01964ce32c33eb5c92b27316ad753c6c9124d98",
+    "platform/tools/uiflow_main_loader.py": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+    "platform/tools/device_service.py": "5a22ed489240a92657e13bbb9cfb8ea6da6dec47123f2891d995455202152c5d",
+    ".work/main-mpy-web-acceptance-20261027/observe.mjs": "24eea2970cccbfbf46446a101332f444d0a938d1f1dcca41ed25cfe64619ea49"
+  }
+}

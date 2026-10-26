@@ -6,7 +6,7 @@ tests may deliberately inject late success to challenge the coordinator fence.
 """
 from __future__ import annotations
 
-from contextlib import nullcontext
+from contextlib import contextmanager, nullcontext
 from copy import deepcopy
 from datetime import datetime, timezone
 import base64
@@ -32,6 +32,7 @@ from preview_service import PreviewService
 from preview_store import LOCAL_OWNER, PreviewStore
 from program_packages import ProgramPackageStore
 from test_mpy_bytecode import HELPER
+from test_main_loader_admission import verified_core
 from unit_runtime import UnitRegistry
 
 
@@ -52,6 +53,10 @@ class _Session:
     def __init__(self, service, binding, request):
         self.service = service
         self.id, self.pid = uuid.uuid4().hex, 42424242
+        self.worker_generation = 44
+        self.process_start_token = "host-only-process-start"
+        self._program_capabilities = {}
+        self._lock = threading.RLock()
         self.firmware_sha = "d" * 64
         self.firmware_id = "e" * 64
         self.state = "running"
@@ -78,11 +83,16 @@ class _Session:
         return {"session_id": self.id, "state": self.state, "pid": self.pid, "device_id": "cores3",
                 "runtime": self.runtime, "firmware_id": self.firmware_id, "firmware_sha256": self.firmware_sha,
                 "program_transport": self.program_transport, "program": deepcopy(self.program),
+                "worker": {"generation": self.worker_generation}, "program_capabilities": self.program_capabilities(),
                 "units": deepcopy(self.units), "unit_contract": deepcopy(self.unit_contract), "management_binding": deepcopy(self.management_binding),
                 "flash_retained": self.state != "stopped", "last_frame_available": self.last_frame_available}
 
     def program_status(self):
         return {"session_id": self.id, "program_transport": self.program_transport, "program": deepcopy(self.program)}
+
+    _program_identity = DeviceSession._program_identity
+    program_capabilities = DeviceSession.program_capabilities
+    program_admission = DeviceSession.program_admission
 
     def _owner(self):
         return self.program["execution_id"] if self.program else None
@@ -185,15 +195,22 @@ class _Service:
         self._lock = threading.RLock()
         self.allocation_hook = None
         self.reference_sha = "c" * 64
+        self.base_calls = []
 
     def reference_info(self, spec):
         return {"sha256": self.reference_sha}
+
+    def program_base_info(self, spec, *, base_firmware_id=None, expected_base_sha256=None):
+        self.base_calls.append((spec.id, base_firmware_id, expected_base_sha256))
+        if base_firmware_id != expected_base_sha256:
+            raise ServiceError("uiflow_base_hash_mismatch", "host fixture base pin differs", 409)
+        return {"sha256": base_firmware_id, "firmware_id": base_firmware_id, "kind": "stored-manifest"}
 
     def preview_allocation_guard(self):
         return nullcontext()
 
     def create_managed_session(self, payload, **binding):
-        if binding["expected_reference_sha256"] != self.reference_sha:
+        if binding["expected_reference_sha256"] != payload.get("expected_base_sha256", self.reference_sha):
             raise ServiceError("uiflow_base_sha256_mismatch", "host fixture reference changed", 409)
         if self.allocation_hook:
             self.allocation_hook(payload, binding)
@@ -316,6 +333,127 @@ class PreviewServiceTests(unittest.TestCase):
         self.assertEqual(preview["capabilities"]["application_ready"], "unknown")
         self.assertFalse(self.service.allocations)
         self.assertEqual(self.create(), preview)
+
+    def test_explicit_base_pair_is_frozen_and_replay_never_reselects_it(self):
+        for payload in ({"base_firmware_id": "b" * 64}, {"expected_base_sha256": "b" * 64}):
+            self.assert_error(lambda: self.create(key=uuid.uuid4().hex, **payload), "uiflow_base_binding_required", 400)
+        for base, pin in ((None, None), (None, "b" * 64), ("b" * 64, None), ([], []), ("", ""), ("B" * 64, "b" * 64)):
+            self.assert_error(lambda: self.create(key=uuid.uuid4().hex, base_firmware_id=base, expected_base_sha256=pin), "invalid_program_base", 400)
+        self.assertFalse(self.service.base_calls, "invalid pairs must fail before reference/base lookup")
+        self.assertFalse(self.service.allocations)
+        self.assertFalse(self.control.store.list_previews(LOCAL_OWNER), "invalid pairs must not create a receipt or allocation intent")
+        preview = self.create(base_firmware_id="b" * 64, expected_base_sha256="b" * 64)
+        pid = preview["preview_id"]
+        self.assertEqual(preview["session_request"]["reference_sha256"], "b" * 64)
+        self.assertEqual(preview["request"]["base_firmware_id"], "b" * 64)
+        self.assertFalse(preview["capabilities"]["main_mpy"])
+        self.assertEqual(self.create(base_firmware_id="b" * 64, expected_base_sha256="b" * 64), preview)
+        self.assertEqual(len(self.service.base_calls), 1)
+        self.assert_error(lambda: self.create(base_firmware_id="e" * 64, expected_base_sha256="e" * 64), "idempotency_conflict", 409)
+        self.control._allocate(self.preview(pid), self.control._context(pid))
+        self.assertEqual(self.service.allocations[0][0]["base_firmware_id"], "b" * 64)
+        self.assertEqual(self.service.allocations[0][1]["expected_reference_sha256"], "b" * 64)
+
+    def binary_package(self):
+        return self.service.program_packages.create({"entrypoint": "main.mpy", "files": {
+            "main.mpy": {"encoding": "base64", "data": base64.b64encode(HELPER).decode("ascii")}}})["revision_id"]
+
+    def admit_binary_loader(self, session):
+        session._program_capabilities = {**verified_core(), "identity": session._program_identity()}
+
+    def test_binary_pending_or_booting_rejection_has_no_allocation_or_run_intent(self):
+        preview = self.create()
+        pid, revision = preview["preview_id"], self.binary_package()
+        for boot in (False, True):
+            if boot:
+                self.control._allocate(self.preview(pid), self.control._context(pid))
+                session = self.service.get_session(self.preview(pid)["session_id"])
+                self.admit_binary_loader(session)
+                session.state = "booting"
+            before = self.preview(pid)
+            count = len(self.service.allocations)
+            with mock.patch.object(self.control.store, "admit_run", side_effect=AssertionError("MPY preflight must not admit")):
+                self.assert_error(lambda: self.submit(pid, revision, key="binary-before-ready"), "program_mpy_entrypoint_unsupported", 409)
+            self.assertEqual(self.preview(pid), before)
+            self.assertEqual(len(self.service.allocations), count)
+
+    def test_binary_admission_and_public_capability_use_actual_current_session_only(self):
+        created = self.create()
+        pid = created["preview_id"]
+        self.control._allocate(self.preview(pid), self.control._context(pid))
+        session = self.service.get_session(self.preview(pid)["session_id"])
+        self.admit_binary_loader(session)
+        current = self.preview(pid)
+        self.assertTrue(current["capabilities"]["main_mpy"])
+        self.assertFalse(current["session_request"]["preview_capabilities"]["main_mpy"])
+        self.assertEqual(self.create(), created, "create receipt must not become a canary GET")
+        revision = self.binary_package()
+        receipt = self.submit(pid, revision, key="verified-binary")
+        self.assertEqual(receipt["revision_id"], revision)
+        self.assertEqual(receipt["state"], "queued")
+        self.control._mutate(pid, lambda state: state["preview"].update(runtime_capabilities=deepcopy(session._program_capabilities)))
+        session.pid += 1
+        self.assertFalse(self.preview(pid)["capabilities"]["main_mpy"], "persisted proof must not survive process identity change")
+        before = self.preview(pid)
+        self.assert_error(lambda: self.submit(pid, revision, key="wrong-process"), "program_mpy_entrypoint_unsupported", 409)
+        self.assertEqual(self.preview(pid), before)
+        session._program_capabilities = {}
+        recovered = PreviewService(self.service, _start_workers=False)
+        self.controls.append(recovered)
+        self.assertFalse(recovered.get(pid, owner=LOCAL_OWNER)["capabilities"]["main_mpy"])
+        self.assertFalse(session.run_calls, "recovery must not run a canary or replay a program")
+
+    def test_binary_abi_mismatch_and_read_time_revocation_never_cancel_the_predecessor(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        for kind in ("small-int-32", "capability-revoked-during-read"):
+            self.admit_binary_loader(session)
+            data = HELPER[:3] + bytes([32]) + HELPER[4:] if kind == "small-int-32" else HELPER
+            revision = self.service.program_packages.create({"entrypoint": "main.mpy", "files": {
+                "main.mpy": {"encoding": "base64", "data": base64.b64encode(data).decode("ascii")}}})["revision_id"]
+            before = self.control._get(pid)
+            old_record = self.get_run(pid, old["run_id"])
+            context = self.control._context(pid)
+            token = context.cancel_event
+            original_read = self.service.program_packages.read_files
+            def read(*args, **kwargs):
+                files = original_read(*args, **kwargs)
+                if kind == "capability-revoked-during-read":
+                    session._program_capabilities = {}
+                return files
+            with mock.patch.object(self.service.program_packages, "read_files", side_effect=read), \
+                 mock.patch.object(self.control.store, "admit_run", side_effect=AssertionError("known rejection must not admit")):
+                self.assert_error(lambda: self.submit(pid, revision, key=kind),
+                                  "program_mpy_incompatible" if kind == "small-int-32" else "program_mpy_entrypoint_unsupported", 409)
+            self.assertEqual(self.control._get(pid), before)
+            self.assertEqual(self.get_run(pid, old["run_id"]), old_record)
+            self.assertTrue(context.admission)
+            if token is not None:
+                self.assertFalse(token.is_set())
+            self.assertEqual(len(session.run_calls), 1)
+            self.assertFalse(session.interrupt_calls)
+
+    def test_binary_capability_is_rechecked_inside_the_final_session_admission_guard(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        self.admit_binary_loader(session)
+        revision = self.binary_package()
+        before = self.control._get(pid)
+        context = self.control._context(pid)
+        token = context.cancel_event
+        @contextmanager
+        def revoked_guard():
+            with session._lock:
+                session._program_capabilities = {}
+                yield session.program_capabilities()
+        with mock.patch.object(session, "program_admission", side_effect=revoked_guard), \
+             mock.patch.object(self.control.store, "admit_run", side_effect=AssertionError("revoked guard must not admit")):
+            self.assert_error(lambda: self.submit(pid, revision, key="guard-revocation"), "program_mpy_entrypoint_unsupported", 409)
+        self.assertEqual(self.control._get(pid), before)
+        self.assertTrue(context.admission)
+        if token is not None:
+            self.assertFalse(token.is_set())
+        self.assertEqual(self.get_run(pid, old["run_id"])["state"], "running")
 
     def test_run_idempotency_replay_precedes_missing_package_and_generation_check(self):
         preview = self.create()

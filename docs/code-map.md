@@ -551,3 +551,11 @@ evidence stream 仍开放；这些场景不能从 trusted-host PASS 继承。
   专题说明还是历史证据。
 - 被推翻的当前结论：在所有当前入口删除旧陈述，在历史页保留原日期并写明
   取代关系；不要只在新页面加一句更正而留下互相矛盾的主入口。
+
+
+公共二进制入口由 `platform/tools/uiflow_main_loader.py` 以真实UART纯字节码
+canary取得会话能力，`platform/tools/uiflow_runtime.py`区分import派发与应用body，
+`platform/tools/uiflow_package_runtime.py`保留真实文件发布与依赖切换；
+`platform/web/uiflow-main-loader.js`在托管Web消费者核验同一proof和会话身份。
+`tests/units/run_main_mpy_runtime.py`通过8787验证stock/兼容固件与Web handoff，
+实施范围和门禁见[公共main.mpy计划](plans/2026-10-27-public-main-mpy-runtime.md)。

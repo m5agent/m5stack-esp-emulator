@@ -1,0 +1,28 @@
+{
+  "archive_notice": {
+    "classification": "redacted-json",
+    "original_bytes": 1852,
+    "original_sha256": "b8fa8e61bb4844d9ed736271fd59889b91d16a977da9ec7c39b3dbd9846bc21a",
+    "original_source": "runtime/candidate/http-0243.request.json",
+    "transformations": [
+      {
+        "decoded_bytes": 1275,
+        "decoded_sha256": "0ad87f9fb956308ff988b13af059446212349f4dd0ea2d8e8dd1ff374da9599f",
+        "kind": "base64-payload-omitted",
+        "path": "$.files.main.py"
+      }
+    ]
+  },
+  "document": {
+    "entrypoint": "main.py",
+    "files": {
+      "main.py": {
+        "archive_redacted_binary": true,
+        "decoded_bytes": 1275,
+        "decoded_sha256": "0ad87f9fb956308ff988b13af059446212349f4dd0ea2d8e8dd1ff374da9599f",
+        "original_encoding": "base64"
+      }
+    },
+    "source_kind": "uiflow2-package"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "result": "BUG_REPRODUCED",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/probe.py"
+  ],
+  "cwd": "repository-root",
+  "environment_overrides": {
+    "PYTHONPATH": "platform/tools:platform/tests:.work/py312"
+  },
+  "started_at": "2026-10-26T22:55:45.496383+00:00",
+  "finished_at": "2026-10-26T22:55:45.720381+00:00",
+  "exit_code": 1,
+  "log_sha256": "76868d7a2c2732765699598433abaf472db4424f66b27cc96b7c088ce2ecac8c",
+  "probe_sha256": "57468944c57f20ea3d56ddb0f9e54cbc4665c91418cc13495eb96c40e926bf43",
+  "source_sha256": {
+    "platform/tools/device_service.py": "5a22ed489240a92657e13bbb9cfb8ea6da6dec47123f2891d995455202152c5d",
+    "platform/tools/uiflow_runtime.py": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+    "platform/tools/uiflow_main_loader.py": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+    "platform/tests/test_main_loader_admission.py": "1932b2f2a71d5cb8b8ad43ffd619b57eefa7de6e41810e549b37872b6458803b",
+    "platform/tests/test_device_program_runtime.py": "a92f13b76e9f9bd80eb8b232d00cf5d2ea9af1ee2f255ce152df3cb2895a194f",
+    "platform/tests/test_device_program_packages.py": "ef84d5877882e0406091b34b6cf0caf0310bddc31ee49437739fa3d68d74b8b0",
+    "platform/tests/test_uiflow_runtime.py": "1c8eb56e3428cc2e1ea0a17b00a2e59051bc3dba7bc12c6d91f7d8173b1a4422",
+    "platform/tests/test_mpy_bytecode.py": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0",
+    "docs/device-service-api.md": "5a569a9304bb6ca2fe07a8c4d06d3cd5e52228f36c568770b96c0a51f0d700d3"
+  },
+  "sources_unchanged": true,
+  "observation": {
+    "category": "HOST_ONLY_TRUSTED_WRAPPER_AND_SESSION_PROTOCOL_REPRODUCTION_NOT_GUEST",
+    "wrapper_exception": "application replaced sys.print_exception",
+    "printed": [
+      "__M5_EXEC_75632c2e853e4291b99f2d80d2521eee__:LOAD"
+    ],
+    "terminal_markers": [],
+    "simulated_application_owner_restored": false,
+    "simulated_application_cwd_restored": false,
+    "raw_prompt_acknowledged": true,
+    "writes_hex": [
+      "0d03",
+      "0d01"
+    ],
+    "program_state_after_interrupt": "interrupted",
+    "program_owner_restored_field": null,
+    "capability_status_after_interrupt": "verified",
+    "mpy_entrypoint_after_interrupt": true,
+    "next_entrypoint_admission": "ALLOWED"
+  },
+  "contract": "docs/device-service-api.md lines 54-67: owner-restoration uncertainty withdraws live binary admission; DONE/ERROR prove restored owner/cache/cwd/path, prompt alone only confirms interruption",
+  "limitation": "Only the generated trusted Python wrapper executes under inert filesystem/import doubles. The application behavior is implemented explicitly by the import double; no caller MPY, QEMU, real UART or physical hardware executes. This proves the host missing-marker failure state and wrapper escape path, not its occurrence on a real firmware guest.",
+  "api_contacted": false,
+  "guest": "NOT RUN",
+  "hardware": "NOT RUN"
+}

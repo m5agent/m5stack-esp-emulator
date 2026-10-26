@@ -1,0 +1,39 @@
+{
+  "archive_notice": {
+    "classification": "redacted-json",
+    "original_bytes": 1088,
+    "original_sha256": "ed02b493bec1b7ebb7e17888c18b3f89bd4b57f959ed3795d1fe97dcc5e290be",
+    "original_source": "runtime/candidate/evidence-before-stop.zip!programs/7945ff56be645350a793dc0b80e8be6fee46ae441f51867f730c492d523222ee/source.json",
+    "transformations": [
+      {
+        "decoded_bytes": 47,
+        "decoded_sha256": "a659eead9795924f90a7f6f325aa578e139fb597201e2ad888dc33bd81bda862",
+        "kind": "base64-payload-omitted",
+        "path": "$.files.dep.mpy"
+      },
+      {
+        "decoded_bytes": 677,
+        "decoded_sha256": "b02b4d7456910a295e911fafecefe460e8a2051aa51acc9ac8f1626f78d4f029",
+        "kind": "base64-payload-omitted",
+        "path": "$.files.main.mpy"
+      }
+    ]
+  },
+  "document": {
+    "entrypoint": "main.mpy",
+    "files": {
+      "dep.mpy": {
+        "archive_redacted_binary": true,
+        "decoded_bytes": 47,
+        "decoded_sha256": "a659eead9795924f90a7f6f325aa578e139fb597201e2ad888dc33bd81bda862",
+        "original_encoding": "base64"
+      },
+      "main.mpy": {
+        "archive_redacted_binary": true,
+        "decoded_bytes": 677,
+        "decoded_sha256": "b02b4d7456910a295e911fafecefe460e8a2051aa51acc9ac8f1626f78d4f029",
+        "original_encoding": "base64"
+      }
+    }
+  }
+}

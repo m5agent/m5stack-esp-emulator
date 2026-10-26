@@ -1,0 +1,44 @@
+from pathlib import Path
+import argparse,datetime,hashlib,json,os,signal,subprocess,time,urllib.request
+parser=argparse.ArgumentParser();parser.add_argument('--expected-pid',type=int,required=True);parser.add_argument('--out-dir',type=Path,required=True);args=parser.parse_args()
+root=Path.cwd();args.out_dir.mkdir(exist_ok=False);url='http://127.0.0.1:8787/api/v1/health'
+with urllib.request.urlopen(url,timeout=3) as response:old=json.load(response)
+assert old['capacity']['active_sessions']==0 and old['capacity']['worker']['active_lease_count']==0 and old['capacity']['worker']['pid']==args.expected_pid
+command=subprocess.check_output(['ps','-ww','-p',str(args.expected_pid),'-o','command='],text=True)
+assert 'platform/tools/serve.py 8787 --bind 127.0.0.1' in command and str(root/'.work/unit-device-service') in command
+package_root=root/'.work/unit-device-service/program-packages'
+package_before={str(p.relative_to(package_root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in package_root.rglob('*') if p.is_file()}
+before_records={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (root/'.work/unit-device-service/program-revisions').glob('*.json')}
+runtime=root/'.work/unit-runtime-source-flashlight-final/qemu/build/qemu-system-xtensa';runtime_sha=hashlib.sha256(runtime.read_bytes()).hexdigest();assert runtime_sha=='7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e'
+paths=['platform/tools/'+name+'.py' for name in ('device_service','serve','frame_cache','guest_console','uiflow_runtime','program_revisions','program_packages','micropython_repl','uiflow_package_runtime','mpy_bytecode','unit_runtime')]+['platform/units/'+name+'.json' for name in ('catalog','host-ports','runtime-profiles')]
+paths += ['platform/tools/'+name+'.py' for name in ('preview_service','preview_store','preview_retention')]
+paths=sorted(set(paths + [str(p.relative_to(root)) for p in (root/'platform/tools').glob('*.py')] + [str(p.relative_to(root)) for p in (root/'platform/web').glob('*.js')] + ['platform/web/sessions.html','docs/device-service.openapi.yaml']))
+source_sha={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}
+import secrets
+token_path=root/'.work/preview-control-token'
+if not token_path.exists():
+ fd=os.open(token_path,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+ with os.fdopen(fd,'w') as token_stream:token_stream.write(secrets.token_urlsafe(48)+'\n')
+assert token_path.stat().st_mode & 0o077 == 0
+os.kill(args.expected_pid,signal.SIGTERM)
+for _ in range(100):
+ try:os.kill(args.expected_pid,0)
+ except ProcessLookupError:break
+ time.sleep(.1)
+else:raise RuntimeError('owned idle service did not exit')
+env=os.environ.copy();env.update(M5_QEMU_XTENSA=str(runtime),M5_QEMU_XTENSA_ROM_DIR=str(runtime.parent.parent/'pc-bios'),M5_PYTHON_DEPS='.work/py312',PYTHONPATH='platform/tools:platform/tests:tests/units:.work/py312')
+command=['/opt/miniconda3/bin/python3.12','-B','platform/tools/serve.py','8787','--bind','127.0.0.1','--state-dir',str(root/'.work/unit-device-service'),'--max-program-revisions','1024','--max-program-packages','1024','--api-token-file',str(token_path)]
+with (args.out_dir/'service.log').open('ab') as log:process=subprocess.Popen(command,cwd=root,env=env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+for _ in range(100):
+ if process.poll() is not None:raise RuntimeError('new service exited')
+ try:
+  with urllib.request.urlopen(url,timeout=2) as response:health=json.load(response)
+  assert health['capacity']['worker']['pid']==process.pid
+  break
+ except (OSError,AssertionError):time.sleep(.1)
+else:raise RuntimeError('readiness unconfirmed')
+assert source_sha=={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}
+assert before_records=={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (root/'.work/unit-device-service/program-revisions').glob('*.json')}
+assert package_before=={str(p.relative_to(package_root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in package_root.rglob('*') if p.is_file()}
+receipt={'program_package_capacity':1024,'preserved_package_file_count':len(package_before),'preserved_package_file_hashes':package_before,'program_revision_capacity':1024,'preserved_source_record_count':len(before_records),'preserved_source_record_hashes':before_records,'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'pid':process.pid,'previous_pid':args.expected_pid,'command':command,'runtime_sha256':runtime_sha,'health':health,'source_sha256':source_sha,'source_stable_across_start':True}
+(args.out_dir/'start.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({'status':'READY','pid':process.pid,'generation':health['capacity']['worker']['generation'],'active_sessions':health['capacity']['active_sessions']}))

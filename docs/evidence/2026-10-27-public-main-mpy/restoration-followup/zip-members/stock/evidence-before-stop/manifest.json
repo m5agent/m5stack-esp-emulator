@@ -1,0 +1,876 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-26T23:05:56.222013+00:00",
+  "session": {
+    "session_id": "a4a20d2b11c04516b66af33f3a2dc509",
+    "device_id": "cores3",
+    "state": "running",
+    "pid": 11202,
+    "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+    "firmware_source": "uploaded",
+    "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+    "source_artifacts": [
+      "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+    ],
+    "program_transport": "uart-repl",
+    "program": {
+      "execution_id": "229f240b27fd42e4aa823d9d7e04e579",
+      "revision_id": "18c519627ce7c28983e8e174ee81974f98883892a07f14b676100266d41a131c",
+      "source_sha256": "006ebee1734ded54b46b476c0736a230bdcb41e2beb2792cf341ff3dec571a7b",
+      "source_bytes": 1275,
+      "state": "running",
+      "submitted_at": "2026-10-26T23:05:51.940859+00:00",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 11202,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 2034,
+      "source_kind": "uiflow2-package",
+      "entrypoint": "main.py",
+      "total_file_bytes": 1275,
+      "file_count": 1,
+      "deployment": {
+        "phase": "activated",
+        "staging_path": "/flash/.m5-live-packages/.stage-11d4e16dcdb747cfa9b7befa1fdc2eff",
+        "package_path": "/flash/.m5-live-packages/18c519627ce7c28983e8e174ee81974f98883892a07f14b676100266d41a131c",
+        "events": [
+          {
+            "phase": "preflight",
+            "staging_path": "/flash/.m5-live-packages/.stage-11d4e16dcdb747cfa9b7befa1fdc2eff",
+            "package_path": "/flash/.m5-live-packages/18c519627ce7c28983e8e174ee81974f98883892a07f14b676100266d41a131c",
+            "observed_at": "2026-10-26T23:05:52.055194+00:00"
+          },
+          {
+            "phase": "capabilities",
+            "capabilities": {
+              "existing": false,
+              "directory_count": 0,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4800512
+            },
+            "observed_at": "2026-10-26T23:05:52.328239+00:00"
+          },
+          {
+            "phase": "writing",
+            "path": "main.py",
+            "written_bytes": 1275,
+            "observed_at": "2026-10-26T23:05:52.943879+00:00"
+          },
+          {
+            "phase": "verified",
+            "inventory": {
+              "main.py": {
+                "size": 1275,
+                "sha256": "d3efb4f1d45dcb1b38673b069b280c323ba687d47f2010ae1cdf9e5a4a63120c"
+              }
+            },
+            "observed_at": "2026-10-26T23:05:52.999705+00:00"
+          },
+          {
+            "phase": "published",
+            "inventory": {
+              "main.py": {
+                "size": 1275,
+                "sha256": "d3efb4f1d45dcb1b38673b069b280c323ba687d47f2010ae1cdf9e5a4a63120c"
+              }
+            },
+            "reused": false,
+            "observed_at": "2026-10-26T23:05:53.041709+00:00"
+          },
+          {
+            "phase": "activated",
+            "package_path": "/flash/.m5-live-packages/18c519627ce7c28983e8e174ee81974f98883892a07f14b676100266d41a131c",
+            "inventory": {
+              "main.py": {
+                "size": 1275,
+                "sha256": "d3efb4f1d45dcb1b38673b069b280c323ba687d47f2010ae1cdf9e5a4a63120c"
+              }
+            },
+            "reused": false,
+            "capabilities": {
+              "existing": false,
+              "directory_count": 0,
+              "mpy": 11014,
+              "small_int_bits": 31,
+              "free_bytes": 4800512
+            },
+            "removed_modules": [],
+            "staging_path": "/flash/.m5-live-packages/.stage-11d4e16dcdb747cfa9b7befa1fdc2eff",
+            "observed_at": "2026-10-26T23:05:53.334185+00:00"
+          }
+        ],
+        "capabilities": {
+          "existing": false,
+          "directory_count": 0,
+          "mpy": 11014,
+          "small_int_bits": 31,
+          "free_bytes": 4800512
+        },
+        "path": "main.py",
+        "written_bytes": 1275,
+        "inventory": {
+          "main.py": {
+            "size": 1275,
+            "sha256": "d3efb4f1d45dcb1b38673b069b280c323ba687d47f2010ae1cdf9e5a4a63120c"
+          }
+        },
+        "reused": false,
+        "removed_modules": []
+      },
+      "next_offset": 2093,
+      "acknowledged": true,
+      "transfer_mode": "raw-paste",
+      "observed_at": "2026-10-26T23:05:53.545012+00:00"
+    },
+    "program_capabilities": {
+      "schema_version": 1,
+      "status": "unsupported",
+      "mpy_entrypoint": false,
+      "loader": "micropython-override-main-v1",
+      "mpy": 11014,
+      "small_int_bits": 31,
+      "probe": {
+        "kind": "uiflow-main-mpy-canary-v1",
+        "nonce": "9303db6272104d3787592dfc36b68e7c",
+        "status": "FAIL",
+        "owner_before_id": 1013359328,
+        "mpy": 11014,
+        "actual_identity": {
+          "import_main_id": 1013359328,
+          "nonce": "9303db6272104d3787592dfc36b68e7c",
+          "name": "main",
+          "file": "/flash/.m5-loader-probe-9303db6272104d3787592dfc36b68e7c/main.mpy",
+          "real_main_name": null,
+          "main_id": 1016539936,
+          "if_main": false,
+          "sys_main_id": 6
+        },
+        "body_entered": true,
+        "small_int_bits": 31,
+        "error": null,
+        "owner_after_id": 1013359328,
+        "cleanup_complete": true,
+        "owner_restored": true,
+        "file_bytes": 375,
+        "file_sha256": "0713a25c1bdfb35a2ba0ebf431ec1ccccaa32846eb0dd74f3ebb230ffeac9420",
+        "canary_sha256": "0713a25c1bdfb35a2ba0ebf431ec1ccccaa32846eb0dd74f3ebb230ffeac9420",
+        "source_sha256": "e21b73a791266cea38d5c2050e0d4ae48180f4e3908bf748db4b10995908ed78",
+        "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b"
+      },
+      "identity": {
+        "session_id": "a4a20d2b11c04516b66af33f3a2dc509",
+        "device_id": "cores3",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "runtime": "qemu",
+        "pid": 11202,
+        "process_start_token": "Tue Oct 27 07:05:48 2026",
+        "worker_generation": 46
+      },
+      "observed_at": "2026-10-26T23:05:51.865384+00:00"
+    },
+    "firmware_provenance": {
+      "kind": "uiflow",
+      "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+      "metadata": {
+        "schema_version": 1,
+        "kind": "uiflow2-source-composition",
+        "status": "COMPOSED_NOT_EXECUTED",
+        "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+        "entrypoint": "main.py",
+        "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+        "base_size": 16121856,
+        "flash_size": 16777216,
+        "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+        "files": [
+          {
+            "path": "boot.py",
+            "size": 245,
+            "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+            "origin": "caller"
+          },
+          {
+            "path": "main.py",
+            "size": 5,
+            "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+            "origin": "caller"
+          }
+        ],
+        "caller_file_count": 2,
+        "caller_source_bytes": 250,
+        "generated_files": [],
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "vfs": {
+          "label": "vfs",
+          "type": 1,
+          "subtype": 129,
+          "flags": 0,
+          "offset": 11141120,
+          "size": 4980736,
+          "partition_table_offset": 32768,
+          "source": "actual-base-partition-table",
+          "filesystem": "LittleFS",
+          "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+          "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+          "base_disk_version": 131072,
+          "derived_disk_version": 131073
+        },
+        "preservation": {
+          "base_file_count": 17,
+          "preserved_file_count": 15,
+          "overwritten_files": [
+            "boot.py",
+            "main.py"
+          ],
+          "outside_vfs_unchanged": true,
+          "existing_files_readback_verified": true,
+          "source_readback_verified": true
+        },
+        "toolchain": {
+          "builder": "uiflow_source/1",
+          "python": "3.12.8",
+          "python_abi": "cpython-312",
+          "littlefs_python": "0.19.0",
+          "littlefs_library": "(2, 11)",
+          "littlefs_disk": "(2, 1)",
+          "config": {
+            "block_size": 4096,
+            "read_size": 128,
+            "prog_size": 32,
+            "lookahead_size": 128,
+            "block_cycles": 100
+          }
+        }
+      }
+    },
+    "runtime_env": {},
+    "runtime": "qemu",
+    "runtime_memory": {
+      "requested_psram_mib": null,
+      "cli_requested_psram_mib": null,
+      "effective_psram_mib": null,
+      "effective_source": "qemu-cli-request",
+      "policy": "not-configured",
+      "claim": "qemu-memory-configuration-only",
+      "physical_cache_psram_timing": "NOT RUN"
+    },
+    "network": null,
+    "storage": null,
+    "units": [
+      {
+        "id": "pir",
+        "unit_id": "pir",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {}
+      }
+    ],
+    "nvs": null,
+    "flash": {
+      "transport": "cache",
+      "verified": true,
+      "flash_size": 16777216,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "session_isolated_copy": true
+    },
+    "flash_retained": true,
+    "serial_bytes": 3984,
+    "created_at": "2026-10-26T23:05:48.869000+00:00",
+    "expires_at": "2026-10-26T23:20:48.869004+00:00",
+    "error": null,
+    "display": {
+      "driver": "ILI9342C / ILI9342E",
+      "width": 320,
+      "height": 240,
+      "shape": "rect",
+      "touch": true
+    },
+    "display_available": true,
+    "last_frame_available": true,
+    "last_frame_captured_at": "2026-10-26T23:05:56.201022+00:00",
+    "device_state_supported": true,
+    "last_device_state_available": false,
+    "last_device_state_at": null,
+    "completed_at": null,
+    "event_count": 14,
+    "restored": false,
+    "interrupted": false,
+    "reattached_process": false,
+    "recovery_scope": null,
+    "companions": {
+      "http_fixture": {
+        "required": false
+      },
+      "ble_probe": {
+        "required": false
+      }
+    },
+    "worker": {
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 46,
+      "lease_active": true
+    }
+  },
+  "device": {
+    "device_id": "cores3",
+    "name": "CoreS3",
+    "group": "esp32-s3",
+    "soc": "ESP32-S3",
+    "sku": "K128",
+    "device_codes": [
+      "1897200000000001950"
+    ],
+    "supported": true,
+    "creatable": true,
+    "backend_ready": true,
+    "missing_runtime_files": [],
+    "reference_available": true,
+    "backend": "qemu-esp32s3",
+    "machine": "m5cores3",
+    "flash_size": 16777216,
+    "display": {
+      "driver": "ILI9342C / ILI9342E",
+      "width": 320,
+      "height": 240,
+      "shape": "rect",
+      "touch": true
+    },
+    "peripheral_status": "simulated",
+    "warnings": [
+      "UIFlow startup-menu palette PNG/tRNS assets render striped artifacts; ordinary RGB PNG and opaque drawing paths are correct"
+    ],
+    "firmware_families": [
+      "uiflow2",
+      "generic-flash"
+    ],
+    "program_modes": [
+      "uiflow-live"
+    ],
+    "program_source_kinds": [
+      "uiflow2-python",
+      "uiflow2-package"
+    ],
+    "program_features": {
+      "runtimes": [
+        "qemu"
+      ],
+      "entrypoints": [
+        "main.py"
+      ],
+      "mpy_dependencies": "bytecode-only",
+      "mpy_entrypoint": false,
+      "native_mpy": false,
+      "main_namespace": "fresh-exec-globals",
+      "cleanup_mode": "interrupt-only"
+    },
+    "coverage": {
+      "peripheral_status": "simulated",
+      "complete": true
+    },
+    "features": {
+      "flash": true,
+      "serial": true,
+      "screenshot": true,
+      "input": true,
+      "qom": true,
+      "device_state": true,
+      "storage": false,
+      "network": true,
+      "network_capture": true
+    },
+    "network_profiles": [
+      "uiflow2-cores3-unified",
+      "esp-idf-coex",
+      "esp-idf-http",
+      "esp-idf-smoke",
+      "esp-idf-wrong-password",
+      "generic-observe",
+      "idf-dns-udp"
+    ],
+    "network_console": "auto",
+    "network_status": "validated",
+    "reason": null
+  },
+  "timeline": [
+    {
+      "at": "2026-10-26T23:05:48.869099+00:00",
+      "event": "created",
+      "device_id": "cores3",
+      "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8"
+    },
+    {
+      "at": "2026-10-26T23:05:48.869590+00:00",
+      "event": "worker_lease_reserved",
+      "worker_id": "worker-b71031d2aef3428b",
+      "generation": 46
+    },
+    {
+      "at": "2026-10-26T23:05:48.869790+00:00",
+      "event": "state",
+      "from": "provisioning",
+      "to": "flashing"
+    },
+    {
+      "at": "2026-10-26T23:05:48.876060+00:00",
+      "event": "flash_prepared",
+      "transport": "cache",
+      "verified": true,
+      "flash_size": 16777216,
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "session_isolated_copy": true
+    },
+    {
+      "at": "2026-10-26T23:05:48.876841+00:00",
+      "event": "state",
+      "from": "flashing",
+      "to": "booting"
+    },
+    {
+      "at": "2026-10-26T23:05:48.999469+00:00",
+      "event": "program_console_connected",
+      "transport": "uart-repl"
+    },
+    {
+      "at": "2026-10-26T23:05:50.943540+00:00",
+      "event": "serial_marker",
+      "marker": "M5EMU_UART_REPL_READY"
+    },
+    {
+      "at": "2026-10-26T23:05:51.865631+00:00",
+      "event": "program_loader_observed",
+      "capabilities": {
+        "schema_version": 1,
+        "status": "unsupported",
+        "mpy_entrypoint": false,
+        "loader": "micropython-override-main-v1",
+        "mpy": 11014,
+        "small_int_bits": 31,
+        "probe": {
+          "kind": "uiflow-main-mpy-canary-v1",
+          "nonce": "9303db6272104d3787592dfc36b68e7c",
+          "status": "FAIL",
+          "owner_before_id": 1013359328,
+          "mpy": 11014,
+          "actual_identity": {
+            "import_main_id": 1013359328,
+            "nonce": "9303db6272104d3787592dfc36b68e7c",
+            "name": "main",
+            "file": "/flash/.m5-loader-probe-9303db6272104d3787592dfc36b68e7c/main.mpy",
+            "real_main_name": null,
+            "main_id": 1016539936,
+            "if_main": false,
+            "sys_main_id": 6
+          },
+          "body_entered": true,
+          "small_int_bits": 31,
+          "error": null,
+          "owner_after_id": 1013359328,
+          "cleanup_complete": true,
+          "owner_restored": true,
+          "file_bytes": 375,
+          "file_sha256": "0713a25c1bdfb35a2ba0ebf431ec1ccccaa32846eb0dd74f3ebb230ffeac9420",
+          "canary_sha256": "0713a25c1bdfb35a2ba0ebf431ec1ccccaa32846eb0dd74f3ebb230ffeac9420",
+          "source_sha256": "e21b73a791266cea38d5c2050e0d4ae48180f4e3908bf748db4b10995908ed78",
+          "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b"
+        },
+        "identity": {
+          "session_id": "a4a20d2b11c04516b66af33f3a2dc509",
+          "device_id": "cores3",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "runtime": "qemu",
+          "pid": 11202,
+          "process_start_token": "Tue Oct 27 07:05:48 2026",
+          "worker_generation": 46
+        },
+        "observed_at": "2026-10-26T23:05:51.865384+00:00"
+      }
+    },
+    {
+      "at": "2026-10-26T23:05:51.865828+00:00",
+      "event": "state",
+      "from": "booting",
+      "to": "running"
+    },
+    {
+      "at": "2026-10-26T23:05:51.941232+00:00",
+      "event": "program_submitted",
+      "execution_id": "229f240b27fd42e4aa823d9d7e04e579",
+      "revision_id": "18c519627ce7c28983e8e174ee81974f98883892a07f14b676100266d41a131c",
+      "source_sha256": "006ebee1734ded54b46b476c0736a230bdcb41e2beb2792cf341ff3dec571a7b",
+      "source_bytes": 1275,
+      "state": "submitting",
+      "submitted_at": "2026-10-26T23:05:51.940859+00:00",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 11202,
+      "execution_mode": "same-guest-uart-repl",
+      "cleanup_mode": "interrupt-only",
+      "serial_offset": 1134,
+      "source_kind": "uiflow2-package",
+      "entrypoint": "main.py",
+      "total_file_bytes": 1275,
+      "file_count": 1
+    },
+    {
+      "at": "2026-10-26T23:05:53.545678+00:00",
+      "event": "program_observed",
+      "execution_id": "229f240b27fd42e4aa823d9d7e04e579",
+      "program_state": "running"
+    },
+    {
+      "at": "2026-10-26T23:05:53.775670+00:00",
+      "event": "unit_input",
+      "unit_id": "pir",
+      "values": {
+        "motion": false
+      }
+    },
+    {
+      "at": "2026-10-26T23:05:54.117849+00:00",
+      "event": "unit_input",
+      "unit_id": "pir",
+      "values": {
+        "motion": true
+      }
+    },
+    {
+      "at": "2026-10-26T23:05:54.161096+00:00",
+      "event": "unit_input",
+      "unit_id": "pir",
+      "values": {
+        "motion": false
+      }
+    }
+  ],
+  "included": [
+    "frames",
+    "logs",
+    "manifest",
+    "qom",
+    "serial"
+  ],
+  "files": {
+    "firmware/uiflow-source.json": {
+      "size": 2482,
+      "sha256": "767bfbefe16fa689ecd07d3cc10a46c498bbf7f48101550b3756b0d57104dc2a"
+    },
+    "program-capabilities.json": {
+      "size": 1588,
+      "sha256": "587ecb0d13f60f3d21632c12feca59f7df763d9eeaf64e644464ef3840768ae2"
+    },
+    "programs/229f240b27fd42e4aa823d9d7e04e579.json": {
+      "size": 3579,
+      "sha256": "d1b773e5cf25043e24a8d1e89f0123410045b679ebd7fdc9f8e371ce44ed899a"
+    },
+    "programs/18c519627ce7c28983e8e174ee81974f98883892a07f14b676100266d41a131c/files/main.py": {
+      "size": 1275,
+      "sha256": "d3efb4f1d45dcb1b38673b069b280c323ba687d47f2010ae1cdf9e5a4a63120c"
+    },
+    "programs/18c519627ce7c28983e8e174ee81974f98883892a07f14b676100266d41a131c/source.json": {
+      "size": 1776,
+      "sha256": "fd2681d7e6cd9f83b28bb5b54aa85b3a65c48603ccc6527596f5a124dd7ee5fd"
+    },
+    "programs/18c519627ce7c28983e8e174ee81974f98883892a07f14b676100266d41a131c/revision.json": {
+      "size": 445,
+      "sha256": "af52ce7ceba37171c1d1242cab539008cbf965b7a6119461d766b249c3c67d99"
+    },
+    "units/contract.json": {
+      "size": 7986,
+      "sha256": "0306cf40b6162c1c61b631a66aadf5c63036b1f7ee46c79ea3b09187780fc4cf"
+    },
+    "units/runtime.json": {
+      "size": 247,
+      "sha256": "c88daa5b1fc39f826304983a0ebe7788cea1a5a2c1ad7025a7ab57abd0220909"
+    },
+    "units/state.json": {
+      "size": 8902,
+      "sha256": "7470a681d09a65ea665107cdc1b537c9e2e2ed8e83307f97bf5ca908feb5f75b"
+    },
+    "serial.log": {
+      "size": 3984,
+      "sha256": "0e782549ca83de7894eedbd3767d318db64141b38652bf4cd690a1111e7b88d8"
+    },
+    "serial1.log": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qemu.stdout": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "qemu.stderr": {
+      "size": 24,
+      "sha256": "8a98b05296cf940ed865ea8f677fbd5b417a399293cf1cdf4c6af8302b1bf483"
+    },
+    "frames/current.png": {
+      "size": 318,
+      "sha256": "e94c98d777799feb6de6025fcbc60f0d1e46faf415d98281204a2d85c95ca942"
+    },
+    "qom/snapshot.json": {
+      "size": 61401,
+      "sha256": "6372919800d1af870b8e23689fcd22a3eb92000f8919bf28c30fb06a4116c66b"
+    }
+  },
+  "units": {
+    "session_id": "a4a20d2b11c04516b66af33f3a2dc509",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-26T23:05:56.223125+00:00",
+    "units": [
+      {
+        "id": "pir",
+        "unit_id": "pir",
+        "port_id": "port-a",
+        "pins": {
+          "yellow": 2,
+          "white": 1
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "motion": false,
+          "input-level": false,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 3,
+          "output-transitions": 0
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "pir",
+        "name": "PIR",
+        "sku": "U004",
+        "visual_asset": {
+          "entry": "src/units/pir/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "AS312",
+            "status": "officially-documented"
+          },
+          {
+            "part": "HT7533",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "gpio",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "NC",
+              "direction": "none"
+            },
+            "white": {
+              "signal": "motion",
+              "direction": "unit-to-host",
+              "active_level": 1
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+          "registers": [],
+          "gaps": [
+            "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+          ]
+        },
+        "inputs": {
+          "motion": {
+            "type": "boolean",
+            "label": "检测到移动",
+            "default": false,
+            "default_source": "synthetic-test-fixture",
+            "readOnly": false
+          }
+        },
+        "outputs": {},
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/PIR",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "implemented",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3",
+            "atoms3r",
+            "sticks3",
+            "stopwatch"
+          ],
+          "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+          "inputs": {
+            "motion": {
+              "property": "motion"
+            }
+          },
+          "state": {
+            "motion": {
+              "property": "motion"
+            },
+            "input-level": {
+              "property": "input-level"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "4cfef2efd48b1951a7f579e55469b146862f2ad9a3f6e48d98dda68a6d78e913",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+            "report_sha256": "4fe54a7e8a30611a11d06a64c8f6b032a069d952cb2ba0e54dec13c7efcb4cb0",
+            "evidence_sha256": "21b069f25ab1520f4fbb341b4d9ea6775879acc515881c4295f0e4381b80b362",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 8,
+            "live_browser": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+            "hardware": "NOT RUN"
+          },
+          "host_validation": {
+            "atoms3r": {
+              "status": "NOT RUN",
+              "device_id": "atoms3r",
+              "unit_id": "pir",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            },
+            "sticks3": {
+              "status": "NOT RUN",
+              "device_id": "sticks3",
+              "unit_id": "pir",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            },
+            "stopwatch": {
+              "status": "NOT RUN",
+              "device_id": "stopwatch",
+              "unit_id": "pir",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            }
+          }
+        },
+        "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ],
+        "research_snapshot": {
+          "scope": "protocol research only; not current runtime capability",
+          "model_status": "planned",
+          "runtime_status": "unsupported",
+          "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+        }
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "fdd14b933003c220dbbb7b8952be9c88ecd3b2793c5adda6ccf73a9fa36c3dbb",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "1bc6358a3776e1155733079983f160850da25b90be06ab248e0fd3d3847167fe"
+    },
+    "contract_status": "frozen"
+  },
+  "frame": {
+    "width": 320,
+    "height": 240,
+    "png_bytes": 318,
+    "source": "live",
+    "captured_at": "2026-10-26T23:05:56.227151+00:00",
+    "execution_id": "229f240b27fd42e4aa823d9d7e04e579",
+    "revision_id": "18c519627ce7c28983e8e174ee81974f98883892a07f14b676100266d41a131c",
+    "program_state": "running",
+    "nonblack_pixels": 64,
+    "unique_colors": 1
+  },
+  "qom": {
+    "snapshot_id": "f160722765284b86a949d577775d87d0",
+    "path": "/machine",
+    "depth": 2,
+    "created_at": "2026-10-26T23:05:56.234578+00:00"
+  },
+  "flash": {
+    "size": 16777216,
+    "sha256": "2331d9d705a150b5c4a518e58af0f44f4aa95fb86a8b1609756be7abc6a1687b",
+    "retained": true
+  }
+}

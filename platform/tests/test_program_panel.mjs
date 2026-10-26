@@ -174,6 +174,13 @@ try {
       assert.equal(await page.locator('[data-program-error]').textContent(), '');
     }
   });
+  await test('external-main-mpy-status-never-pretends-to-have-its-source', async () => {
+    await setup({program: {execution_id: 'external-binary', state: 'running', entrypoint: 'main.mpy'}});
+    assert.match(await page.locator('[data-program-detail]').innerText(), /当前执行 main.mpy.*独立的 main.py 新草稿/);
+    await source.fill('print("independent new source")\n'); await page.evaluate(() => fixture.panel.refresh());
+    assert.equal(await source.inputValue(), 'print("independent new source")\n');
+    assert.equal(await runButton.isEnabled(), true);
+  });
   await test('polling-preserves-editor-focus-selection-and-draft', async () => {
     await setup(); await source.fill('print("draft")\n'); await source.focus();
     await source.evaluate(node => node.setSelectionRange(2, 8));

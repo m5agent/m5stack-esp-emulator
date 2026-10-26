@@ -111,6 +111,7 @@ def add_session_roots(roots: RetentionRoots, record: dict, *, retained: bool = F
 def _source_roots(roots: RetentionRoots, value) -> None:
     if isinstance(value, dict):
         for field, target in (("artifact_id", roots.artifact_ids), ("firmware_id", roots.firmware_ids),
+                              ("base_firmware_id", roots.firmware_ids),
                               ("base_sha256", roots.firmware_shas), ("firmware_sha256", roots.firmware_shas)):
             if field in value:
                 if not _sha(value[field]):

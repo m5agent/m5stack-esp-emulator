@@ -14,6 +14,7 @@ import uuid
 from micropython_repl import RawREPL
 from mpy_bytecode import MPYBytecodeError, validate_bytecode
 from uiflow_runtime import UIFlowRuntimeError
+from uiflow_main_loader import require_main_loader
 
 
 GUEST_BASE = "/flash/.m5-live-packages"
@@ -87,7 +88,7 @@ def _verify_inventory(files, snapshot):
 
 
 def deploy_package(console, files, metadata, *, timeout, cancelled, on_synchronized=None,
-                   on_progress=None):
+                   on_progress=None, loader_capabilities=None):
     """Verify, publish and activate one immutable package; do not start its entrypoint.
 
     A failed upload leaves only its unique staging directory. No partial package
@@ -95,15 +96,9 @@ def deploy_package(console, files, metadata, *, timeout, cancelled, on_synchroni
     may still be referenced by native callbacks, so they are never auto-deleted.
     """
     if metadata.get("entrypoint", "main.py") == "main.mpy":
-        # The currently admitted firmware has neither official override-main
-        # import nor a load-then-execute API. Ordinary import would skip the
-        # if-main guard and use an incorrect application module identity.
-        # A future capability admission must be tied to built firmware and
-        # same-guest evidence before this guard can be replaced.
-        raise UIFlowRuntimeError(
-            "program_mpy_entrypoint_unsupported",
-            "main.mpy requires an admitted firmware with a verified run-as-main loader",
-        )
+        # The service binds this observed proof to the same live session. A
+        # boolean or caller-supplied firmware label never substitutes for it.
+        require_main_loader(loader_capabilities)
     def progress(phase, **values):
         if on_progress is not None:
             on_progress({"phase": phase, **values})
@@ -134,6 +129,10 @@ while _m5_pkg_maxint:
     if not isinstance(capabilities, dict) or type(capabilities.get("existing")) is not bool:
         raise UIFlowRuntimeError("program_package_receipt_invalid", "guest capabilities are invalid")
     validate_mpy(files, capabilities)
+    if metadata.get("entrypoint", "main.py") == "main.mpy" and any(
+        capabilities.get(key) != loader_capabilities.get(key) for key in ("mpy", "small_int_bits")
+    ):
+        raise UIFlowRuntimeError("program_mpy_capability_unknown", "guest bytecode ABI differs from its verified loader probe")
     progress("capabilities", capabilities=capabilities)
 
     # The walker rejects extra paths and nonregular entries. Its complete

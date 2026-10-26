@@ -1,0 +1,1447 @@
+#!/usr/bin/env python3
+"""Run reproducible esp-emu WiFi/BLE checks against a disposable lab network."""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import shlex
+import signal
+import socket
+import subprocess
+import sys
+import threading
+import time
+import uuid
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from typing import Any, Iterable
+
+
+ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_EMULATOR = (
+    ROOT
+    / ".work/esp-emu-versions/0.50.0"
+    / "esp-emu-0.50.0-aarch64-apple-darwin/esp-emu"
+)
+BLE_PROBE = ROOT / "platform/tools/ble_probe.py"
+HTTP_PROBE_PORT = 8070
+UDP_PROBE_PORT = 19000
+COEX_SERVICE_UUID = "59462f12-9543-9999-12c8-58b459a2712d"
+COEX_STATIC_UUID = "5c3a659e-897e-45e1-b016-007107c96df7"
+SUPPORTED_CHIPS = {
+    "esp32c3",
+    "esp32c5",
+    "esp32c6",
+    "esp32h2",
+    "esp32p4",
+    "esp32s3",
+    "esp32s31",
+}
+
+
+class LaneError(RuntimeError):
+    pass
+
+
+class LaneCancelled(LaneError):
+    pass
+
+
+def process_identity(pid: int) -> dict[str, Any]:
+    """Use the same ps identity fields as Device Service, without importing it."""
+    fields: dict[str, str | None] = {}
+    for field in ("lstart", "command"):
+        try:
+            result = subprocess.run(
+                ["ps", "-ww", "-p", str(pid), "-o", f"{field}="],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                timeout=2,
+                check=False,
+            )
+            value = result.stdout.strip()
+            fields[field] = value if result.returncode == 0 and value else None
+        except (OSError, subprocess.TimeoutExpired):
+            fields[field] = None
+    command = fields["command"]
+    return {
+        "pid": pid,
+        "start_token": fields["lstart"],
+        "command_sha256": hashlib.sha256(command.encode()).hexdigest() if command else None,
+        "identity_verified": bool(fields["lstart"] and command),
+    }
+
+
+class LaneLifecycle:
+    """Atomic runner/child receipt consumed by the Device Service.
+
+    lifecycle.json schema v1 has kind=m5stack-network-lane-lifecycle,
+    state=starting|children-known|cleanup-complete, cleanup_complete, runner
+    identity, children={emulator,ble} (null until created), and updated_at.
+    Identities contain pid/start_token/command_sha256/identity_verified; child
+    rows also contain state/returncode. No command text or credentials are saved.
+    The starting receipt must exist before either child can be created. Only
+    successful cleanup of every owned Popen and fixture can publish complete.
+    A reaped child may have unknown ps identity if it exited before inspection.
+    """
+
+    def __init__(self, out_dir: Path, stop_requested: threading.Event):
+        self.path = out_dir / "lifecycle.json"
+        self.stop_requested = stop_requested
+        self.processes: dict[str, subprocess.Popen] = {}
+        self.fixtures: list[Any] = []
+        self.collectors: list[threading.Thread] = []
+        self.cleanup_started = False
+        self.record: dict[str, Any] = {
+            "schema_version": 1,
+            "kind": "m5stack-network-lane-lifecycle",
+            "state": "starting",
+            "cleanup_complete": False,
+            "runner": process_identity(os.getpid()),
+            "children": {"emulator": None, "ble": None},
+        }
+        self._persist()
+
+    def _persist(self) -> None:
+        self.record["updated_at"] = datetime.now(timezone.utc).isoformat()
+        temporary = self.path.with_name(f".{self.path.name}.{uuid.uuid4().hex}.tmp")
+        try:
+            with temporary.open("x", encoding="utf-8") as output:
+                temporary.chmod(0o600)
+                json.dump(self.record, output, ensure_ascii=False, indent=2)
+                output.write("\n")
+                output.flush()
+                os.fsync(output.fileno())
+            os.replace(temporary, self.path)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+    def check_cancelled(self) -> None:
+        if self.stop_requested.is_set():
+            raise LaneCancelled("network lane stop requested")
+
+    def spawn(self, role: str, command: list[str], **kwargs) -> subprocess.Popen:
+        self.check_cancelled()
+        proc = subprocess.Popen(command, **kwargs)
+        # Own the handle before inspection, receipt I/O, or the post-Popen fence
+        # can fail. execute's finally always cleans every handle in this map.
+        self.processes[role] = proc
+        self.record["children"][role] = {
+            **process_identity(proc.pid),
+            "state": "running" if proc.poll() is None else "exited",
+            "returncode": proc.returncode,
+        }
+        self.record["state"] = "children-known"
+        self._persist()
+        self.check_cancelled()
+        return proc
+
+    def cleanup(self) -> None:
+        self.cleanup_started = True
+        errors: list[str] = []
+        for role, proc in self.processes.items():
+            try:
+                terminate_process(proc)
+            except Exception as error:
+                errors.append(f"{role}:{type(error).__name__}")
+            row = self.record["children"][role]
+            if row is None:
+                row = {"pid": proc.pid, "start_token": None,
+                       "command_sha256": None, "identity_verified": False}
+                self.record["children"][role] = row
+            try:
+                returncode = proc.poll()
+            except Exception as error:
+                returncode = None
+                errors.append(f"{role}:poll-{type(error).__name__}")
+            exited = isinstance(returncode, int) and not isinstance(returncode, bool)
+            row.update(state="exited" if exited else "cleanup-pending", returncode=returncode)
+            if not exited:
+                errors.append(f"{role}:still-running")
+        for collector in self.collectors:
+            collector.join(timeout=1)
+            if collector.is_alive():
+                errors.append("ble-log:still-running")
+        for fixture in self.fixtures:
+            try:
+                fixture.close()
+            except Exception as error:
+                errors.append(f"fixture:{type(error).__name__}")
+        complete = not errors
+        self.record["cleanup_complete"] = complete
+        self.record["state"] = "cleanup-complete" if complete else "children-known"
+        self.record["cleanup_errors"] = errors
+        self._persist()
+        if errors:
+            raise LaneError("network lane cleanup incomplete: " + ", ".join(errors))
+
+
+def wait_for_ble_ready(
+    ready: threading.Event, proc: subprocess.Popen, lifecycle: LaneLifecycle,
+    timeout: float = 10,
+) -> None:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        lifecycle.check_cancelled()
+        if ready.wait(min(0.05, max(0, deadline - time.monotonic()))):
+            lifecycle.check_cancelled()
+            return
+        if proc.poll() is not None:
+            raise LaneError("Bumble BLE probe exited before becoming ready")
+    lifecycle.check_cancelled()
+    raise LaneError("Bumble BLE probe did not become ready")
+
+
+def normalize_i2c_device(value: str) -> str:
+    """Validate and canonicalize one esp-emu --i2c-dev definition."""
+    if not isinstance(value, str) or not value:
+        raise ValueError("I2C device definition must be a non-empty string")
+    parts = value.split(",")
+    try:
+        port_text, address_text = parts[0].split(":", 1)
+        port = int(port_text, 0)
+        address = int(address_text, 0)
+    except (ValueError, TypeError) as error:
+        raise ValueError(
+            "I2C device must start with PORT:ADDRESS"
+        ) from error
+    if port not in {0, 1}:
+        raise ValueError("I2C port must be 0 or 1")
+    if not 0x08 <= address <= 0x77:
+        raise ValueError("I2C address must be a 7-bit value from 0x08 to 0x77")
+
+    width = 1
+    fill = 0xFF
+    registers: list[tuple[int, int]] = []
+    seen_registers: set[int] = set()
+    for option in parts[1:]:
+        name, separator, raw_value = option.partition("=")
+        if not separator or not raw_value:
+            raise ValueError(f"invalid I2C option: {option!r}")
+        if name == "width":
+            width = int(raw_value, 0)
+            if width not in {1, 2}:
+                raise ValueError("I2C width must be 1 or 2")
+        elif name == "fill":
+            fill = int(raw_value, 0)
+            if not 0 <= fill <= 0xFF:
+                raise ValueError("I2C fill must fit in one byte")
+        elif name == "reg":
+            raw_register, equals, raw_register_value = raw_value.partition("=")
+            if not equals or not raw_register or not raw_register_value:
+                raise ValueError(
+                    "I2C register preload must use reg=REGISTER=VALUE"
+                )
+            register = int(raw_register, 0)
+            register_value = int(raw_register_value, 0)
+            if not 0 <= register <= 0xFF or not 0 <= register_value <= 0xFF:
+                raise ValueError("I2C register and value must fit in one byte")
+            if register in seen_registers:
+                raise ValueError(f"duplicate I2C register preload: 0x{register:02X}")
+            seen_registers.add(register)
+            registers.append((register, register_value))
+        else:
+            raise ValueError(f"unsupported I2C option: {name!r}")
+
+    canonical = [f"{port}:0x{address:02X}"]
+    if width != 1:
+        canonical.append("width=2")
+    if fill != 0xFF:
+        canonical.append(f"fill=0x{fill:02X}")
+    canonical.extend(
+        f"reg=0x{register:02X}=0x{register_value:02X}"
+        for register, register_value in registers
+    )
+    return ",".join(canonical)
+
+
+def normalize_hostfwd(value: str) -> str:
+    """Validate and canonicalize one loopback-only firmware host forward."""
+    if not isinstance(value, str) or not value:
+        raise ValueError("host forward must be a non-empty string")
+    match = re.fullmatch(
+        r"(tcp|udp):127\.0\.0\.1:(\d{1,5})-:(\d{1,5})",
+        value,
+    )
+    if not match:
+        raise ValueError(
+            "host forward must use tcp|udp:127.0.0.1:HOST_PORT-:GUEST_PORT"
+        )
+    protocol, host_port_text, guest_port_text = match.groups()
+    host_port = int(host_port_text)
+    guest_port = int(guest_port_text)
+    if not 1024 <= host_port <= 65535:
+        raise ValueError("host forward host port must be between 1024 and 65535")
+    if not 1 <= guest_port <= 65535:
+        raise ValueError("host forward guest port must be between 1 and 65535")
+    return f"{protocol}:127.0.0.1:{host_port}-:{guest_port}"
+
+
+@dataclass(frozen=True)
+class Artifact:
+    role: str
+    path: Path
+    bytes: int
+    sha256: str
+
+    def evidence(self) -> dict:
+        return {
+            "role": self.role,
+            "path": str(self.path),
+            "bytes": self.bytes,
+            "sha256": self.sha256,
+        }
+
+
+@dataclass(frozen=True)
+class LaneConfig:
+    profile: str
+    chip: str
+    firmware: Path
+    elf: Path | None
+    emulator: Path
+    out_dir: Path
+    timeout: float
+    ssid: str
+    password: str
+    firmware_ap_password: str | None
+    wifi_auth: str
+    psram_size: str
+    net_mode: str
+    hostfwd: list[str]
+    console_mode: str
+    wifi: bool
+    ble: bool
+    ble_port: int
+    ble_name: str
+    tcp: bool
+    expected_markers: list[str]
+    i2c_devices: list[str]
+
+
+@dataclass
+class LabServer:
+    server: ThreadingHTTPServer
+    thread: threading.Thread
+    requests: list[str]
+    request_seen: threading.Event
+
+    @property
+    def port(self) -> int:
+        return int(self.server.server_port)
+
+    def close(self) -> None:
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(timeout=5)
+
+
+@dataclass
+class UdpLabServer:
+    sock: socket.socket
+    thread: threading.Thread
+    datagrams: list[bytes]
+
+    def close(self) -> None:
+        self.sock.close()
+        self.thread.join(timeout=5)
+
+
+class ProbeHandler(BaseHTTPRequestHandler):
+    body = b"M" * (1024 * 1024)
+
+    def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler contract
+        self.server.requests.append(self.path)  # type: ignore[attr-defined]
+        self.server.request_seen.set()  # type: ignore[attr-defined]
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain")
+        self.send_header("Content-Length", str(len(self.body)))
+        self.send_header("Connection", "close")
+        self.end_headers()
+        self.wfile.write(self.body)
+
+    def log_message(self, format: str, *args: Any) -> None:
+        return
+
+
+def file_artifact(role: str, path: Path) -> Artifact:
+    path = path.resolve()
+    if not path.is_file():
+        raise LaneError(f"{role} does not exist: {path}")
+    digest = hashlib.sha256()
+    size = 0
+    with path.open("rb") as source:
+        while chunk := source.read(1024 * 1024):
+            digest.update(chunk)
+            size += len(chunk)
+    return Artifact(role, path, size, digest.hexdigest())
+
+
+def free_port() -> int:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.bind(("127.0.0.1", 0))
+        return int(sock.getsockname()[1])
+
+
+def start_lab_server(port: int = 0) -> LabServer:
+    requests: list[str] = []
+    seen = threading.Event()
+    server = ThreadingHTTPServer(("127.0.0.1", port), ProbeHandler)
+    server.requests = requests  # type: ignore[attr-defined]
+    server.request_seen = seen  # type: ignore[attr-defined]
+    thread = threading.Thread(
+        target=server.serve_forever,
+        name="m5-network-lane-http",
+        daemon=True,
+    )
+    thread.start()
+    return LabServer(server, thread, requests, seen)
+
+
+def start_udp_lab_server(port: int = UDP_PROBE_PORT) -> UdpLabServer:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(("127.0.0.1", port))
+    sock.settimeout(0.25)
+    datagrams: list[bytes] = []
+
+    def serve() -> None:
+        while True:
+            try:
+                data, address = sock.recvfrom(4096)
+            except socket.timeout:
+                continue
+            except OSError:
+                break
+            datagrams.append(data)
+            try:
+                sock.sendto(b"UDP_REPLY:" + data, address)
+            except OSError:
+                break
+
+    thread = threading.Thread(
+        target=serve,
+        name="m5-network-lane-udp",
+        daemon=True,
+    )
+    thread.start()
+    return UdpLabServer(sock, thread, datagrams)
+
+
+def uiflow2_ble_injection(config: LaneConfig) -> str:
+    name = json.dumps(config.ble_name)
+    lines = [
+        "from bleuart import BLEUARTServer",
+        f"server=BLEUARTServer(name={name})",
+        'server.irq(lambda: print("LANE_BLE_RX", bytes(server.read())))',
+        'print("LANE_"+"BLE_READY")',
+    ]
+    if not config.wifi:
+        lines.append('print("LANE_DONE")')
+    return "\r\n".join(lines) + "\r\n"
+
+
+def uiflow2_wifi_prepare() -> str:
+    lines = [
+        "import network,machine",
+        "w=network.WLAN(network.STA_IF)",
+        "w.active(True)",
+        'print("LANE_WIFI_SCAN", len(w.scan()))',
+        'print("LANE_"+"WIFI_PREP")',
+    ]
+    return "\r\n".join(lines) + "\r\n"
+
+
+def uiflow2_wifi_arm() -> str:
+    lines = [
+        (
+            'cb=lambda t:print("LANE_WIFI_CONNECTED",w.isconnected(),'
+            '"LANE_WIFI_STATUS",w.status(),'
+            '"LANE_WIFI_IP",w.ifconfig()[0],'
+            '"LANE_DONE")'
+        ),
+        "t=machine.Timer(0)",
+        "t.init(period=7000,mode=machine.Timer.ONE_SHOT,callback=cb)",
+        'print("LANE_"+"TIMER_READY")',
+    ]
+    return "\r\n".join(lines) + "\r\n"
+
+
+def uiflow2_wifi_connect(config: LaneConfig) -> str:
+    ssid = json.dumps(config.ssid)
+    password = json.dumps(config.password)
+    return f"w.connect({ssid},{password})\r\n"
+
+
+def build_emulator_command(
+    config: LaneConfig,
+    *,
+    firmware_copy: Path,
+) -> tuple[list[str], dict]:
+    use_bumble = (
+        config.profile in {"uiflow2-sticks3", "esp-idf-coex"}
+        or config.profile == "generic-observe"
+    ) and config.ble
+    command = [
+        str(config.emulator),
+        "--chip",
+        config.chip,
+        "--firmware",
+        str(firmware_copy),
+    ]
+    if config.psram_size != "0":
+        command.extend(["--psram-size", config.psram_size])
+    for i2c_device in config.i2c_devices:
+        command.extend(["--i2c-dev", i2c_device])
+    net_mode = config.net_mode
+    if config.hostfwd:
+        if not net_mode.startswith("user"):
+            raise LaneError("host forward requires a user network backend")
+        forwarded = ",".join(
+            f"hostfwd={normalize_hostfwd(value)}" for value in config.hostfwd
+        )
+        net_mode = f"{net_mode},{forwarded}"
+    command.extend(
+        [
+            "--net",
+            net_mode,
+            "--wifi-ssid",
+            config.ssid,
+            "--wifi-password",
+            config.password,
+            "--wifi-auth",
+            config.wifi_auth,
+            "--console",
+            config.console_mode,
+            "--timeout",
+            f"{config.timeout:g}s",
+            "--log-color",
+            "never",
+        ]
+    )
+    if config.firmware_ap_password is not None:
+        command.extend(
+            ["--wifi-fw-ap-password", config.firmware_ap_password]
+        )
+    injection: dict[str, Any] = {}
+    if config.elf is not None:
+        command.extend(["--elf", str(config.elf)])
+    if use_bumble:
+        command.extend(["--ble-hci", f"tcp:127.0.0.1:{config.ble_port}"])
+    if config.profile == "esp-idf-smoke":
+        command.append("--no-panic-intercept")
+    exit_marker = {
+        "esp-idf-http": "HTTP_TPUT_RESULT",
+        "esp-idf-wrong-password": "HTTP_TPUT_RESULT",
+        "esp-idf-smoke": "RESULT_SUMMARY",
+        "idf-dns-udp": "DNS_UDP_RESULT",
+    }.get(config.profile)
+    if exit_marker:
+        command.extend(["--exit-on", exit_marker])
+    if config.profile == "uiflow2-sticks3":
+        stages: list[dict[str, str]] = [
+            {
+                "trigger": "WiFi initialized",
+                "payload": "\x03",
+            },
+            {
+                "trigger": "KeyboardInterrupt:",
+                "payload": (
+                    "import os,machine\r\n"
+                    'os.rename("/flash/boot.py","/flash/boot.py.lane")\r\n'
+                    "machine.reset()\r\n"
+                ),
+            },
+        ]
+        if config.ble:
+            stages.append(
+                {
+                    "trigger": "RTC_SW_CPU_RST",
+                    "payload": uiflow2_ble_injection(config),
+                }
+            )
+            if config.wifi:
+                stages.append(
+                    {
+                        "trigger": "LANE_BLE_READY",
+                        "payload": uiflow2_wifi_prepare(),
+                    }
+                )
+        elif config.wifi:
+            stages.append(
+                {
+                    "trigger": "RTC_SW_CPU_RST",
+                    "payload": uiflow2_wifi_prepare(),
+                }
+            )
+        if config.wifi:
+            stages.append(
+                {
+                    "trigger": "LANE_WIFI_PREP",
+                    "payload": uiflow2_wifi_arm(),
+                }
+            )
+            stages.append(
+                {
+                    "trigger": "LANE_TIMER_READY",
+                    "payload": uiflow2_wifi_connect(config),
+                }
+            )
+        injection = {
+            "stages": stages
+        }
+        for stage in injection["stages"]:
+            command.extend(
+                [
+                    "--inject-on",
+                    stage["trigger"],
+                    "--inject",
+                    stage["payload"],
+                ]
+            )
+    return command, injection
+
+
+def redact_command(command: list[str], passwords: str | Iterable[str | None]) -> str:
+    if isinstance(passwords, str):
+        secrets = [passwords]
+    else:
+        secrets = [value for value in passwords if value]
+    safe = list(command)
+    for password in sorted(secrets, key=len, reverse=True):
+        safe = [entry.replace(password, "<redacted>") for entry in safe]
+    return shlex.join(safe)
+
+
+def read_text(path: Path) -> str:
+    if not path.is_file():
+        return ""
+    return path.read_text(errors="replace")
+
+
+def terminate_process(proc: subprocess.Popen | None, timeout: float = 5) -> None:
+    if proc is None or proc.poll() is not None:
+        return
+    try:
+        if os.name == "posix":
+            os.killpg(proc.pid, signal.SIGTERM)
+        else:
+            proc.terminate()
+    except (OSError, ProcessLookupError):
+        proc.terminate()
+    try:
+        proc.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        try:
+            if os.name == "posix":
+                os.killpg(proc.pid, signal.SIGKILL)
+            else:
+                proc.kill()
+        except (OSError, ProcessLookupError):
+            proc.kill()
+        proc.wait(timeout=5)
+
+
+def start_ble_probe(
+    config: LaneConfig, log_path: Path, *, lifecycle: LaneLifecycle,
+) -> tuple[subprocess.Popen, threading.Event]:
+    ready = threading.Event()
+    environment = os.environ.copy()
+    python_path = str(ROOT / ".work/py")
+    environment["PYTHONPATH"] = os.pathsep.join(
+        filter(None, [python_path, environment.get("PYTHONPATH", "")])
+    )
+    command = [
+        sys.executable,
+        str(BLE_PROBE),
+        "--port",
+        str(config.ble_port),
+        "--name-prefix",
+        "nimble-bleprph"
+        if config.profile == "esp-idf-coex"
+        else config.ble_name,
+        "--timeout",
+        f"{max(10, config.timeout - 5):g}",
+        "--write-delay",
+        "10",
+        "--linger",
+        "15",
+    ]
+    if config.profile == "esp-idf-coex":
+        command.extend(
+            [
+                "--service-uuid",
+                COEX_SERVICE_UUID,
+                "--rx-uuid",
+                COEX_STATIC_UUID,
+                "--payload",
+                "*",
+                "--no-subscribe",
+                "--readback",
+            ]
+        )
+    log = log_path.open("w")
+    try:
+        proc = lifecycle.spawn(
+            "ble", command,
+            cwd=ROOT,
+            env=environment,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            start_new_session=True,
+        )
+        assert proc.stdout is not None
+
+        def collect() -> None:
+            try:
+                for line in proc.stdout:
+                    log.write(line)
+                    log.flush()
+                    if "BLE_PROBE_READY" in line:
+                        ready.set()
+            finally:
+                log.close()
+                proc.stdout.close()
+
+        lifecycle.check_cancelled()
+        collector = threading.Thread(
+            target=collect,
+            name="m5-network-lane-ble-log",
+            daemon=True,
+        )
+        collector.start()
+        lifecycle.collectors.append(collector)
+    except BaseException:
+        log.close()
+        raise
+    return proc, ready
+
+
+def check_uiflow2_evidence(
+    serial: str,
+    ble_log: str,
+    *,
+    wifi: bool,
+    ble: bool,
+) -> tuple[dict[str, bool], dict[str, str]]:
+    scan_match = re.search(r"LANE_WIFI_SCAN\s+(\d+)", serial)
+    ip_match = re.search(r"LANE_WIFI_IP\s+(192\.168\.4\.\d+)", serial)
+    checks: dict[str, bool] = {}
+    if wifi:
+        checks.update(
+            {
+                "wifi_scan": bool(scan_match and int(scan_match.group(1)) >= 1),
+                "wifi_association": bool(
+                    re.search(r"LANE_WIFI_CONNECTED\s+True", serial)
+                ),
+                "wifi_dhcp": bool(
+                    re.search(r"LANE_WIFI_STATUS\s+1010", serial)
+                    and ip_match
+                ),
+            }
+        )
+    if ble:
+        checks.update(check_ble_uart_evidence(serial, ble_log))
+    checks["guest_completed"] = bool(
+        re.search(r"(?m)^LANE_DONE\s*$", serial)
+        or re.search(r"(?m)^LANE_WIFI_CONNECTED .* LANE_DONE\s*$", serial)
+    )
+    values = {
+        "wifi_ip": ip_match.group(1) if ip_match else "",
+        "ble_name": (
+            match.group(1)
+            if (match := re.search(r"BLE_BUMBLE_FOUND name='([^']+)'", ble_log))
+            else ""
+        ),
+        "ble_payload": (
+            match.group(1)
+            if (match := re.search(r"LANE_BLE_RX b'([^']+)'", serial))
+            else ""
+        ),
+    }
+    return checks, values
+
+
+def check_ble_uart_evidence(
+    serial: str,
+    ble_log: str,
+) -> dict[str, bool]:
+    return {
+        "ble_probe": bool(
+            "BLE_BUMBLE_PASS" in ble_log
+            and "BLE_BUMBLE_GATT_DISCOVERED" in ble_log
+            and "BLE_BUMBLE_SUBSCRIBED" in ble_log
+            and "BLE_BUMBLE_WRITE" in ble_log
+        ),
+        "ble_device_to_host": bool(
+            "LANE_BLE_RX" in serial and "M5_LANE" in serial
+        ),
+    }
+
+
+def check_http_evidence(serial: str, requests: list[str]) -> dict[str, bool]:
+    return {
+        "wifi_dhcp": bool(
+            re.search(r"GOT_IP\s+192\.168\.4\.2", serial)
+            and "HTTP 200" in serial
+        ),
+        "http_request": "/bigfile" in requests,
+        "complete_download": bool(
+            re.search(r"download complete=1", serial)
+            or re.search(r"\(complete=1\)", serial)
+        ),
+        "http_probe": bool(
+            re.search(r"HTTP_TPUT:\s+bytes=[1-9]\d*", serial)
+            and "HTTP_TPUT_RESULT: PASSED" in serial
+        ),
+    }
+
+
+def check_dns_udp_evidence(
+    serial: str,
+    datagrams: list[bytes],
+) -> tuple[dict[str, bool], dict[str, str]]:
+    dns_match = re.search(r"DNS_OK:\s+(\d+\.\d+\.\d+\.\d+)", serial)
+    checks = {
+        "wifi_dhcp": bool(
+            re.search(r"GOT_IP\s+192\.168\.4\.2", serial)
+        ),
+        "dns_resolved": bool(dns_match),
+        "udp_host_request": b"M5_DNS_UDP_PROBE" in datagrams,
+        "udp_reply": "UDP_REPLY: UDP_REPLY:M5_DNS_UDP_PROBE" in serial,
+        "dns_udp_result": "DNS_UDP_RESULT: PASSED" in serial,
+    }
+    return checks, {
+        "dns_address": dns_match.group(1) if dns_match else "",
+    }
+
+
+def check_wrong_password_evidence(serial: str) -> dict[str, bool]:
+    attempts = len(
+        re.findall(r"wifi:state:\s*init\s*->\s*auth", serial)
+    )
+    rejections = len(
+        re.findall(
+            r"wifi:state:\s*auth\s*->\s*init\s*\(0x600\)",
+            serial,
+        )
+    )
+    return {
+        "auth_attempted": attempts >= 1,
+        "wrong_password_rejected": rejections >= 1,
+        "retry_observed": attempts >= 2 and rejections >= 2,
+        "no_dhcp_lease": "got ip:" not in serial.lower(),
+        "no_http_progress": "HTTP_TPUT:" not in serial,
+        "failure_marker": (
+            "HTTP_TPUT_RESULT: FAILED" in serial
+            and "no IP" in serial
+        ),
+        "softap_wrong_password_warning": (
+            "wrong password" in serial.lower()
+        ),
+    }
+
+
+def check_generic_evidence(
+    serial: str,
+    expected_markers: list[str],
+    ble_log: str = "",
+    require_ble: bool = False,
+) -> dict[str, bool]:
+    if expected_markers:
+        checks = {
+            f"marker:{index + 1}": marker in serial
+            for index, marker in enumerate(expected_markers)
+        }
+    else:
+        checks = {"runtime_output": bool(serial.strip())}
+    if require_ble:
+        checks.update(check_ble_uart_evidence(serial, ble_log))
+    return checks
+
+
+def diagnose_generic_evidence(
+    serial: str,
+    expected_markers: list[str],
+) -> dict:
+    missing = [
+        marker for marker in expected_markers if marker not in serial
+    ]
+    signatures: list[str] = []
+    board_ids = [
+        int(value)
+        for value in re.findall(r"auto detect board:\s*(\d+)", serial)
+    ]
+    if (
+        "Unsupported board type" in serial
+        or "Unsupported board" in serial
+        or re.search(r"\bboard[_\s-]?unknown\b", serial, re.IGNORECASE)
+    ):
+        category = "board_detection"
+        confidence = "native-log-signature"
+        signatures.append("unsupported/unknown board signature")
+    elif "assert failed" in serial or "Guru Meditation" in serial:
+        category = "crash_or_assert"
+        confidence = "native-log-signature"
+        signatures.append("firmware assert/crash signature")
+    elif "Rebooting..." in serial or "RTC_SW_CPU_RST" in serial:
+        category = "crash_or_reboot"
+        confidence = "native-log-signature"
+        signatures.append("reset or reboot-loop signature")
+    elif "i2c.master" in serial:
+        category = "peripheral_init_error"
+        confidence = "native-log-signature"
+        signatures.append("I2C master initialization error")
+    elif serial.strip() and "ESP-ROM:" not in serial:
+        category = "guest_marker_timeout"
+        confidence = "inferred-from-missing-markers"
+        signatures.append("guest output exists but expected marker is absent")
+    else:
+        category = "console_or_boot_visibility"
+        confidence = "inferred"
+        signatures.append("no expected marker on the selected console")
+    if not serial.strip():
+        signatures.append("empty serial capture")
+    blocking_layer = {
+        "board_detection": "board",
+        "peripheral_init_error": "peripheral",
+        "crash_or_assert": "guest_runtime",
+        "crash_or_reboot": "guest_runtime",
+        "console_or_boot_visibility": "console_or_boot",
+        "guest_marker_timeout": "application_or_observation",
+    }.get(category, "unknown")
+    pre_network = blocking_layer in {
+        "board",
+        "peripheral",
+        "console_or_boot",
+    }
+    return {
+        "category": category,
+        "confidence": confidence,
+        "blocking_layer": blocking_layer,
+        "network_data_plane": "NOT RUN" if pre_network else "UNKNOWN",
+        "board_ids": board_ids,
+        "missing_markers": missing,
+        "signatures": signatures,
+    }
+
+
+def generic_markers_complete(
+    serial: str,
+    expected_markers: list[str],
+    ble_log: str = "",
+    require_ble: bool = False,
+) -> bool:
+    checks = check_generic_evidence(
+        serial,
+        expected_markers,
+        ble_log,
+        require_ble,
+    )
+    return bool(expected_markers) and all(checks.values())
+
+
+def check_coex_evidence(serial: str, ble_log: str) -> dict[str, bool]:
+    return {
+        "wifi_dhcp": bool(re.search(r"got ip:\s*192\.168\.4\.2", serial)),
+        "ble_scan_connect": bool(
+            "BLE_BUMBLE_FOUND" in ble_log
+            and "BLE_BUMBLE_CONNECTED" in ble_log
+        ),
+        "ble_gatt": bool(
+            "BLE_BUMBLE_GATT_DISCOVERED" in ble_log
+            and "BLE_BUMBLE_WRITE" in ble_log
+            and "BLE_BUMBLE_READBACK_OK" in ble_log
+            and "BLE_BUMBLE_PASS" in ble_log
+        ),
+        "wifi_still_active": bool(re.search(r"icmp_seq=\d+", serial)),
+    }
+
+
+def check_smoke_evidence(serial: str, require_ble: bool) -> dict[str, bool]:
+    checks = {
+        "wifi_dhcp": bool(
+            re.search(r"WiFi: GOT_IP\s+192\.168\.4\.2", serial)
+            and re.search(r"TEST wifi:\s*PASSED", serial)
+        ),
+        "summary": "RESULT_SUMMARY:" in serial,
+    }
+    if require_ble:
+        checks["ble_advertising"] = bool(
+            "BLE: advertising as" in serial
+            and re.search(r"TEST ble:\s*PASSED", serial)
+            and not re.search(r"TEST ble:\s*FAILED", serial)
+        )
+    return checks
+
+
+def execute(config: LaneConfig) -> dict:
+    if config.chip not in SUPPORTED_CHIPS:
+        raise LaneError(
+            f"chip {config.chip!r} is not supported by esp-emu; "
+            "Core2 ESP32 LX6 needs a separate network/PHY path"
+        )
+    config.out_dir.mkdir(parents=True, exist_ok=True)
+    stop_requested = threading.Event()
+    lifecycle: LaneLifecycle | None = None
+
+    def request_stop(_signum: int, _frame: object) -> None:
+        stop_requested.set()
+
+    previous_sigterm = signal.getsignal(signal.SIGTERM)
+    signal.signal(signal.SIGTERM, request_stop)
+    try:
+        # Install cancellation before starting is persisted. A signal during
+        # construction must still complete the receipt with no child created.
+        # A missing receipt in a fresh directory can only precede spawn.
+        lifecycle = LaneLifecycle(config.out_dir, stop_requested)
+        return _execute(config, lifecycle)
+    finally:
+        try:
+            # Also cover setup failures before the runtime's inner finally.
+            if lifecycle is not None and not lifecycle.cleanup_started:
+                lifecycle.cleanup()
+        finally:
+            signal.signal(signal.SIGTERM, previous_sigterm)
+
+
+def _execute(config: LaneConfig, lifecycle: LaneLifecycle) -> dict:
+    lifecycle.check_cancelled()
+    firmware = file_artifact("firmware", config.firmware)
+    emulator = file_artifact("emulator", config.emulator)
+    elf = file_artifact("elf", config.elf) if config.elf else None
+
+    firmware_copy = config.out_dir / "firmware-under-test.bin"
+    firmware_copy.write_bytes(config.firmware.read_bytes())
+    lifecycle.check_cancelled()
+    firmware_copy_artifact = file_artifact("firmware-runtime-copy", firmware_copy)
+
+    initial_requests: list[str] = []
+    lab_server: LabServer | None = None
+    udp_server: UdpLabServer | None = None
+    tcp_port = free_port()
+    if config.tcp:
+        lifecycle.check_cancelled()
+        lab_server = start_lab_server(
+            HTTP_PROBE_PORT if config.profile == "esp-idf-http" else 0
+        )
+        lifecycle.fixtures.append(lab_server)
+        lifecycle.check_cancelled()
+        initial_requests = lab_server.requests
+        tcp_port = lab_server.port
+    if config.profile == "idf-dns-udp":
+        lifecycle.check_cancelled()
+        udp_server = start_udp_lab_server()
+        lifecycle.fixtures.append(udp_server)
+        lifecycle.check_cancelled()
+
+    serial_path = config.out_dir / "serial.log"
+    ble_log_path = config.out_dir / "ble-probe.log"
+    command, injection = build_emulator_command(
+        config,
+        firmware_copy=firmware_copy,
+    )
+    secrets = [config.password, config.firmware_ap_password]
+    public_command = redact_command(command, secrets)
+    for secret in secrets:
+        if not secret:
+            continue
+        for stage in injection.get("stages", []):
+            stage["payload"] = stage["payload"].replace(
+                secret, "<redacted>"
+            )
+
+    ble_proc: subprocess.Popen | None = None
+    emu_proc: subprocess.Popen | None = None
+    stop_requested = lifecycle.stop_requested
+    use_bumble = (
+        config.profile in {"uiflow2-sticks3", "esp-idf-coex"}
+        or config.profile == "generic-observe"
+    ) and config.ble
+    timed_out = False
+    started = time.monotonic()
+    try:
+        if use_bumble:
+            ble_proc, ble_ready = start_ble_probe(config, ble_log_path, lifecycle=lifecycle)
+            wait_for_ble_ready(ble_ready, ble_proc, lifecycle)
+
+        with serial_path.open("wb") as serial_log:
+            emu_proc = lifecycle.spawn(
+                "emulator", command,
+                cwd=ROOT,
+                stdout=serial_log,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+            deadline = time.monotonic() + config.timeout + 10
+            ble_exited_at: float | None = None
+            while (
+                time.monotonic() < deadline
+                and not stop_requested.is_set()
+            ):
+                if emu_proc.poll() is not None:
+                    break
+                serial_snapshot = read_text(serial_path)
+                ble_snapshot = read_text(ble_log_path)
+                guest_done = bool(
+                    re.search(r"(?m)^LANE_DONE\s*$", serial_snapshot)
+                    or re.search(
+                        r"(?m)^LANE_WIFI_CONNECTED .* LANE_DONE\s*$",
+                        serial_snapshot,
+                    )
+                )
+                ble_done = not use_bumble or (
+                    "BLE_BUMBLE_PASS" in ble_snapshot
+                    and re.search(
+                        r"(?m)^LANE_BLE_RX b'M5_LANE'\s*$",
+                        serial_snapshot,
+                    )
+                )
+                generic_done = (
+                    config.profile == "generic-observe"
+                    and generic_markers_complete(
+                        serial_snapshot,
+                        config.expected_markers,
+                        ble_snapshot,
+                        config.ble,
+                    )
+                )
+                if generic_done or (guest_done and ble_done):
+                    break
+                if (
+                    config.profile == "esp-idf-coex"
+                    and "BLE_BUMBLE_PASS" in ble_snapshot
+                    and "BLE_BUMBLE_READBACK_OK" in ble_snapshot
+                    and re.search(r"got ip:\s*192\.168\.4\.2", serial_snapshot)
+                    and re.search(r"icmp_seq=\d+", serial_snapshot)
+                ):
+                    break
+                if use_bumble and ble_proc is not None and ble_proc.poll() is not None:
+                    ble_exited_at = ble_exited_at or time.monotonic()
+                    if (
+                        re.search(r"(?m)^LANE_BLE_RX b'M5_LANE'\s*$", serial_snapshot)
+                        and (
+                            re.search(
+                                r"(?m)^LANE_DONE\s*$",
+                                serial_snapshot,
+                            )
+                            or re.search(
+                                r"(?m)^LANE_WIFI_CONNECTED .* LANE_DONE\s*$",
+                                serial_snapshot,
+                            )
+                        )
+                    ):
+                        break
+                    if time.monotonic() - ble_exited_at >= 3:
+                        break
+                stop_requested.wait(0.25)
+            else:
+                timed_out = not stop_requested.is_set()
+    finally:
+        lifecycle.cleanup()
+
+    duration = round(time.monotonic() - started, 3)
+    serial = read_text(serial_path)
+    for secret in secrets:
+        if secret:
+            serial = serial.replace(secret, "<redacted>")
+    serial_path.write_text(serial)
+    ble_log = read_text(ble_log_path)
+
+    if config.profile == "uiflow2-sticks3":
+        checks, values = check_uiflow2_evidence(
+            serial,
+            ble_log,
+            wifi=config.wifi,
+            ble=config.ble,
+        )
+    elif config.profile == "esp-idf-http":
+        checks = check_http_evidence(serial, initial_requests)
+        values = {}
+    elif config.profile == "idf-dns-udp":
+        checks, values = check_dns_udp_evidence(
+            serial,
+            udp_server.datagrams if udp_server else [],
+        )
+    elif config.profile == "esp-idf-wrong-password":
+        checks = check_wrong_password_evidence(serial)
+        values = {}
+    elif config.profile == "generic-observe":
+        checks = check_generic_evidence(
+            serial,
+            config.expected_markers,
+            ble_log,
+            config.ble,
+        )
+        values = {}
+    elif config.profile == "esp-idf-coex":
+        checks = check_coex_evidence(serial, ble_log)
+        values = {}
+    else:
+        checks = check_smoke_evidence(serial, require_ble=config.ble)
+        values = {}
+
+    required = list(checks)
+    passed = all(checks[name] for name in required)
+    if config.profile == "generic-observe" and not config.expected_markers:
+        passed = False
+    if not passed and any(checks[name] for name in required):
+        status = "PARTIAL"
+    else:
+        status = "PASS" if passed else "FAIL"
+
+    artifact_rows = [firmware, emulator, firmware_copy_artifact]
+    if elf is not None:
+        artifact_rows.insert(1, elf)
+    evidence = {
+        "schema_version": 1,
+        "kind": "m5stack-network-lane-proof",
+        "scope": "simulation-only-not-hardware-validation",
+        "status": status,
+        "profile": config.profile,
+        "chip": config.chip,
+        "runtime": {
+            "name": "esp-emu",
+            "expected_version": "0.50.0",
+            "network_backend": config.net_mode,
+            "console": config.console_mode,
+            "wifi": {
+                "enabled": config.wifi,
+                "ssid": config.ssid,
+                "password": "<redacted>",
+                "auth": config.wifi_auth,
+                "firmware_ap_password_configured": (
+                    config.firmware_ap_password is not None
+                ),
+            },
+            "hostfwd": list(config.hostfwd),
+            "ble": {
+                "enabled": config.ble,
+                "observer": (
+                    "bumble"
+                    if use_bumble
+                    else ("esp-emu-built-in" if config.ble else None)
+                ),
+                "name": config.ble_name,
+            },
+            "tcp": {
+                "enabled": config.tcp,
+                "guest_endpoint": (
+                    f"192.168.4.1:{tcp_port}" if config.tcp else None
+                ),
+                "host_requests": list(initial_requests),
+            },
+            "udp": {
+                "enabled": udp_server is not None,
+                "host_port": UDP_PROBE_PORT if udp_server else None,
+                "datagrams": [
+                    data.decode("utf-8", errors="replace")
+                    for data in (udp_server.datagrams if udp_server else [])
+                ],
+            },
+            "dns": {
+                "mode": "host-forwarder",
+                "controlled_resolver": False,
+            },
+            "i2c_devices": list(config.i2c_devices),
+        },
+        "artifacts": [artifact.evidence() for artifact in artifact_rows],
+        "command": public_command,
+        "injection": injection,
+        "checks": checks,
+        "values": values,
+        "result": {
+            "status": status,
+            "passed": passed,
+            "timed_out": timed_out,
+            "stop_requested": stop_requested.is_set(),
+            "duration_seconds": duration,
+            "emulator_exit_code": emu_proc.returncode if emu_proc else None,
+            "ble_probe_exit_code": ble_proc.returncode if ble_proc else None,
+            "serial_bytes": serial_path.stat().st_size,
+            "serial_sha256": hashlib.sha256(serial.encode()).hexdigest(),
+            "ble_probe_sha256": (
+                hashlib.sha256(ble_log.encode()).hexdigest() if use_bumble else None
+            ),
+        },
+        "not_claimed": [
+            "real-hardware behavior",
+            "public internet access",
+            "TLS certificate validation",
+            "device safety or malware sandboxing",
+            "Bluedroid or Classic Bluetooth compatibility",
+            "physical phone WiFi and captive-portal UX fidelity",
+            "WPA3-SAE-only or hidden-SSID firmware APs",
+        ],
+    }
+    if config.profile == "generic-observe" and evidence["status"] != "PASS":
+        evidence["diagnosis"] = diagnose_generic_evidence(
+            serial,
+            config.expected_markers,
+        )
+    evidence_path = config.out_dir / "evidence.json"
+    evidence_path.write_text(
+        json.dumps(evidence, ensure_ascii=False, indent=2) + "\n"
+    )
+    return evidence
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--profile",
+        choices=(
+            "uiflow2-sticks3",
+            "esp-idf-http",
+            "esp-idf-smoke",
+            "idf-dns-udp",
+            "esp-idf-wrong-password",
+            "esp-idf-coex",
+            "generic-observe",
+        ),
+        default="uiflow2-sticks3",
+    )
+    parser.add_argument("--chip", default="esp32s3")
+    parser.add_argument("--firmware", type=Path, required=True)
+    parser.add_argument("--elf", type=Path)
+    parser.add_argument("--emulator", type=Path, default=DEFAULT_EMULATOR)
+    parser.add_argument("--out-dir", type=Path)
+    parser.add_argument("--timeout", type=float, default=60)
+    parser.add_argument("--ssid", default="myssid")
+    parser.add_argument("--password", default="mypassword")
+    parser.add_argument(
+        "--firmware-ap-password",
+        help=(
+            "password for a firmware-created soft AP; use an empty string "
+            "for an open AP"
+        ),
+    )
+    parser.add_argument(
+        "--wifi-auth",
+        choices=("wpa2-wpa3", "wpa3-sae", "wpa2-psk", "open"),
+        default="wpa2-wpa3",
+    )
+    parser.add_argument("--psram-size", default="8M")
+    parser.add_argument("--net-mode", default="user")
+    parser.add_argument(
+        "--hostfwd",
+        action="append",
+        default=[],
+        type=normalize_hostfwd,
+        help=(
+            "loopback-only forward in "
+            "tcp|udp:127.0.0.1:HOST_PORT-:GUEST_PORT form; repeatable"
+        ),
+    )
+    parser.add_argument(
+        "--console-mode",
+        choices=("auto", "uart0", "usb-jtag"),
+        default="uart0",
+    )
+    parser.add_argument("--wifi", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--ble", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--ble-port", type=int)
+    parser.add_argument("--ble-name", default="M5-NETWORK-LANE")
+    parser.add_argument(
+        "--i2c-dev",
+        action="append",
+        default=[],
+        help=(
+            "static emulated I2C register endpoint PORT:ADDR[,width=N,fill=0xNN,"
+            "reg=0xRR=0xVV]; repeatable"
+        ),
+    )
+    parser.add_argument(
+        "--expect",
+        action="append",
+        default=[],
+        help="required serial marker for generic-observe; repeatable",
+    )
+    parser.add_argument("--tcp", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--json", action="store_true")
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv or sys.argv[1:])
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    out_dir = args.out_dir or Path("/tmp") / f"m5-network-{args.profile}-{timestamp}"
+    try:
+        i2c_devices = [
+            normalize_i2c_device(value) for value in args.i2c_dev
+        ]
+    except ValueError as error:
+        print(f"network lane failed: {error}", file=sys.stderr)
+        return 2
+    config = LaneConfig(
+        profile=args.profile,
+        chip=args.chip,
+        firmware=args.firmware,
+        elf=args.elf,
+        emulator=args.emulator,
+        out_dir=out_dir,
+        timeout=args.timeout,
+        ssid=args.ssid,
+        password=args.password,
+        firmware_ap_password=args.firmware_ap_password,
+        wifi_auth=args.wifi_auth,
+        psram_size=args.psram_size,
+        net_mode=args.net_mode,
+        hostfwd=list(args.hostfwd),
+        console_mode=args.console_mode,
+        wifi=True if args.wifi is None else args.wifi,
+        ble=False if args.ble is None else args.ble,
+        ble_port=args.ble_port or free_port(),
+        ble_name=(
+            "nimble-bleprph"
+            if args.profile == "esp-idf-coex"
+            else args.ble_name
+        ),
+        tcp=(
+            args.profile == "esp-idf-http"
+            if args.tcp is None
+            else args.tcp
+        ),
+        expected_markers=list(args.expect),
+        i2c_devices=i2c_devices,
+    )
+    if args.dry_run:
+        firmware_copy = config.out_dir / "firmware-under-test.bin"
+        command, injection = build_emulator_command(
+            config,
+            firmware_copy=firmware_copy,
+        )
+        payload = {
+            "command": redact_command(
+                command,
+                [config.password, config.firmware_ap_password],
+            ),
+            "injection": injection,
+        }
+        print(json.dumps(payload, indent=2) if args.json else payload["command"])
+        return 0
+    try:
+        evidence = execute(config)
+    except (LaneError, OSError, subprocess.SubprocessError) as error:
+        print(f"network lane failed: {error}", file=sys.stderr)
+        return 2
+    if args.json:
+        print(json.dumps(evidence, indent=2, ensure_ascii=False))
+    else:
+        print(f"status={evidence['status']} out_dir={config.out_dir}")
+        for name, passed in evidence["checks"].items():
+            print(f"  {name}: {'PASS' if passed else 'FAIL'}")
+    return 0 if evidence["status"] == "PASS" else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

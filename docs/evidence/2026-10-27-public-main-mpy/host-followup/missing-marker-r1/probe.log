@@ -1,0 +1,14 @@
+{"category": "HOST_ONLY_TRUSTED_WRAPPER_AND_SESSION_PROTOCOL_REPRODUCTION_NOT_GUEST", "wrapper_exception": "application replaced sys.print_exception", "printed": ["__M5_EXEC_75632c2e853e4291b99f2d80d2521eee__:LOAD"], "terminal_markers": [], "simulated_application_owner_restored": false, "simulated_application_cwd_restored": false, "raw_prompt_acknowledged": true, "writes_hex": ["0d03", "0d01"], "program_state_after_interrupt": "interrupted", "program_owner_restored_field": null, "capability_status_after_interrupt": "verified", "mpy_entrypoint_after_interrupt": true, "next_entrypoint_admission": "ALLOWED"}
+F
+======================================================================
+FAIL: test_unconfirmed_owner_after_actual_wrapper_cleanup_escape_must_revoke (__main__.MissingOwnerProofTests.test_unconfirmed_owner_after_actual_wrapper_cleanup_escape_must_revoke)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/probe.py", line 85, in test_unconfirmed_owner_after_actual_wrapper_cleanup_escape_must_revoke
+    self.assertFalse(capabilities['mpy_entrypoint'],'raw prompt without terminal owner proof must revoke binary admission')
+AssertionError: True is not false : raw prompt without terminal owner proof must revoke binary admission
+
+----------------------------------------------------------------------
+Ran 1 test in 0.117s
+
+FAILED (failures=1)

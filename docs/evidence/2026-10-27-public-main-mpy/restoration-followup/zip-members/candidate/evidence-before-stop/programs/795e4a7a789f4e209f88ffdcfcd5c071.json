@@ -1,0 +1,96 @@
+{
+  "execution_id": "795e4a7a789f4e209f88ffdcfcd5c071",
+  "revision_id": "7af28d0f3ad9a6caf2b324d0f7ae40fb83045731384209f22891931875e210d9",
+  "source_sha256": "ebd1267a00532c417f42c8d6192ac56b9c190a51a733232fd5021aca0b2683d7",
+  "source_bytes": 1093,
+  "state": "running",
+  "submitted_at": "2026-10-26T23:06:21.865602+00:00",
+  "firmware_sha256": "28b16f0b192d037ecc44008efcbc32e43dc787c388fa92d66267694a140fdf4c",
+  "pid": 11218,
+  "execution_mode": "same-guest-uart-repl",
+  "cleanup_mode": "interrupt-only",
+  "serial_offset": 20895,
+  "source_kind": "uiflow2-package",
+  "entrypoint": "main.py",
+  "total_file_bytes": 1093,
+  "file_count": 1,
+  "deployment": {
+    "phase": "activated",
+    "staging_path": "/flash/.m5-live-packages/.stage-ba26d061309a4cada89918e87b3232ef",
+    "package_path": "/flash/.m5-live-packages/7af28d0f3ad9a6caf2b324d0f7ae40fb83045731384209f22891931875e210d9",
+    "events": [
+      {
+        "phase": "preflight",
+        "staging_path": "/flash/.m5-live-packages/.stage-ba26d061309a4cada89918e87b3232ef",
+        "package_path": "/flash/.m5-live-packages/7af28d0f3ad9a6caf2b324d0f7ae40fb83045731384209f22891931875e210d9",
+        "observed_at": "2026-10-26T23:06:21.980285+00:00"
+      },
+      {
+        "phase": "capabilities",
+        "capabilities": {
+          "existing": true,
+          "directory_count": 6,
+          "mpy": 11014,
+          "small_int_bits": 31,
+          "free_bytes": 4677632
+        },
+        "observed_at": "2026-10-26T23:06:22.464522+00:00"
+      },
+      {
+        "phase": "published",
+        "inventory": {
+          "main.py": {
+            "size": 1093,
+            "sha256": "157ee387a6c562084124f5a01d584eb0a9366108035d4d440874349ccfdd8222"
+          }
+        },
+        "reused": true,
+        "observed_at": "2026-10-26T23:06:22.716898+00:00"
+      },
+      {
+        "phase": "activated",
+        "package_path": "/flash/.m5-live-packages/7af28d0f3ad9a6caf2b324d0f7ae40fb83045731384209f22891931875e210d9",
+        "inventory": {
+          "main.py": {
+            "size": 1093,
+            "sha256": "157ee387a6c562084124f5a01d584eb0a9366108035d4d440874349ccfdd8222"
+          }
+        },
+        "reused": true,
+        "capabilities": {
+          "existing": true,
+          "directory_count": 6,
+          "mpy": 11014,
+          "small_int_bits": 31,
+          "free_bytes": 4677632
+        },
+        "removed_modules": [
+          "dep"
+        ],
+        "staging_path": "/flash/.m5-live-packages/.stage-ba26d061309a4cada89918e87b3232ef",
+        "observed_at": "2026-10-26T23:06:23.006829+00:00"
+      }
+    ],
+    "capabilities": {
+      "existing": true,
+      "directory_count": 6,
+      "mpy": 11014,
+      "small_int_bits": 31,
+      "free_bytes": 4677632
+    },
+    "inventory": {
+      "main.py": {
+        "size": 1093,
+        "sha256": "157ee387a6c562084124f5a01d584eb0a9366108035d4d440874349ccfdd8222"
+      }
+    },
+    "reused": true,
+    "removed_modules": [
+      "dep"
+    ]
+  },
+  "next_offset": 20954,
+  "acknowledged": true,
+  "transfer_mode": "raw-paste",
+  "observed_at": "2026-10-26T23:06:23.202534+00:00"
+}

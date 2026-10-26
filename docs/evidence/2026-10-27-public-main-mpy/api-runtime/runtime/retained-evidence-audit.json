@@ -1,0 +1,91 @@
+{
+  "status": "PASS",
+  "category": "independent-retained-api-evidence-audit",
+  "hardware": "NOT RUN",
+  "lanes": {
+    "stock": {
+      "status": "PASS",
+      "session_id": "5416156ba34349c9a13056d532a1ab60",
+      "pid": 95839,
+      "http_response_count": 118,
+      "evidence_zip": {
+        "status": "PASS",
+        "members": 16,
+        "sha256": "79bc07718ef8c650dec400e04d2f72095ab84291b227d40a349ee6be0e998926"
+      },
+      "binary_runs": [],
+      "cleanup": "PASS"
+    },
+    "candidate": {
+      "status": "PASS",
+      "session_id": "60438f31bd2649b7999be2086b640713",
+      "pid": 95897,
+      "http_response_count": 496,
+      "evidence_zip": {
+        "status": "PASS",
+        "members": 42,
+        "sha256": "dbb5cb284cdae37276a5cd68adfaf724500e0c9f815b41b88186159c68a04c20"
+      },
+      "binary_runs": [
+        {
+          "label": "v1-first",
+          "execution_id": "b93c8b4ec8ee444a9a0eef9c1744fd7f",
+          "revision_id": "7945ff56be645350a793dc0b80e8be6fee46ae441f51867f730c492d523222ee",
+          "state": "completed",
+          "execution_phase": "import-returned"
+        },
+        {
+          "label": "v1-repeat",
+          "execution_id": "30da162a6b0d45c5bfda5953eacb5d0c",
+          "revision_id": "7945ff56be645350a793dc0b80e8be6fee46ae441f51867f730c492d523222ee",
+          "state": "completed",
+          "execution_phase": "import-returned"
+        },
+        {
+          "label": "dependency-only",
+          "execution_id": "003b12b14d674f078d70aa08b7ccbbce",
+          "revision_id": "3c46b5692c968596052ae11dd2b7adc23a1d5c78aa34d36f5e8fc650ac68de09",
+          "state": "completed",
+          "execution_phase": "import-returned"
+        },
+        {
+          "label": "top-level-exception",
+          "execution_id": "bf1bec660e0d4244a57b73de1368f57c",
+          "revision_id": "0861ef5234b3b7438f99ed6414a2f751fecd5fce08a71d46ac04357258b60a25",
+          "state": "failed",
+          "execution_phase": "load-or-execute-failed"
+        },
+        {
+          "label": "loop",
+          "execution_id": "ef11d9ec4a8147798cb0f71d96ff721a",
+          "revision_id": "4e991555570cea0a9c38018b8a7a7d506879093382ef66d8fa134335a44ca12f",
+          "state": "running",
+          "execution_phase": "import-requested"
+        }
+      ],
+      "cleanup": "PASS"
+    },
+    "preview": {
+      "status": "HANDOFF READY",
+      "session_id": "263777684b274295adb352281d89c71d",
+      "pid": 96364,
+      "http_response_count": 163,
+      "evidence_zip": {
+        "status": "PASS",
+        "members": 21,
+        "sha256": "4be5e845e870e2777cc77bea83c5531af69af4985665f234575fd9656ac4e574"
+      },
+      "binary_runs": [
+        {
+          "label": "handoff-loop",
+          "execution_id": "569cdf8fc9cd40b5af14029071b23e2b",
+          "revision_id": "4e991555570cea0a9c38018b8a7a7d506879093382ef66d8fa134335a44ca12f",
+          "state": "running",
+          "execution_phase": "import-requested"
+        }
+      ],
+      "cleanup": "HANDOFF OWNED"
+    }
+  },
+  "identical_main_dependency_update": true
+}

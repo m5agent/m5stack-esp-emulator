@@ -1,0 +1,211 @@
+[
+  {
+    "path": "health",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.530903+00:00",
+    "status": 200,
+    "bytes": 946,
+    "sha256": "d177c09c317abbe0a1c61daee62b8a0b3823e5e4d4704f6aed20f71cdde0753e",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "946",
+      "x-request-id": "1a322822568c46e1b06e19182eb85a76"
+    },
+    "elapsed_seconds": 0.0029068749863654375
+  },
+  {
+    "path": "sessions/263777684b274295adb352281d89c71d",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.534021+00:00",
+    "status": 200,
+    "bytes": 13710,
+    "sha256": "37e53ac11ad9395d0428c17263b5579907dbaeb41a5b088adc17760ace1f9287",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "13710",
+      "x-request-id": "ed5e08f7215e45e7a8a80b95c9b18a4d"
+    },
+    "elapsed_seconds": 0.0008207089267671108
+  },
+  {
+    "path": "previews/be0529fcf6a843319e7a4ec942324a47",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.542913+00:00",
+    "status": 200,
+    "bytes": 10187,
+    "sha256": "c1c50340afe517fc28f1ee982ebb9132ce770dff44d4160296c42c249d1cc025",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "10187",
+      "x-request-id": "e658a54b477f46e0ba851547677f0b7f"
+    },
+    "elapsed_seconds": 0.0013082500081509352
+  },
+  {
+    "path": "sessions/263777684b274295adb352281d89c71d/program",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.544351+00:00",
+    "status": 200,
+    "bytes": 4999,
+    "sha256": "dcfdd73e3085fbc60025284398aa07d93d0c6555de48dee5342130fcdf3e6aff",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "4999",
+      "x-request-id": "240bcd80b61740dab780e3f36c1fab08"
+    },
+    "elapsed_seconds": 0.0006400831043720245
+  },
+  {
+    "path": "sessions/263777684b274295adb352281d89c71d/serial?offset=197317&limit=1048576",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.545093+00:00",
+    "status": 200,
+    "bytes": 86262,
+    "sha256": "7074067d0bd9533d38aa0d93c65fdc2d1e678d1b6c001354443ec68661a76926",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "86262",
+      "x-request-id": "daadd39b4a3a47b38c205567e0a13420"
+    },
+    "elapsed_seconds": 0.0008808749262243509
+  },
+  {
+    "path": "sessions/263777684b274295adb352281d89c71d/frame.png?max_age_ms=1",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.546666+00:00",
+    "status": 200,
+    "bytes": 318,
+    "sha256": "e94c98d777799feb6de6025fcbc60f0d1e46faf415d98281204a2d85c95ca942",
+    "headers": {
+      "content-type": "image/png",
+      "content-length": "318",
+      "x-request-id": "40eeb1bce81c49c08a7cde817d2e7bdb",
+      "x-frame-width": "320",
+      "x-frame-height": "240",
+      "x-frame-sha256": "e94c98d777799feb6de6025fcbc60f0d1e46faf415d98281204a2d85c95ca942",
+      "x-frame-capture-seq": "61",
+      "x-frame-source": "live",
+      "etag": "\"e94c98d777799feb6de6025fcbc60f0d1e46faf415d98281204a2d85c95ca942\"",
+      "x-frame-captured-at": "2026-10-26T22:38:33.548071+00:00",
+      "x-frame-execution-id": "1793fa0a37ce48f98cc319404626bc6d",
+      "x-frame-revision-id": "e9f65825d4b8e80f5499f3a83932458497d3b5129910bfe97e7f862fa54671ee",
+      "x-frame-program-state": "running"
+    },
+    "elapsed_seconds": 0.003013875102624297
+  },
+  {
+    "path": "sessions/263777684b274295adb352281d89c71d/evidence",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.553229+00:00",
+    "status": 200,
+    "bytes": 47641,
+    "sha256": "c6ccb4d639e89646c799d5e2c02218dcda0f0e8049757341975b4aa0398746ee",
+    "headers": {
+      "content-type": "application/zip",
+      "content-length": "47641",
+      "x-request-id": "fd0bda57d6bb4fdda94a3fab7104f558"
+    },
+    "elapsed_seconds": 0.11963445809669793
+  },
+  {
+    "path": "previews/be0529fcf6a843319e7a4ec942324a47/close",
+    "method": "POST",
+    "started_at": "2026-10-26T22:38:33.675544+00:00",
+    "status": 202,
+    "bytes": 10159,
+    "sha256": "7563545faa91484948f5a42ec9649e25819c941d687d14f44c0d30918ac16f1a",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "10159",
+      "x-request-id": "7506b4e0421d4c62b1b4bcb07c51ef30"
+    },
+    "elapsed_seconds": 0.0028547500260174274
+  },
+  {
+    "path": "previews/be0529fcf6a843319e7a4ec942324a47",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.678681+00:00",
+    "status": 200,
+    "bytes": 10159,
+    "sha256": "7563545faa91484948f5a42ec9649e25819c941d687d14f44c0d30918ac16f1a",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "10159",
+      "x-request-id": "96752d71e7a240cf86ad907f4124fc83"
+    },
+    "elapsed_seconds": 0.001461750129237771
+  },
+  {
+    "path": "previews/be0529fcf6a843319e7a4ec942324a47",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.781622+00:00",
+    "status": 200,
+    "bytes": 10159,
+    "sha256": "7563545faa91484948f5a42ec9649e25819c941d687d14f44c0d30918ac16f1a",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "10159",
+      "x-request-id": "7d62ebefaa2c4169ac5c6b20c621326e"
+    },
+    "elapsed_seconds": 0.001407915959134698
+  },
+  {
+    "path": "previews/be0529fcf6a843319e7a4ec942324a47",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.893270+00:00",
+    "status": 200,
+    "bytes": 22204,
+    "sha256": "c9694836872c199147e74a33575054002479bdfd5540dd16248d8d669b7805c3",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "22204",
+      "x-request-id": "9c1ed532980c4430b57ed0b2239b10aa"
+    },
+    "elapsed_seconds": 0.0021467909682542086
+  },
+  {
+    "path": "sessions/263777684b274295adb352281d89c71d",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.895699+00:00",
+    "status": 200,
+    "bytes": 12777,
+    "sha256": "a47d0d07d6baaaa0e4ae2c80aea3c0969ddfa1cbd049f6dc1d5fa8942cce2bf1",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "12777",
+      "x-request-id": "5d1d3caffc2c4c29aed4d5999b37db17"
+    },
+    "elapsed_seconds": 0.00093812495470047
+  },
+  {
+    "path": "sessions/263777684b274295adb352281d89c71d/frame.png",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.896855+00:00",
+    "status": 200,
+    "bytes": 318,
+    "sha256": "e94c98d777799feb6de6025fcbc60f0d1e46faf415d98281204a2d85c95ca942",
+    "headers": {
+      "content-type": "image/png",
+      "content-length": "318",
+      "x-request-id": "04526806379e4ef6b53407b32c18287b",
+      "x-frame-width": "320",
+      "x-frame-height": "240",
+      "x-frame-sha256": "e94c98d777799feb6de6025fcbc60f0d1e46faf415d98281204a2d85c95ca942"
+    },
+    "elapsed_seconds": 0.0006835840176790953
+  },
+  {
+    "path": "capacity",
+    "method": "GET",
+    "started_at": "2026-10-26T22:38:33.897825+00:00",
+    "status": 200,
+    "bytes": 818,
+    "sha256": "911e6707de6de8ba16b449937022d8490cb7fb020c3fbc9451ae27510a135f09",
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "818",
+      "x-request-id": "4b284e734c7e49968533002f6c1d55c3"
+    },
+    "elapsed_seconds": 0.0006003750022500753
+  }
+]

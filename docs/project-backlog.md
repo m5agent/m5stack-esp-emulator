@@ -71,7 +71,7 @@ Scroll限定原驱动与按键/RGB闭环、公共完整checkpoint及同步revisi
 不能把逻辑counter写入/reset当轴运动。验收须核真实mounted组件。
 已有共享样本不关闭 Preview 执行资源或推送协议；Tab5原GDB帧与reset/stop的
 共同生命周期门禁按 `UNIT-HOST-28` 另做，不继承QEMU缓存准入。
-二进制入口须按`UNIT-HOST-33`先取得固件run-as-main/loader路径；普通`.mpy`导入不具备完整脚本入口语义。1.44已分开二进制checkpoint存储与执行，四host双lane旧Run保护已验；1.45严格显式base与CoreS3候选loader固定SHA的模块身份/重复Run/异常/Ctrl-C已取得限定guest诊断，公共二进制入口仍关，需接产品loader/准入与更多主机；FlashLight部分数字路径/四host和CoreS3 mounted已验，动态S1、PWM/冷route边界仍开放，见[新证据](evidence/2026-10-27-flashlight-and-uiflow-base/README.md)。4Relay/FlashLight新协议冲突与模型边界见[本块证据](evidence/2026-10-27-binary-checkpoint-admission/README.md)。
+二进制入口须按`UNIT-HOST-33`先取得固件run-as-main/loader路径；普通`.mpy`导入不具备完整脚本入口语义。1.44已分开二进制checkpoint存储与执行，四host双lane旧Run保护已验；1.45严格显式base与CoreS3候选loader固定SHA的模块身份/重复Run/异常/Ctrl-C已取得限定guest诊断，1.46已接有条件公共入口且CoreS3 stock/兼容固件及Web通过，继续更多固件/主机、reset/重连后能力恢复与完整清场；FlashLight部分数字路径/四host和CoreS3 mounted已验，动态S1、PWM/冷route边界仍开放，见[新证据](evidence/2026-10-27-flashlight-and-uiflow-base/README.md)。4Relay/FlashLight新协议冲突与模型边界见[本块证据](evidence/2026-10-27-binary-checkpoint-admission/README.md)。
 运行时不可中断、native/IRQ/thread 清理及重连缺口须保守处理，不承诺低秒级 SLA。验收见
 [AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
 checkpoint/artifact snapshot/virtual target也需衔接；Preview服务端与限定Web消费者已实现，SSE与AIFlow消费者未接。
@@ -132,7 +132,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
-| `UNIT-01` | 进行中 | 同guest程序的剩余Unit、FlashLight route历史资格锁存、二进制入口与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它三款准入主机剩余Unit的实际源码API执行、ADC app calibration/ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、矩阵命令记录、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论；真机同路径另验 |
+| `UNIT-01` | 进行中 | 同guest程序的剩余Unit、FlashLight route历史资格锁存、更多主机/固件的二进制入口验收与保存开机程序；AIFlow checkpoint/虚拟目标、Preview后续恢复与GC、SSE/实时分发；程序revision引用保留/有界回收；Tab5 GDB frame生命周期与其它后端取消场景实际会话验证；其它三款准入主机剩余Unit的实际源码API执行、ADC app calibration/ADC2 oracle与Thermal fixture、新HUB拓扑、原IR GC/原Buzzer、完整PWM周期、矩阵命令记录、Heart生理算法及视觉缺口；Scroll的TIM回绕、RGB多槽队列、轴角/方向标定、bootloader/Flash持久化与地址0；Roller485协议与功能准入 | 新固件重新验证；逐型号同guest读写、Web输入/输出、可见session和evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有UI；Core2 IMU偶发marker保留独立完整轮，不以单例补PASS；主机问题单独记录，不以诊断、custom guest或桥契约替代原固件结论；真机同路径另验 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
 ## P0：Core2 legacy UIFlow 运行时

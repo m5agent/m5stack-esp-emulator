@@ -1,0 +1,595 @@
+{
+  "status": "PASS",
+  "category": "OFFLINE_OPENAPI31_NULL_AND_WORKER_PROJECTION_CONSTRAINTS",
+  "spec_sha256": "b27ad3d9db6d1efd2fbc76121295d0935f5677611af65bb6e94dfd5bcbd84c31",
+  "cases": [
+    {
+      "name": "session-pid-null",
+      "schema": "Session",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "session-pid-invalid-nonnull",
+      "schema": "Session",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "pid"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "session-network-null",
+      "schema": "Session",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "session-network-invalid-nonnull",
+      "schema": "Session",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "network"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "session-nvs-null",
+      "schema": "Session",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "session-nvs-invalid-nonnull",
+      "schema": "Session",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "nvs"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "session-artifact_sha256-null",
+      "schema": "Session",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "session-artifact_sha256-invalid-nonnull",
+      "schema": "Session",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "artifact_sha256"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "session-flash-null",
+      "schema": "Session",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "session-flash-invalid-nonnull",
+      "schema": "Session",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "flash"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "session-error-null",
+      "schema": "Session",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "session-error-invalid-nonnull",
+      "schema": "Session",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "error"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "session-completed_at-null",
+      "schema": "Session",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "session-completed_at-invalid-nonnull",
+      "schema": "Session",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "completed_at"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "session-last_frame_captured_at-null",
+      "schema": "Session",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "session-last_frame_captured_at-invalid-nonnull",
+      "schema": "Session",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "last_frame_captured_at"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "session-last_device_state_at-null",
+      "schema": "Session",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "session-last_device_state_at-invalid-nonnull",
+      "schema": "Session",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "last_device_state_at"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "session-runtime_memory-null",
+      "schema": "Session",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "session-runtime_memory-invalid-nonnull",
+      "schema": "Session",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "anyOf",
+          "instance_path": [
+            "runtime_memory"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtime-memory-valid-nonnull",
+      "schema": "Session",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "runtime-memory-const-preserved",
+      "schema": "Session",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "anyOf",
+          "instance_path": [
+            "runtime_memory"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtime-memory-extra-field-preserved",
+      "schema": "Session",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "anyOf",
+          "instance_path": [
+            "runtime_memory"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "device-display-null",
+      "schema": "Device",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "device-display-object",
+      "schema": "Device",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "device-display-wrongtype",
+      "schema": "Device",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "display"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-without-private-schema-version",
+      "schema": "Capacity",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    },
+    {
+      "name": "capacity-summary-missing-worker_id",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-missing-instance_id",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-missing-generation",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-missing-state",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-missing-pid",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-missing-started_at",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-missing-heartbeat_at",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-missing-heartbeat_age_seconds",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-missing-stale",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-missing-accepting_leases",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-missing-active_lease_count",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-missing-active_lease_ids",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-missing-drained_at",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-invalid-generation",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "worker",
+            "generation"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-invalid-state",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "enum",
+          "instance_path": [
+            "worker",
+            "state"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-invalid-accepting_leases",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "worker",
+            "accepting_leases"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-invalid-heartbeat_age_seconds",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "worker",
+            "heartbeat_age_seconds"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-invalid-drained_at",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "type",
+          "instance_path": [
+            "worker",
+            "drained_at"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-extra-property",
+      "schema": "Capacity",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "additionalProperties",
+          "instance_path": [
+            "worker"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capacity-summary-does-not-become-private-worker",
+      "schema": "Worker",
+      "expected_valid": false,
+      "actual_valid": false,
+      "errors": [
+        {
+          "validator": "required",
+          "instance_path": []
+        }
+      ]
+    },
+    {
+      "name": "private-worker-requires-and-accepts-schema-version",
+      "schema": "Worker",
+      "expected_valid": true,
+      "actual_valid": true,
+      "errors": []
+    }
+  ],
+  "count": 48,
+  "validator": "Draft202012Validator with available FormatChecker registrations; no nullable translation",
+  "registered_formats": [
+    "date",
+    "email",
+    "idn-email",
+    "idn-hostname",
+    "ipv4",
+    "ipv6",
+    "json-pointer",
+    "regex",
+    "relative-json-pointer",
+    "time",
+    "uuid"
+  ],
+  "api_contacted": false,
+  "guest": "NOT RUN",
+  "hardware": "NOT RUN"
+}

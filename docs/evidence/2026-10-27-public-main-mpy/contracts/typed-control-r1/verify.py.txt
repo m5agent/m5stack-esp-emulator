@@ -1,0 +1,59 @@
+"""Offline JSON Schema 2020-12 positive/negative conformance checks."""
+from __future__ import annotations
+import copy
+import hashlib
+import json
+from pathlib import Path
+import yaml
+from jsonschema import Draft202012Validator, FormatChecker
+
+ROOT = Path.cwd()
+OUT = Path(__file__).resolve().parent
+SPEC = ROOT / "docs/device-service.openapi.yaml"
+data = SPEC.read_bytes()
+spec = yaml.safe_load(data)
+cases = []
+
+
+def check(name, schema, instance, admitted):
+    validator = Draft202012Validator({"$ref": "#/components/schemas/" + schema, "components": spec["components"]}, format_checker=FormatChecker())
+    errors = list(validator.iter_errors(instance))
+    assert (not errors) == admitted, (name, [error.message for error in errors])
+    cases.append({"name": name, "schema": schema, "expected_valid": admitted,
+                  "actual_valid": not errors, "errors": [{"validator": error.validator, "instance_path": list(error.absolute_path)} for error in errors]})
+
+
+session = {"session_id": "a" * 32, "device_id": "cores3", "state": "running"}
+for field, bad in {"pid": "123", "network": [], "nvs": [], "artifact_sha256": 123, "flash": [], "error": {},
+                   "completed_at": "not-a-date", "last_frame_captured_at": "not-a-date", "last_device_state_at": "not-a-date",
+                   "runtime_memory": {}}.items():
+    check("session-" + field + "-null", "Session", {**session, field: None}, True)
+    check("session-" + field + "-invalid-nonnull", "Session", {**session, field: bad}, False)
+memory = {"requested_psram_mib": None, "cli_requested_psram_mib": None, "effective_psram_mib": 8,
+          "effective_source": "fixture", "policy": "fixture", "claim": "qemu-memory-configuration-only", "physical_cache_psram_timing": "NOT RUN"}
+check("runtime-memory-valid-nonnull", "Session", {**session, "runtime_memory": memory}, True)
+check("runtime-memory-const-preserved", "Session", {**session, "runtime_memory": {**memory, "claim": "hardware-pass"}}, False)
+check("runtime-memory-extra-field-preserved", "Session", {**session, "runtime_memory": {**memory, "anything": True}}, False)
+check("device-display-null", "Device", {"display": None}, True)
+check("device-display-object", "Device", {"display": {"width": 320}}, True)
+check("device-display-wrongtype", "Device", {"display": []}, False)
+
+worker = {"worker_id": "synthetic-worker", "instance_id": "b" * 32, "generation": 45, "state": "ready", "pid": 1234,
+          "started_at": "2026-10-27T00:00:00Z", "heartbeat_at": "2026-10-27T00:00:01Z", "heartbeat_age_seconds": None,
+          "stale": False, "accepting_leases": True, "active_lease_count": 0, "active_lease_ids": [], "drained_at": None}
+check("capacity-summary-without-private-schema-version", "Capacity", {"worker": worker}, True)
+for field in worker:
+    missing = copy.deepcopy(worker)
+    del missing[field]
+    check("capacity-summary-missing-" + field, "Capacity", {"worker": missing}, False)
+for field, value in {"generation": "45", "state": "pretend-ready", "accepting_leases": "yes", "heartbeat_age_seconds": "unknown", "drained_at": {}}.items():
+    check("capacity-summary-invalid-" + field, "Capacity", {"worker": {**worker, field: value}}, False)
+check("capacity-summary-extra-property", "Capacity", {"worker": {**worker, "unexpected": True}}, False)
+check("capacity-summary-does-not-become-private-worker", "Worker", worker, False)
+check("private-worker-requires-and-accepts-schema-version", "Worker", {**worker, "schema_version": 1}, True)
+assert data == SPEC.read_bytes()
+receipt = {"status": "PASS", "category": "OFFLINE_OPENAPI31_NULL_AND_WORKER_PROJECTION_CONSTRAINTS",
+           "spec_sha256": hashlib.sha256(data).hexdigest(), "cases": cases, "count": len(cases),
+           "validator": "Draft202012Validator with FormatChecker; no nullable translation", "api_contacted": False, "guest": "NOT RUN", "hardware": "NOT RUN"}
+(OUT / "receipt.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n")
+print(json.dumps({"status": "PASS", "count": len(cases), "spec_sha256": receipt["spec_sha256"]}))

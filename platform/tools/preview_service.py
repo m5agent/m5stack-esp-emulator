@@ -14,11 +14,13 @@ import math
 import threading
 import time
 
-from device_service import ServiceError, _require_live_package_entrypoint, _validate_checkpoint_bytecode
+from device_service import ServiceError, _is_sha256, _require_live_package_entrypoint, _validate_checkpoint_bytecode
 from program_packages import ProgramPackageError
 from preview_store import PreviewStore, PreviewStoreError, LOCAL_OWNER
-from uiflow_runtime import LIVE_PROGRAM_DEVICES
+from uiflow_runtime import LIVE_PROGRAM_DEVICES, UIFlowRuntimeError
+from uiflow_package_runtime import validate_mpy
 from unit_runtime import UnitRegistry, UnitError
+from uiflow_main_loader import main_loader_verified
 
 
 TERMINAL = {"completed", "failed", "cancelled", "superseded", "interrupted"}
@@ -29,6 +31,7 @@ CAPABILITIES = {
     "main_mpy": False, "hotplug": False, "gc_enabled": False,
     "principal_mode": "shared-control-bearer-local-control",
 }
+UNKNOWN_RUNTIME_CAPABILITIES = {"schema_version": 1, "status": "unknown", "mpy_entrypoint": False}
 
 
 def now():
@@ -101,10 +104,28 @@ class PreviewService:
             return context
 
     @staticmethod
-    def _public(preview):
+    def _public(preview, runtime_capabilities=None):
         result = copy.deepcopy(preview)
         result["capabilities"] = copy.deepcopy(result["session_request"]["preview_capabilities"])
+        # Creation receipts are frozen intent, never a later canary receipt.
+        # Fresh reads supply an observation from the actual allocated session.
+        result["runtime_capabilities"] = copy.deepcopy(runtime_capabilities if runtime_capabilities is not None
+                                                       else result.get("runtime_capabilities", UNKNOWN_RUNTIME_CAPABILITIES))
+        result["capabilities"]["main_mpy"] = main_loader_verified(result["runtime_capabilities"])
         return result
+
+    def _runtime_capabilities(self, preview):
+        if not preview.get("session_id"):
+            return copy.deepcopy(UNKNOWN_RUNTIME_CAPABILITIES)
+        try:
+            session = self.service.get_session(preview["session_id"])
+            identity = preview.get("session_identity") or {}
+            if session.id != identity.get("session_id") or session.firmware_sha != identity.get("firmware_sha256"):
+                return copy.deepcopy(UNKNOWN_RUNTIME_CAPABILITIES)
+            getter = getattr(session, "program_capabilities", None)
+            return plain(getter()) if getter is not None else copy.deepcopy(UNKNOWN_RUNTIME_CAPABILITIES)
+        except ServiceError:
+            return copy.deepcopy(UNKNOWN_RUNTIME_CAPABILITIES)
 
     def _get(self, preview_id, owner=LOCAL_OWNER):
         return self._db(self.store.get_preview, owner, preview_id)
@@ -114,8 +135,13 @@ class PreviewService:
 
     def create(self, payload, *, owner, idempotency_key):
         payload = plain(payload)
-        if not isinstance(payload, dict) or set(payload) - {"device_id", "runtime", "units", "ttl_seconds"}:
-            raise ServiceError("invalid_preview_request", "device_id, runtime, units and ttl_seconds are accepted", 400)
+        if not isinstance(payload, dict) or set(payload) - {"device_id", "runtime", "units", "ttl_seconds", "base_firmware_id", "expected_base_sha256"}:
+            raise ServiceError("invalid_preview_request", "device_id, runtime, units, ttl_seconds and an optional explicit base pair are accepted", 400)
+        if ("base_firmware_id" in payload) != ("expected_base_sha256" in payload):
+            raise ServiceError("uiflow_base_binding_required", "base_firmware_id and expected_base_sha256 are required together", 400)
+        if "base_firmware_id" in payload and not all(isinstance(payload[key], str) and _is_sha256(payload[key])
+                                                     for key in ("base_firmware_id", "expected_base_sha256")):
+            raise ServiceError("invalid_program_base", "base_firmware_id and expected_base_sha256 must be lowercase SHA256 strings", 400)
         device_id, runtime, ttl = payload.get("device_id"), payload.get("runtime", "qemu"), payload.get("ttl_seconds", 300)
         if not isinstance(device_id, str) or not isinstance(runtime, str):
             raise ServiceError("invalid_preview_request", "device_id and runtime must be strings", 400)
@@ -124,6 +150,8 @@ class PreviewService:
         if type(ttl) is not int or not 30 <= ttl <= 3600:
             raise ServiceError("invalid_preview_request", "ttl_seconds must be an integer between 30 and 3600", 400)
         request = {"device_id": device_id, "runtime": runtime, "units": payload.get("units", []), "ttl_seconds": ttl}
+        if "base_firmware_id" in payload:
+            request.update(base_firmware_id=payload["base_firmware_id"], expected_base_sha256=payload["expected_base_sha256"])
         replay = self._db(self.store.lookup_replay, owner, "create-preview", idempotency_key, request)
         if replay is not None:
             return self._public(replay)
@@ -139,7 +167,9 @@ class PreviewService:
         if spec is None or not spec.supported or not spec.backend_ready:
             raise ServiceError("backend_not_ready", "Preview runtime is unavailable", 503)
         with self._allocation_guard():
-            reference = self.service.reference_info(spec)
+            reference = (self.service.program_base_info(spec, base_firmware_id=request["base_firmware_id"],
+                         expected_base_sha256=request["expected_base_sha256"])
+                         if "base_firmware_id" in request else self.service.reference_info(spec))
             session_request = {
                 **request, "program_mode": "uiflow-live", "ready_timeout_seconds": 40,
                 "reference_sha256": reference["sha256"], "frozen_units": units,
@@ -152,11 +182,12 @@ class PreviewService:
         return self._public(receipt)
 
     def list(self, *, owner):
-        return {"previews": [self._public(row) for row in self._db(self.store.list_previews, owner)],
+        return {"previews": [self._public(row, self._runtime_capabilities(row)) for row in self._db(self.store.list_previews, owner)],
                 "limits": self.store.limits()}
 
     def get(self, preview_id, *, owner):
-        return self._public(self._get(preview_id, owner))
+        preview = self._get(preview_id, owner)
+        return self._public(preview, self._runtime_capabilities(preview))
 
     def run(self, preview_id, run_id, *, owner):
         return self._db(self.store.get_run, owner, preview_id, run_id)
@@ -179,18 +210,36 @@ class PreviewService:
         # Known host rejection must precede any cancellation of the old program.
         try:
             revision = self.service.program_packages.get(payload["revision_id"])
-            _require_live_package_entrypoint(revision)
+            binary = revision.get("entrypoint") == "main.mpy"
+            _require_live_package_entrypoint(revision, self._runtime_capabilities(preview) if binary else None)
             files = self.service.program_packages.read_files(payload["revision_id"])
             _validate_checkpoint_bytecode(files)
+            if binary:
+                capabilities = self._runtime_capabilities(preview)
+                _require_live_package_entrypoint(revision, capabilities)
+                validate_mpy(files, capabilities)
         except ProgramPackageError as error:
             raise ServiceError(error.code, error.message, error.status) from error
+        except UIFlowRuntimeError as error:
+            raise ServiceError(error.code, error.message, 409) from error
         context = self._context(preview_id)
         with context.condition:
             if self._shutdown.is_set():
                 raise ServiceError("service_stopping", "Preview service is stopping", 503)
             if stamp(self._get(preview_id, owner)["expires_at"]) <= time.time():
                 raise ServiceError("preview_closing", "Preview lease expired", 409)
-            receipt, replayed = self._db(self.store.admit_run, owner, preview_id, idempotency_key, payload)
+            # Keep the last capability/ABI observation and the short durable
+            # intent admission under the same Session revocation lock. No UART
+            # or file I/O is performed while this admission guard is held.
+            session, _ = self._session(self._get(preview_id, owner), context) if binary else (None, None)
+            with session.program_admission() if binary else nullcontext() as capabilities:
+                if binary:
+                    try:
+                        _require_live_package_entrypoint(revision, capabilities)
+                        validate_mpy(files, capabilities)
+                    except UIFlowRuntimeError as error:
+                        raise ServiceError(error.code, error.message, 409) from error
+                receipt, replayed = self._db(self.store.admit_run, owner, preview_id, idempotency_key, payload)
             if not replayed:
                 context.admission = False
                 if context.cancel_event is not None:
@@ -477,9 +526,12 @@ class PreviewService:
         frozen = preview["session_request"]
         if session.units != frozen["frozen_units"] or session.unit_contract != frozen["frozen_unit_contract"]:
             raise ServiceError("preview_target_changed", "Unit assembly or contract changed during allocation", 409)
+        runtime_capabilities = (plain(session.program_capabilities()) if hasattr(session, "program_capabilities")
+                                else copy.deepcopy(UNKNOWN_RUNTIME_CAPABILITIES))
         def bind(state):
             state["preview"].update(session_id=session.id, allocation_state="bound",
                                     session_identity={"session_id": session.id, "firmware_sha256": session.firmware_sha},
+                                    runtime_capabilities=runtime_capabilities,
                                     blocked_reason=None)
         self._mutate(preview["preview_id"], bind)
 
@@ -497,12 +549,14 @@ class PreviewService:
             self.service.recover_management_handle(candidates[0].id, preview_id=preview_id,
                                                    owner_epoch=preview["owner_epoch"], expected_reference_sha256=preview["session_request"]["reference_sha256"])
             self._bind(preview, candidates[0].snapshot())
+        runtime_capabilities = self._runtime_capabilities(self._get(preview_id))
         def recover_runs(state):
             p = state["preview"]
             for run in state["runs"].values():
                 if run["state"] in {"preparing", "starting", "running"}:
                     run.update(state="unknown", error={"code": "preview_recovery_observation_required", "message": "Execution will be observed, never replayed"})
-            p.update(active_run_id=None, transition_run_id=None, recovered_at=now())
+            p.update(active_run_id=None, transition_run_id=None, recovered_at=now(),
+                     runtime_capabilities=runtime_capabilities)
         self._mutate(preview_id, recover_runs)
 
     def _allocate(self, preview, context):

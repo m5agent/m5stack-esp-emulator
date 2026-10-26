@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "hardware": "NOT RUN",
+  "optional_browser_capture": "PARTIAL",
+  "platform_full_regression": {
+    "tests": 1218,
+    "seconds": 108.913,
+    "status": "PASS",
+    "receipt": "host-followup/platform-r4/receipt.json"
+  },
+  "final_docs": {
+    "tests": 48,
+    "status": "PASS",
+    "log": "acceptance/docs-r2.log"
+  },
+  "gen45": {
+    "sessions": 3,
+    "executions": 14,
+    "mpy_executions": 8,
+    "zip_members_verified": 86,
+    "web_mandatory_phases": 6,
+    "category": "ORIGINAL_BASELINE_CODE_AND_SOURCE_RECEIPTS_PRESERVED"
+  },
+  "gen46": {
+    "sessions": 2,
+    "executions": 9,
+    "mpy_executions": 5,
+    "zip_members_verified": 58,
+    "category": "FINAL_CODE_NORMAL_RUN_CANCEL_AND_SOURCE_RECOVERY_NOT_NEW_WEB"
+  },
+  "extra_corrupt_environment_guest": "NOT RUN: automated security review rejected the action for possible cybersecurity risk; host regression remains separate",
+  "hardware_and_physical_equivalence": "NOT RUN",
+  "contract_responses": 766,
+  "typed_controls": 48,
+  "portable_verifiers": [
+    "api-runtime/verify_archive.py",
+    "web/verify.py",
+    "host/verify.py",
+    "host-followup/verify.py",
+    "restoration-followup/verify_archive.py"
+  ],
+  "unit_goal": "ACTIVE: additional Unit/controller/host, AIFlow consumer, SSE and persistence remain in project-backlog.md"
+}

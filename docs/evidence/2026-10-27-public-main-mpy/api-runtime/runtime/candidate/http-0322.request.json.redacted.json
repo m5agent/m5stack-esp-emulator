@@ -1,0 +1,29 @@
+{
+  "archive_notice": {
+    "classification": "redacted-json",
+    "original_bytes": 225,
+    "original_sha256": "83a6eddd3a1c2bc3017dc652641630fe397d16e0a8edd2ed115fa97ff50a3586",
+    "original_source": "runtime/candidate/http-0322.request.json",
+    "transformations": [
+      {
+        "decoded_bytes": 4,
+        "decoded_sha256": "9739484cb5602fa81ed50c000169d6b99e44bb39e4ffae760753c0362196a425",
+        "kind": "base64-payload-omitted",
+        "path": "$.files.main.mpy"
+      }
+    ]
+  },
+  "document": {
+    "entrypoint": "main.mpy",
+    "expected_execution_id": "05f777576b7c45dc91948daeed6ee4b9",
+    "files": {
+      "main.mpy": {
+        "archive_redacted_binary": true,
+        "decoded_bytes": 4,
+        "decoded_sha256": "9739484cb5602fa81ed50c000169d6b99e44bb39e4ffae760753c0362196a425",
+        "original_encoding": "base64"
+      }
+    },
+    "source_kind": "uiflow2-package"
+  }
+}

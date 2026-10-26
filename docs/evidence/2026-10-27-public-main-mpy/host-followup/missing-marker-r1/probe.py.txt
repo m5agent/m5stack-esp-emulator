@@ -1,0 +1,87 @@
+from __future__ import annotations
+import binascii,builtins,hashlib,io,json,pathlib,types,unittest
+from unittest import mock
+import uiflow_runtime
+from test_main_loader_admission import MainLoaderAdmissionTests
+from test_mpy_bytecode import HELPER
+from uiflow_runtime import execution_markers
+
+OUT=pathlib.Path(__file__).resolve().parent
+
+class MissingOwnerProofTests(MainLoaderAdmissionTests):
+ def test_unconfirmed_owner_after_actual_wrapper_cleanup_escape_must_revoke(self):
+  session=self.target()
+  program,runner=self.active_binary(session)
+  execution=program['execution_id']
+  owner=object();previous=object()
+  initial={'main':previous,'__main__':owner}
+  system=types.SimpleNamespace(modules=dict(initial),path=['/original/library'])
+  operating=types.SimpleNamespace(cwd='/original/cwd')
+  operating.getcwd=lambda:operating.cwd
+  def initial_chdir(path):operating.cwd=path
+  operating.chdir=initial_chdir
+  operating.listdir=lambda path:['main.mpy']
+  operating.stat=lambda path:(0x8000,)
+  exception_types=[]
+  system.print_exception=lambda error:exception_types.append(type(error).__name__)
+  package='/flash/.m5-live-packages/'+program['revision_id']
+  application=types.SimpleNamespace(__name__='__main__',__file__=package+'/main.mpy')
+  # This is the explicit behavior of the inert import double. No caller MPY
+  # or application bytes are evaluated. The generated trusted wrapper is real.
+  def bad_chdir(path):raise OSError('application replaced os.chdir')
+  def bad_print_exception(error):raise RuntimeError('application replaced sys.print_exception')
+  def importing(name,globals=None,locals=None,fromlist=(),level=0):
+   if name=='__main__':return system.modules.get(name,owner)
+   if name=='main':
+    self.assertIs(fromlist,False)
+    system.modules.update(main=application,__main__=application)
+    operating.chdir=bad_chdir
+    system.print_exception=bad_print_exception
+    return application
+   return {'sys':system,'os':operating,'hashlib':hashlib,'binascii':binascii}[name]
+  session._program_capabilities['probe'].update(owner_before_id=id(owner),owner_after_id=id(owner))
+  captured={}
+  def capture(console,wrapper,*args,**kwargs):
+   captured['wrapper']=wrapper
+   return {'state':'running','serial_offset':0,'next_offset':0,'acknowledged':True,'loader_import_requested':True}
+  with mock.patch.object(uiflow_runtime,'_run_wrapper',side_effect=capture):
+   uiflow_runtime.run_mpy(session._console,execution,package_path=package,entrypoint_sha256=hashlib.sha256(HELPER).hexdigest(),loader_capabilities=session.program_capabilities(),timeout=2,cancelled=lambda:False)
+  (OUT/'generated-trusted-wrapper.py.txt').write_bytes(captured['wrapper'])
+  printed=[]
+  environment=dict(vars(builtins),__import__=importing,open=lambda path,mode:io.BytesIO(HELPER),print=lambda *parts:printed.append(' '.join(map(str,parts))))
+  caught=None
+  try:exec(captured['wrapper'].decode(),{'__builtins__':environment})
+  except RuntimeError as error:caught=str(error)
+  self.assertEqual(caught,'application replaced sys.print_exception')
+  self.assertEqual(printed,[execution_markers(execution)['LOAD'].decode()])
+  actual_owner_restored=system.modules.get('__main__') is owner
+  self.assertFalse(actual_owner_restored)
+  self.assertEqual(operating.cwd,package)
+  transcript=('\r\n'.join(printed)+'\r\nTraceback (most recent call last):\r\nRuntimeError: '+caught+'\r\n').encode()
+  session._console.append(transcript)
+  # Scripted host protocol peer acknowledges Ctrl-A. The actual synchronizer
+  # and Session scanner execute unchanged; no real UART/guest is contacted.
+  console=session._console
+  writes=[]
+  prompt=b'raw REPL; CTRL-B to exit\r\n>'
+  def write(data,*,timeout):
+   writes.append(data.hex())
+   if data==b'\r\x01':console.append(prompt)
+  def wait_for(needle,offset,timeout,cancelled):
+   data=console.read_from(offset,console.offset()-offset)
+   at=data.find(needle)
+   self.assertGreaterEqual(at,0)
+   return data[:at+len(needle)],offset+at+len(needle)
+  console.write=write;console.wait_for=wait_for
+  result=session.interrupt_program(expected_execution_id=execution)
+  capabilities=session.program_capabilities()
+  record={'category':'HOST_ONLY_TRUSTED_WRAPPER_AND_SESSION_PROTOCOL_REPRODUCTION_NOT_GUEST','wrapper_exception':caught,'printed':printed,'terminal_markers':[],'simulated_application_owner_restored':actual_owner_restored,'simulated_application_cwd_restored':operating.cwd=='/original/cwd','raw_prompt_acknowledged':result['interrupt_ack']['interruption_confirmed'],'writes_hex':writes,'program_state_after_interrupt':result['program']['state'],'program_owner_restored_field':result['program'].get('owner_restored'),'capability_status_after_interrupt':capabilities['status'],'mpy_entrypoint_after_interrupt':capabilities['mpy_entrypoint'],'next_entrypoint_admission':None}
+  from device_service import _require_live_package_entrypoint
+  try:_require_live_package_entrypoint({'entrypoint':'main.mpy'},capabilities)
+  except Exception as error:record['next_entrypoint_admission']=getattr(error,'code',type(error).__name__)
+  else:record['next_entrypoint_admission']='ALLOWED'
+  (OUT/'observation.json').write_text(json.dumps(record,indent=2)+'\n')
+  print(json.dumps(record),flush=True)
+  self.assertFalse(capabilities['mpy_entrypoint'],'raw prompt without terminal owner proof must revoke binary admission')
+
+unittest.main(defaultTest=['MissingOwnerProofTests.test_unconfirmed_owner_after_actual_wrapper_cleanup_escape_must_revoke'])

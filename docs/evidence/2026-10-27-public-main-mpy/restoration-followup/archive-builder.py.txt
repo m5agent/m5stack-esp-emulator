@@ -1,0 +1,137 @@
+from __future__ import annotations
+import base64,hashlib,ipaddress,json,re,shutil,struct,zlib,zipfile
+from pathlib import Path
+ROOT=Path.cwd()
+SOURCE=ROOT/'.work/public-main-mpy-runtime-gen46-20261027-r1'
+PREPARED=ROOT/'.work/public-main-mpy-prepared-20261027-r1'
+OUT=ROOT/'docs/evidence/2026-10-27-public-main-mpy/restoration-followup'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+encode=lambda v:json.dumps(v,ensure_ascii=False,sort_keys=True,indent=2,allow_nan=False).encode()+b'\n'
+rows=[]
+private_ip=re.compile(r'(?<![\w.])(?:\d{1,3}\.){3}\d{1,3}(?![\w.])')
+mac=re.compile(r'(?<![0-9a-fA-F])(?:[0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}(?![0-9a-fA-F])')
+secret_keys={'api_key','api_token','access_token','refresh_token','authorization','password','client_secret'}
+
+def clean_text(value):
+ value=value.replace(str(ROOT),'$REPO').replace(str(Path.home()),'$HOME')
+ value=mac.sub('[redacted-mac]',value)
+ def address(m):
+  try:ip=ipaddress.ip_address(m.group())
+  except ValueError:return m.group()
+  if ip.is_private and not ip.is_loopback and not ip.is_unspecified:return '[redacted-private-ip]'
+  return m.group()
+ return private_ip.sub(address,value)
+
+def sanitize(value,changes,path='$'):
+ if isinstance(value,list):return [sanitize(item,changes,path+f'[{i}]') for i,item in enumerate(value)]
+ if isinstance(value,str):
+  result=clean_text(value)
+  if result!=value:changes.append({'path':path,'kind':'local-path-or-address-redaction'})
+  return result
+ if not isinstance(value,dict):return value
+ # Every public package format stores encoded file data in this shape.
+ if value.get('encoding')=='base64' and isinstance(value.get('data'),str):
+  try:raw=base64.b64decode(value['data'],validate=True)
+  except ValueError:raw=None
+  if raw is not None:
+   changes.append({'path':path,'kind':'base64-payload-omitted','decoded_bytes':len(raw),'decoded_sha256':sha(raw)})
+   return {'archive_redacted_binary':True,'original_encoding':'base64','decoded_bytes':len(raw),'decoded_sha256':sha(raw)}
+ result={}
+ for key,item in value.items():
+  if key.lower() in secret_keys and item not in (None,'',False,[]):
+   result[key]='[redacted-secret-field]';changes.append({'path':path+'.'+key,'kind':'secret-field-redaction'})
+  else:result[key]=sanitize(item,changes,path+'.'+key)
+ return result
+
+def register(origin,raw,rel,*,force_hash=None):
+ original={'original_source':origin,'original_bytes':len(raw),'original_sha256':sha(raw)}
+ if force_hash or raw.startswith(b'PK\x03\x04') or Path(rel).suffix.lower() in {'.zip','.mpy','.bin','.rom','.elf'}:
+  original.update(classification='hash-only',archive_path=None,reason=force_hash or 'binary-container-or-program-policy')
+  rows.append(original);return original
+ changes=[]
+ try:value=json.loads(raw)
+ except (ValueError,UnicodeError):value=None
+ if value is not None:
+  changed=sanitize(value,changes)
+  if changes:archived=encode({'archive_notice':{'classification':'redacted-json','original_source':origin,'original_sha256':sha(raw),'original_bytes':len(raw),'transformations':changes},'document':changed})
+  else:archived=raw
+ elif raw.startswith(b'\x89PNG\r\n\x1a\n'):
+  archived=raw
+ else:
+  try:text=raw.decode('utf-8')
+  except UnicodeError:
+   original.update(classification='hash-only',archive_path=None,reason='non-UTF8-non-PNG-binary');rows.append(original);return original
+  changed=clean_text(text)
+  if changed!=text:
+   changes=[{'kind':'local-path-or-address-redaction'}]
+   archived=(f'ARCHIVE REDACTED TEXT; original SHA256 {sha(raw)}; original bytes {len(raw)}\n'+changed).encode()
+  else:archived=raw
+ rel=rel+'.txt' if rel.endswith('.md') else rel
+ if changes:rel += '.redacted.json' if value is not None else '.redacted.txt'
+ dest=OUT/rel;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(archived)
+ original.update(classification=('redacted-json' if value is not None else 'redacted-text') if changes else 'original',archive_path=rel,archive_bytes=len(archived),archive_sha256=sha(archived),transformations=changes)
+ rows.append(original);return original
+
+def generated(rel,raw):
+ dest=OUT/rel;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw)
+ rows.append({'classification':'generated','original_source':None,'original_bytes':None,'original_sha256':None,'archive_path':rel,'archive_bytes':len(raw),'archive_sha256':sha(raw)})
+
+
+# Execute only after root confirms the normal stock/candidate runner exited 0.
+report=json.loads((SOURCE/'report.json').read_bytes())
+assert report['status']=='PASS' and report['service_worker']['generation']==46 and report['hardware']=='NOT RUN'
+assert [(lane['mode'],lane['status']) for lane in report['lanes']]==[('stock','PASS'),('candidate','PASS')]
+frozen=report['product_source_sha256']
+assert all(sha((ROOT/name).read_bytes())==digest for name,digest in frozen.items()),'product differs from gen46 run'
+prepared=json.loads((PREPARED/'prepared.json').read_bytes())
+assert sha((PREPARED/'prepared.json').read_bytes())==report['prepared_record_sha256']
+runner=ROOT/'tests/units/run_main_mpy_runtime.py'
+assert sha(runner.read_bytes())==report['runner_sha256']
+source_inputs={str(path.relative_to(ROOT)):sha(path.read_bytes()) for folder in (SOURCE,PREPARED) for path in sorted(folder.rglob('*')) if path.is_file() and '__pycache__' not in path.parts}
+gen45_indices={str(path.relative_to(ROOT)):sha(path.read_bytes()) for path in (ROOT/'docs/evidence/2026-10-27-public-main-mpy').glob('*/index.json')}
+OUT.mkdir(parents=True,exist_ok=False)
+for folder,label in ((SOURCE,'runtime'),(PREPARED,'prepared')):
+ for path in sorted(folder.rglob('*')):
+  if not path.is_file() or '__pycache__' in path.parts:continue
+  if label=='prepared' and path.name.startswith('preview-'):continue
+  rel=str(path.relative_to(folder));raw=path.read_bytes()
+  register(label+'/'+rel,raw,label+'/'+rel)
+  if path.suffix=='.zip' and not path.name.startswith('http-'):
+   with zipfile.ZipFile(path) as archive:
+    assert archive.testzip() is None
+    manifest=json.loads(archive.read('manifest.json'))
+    assert len(archive.namelist())==len(set(archive.namelist()))
+    assert set(manifest['files'])==set(archive.namelist())-{'manifest.json'}
+    for name in archive.namelist():
+     assert not name.startswith('/') and '..' not in name.split('/')
+     member=archive.read(name)
+     if name!='manifest.json':assert manifest['files'][name]=={'size':len(member),'sha256':sha(member)}
+     register(label+'/'+rel+'!'+name,member,'zip-members/'+rel.removesuffix('.zip')+'/'+name)
+register('repository/tests/units/run_main_mpy_runtime.py',runner.read_bytes(),'runner/run_main_mpy_runtime.py')
+helper=ROOT/'tests/units/run_binary_checkpoint_admission.py'
+register('repository/tests/units/run_binary_checkpoint_admission.py',helper.read_bytes(),'runner/run_binary_checkpoint_admission.py')
+recipes={name:{'source':'prepared/'+name+'.py','source_sha256':row['source_sha256'],'bytecode_sha256':row['bytecode_sha256'],'bytes':row['bytes'],'source_name':'dep.py' if name.startswith('dep-') else 'main.py'} for name,row in prepared['recipes'].items()}
+repro={'category':'official-bytecode-reproduction','compiler_sha256':prepared['compiler_sha256'],'compiler_commit':prepared['compiler_commit'],'command':['<compiler>','-s','<source_name>','-o','<output>','<archived-source>'],'recipes':recipes,'packages':prepared['packages'],'nonce_source_files':{mode:[f'prepared/{mode}-seed.py',f'prepared/{mode}-restore.py'] for mode in ('stock','candidate')},'candidate_base_firmware_id':'3cb901cbfebd616a96292f234fe88ad1b145c3bb019f256dcb57257d78f878d8','runtime_sha256':'7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e','firmware_rebuild_boundary':'Explicit existing base and runtime are pinned by original API metadata and SHA. Firmware source/build provenance remains separate; the archive does not contain firmware bytes.'}
+generated('reproducibility.json',encode(repro))
+lanes={mode:json.loads((SOURCE/mode/'report.json').read_bytes()) for mode in ('stock','candidate')}
+summary={'status':'PASS','category':'gen46-normal-owner-restoration-followup','hardware':'NOT RUN','worker_generation':46,'runtime_sha256':repro['runtime_sha256'],'service_pid':report['service_worker']['pid'],'ordinary_sessions':2,'executions':sum(len(value['runs']) for value in lanes.values()),'mpy_executions':sum(run.get('entrypoint')=='main.mpy' for value in lanes.values() for run in value['runs']),'input_observations':sum(len(value['observations']) for value in lanes.values()),'zip_members':sum(value['evidence_zip']['members'] for value in lanes.values()),'source_pin_count':len(frozen),'ordinary_stock':'PASS','ordinary_candidate':'PASS','normal_loop_interrupt_and_source_recovery':'PASS','new_web_execution':'NOT RUN','abnormal_mutation_guest':'NOT RUN','missing_terminal_negative_evidence':'HOST ONLY; see ../host-followup/','automatic_guest_retries':0,'load_is_not_application_start':True,'final_history_frame_sha256':{mode:value['last_frame_sha256'] for mode,value in lanes.items()},'cleanup':{mode:{'status':value['cleanup']['status'],'pid_gone':value['cleanup']['pid_gone'],'flash_retained':value['cleanup']['session']['flash_retained'],'lease_active':value['cleanup']['session']['worker']['lease_active'],'zip_before_stop':value['cleanup']['zip_before_stop']} for mode,value in lanes.items()},'final_active_sessions':report['final_capacity']['active_sessions'],'final_active_leases':report['final_capacity']['worker']['active_lease_count'],'scope':'Virtual CoreS3 qemu normal stock/candidate UART MPY and PIR GPIO/QOM/frame only. Not a new Web or abnormal namespace-mutation guest verification; not hardware.'}
+assert (summary['executions'],summary['mpy_executions'],summary['input_observations'],summary['zip_members'])==(9,5,10,58)
+generated('result-summary.json',encode(summary))
+generated('source-pin-verification.json',encode({'category':'archive-time-readonly-source-match-not-new-guest-execution','source_sha256':frozen,'all_sources_match_after_execution':all(sha((ROOT/name).read_bytes())==digest for name,digest in frozen.items()),'parent_start_and_overlay_evidence':'../host-followup/','runtime_report_original_sha256':sha((SOURCE/'report.json').read_bytes()),'runner_original_sha256':sha(runner.read_bytes()),'helper_original_sha256':sha(helper.read_bytes())}))
+readme='# gen46 正常 main.mpy 路径复验（2026-10-27）\n\n本目录独立保留 gen46 正常 stock/candidate 复验，与相邻 gen45 API-runtime 和 Web 证据分开。两次可见 CoreS3 虚拟会话、9 次执行，其中 5 次是 main.mpy；stock 的两种入口拒绝继续保护旧程序，candidate 验同字节重复导入、仅依赖更新、正常顶层异常、PIR 输入和 loop 中断后回源码。同一个 candidate VM 的 nonce/owner 保留，MPY 计数为 1→2→3→4→5；正常 loop 收尾的 ERROR 和后续源码 owner 断言共同证明正常恢复。\n\n本次没有新 Web 验收，也没有异常命名空间污染程序的 guest 验证。缺终结 marker 的失败构造与修复仅保留 host 证据，见 `../host-followup/`；本目录不能把该 host negative 升级为 guest PASS。gen45 的真实 Web 结果仍属于其原运行与原源码，不替换成 gen46。物理硬件为 NOT RUN。\n\n两个会话分别先取 evidence ZIP，再停止并释放进程、可变 Flash 与租约。原 ZIP 不入库，保留其原 SHA/大小与全部 16+42 个成员的原 SHA/大小；安全文本、JSON 和 PNG 提取归档，原 MPY/固件/ROM/ELF 不入库。JSON 的 base64 文件 payload 改成原始字节 metadata，并显式分类 `redacted-json`；原 SHA 与 archive SHA 分开，不把脱敏文件当原字节。`original` 项保持原字节。私有本机目录、私网地址、MAC 与凭据字段按既有规则脱敏。\n\n`index.json`、`INDEX.sha256` 是完整清单与入口。`runtime/` 保存本轮响应与报告，`zip-members/` 保存安全成员，`prepared/` 与 `reproducibility.json` 保存既有官方 bytecode fixture 的源码、编译 recipe、编译器/输出 SHA 和 package identity；原始 prepared metadata 中未执行的 Preview fixture 信息不扩大本轮范围，其 Preview 源码未复制。`runner/` 保留实际 runner 与公共 helper 源码。83 项冻结产品源指纹与本轮报告对应，启动/overlay 和全平台测试日志由 `../host-followup/` 持有。\n\n便携离线校验：`python3 -B verify_archive.py`，只读本目录，无网络、无 API、无 guest 启动。它核对所有文件/分类/归档 SHA、PNG CRC 与实际 phase/motion 像素、ZIP manifest 到每个原成员指纹、实际 HTTP execution 数、模块身份/计数/依赖、正常中断 ERROR、源码 owner 恢复、进程/Flash/租约清理和历史末帧精确 SHA。可选 `--compiler /path/to/mpy-cross` 先核对官方编译器 SHA，再于临时目录重编 5 个既有 fixture 比对 SHA，不运行 MPY。\n\nLOAD 只说明 import 请求，不代表应用开始或就绪；本轮 MPY API 的 application_started/application_ready 仍为 null。PIR 是虚拟 GPIO/guest/QOM/frame 路径，不证明 AS312 的物理时间、电气或光学特性。各观测分次采集，不是原子快照。\n'
+generated('README.md.txt',readme.encode())
+base_verifier=(ROOT/'docs/evidence/2026-10-27-public-main-mpy/api-runtime/verify_archive.py').read_text()
+base_verifier=base_verifier[:base_verifier.rindex("if __name__=='__main__':main()")]
+extension=(Path(__file__).resolve().parent/'verify-extension.py.txt').read_text()
+verifier=base_verifier+'\n'+extension+"\nif __name__=='__main__':\n detail=verify_followup()\n main()\n print(json.dumps(detail,sort_keys=True))\n"
+generated('verify_archive.py',verifier.encode())
+generated('archive-builder.py.txt',Path(__file__).read_bytes())
+assert all(sha((ROOT/name).read_bytes())==digest for name,digest in source_inputs.items()),'raw evidence changed during archive'
+assert all(sha((ROOT/name).read_bytes())==digest for name,digest in frozen.items()),'product changed during archive'
+assert all(sha((ROOT/name).read_bytes())==digest for name,digest in gen45_indices.items()),'existing archive index changed'
+index={'schema_version':1,'category':'gen46-normal-restoration-followup-archive','archive_semantics':'original fingerprints describe original bytes; redacted documents have distinct archived fingerprints','records':rows}
+(OUT/'index.json').write_bytes(encode(index))
+(OUT/'INDEX.sha256').write_text(sha((OUT/'index.json').read_bytes())+'  index.json\n')
+receipt={'status':'PASS','archive':str(OUT.relative_to(ROOT)),'index_sha256':sha((OUT/'index.json').read_bytes()),'input_sha256':source_inputs,'inputs_unchanged':True,'product_source_sha256':frozen,'product_sources_unchanged':True,'existing_archive_index_sha256':gen45_indices,'existing_archive_indices_unchanged':True,'classes':{kind:sum(row['classification']==kind for row in rows) for kind in sorted({row['classification'] for row in rows})},'records':len(rows),'summary':summary,'api_contacted':False,'guests_started_by_builder':0}
+(Path(__file__).resolve().parent/'build-receipt.json').write_bytes(encode(receipt))
+print(json.dumps({key:receipt[key] for key in ('status','archive','index_sha256','classes','records','inputs_unchanged','product_sources_unchanged','existing_archive_indices_unchanged')},indent=2))

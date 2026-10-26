@@ -1,0 +1,84 @@
+{
+  "status": "PASS",
+  "observed_at": "2026-10-26T23:15:22.735231+00:00",
+  "health": {
+    "ok": true,
+    "service": "m5stack-device-service",
+    "api_version": "v1",
+    "capacity": {
+      "max_sessions": 12,
+      "active_sessions": 0,
+      "available_sessions": 12,
+      "max_per_device": 8,
+      "by_device": {},
+      "worker": {
+        "worker_id": "worker-b71031d2aef3428b",
+        "instance_id": "62c8bcda28924bf38f9daf1cbc884a67",
+        "generation": 46,
+        "state": "ready",
+        "pid": 5495,
+        "started_at": "2026-10-26T22:59:40.801343+00:00",
+        "heartbeat_at": "2026-10-26T23:15:22.263830+00:00",
+        "heartbeat_age_seconds": 0.463,
+        "stale": false,
+        "accepting_leases": true,
+        "active_lease_count": 0,
+        "active_lease_ids": [],
+        "drained_at": null
+      },
+      "modes": {
+        "network": "enabled-separate-lane",
+        "qemu-wifi": "enabled-s3",
+        "qemu-ble": "enabled-nanoc6-hci-nesso-hci",
+        "qemu-unified": "enabled-sticks3-cores3-cardputer-adv-stopwatch-atoms3r-papercolor-papermono-stackchan-stamplc-c6-wifi-ble",
+        "tab5": "enabled-partial",
+        "flash": "prepared-cache + exact artifact"
+      }
+    }
+  },
+  "contract_version": "1.46.0",
+  "openapi_sha256": "b27ad3d9db6d1efd2fbc76121295d0935f5677611af65bb6e94dfd5bcbd84c31",
+  "default_device_mpy_entrypoint": {
+    "atoms3r": false,
+    "cardputer-adv": false,
+    "cardputer-zero": false,
+    "core2": false,
+    "cores3": false,
+    "nanoc6": false,
+    "nesso-n1": false,
+    "papercolor": false,
+    "papermono": false,
+    "stackchan": false,
+    "stamplc": false,
+    "sticks3": false,
+    "stopwatch": false,
+    "tab5": false
+  },
+  "unit_count": 30,
+  "sessions": [
+    {
+      "lane": "stock",
+      "session_id": "a4a20d2b11c04516b66af33f3a2dc509",
+      "pid": 11202,
+      "executions": 1,
+      "mpy_executions": 0,
+      "zip_members": 16,
+      "last_frame_sha256": "e94c98d777799feb6de6025fcbc60f0d1e46faf415d98281204a2d85c95ca942",
+      "pid_gone": true,
+      "flash_released": true,
+      "lease_released": true
+    },
+    {
+      "lane": "candidate",
+      "session_id": "aa5e018d94e14c069b4cf803e2164563",
+      "pid": 11218,
+      "executions": 8,
+      "mpy_executions": 5,
+      "zip_members": 42,
+      "last_frame_sha256": "e94c98d777799feb6de6025fcbc60f0d1e46faf415d98281204a2d85c95ca942",
+      "pid_gone": true,
+      "flash_released": true,
+      "lease_released": true
+    }
+  ]
+}

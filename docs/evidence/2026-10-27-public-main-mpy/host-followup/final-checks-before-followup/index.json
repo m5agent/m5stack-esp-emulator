@@ -1,0 +1,95 @@
+{
+  "status": "PASS",
+  "commands": [
+    {
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/runtime_coverage.py",
+        "--check"
+      ],
+      "started_at": "2026-10-26T22:52:37.296502+00:00",
+      "exit_code": 0,
+      "log": "0.log",
+      "log_sha256": "ae22dc70eea81ac4f6d6918c0d694fc72cbc72cb589a13d93dac5b5c453d9311"
+    },
+    {
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/peripheral_catalog.py",
+        "--check"
+      ],
+      "started_at": "2026-10-26T22:52:37.336724+00:00",
+      "exit_code": 0,
+      "log": "1.log",
+      "log_sha256": "6e3c49ec0c80a56051031a4bf3ba0fe16aa118f2b31f8863c09ef0bc4cc89633"
+    },
+    {
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/qemu_profiles.py",
+        "--check"
+      ],
+      "started_at": "2026-10-26T22:52:37.359480+00:00",
+      "exit_code": 0,
+      "log": "2.log",
+      "log_sha256": "04a26a35d775027ee0ce627c0888eeb20272591f8801dbd6e2f0dfb2e499281e"
+    },
+    {
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/unit_runtime.py",
+        "--check"
+      ],
+      "started_at": "2026-10-26T22:52:37.379384+00:00",
+      "exit_code": 0,
+      "log": "3.log",
+      "log_sha256": "1efb2a3be1293eb9bcdd1f5a0ac3529c03fdb0afd3d87655a81cbfa79bddfe4d"
+    },
+    {
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "platform/tools/project_snapshot.py",
+        "--check"
+      ],
+      "started_at": "2026-10-26T22:52:37.408888+00:00",
+      "exit_code": 0,
+      "log": "4.log",
+      "log_sha256": "05110c70ad2d40d6a4943005ed5d00f2780cb44d5288bcee45128d62b19d6f1d"
+    },
+    {
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "platform/tests",
+        "-p",
+        "test_docs*.py"
+      ],
+      "started_at": "2026-10-26T22:52:42.652634+00:00",
+      "exit_code": 0,
+      "log": "5.log",
+      "log_sha256": "e4597a37365cb72e901f6176f26056d3def3a4e1ea0ec75dc2103f38d871f0a1"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "started_at": "2026-10-26T22:53:02.650382+00:00",
+      "exit_code": 0,
+      "log": "6.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "hardware": "NOT RUN",
+  "functional_tests": "Existing gen45 evidence, not rerun by these checks"
+}

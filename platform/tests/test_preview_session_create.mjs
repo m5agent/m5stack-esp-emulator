@@ -128,6 +128,27 @@ try {
     await Promise.all([page.waitForResponse(res => res.url().endsWith('/api/v1/sessions') && res.request().method() === 'POST'), page.click('#createBtn')]);
     assert.deepEqual(scenario.legacy, [{device_id: 'atoms3r', ttl_seconds: 600, program_mode: 'uiflow-live'}]); assert.equal(scenario.posts.length, 0);
   });
+  await test('explicit-base-pair-is-optional-and-required-together-for-live-session-create', async () => {
+    await setup(); await page.check('#programModeInput'); await page.locator('#programBaseFields summary').click();
+    await page.fill('#programBaseId', 'b'.repeat(64)); await page.click('#createBtn');
+    assert.equal(scenario.legacy.length, 0); assert.equal(scenario.posts.length, 0);
+    assert.match(await page.locator('#errorBanner').innerText(), /同时填写/);
+    await page.fill('#programBaseSha', 'b'.repeat(64));
+    await Promise.all([page.waitForResponse(res => res.url().endsWith('/api/v1/sessions') && res.request().method() === 'POST'), page.click('#createBtn')]);
+    assert.deepEqual(scenario.legacy, [{device_id: 'atoms3r', ttl_seconds: 600, program_mode: 'uiflow-live',
+      base_firmware_id: 'b'.repeat(64), expected_base_sha256: 'b'.repeat(64)}]);
+  });
+  await test('preview-selected-base-is-frozen-through-ambiguous-response-reload-and-device-change', async () => {
+    await setup({dropOnce: true}); await choosePreview(); await page.locator('#programBaseFields summary').click();
+    await page.fill('#programBaseId', 'c'.repeat(64)); await page.fill('#programBaseSha', 'c'.repeat(64));
+    await page.click('#createBtn'); await waitUnknown();
+    const frozen = await pending(); assert.equal(frozen.body.base_firmware_id, 'c'.repeat(64));
+    assert.equal(frozen.body.expected_base_sha256, 'c'.repeat(64)); assert.equal(await page.locator('#programBaseId').isDisabled(), true);
+    await page.reload(); await waitUnknown(); await page.selectOption('#deviceSelect', 'tab5');
+    await page.click('#createBtn'); await page.waitForFunction(() => document.querySelector('#previewCreateStatus').textContent.includes('preparing'));
+    assert.equal(scenario.posts.length, 2); assert.equal(scenario.posts[0].key, scenario.posts[1].key);
+    assert.equal(scenario.posts[0].raw, scenario.posts[1].raw); assert.equal(scenario.allocations, 1); await ready();
+  });
   await test('preview-202-polls-preparing-ready-retains-key-and-unit-body', async () => {
     await setup(); await choosePreview(); await page.click('#createBtn');
     await page.waitForFunction(() => document.querySelector('#previewCreateStatus').textContent.includes('preparing'));

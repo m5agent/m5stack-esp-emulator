@@ -1,0 +1,23 @@
+{
+  "status": "FAIL",
+  "classification": "HARNESS_NEGATIVE_CONTROL_ASSUMPTION",
+  "case": "session-completed_at-invalid-nonnull",
+  "expected_valid": false,
+  "actual_valid": true,
+  "reason": "date-time format checker is not registered in the available jsonschema environment; use wrong JSON types for type-preservation controls and check format retention structurally",
+  "registered_formats": [
+    "date",
+    "email",
+    "idn-email",
+    "idn-hostname",
+    "ipv4",
+    "ipv6",
+    "json-pointer",
+    "regex",
+    "relative-json-pointer",
+    "time",
+    "uuid"
+  ],
+  "api_contacted": false,
+  "guest": "NOT RUN"
+}

@@ -1,6 +1,6 @@
 # 外部 Agent：UIFlow 实时编程与 Unit 会话
 
-日期：`2026-10-27`。API 契约：`1.45.0`。
+日期：`2026-10-27`。API 契约：`1.46.0`。
 
 实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
 串口及 Unit 状态”的路径。AIFlow/外部 Agent 推荐创建一次 `/previews`，将完整
@@ -9,15 +9,17 @@ REPL 在同一 VM 部署运行，不重刷固件或重启虚拟设备。下方 c
 首次初始化、完整文件准备和兼容执行；固定探针镜像是回归入口，不是每次编辑
 程序的产品流程。旧 `/sessions/{id}/program` 继续用于普通非托管会话。
 
-先读`GET /devices`的`program_features`：当前入口仅`main.py`，纯字节码`.mpy`
-可作依赖，二进制入口和native emitter为false，cleanup仍是interrupt-only。
-脚本以新globals执行、初始`__name__='__main__'`，不会替换REPL的
-`sys.modules['__main__']`。当前固件普通导入`.mpy`保留模块名，if-main守卫不执行，
-不能把“模块导入成功”当作完整UIFlow脚本入口已支持。
-固定CoreS3兼容构建已通过独立loader诊断，包括真正if-main、模块身份、重复运行、
-依赖更新及异常/Ctrl-C恢复；公共入口仍为false，不能用该诊断绕过能力门禁。
-首次准备可用`firmware/uiflow`显式`base_firmware_id`，必须pin normalized stored
-image SHA并通过manifest/实际镜像与安全能力校验；后续仍在同一guest Run。
+先读`GET /devices`的默认`program_features`，再查实际Session的
+`program_capabilities`（Preview另有`runtime_capabilities`）。默认stock入口为main.py；
+只有受控bootstrap后真实bytecode canary验证通过、且session/固件/runtime/PID身份
+匹配时，main.mpy才可运行。native emitter仍拒绝，cleanup仍为interrupt-only。
+源码使用新globals，不替换REPL模块；二进制走实际override-main importer，
+加载后真正if-main和模块身份必须成立。LOAD回执仅说明派发import，不代表body
+进入或应用ready；这两项保持unknown，应结合实际串口、QOM和屏幕验证。
+Session的program_mode或Preview可选已存manifest的base_firmware_id与
+expected_base_sha256（normalized stored bytes）成对字段，初次准备后仍同guest Run。
+详情见[受验loader接口](device-service-api.md#verified-mainmpy-entrypoints)。
+CoreS3 stock保护、兼容固件ordinary与真实Preview Web已完成[本块验收](evidence/2026-10-27-public-main-mpy/README.md)；其它主机/固件另验。
 
 新增FlashLight U152：attachment的`initial: {"flash-mode": false}`选择Torch，
 true选择Flash；S1创建后冻结，运行中写入返回409。四主机已验限定数字子集，
@@ -43,7 +45,7 @@ CoreS3默认网页另验亮/灭/unknown/恢复。始终检查`output-known`、ro
 完整请求字段、幂等/取消/错误和帧身份契约见
 [Preview/Run API](device-service-api.md#stable-preview-and-asynchronous-runs)。
 同 VM UART REPL 是执行基础；Preview 是面向实时编辑的协调层。SSE、AIFlow
-调用侧、独立 main.mpy 入口、保存开机和运行中热插拔仍未完成。
+调用侧、更多主机/固件的 main.mpy 验收、保存开机和运行中热插拔仍未完成。
 
 ## 普通非托管会话的实时程序接口
 
@@ -143,11 +145,11 @@ CoreS3 另有真实网页创建、输入、程序替换、画面进入模型屏�
 1.44还允许显式保存`entrypoint="main.mpy"`的完整纯字节码checkpoint，并从
 `/files`取回原字节。该包必须含根`main.mpy`，不能含会遮蔽它的根`main.py`或
 `main/`目录。原`main.py`包和revision ID保持兼容，包括历史同名MPY依赖。
-当前固定UIFlow固件没有完整二进制脚本loader，`program_features.mpy_entrypoint`
-和Preview的`main_mpy`仍为false。普通session与Preview提交返回409
-`program_mpy_entrypoint_unsupported`，在分配新execution/Run、取消旧程序或
-碰触UART之前拒绝；inline运行请求也不占用新checkpoint配额。存储成功不代表
-可以执行；Web继续编辑并运行`main.py`。官方兼容固件路径仍在实施。
+默认stock不具备完整loader，运行能力保持false。1.46仅对真实canary验证的同一
+Session开放入口；unsupported/booting/unknown的普通Session与Preview均在分配
+execution/Run、取消旧程序或碰UART前409拒绝，unsupported inline不占新包槽。
+存储成功不代表可执行。Web可只读加载/Run原MPY包，并显式新建独立main.py包。
+
 
 在已初始化的普通非托管session中，将返回的ID放入`POST /api/v1/sessions/{id}/program`的`revision_id`，
 同时带当前`expected_execution_id`（首次null）和可选1..120秒timeout。该请求只能有这三个字段，
@@ -175,7 +177,7 @@ CoreS3 另有真实网页创建、输入、程序替换、画面进入模型屏�
 二进制转换成 UTF-8。每次提交完整集合，删除的模块与旧目录不继续参与导入。
 源码/字节码在虚拟设备自己的 MicroPython 与文件系统内运行，不执行 host Python。
 `.mpy` 必须是与实际 guest 匹配的纯字节码依赖，使用官方相应 `mpy-cross`；
-原生 emitter、伪造头的 native payload 和 `main.mpy` 入口不准入。
+原生 emitter与伪造头的native payload不准入；main.mpy另需实际Session的loader证明。
 
 总 decoded 上限 1MiB、64文件、单文件256KiB，路径最多192 UTF-8字节/8层；
 禁止 boot.py、越界路径和别名冲突。HTTP JSON 上限2MiB，包超时1–120秒/默认120秒；

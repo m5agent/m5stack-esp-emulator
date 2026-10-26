@@ -1,0 +1,40 @@
+{
+  "archive_notice": {
+    "classification": "redacted-json",
+    "original_bytes": 1635,
+    "original_sha256": "02c0011680c58f7e53cd87d35fd59a60674f4f11e895ce4b9c001ff51a1af94e",
+    "original_source": "prepared/loop.package.json",
+    "transformations": [
+      {
+        "decoded_bytes": 1013,
+        "decoded_sha256": "22d6d0f9198ee61f401862681b1d10e372be4e72387c3f31c6ec912a2c686ef6",
+        "kind": "base64-payload-omitted",
+        "path": "$.files.main.mpy"
+      },
+      {
+        "decoded_bytes": 45,
+        "decoded_sha256": "2f5885b1ac530dff6d351d9658d51f00c1c301d667901b9ea01e55e9eaf2c890",
+        "kind": "base64-payload-omitted",
+        "path": "$.files.dep.mpy"
+      }
+    ]
+  },
+  "document": {
+    "entrypoint": "main.mpy",
+    "files": {
+      "dep.mpy": {
+        "archive_redacted_binary": true,
+        "decoded_bytes": 45,
+        "decoded_sha256": "2f5885b1ac530dff6d351d9658d51f00c1c301d667901b9ea01e55e9eaf2c890",
+        "original_encoding": "base64"
+      },
+      "main.mpy": {
+        "archive_redacted_binary": true,
+        "decoded_bytes": 1013,
+        "decoded_sha256": "22d6d0f9198ee61f401862681b1d10e372be4e72387c3f31c6ec912a2c686ef6",
+        "original_encoding": "base64"
+      }
+    },
+    "source_kind": "uiflow2-package"
+  }
+}

@@ -246,6 +246,7 @@ class PreviewStore:
                 "expires_at": expires_at, "desired_run_id": None, "transition_run_id": None,
                 "active_run_id": None, "created_at": timestamp, "updated_at": timestamp,
                 "error": None, "limits": self.limits(), "capabilities": {},
+                "runtime_capabilities": {"schema_version": 1, "status": "unknown", "mpy_entrypoint": False},
             }
             connection.execute("INSERT INTO previews(preview_id, owner, record) VALUES(?,?,?)", (preview_id, owner, _canonical(preview)))
             self._receipt(connection, owner, "create-preview", key_hash, fingerprint, preview)

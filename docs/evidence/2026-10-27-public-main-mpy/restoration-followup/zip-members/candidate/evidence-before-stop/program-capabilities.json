@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "status": "verified",
+  "mpy_entrypoint": true,
+  "loader": "micropython-override-main-v1",
+  "mpy": 11014,
+  "small_int_bits": 31,
+  "probe": {
+    "kind": "uiflow-main-mpy-canary-v1",
+    "nonce": "5459711fc9fe43c9acb39022d06c5ed3",
+    "status": "PASS",
+    "owner_before_id": 1013282836,
+    "mpy": 11014,
+    "actual_identity": {
+      "import_main_id": 1016474160,
+      "nonce": "5459711fc9fe43c9acb39022d06c5ed3",
+      "name": "__main__",
+      "file": "/flash/.m5-loader-probe-5459711fc9fe43c9acb39022d06c5ed3/main.mpy",
+      "real_main_name": "main",
+      "main_id": 1016474160,
+      "if_main": true,
+      "sys_main_id": 1016474160
+    },
+    "body_entered": true,
+    "small_int_bits": 31,
+    "error": null,
+    "owner_after_id": 1013282836,
+    "cleanup_complete": true,
+    "owner_restored": true,
+    "file_bytes": 375,
+    "file_sha256": "0713a25c1bdfb35a2ba0ebf431ec1ccccaa32846eb0dd74f3ebb230ffeac9420",
+    "canary_sha256": "0713a25c1bdfb35a2ba0ebf431ec1ccccaa32846eb0dd74f3ebb230ffeac9420",
+    "source_sha256": "e21b73a791266cea38d5c2050e0d4ae48180f4e3908bf748db4b10995908ed78",
+    "compiler_sha256": "c8646ebb97047c1c56a9d164474729a1bf13508e49d4cd3b1e5c6f00c509911b"
+  },
+  "identity": {
+    "session_id": "aa5e018d94e14c069b4cf803e2164563",
+    "device_id": "cores3",
+    "firmware_sha256": "28b16f0b192d037ecc44008efcbc32e43dc787c388fa92d66267694a140fdf4c",
+    "runtime": "qemu",
+    "pid": 11218,
+    "process_start_token": "Tue Oct 27 07:05:56 2026",
+    "worker_generation": 46
+  },
+  "observed_at": "2026-10-26T23:05:59.575193+00:00"
+}

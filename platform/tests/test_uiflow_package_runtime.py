@@ -215,12 +215,12 @@ class PackagePublicationTests(unittest.TestCase):
         self.revision = {"revision_id": "a" * 64}
         self.console = object()
 
-    def deploy(self, wire, progress=None):
+    def deploy(self, wire, progress=None, loader_capabilities=None):
         synchronized = mock.Mock()
         with mock.patch.object(runtime, "RawREPL", return_value=wire) as factory:
             result = runtime.deploy_package(self.console, self.files, self.revision, timeout=120,
                                             cancelled=lambda: False, on_synchronized=synchronized,
-                                            on_progress=progress)
+                                            on_progress=progress, loader_capabilities=loader_capabilities)
         factory.assert_called_once()
         self.assertEqual(factory.call_args.args, (self.console,))
         self.assertEqual(factory.call_args.kwargs["timeout"], 120)
@@ -263,6 +263,41 @@ class PackagePublicationTests(unittest.TestCase):
         factory.assert_not_called()
         self.assertEqual(wire.synchronized, 0)
         self.assertEqual(wire.sources, [])
+
+    def test_verified_binary_package_is_published_without_importing_or_starting_entrypoint(self):
+        from test_uiflow_main_loader import verified_capability
+        self.files = {"main.mpy": HELPER, "pkg/helper.mpy": HELPER}
+        self.revision["entrypoint"] = "main.mpy"
+        wire = _ReplyREPL(self.files)
+        receipt = self.deploy(wire, loader_capabilities=verified_capability())
+        self.assertEqual(receipt["phase"], "activated")
+        self.assertEqual(receipt["inventory"], _snapshot(self.files)["files"])
+        for source in wire.sources:
+            calls = [node for node in ast.walk(ast.parse(source)) if isinstance(node, ast.Call)]
+            self.assertFalse(any(isinstance(node.func, ast.Name) and node.func.id in {"exec", "eval", "compile", "__import__"} for node in calls))
+
+    def test_boolean_or_unsupported_loader_proof_never_opens_guest_transport(self):
+        self.files = {"main.mpy": HELPER}
+        self.revision["entrypoint"] = "main.mpy"
+        for capabilities in (False, True, {}, {"mpy_entrypoint": True}, {"status": "unsupported"}):
+            with self.subTest(capabilities=capabilities), mock.patch.object(runtime, "RawREPL") as factory:
+                with self.assertRaises(UIFlowRuntimeError) as caught:
+                    runtime.deploy_package(self.console, self.files, self.revision, timeout=10,
+                        cancelled=lambda: False, loader_capabilities=capabilities)
+                self.assertEqual(caught.exception.code, "program_mpy_entrypoint_unsupported")
+                factory.assert_not_called()
+
+    def test_changed_live_bytecode_abi_rejects_before_package_writing(self):
+        from test_uiflow_main_loader import verified_capability
+        self.files = {"main.mpy": HELPER}
+        self.revision["entrypoint"] = "main.mpy"
+        wire = _ReplyREPL(self.files)
+        wire.capabilities["mpy"] = (0x2b << 8) | 6
+        with self.assertRaises(UIFlowRuntimeError) as caught:
+            self.deploy(wire, loader_capabilities=verified_capability())
+        self.assertEqual(caught.exception.code, "program_mpy_capability_unknown")
+        self.assertEqual(wire.operations("write"), [])
+        self.assertEqual(wire.operations("rename"), [])
 
     def test_reused_package_is_verified_again_without_writes_or_rename(self):
         wire = _ReplyREPL(self.files, existing=True)

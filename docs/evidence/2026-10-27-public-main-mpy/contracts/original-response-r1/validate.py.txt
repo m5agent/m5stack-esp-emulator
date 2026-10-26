@@ -1,0 +1,105 @@
+from __future__ import annotations
+import collections,datetime,hashlib,importlib.metadata,json,pathlib,re,sys,urllib.parse
+import yaml
+from jsonschema import Draft202012Validator,FormatChecker
+
+ROOT=pathlib.Path.cwd()
+OUT=pathlib.Path(__file__).resolve().parent
+ARCHIVE=ROOT/'docs/evidence/2026-10-27-public-main-mpy/api-runtime'
+SPEC=ROOT/'docs/device-service.openapi.yaml'
+INDEX=ARCHIVE/'index.json'
+inputs={}
+def read(path):
+ data=path.read_bytes()
+ inputs[str(path.relative_to(ROOT))]={'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+ return data
+def local_refs(value):
+ if isinstance(value,dict):
+  if '$ref' in value:
+   assert value['$ref'].startswith('#/'), 'external reference prohibited'
+  for child in value.values():local_refs(child)
+ elif isinstance(value,list):
+  for child in value:local_refs(child)
+def dereference(value,spec):
+ while isinstance(value,dict) and '$ref' in value:
+  target=spec
+  for part in value['$ref'][2:].split('/'):
+   target=target[part.replace('~1','/').replace('~0','~')]
+  value=target
+ return value
+def pointer(parts):
+ return '/'+'/'.join(str(p).replace('~','~0').replace('/','~1') for p in parts) if parts else ''
+def schema_label(schema):
+ return schema.get('$ref','inline-response-schema')
+started=datetime.datetime.now(datetime.UTC).isoformat()
+spec=yaml.safe_load(read(SPEC))
+local_refs(spec)
+index=json.loads(read(INDEX))
+(OUT/'device-service.openapi.yaml.txt').write_bytes(SPEC.read_bytes())
+(OUT/'archive-index.json').write_bytes(INDEX.read_bytes())
+records=index['records']
+by_origin={row['original_source']:row for row in records if row.get('original_source')}
+logs={}
+for row in records:
+ if row['classification']=='original' and row['archive_path'].startswith('runtime/') and row['archive_path'].endswith('/http.json'):
+  logs[row['original_source']]=json.loads(read(ARCHIVE/row['archive_path']))
+patterns=[]
+for template,methods in spec['paths'].items():
+ pattern='^'+re.sub(r'\{[^}]+\}',r'[^/]+',template)+'$'
+ patterns.append((template,re.compile(pattern),methods))
+patterns.sort(key=lambda row:('{' in row[0],row[0]))
+results=[];skips=[];validators={}
+for row in records:
+ if row['classification']!='original':continue
+ origin=row.get('original_source','')
+ match=re.fullmatch(r'(runtime/(?:[^/]+/)?)(http-([0-9]+)\.response)',origin)
+ if match is None:continue
+ log_name=match[1]+'http.json'
+ if log_name not in logs:
+  skips.append({'archive_path':row['archive_path'],'reason':'no-original-http-log'});continue
+ response_number=int(match[3]);http=logs[log_name][response_number]
+ content_type=http.get('headers',{}).get('content-type','').split(';',1)[0].strip()
+ body=read(ARCHIVE/row['archive_path'])
+ assert len(body)==row['archive_bytes']==row['original_bytes']==http['bytes'],origin
+ assert hashlib.sha256(body).hexdigest()==row['archive_sha256']==row['original_sha256']==http['sha256'],origin
+ if content_type!='application/json':
+  skips.append({'archive_path':row['archive_path'],'reason':'non-json-response','content_type':content_type});continue
+ value=json.loads(body)
+ assert not (isinstance(value,dict) and 'archive_notice' in value),'original response was wrapped'
+ path=urllib.parse.urlsplit('/'+http['path'].lstrip('/')).path
+ if path.startswith('/api/v1/'):
+  path=path[len('/api/v1'):]
+ method=http['method'].lower();status=str(http['status'])
+ candidates=[(template,methods[method]) for template,pattern,methods in patterns if pattern.fullmatch(path) and method in methods]
+ if len(candidates)!=1:
+  skips.append({'archive_path':row['archive_path'],'reason':'unmapped-or-ambiguous-endpoint','path':path,'method':method,'matches':[x[0] for x in candidates]});continue
+ template,operation=candidates[0]
+ response=operation.get('responses',{}).get(status) or operation.get('responses',{}).get('default')
+ fallback=False
+ if response is None and int(status)>=400:
+  response=spec['components']['responses']['Error'];fallback=True
+ if response is None:
+  skips.append({'archive_path':row['archive_path'],'reason':'undocumented-response-status','endpoint':template,'method':method,'status':status});continue
+ response=dereference(response,spec)
+ schema=response.get('content',{}).get('application/json',{}).get('schema')
+ if schema is None:
+  skips.append({'archive_path':row['archive_path'],'reason':'no-json-response-schema','endpoint':template,'method':method,'status':status});continue
+ key=json.dumps(schema,sort_keys=True)
+ if key not in validators:
+  full={**schema,'components':spec['components']}
+  Draft202012Validator.check_schema(full)
+  validators[key]=Draft202012Validator(full,format_checker=FormatChecker())
+ errors=[]
+ for error in sorted(validators[key].iter_errors(value),key=lambda e:(pointer(e.absolute_path),pointer(e.absolute_schema_path),e.message)):
+  errors.append({'instance_path':pointer(error.absolute_path),'schema_path':pointer(error.absolute_schema_path),'validator':error.validator,'message':error.message,'instance_type':type(error.instance).__name__})
+ results.append({'archive_path':row['archive_path'],'original_source':origin,'original_sha256':row['original_sha256'],'method':method.upper(),'endpoint':template,'status':int(status),'schema':schema_label(schema),'generic_error_component_fallback':fallback,'result':'FAIL' if errors else 'PASS','errors':errors})
+input_after={name:{'bytes':len((ROOT/name).read_bytes()),'sha256':hashlib.sha256((ROOT/name).read_bytes()).hexdigest()} for name in inputs}
+stable=inputs==input_after
+failed=[row for row in results if row['errors']]
+counts={'archive_records':len(records),'classifications':dict(collections.Counter(row['classification'] for row in records)),'original_http_response_records':len(results)+len(skips),'validated_json_responses':len(results),'passed_responses':len(results)-len(failed),'failed_responses':len(failed),'validation_errors':sum(len(row['errors']) for row in results),'skipped_response_records':len(skips),'schema_responses':dict(collections.Counter(row['schema'] for row in results)),'schema_failed_responses':dict(collections.Counter(row['schema'] for row in failed)),'error_instance_paths':dict(collections.Counter(error['instance_path'] for row in failed for error in row['errors']))}
+receipt={'status':'PASS' if not failed and stable else 'FAIL','category':'OFFLINE_ARCHIVED_ORIGINAL_JSON_RESPONSE_OPENAPI_CONFORMANCE','argv':[sys.executable,'-B',str(pathlib.Path(__file__).relative_to(ROOT))],'cwd':'repository-root','environment_overrides':{'PYTHONPATH':'.work/py312'},'started_at':started,'finished_at':datetime.datetime.now(datetime.UTC).isoformat(),'versions':{'python':sys.version,'jsonschema':importlib.metadata.version('jsonschema'),'PyYAML':importlib.metadata.version('PyYAML')},'validator':'jsonschema.Draft202012Validator with FormatChecker; exact OpenAPI schemas; nullable is not translated','openapi':spec.get('openapi'),'input_hashes':inputs,'inputs_unchanged':stable,'counts':counts,'responses':results,'skipped_responses':skips,'non_original_policy':'All non-original classifications excluded; original requests/reports/ZIP members excluded because not actual HTTP responses','generic_error_fallback_policy':'Absent endpoint error status maps to components.responses.Error and is marked; this does not claim the HTTP status is documented','api_contacted':False,'guest':'NOT RUN','hardware':'NOT RUN'}
+(OUT/'receipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps({'status':receipt['status'],'counts':counts,'inputs_unchanged':stable,'receipt_sha256':hashlib.sha256((OUT/'receipt.json').read_bytes()).hexdigest()},ensure_ascii=False,indent=2))
+for row in failed[:8]:
+ print(json.dumps({key:row[key] for key in ('archive_path','method','endpoint','status','schema','errors')},ensure_ascii=False))
+raise SystemExit(1 if failed or not stable else 0)

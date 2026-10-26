@@ -1,0 +1,24 @@
+{
+  "lane": "preview",
+  "create_body": {
+    "device_id": "cores3",
+    "runtime": "qemu",
+    "ttl_seconds": 3600,
+    "units": [
+      {
+        "id": "pir",
+        "unit_id": "pir",
+        "port_id": "port-a"
+      }
+    ],
+    "base_firmware_id": "3cb901cbfebd616a96292f234fe88ad1b145c3bb019f256dcb57257d78f878d8",
+    "expected_base_sha256": "3cb901cbfebd616a96292f234fe88ad1b145c3bb019f256dcb57257d78f878d8"
+  },
+  "creation_outcome": "confirmed",
+  "create_key": "bf82263444fc4e0e896256e03ca2d464",
+  "preview_id": "be0529fcf6a843319e7a4ec942324a47",
+  "owner_epoch": "fcd526a0cba849f392ae13e25fbb89ec",
+  "session_id": "263777684b274295adb352281d89c71d",
+  "pid": 96364,
+  "zip_before_stop": true
+}

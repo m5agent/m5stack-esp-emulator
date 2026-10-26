@@ -1,0 +1,13 @@
+......................................F.........
+======================================================================
+FAIL: test_relative_markdown_links_exist (test_docs_index_contract.DocsIndexContractTests.test_relative_markdown_links_exist)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_docs_index_contract.py", line 686, in test_relative_markdown_links_exist
+    self.assertTrue(
+AssertionError: False is not true : docs/evidence/2026-10-27-public-main-mpy/README.md -> restoration-followup/index.json
+
+----------------------------------------------------------------------
+Ran 48 tests in 20.981s
+
+FAILED (failures=1)

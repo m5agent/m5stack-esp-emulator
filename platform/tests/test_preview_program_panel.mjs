@@ -21,7 +21,7 @@ const compare = (a, b) => {
 const canonical = row => Array.isArray(row) ? `[${row.map(canonical).join(',')}]`
   : row && typeof row === 'object' ? `{${Object.keys(row).sort(compare).map(key => `${JSON.stringify(key)}:${canonical(row[key])}`).join(',')}}` : JSON.stringify(row);
 const digest = row => createHash('sha256').update(row).digest('hex');
-function packageOf(files) {
+function packageOf(files, entrypoint = 'main.py') {
   const hashes = {}, rows = [], encoded = {}; let total = 0;
   for (const path of Object.keys(files).sort(compare)) {
     const file = files[path], bytes = Buffer.from(file.data, file.encoding === 'utf8' ? 'utf8' : 'base64');
@@ -29,8 +29,8 @@ function packageOf(files) {
     rows.push({path, sha256: hashes[path], size: bytes.length, kind: path.endsWith('.py') ? 'python' : path.endsWith('.mpy') ? 'mpy' : 'resource'});
     encoded[path] = {encoding: 'base64', data: bytes.toString('base64')};
   }
-  return {revision: {revision_id: digest(canonical({source_kind: 'uiflow2-package', entrypoint: 'main.py', files: hashes})),
-    source_sha256: digest(canonical(hashes)), source_kind: 'uiflow2-package', entrypoint: 'main.py', total_file_bytes: total, files: rows,
+  return {revision: {revision_id: digest(canonical({source_kind: 'uiflow2-package', entrypoint, files: hashes})),
+    source_sha256: digest(canonical(hashes)), source_kind: 'uiflow2-package', entrypoint, total_file_bytes: total, files: rows,
     created_at: '2026-10-27T00:00:00Z'}, files: encoded};
 }
 const filesOf = (main = 'print("package")\n') => ({
@@ -40,6 +40,8 @@ const filesOf = (main = 'print("package")\n') => ({
   'assets/raw.bin': {encoding: 'base64', data: Buffer.from([0, 255, 0, 13, 10, 128]).toString('base64')},
 });
 const original = packageOf(filesOf()), external = packageOf(filesOf('print("external")\n'));
+const binary = packageOf({'main.mpy': {encoding: 'base64', data: Buffer.from([77, 6, 0, 31, 128, 255, 0, 254]).toString('base64')},
+  'assets/raw.bin': filesOf()['assets/raw.bin'], 'lib/模块.py': filesOf()['lib/模块.py']}, 'main.mpy');
 const json = (res, value) => { res.writeHead(200, {'Content-Type': 'application/json'}); res.end(JSON.stringify(value)); };
 const server = createServer(async (req, res) => {
   try {
@@ -64,12 +66,12 @@ const source = page.locator('[data-program-source]'), run = page.locator('[data-
 async function test(name, action) { await action(); checks.push(name); }
 async function settle() { await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 0))); }
 async function setup(options = {}) {
-  await page.evaluate(async ({options, original, external}) => {
+  await page.evaluate(async ({options, original, external, binary}) => {
     window.fixture?.panel.dispose();
     const {createProgramPanel} = await import('/platform/web/program-panel.js');
     const f = window.fixture = {calls: [], runCalls: [], cancelCalls: [], runIntents: [], subscriptions: new Set(),
       saves: [], loads: [], admissions: [], receipts: [], gates: [], refreshes: 0,
-      packages: new Map([original, external].map(pack => [pack.revision.revision_id, pack])),
+      packages: new Map([original, external, binary].map(pack => [pack.revision.revision_id, pack])),
       session: {session_id: 'session-a', device_id: 'atoms3r', state: 'running', created_at: '2026-10-27T00:00:00Z',
         firmware_sha256: 'a'.repeat(64), program_transport: 'uart-repl',
         management_binding: {preview_id: 'preview-a', owner_epoch: 'epoch-a', expected_reference_sha256: 'a'.repeat(64)}},
@@ -83,8 +85,9 @@ async function setup(options = {}) {
         this.emit({desiredRun: row, cancelRunId: row.run_id, canCancel: true, preview: {...this.state.preview, generation: 2}}); },
     };
     f.state = {managed: true, synchronized: !options.unsynchronized, pending: false, error: '', canSubmit: true, canCancel: false,
-      cancelRunId: null, preview: {preview_id: 'preview-a', owner_epoch: 'epoch-a', session_id: 'session-a', state: 'ready', generation: options.existing ? 1 : 0},
-      activeRun: options.existing ? f.makeRun('original', original.revision.revision_id) : null, desiredRun: null, transitionRun: null};
+      cancelRunId: null, preview: {preview_id: 'preview-a', owner_epoch: 'epoch-a', session_id: 'session-a', state: 'ready', generation: options.existing ? 1 : 0,
+        capabilities: {main_mpy: options.mpySupported === true}},
+      activeRun: options.existing ? f.makeRun('original', (options.binary ? binary : original).revision.revision_id) : null, desiredRun: null, transitionRun: null};
     if (options.existing) { f.state.canCancel = true; f.state.cancelRunId = 'original'; }
     f.client = {
       subscribe(listener) { f.subscriptions.add(listener); listener(structuredClone(f.state)); return () => f.subscriptions.delete(listener); },
@@ -113,7 +116,7 @@ async function setup(options = {}) {
     f.panel = createProgramPanel(document.querySelector('#panel'), {session: options.invalidBinding ? {...f.session, management_binding: options.invalidBinding} : f.session,
       api: f.api, ...(options.noClient ? {} : {previewClient: f.client})});
     if (options.randomUnavailable) delete globalThis.crypto.getRandomValues;
-  }, {options, original, external});
+  }, {options, original, external, binary});
   await settle();
 }
 async function load() { await page.locator('[data-program-load]').click(); await page.waitForFunction(() => !window.fixture.panel.loadPending); }
@@ -452,6 +455,97 @@ try {
     assert.equal(await page.evaluate(() => fixture.runCalls[0].revision), pack.revision.revision_id);
     assert.equal(await page.evaluate(() => fixture.calls.find(row => row.method === 'POST').body.files['main.py'].data), 'print("CRLF")\r\nprint("tail")\r');
   });
+  await test('binary-entrypoint-load-is-read-only-and-runs-original-revision-without-a-save', async () => {
+    await setup({existing: true, binary: true, mpySupported: true});
+    await source.fill('print("independent retained draft")\n'); await load();
+    assert.equal(await page.locator('[data-program-merge]').isDisabled(), true);
+    await page.locator('[data-program-adopt]').click();
+    assert.equal(await source.isVisible(), false);
+    assert.equal(await source.evaluate(node => node.readOnly), true);
+    assert.equal(await source.inputValue(), 'print("independent retained draft")\n');
+    assert.match(await page.locator('[data-program-bytecode]').innerText(), new RegExp(binary.revision.files.find(row => row.path === 'main.mpy').sha256));
+    assert.equal(await run.isEnabled(), true); await run.click();
+    await page.waitForFunction(() => fixture.runCalls.length === 1 && !fixture.panel.saving);
+    const observed = await page.evaluate(() => ({calls: fixture.calls, run: fixture.runCalls[0], files: fixture.panel.workspace.files,
+      entrypoint: fixture.panel.workspace.entrypoint, source: fixture.panel.source.value}));
+    assert.equal(observed.calls.filter(row => row.method === 'POST').length, 0);
+    assert.equal(observed.run.revision, binary.revision.revision_id); assert.equal(observed.entrypoint, 'main.mpy');
+    assert.deepEqual(observed.files, binary.files); assert.equal(Object.hasOwn(observed.files, 'main.py'), false);
+    assert.equal(observed.source, 'print("independent retained draft")\n');
+    await page.locator('#panel').screenshot({path: `${output}/preview-mpy-readonly.png`});
+  });
+  await test('unsupported-or-unknown-binary-can-be-inspected-and-never-submits-a-run', async () => {
+    await setup({existing: true, binary: true}); await load();
+    assert.equal(await run.isDisabled(), true); assert.equal(await cancel.isEnabled(), true);
+    assert.equal(await page.locator('[data-program-refresh]').isEnabled(), true);
+    assert.match(await page.locator('[data-program-error]').innerText(), /尚未验证 main.mpy/);
+    await page.evaluate(() => fixture.panel.run());
+    assert.equal(await page.evaluate(() => fixture.runCalls.length), 0);
+    assert.equal(await page.evaluate(() => fixture.calls.filter(row => row.method === 'POST').length), 0);
+    await page.evaluate(() => fixture.emit({preview: {...fixture.state.preview, capabilities: {main_mpy: true}}}));
+    assert.equal(await run.isEnabled(), true);
+    await page.evaluate(() => fixture.emit({preview: {...fixture.state.preview, capabilities: {main_mpy: false}}}));
+    assert.equal(await run.isDisabled(), true); assert.equal(await cancel.isEnabled(), true);
+  });
+  await test('new-source-forks-binary-dependencies-and-retained-draft-without-running-or-changing-checkpoint', async () => {
+    await setup({existing: true, binary: true}); await source.fill('print("my independent source")\n'); await load();
+    await page.locator('[data-program-adopt]').click();
+    await page.locator('[data-program-new-source]').click();
+    assert.equal(await source.isVisible(), true); assert.equal(await source.inputValue(), 'print("my independent source")\n');
+    assert.equal(await source.evaluate(node => node.readOnly), false); assert.equal(await run.isEnabled(), true);
+    const before = await page.evaluate(() => ({workspace: fixture.panel.workspace, checkpoint: fixture.packages.get(fixture.state.activeRun.revision_id),
+      saves: fixture.calls.filter(row => row.method === 'POST'), runs: fixture.runCalls, cancels: fixture.cancelCalls}));
+    assert.equal(before.workspace.revisionId, null); assert.equal(before.workspace.baseRevisionId, binary.revision.revision_id);
+    assert.equal(before.workspace.entrypoint, 'main.py'); assert.equal(Object.hasOwn(before.workspace.files, 'main.mpy'), false);
+    for (const [path, file] of Object.entries(binary.files)) if (path !== 'main.mpy') assert.deepEqual(before.workspace.files[path], file);
+    assert.deepEqual(before.checkpoint, binary); assert.deepEqual([before.saves.length, before.runs.length, before.cancels.length], [0, 0, 0]);
+    assert.match(await page.locator('[data-program-package]').innerText(), /尚未保存，新 main.py 包/);
+    await run.click(); await page.waitForFunction(() => fixture.runCalls.length === 1 && !fixture.panel.saving);
+    const saved = await page.evaluate(() => fixture.calls.find(row => row.method === 'POST').body);
+    assert.equal(saved.entrypoint, 'main.py'); assert.equal(saved.files['main.py'].data, 'print("my independent source")\n');
+    assert.equal(Object.hasOwn(saved.files, 'main.mpy'), false);
+    for (const [path, file] of Object.entries(binary.files)) if (path !== 'main.mpy') assert.deepEqual(saved.files[path], file);
+  });
+  await test('new-source-fences-late-old-package-read-and-stages-later-explicit-reload', async () => {
+    await setup({existing: true, binary: true, mpySupported: true}); await source.fill('print("source survives old response")\n'); await load();
+    await page.locator('[data-program-adopt]').click();
+    const old = await page.evaluate(() => { const gate = fixture.block('loads'); fixture.oldRead = fixture.panel.loadCurrentPackage(); return gate; });
+    await page.waitForFunction(() => fixture.panel.loadPending);
+    await page.locator('[data-program-new-source]').click();
+    await page.evaluate(({old, binary}) => { fixture.release(old, binary); return fixture.oldRead; }, {old, binary});
+    assert.equal(await source.isVisible(), true); assert.equal(await source.inputValue(), 'print("source survives old response")\n');
+    assert.equal(await page.evaluate(() => fixture.panel.workspace.entrypoint), 'main.py');
+    assert.equal(await page.evaluate(() => fixture.panel.staged), null);
+    await load(); assert.equal(await source.inputValue(), 'print("source survives old response")\n');
+    assert.equal(await page.evaluate(() => fixture.panel.workspace.entrypoint), 'main.py');
+    assert.equal(await page.evaluate(() => fixture.panel.staged.entrypoint), 'main.mpy');
+    assert.equal(await page.locator('[data-program-merge]').isDisabled(), true);
+  });
+  await test('binary-capability-is-checked-again-at-admission-without-saving-or-cancelling-old-run', async () => {
+    await setup({existing: true, binary: true, mpySupported: true}); await load();
+    const gate = await page.evaluate(() => fixture.block('admissions'));
+    await run.click(); await page.waitForFunction(() => fixture.runIntents.length === 1);
+    await page.evaluate(() => fixture.emit({preview: {...fixture.state.preview, capabilities: {main_mpy: false}}}));
+    await page.evaluate(index => fixture.release(index), gate);
+    await page.waitForFunction(() => !fixture.panel.saving);
+    assert.equal(await page.evaluate(() => fixture.runCalls.length), 0);
+    assert.equal(await page.evaluate(() => fixture.cancelCalls.length), 0);
+    assert.equal(await page.evaluate(() => fixture.calls.filter(row => row.method === 'POST').length), 0);
+    assert.match(await page.locator('[data-program-error]').innerText(), /运行能力尚未验证/);
+  });
+  await test('binary-package-does-not-merge-an-independent-main-draft-or-shadow-its-entrypoint', async () => {
+    for (const shadow of ['main.py', 'main/__init__.py', 'main']) {
+      const pack = packageOf({...binary.files, [shadow]: {encoding: 'utf8', data: 'print("shadow")\n'}}, 'main.mpy');
+      await setup({existing: true, binary: true, mpySupported: true});
+      await page.evaluate(pack => { fixture.packages.set(pack.revision.revision_id, pack); fixture.emit({activeRun: fixture.makeRun('shadow', pack.revision.revision_id)}); }, pack);
+      await load(); assert.equal(await run.isDisabled(), true); assert.match(await page.locator('[data-program-error]').innerText(), /遮蔽入口/);
+    }
+    await setup({existing: true, binary: true, mpySupported: true}); await source.fill('print("retained")\n'); await load();
+    await page.locator('[data-program-adopt]').click();
+    await page.evaluate(pack => { fixture.emit({activeRun: fixture.makeRun('source-next', pack.revision.revision_id)}); }, original);
+    await load(); assert.equal(await source.inputValue(), 'print("retained")\n'); assert.equal(await page.locator('[data-program-merge]').isDisabled(), true);
+    await page.locator('[data-program-adopt]').click(); assert.equal(await source.isVisible(), true); assert.equal(await source.inputValue(), 'print("package")\n');
+  });
   await test('four-responsive-viewports-and-keyboard-focus', async () => {
     await setup({existing: true}); await load(); await source.fill('print("本地草稿与依赖包")\n');
     for (const width of [1440, 1024, 768, 390]) {
@@ -465,7 +559,7 @@ try {
   });
   assert.deepEqual(errors, []);
   const source_sha256 = {};
-  for (const path of ['platform/web/program-panel.js', 'platform/web/program-panel.css', 'platform/web/preview-client.js', 'platform/web/sha256.js', 'platform/tests/test_preview_program_panel.mjs']) source_sha256[path] = digest(await readFile(resolve(root, path)));
+  for (const path of ['platform/web/program-panel.js', 'platform/web/program-panel.css', 'platform/web/preview-client.js', 'platform/web/uiflow-main-loader.js', 'platform/web/sha256.js', 'platform/tests/test_preview_program_panel.mjs']) source_sha256[path] = digest(await readFile(resolve(root, path)));
   await writeFile(`${output}/report.json`, JSON.stringify({category: 'preview-editor-browser-consumer-contract', status: 'PASS',
     captured_at: new Date().toISOString(), browser_version: browser.version(), source_sha256, checks, errors,
     shared_client: 'deterministic editor fixtures plus real shared-client cancellation race integration; no live service', firmware_execution: 'NOT RUN', hardware_execution: 'NOT RUN'}, null, 2) + '\n');

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.45.0
+  version: 1.46.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -478,8 +478,9 @@ paths:
         same revision_id and original created_at, including duplicate POSTs.
         The HTTP JSON body is limited to 2 MiB. Structural bytecode checks do
         not establish compatibility with a particular guest. main.mpy checkpoints
-        preserve original bytes but current session and Preview execution reject
-        them with 409 program_mpy_entrypoint_unsupported before cancelling an
+        preserve original bytes. Execution requires this session's verified actual
+        bytecode run-as-main canary; unsupported, booting or unknown sessions
+        return 409 program_mpy_entrypoint_unsupported before cancelling an
         active program or allocating a new execution. No firmware or
         session is created and no code is host-executed. Retention GC is not
         implemented; the returned package quota is independent of the source
@@ -600,7 +601,12 @@ paths:
         to the session. This trusted-local interface does not add tenant isolation.
         Package directories are limited to 64 per guest, including failed
         staging directories; quota exhaustion never silently recreates a guest.
-        Native .mpy emitters and main.mpy entrypoints are not admitted.
+        Native .mpy emitters remain unsupported. main.mpy is admitted only after the
+        controlled-bootstrap real bytecode canary verifies this guest loader.
+        Its LOAD acknowledgement means import dispatch, not application body
+        entry or readiness; application_started/application_ready remain null.
+        DONE/ERROR follow confirmed owner restoration; RESTORE_ERROR revokes
+        the capability and leaves ownership unconfirmed.
         A revision_id request is mutually exclusive with source, files,
         source_kind and entrypoint. It reads and verifies the stored package
         directly without creating another revision; unknown references and
@@ -2255,10 +2261,21 @@ components:
           const: false
     PreviewCreateRequest:
       type: object
+      dependentRequired:
+        base_firmware_id: [expected_base_sha256]
+        expected_base_sha256: [base_firmware_id]
       additionalProperties: false
       required:
       - device_id
       properties:
+        base_firmware_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Optional stored manifest base; requires the normalized-byte pin and full re-admission.
+        expected_base_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Normalized stored Flash SHA, paired with base_firmware_id and frozen before allocation.
         device_id:
           type: string
           enum:
@@ -2432,8 +2449,11 @@ components:
           type:
           - string
           - 'null'
+        runtime_capabilities:
+          $ref: "#/components/schemas/MainLoaderCapabilities"
         capabilities:
           type: object
+          description: main_mpy is derived from current same-session runtime proof, never from immutable create configuration.
         limits:
           $ref: '#/components/schemas/PreviewLimits'
         error:
@@ -2838,8 +2858,7 @@ components:
         flash_size:
           type: integer
         display:
-          type: object
-          nullable: true
+          type: [object, "null"]
         peripheral_status:
           type: string
         warnings:
@@ -2877,6 +2896,8 @@ components:
           description: >
             Same-guest programming admission. Empty on unadmitted devices;
             this does not grant arbitrary uploaded firmware a compatible REPL.
+            These are cached-reference defaults; Session.program_capabilities
+            can additionally admit main.mpy after its real guest canary.
             main_namespace describes the initial execution context, not a
             replacement sys.modules.__main__ module. mpy dependencies use the
             actual guest importer and require separate compatibility checks.
@@ -3639,7 +3660,7 @@ components:
           default: uiflow2-package
         entrypoint:
           type: string
-          enum: [main.py]
+          enum: [main.py, main.mpy]
           default: main.py
         files:
           $ref: "#/components/schemas/ProgramPackageFiles"
@@ -3653,6 +3674,63 @@ components:
           maximum: 120
           default: 120
           description: Shared deployment and application-start acknowledgement budget, not program lifetime.
+    MainLoaderCapabilities:
+      type: object
+      required: [schema_version, status, mpy_entrypoint]
+      description: >
+        Actual controlled-bootstrap bytecode canary proof, scoped to the current
+        session/device/firmware/runtime/PID/process start token/worker generation.
+        Default reference devices still advertise main.py; query this runtime
+        record for conditional main.mpy admission. Historical proof is not reused
+        after restore/reattach, reset or unconfirmed owner restoration. This is
+        observed compatibility, not cryptographic firmware or hardware attestation.
+      properties:
+        schema_version:
+          const: 1
+        status:
+          enum: [verified, unsupported, unknown]
+        mpy_entrypoint:
+          type: boolean
+        loader:
+          const: micropython-override-main-v1
+        identity:
+          type: object
+          additionalProperties: true
+        probe:
+          type: object
+          additionalProperties: true
+        reason:
+          type: string
+      allOf:
+        - if:
+            required: [mpy_entrypoint]
+            properties:
+              mpy_entrypoint:
+                const: true
+          then:
+            required: [loader, identity, probe, mpy, small_int_bits]
+            properties:
+              status:
+                const: verified
+              small_int_bits:
+                const: 31
+              probe:
+                required: [kind, nonce, status, owner_restored, cleanup_complete, body_entered]
+                properties:
+                  kind:
+                    const: uiflow-main-mpy-canary-v1
+                  nonce:
+                    type: string
+                    pattern: "^[0-9a-f]{32}$"
+                  status:
+                    const: PASS
+                  owner_restored:
+                    const: true
+                  cleanup_complete:
+                    const: true
+                  body_entered:
+                    const: true
+      additionalProperties: true
     ProgramStatus:
       type: object
       required: [session_id, program_transport, program, history_error]
@@ -3661,6 +3739,8 @@ components:
           type: string
         program_transport:
           type: [string, "null"]
+        program_capabilities:
+          $ref: "#/components/schemas/MainLoaderCapabilities"
         history_error:
           type: [string, "null"]
         program:
@@ -3668,7 +3748,9 @@ components:
           description: >
             Execution ID, immutable revision/source hashes, firmware hash, PID,
             serial window, state and actual transfer/cleanup mode. State running
-            means the guest START marker was observed; application readiness,
+            means source START or binary LOAD was observed. Binary LOAD proves
+            only import dispatch; application_started/application_ready remain
+            null and body entry needs independent application output. Application readiness,
             frame and Unit effects require their own observations. At most 256
             execution records per session and 256 source revisions per service
             are accepted. File packages have a separate count quota, default
@@ -3679,20 +3761,35 @@ components:
           additionalProperties: true
     CreateSessionRequest:
       type: object
+      dependentRequired:
+        base_firmware_id: [expected_base_sha256, program_mode]
+        expected_base_sha256: [base_firmware_id, program_mode]
       required: [device_id]
       properties:
+        base_firmware_id:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Optional stored compatible manifest base for program_mode=uiflow-live.
+        expected_base_sha256:
+          type: string
+          pattern: "^[0-9a-f]{64}$"
+          description: Normalized stored-byte pin; must accompany base_firmware_id.
         program_mode:
           type: string
           enum: [uiflow-live]
           description: >
             Initialize the admitted cores3/atoms3r/sticks3/stopwatch cached UIFlow2
-            reference once with a guest UART REPL bootstrap, then opt into
+            base once (cached reference by default) with a guest UART REPL bootstrap, then opt into
             program_transport=uart-repl. Only runtime=qemu is admitted. Omit
-            firmware_id and uiflow_source_sha256; this mode rejects custom
-            firmware/source pins instead of silently replacing them. Initialization
+            firmware_id and uiflow_source_sha256; explicit bases use base_firmware_id
+            plus expected_base_sha256 and retain manifest requirements. Initialization
             uses the existing source composer and isolated virtual Flash. Subsequent
             POST program requests execute in this same guest without flashing.
-            Readiness waits for M5EMU_UART_REPL_READY; custom application readiness
+            Readiness waits for M5EMU_UART_REPL_READY and a real fixed bytecode
+            canary that verifies loader semantics and restores the REPL owner.
+            Unsupported semantics keep source execution available; lost control
+            fails startup. Manual program_transport does not probe or interrupt
+            arbitrary boot code. Custom application readiness
             conditions belong to each program, not this empty bootstrap. Original
             caller create idempotency remains effective. GET devices advertises
             program_modes per device; admission alone is not hardware validation.
@@ -4185,6 +4282,8 @@ components:
       additionalProperties: true
       required: [session_id, device_id, state]
       properties:
+        program_capabilities:
+          $ref: "#/components/schemas/MainLoaderCapabilities"
         units:
           type: array
           description: Session-scoped attachments with server-resolved physical pins
@@ -4213,8 +4312,7 @@ components:
             are guaranteed in this response. Poll the session until terminal;
             capacity and the worker lease remain occupied until confirmed cleanup.
         pid:
-          type: integer
-          nullable: true
+          type: [integer, "null"]
         idempotent_replay:
           type: boolean
           description: >
@@ -4235,28 +4333,24 @@ components:
         runtime:
           $ref: "#/components/schemas/RuntimeName"
         runtime_memory:
-          allOf:
+          anyOf:
             - $ref: "#/components/schemas/RuntimeMemory"
-          nullable: true
+            - type: "null"
         network:
-          type: object
-          nullable: true
+          type: [object, "null"]
           additionalProperties: true
         nvs:
-          type: object
-          nullable: true
+          type: [object, "null"]
           additionalProperties: true
         artifact_sha256:
-          type: string
-          nullable: true
+          type: [string, "null"]
         source_artifacts:
           type: array
           description: For uiflow, contains caller-source JSON artifact IDs, not image SHA256.
           items:
             type: string
         flash:
-          type: object
-          nullable: true
+          type: [object, "null"]
         flash_retained:
           type: boolean
           description: >
@@ -4271,12 +4365,10 @@ components:
           type: string
           format: date-time
         error:
-          type: string
-          nullable: true
+          type: [string, "null"]
         completed_at:
-          type: string
+          type: [string, "null"]
           format: date-time
-          nullable: true
         event_count:
           type: integer
         restored:
@@ -4330,17 +4422,15 @@ components:
         last_frame_available:
           type: boolean
         last_frame_captured_at:
-          type: string
+          type: [string, "null"]
           format: date-time
-          nullable: true
         device_state_supported:
           type: boolean
         last_device_state_available:
           type: boolean
         last_device_state_at:
-          type: string
+          type: [string, "null"]
           format: date-time
-          nullable: true
     ReadyConditions:
       type: object
       properties:
@@ -4431,7 +4521,42 @@ components:
       additionalProperties: true
       properties:
         worker:
-          $ref: "#/components/schemas/Worker"
+          $ref: "#/components/schemas/WorkerSummary"
+    WorkerSummary:
+      type: object
+      additionalProperties: false
+      description: >
+        Public capacity projection from DeviceService._worker_summary. This
+        contains only the listed lifecycle and lease fields; the full /worker
+        record uses Worker and additionally requires its schema_version.
+      required: [worker_id, instance_id, generation, state, pid, started_at, heartbeat_at, heartbeat_age_seconds, stale, accepting_leases, active_lease_count, active_lease_ids, drained_at]
+      properties:
+        worker_id:
+          $ref: "#/components/schemas/Worker/properties/worker_id"
+        instance_id:
+          $ref: "#/components/schemas/Worker/properties/instance_id"
+        generation:
+          $ref: "#/components/schemas/Worker/properties/generation"
+        state:
+          $ref: "#/components/schemas/Worker/properties/state"
+        pid:
+          $ref: "#/components/schemas/Worker/properties/pid"
+        started_at:
+          $ref: "#/components/schemas/Worker/properties/started_at"
+        heartbeat_at:
+          $ref: "#/components/schemas/Worker/properties/heartbeat_at"
+        heartbeat_age_seconds:
+          $ref: "#/components/schemas/Worker/properties/heartbeat_age_seconds"
+        stale:
+          $ref: "#/components/schemas/Worker/properties/stale"
+        accepting_leases:
+          $ref: "#/components/schemas/Worker/properties/accepting_leases"
+        active_lease_count:
+          $ref: "#/components/schemas/Worker/properties/active_lease_count"
+        active_lease_ids:
+          $ref: "#/components/schemas/Worker/properties/active_lease_ids"
+        drained_at:
+          $ref: "#/components/schemas/Worker/properties/drained_at"
     Worker:
       type: object
       additionalProperties: true
@@ -4457,8 +4582,7 @@ components:
           type: string
           format: date-time
         heartbeat_age_seconds:
-          type: number
-          nullable: true
+          type: [number, "null"]
         stale:
           type: boolean
         accepting_leases:
@@ -4470,8 +4594,7 @@ components:
           items:
             type: string
         drained_at:
-          type: string
-          nullable: true
+          type: [string, "null"]
         capabilities:
           type: object
           additionalProperties: true

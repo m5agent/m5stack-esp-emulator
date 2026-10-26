@@ -1,0 +1,21 @@
+{
+  "lane": "session",
+  "create_body": {
+    "device_id": "cores3",
+    "runtime": "qemu",
+    "ttl_seconds": 900,
+    "units": [
+      {
+        "id": "pir",
+        "unit_id": "pir",
+        "port_id": "port-a"
+      }
+    ],
+    "program_mode": "uiflow-live",
+    "ready_timeout_seconds": 40
+  },
+  "creation_outcome": "confirmed",
+  "session_id": "a4a20d2b11c04516b66af33f3a2dc509",
+  "pid": 11202,
+  "zip_before_stop": true
+}

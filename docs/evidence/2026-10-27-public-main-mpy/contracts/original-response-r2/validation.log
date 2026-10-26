@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "counts": {
+    "archive_records": 1009,
+    "classifications": {
+      "original": 933,
+      "hash-only": 30,
+      "redacted-json": 42,
+      "generated": 4
+    },
+    "original_http_response_records": 783,
+    "validated_json_responses": 766,
+    "passed_responses": 766,
+    "failed_responses": 0,
+    "validation_errors": 0,
+    "skipped_response_records": 17,
+    "schema_responses": {
+      "#/components/schemas/Session": 306,
+      "#/components/schemas/ProgramRevisionEnvelope": 12,
+      "#/components/schemas/ProgramStatus": 43,
+      "#/components/schemas/SerialChunk": 282,
+      "inline-response-schema": 25,
+      "#/components/schemas/Error": 4,
+      "#/components/schemas/Capacity": 4,
+      "#/components/schemas/Firmware": 1,
+      "#/components/schemas/Preview": 41,
+      "#/components/schemas/PreviewRun": 45,
+      "#/components/schemas/PreviewInputReceipt": 3
+    },
+    "schema_failed_responses": {},
+    "error_instance_paths": {}
+  },
+  "inputs_unchanged": true,
+  "receipt_sha256": "0c476b46e5fbf383593fe8643dcb52b39ba8e67f7ce3a3c6a990fe78a0a5e091"
+}

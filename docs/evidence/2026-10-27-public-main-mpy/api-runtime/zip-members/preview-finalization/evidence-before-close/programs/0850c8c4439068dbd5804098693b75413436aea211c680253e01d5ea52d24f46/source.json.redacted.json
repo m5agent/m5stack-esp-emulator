@@ -1,0 +1,27 @@
+{
+  "archive_notice": {
+    "classification": "redacted-json",
+    "original_bytes": 1776,
+    "original_sha256": "5a68469a803703be191185c32aaea0e69ad7664748ba1cb85310238fd96c7d6e",
+    "original_source": "runtime/preview-finalization/evidence-before-close.zip!programs/0850c8c4439068dbd5804098693b75413436aea211c680253e01d5ea52d24f46/source.json",
+    "transformations": [
+      {
+        "decoded_bytes": 1275,
+        "decoded_sha256": "ff12cfb0eaff8a20a17ce80d89df40a9bab49928f5d7a758aaf28620d6d5149e",
+        "kind": "base64-payload-omitted",
+        "path": "$.files.main.py"
+      }
+    ]
+  },
+  "document": {
+    "entrypoint": "main.py",
+    "files": {
+      "main.py": {
+        "archive_redacted_binary": true,
+        "decoded_bytes": 1275,
+        "decoded_sha256": "ff12cfb0eaff8a20a17ce80d89df40a9bab49928f5d7a758aaf28620d6d5149e",
+        "original_encoding": "base64"
+      }
+    }
+  }
+}

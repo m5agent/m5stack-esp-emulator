@@ -729,6 +729,7 @@ function updateProgramMode() {
   $('programModeHint').textContent = enabled
     ? '创建后可在当前设备中反复运行源码，屏幕和 Unit 状态随程序更新。'
     : '该型号暂未开放实时编程，可继续创建参考设备。';
+  if ($('programBaseFields')) $('programBaseFields').hidden = !input.checked || !enabled;
   const previewMode = $('previewModeInput');
   if (previewMode) {
     previewMode.disabled = !enabled || !input.checked || !state.token;
@@ -748,6 +749,15 @@ function updateCreateControls() {
     $('createBtn').disabled = state.creating || !!state.pendingPreviewCreate.previewId;
     $('createBtn').textContent = state.pendingPreviewCreate.previewId ? '预览准备中…' : '重试上次创建（同一请求）';
   }
+  for (const id of ['programBaseId', 'programBaseSha']) if ($(id)) $(id).disabled = state.creating || !!state.pendingPreviewCreate;
+}
+
+function selectedProgramBase() {
+  const base = $('programBaseId')?.value.trim() || '', sha = $('programBaseSha')?.value.trim() || '';
+  if (!base && !sha) return {};
+  if (!/^[a-f0-9]{64}$/.test(base) || !/^[a-f0-9]{64}$/.test(sha))
+    throw new Error('基础固件 ID 与 SHA256 需同时填写完整的小写 64 位摘要。');
+  return {base_firmware_id: base, expected_base_sha256: sha};
 }
 
 function rememberPreviewCreate(record) {
@@ -1094,7 +1104,7 @@ async function createSession() {
         const random = new Uint8Array(16);
         crypto.getRandomValues(random);
         record = {key: `web-preview-${[...random].map(byte => byte.toString(16).padStart(2, '0')).join('')}`,
-          body: {device_id: deviceId, ttl_seconds: ttl, units: state.unitPicker.attachments(deviceId)}};
+          body: {device_id: deviceId, ttl_seconds: ttl, units: state.unitPicker.attachments(deviceId), ...selectedProgramBase()}};
         rememberPreviewCreate(record);
       }
       state.creating = true;
@@ -1114,7 +1124,7 @@ async function createSession() {
     }
     const units = state.unitPicker.attachments(deviceId);
     const payload = { device_id: deviceId, ttl_seconds: ttl };
-    if ($('programModeInput').checked && !$('programModeInput').disabled) payload.program_mode = 'uiflow-live';
+    if ($('programModeInput').checked && !$('programModeInput').disabled) Object.assign(payload, {program_mode: 'uiflow-live'}, selectedProgramBase());
     if (units.length) payload.units = units;
     if (deviceId === 'tab5') {
       payload.ready_marker = 'TAB5_UI_DRAWN';

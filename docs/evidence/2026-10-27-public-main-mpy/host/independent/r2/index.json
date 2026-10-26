@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "-m",
+    "unittest",
+    "test_main_loader_admission"
+  ],
+  "cwd": "repository-root",
+  "environment_overrides": {
+    "PYTHONPATH": "platform/tools:platform/tests:.work/py312"
+  },
+  "started_at": "2026-10-26T22:24:32.455867+00:00",
+  "finished_at": "2026-10-26T22:24:32.762576+00:00",
+  "exit_code": 0,
+  "log_sha256": "545f9b4eace1c8509b5855477e2bd0e3b6cbbadc5c722399c6a847c53ec33e7e",
+  "sources_sha256": {
+    "platform/tests/test_main_loader_admission.py": "1932b2f2a71d5cb8b8ad43ffd619b57eefa7de6e41810e549b37872b6458803b",
+    "platform/tools/device_service.py": "6b1db729568e6af980118020fa2e82520c27fa8741b4f5c12d689e11a64c5097",
+    "platform/tools/uiflow_main_loader.py": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+    "platform/tools/uiflow_runtime.py": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+    "platform/tools/uiflow_package_runtime.py": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+    "platform/tools/program_packages.py": "577e6b2e45d912db849676cb63a6cfa252c95fff2d109765ab57cb022b682a0c",
+    "platform/tools/uiflow_source.py": "e54f9c084197404b7d9fcfc764a7d19b54b62f7bfa56c85d4072276d6590c385",
+    "platform/tests/test_device_program_runtime.py": "a92f13b76e9f9bd80eb8b232d00cf5d2ea9af1ee2f255ce152df3cb2895a194f",
+    "platform/tests/test_device_program_packages.py": "ef84d5877882e0406091b34b6cf0caf0310bddc31ee49437739fa3d68d74b8b0",
+    "platform/tests/test_uiflow_service.py": "c6010aa6be1f98a33d837f4b0dea62e1859fcee34ff199ec273c3fcf15923aa3",
+    "platform/tests/test_mpy_bytecode.py": "7e082184db4d948f70eaf6bc262074a9ad4b2239ba39bace0d73f07d526753a0"
+  },
+  "sources_unchanged_during_tests": true,
+  "scope": "host-only independent admission tests; guest UART/process/entrypoint execution are mocked or forbidden",
+  "synthetic_capability_receipt": "real verifier validates compiler/canary pins and Session identity; not a new guest or hardware capability claim",
+  "guest": "NOT RUN",
+  "hardware": "NOT RUN",
+  "prior_failure": "r1 retained unchanged; positive fixture pinned superseded canary SHA, then r2 uses authoritative fixed module constants"
+}

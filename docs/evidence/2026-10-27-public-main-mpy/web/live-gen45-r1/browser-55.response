@@ -1,0 +1,52 @@
+{
+  "revision": {
+    "created_at": "2026-10-26T22:34:55.190869+00:00",
+    "entrypoint": "main.mpy",
+    "files": [
+      {
+        "kind": "mpy",
+        "path": "dep.mpy",
+        "sha256": "2f5885b1ac530dff6d351d9658d51f00c1c301d667901b9ea01e55e9eaf2c890",
+        "size": 45
+      },
+      {
+        "kind": "mpy",
+        "path": "main.mpy",
+        "sha256": "22d6d0f9198ee61f401862681b1d10e372be4e72387c3f31c6ec912a2c686ef6",
+        "size": 1013
+      }
+    ],
+    "revision_id": "4e991555570cea0a9c38018b8a7a7d506879093382ef66d8fa134335a44ca12f",
+    "source_kind": "uiflow2-package",
+    "source_sha256": "4e7225b9f3ad647641c44147253c9c12e8128afbde9a6ad249ce03eb072e0ab2",
+    "total_file_bytes": 1058
+  },
+  "limits": {
+    "max_revisions": 1024,
+    "max_files": 64,
+    "max_file_bytes": 262144,
+    "max_total_file_bytes": 1048576,
+    "max_http_body_bytes": 2097152,
+    "gc_enabled": false
+  },
+  "files": {
+    "dep.mpy": {
+      "encoding": "redacted-byte-payload",
+      "redaction": "Original base64 file bytes omitted; use api-runtime source/recipe for reproducible compilation.",
+      "original_decoded": {
+        "bytes": 45,
+        "sha256": "2f5885b1ac530dff6d351d9658d51f00c1c301d667901b9ea01e55e9eaf2c890",
+        "sha512": "29ec2ad0350419d8c1a76aa5ce474d0c583969a25687807dece50a8aa563eb194cba5a6027d881c5fe9c0f9b9d4b0d6ffbaa38d62bf86389f15396465cad6f00"
+      }
+    },
+    "main.mpy": {
+      "encoding": "redacted-byte-payload",
+      "redaction": "Original base64 file bytes omitted; use api-runtime source/recipe for reproducible compilation.",
+      "original_decoded": {
+        "bytes": 1013,
+        "sha256": "22d6d0f9198ee61f401862681b1d10e372be4e72387c3f31c6ec912a2c686ef6",
+        "sha512": "591a68358405c465949f6e129fc43df94fad19b7ae45ca1e55b895c3f1efdb4421e0994535000e2606caf0fbfe7896e47736caa2761f76e4925b121732394e35"
+      }
+    }
+  }
+}

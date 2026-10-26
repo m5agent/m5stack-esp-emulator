@@ -130,6 +130,7 @@ class ProgramPanel {
     this.detail.textContent = this.program?.execution_id
       ? `${this.active() ? '执行' : '最后执行'} ${this.program.execution_id} · ${STATES[this.program.state] || this.program.state}`
       : this.active() ? this.synchronized ? '草稿仅保留在此页面。' : '状态同步后可运行源码。' : '设备运行后可编辑并执行源码。';
+    if (this.program?.entrypoint === 'main.mpy') this.detail.textContent += ' · 当前执行 main.mpy；编辑器保留独立的 main.py 新草稿。';
     this.error.textContent = (managedBinding(this.session) ? '此会话由 Preview 管理，请重新加载控制面。' : '') || this.submissionError || this.pollError || this.historyError
       || this.program?.error?.message || this.program?.error?.code
       || (bytes > SOURCE_LIMIT_BYTES ? '源码超过 64 KiB，请缩短后运行。' : '');
@@ -258,12 +259,15 @@ function decodeFile(file) {
   check(btoa(binary) === file.data, '文件包 Base64 非标准编码。');
   return Uint8Array.from(binary, character => character.charCodeAt(0));
 }
-function inspectFiles(files) {
+function inspectFiles(files, entrypoint) {
   check(object(files), '完整文件包缺失。');
   const paths = Object.keys(files);
-  check(paths.length > 0 && paths.length <= PACKAGE_LIMITS.files && paths.includes('main.py'), '文件包必须含 main.py，且不超过 64 个文件。');
+  check(['main.py', 'main.mpy'].includes(entrypoint) && paths.length > 0 && paths.length <= PACKAGE_LIMITS.files
+    && paths.includes(entrypoint), '文件包必须含指定的 main.py 或 main.mpy 入口，且不超过 64 个文件。');
+  if (entrypoint === 'main.mpy') check(!paths.some(path => path.toLowerCase() === 'main.py'
+    || path.toLowerCase().split('/')[0] === 'main'), 'main.mpy 文件包不能含遮蔽入口的 main.py 或 main 路径。');
   const inventory = Object.create(null), hashes = Object.create(null), seen = new Set(), namespace = new Map();
-  let total = 0, main = '';
+  let total = 0, main = null;
   for (const path of paths.sort(compareCodePoints)) {
     const parts = path.split('/');
     check(path && decoder.decode(encoder.encode(path)) === path && path.normalize('NFC') === path
@@ -296,13 +300,13 @@ function inspectFiles(files) {
     const parts = path.toLowerCase().split('/');
     for (let count = 1; count < parts.length; count += 1) check(!seen.has(parts.slice(0, count).join('/')), '文件包目录与文件冲突。');
   }
-  return {main, total, inventory, revisionId: hash(encoder.encode(canonical({source_kind: 'uiflow2-package', entrypoint: 'main.py', files: hashes}))),
+  return {entrypoint, main, total, inventory, revisionId: hash(encoder.encode(canonical({source_kind: 'uiflow2-package', entrypoint, files: hashes}))),
     sourceHash: hash(encoder.encode(canonical(hashes)))};
 }
 function verifyPackage(revision, files, expectedId = null) {
-  check(object(revision) && revision.source_kind === 'uiflow2-package' && revision.entrypoint === 'main.py'
+  check(object(revision) && revision.source_kind === 'uiflow2-package' && ['main.py', 'main.mpy'].includes(revision.entrypoint)
     && HASH.test(revision.revision_id) && (!expectedId || revision.revision_id === expectedId), '文件包 revision 身份不符。');
-  const result = inspectFiles(files);
+  const result = inspectFiles(files, revision.entrypoint);
   check(revision.revision_id === result.revisionId && revision.source_sha256 === result.sourceHash
     && revision.total_file_bytes === result.total && Number.isInteger(revision.total_file_bytes)
     && Array.isArray(revision.files) && revision.files.length === Object.keys(result.inventory).length, '文件包内容摘要不符。');
@@ -344,7 +348,8 @@ class PreviewProgramPanel {
     this.status.setAttribute('aria-live', 'polite');
     heading.append(element('h4', '', '实时编程'), this.status);
     this.help = element('p', 'program-help', '编辑 main.py，运行时保留完整包内的模块、MPY 与资源。运行状态由 Preview 同步；启动标记不代表应用已就绪。');
-    const label = element('label', 'program-source-label', '程序源码 · main.py');
+    const label = element('label', 'program-source-label');
+    this.sourceTitle = element('span', '', '程序源码 · main.py');
     this.source = element('textarea', 'program-source');
     this.source.dataset.programSource = '';
     this.source.value = DEFAULT_SOURCE;
@@ -353,14 +358,18 @@ class PreviewProgramPanel {
     this.source.setAttribute('aria-label', 'Preview main.py 草稿');
     this.source.setAttribute('autocapitalize', 'off');
     this.source.setAttribute('autocomplete', 'off');
-    label.append(this.source);
+    this.binaryInfo = element('p', 'program-package');
+    this.binaryInfo.dataset.programBytecode = '';
+    this.binaryInfo.hidden = true;
+    label.append(this.sourceTitle, this.source, this.binaryInfo);
     const actions = element('div', 'program-actions');
     this.runButton = this.button('运行完整包', 'programRun', 'btn primary');
     this.cancelButton = this.button('请求取消', 'programCancel');
     this.refreshButton = this.button('同步状态', 'programRefresh');
     this.loadButton = this.button('加载当前文件包', 'programLoad');
+    this.newSourceButton = this.button('新建 main.py 程序', 'programNewSource');
     this.bytes = element('span', 'program-bytes');
-    actions.append(this.runButton, this.cancelButton, this.refreshButton, this.loadButton, this.bytes);
+    actions.append(this.runButton, this.cancelButton, this.refreshButton, this.loadButton, this.newSourceButton, this.bytes);
     this.packageInfo = element('p', 'program-package');
     this.packageInfo.dataset.programPackage = '';
     this.draftInfo = element('p', 'program-draft');
@@ -381,6 +390,7 @@ class PreviewProgramPanel {
     this.cancelButton.addEventListener('click', () => { void this.cancel(); });
     this.refreshButton.addEventListener('click', () => { void this.refresh(); });
     this.loadButton.addEventListener('click', () => { void this.loadCurrentPackage(); });
+    this.newSourceButton.addEventListener('click', () => this.newSource());
     this.adoptButton.addEventListener('click', () => this.applyStaged(false));
     this.mergeButton.addEventListener('click', () => this.applyStaged(true));
     this.unsubscribe = previewClient?.subscribe(state => this.receive(state));
@@ -392,11 +402,12 @@ class PreviewProgramPanel {
   current(epoch, binding = this.bindingKey) { return !this.disposed && this.epoch === epoch && this.bindingKey === binding; }
   latest(state = this.state) { return state?.desiredRun || state?.transitionRun || state?.activeRun || null; }
   own(run) { return !!run && this.localGenerations.get(run.request?.client_generation ?? run.client_generation) === run.revision_id; }
-  external(state = this.state, baseline = this.workspace?.revisionId ?? null) {
+  external(state = this.state, baseline = this.workspace?.baseRevisionId ?? this.workspace?.revisionId ?? null) {
     const run = this.latest(state);
     return !!run && run.revision_id !== baseline && !this.own(run);
   }
-  dirty() { return this.source.value !== (this.workspace?.main ?? DEFAULT_SOURCE).replace(/\r\n?/g, '\n'); }
+  isBinary(workspace = this.workspace) { return workspace?.entrypoint === 'main.mpy'; }
+  dirty() { return !this.isBinary() && (!!this.workspace?.baseRevisionId || this.source.value !== (this.workspace?.main ?? DEFAULT_SOURCE).replace(/\r\n?/g, '\n')); }
   currentSource() { return this.workspace && !this.dirty() ? this.workspace.main : this.source.value; }
   receive(state) {
     if (this.disposed) return;
@@ -410,7 +421,7 @@ class PreviewProgramPanel {
     }
     this.state = state;
     if (!this.workspace && state.synchronized && state.preview?.generation === 0 && !this.latest(state)) {
-      this.workspace = {revisionId: null, main: DEFAULT_SOURCE, files: {'main.py': {encoding: 'utf8', data: DEFAULT_SOURCE}}, total: encoder.encode(DEFAULT_SOURCE).length};
+      this.workspace = {revisionId: null, entrypoint: 'main.py', main: DEFAULT_SOURCE, files: {'main.py': {encoding: 'utf8', data: DEFAULT_SOURCE}}, total: encoder.encode(DEFAULT_SOURCE).length};
     }
     if (this.staged && this.staged.revisionId !== this.latest()?.revision_id) this.staged = null;
     this.drainCancellations();
@@ -435,29 +446,44 @@ class PreviewProgramPanel {
   }
   render() {
     if (this.disposed) return;
-    const state = this.state, run = this.latest(), bytes = encoder.encode(this.currentSource()).length;
-    const total = this.workspace ? this.workspace.total - decodeFile(this.workspace.files['main.py']).length + bytes : bytes;
+    const state = this.state, run = this.latest(), binary = this.isBinary();
+    const bytes = binary ? decodeFile(this.workspace.files['main.mpy']).length : encoder.encode(this.currentSource()).length;
+    const total = this.workspace ? binary ? this.workspace.total : this.workspace.total - decodeFile(this.workspace.files['main.py']).length + bytes : bytes;
     const external = this.external();
     this.source.disabled = false;
+    this.source.hidden = binary;
+    this.source.readOnly = binary;
+    this.sourceTitle.textContent = binary ? '已编译程序 · main.mpy（只读）' : '程序源码 · main.py';
+    this.binaryInfo.hidden = !binary;
+    this.binaryInfo.textContent = binary ? `${bytes.toLocaleString('zh-CN')} B · SHA256 ${hash(decodeFile(this.workspace.files['main.mpy']))}。运行使用原始文件包；main.py 草稿已保留。` : '';
+    this.help.textContent = binary ? '当前为 MPY 字节码包，完整文件按原样保留。只有当前虚拟设备已验证 MPY 主入口能力时才能运行。'
+      : '编辑 main.py，运行时保留完整包内的模块、MPY 与资源。运行状态由 Preview 同步；启动标记不代表应用已就绪。';
     this.runButton.disabled = !!this.randomFault || !this.previewClient || !state?.canSubmit || !this.workspace || external || !!this.staged
-      || bytes > PACKAGE_LIMITS.fileBytes || total > PACKAGE_LIMITS.totalBytes;
+      || bytes > PACKAGE_LIMITS.fileBytes || total > PACKAGE_LIMITS.totalBytes || binary && state?.preview?.capabilities?.main_mpy !== true;
     this.cancelButton.disabled = !this.previewClient || this.cancelPending || (!this.saving && !state?.canCancel);
     this.refreshButton.disabled = !this.previewClient;
     this.loadButton.disabled = !this.previewClient || !state?.synchronized || !run || this.loadPending;
+    this.newSourceButton.hidden = !binary;
+    this.newSourceButton.disabled = !state?.synchronized || !!this.saving || !!this.staged || external;
     this.choices.hidden = !this.staged;
+    this.adoptButton.textContent = this.isBinary(this.staged) ? '加载只读 main.mpy 包' : '加载并替换 main.py';
+    this.mergeButton.disabled = binary || this.isBinary(this.staged);
     this.root.setAttribute('aria-busy', String(!!this.saving || this.loadPending || !!state?.pending));
     this.bytes.textContent = `${bytes.toLocaleString('zh-CN')} B · 完整包 ${total.toLocaleString('zh-CN')} B / 1 MiB`;
     const labels = {queued: '等待运行', preparing: '准备文件包', starting: '等待启动确认', running: '运行中', completed: '已完成',
       failed: '执行失败', unknown: '执行结果未确认', cancelling: '等待中断确认', cancelled: '已取消', superseded: '已被新运行替代', interrupted: '已中断'};
-    this.status.textContent = !state?.synchronized ? '等待 Preview 状态确认' : this.saving ? '保存完整文件包' : labels[run?.state] || (state.preview?.state === 'ready' ? '尚未运行' : '等待设备准备');
+    this.status.textContent = !state?.synchronized ? '等待 Preview 状态确认' : this.saving ? binary ? '提交原始 MPY 文件包' : '保存完整文件包' : labels[run?.state] || (state.preview?.state === 'ready' ? '尚未运行' : '等待设备准备');
     this.status.dataset.state = run?.state || state?.preview?.state || 'unknown';
-    this.packageInfo.textContent = this.workspace ? `${Object.keys(this.workspace.files).length} 个文件 · 包 ${this.workspace.revisionId || '尚未保存，仅 main.py'}` : '尚未加载完整文件包。先加载当前包，再编辑或运行。';
+    this.packageInfo.textContent = this.workspace ? `${Object.keys(this.workspace.files).length} 个文件 · 包 ${this.workspace.revisionId
+      || (this.workspace.baseRevisionId ? `尚未保存，新 main.py 包 · 依赖来自 ${this.workspace.baseRevisionId}` : '尚未保存，仅 main.py')}` : '尚未加载完整文件包。先加载当前包，再编辑或运行。';
     this.draftInfo.textContent = this.staged ? '完整包已校验；草稿尚未覆盖，请选择如何加载。'
       : external ? `外部文件包已变化：${run.revision_id}。当前草稿保留；加载并明确同步依赖后才能运行。`
-        : this.dirty() ? 'main.py 有本地修改；状态同步不会覆盖草稿。' : '草稿与已加载的 main.py 一致。';
+        : binary ? 'main.mpy 与依赖保持原始字节；独立 main.py 草稿保留在此页面。'
+          : this.dirty() ? 'main.py 有本地修改；状态同步不会覆盖草稿。' : '草稿与已加载的 main.py 一致。';
     this.detail.textContent = run ? `Run ${run.run_id} · 执行 ${run.execution_id} · ${labels[run.state] || run.state}${this.notice ? ' · ' + this.notice : ''}` : this.notice || '草稿仅保留在当前页面。';
     this.error.textContent = !this.previewClient ? 'Preview 控制面不可用；此托管会话不能使用旧程序接口。'
       : this.randomFault || this.problem || state?.error || run?.error?.message
+        || (binary && state?.preview?.capabilities?.main_mpy !== true ? '当前设备尚未验证 main.mpy 主入口能力；可查看完整包，运行暂不可用。' : '')
         || (bytes > PACKAGE_LIMITS.fileBytes ? 'main.py 超过 256 KiB。' : total > PACKAGE_LIMITS.totalBytes ? '完整文件包超过 1 MiB。' : '');
     this.error.hidden = !this.error.textContent;
   }
@@ -483,15 +509,16 @@ class PreviewProgramPanel {
       check(this.state?.synchronized && this.latest()?.revision_id === revisionId, '当前文件包已变化，请重新加载。');
       check(object(response) && object(response.files) && Object.values(response.files).every(row => row?.encoding === 'base64'), '完整包下载格式无效。');
       const verified = verifyPackage(response.revision, response.files, revisionId);
-      const workspace = {revisionId, main: verified.main, total: verified.total, files: structuredClone(response.files)};
-      if (this.dirty() || edit !== this.edit) this.staged = workspace;
+      const workspace = {revisionId, entrypoint: verified.entrypoint, main: verified.main, total: verified.total, files: structuredClone(response.files)};
+      if (this.dirty() || this.isBinary() && !this.isBinary(workspace) || edit !== this.edit) this.staged = workspace;
       else this.install(workspace, false);
     } catch (error) { if (current()) this.problem = `加载完整包失败：${error.message}`; }
     finally { if (current()) { this.loadPending = false; this.render(); } }
   }
   install(workspace, keepMain) {
+    if (keepMain && (this.isBinary(workspace) || this.isBinary())) return;
     this.workspace = workspace;
-    if (!keepMain) { this.source.value = workspace.main; this.edit += 1; }
+    if (!keepMain && !this.isBinary(workspace)) { this.source.value = workspace.main; this.edit += 1; }
     this.staged = null; this.problem = ''; this.notice = keepMain ? '已采用当前完整包依赖，保留本地 main.py。' : '已加载并校验当前完整包。';
     this.render();
   }
@@ -499,32 +526,47 @@ class PreviewProgramPanel {
     if (!this.staged || !this.state?.synchronized || this.staged.revisionId !== this.latest()?.revision_id) return;
     this.install(this.staged, keepMain);
   }
+  newSource() {
+    if (this.disposed || !this.isBinary() || this.newSourceButton.disabled) return;
+    // Fork the validated package, never rewrite its immutable checkpoint or
+    // decode bytecode as source. Fence every outstanding package read first.
+    const baseRevisionId = this.workspace.revisionId, files = structuredClone(this.workspace.files), source = this.source.value;
+    delete files['main.mpy'];
+    files['main.py'] = {encoding: 'utf8', data: source};
+    const total = this.workspace.total - decodeFile(this.workspace.files['main.mpy']).length + encoder.encode(source).length;
+    this.loadEpoch += 1; this.loadPending = false; this.edit += 1;
+    this.workspace = {revisionId: null, baseRevisionId, entrypoint: 'main.py', main: source, total, files};
+    this.staged = null; this.problem = '';
+    this.notice = '已新建独立 main.py 包；保留依赖与资源并移除根 main.mpy。点击运行才保存和替换当前程序。';
+    this.render();
+  }
   async run() {
     if (this.runButton.disabled || this.disposed) return;
-    const epoch = this.epoch, click = ++this.click, baseline = this.workspace.revisionId;
-    const source = this.currentSource(), files = structuredClone(this.workspace.files);
-    files['main.py'] = {encoding: 'utf8', data: source};
+    const epoch = this.epoch, click = ++this.click, baseline = this.workspace.baseRevisionId ?? this.workspace.revisionId;
+    const binary = this.isBinary(), source = binary ? null : this.currentSource(), files = structuredClone(this.workspace.files);
+    if (!binary) files['main.py'] = {encoding: 'utf8', data: source};
     const current = () => this.current(epoch) && click === this.click;
     const request = this.saving = {click};
     this.problem = ''; this.notice = ''; this.render();
     try {
-      const response = await this.api('/api/v1/program-revisions', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      const response = binary ? null : await this.api('/api/v1/program-revisions', {method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({source_kind: 'uiflow2-package', entrypoint: 'main.py', files})});
       if (!current()) return;
-      const verified = verifyPackage(response?.revision, files);
-      const revisionId = response.revision.revision_id, generation = `${this.clientTag}-${click}`;
+      const verified = binary ? {total: this.workspace.total} : verifyPackage(response?.revision, files);
+      const revisionId = binary ? baseline : response.revision.revision_id, generation = `${this.clientTag}-${click}`;
       Object.assign(request, {revisionId, generation, epoch});
       this.localGenerations.set(generation, revisionId);
       const receipt = await this.previewClient.runRevision(revisionId, {clientGeneration: generation, beforeAdmission: state => {
         check(current(), '此运行已被更新的点击或取消替代。');
         check(!this.external(state, baseline), '外部完整包已变化，请先加载并同步依赖。');
+        check(!binary || state.preview?.capabilities?.main_mpy === true, '当前设备的 main.mpy 运行能力尚未验证。');
         request.expectedGeneration = state.preview.generation + 1;
         this.dispatches.set(generation, request);
       }});
       if (this.current(epoch) && request.cancelRequested) void this.refresh();
       if (!current()) return;
       check(receipt?.revision_id === revisionId, '运行收据的文件包身份不符。');
-      this.workspace = {revisionId, main: source, total: verified.total, files};
+      this.workspace = {revisionId, entrypoint: binary ? 'main.mpy' : 'main.py', main: source, total: verified.total, files};
       this.notice = 'Run 已接收；执行结果以同步状态为准。';
     } catch (error) {
       if (request.generation && error.effectPossible === false) this.dispatches.delete(request.generation);

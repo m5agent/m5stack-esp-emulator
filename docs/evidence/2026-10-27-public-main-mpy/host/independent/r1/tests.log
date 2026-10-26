@@ -1,0 +1,144 @@
+.......FF.F.FFF.FFFFFFF
+======================================================================
+FAIL: test_capability_result_is_detached_from_internal_admission (test_main_loader_admission.MainLoaderAdmissionTests.test_capability_result_is_detached_from_internal_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 208, in test_capability_result_is_detached_from_internal_admission
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_ctrl_c_prompt_receipt_cannot_hide_an_old_binary_restore_error (test_main_loader_admission.MainLoaderAdmissionTests.test_ctrl_c_prompt_receipt_cannot_hide_an_old_binary_restore_error)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 305, in test_ctrl_c_prompt_receipt_cannot_hide_an_old_binary_restore_error
+    program, runner = self.active_binary(session)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 101, in active_binary
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_loader_revoked_during_store_read_rejects_before_execution_allocation (test_main_loader_admission.MainLoaderAdmissionTests.test_loader_revoked_during_store_read_rejects_before_execution_allocation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 237, in test_loader_revoked_during_store_read_rejects_before_execution_allocation
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_nonrunning_state_never_grants_recorded_loader_admission (test_main_loader_admission.MainLoaderAdmissionTests.test_nonrunning_state_never_grants_recorded_loader_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 152, in test_nonrunning_state_never_grants_recorded_loader_admission
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_reset_revokes_old_loader_proof_without_reprobing_during_the_mutation (test_main_loader_admission.MainLoaderAdmissionTests.test_reset_revokes_old_loader_proof_without_reprobing_during_the_mutation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 169, in test_reset_revokes_old_loader_proof_without_reprobing_during_the_mutation
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_restored_session_does_not_inherit_a_persisted_true_receipt (test_main_loader_admission.MainLoaderAdmissionTests.test_restored_session_does_not_inherit_a_persisted_true_receipt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 179, in test_restored_session_does_not_inherit_a_persisted_true_receipt
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_semantic_or_restoration_evidence_cannot_be_replaced_by_a_true_flag (test_main_loader_admission.MainLoaderAdmissionTests.test_semantic_or_restoration_evidence_cannot_be_replaced_by_a_true_flag)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 187, in test_semantic_or_restoration_evidence_cannot_be_replaced_by_a_true_flag
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_status_observation_of_restore_error_revokes_admission_and_preserves_the_failure (test_main_loader_admission.MainLoaderAdmissionTests.test_status_observation_of_restore_error_revokes_admission_and_preserves_the_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 292, in test_status_observation_of_restore_error_revokes_admission_and_preserves_the_failure
+    program, runner = self.active_binary(session)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 101, in active_binary
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_stock_unknown_and_identity_mismatch_inline_binary_preserve_old_program_and_package_slots (test_main_loader_admission.MainLoaderAdmissionTests.test_stock_unknown_and_identity_mismatch_inline_binary_preserve_old_program_and_package_slots)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 221, in test_stock_unknown_and_identity_mismatch_inline_binary_preserve_old_program_and_package_slots
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_verified_loader_does_not_bypass_preview_management_handle (test_main_loader_admission.MainLoaderAdmissionTests.test_verified_loader_does_not_bypass_preview_management_handle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 336, in test_verified_loader_does_not_bypass_preview_management_handle
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_verified_loader_still_rejects_native_and_bad_bytecode_before_cancelling_or_saving (test_main_loader_admission.MainLoaderAdmissionTests.test_verified_loader_still_rejects_native_and_bad_bytecode_before_cancelling_or_saving)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 281, in test_verified_loader_still_rejects_native_and_bad_bytecode_before_cancelling_or_saving
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_verified_receipt_is_bound_to_every_current_guest_identity_field (test_main_loader_admission.MainLoaderAdmissionTests.test_verified_receipt_is_bound_to_every_current_guest_identity_field)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 138, in test_verified_receipt_is_bound_to_every_current_guest_identity_field
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_verified_session_dispatches_unchanged_binary_to_the_mpy_runner (test_main_loader_admission.MainLoaderAdmissionTests.test_verified_session_dispatches_unchanged_binary_to_the_mpy_runner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 266, in test_verified_session_dispatches_unchanged_binary_to_the_mpy_runner
+    program, runner = self.active_binary(session)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 101, in active_binary
+    self.admit(session)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_main_loader_admission.py", line 71, in admit
+    self.assertTrue(session.program_capabilities()["mpy_entrypoint"])
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.119s
+
+FAILED (failures=13)

@@ -74,6 +74,15 @@ class PreviewStoreTests(unittest.TestCase):
                 connection.execute("INSERT INTO runs VALUES(?,?,?)", ("missing", "missing", "{}"))
         self.assertEqual(self.path.stat().st_mode & 0o777, 0o600)
 
+    def test_runtime_capability_is_separate_from_frozen_create_receipt(self):
+        created = self.create()
+        updated = {"schema_version": 1, "status": "unsupported", "mpy_entrypoint": False}
+        self.store.mutate(created["preview_id"], lambda state: state["preview"].update(runtime_capabilities=updated))
+        current = self.store.get_preview(LOCAL_OWNER, created["preview_id"])
+        self.assertEqual(current["runtime_capabilities"], updated)
+        self.assertEqual(current["session_request"], created["session_request"])
+        self.assertEqual(self.create(), created)
+
     def test_concurrent_create_same_key_allocates_once_and_freezes_original_receipt(self):
         barrier = threading.Barrier(12)
         request = {"device_id": "cores3", "ttl_seconds": 300}

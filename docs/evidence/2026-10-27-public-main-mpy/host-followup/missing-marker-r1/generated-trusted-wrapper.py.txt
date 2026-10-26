@@ -1,0 +1,56 @@
+import sys,os,hashlib,binascii
+_m5_binary_owner=__import__('__main__')
+_m5_binary_cwd=os.getcwd()
+_m5_binary_path=sys.path[:]
+_m5_binary_saved={}
+for _m5_binary_name in ('main','__main__'):
+ _m5_binary_saved[_m5_binary_name]=(_m5_binary_name in sys.modules,sys.modules.get(_m5_binary_name))
+_m5_binary_error=False
+_m5_binary_restored=False
+try:
+ assert id(_m5_binary_owner)==4307392368, 'REPL owner differs from the verified loader probe'
+ assert 'main.py' not in os.listdir('/flash/.m5-live-packages/69777084f5742b3ff04867c051b366f0e63bf6b3e2370bd9b6a62e39ae011884') and 'main' not in os.listdir('/flash/.m5-live-packages/69777084f5742b3ff04867c051b366f0e63bf6b3e2370bd9b6a62e39ae011884'), 'entrypoint shadowing'
+ assert (os.stat('/flash/.m5-live-packages/69777084f5742b3ff04867c051b366f0e63bf6b3e2370bd9b6a62e39ae011884/main.mpy')[0] & 0xf000)==0x8000, 'entrypoint is not a regular file'
+ _m5_binary_digest=hashlib.sha256()
+ _m5_binary_size=0
+ _m5_binary_header=b''
+ with open('/flash/.m5-live-packages/69777084f5742b3ff04867c051b366f0e63bf6b3e2370bd9b6a62e39ae011884/main.mpy','rb') as _m5_binary_file:
+  while True:
+   _m5_binary_chunk=_m5_binary_file.read(4096)
+   if not _m5_binary_chunk:
+    break
+   if not _m5_binary_size:
+    _m5_binary_header=_m5_binary_chunk[:4]
+   _m5_binary_size+=len(_m5_binary_chunk)
+   assert _m5_binary_size<=262144, 'entrypoint too large'
+   _m5_binary_digest.update(_m5_binary_chunk)
+ assert binascii.hexlify(_m5_binary_digest.digest()).decode()=='583a0028999b53b0ba576f0a2c79c6a7cb2b7243b91725215e3de284a18a41fd', 'entrypoint bytes changed'
+ assert len(_m5_binary_header)==4 and _m5_binary_header[0]==77, 'invalid .mpy magic'
+ sys.modules.pop('main',None)
+ os.chdir('/flash/.m5-live-packages/69777084f5742b3ff04867c051b366f0e63bf6b3e2370bd9b6a62e39ae011884')
+ sys.path[:]=['/flash/.m5-live-packages/69777084f5742b3ff04867c051b366f0e63bf6b3e2370bd9b6a62e39ae011884']+[p for p in _m5_binary_path if p!='/flash/.m5-live-packages/69777084f5742b3ff04867c051b366f0e63bf6b3e2370bd9b6a62e39ae011884']
+ print('__M5_EXEC_75632c2e853e4291b99f2d80d2521eee__:LOAD')
+ _m5_binary_module=__import__('main',None,None,False,0)
+ assert sys.modules.get('main') is _m5_binary_module and sys.modules.get('__main__') is _m5_binary_module and __import__('__main__') is _m5_binary_module, 'application module identity differs'
+ assert _m5_binary_module.__name__=='__main__' and _m5_binary_module.__file__=='/flash/.m5-live-packages/69777084f5742b3ff04867c051b366f0e63bf6b3e2370bd9b6a62e39ae011884/main.mpy', 'application entrypoint differs'
+except BaseException as _m5_binary_exception:
+ _m5_binary_error=True
+ sys.print_exception(_m5_binary_exception)
+finally:
+ try:
+  os.chdir(_m5_binary_cwd)
+  sys.path[:]=_m5_binary_path
+  for _m5_binary_name,_m5_binary_pair in _m5_binary_saved.items():
+   if _m5_binary_pair[0]:
+    sys.modules[_m5_binary_name]=_m5_binary_pair[1]
+   else:
+    sys.modules.pop(_m5_binary_name,None)
+  _m5_binary_restored=id(__import__('__main__'))==4307392368 and __import__('__main__') is _m5_binary_owner and os.getcwd()==_m5_binary_cwd and sys.path==_m5_binary_path and all((_m5_binary_name in sys.modules)==_m5_binary_pair[0] and (not _m5_binary_pair[0] or sys.modules[_m5_binary_name] is _m5_binary_pair[1]) for _m5_binary_name,_m5_binary_pair in _m5_binary_saved.items())
+ except BaseException as _m5_binary_restore_exception:
+  sys.print_exception(_m5_binary_restore_exception)
+ if not _m5_binary_restored:
+  print('__M5_EXEC_75632c2e853e4291b99f2d80d2521eee__:RESTORE_ERROR')
+ elif _m5_binary_error:
+  print('__M5_EXEC_75632c2e853e4291b99f2d80d2521eee__:ERROR')
+ else:
+  print('__M5_EXEC_75632c2e853e4291b99f2d80d2521eee__:DONE')

@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r2/probe.py"
+  ],
+  "exit_code": 0,
+  "source_sha256": {
+    "platform/tools/device_service.py": "14a9dcee94d5eba9b5190a957d3dee53fce1de3601ed0eb46af9d2cf01e13fa2",
+    "platform/tools/preview_service.py": "0ff612a6675982cc1e899ca1d01964ce32c33eb5c92b27316ad753c6c9124d98",
+    "platform/tools/uiflow_runtime.py": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+    "platform/tools/uiflow_main_loader.py": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+    "platform/tools/uiflow_package_runtime.py": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+    "platform/tests/test_main_loader_admission.py": "58d7edf3e0006ebe767a6d36d7e1fe887315342aa4ddc0a51d06969f49d1dd9d",
+    "platform/tests/test_device_program_runtime.py": "a92f13b76e9f9bd80eb8b232d00cf5d2ea9af1ee2f255ce152df3cb2895a194f",
+    "platform/tests/test_device_program_packages.py": "ef84d5877882e0406091b34b6cf0caf0310bddc31ee49437739fa3d68d74b8b0",
+    "platform/tests/test_uiflow_runtime.py": "1c8eb56e3428cc2e1ea0a17b00a2e59051bc3dba7bc12c6d91f7d8173b1a4422",
+    "platform/tests/test_uiflow_main_loader.py": "9d189dd90754a9a4306c1d6b650c174e8dbde2dbcaae86a0af542f07165980c9",
+    "platform/tests/test_preview_service.py": "363c981b8152f41a31f28283287be9f138cdcccae98abf1da879e0eff2f39df3"
+  },
+  "sources_unchanged": true,
+  "original_r1_unchanged": true,
+  "observation": {
+    "category": "HOST_ONLY_TRUSTED_WRAPPER_AND_SESSION_PROTOCOL_REPRODUCTION_NOT_GUEST",
+    "wrapper_exception": "application replaced sys.print_exception",
+    "printed": [
+      "__M5_EXEC_7c51c8356c1e4946a4c32d88d6473872__:LOAD"
+    ],
+    "terminal_markers": [],
+    "simulated_application_owner_restored": false,
+    "simulated_application_cwd_restored": false,
+    "raw_prompt_acknowledged": true,
+    "writes_hex": [
+      "0d03",
+      "0d01"
+    ],
+    "program_state_after_interrupt": "interrupted",
+    "program_owner_restored_field": false,
+    "capability_status_after_interrupt": "unknown",
+    "mpy_entrypoint_after_interrupt": false,
+    "next_entrypoint_admission": "program_mpy_entrypoint_unsupported"
+  },
+  "source_receipt": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/receipt.json",
+  "limitation": "generated trusted wrapper under inert import/FS doubles, no caller MPY execution and no real guest/UART/hardware"
+}

@@ -1,0 +1,106 @@
+{
+  "status": "PASS",
+  "category": "HOST_ONLY_OWNER_RESTORATION_ADMISSION_FIX",
+  "started_at": "2026-10-26T23:00:07.098444+00:00",
+  "finished_at": "2026-10-26T23:00:13.341709+00:00",
+  "commands": {
+    "admission": {
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "-m",
+        "unittest",
+        "test_main_loader_admission"
+      ],
+      "cwd": "repository-root",
+      "environment_overrides": {
+        "PYTHONPATH": "platform/tools:platform/tests:.work/py312"
+      },
+      "exit_code": 0,
+      "log_path": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/admission.log",
+      "log_sha256": "fcd6659ee89ad438a2cb70bf0c2affa4cb13416609898a55c858e071677588e6",
+      "output": "............................\n----------------------------------------------------------------------\nRan 28 tests in 0.232s\n\nOK\n"
+    },
+    "related": {
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        "-m",
+        "unittest",
+        "test_device_program_runtime",
+        "test_device_program_packages",
+        "test_uiflow_runtime",
+        "test_uiflow_main_loader",
+        "test_preview_service"
+      ],
+      "cwd": "repository-root",
+      "environment_overrides": {
+        "PYTHONPATH": "platform/tools:platform/tests:.work/py312"
+      },
+      "exit_code": 0,
+      "log_path": ".work/main-loader-admission-independent-20261027/owner-restoration-fix-narrow-r1/related.log",
+      "log_sha256": "aa611ec938ed36ae02a7434b613d896252bd28b9a20cf986ec208c1e35bffb44",
+      "output": "...........................................................................................................................................................\n----------------------------------------------------------------------\nRan 155 tests in 6.074s\n\nOK\n"
+    },
+    "original-missing-owner-probe": {
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r2/probe.py"
+      ],
+      "cwd": "repository-root",
+      "environment_overrides": {
+        "PYTHONPATH": "platform/tools:platform/tests:.work/py312"
+      },
+      "exit_code": 0,
+      "log_path": ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r2/probe.log",
+      "log_sha256": "cc81f71d8ac0444e43d96cb3ef3df5c56e9aca53df03618da2e33bf028b85099",
+      "output": "{\"category\": \"HOST_ONLY_TRUSTED_WRAPPER_AND_SESSION_PROTOCOL_REPRODUCTION_NOT_GUEST\", \"wrapper_exception\": \"application replaced sys.print_exception\", \"printed\": [\"__M5_EXEC_7c51c8356c1e4946a4c32d88d6473872__:LOAD\"], \"terminal_markers\": [], \"simulated_application_owner_restored\": false, \"simulated_application_cwd_restored\": false, \"raw_prompt_acknowledged\": true, \"writes_hex\": [\"0d03\", \"0d01\"], \"program_state_after_interrupt\": \"interrupted\", \"program_owner_restored_field\": false, \"capability_status_after_interrupt\": \"unknown\", \"mpy_entrypoint_after_interrupt\": false, \"next_entrypoint_admission\": \"program_mpy_entrypoint_unsupported\"}\n.\n----------------------------------------------------------------------\nRan 1 test in 0.126s\n\nOK\n"
+    }
+  },
+  "source_sha256": {
+    "platform/tools/device_service.py": "14a9dcee94d5eba9b5190a957d3dee53fce1de3601ed0eb46af9d2cf01e13fa2",
+    "platform/tools/preview_service.py": "0ff612a6675982cc1e899ca1d01964ce32c33eb5c92b27316ad753c6c9124d98",
+    "platform/tools/uiflow_runtime.py": "c648f20450f8a61e8655a292ea2fee2e3e058f78f46a4b22bd69bbd1fc75370d",
+    "platform/tools/uiflow_main_loader.py": "bcf846f60ab63b1716a9d31e7eac19db1a64264026d0c6aedebadc80962a0e12",
+    "platform/tools/uiflow_package_runtime.py": "8d814fee1ae889d5b63d7f9fbd8dc0260db96337fabf1517b30ecd9f87ee4730",
+    "platform/tests/test_main_loader_admission.py": "58d7edf3e0006ebe767a6d36d7e1fe887315342aa4ddc0a51d06969f49d1dd9d",
+    "platform/tests/test_device_program_runtime.py": "a92f13b76e9f9bd80eb8b232d00cf5d2ea9af1ee2f255ce152df3cb2895a194f",
+    "platform/tests/test_device_program_packages.py": "ef84d5877882e0406091b34b6cf0caf0310bddc31ee49437739fa3d68d74b8b0",
+    "platform/tests/test_uiflow_runtime.py": "1c8eb56e3428cc2e1ea0a17b00a2e59051bc3dba7bc12c6d91f7d8173b1a4422",
+    "platform/tests/test_uiflow_main_loader.py": "9d189dd90754a9a4306c1d6b650c174e8dbde2dbcaae86a0af542f07165980c9",
+    "platform/tests/test_preview_service.py": "363c981b8152f41a31f28283287be9f138cdcccae98abf1da879e0eff2f39df3"
+  },
+  "sources_unchanged": true,
+  "original_r1_sha256": {
+    ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/probe.py": "57468944c57f20ea3d56ddb0f9e54cbc4665c91418cc13495eb96c40e926bf43",
+    ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/probe.log": "76868d7a2c2732765699598433abaf472db4424f66b27cc96b7c088ce2ecac8c",
+    ".work/main-loader-admission-independent-20261027/missing-owner-marker-review-r1/receipt.json": "e8156dcdfd21ad25bec1e32771e1243f2b73f22fb9aacb1649caef0176c31e6b",
+    ".work/main-loader-admission-independent-20261027/openapi-original-response-audit-r1/receipt.json": "509476965c21b9980b1309d60c937b988918e56a7bb4a2a3cac17b6b577b8599"
+  },
+  "original_r1_unchanged": true,
+  "fixed_missing_owner_observation": {
+    "category": "HOST_ONLY_TRUSTED_WRAPPER_AND_SESSION_PROTOCOL_REPRODUCTION_NOT_GUEST",
+    "wrapper_exception": "application replaced sys.print_exception",
+    "printed": [
+      "__M5_EXEC_7c51c8356c1e4946a4c32d88d6473872__:LOAD"
+    ],
+    "terminal_markers": [],
+    "simulated_application_owner_restored": false,
+    "simulated_application_cwd_restored": false,
+    "raw_prompt_acknowledged": true,
+    "writes_hex": [
+      "0d03",
+      "0d01"
+    ],
+    "program_state_after_interrupt": "interrupted",
+    "program_owner_restored_field": false,
+    "capability_status_after_interrupt": "unknown",
+    "mpy_entrypoint_after_interrupt": false,
+    "next_entrypoint_admission": "program_mpy_entrypoint_unsupported"
+  },
+  "api_contacted": false,
+  "guest": "NOT RUN",
+  "hardware": "NOT RUN",
+  "scope": "Session prompt-boundary positive owner evidence; source replacement allowed with old failure retained; no wrapper hardening"
+}

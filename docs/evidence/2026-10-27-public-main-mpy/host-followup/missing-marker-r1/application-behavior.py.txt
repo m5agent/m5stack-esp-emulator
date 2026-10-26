@@ -1,0 +1,8 @@
+# Reproduction behavior only; never compiled to or executed as caller MPY.
+import os, sys
+def broken_chdir(path):
+    raise OSError("application replaced os.chdir")
+def broken_print_exception(error):
+    raise RuntimeError("application replaced sys.print_exception")
+os.chdir = broken_chdir
+sys.print_exception = broken_print_exception

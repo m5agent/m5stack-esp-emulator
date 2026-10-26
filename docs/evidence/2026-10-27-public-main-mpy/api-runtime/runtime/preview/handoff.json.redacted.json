@@ -1,0 +1,59 @@
+{
+  "archive_notice": {
+    "classification": "redacted-json",
+    "original_bytes": 1478,
+    "original_sha256": "d582fc066b1775d3a4242e16af526dfea3bc1a2ab52684c2cada8095c4fcc38a",
+    "original_source": "runtime/preview/handoff.json",
+    "transformations": [
+      {
+        "kind": "local-path-or-address-redaction",
+        "path": "$.source_restore_file"
+      },
+      {
+        "kind": "local-path-or-address-redaction",
+        "path": "$.token_file"
+      }
+    ]
+  },
+  "document": {
+    "binary_file_sha256": {
+      "dep.mpy": "2f5885b1ac530dff6d351d9658d51f00c1c301d667901b9ea01e55e9eaf2c890",
+      "main.mpy": "22d6d0f9198ee61f401862681b1d10e372be4e72387c3f31c6ec912a2c686ef6"
+    },
+    "binary_revision_id": "4e991555570cea0a9c38018b8a7a7d506879093382ef66d8fa134335a44ca12f",
+    "count": 1,
+    "execution_id": "569cdf8fc9cd40b5af14029071b23e2b",
+    "firmware_sha256": "28b16f0b192d037ecc44008efcbc32e43dc787c388fa92d66267694a140fdf4c",
+    "frame_center_by_motion": {
+      "false": [
+        0,
+        255,
+        0
+      ],
+      "true": [
+        255,
+        255,
+        255
+      ]
+    },
+    "nonce": "bde3ea57a44c47719c547f310799f887",
+    "owner_epoch": "fcd526a0cba849f392ae13e25fbb89ec",
+    "owner_id": 1013282836,
+    "pid": 96364,
+    "pir_id": "pir",
+    "preview_id": "be0529fcf6a843319e7a4ec942324a47",
+    "run_id": "1b0815463dfe4fa7907a78093674de96",
+    "runtime_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+    "service_pid": 95400,
+    "session_id": "263777684b274295adb352281d89c71d",
+    "source_restore_center": [
+      0,
+      0,
+      255
+    ],
+    "source_restore_file": "$REPO/.work/public-main-mpy-prepared-20261027-r1/preview-restore.py",
+    "source_restore_sha256": "1f8d01c7faa641aa1a61c6cc34c5bc7d37317a668137d22e8da5712156028d0e",
+    "token_file": "$REPO/.work/preview-control-token",
+    "worker_generation": 45
+  }
+}

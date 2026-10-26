@@ -1,8 +1,10 @@
 # AIFlow 实时编程与预览 API：评估与实施计划
 
 日期：2026-10-26。归属 `UNIT-01`，模块边界与 `SVC-03` 协同。
-状态：**四款主机的 UIFlow 同 guest 与多 Unit 连续程序、CoreS3 真实 Web、
-QEMU 按需共享帧与条件 GET 已验证；Preview 编排、SSE、AIFlow接入及性能SLA仍待实现/验收**。
+状态：历史评估与实施过程，以下“当前”均指2026-10-26对应观察时点。
+后续Preview/Run及Web协调、条件main.mpy公共入口已有分块验收，见
+[当前状态](../project-status.md)、[公共入口结果](../evidence/2026-10-27-public-main-mpy/README.md)。
+SSE、AIFlow调用侧和性能SLA仍开放，以Backlog为唯一执行队列。
 生命周期修复已提交并完成限定验证，结果见
 [取消与 Unit 回归](../evidence/2026-10-26-session-cancellation-f309/README.md)；
 该结果与下述同 guest 程序执行属于不同验证范围。

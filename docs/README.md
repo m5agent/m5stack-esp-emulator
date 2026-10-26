@@ -145,6 +145,8 @@
 | [二进制checkpoint与Unit协议](plans/2026-10-27-binary-checkpoint-and-unit-protocols.md) | 实施计划 | `2026-10-27` | 分开不可变二进制包存储与固件loader能力，先验证旧Run不被不支持入口打断；兼容固件隔离构建与4Relay/FlashLight协议核对进行中 |
 | [FlashLight与显式UIFlow base](plans/2026-10-27-flashlight-and-uploaded-uiflow-base.md) | 实施计划 | `2026-10-27` | 本块完成严格base、候选loader诊断与FlashLight限定GPIO/Web验收；公共main.mpy、动态route历史与AIFlow继续 |
 | [FlashLight与显式base分层证据](evidence/2026-10-27-flashlight-and-uiflow-base/README.md) | 验收证据 | `2026-10-27` | 严格base/CAS、候选loader诊断、四host八会话60Run/360ZIP成员、CoreS3 mounted与独立67/67矩阵；原失败及unknown/optional body/硬件边界保留 |
+| [公共main.mpy实时入口](plans/2026-10-27-public-main-mpy-runtime.md) | 实施计划 | `2026-10-27` | 真实bytecode canary、会话身份绑定、显式base Preview与同VM import派发/恢复；stock能力保持分层 |
+| [公共main.mpy验收](evidence/2026-10-27-public-main-mpy/README.md) | 验收证据 | `2026-10-27` | gen45 CoreS3 stock/兼容固件与真实Web、14执行/8MPY、nonce/owner与PIR闭环、资源清理；optional browser body PARTIAL保留 |
 | [二进制checkpoint与兼容构建证据](evidence/2026-10-27-binary-checkpoint-admission/README.md) | 验收证据 | `2026-10-27` | 四host双lane旧程序保护、8ZIP与圆屏oracle负控；官方CoreS3候选只完成本地build，未guest准入；Unit协议冲突与反馈分层 |
 | [Preview 控制组与 2Relay 证据](evidence/2026-10-27-preview-controls-and-2relay/README.md) | 验收证据 | `2026-10-27` | 官方U131研究、相机负控、四主机HUB与2Relay最终会话、失败/不完整尝试及清理；完整矩阵66/67独立保留，硬件NOT RUN |
 | [Preview Web与完整包验收](evidence/2026-10-27-preview-web-consumer/README.md) | 历史证据 | `2026-10-27` | 同VM外部完整包→Web保留MPY/资源编辑、PIR/Relay控制与Run选定像素、取消恢复/ZIP与清理；首次Token与raw-paste oracle失败、取消/松键独审负控保留 |

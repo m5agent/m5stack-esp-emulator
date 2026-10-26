@@ -1,0 +1,1003 @@
+"""HOST_ONLY_NOT_GUEST: real SQLite ledger with explicit scripted boundaries.
+
+No QEMU, firmware, UART, physical device or port 8787 is used. The fake session
+models reserved execution ownership and a separately acknowledged interrupt;
+tests may deliberately inject late success to challenge the coordinator fence.
+"""
+from __future__ import annotations
+
+from contextlib import nullcontext
+from copy import deepcopy
+from datetime import datetime, timezone
+import base64
+import hashlib
+import io
+import json
+from pathlib import Path
+import sys
+import tempfile
+import threading
+import time
+from types import SimpleNamespace
+import unittest
+from unittest import mock
+import uuid
+import zipfile
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "platform/tools"))
+
+from device_service import DeviceSession, ServiceError
+from preview_service import PreviewService
+from preview_store import LOCAL_OWNER, PreviewStore
+from program_packages import ProgramPackageStore
+from test_mpy_bytecode import HELPER
+from test_main_loader_admission import verified_core
+from unit_runtime import UnitRegistry
+
+
+PIXELS = b"HOST_ONLY_NOT_GUEST_IDENTICAL_FRAME_BYTES"
+
+
+class _Block:
+    def __init__(self):
+        self.entered, self.release = threading.Event(), threading.Event()
+
+    def wait(self):
+        self.entered.set()
+        if not self.release.wait(3):
+            raise AssertionError("host fixture blocking point was not released")
+
+
+class _Session:
+    def __init__(self, service, binding, request):
+        self.service = service
+        self.id, self.pid = uuid.uuid4().hex, 42424242
+        self.worker_generation = 44
+        self.process_start_token = "host-only-process-start"
+        self._program_capabilities = {}
+        self.firmware_sha = "d" * 64
+        self.firmware_id = "e" * 64
+        self.state = "running"
+        self.program_transport = "uart-repl"
+        self.management_binding = deepcopy(binding)
+        self.handle = object()
+        self.registry = UnitRegistry()
+        self.units = self.registry.attachments("cores3", "qemu", request.get("units", []))
+        self.unit_contract = self.registry.freeze([unit["unit_id"] for unit in self.units]) if self.units else None
+        self.spec, self.runtime = service.specs["cores3"], "qemu"
+        self.program = None
+        self.run_calls, self.interrupt_calls, self.inputs, self.events = [], [], [], []
+        self.run_hook = self.interrupt_hook = self.input_hook = self.frame_hook = self.stop_hook = None
+        self.dir = service.state_dir / "sessions" / self.id
+        self.dir.mkdir(parents=True)
+        self.last_frame_available = False
+        self.ttl_seconds = request["ttl_seconds"]
+
+    def require_management_handle(self, handle=None):
+        if handle is not self.handle:
+            raise ServiceError("session_managed_by_preview", "host fixture capability mismatch", 409)
+
+    def snapshot(self):
+        return {"session_id": self.id, "state": self.state, "pid": self.pid, "device_id": "cores3",
+                "runtime": self.runtime, "firmware_id": self.firmware_id, "firmware_sha256": self.firmware_sha,
+                "program_transport": self.program_transport, "program": deepcopy(self.program),
+                "worker": {"generation": self.worker_generation}, "program_capabilities": self.program_capabilities(),
+                "units": deepcopy(self.units), "unit_contract": deepcopy(self.unit_contract), "management_binding": deepcopy(self.management_binding),
+                "flash_retained": self.state != "stopped", "last_frame_available": self.last_frame_available}
+
+    def program_status(self):
+        return {"session_id": self.id, "program_transport": self.program_transport, "program": deepcopy(self.program)}
+
+    _program_identity = DeviceSession._program_identity
+    program_capabilities = DeviceSession.program_capabilities
+
+    def _owner(self):
+        return self.program["execution_id"] if self.program else None
+
+    def run_revision(self, revision_id, *, execution_id, expected_execution_id, timeout_seconds=120,
+                     cancelled=None, on_synchronized=None, management_handle=None):
+        self.require_management_handle(management_handle)
+        if expected_execution_id != self._owner():
+            raise ServiceError("program_generation_conflict", "host fixture owner mismatch", 409)
+        call = {"revision_id": revision_id, "execution_id": execution_id,
+                "expected_execution_id": expected_execution_id, "timeout_seconds": timeout_seconds,
+                "cancelled": cancelled, "on_synchronized": on_synchronized}
+        self.run_calls.append(call)
+        self.events.append(("run-entered", execution_id))
+        self.program = {"execution_id": execution_id, "revision_id": revision_id, "state": "submitting",
+                        "pid": self.pid, "firmware_sha256": self.firmware_sha, "serial_offset": 0}
+        if on_synchronized:
+            on_synchronized()
+        result = self.run_hook(call) if self.run_hook else {"state": "running", "acknowledged": True}
+        self.program.update(result)
+        self.events.append(("run-returned", execution_id))
+        return self.program_status()
+
+    def interrupt_program(self, *, expected_execution_id, timeout_seconds=10, management_handle=None):
+        self.require_management_handle(management_handle)
+        if expected_execution_id != self._owner():
+            raise ServiceError("program_generation_conflict", "host fixture interrupt owner mismatch", 409)
+        self.interrupt_calls.append({"expected_execution_id": expected_execution_id, "timeout_seconds": timeout_seconds})
+        self.events.append(("interrupt-entered", expected_execution_id))
+        ack = self.interrupt_hook() if self.interrupt_hook else {"interruption_confirmed": True, "serial_offset": 0, "prompt_end": 30}
+        if not ack.get("interruption_confirmed"):
+            raise ServiceError("program_timeout", "HOST_ONLY_NOT_GUEST prompt unconfirmed", 504)
+        if self.program:
+            self.program.update(state="interrupted", interruption_confirmed=True, interrupt_ack=ack)
+        self.events.append(("interrupt-confirmed", expected_execution_id))
+        return {**self.program_status(), "interrupt_ack": ack}
+
+    def frame_metrics(self, *, analyze=False, **kwargs):
+        if self.frame_hook:
+            self.frame_hook()
+        self.last_frame_available = True
+        return {"png": PIXELS, "width": 2, "height": 2, "source": "HOST_ONLY_NOT_GUEST",
+                "captured_at": datetime.now(timezone.utc).isoformat(), "captured_monotonic": time.monotonic(),
+                "execution_id": self._owner(), "revision_id": self.program.get("revision_id") if self.program else None,
+                "program_state": self.program.get("state") if self.program else None}
+
+    def preview_frame(self, max_age_ms):
+        return {**self.frame_metrics(), "sample_id": "host-fixture-sample", "sequence": 1,
+                "sha256": hashlib.sha256(PIXELS).hexdigest(), "age_ms": 0, "cache_hit": False}
+
+    def inject(self, payload):
+        captured = self._owner()
+        self.events.append(("input-entered", captured))
+        if self.input_hook:
+            self.input_hook()
+        self.inputs.append((captured, deepcopy(payload)))
+        self.events.append(("input-finished", self._owner()))
+        return {"session_id": self.id, "accepted": True}
+
+    def unit_input(self, payload):
+        return self.inject(payload)
+
+    def validate_input(self, payload):
+        return DeviceSession.validate_input(self, payload)
+
+    def validate_unit_input(self, payload):
+        return DeviceSession.validate_unit_input(self, payload)
+
+    def _unit_registry(self):
+        return DeviceSession._unit_registry(self)
+
+    def renew(self, ttl):
+        self.ttl_seconds = ttl
+        return self.snapshot()
+
+    def evidence_bundle(self, include=None):
+        self.events.append(("evidence", self._owner()))
+        stream = io.BytesIO()
+        with zipfile.ZipFile(stream, "w") as archive:
+            archive.writestr("HOST_ONLY_NOT_GUEST.json", json.dumps(self.snapshot()))
+        return stream.getvalue()
+
+    def stop(self, purge=False, *, retain_flash=None):
+        self.events.append(("stop", self._owner()))
+        if self.stop_hook:
+            result = self.stop_hook()
+            if result is not None:
+                return result
+        self.state = "stopped"
+        return self.snapshot()
+
+
+class _Service:
+    def __init__(self, state_dir):
+        self.state_dir = state_dir
+        self.specs = {"cores3": SimpleNamespace(id="cores3", supported=True, backend_ready=True, expected_size=(320, 240))}
+        self.program_packages = ProgramPackageStore(state_dir / "packages")
+        self.sessions, self.allocations = {}, []
+        self._sessions = self.sessions
+        self._lock = threading.RLock()
+        self.allocation_hook = None
+        self.reference_sha = "c" * 64
+        self.base_calls = []
+
+    def reference_info(self, spec):
+        return {"sha256": self.reference_sha}
+
+    def program_base_info(self, spec, *, base_firmware_id=None, expected_base_sha256=None):
+        self.base_calls.append((spec.id, base_firmware_id, expected_base_sha256))
+        if base_firmware_id != expected_base_sha256:
+            raise ServiceError("uiflow_base_hash_mismatch", "host fixture base pin differs", 409)
+        return {"sha256": base_firmware_id, "firmware_id": base_firmware_id, "kind": "stored-manifest"}
+
+    def preview_allocation_guard(self):
+        return nullcontext()
+
+    def create_managed_session(self, payload, **binding):
+        if binding["expected_reference_sha256"] != payload.get("expected_base_sha256", self.reference_sha):
+            raise ServiceError("uiflow_base_sha256_mismatch", "host fixture reference changed", 409)
+        if self.allocation_hook:
+            self.allocation_hook(payload, binding)
+        session = _Session(self, binding, payload)
+        self.sessions[session.id] = session
+        self.allocations.append((deepcopy(payload), deepcopy(binding)))
+        return session.snapshot(), session.handle
+
+    def get_session(self, session_id):
+        if session_id not in self.sessions:
+            raise ServiceError("unknown_session", "host fixture session absent", 404)
+        return self.sessions[session_id]
+
+    def recover_management_handle(self, session_id, **binding):
+        session = self.get_session(session_id)
+        if session.management_binding != binding:
+            raise ServiceError("session_managed_by_preview", "host fixture binding mismatch", 409)
+        return session.handle
+
+    def delete_session(self, session_id, purge=False, *, retain_flash=None):
+        return self.get_session(session_id).stop(purge=purge, retain_flash=retain_flash)
+
+    def list_sessions(self, include_stopped=True):
+        return {"sessions": [session.snapshot() for session in self.sessions.values()]}
+
+
+class PreviewServiceTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="m5-preview-host-")
+        self.addCleanup(self.temp.cleanup)
+        self.service = _Service(Path(self.temp.name))
+        self.control = PreviewService(self.service, _start_workers=False)
+        self.controls, self.threads, self.blocks = [self.control], [], []
+        self.addCleanup(self.finish)
+        self.no_process = mock.patch("subprocess.Popen", side_effect=AssertionError("HOST_ONLY_NOT_GUEST: process launch forbidden"))
+        self.no_process.start()
+        self.addCleanup(self.no_process.stop)
+
+    def finish(self):
+        for block in self.blocks:
+            block.release.set()
+        for control in self.controls:
+            control.shutdown()
+        for thread in self.threads:
+            thread.join(timeout=3)
+            self.assertFalse(thread.is_alive(), "host fixture thread leaked")
+
+    def block(self):
+        block = _Block()
+        self.blocks.append(block)
+        return block
+
+    def background(self, callback):
+        result = {}
+        def run():
+            try:
+                result["value"] = callback()
+            except BaseException as error:
+                result["error"] = error
+        thread = threading.Thread(target=run, daemon=True)
+        self.threads.append(thread)
+        thread.start()
+        return thread, result
+
+    def create(self, key="create", **changes):
+        return self.control.create({"device_id": "cores3", "units": [], "ttl_seconds": 300, **changes},
+                                   owner=LOCAL_OWNER, idempotency_key=key)
+
+    def package(self, version="A", **files):
+        return self.service.program_packages.create({"files": {"main.py": {"encoding": "utf8", "data": f"print({version!r})\n"}, **files}})["revision_id"]
+
+    def submit(self, preview_id, revision_id=None, key=None, **changes):
+        preview = self.control.get(preview_id, owner=LOCAL_OWNER)
+        payload = {"revision_id": revision_id or self.package(key or "A"), "expected_generation": preview["generation"],
+                   "expected_owner_epoch": preview["owner_epoch"], "timeout_seconds": 120, **changes}
+        return self.control.submit(preview_id, payload, owner=LOCAL_OWNER, idempotency_key=key or uuid.uuid4().hex)
+
+    def preview(self, preview_id):
+        return self.control.get(preview_id, owner=LOCAL_OWNER)
+
+    def get_run(self, preview_id, run_id):
+        return self.control.run(preview_id, run_id, owner=LOCAL_OWNER)
+
+    def step(self, preview_id):
+        self.control._step(preview_id, self.control._context(preview_id))
+
+    def drive(self, preview_id, predicate, limit=20):
+        for _ in range(limit):
+            current = self.preview(preview_id)
+            if predicate(current):
+                return current
+            self.step(preview_id)
+        self.fail("host coordinator did not reach expected state: " + repr(self.preview(preview_id)))
+
+    def ready(self, *, units=None):
+        preview = self.create(units=units or [])
+        preview = self.drive(preview["preview_id"], lambda row: row["state"] == "ready")
+        return preview, self.service.get_session(preview["session_id"])
+
+    def active(self, *, units=None):
+        preview, session = self.ready(units=units)
+        run = self.submit(preview["preview_id"], key="A")
+        self.drive(preview["preview_id"], lambda row: row["active_run_id"] == run["run_id"])
+        return self.preview(preview["preview_id"]), session, run
+
+    def assert_error(self, callback, code=None, status=None):
+        with self.assertRaises(ServiceError) as caught:
+            callback()
+        if code:
+            self.assertEqual(caught.exception.code, code)
+        if status:
+            self.assertEqual(caught.exception.status, status)
+        return caught.exception
+
+    def test_create_is_durable_offline_and_freezes_reference_before_allocation(self):
+        preview = self.create()
+        reopened = PreviewStore(self.control.store.path)
+        self.assertEqual(reopened.get_preview(LOCAL_OWNER, preview["preview_id"])["allocation_state"], "pending")
+        self.assertEqual(preview["session_request"]["reference_sha256"], self.service.reference_sha)
+        self.assertEqual(preview["capabilities"]["application_ready"], "unknown")
+        self.assertFalse(self.service.allocations)
+        self.assertEqual(self.create(), preview)
+
+    def test_explicit_base_pair_is_frozen_and_replay_never_reselects_it(self):
+        for payload in ({"base_firmware_id": "b" * 64}, {"expected_base_sha256": "b" * 64}):
+            self.assert_error(lambda: self.create(key=uuid.uuid4().hex, **payload), "uiflow_base_binding_required", 400)
+        preview = self.create(base_firmware_id="b" * 64, expected_base_sha256="b" * 64)
+        pid = preview["preview_id"]
+        self.assertEqual(preview["session_request"]["reference_sha256"], "b" * 64)
+        self.assertEqual(preview["request"]["base_firmware_id"], "b" * 64)
+        self.assertFalse(preview["capabilities"]["main_mpy"])
+        self.assertEqual(self.create(base_firmware_id="b" * 64, expected_base_sha256="b" * 64), preview)
+        self.assertEqual(len(self.service.base_calls), 1)
+        self.assert_error(lambda: self.create(base_firmware_id="e" * 64, expected_base_sha256="e" * 64), "idempotency_conflict", 409)
+        self.control._allocate(self.preview(pid), self.control._context(pid))
+        self.assertEqual(self.service.allocations[0][0]["base_firmware_id"], "b" * 64)
+        self.assertEqual(self.service.allocations[0][1]["expected_reference_sha256"], "b" * 64)
+
+    def binary_package(self):
+        return self.service.program_packages.create({"entrypoint": "main.mpy", "files": {
+            "main.mpy": {"encoding": "base64", "data": base64.b64encode(HELPER).decode("ascii")}}})["revision_id"]
+
+    def admit_binary_loader(self, session):
+        session._program_capabilities = {**verified_core(), "identity": session._program_identity()}
+
+    def test_binary_pending_or_booting_rejection_has_no_allocation_or_run_intent(self):
+        preview = self.create()
+        pid, revision = preview["preview_id"], self.binary_package()
+        for boot in (False, True):
+            if boot:
+                self.control._allocate(self.preview(pid), self.control._context(pid))
+                session = self.service.get_session(self.preview(pid)["session_id"])
+                self.admit_binary_loader(session)
+                session.state = "booting"
+            before = self.preview(pid)
+            count = len(self.service.allocations)
+            with mock.patch.object(self.control.store, "admit_run", side_effect=AssertionError("MPY preflight must not admit")):
+                self.assert_error(lambda: self.submit(pid, revision, key="binary-before-ready"), "program_mpy_entrypoint_unsupported", 409)
+            self.assertEqual(self.preview(pid), before)
+            self.assertEqual(len(self.service.allocations), count)
+
+    def test_binary_admission_and_public_capability_use_actual_current_session_only(self):
+        created = self.create()
+        pid = created["preview_id"]
+        self.control._allocate(self.preview(pid), self.control._context(pid))
+        session = self.service.get_session(self.preview(pid)["session_id"])
+        self.admit_binary_loader(session)
+        current = self.preview(pid)
+        self.assertTrue(current["capabilities"]["main_mpy"])
+        self.assertFalse(current["session_request"]["preview_capabilities"]["main_mpy"])
+        self.assertEqual(self.create(), created, "create receipt must not become a canary GET")
+        revision = self.binary_package()
+        receipt = self.submit(pid, revision, key="verified-binary")
+        self.assertEqual(receipt["revision_id"], revision)
+        self.assertEqual(receipt["state"], "queued")
+        self.control._mutate(pid, lambda state: state["preview"].update(runtime_capabilities=deepcopy(session._program_capabilities)))
+        session.pid += 1
+        self.assertFalse(self.preview(pid)["capabilities"]["main_mpy"], "persisted proof must not survive process identity change")
+        before = self.preview(pid)
+        self.assert_error(lambda: self.submit(pid, revision, key="wrong-process"), "program_mpy_entrypoint_unsupported", 409)
+        self.assertEqual(self.preview(pid), before)
+        session._program_capabilities = {}
+        recovered = PreviewService(self.service, _start_workers=False)
+        self.controls.append(recovered)
+        self.assertFalse(recovered.get(pid, owner=LOCAL_OWNER)["capabilities"]["main_mpy"])
+        self.assertFalse(session.run_calls, "recovery must not run a canary or replay a program")
+
+    def test_run_idempotency_replay_precedes_missing_package_and_generation_check(self):
+        preview = self.create()
+        revision = self.package()
+        payload = {"revision_id": revision, "expected_generation": 0, "expected_owner_epoch": preview["owner_epoch"], "timeout_seconds": 120}
+        first = self.control.submit(preview["preview_id"], payload, owner=LOCAL_OWNER, idempotency_key="run-A")
+        with mock.patch.object(self.service.program_packages, "get", side_effect=AssertionError("replay must not read package")), \
+             mock.patch.object(self.service.program_packages, "read_files", side_effect=AssertionError("replay must not read bytes")):
+            replay = self.control.submit(preview["preview_id"], deepcopy(payload), owner=LOCAL_OWNER, idempotency_key="run-A")
+        self.assertEqual(first, replay)
+        self.assertEqual(self.preview(preview["preview_id"])["generation"], 1)
+        self.assertFalse(self.service.allocations)
+
+    def test_pending_latest_wins_preserves_durable_run_records(self):
+        preview = self.create()
+        pid = preview["preview_id"]
+        runs = [self.submit(pid, key=version) for version in ("A", "B", "C")]
+        self.assertEqual([self.get_run(pid, run["run_id"])["state"] for run in runs], ["superseded", "superseded", "queued"])
+        self.assertEqual(self.preview(pid)["desired_run_id"], runs[-1]["run_id"])
+        self.assertEqual(self.preview(pid)["generation"], 3)
+        self.assertFalse(self.service.allocations)
+
+    def test_invalid_epoch_generation_and_payload_are_rejected_without_allocation(self):
+        preview = self.create()
+        pid = preview["preview_id"]
+        self.assert_error(lambda: self.submit(pid, expected_owner_epoch="f" * 32), "preview_owner_conflict", 409)
+        self.assert_error(lambda: self.submit(pid, expected_generation=99), "preview_generation_conflict", 409)
+        for ttl in (True, 29, 3601, 3.5):
+            self.assert_error(lambda: self.create(key=uuid.uuid4().hex, ttl_seconds=ttl), "invalid_preview_request", 400)
+        self.assert_error(lambda: self.control.get(pid, owner="forged-owner"), status=404)
+        self.assertFalse(self.service.allocations)
+
+    def test_receipt_reopens_before_transport_and_run_uses_actual_current_owner(self):
+        preview, session = self.ready()
+        pid = preview["preview_id"]
+        receipt = self.submit(pid, key="A")
+        def transport(call):
+            fresh = PreviewStore(self.control.store.path)
+            stored = fresh.get_run(LOCAL_OWNER, pid, receipt["run_id"])
+            self.assertEqual(stored["execution_id"], call["execution_id"])
+            self.assertEqual(stored["revision_id"], call["revision_id"])
+            self.assertIn(stored["state"], {"preparing", "starting"})
+            self.assertEqual(fresh.get_preview(LOCAL_OWNER, pid)["transition_run_id"], receipt["run_id"])
+            self.assertIsNone(call["expected_execution_id"])
+            return {"state": "running", "acknowledged": True}
+        session.run_hook = transport
+        self.drive(pid, lambda row: row["active_run_id"] == receipt["run_id"])
+        self.assertEqual(len(session.run_calls), 1)
+        self.assertEqual(self.get_run(pid, receipt["run_id"])["application_ready"], "unknown")
+
+    def test_known_bad_package_does_not_cancel_active_a_or_close_input_admission(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        context = self.control._context(pid)
+        token = context.cancel_event
+        revision = self.package("invalid", **{"native.mpy": {"encoding": "base64", "data": "TQYBHw=="}})
+        self.assert_error(lambda: self.submit(pid, revision, key="bad"), "program_mpy_native_unsupported")
+        self.assertEqual(self.preview(pid)["active_run_id"], old["run_id"])
+        self.assertEqual(self.preview(pid)["generation"], old["generation"])
+        self.assertEqual(self.get_run(pid, old["run_id"])["state"], "running")
+        self.assertTrue(context.admission)
+        if token is not None:
+            self.assertFalse(token.is_set())
+        self.assertEqual(len(session.run_calls), 1)
+        self.assertFalse(session.interrupt_calls)
+
+    def test_binary_checkpoint_does_not_change_active_run_or_cancel_input_admission(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        context = self.control._context(pid)
+        token = context.cancel_event
+        revision = self.service.program_packages.create({
+            "entrypoint": "main.mpy",
+            "files": {"main.mpy": {"encoding": "base64", "data": base64.b64encode(HELPER).decode("ascii")}},
+        })
+        before = self.preview(pid)
+        old_record = self.get_run(pid, old["run_id"])
+        with mock.patch.object(self.control.store, "admit_run", side_effect=AssertionError("unsupported entrypoint must not allocate a Run")):
+            self.assert_error(lambda: self.submit(pid, revision["revision_id"], key="binary"),
+                              "program_mpy_entrypoint_unsupported", 409)
+        self.assertEqual(self.preview(pid), before)
+        self.assertEqual(self.get_run(pid, old["run_id"]), old_record)
+        self.assertTrue(context.admission)
+        if token is not None:
+            self.assertFalse(token.is_set())
+        self.assertEqual(len(session.run_calls), 1)
+        self.assertFalse(session.interrupt_calls)
+
+    def test_cancelled_transfer_late_success_waits_for_independent_prompt_before_c(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        transfer, interrupt = self.block(), self.block()
+        def late_success(call):
+            transfer.wait()
+            self.assertTrue(call["cancelled"]())
+            return {"state": "running", "acknowledged": True}
+        session.run_hook = late_success
+        middle = self.submit(pid, key="B")
+        thread, outcome = self.background(lambda: self.drive(pid, lambda row: len(session.run_calls) == 2))
+        self.assertTrue(transfer.entered.wait(1))
+        newest = self.submit(pid, key="C")
+        self.assertEqual(self.get_run(pid, middle["run_id"])["state"], "cancelling")
+        transfer.release.set()
+        thread.join(timeout=2)
+        self.assertNotIn("error", outcome)
+        self.assertNotEqual(self.preview(pid)["active_run_id"], middle["run_id"])
+        self.assertNotIn(self.get_run(pid, middle["run_id"])["state"], {"running", "completed"})
+        owner = session._owner()
+        self.assertEqual(owner, middle["execution_id"], "transport owner differs from active pointer")
+        def prompt():
+            interrupt.wait()
+            return {"interruption_confirmed": True, "prompt_end": 50, "serial_offset": 30}
+        session.interrupt_hook = prompt
+        recovery, result = self.background(lambda: self.step(pid))
+        self.assertTrue(interrupt.entered.wait(1))
+        self.assertEqual(session.interrupt_calls[-1]["expected_execution_id"], owner)
+        self.assertEqual(len(session.run_calls), 2, "C cannot start before prompt acknowledgement")
+        self.assertNotEqual(self.get_run(pid, middle["run_id"])["state"], "cancelled")
+        interrupt.release.set()
+        recovery.join(timeout=2)
+        self.assertNotIn("error", result)
+        session.run_hook = None
+        self.drive(pid, lambda row: row["active_run_id"] == newest["run_id"])
+        self.assertEqual(self.get_run(pid, middle["run_id"])["interrupt_ack"], "confirmed")
+        self.assertEqual([call["execution_id"] for call in session.run_calls], [old["execution_id"], middle["execution_id"], newest["execution_id"]])
+
+    def test_unconfirmed_interrupt_blocks_pending_run_and_explicit_retry_can_recover(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        newest = self.submit(pid, key="B")
+        session.interrupt_hook = lambda: {"interruption_confirmed": False}
+        self.step(pid)
+        for _ in range(3):
+            self.step(pid)
+        self.assertEqual(len(session.run_calls), 1)
+        self.assertEqual(self.get_run(pid, old["run_id"])["state"], "cancelling")
+        self.assertEqual(self.get_run(pid, old["run_id"])["interrupt_ack"], "unknown")
+        session.interrupt_hook = None
+        self.control.cancel(pid, old["run_id"], {"expected_owner_epoch": preview["owner_epoch"]}, owner=LOCAL_OWNER)
+        self.drive(pid, lambda row: row["active_run_id"] == newest["run_id"])
+        self.assertEqual(len(session.run_calls), 2)
+
+    def test_input_inflight_permit_drains_before_interrupt_or_replacement(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        block = self.block()
+        session.input_hook = block.wait
+        payload = {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": old["run_id"], "input": {"kind": "key", "key": "a", "action": "down"}}
+        input_thread, input_result = self.background(lambda: self.control.input(pid, payload, owner=LOCAL_OWNER))
+        self.assertTrue(block.entered.wait(1))
+        newer = self.submit(pid, key="B")
+        worker, worker_result = self.background(lambda: self.step(pid))
+        self.assertEqual(len(session.run_calls), 1)
+        self.assertFalse(session.interrupt_calls)
+        self.assert_error(lambda: self.control.input(pid, payload, owner=LOCAL_OWNER), status=409)
+        block.release.set()
+        input_thread.join(timeout=2)
+        worker.join(timeout=2)
+        self.assertNotIn("error", worker_result)
+        self.assertTrue("value" in input_result or isinstance(input_result.get("error"), ServiceError))
+        self.assertEqual(session.inputs[0][0], old["execution_id"])
+        self.assertIn(("input-finished", old["execution_id"]), session.events)
+        self.drive(pid, lambda row: row["active_run_id"] == newer["run_id"])
+        finished = session.events.index(("input-finished", old["execution_id"]))
+        interrupted = session.events.index(("interrupt-entered", old["execution_id"]))
+        self.assertLess(finished, interrupted)
+
+    def test_frame_identical_pixels_have_distinct_run_etags_and_history_without_sample_is_410(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        first = self.control.frame(pid, old["run_id"], owner=LOCAL_OWNER)
+        newer = self.submit(pid, key="B")
+        self.drive(pid, lambda row: row["active_run_id"] == newer["run_id"])
+        second = self.control.frame(pid, newer["run_id"], owner=LOCAL_OWNER)
+        self.assertEqual(first["png"], second["png"])
+        self.assertNotEqual(first["headers"]["ETag"], second["headers"]["ETag"])
+        self.assertEqual(second["headers"]["X-Run-ID"], newer["run_id"])
+        self.assertEqual(second["headers"]["X-Frame-Execution-ID"], newer["execution_id"])
+        never_sampled = self.submit(pid, key="C")
+        self.drive(pid, lambda row: row["active_run_id"] == never_sampled["run_id"])
+        newest = self.submit(pid, key="D")
+        self.drive(pid, lambda row: row["active_run_id"] == newest["run_id"])
+        self.assert_error(lambda: self.control.frame(pid, never_sampled["run_id"], owner=LOCAL_OWNER), "run_frame_unavailable", 410)
+
+    def test_frame_sample_crossing_replacement_is_rejected_after_capture(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        block = self.block()
+        session.frame_hook = block.wait
+        capture, result = self.background(lambda: self.control.frame(pid, old["run_id"], owner=LOCAL_OWNER))
+        self.assertTrue(block.entered.wait(1))
+        newest = self.submit(pid, key="B")
+        self.drive(pid, lambda row: row["active_run_id"] == newest["run_id"])
+        block.release.set()
+        capture.join(timeout=2)
+        self.assertIsInstance(result.get("error"), ServiceError)
+        self.assertEqual(result["error"].code, "preview_run_changed")
+        self.assertEqual(result["error"].status, 409)
+
+    def test_expired_preview_rejects_new_run_and_renew_without_generation_change(self):
+        preview = self.create()
+        pid = preview["preview_id"]
+        self.control.store.mutate(pid, lambda state: state["preview"].update(expires_at="2000-01-01T00:00:00+00:00"))
+        self.assert_error(lambda: self.submit(pid, key="too-late"), "preview_closing", 409)
+        self.assert_error(lambda: self.control.renew(pid, {"expected_owner_epoch": preview["owner_epoch"], "ttl_seconds": 60}, owner=LOCAL_OWNER), "preview_closing", 409)
+        self.assertEqual(self.preview(pid)["generation"], 0)
+
+    def test_close_keeps_closing_until_actual_stop_and_evidence_precedes_stop(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        session.stop_hook = lambda: {"session_id": session.id, "state": "stopping", "stop_pending": True}
+        closed = self.control.close(pid, {"expected_owner_epoch": preview["owner_epoch"]}, owner=LOCAL_OWNER)
+        self.assertEqual(closed["state"], "closing")
+        self.assert_error(lambda: self.submit(pid, key="after-close"), "preview_closing", 409)
+        self.step(pid)
+        self.assertEqual(self.preview(pid)["state"], "closing")
+        self.assertEqual(session.state, "running")
+        session.stop_hook = None
+        self.drive(pid, lambda row: row["state"] == "closed")
+        self.assertLess(next(i for i,event in enumerate(session.events) if event[0] == "evidence"), next(i for i,event in enumerate(session.events) if event[0] == "stop"))
+        self.assertEqual(session.state, "stopped")
+
+    def test_shutdown_is_nonblocking_cancels_inflight_and_rejects_new_intent(self):
+        preview, session = self.ready()
+        pid = preview["preview_id"]
+        block = self.block()
+        session.run_hook = lambda call: (block.wait() or {"state": "running", "acknowledged": True})
+        first = self.submit(pid, key="A")
+        worker, result = self.background(lambda: self.step(pid))
+        self.assertTrue(block.entered.wait(1))
+        started = time.monotonic()
+        self.control.shutdown()
+        self.assertLess(time.monotonic() - started, .2)
+        self.assertTrue(session.run_calls[0]["cancelled"]())
+        self.assert_error(lambda: self.submit(pid, key="after-shutdown"), "service_stopping", 503)
+        block.release.set()
+        worker.join(timeout=2)
+        self.assertNotEqual(self.preview(pid)["active_run_id"], first["run_id"])
+
+    def test_shutdown_fences_late_success_even_without_another_http_request(self):
+        preview, session = self.ready()
+        pid = preview["preview_id"]
+        block = self.block()
+        session.run_hook = lambda call: (block.wait() or {"state": "running", "acknowledged": True})
+        first = self.submit(pid, key="A")
+        worker, result = self.background(lambda: self.step(pid))
+        self.assertTrue(block.entered.wait(1))
+        self.control.shutdown()
+        block.release.set()
+        worker.join(timeout=2)
+        self.assertNotEqual(self.preview(pid)["active_run_id"], first["run_id"], "shutdown token must fence late success independently of another request")
+        self.assertNotEqual(self.get_run(pid, first["run_id"])["state"], "running")
+
+    def test_unauthorized_unknown_mutations_and_reads_do_not_allocate_worker_contexts(self):
+        preview = self.create()
+        before = set(self.control._contexts)
+        wrong = "f" * 32
+        epoch = {"expected_owner_epoch": preview["owner_epoch"]}
+        for callback in (
+            lambda: self.control.cancel(wrong, wrong, epoch, owner=LOCAL_OWNER),
+            lambda: self.control.renew(wrong, {**epoch, "ttl_seconds": 60}, owner=LOCAL_OWNER),
+            lambda: self.control.close(wrong, epoch, owner=LOCAL_OWNER),
+            lambda: self.control.frame(wrong, wrong, owner=LOCAL_OWNER),
+            lambda: self.control.input(wrong, {**epoch, "expected_run_id": wrong, "input": {}}, owner=LOCAL_OWNER),
+        ):
+            self.assert_error(callback, status=404)
+            self.assertEqual(set(self.control._contexts), before, "unknown URLs must not create persistent contexts")
+
+    def test_recovery_pending_allocates_once_but_creating_without_receipt_never_reallocates(self):
+        pending = self.create()
+        creating = self.create(key="creating")
+        self.control.store.mutate(creating["preview_id"], lambda state: state["preview"].update(allocation_state="creating"))
+        self.control.shutdown()
+        recovered = PreviewService(self.service, _start_workers=False)
+        self.controls.append(recovered)
+        self.control = recovered
+        self.drive(pending["preview_id"], lambda row: row["state"] == "ready")
+        for _ in range(3):
+            self.step(creating["preview_id"])
+        self.assertEqual(len(self.service.allocations), 1)
+        self.assertNotEqual(self.preview(creating["preview_id"])["allocation_state"], "bound")
+        self.assertIsNone(self.preview(creating["preview_id"])["session_id"])
+
+    def test_recovery_of_transition_run_observes_without_resubmitting_reserved_execution(self):
+        preview, session = self.ready()
+        pid = preview["preview_id"]
+        receipt = self.submit(pid, key="A")
+        def crash_point(state):
+            state["preview"]["transition_run_id"] = receipt["run_id"]
+            state["runs"][receipt["run_id"]]["state"] = "starting"
+        self.control.store.mutate(pid, crash_point)
+        session.program = {"execution_id": receipt["execution_id"], "revision_id": receipt["revision_id"], "state": "unknown",
+                           "pid": session.pid, "firmware_sha256": session.firmware_sha}
+        self.control.shutdown()
+        recovered = PreviewService(self.service, _start_workers=False)
+        self.controls.append(recovered)
+        self.control = recovered
+        for _ in range(3):
+            self.step(pid)
+        self.assertFalse(session.run_calls, "recovery must observe the reserved execution instead of replaying it")
+        self.assertEqual(len(self.service.allocations), 1)
+
+    def test_timeout_keeps_reserved_execution_unknown_until_matching_observation_without_retry(self):
+        preview, session = self.ready()
+        pid = preview["preview_id"]
+        receipt = self.submit(pid, key="A")
+        def timeout(call):
+            raise ServiceError("program_timeout", "HOST_ONLY_NOT_GUEST missing START", 504)
+        session.run_hook = timeout
+        self.step(pid)
+        self.assertEqual(self.get_run(pid, receipt["run_id"])["state"], "unknown")
+        for _ in range(3):
+            self.step(pid)
+        self.assertEqual(len(session.run_calls), 1)
+        self.assertIsNone(self.preview(pid)["active_run_id"])
+        session.program.update(state="running", acknowledged=True)
+        self.drive(pid, lambda row: row["active_run_id"] == receipt["run_id"])
+        self.assertEqual(self.get_run(pid, receipt["run_id"])["execution_id"], receipt["execution_id"])
+        self.assertEqual(len(session.run_calls), 1)
+
+    def test_bad_epoch_cannot_cancel_close_renew_or_inject_into_active_run(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        bad = {"expected_owner_epoch": "f" * 32}
+        callbacks = (
+            lambda: self.control.cancel(pid, old["run_id"], bad, owner=LOCAL_OWNER),
+            lambda: self.control.close(pid, bad, owner=LOCAL_OWNER),
+            lambda: self.control.renew(pid, {**bad, "ttl_seconds": 60}, owner=LOCAL_OWNER),
+            lambda: self.control.input(pid, {**bad, "expected_run_id": old["run_id"], "input": {}}, owner=LOCAL_OWNER),
+        )
+        for callback in callbacks:
+            self.assert_error(callback, "preview_owner_conflict", 409)
+        self.assertEqual(self.preview(pid)["state"], "ready")
+        self.assertEqual(self.get_run(pid, old["run_id"])["state"], "running")
+        self.assertFalse(session.inputs)
+        self.assertFalse(session.interrupt_calls)
+
+    def test_queries_do_not_renew_and_expiry_closes_actual_session(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        expires = self.preview(pid)["expires_at"]
+        self.control.list(owner=LOCAL_OWNER)
+        self.control.get(pid, owner=LOCAL_OWNER)
+        self.control.run(pid, old["run_id"], owner=LOCAL_OWNER)
+        self.control.frame(pid, old["run_id"], owner=LOCAL_OWNER, max_age_ms=20)
+        self.assertEqual(self.preview(pid)["expires_at"], expires)
+        self.control.renew(pid, {"expected_owner_epoch": preview["owner_epoch"], "ttl_seconds": 60}, owner=LOCAL_OWNER)
+        self.assertEqual(session.ttl_seconds, 60)
+        self.control.store.mutate(pid, lambda state: state["preview"].update(expires_at="2000-01-01T00:00:00+00:00"))
+        self.drive(pid, lambda row: row["state"] == "closed")
+        self.assertEqual(session.state, "stopped")
+
+    def test_reference_change_after_admission_does_not_silently_rebase_allocation(self):
+        preview = self.create()
+        pid = preview["preview_id"]
+        self.service.reference_sha = "a" * 64
+        self.step(pid)
+        self.assertEqual(self.preview(pid)["state"], "failed")
+        self.assertEqual(self.preview(pid)["error"]["code"], "uiflow_base_sha256_mismatch")
+        self.assertFalse(self.service.allocations)
+
+    def test_close_during_allocation_preserves_intent_and_never_allocates_another_session(self):
+        preview = self.create()
+        pid = preview["preview_id"]
+        block = self.block()
+        self.service.allocation_hook = lambda payload, binding: block.wait()
+        allocation, result = self.background(lambda: self.step(pid))
+        self.assertTrue(block.entered.wait(1))
+        closed = self.control.close(pid, {"expected_owner_epoch": preview["owner_epoch"]}, owner=LOCAL_OWNER)
+        self.assertEqual(closed["state"], "closing")
+        self.assertIsNone(closed["session_id"])
+        self.step(pid)
+        self.assertEqual(self.preview(pid)["state"], "closing")
+        block.release.set()
+        allocation.join(timeout=2)
+        self.assertNotIn("error", result)
+        self.drive(pid, lambda row: row["state"] == "closed")
+        self.assertEqual(len(self.service.allocations), 1)
+        self.assertEqual(next(iter(self.service.sessions.values())).state, "stopped")
+
+    def test_concurrent_same_key_admits_one_run_and_preserves_original_receipt(self):
+        preview = self.create()
+        pid = preview["preview_id"]
+        revision = self.package()
+        payload = {"revision_id": revision, "expected_generation": 0, "expected_owner_epoch": preview["owner_epoch"], "timeout_seconds": 120}
+        barrier = threading.Barrier(2)
+        original = self.service.program_packages.get
+        def read(value):
+            barrier.wait(timeout=2)
+            return original(value)
+        with mock.patch.object(self.service.program_packages, "get", side_effect=read):
+            first, left = self.background(lambda: self.control.submit(pid, payload, owner=LOCAL_OWNER, idempotency_key="same"))
+            second, right = self.background(lambda: self.control.submit(pid, payload, owner=LOCAL_OWNER, idempotency_key="same"))
+            first.join(timeout=2)
+            second.join(timeout=2)
+        self.assertNotIn("error", left)
+        self.assertNotIn("error", right)
+        self.assertEqual(left["value"], right["value"])
+        self.assertEqual(self.preview(pid)["generation"], 1)
+        self.assertEqual(len(self.control.store.revision_pins()), 1)
+
+    def test_default_worker_dispatches_one_reserved_run_and_shutdown_stops_its_loop(self):
+        self.control.shutdown()
+        control = PreviewService(self.service)
+        self.controls.append(control)
+        self.control = control
+        preview = self.create()
+        pid = preview["preview_id"]
+        receipt = self.submit(pid, key="A")
+        deadline = time.monotonic() + 2
+        while self.preview(pid)["active_run_id"] != receipt["run_id"] and time.monotonic() < deadline:
+            time.sleep(.005)
+        self.assertEqual(self.preview(pid)["active_run_id"], receipt["run_id"])
+        context = control._context(pid)
+        worker = context.thread
+        self.assertIs(control._context(pid).thread, worker)
+        self.assertEqual(len(next(iter(self.service.sessions.values())).run_calls), 1)
+        control.shutdown()
+        worker.join(timeout=2)
+        self.assertFalse(worker.is_alive())
+
+    def test_held_momentary_input_is_released_on_old_execution_before_switch(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        payload = {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": old["run_id"],
+                   "input": {"kind": "key", "key": "a", "action": "down"}}
+        result = self.control.input(pid, payload, owner=LOCAL_OWNER)
+        self.assertEqual(result["execution_id"], old["execution_id"])
+        self.assertTrue(self.preview(pid)["held_inputs"])
+        newer = self.submit(pid, key="B")
+        self.drive(pid, lambda row: row["active_run_id"] == newer["run_id"])
+        self.assertEqual([(owner, command["action"]) for owner, command in session.inputs],
+                         [(old["execution_id"], "down"), (old["execution_id"], "up")])
+        release_index = max(i for i,event in enumerate(session.events) if event == ("input-finished", old["execution_id"]))
+        interrupt_index = session.events.index(("interrupt-entered", old["execution_id"]))
+        self.assertLess(release_index, interrupt_index)
+        self.assertFalse(self.preview(pid)["held_inputs"])
+
+    def test_unconfirmed_held_input_release_blocks_new_run_until_explicit_retry(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        self.control.input(pid, {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": old["run_id"],
+                                "input": {"kind": "key", "key": "a", "action": "down"}}, owner=LOCAL_OWNER)
+        def failed_release():
+            raise ServiceError("qmp_unconfirmed", "HOST_ONLY_NOT_GUEST release failed", 504)
+        session.input_hook = failed_release
+        newer = self.submit(pid, key="B")
+        self.step(pid)
+        self.assertEqual(len(session.run_calls), 1)
+        self.assertFalse(session.interrupt_calls)
+        self.assertTrue(self.preview(pid)["held_inputs"])
+        session.input_hook = None
+        self.control.cancel(pid, old["run_id"], {"expected_owner_epoch": preview["owner_epoch"]}, owner=LOCAL_OWNER)
+        self.drive(pid, lambda row: row["active_run_id"] == newer["run_id"])
+        self.assertFalse(self.preview(pid)["held_inputs"])
+
+    def test_held_release_reloads_ledger_after_drain_instead_of_using_stale_step_snapshot(self):
+        preview, session, old = self.active(units=[{"id": "fixture-button", "unit_id": "button", "port_id": "port-a"}])
+        pid = preview["preview_id"]
+        stale_step_snapshot = self.preview(pid)
+        self.assertFalse(stale_step_snapshot.get("held_inputs"))
+        pressed, block = {"value": False}, self.block()
+        def button(command):
+            value = command["values"]["pressed"]
+            if value:
+                block.wait()
+            pressed["value"] = value
+            session.inputs.append((session._owner(), deepcopy(command)))
+            return {"accepted": True}
+        session.unit_input = button
+        payload = {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": old["run_id"],
+                   "unit_input": {"id": "fixture-button", "values": {"pressed": True}}}
+        input_thread, result = self.background(lambda: self.control.input(pid, payload, owner=LOCAL_OWNER))
+        self.assertTrue(block.entered.wait(1))
+        self.control.cancel(pid, old["run_id"], {"expected_owner_epoch": preview["owner_epoch"]}, owner=LOCAL_OWNER)
+        self.step(pid)
+        self.assertFalse(session.interrupt_calls, "inflight permit must drain before console interruption")
+        block.release.set()
+        input_thread.join(timeout=2)
+        self.assertTrue(pressed["value"])
+        self.assertTrue(self.preview(pid)["held_inputs"])
+        # Model the snapshot/slow-drain boundary explicitly: the internal
+        # interrupt must refresh held state even when its caller's snapshot
+        # predates the now-finished backend input. No fake guest executes.
+        self.control._interrupt(stale_step_snapshot, self.control._context(pid), session)
+        self.assertFalse(pressed["value"], "fresh ledger release must clear the old execution's button")
+        self.assertEqual(self.get_run(pid, old["run_id"])["state"], "cancelled")
+        self.assertFalse(self.preview(pid)["held_inputs"])
+
+    def test_concurrent_true_false_button_backend_order_cannot_lose_final_release(self):
+        preview, session, old = self.active(units=[{"id": "fixture-button", "unit_id": "button", "port_id": "port-a"}])
+        pid = preview["preview_id"]
+        pressed, block, false_done = {"value": False}, self.block(), threading.Event()
+        physical = []
+        def button(command):
+            value = command["values"]["pressed"]
+            if value:
+                block.wait()
+            pressed["value"] = value
+            physical.append(value)
+            if not value:
+                false_done.set()
+            return {"accepted": True}
+        session.unit_input = button
+        def payload(value):
+            return {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": old["run_id"],
+                    "unit_input": {"id": "fixture-button", "values": {"pressed": value}}}
+        down, down_result = self.background(lambda: self.control.input(pid, payload(True), owner=LOCAL_OWNER))
+        self.assertTrue(block.entered.wait(1))
+        up, up_result = self.background(lambda: self.control.input(pid, payload(False), owner=LOCAL_OWNER))
+        # Old concurrent code can finish False before the delayed True. New
+        # serialized code may hold False until True completes: both schedules
+        # must finish safely, so never require False-first to release True.
+        false_done.wait(.05)
+        block.release.set()
+        down.join(timeout=2)
+        up.join(timeout=2)
+        self.assertNotIn("error", down_result)
+        self.assertNotIn("error", up_result)
+        self.control.cancel(pid, old["run_id"], {"expected_owner_epoch": preview["owner_epoch"]}, owner=LOCAL_OWNER)
+        self.drive(pid, lambda row: self.get_run(pid, old["run_id"])["state"] == "cancelled")
+        self.assertTrue(physical)
+        self.assertFalse(physical[-1], "last actual backend effect must release the momentary input")
+        self.assertFalse(pressed["value"])
+        self.assertFalse(self.preview(pid)["held_inputs"])
+
+    def test_invalid_or_unattached_input_never_records_held_intent_or_calls_backend(self):
+        preview, session, old = self.active(units=[{"id": "fixture-button", "unit_id": "button", "port_id": "port-a"}])
+        pid = preview["preview_id"]
+        common = {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": old["run_id"]}
+        for command, status in (
+            ({"input": {"kind": "key", "key": "unknown-qcode-host-fixture", "action": "down"}}, 400),
+            ({"input": {"kind": "key", "key": "a", "action": "down", "settle_seconds": -1}}, 400),
+            ({"unit_input": {"id": "not-attached", "values": {"pressed": True}}}, 404),
+            ({"unit_input": {"id": "fixture-button", "values": {"pressed": "true"}}}, 400),
+        ):
+            with self.subTest(command=command):
+                self.assert_error(lambda: self.control.input(pid, {**common, **command}, owner=LOCAL_OWNER), status=status)
+            self.assertFalse(self.preview(pid).get("held_inputs"))
+            self.assertFalse(session.inputs)
+            self.assertEqual(self.control._context(pid).inputs, 0)
+
+    def test_normalized_uppercase_key_action_retains_and_releases_momentary_intent(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        self.control.input(pid, {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": old["run_id"],
+                                "input": {"kind": "key", "key": "a", "action": "DOWN"}}, owner=LOCAL_OWNER)
+        self.assertEqual(session.inputs[-1][1]["action"], "down")
+        self.assertTrue(self.preview(pid)["held_inputs"])
+        self.control.cancel(pid, old["run_id"], {"expected_owner_epoch": preview["owner_epoch"]}, owner=LOCAL_OWNER)
+        self.drive(pid, lambda row: self.get_run(pid, old["run_id"])["state"] == "cancelled")
+        self.assertEqual(session.inputs[-1][1]["action"], "up")
+        self.assertFalse(self.preview(pid)["held_inputs"])
+
+    def test_false_then_queued_true_with_partial_backend_failure_preserves_release_obligation(self):
+        preview, session, old = self.active(units=[{"id": "fixture-button", "unit_id": "button", "port_id": "port-a"}])
+        pid = preview["preview_id"]
+        physical, state, block = [], {"pressed": False, "first_false": True}, self.block()
+        def button(command):
+            value = command["values"]["pressed"]
+            if not value and state["first_false"]:
+                block.wait()
+                state["first_false"] = False
+            state["pressed"] = value
+            physical.append(value)
+            if value:
+                raise ServiceError("qmp_unconfirmed", "HOST_ONLY_NOT_GUEST partial True effect", 504)
+            return {"accepted": True}
+        session.unit_input = button
+        def payload(value):
+            return {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": old["run_id"],
+                    "unit_input": {"id": "fixture-button", "values": {"pressed": value}}}
+        up, up_result = self.background(lambda: self.control.input(pid, payload(False), owner=LOCAL_OWNER))
+        self.assertTrue(block.entered.wait(1))
+        down, down_result = self.background(lambda: self.control.input(pid, payload(True), owner=LOCAL_OWNER))
+        deadline = time.monotonic() + 1
+        while self.control._context(pid).inputs < 2 and time.monotonic() < deadline:
+            time.sleep(.005)
+        self.assertEqual(self.control._context(pid).inputs, 2, "True must be admitted and queued behind the blocked False")
+        block.release.set()
+        up.join(timeout=2)
+        down.join(timeout=2)
+        self.assertNotIn("error", up_result)
+        self.assertIsInstance(down_result.get("error"), ServiceError)
+        self.assertEqual(down_result["error"].code, "qmp_unconfirmed")
+        self.assertEqual(physical, [False, True])
+        self.assertTrue(state["pressed"])
+        self.assertTrue(self.preview(pid)["held_inputs"], "failed True may have an effect and still needs a release")
+        self.control.cancel(pid, old["run_id"], {"expected_owner_epoch": preview["owner_epoch"]}, owner=LOCAL_OWNER)
+        self.drive(pid, lambda row: self.get_run(pid, old["run_id"])["state"] == "cancelled")
+        self.assertFalse(physical[-1])
+        self.assertFalse(state["pressed"])
+        self.assertFalse(self.preview(pid)["held_inputs"])
+
+    def test_preview_input_duration_above_five_seconds_is_rejected_before_backend_or_held_write(self):
+        preview, session, old = self.active()
+        pid = preview["preview_id"]
+        common = {"expected_owner_epoch": preview["owner_epoch"], "expected_run_id": old["run_id"]}
+        for command in (
+            {"kind": "key", "key": "a", "action": "down", "settle_seconds": 5.01},
+            {"kind": "longpress", "x": 2, "y": 2, "hold_seconds": 5.01},
+        ):
+            self.assert_error(lambda: self.control.input(pid, {**common, "input": command}, owner=LOCAL_OWNER), status=400)
+            self.assertFalse(self.preview(pid).get("held_inputs"))
+            self.assertFalse(session.inputs)
+            self.assertEqual(self.control._context(pid).inputs, 0)

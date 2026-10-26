@@ -7,6 +7,7 @@ not promise to reset native modules, timers, IRQ handlers or other threads.
 from __future__ import annotations
 
 import time
+import re
 
 from guest_console import GuestConsoleError, MAX_RESPONSE_BYTES
 
@@ -39,16 +40,16 @@ class UIFlowRuntimeError(RuntimeError):
 
 def execution_markers(execution_id: str) -> dict[str, bytes]:
     prefix = f"__M5_EXEC_{execution_id}__:"
-    return {state: (prefix + state).encode("ascii") for state in ("START", "DONE", "ERROR")}
+    return {state: (prefix + state).encode("ascii") for state in ("START", "DONE", "ERROR", "LOAD", "RESTORE_ERROR")}
 
 
 def execution_state(data: bytes, execution_id: str) -> str | None:
     markers = execution_markers(execution_id)
-    if markers["ERROR"] in data:
+    if markers["ERROR"] in data or markers["RESTORE_ERROR"] in data:
         return "failed"
     if markers["DONE"] in data:
         return "completed"
-    if markers["START"] in data:
+    if markers["START"] in data or markers["LOAD"] in data:
         return "running"
     return None
 
@@ -65,6 +66,8 @@ class ExecutionStateScanner:
         self.execution_id = execution_id
         self.cursor = offset
         self.state = None
+        self.restore_failed = False
+        self.load_requested = False
         self._tail = b""
         self._overlap = max(map(len, execution_markers(execution_id).values())) - 1
 
@@ -77,6 +80,10 @@ class ExecutionStateScanner:
         if len(data) != count:
             raise GuestConsoleError("console_log_error", "console log lost committed bytes")
         window = self._tail + data
+        if execution_markers(self.execution_id)["RESTORE_ERROR"] in window:
+            self.restore_failed = True
+        if execution_markers(self.execution_id)["LOAD"] in window:
+            self.load_requested = True
         observed = execution_state(window, self.execution_id)
         ranks = {None: 0, "running": 1, "completed": 2, "failed": 3}
         if ranks[observed] > ranks[self.state]:
@@ -123,22 +130,7 @@ def run_source(console, source: str, execution_id: str, *, timeout: float, cance
     acknowledgement. This intentionally does not issue Ctrl-D at an empty
     prompt (a VM soft reset); console routing must remain installed.
     """
-    deadline = time.monotonic() + timeout
-
-    def remaining():
-        if cancelled():
-            raise UIFlowRuntimeError("program_cancelled", "session is stopping")
-        left = deadline - time.monotonic()
-        if left <= 0:
-            raise UIFlowRuntimeError("program_timeout", "guest execution acknowledgement timed out")
-        return left
-
-    prompt_end = synchronize_raw_repl(console, timeout=remaining(), cancelled=cancelled)["prompt_end"]
-    if on_synchronized is not None:
-        on_synchronized()
     markers = execution_markers(execution_id)
-    # Compile before START so a syntax error cannot count as application
-    # execution. Use a fresh globals dictionary; this is not a native VM reset.
     prepare_source = (
         f" with open({source_path!r}, 'r') as _m5_input:\n  _m5_text = _m5_input.read()\n"
         if source_path is not None else ""
@@ -157,6 +149,111 @@ def run_source(console, source: str, execution_id: str, *, timeout: float, cance
         "else:\n"
         f" print({markers['DONE'].decode()!r})\n"
     ).encode("utf-8")
+    return _run_wrapper(console, wrapper, execution_id, timeout=timeout, cancelled=cancelled,
+                        on_synchronized=on_synchronized)
+
+
+def run_mpy(console, execution_id: str, *, package_path: str, entrypoint_sha256: str,
+            loader_capabilities: dict, timeout: float, cancelled, on_synchronized=None) -> dict:
+    """Dispatch untouched bytecode through the real importer; LOAD is not START.
+
+    The official API loads and executes in one call. A generic binary has no
+    injectable body-entry hook, so application_started/ready stay unknown.
+    Native callbacks/threads remain outside interrupt-only restoration.
+    """
+    from uiflow_main_loader import require_main_loader
+    capabilities = require_main_loader(loader_capabilities)
+    if not isinstance(package_path, str) or re.fullmatch(r"/flash/\.m5-live-packages/[0-9a-f]{64}", package_path) is None:
+        raise UIFlowRuntimeError("program_package_integrity", "binary entrypoint requires a managed immutable package path")
+    if not isinstance(entrypoint_sha256, str) or re.fullmatch("[0-9a-f]{64}", entrypoint_sha256) is None:
+        raise UIFlowRuntimeError("program_package_integrity", "binary entrypoint requires its exact lowercase SHA256")
+    markers = execution_markers(execution_id)
+    target = package_path + "/main.mpy"
+    owner_id = capabilities["probe"]["owner_before_id"]
+    wrapper = f'''import sys,os,hashlib,binascii
+_m5_binary_owner=__import__('__main__')
+_m5_binary_cwd=os.getcwd()
+_m5_binary_path=sys.path[:]
+_m5_binary_saved={{}}
+for _m5_binary_name in ('main','__main__'):
+ _m5_binary_saved[_m5_binary_name]=(_m5_binary_name in sys.modules,sys.modules.get(_m5_binary_name))
+_m5_binary_error=False
+_m5_binary_restored=False
+try:
+ assert id(_m5_binary_owner)=={owner_id}, 'REPL owner differs from the verified loader probe'
+ assert 'main.py' not in os.listdir({package_path!r}) and 'main' not in os.listdir({package_path!r}), 'entrypoint shadowing'
+ assert (os.stat({target!r})[0] & 0xf000)==0x8000, 'entrypoint is not a regular file'
+ _m5_binary_digest=hashlib.sha256()
+ _m5_binary_size=0
+ _m5_binary_header=b''
+ with open({target!r},'rb') as _m5_binary_file:
+  while True:
+   _m5_binary_chunk=_m5_binary_file.read(4096)
+   if not _m5_binary_chunk:
+    break
+   if not _m5_binary_size:
+    _m5_binary_header=_m5_binary_chunk[:4]
+   _m5_binary_size+=len(_m5_binary_chunk)
+   assert _m5_binary_size<=262144, 'entrypoint too large'
+   _m5_binary_digest.update(_m5_binary_chunk)
+ assert binascii.hexlify(_m5_binary_digest.digest()).decode()=={entrypoint_sha256!r}, 'entrypoint bytes changed'
+ assert len(_m5_binary_header)==4 and _m5_binary_header[0]==77, 'invalid .mpy magic'
+ sys.modules.pop('main',None)
+ os.chdir({package_path!r})
+ sys.path[:]=[{package_path!r}]+[p for p in _m5_binary_path if p!={package_path!r}]
+ print({markers['LOAD'].decode()!r})
+ _m5_binary_module=__import__('main',None,None,False,0)
+ assert sys.modules.get('main') is _m5_binary_module and sys.modules.get('__main__') is _m5_binary_module and __import__('__main__') is _m5_binary_module, 'application module identity differs'
+ assert _m5_binary_module.__name__=='__main__' and _m5_binary_module.__file__=={target!r}, 'application entrypoint differs'
+except BaseException as _m5_binary_exception:
+ _m5_binary_error=True
+ sys.print_exception(_m5_binary_exception)
+finally:
+ try:
+  os.chdir(_m5_binary_cwd)
+  sys.path[:]=_m5_binary_path
+  for _m5_binary_name,_m5_binary_pair in _m5_binary_saved.items():
+   if _m5_binary_pair[0]:
+    sys.modules[_m5_binary_name]=_m5_binary_pair[1]
+   else:
+    sys.modules.pop(_m5_binary_name,None)
+  _m5_binary_restored=id(__import__('__main__'))=={owner_id} and __import__('__main__') is _m5_binary_owner and os.getcwd()==_m5_binary_cwd and sys.path==_m5_binary_path and all((_m5_binary_name in sys.modules)==_m5_binary_pair[0] and (not _m5_binary_pair[0] or sys.modules[_m5_binary_name] is _m5_binary_pair[1]) for _m5_binary_name,_m5_binary_pair in _m5_binary_saved.items())
+ except BaseException as _m5_binary_restore_exception:
+  sys.print_exception(_m5_binary_restore_exception)
+ if not _m5_binary_restored:
+  print({markers['RESTORE_ERROR'].decode()!r})
+ elif _m5_binary_error:
+  print({markers['ERROR'].decode()!r})
+ else:
+  print({markers['DONE'].decode()!r})
+'''.encode("utf-8")
+    result = _run_wrapper(console, wrapper, execution_id, timeout=timeout, cancelled=cancelled,
+                          on_synchronized=on_synchronized)
+    if result.pop("loader_restore_failed", False):
+        raise UIFlowRuntimeError("program_main_loader_restore_failed", "binary execution did not restore its verified REPL owner")
+    requested = result.pop("loader_import_requested", False)
+    result.update(entrypoint="main.mpy", execution_phase={"running": "import-requested", "completed": "import-returned", "failed": "load-or-execute-failed" if requested else "preflight-failed"}[result["state"]],
+                  start_semantics="import-request-only", application_started=None, application_ready=None,
+                  owner_restored=True if result["state"] in {"completed", "failed"} else None)
+    return result
+
+
+def _run_wrapper(console, wrapper: bytes, execution_id: str, *, timeout: float, cancelled,
+                 on_synchronized=None) -> dict:
+    """Shared bounded raw-paste transport; wrapper owns its truthful markers."""
+    deadline = time.monotonic() + timeout
+
+    def remaining():
+        if cancelled():
+            raise UIFlowRuntimeError("program_cancelled", "session is stopping")
+        left = deadline - time.monotonic()
+        if left <= 0:
+            raise UIFlowRuntimeError("program_timeout", "guest execution acknowledgement timed out")
+        return left
+
+    prompt_end = synchronize_raw_repl(console, timeout=remaining(), cancelled=cancelled)["prompt_end"]
+    if on_synchronized is not None:
+        on_synchronized()
     cursor = prompt_end
 
     def read_exact(size):
@@ -224,7 +321,9 @@ def run_source(console, source: str, execution_id: str, *, timeout: float, cance
             return {"state": state, "serial_offset": prompt_end,
                     "next_offset": scanner.cursor,
                     "acknowledged": True, "transfer_mode": transfer,
-                    "cleanup_mode": "interrupt-only"}
+                    "cleanup_mode": "interrupt-only",
+                    **({"loader_restore_failed": True} if scanner.restore_failed else {}),
+                    **({"loader_import_requested": True} if scanner.load_requested else {})}
         if scanner.cursor < console.offset():
             continue
         # Wait on the live reader rather than polling historical read_from:

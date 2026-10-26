@@ -433,12 +433,14 @@ class PreviewRetentionTests(unittest.TestCase):
         path = session.dir / "session.json"
         record = json.loads(path.read_text(encoding="utf-8"))
         record["firmware_provenance"] = {"kind": "uiflow", "artifact_id": "a" * 64,
-                                         "metadata": {"base_sha256": "c" * 64, "firmware_sha256": "d" * 64}}
+                                         "metadata": {"base_sha256": "c" * 64, "firmware_sha256": "d" * 64,
+                                                      "base_firmware_id": "e" * 64}}
         path.write_text(json.dumps(record), encoding="utf-8")
         roots = self.retention.snapshot()
         self.assertFalse(roots.cache_barrier)
         self.assertIn("a" * 64, roots.artifact_ids)
         self.assertIn("c" * 64, roots.firmware_shas)
+        self.assertIn("e" * 64, roots.firmware_ids)
         self.assertFalse(self.decision("artifact", "9" * 64).protected)
 
     def test_corrupt_ledger_reference_and_session_identity_are_not_ignored(self):

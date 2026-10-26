@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/opt/miniconda3/bin/python3.12",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "platform/tests",
+    "-p",
+    "test_*.py"
+  ],
+  "exit_code": 0,
+  "log": "tests.log",
+  "sha256": "57492178bdf25276fed2a6fbd9a7ab0164b51b2aba987dc80dd98b5541c63f3e",
+  "scope": "Final runtime restoration gate and OpenAPI3.1 response contracts; snapshot regenerated before full regression"
+}

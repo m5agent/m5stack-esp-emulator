@@ -1,0 +1,64 @@
+import concurrent.futures, datetime, hashlib, json, os, pathlib, shutil, subprocess
+root = pathlib.Path.cwd()
+out = pathlib.Path(__file__).resolve().parent
+source_paths = [
+    'platform/tools/device_service.py', 'platform/tools/preview_service.py',
+    'platform/tools/uiflow_main_loader.py', 'platform/tools/uiflow_runtime.py',
+    'platform/tools/uiflow_package_runtime.py', 'platform/tools/mpy_bytecode.py',
+    'platform/tools/program_packages.py', 'platform/tools/uiflow_source.py',
+    'platform/tests/test_main_loader_admission.py', 'platform/tests/test_preview_service.py',
+    'platform/tests/test_device_program_runtime.py', 'platform/tests/test_device_program_packages.py',
+    'platform/tests/test_uiflow_service.py', 'platform/tests/test_mpy_bytecode.py',
+]
+original_paths = [
+    '.work/main-loader-admission-independent-20261027/r1/index.json',
+    '.work/main-loader-admission-independent-20261027/r1/tests.log',
+    '.work/main-loader-admission-independent-20261027/preview-preflight-review-r1/probe.py',
+    '.work/main-loader-admission-independent-20261027/preview-preflight-review-r1/probe.log',
+    '.work/main-loader-admission-independent-20261027/preview-preflight-review-r1/index.json',
+]
+archive_names = ['api-runtime', 'web']
+archives = {name: root / 'docs/evidence/2026-10-27-public-main-mpy' / name for name in archive_names}
+def digest(path):
+    data = path.read_bytes()
+    return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+def tree(path):
+    return {str(p.relative_to(path)): digest(p) for p in sorted(path.rglob('*')) if p.is_file()}
+source_before = {name: digest(root / name) for name in source_paths}
+original_before = {name: digest(root / name) for name in original_paths}
+archive_before = {name: tree(path) for name, path in archives.items()}
+for name, path in archives.items():
+    shutil.copytree(path, out / 'portable-copies' / name)
+copy_before = {name: tree(out / 'portable-copies' / name) for name in archive_names}
+assert copy_before == archive_before
+for name in source_paths:
+    target = out / 'source-snapshot' / (name + '.txt')
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes((root / name).read_bytes())
+python = '/opt/miniconda3/bin/python3.12'
+commands = {
+    'api-runtime-portable': ([python, '-B', 'verify_archive.py'], out / 'portable-copies/api-runtime', ''),
+    'web-portable': ([python, '-B', 'verify.py'], out / 'portable-copies/web', ''),
+    'original-preview-negative': ([python, '-B', original_paths[2]], root, 'platform/tools:platform/tests:.work/py312'),
+    'old-run-preservation': ([python, '-B', str((out / 'state-preservation.py').relative_to(root))], root, 'platform/tools:platform/tests:.work/py312'),
+}
+started = datetime.datetime.now(datetime.UTC).isoformat()
+def run(item):
+    name, (argv, cwd, pythonpath) = item
+    start = datetime.datetime.now(datetime.UTC).isoformat()
+    result = subprocess.run(argv, cwd=cwd, env=dict(os.environ, PYTHONPATH=pythonpath), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=60)
+    (out / (name + '.log')).write_bytes(result.stdout)
+    return name, {'argv': argv, 'cwd': 'repository-root' if cwd == root else str(cwd.relative_to(root)), 'environment_overrides': {'PYTHONPATH': pythonpath}, 'started_at': start, 'finished_at': datetime.datetime.now(datetime.UTC).isoformat(), 'exit_code': result.returncode, 'log': name + '.log', 'log_sha256': hashlib.sha256(result.stdout).hexdigest(), 'output': result.stdout.decode()}
+with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+    results = dict(executor.map(run, commands.items()))
+source_after = {name: digest(root / name) for name in source_paths}
+original_after = {name: digest(root / name) for name in original_paths}
+archive_after = {name: tree(path) for name, path in archives.items()}
+copy_after = {name: tree(out / 'portable-copies' / name) for name in archive_names}
+stable = source_before == source_after and original_before == original_after and archive_before == archive_after and copy_before == copy_after
+receipt = {'status': 'PASS' if stable and all(row['exit_code'] == 0 for row in results.values()) else 'FAIL', 'category': 'INDEPENDENT_OFFLINE_AUDIT_NOT_NEW_GUEST_OR_HARDWARE', 'started_at': started, 'finished_at': datetime.datetime.now(datetime.UTC).isoformat(), 'commands': results, 'sources_sha256': source_before, 'source_unchanged': source_before == source_after, 'original_r1_sha256': original_before, 'original_r1_unchanged': original_before == original_after, 'archive_sha256': archive_before, 'archive_unchanged': archive_before == archive_after, 'portable_copies_exact_and_unchanged': copy_before == archive_before and copy_before == copy_after, 'api_contacted': False, 'guest': 'NOT RUN', 'hardware': 'NOT RUN', 'compiler_rebuild': 'NOT RUN', 'test_scope': 'original two negative cases plus two independent old-run/cancel-token preservation checks; real host ledger and immutable store, mocked Session/UART/process'}
+(out / 'index.json').write_text(json.dumps(receipt, indent=2) + '\n')
+for name, row in results.items():
+    print(name + ' exit=' + str(row['exit_code']) + '\n' + row['output'])
+print(json.dumps({'path': str(out.relative_to(root)), 'status': receipt['status'], 'source_unchanged': receipt['source_unchanged'], 'original_r1_unchanged': receipt['original_r1_unchanged'], 'archive_unchanged': receipt['archive_unchanged'], 'portable_copies_exact_and_unchanged': receipt['portable_copies_exact_and_unchanged'], 'receipt_sha256': digest(out / 'index.json')['sha256']}))
+raise SystemExit(0 if receipt['status'] == 'PASS' else 1)

@@ -1,0 +1,39 @@
+from pathlib import Path
+import ast,hashlib,json,re
+root=Path.cwd();base=root/'docs/evidence/2026-10-27-public-main-mpy'
+secret=(root/'.work/preview-control-token').read_bytes().strip()
+sensitive=[secret,hashlib.sha256(secret).hexdigest().encode()]
+mac=re.compile(rb'(?i)\b(?:[0-9a-f]{2}:){5}[0-9a-f]{2}\b')
+bearer=re.compile(rb'(?i)\bBearer\s+[A-Za-z0-9_\-\.]{24,}')
+key=re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----')
+fixtures={}
+for name in ('test_device_program_runtime.py','test_device_program_packages.py'):
+ data=(root/'platform/tests'/name).read_text();constants=[x.value for x in ast.walk(ast.parse(data)) if isinstance(x,ast.Constant) and isinstance(x.value,str)]
+ fixtures[name]={m.group() for value in constants for m in bearer.finditer(value.encode('utf8','surrogatepass'))}
+hits=[];reviewed=[];png=0;count=0
+
+def no_payload(value,path):
+ if isinstance(value,dict):
+  if value.get('encoding')=='base64' and isinstance(value.get('data'),str):hits.append({'path':path,'kind':'raw-base64-file-payload'})
+  for x in value.values():no_payload(x,path)
+ elif isinstance(value,list):
+  for x in value:no_payload(x,path)
+for p in sorted(base.rglob('*')):
+ if not p.is_file():continue
+ rel=str(p.relative_to(base));data=p.read_bytes();count+=1
+ if p.is_symlink() or p.suffix.lower() in {'.mpy','.bin','.rom','.elf','.zip'}:hits.append({'path':rel,'kind':'forbidden-file'})
+ if any(x and x in data for x in sensitive):hits.append({'path':rel,'kind':'actual-control-secret-or-digest'})
+ if data.startswith(b'\x89PNG\r\n\x1a\n'):png+=1;continue
+ try:data.decode('utf8')
+ except UnicodeError:hits.append({'path':rel,'kind':'unknown-binary'});continue
+ for kind,pat in [('mac',mac),('private-key',key)]:
+  if pat.search(data):hits.append({'path':rel,'kind':kind})
+ for match in bearer.finditer(data):
+  name=next((x for x in fixtures if rel.endswith('/'+x+'.txt')),None)
+  if name and match.group() in fixtures[name]:reviewed.append({'path':rel,'kind':'unchanged-local-test-fixture-auth-literal'})
+  else:hits.append({'path':rel,'kind':'unreviewed-bearer-literal'})
+ try:no_payload(json.loads(data),rel)
+ except (ValueError,UnicodeError):pass
+receipt={'status':'PASS' if not hits else 'FAIL','files_scanned':count,'png_files_by_magic':png,'findings':hits,'reviewed_false_positives':reviewed,'actual_control_secret_and_digest_checked':True,'sensitive_values_or_digests_recorded':False,'scope':'Archive as present at scan time; final manifest and this generated receipt contain only inventory/verification metadata'}
+(root/'.work/public-main-mpy-privacy-20261027.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'status':receipt['status'],'files_scanned':count,'png':png,'findings':hits,'reviewed_test_fixture_matches':len(reviewed)}));assert not hits

@@ -7,7 +7,10 @@ tests establish host protocol behavior, never guest/hardware execution PASS.
 from __future__ import annotations
 
 import ast
+import builtins
+import hashlib
 import heapq
+import io
 from pathlib import Path
 from types import SimpleNamespace
 import sys
@@ -20,7 +23,7 @@ sys.path.insert(0, str(ROOT / "platform/tools"))
 from guest_console import GuestConsoleError, MAX_RESPONSE_BYTES
 import uiflow_runtime
 from uiflow_runtime import (
-    ExecutionStateScanner, UIFlowRuntimeError, execution_markers, execution_state, run_source,
+    ExecutionStateScanner, UIFlowRuntimeError, execution_markers, execution_state, run_source, run_mpy,
     synchronize_raw_repl,
 )
 
@@ -243,6 +246,100 @@ class UIFlowRuntimeTests(unittest.TestCase):
                 self.assertIsNone(execution_state(markers[state], "run-20261026"))
                 self.assertIsNone(execution_state(markers[state], EXECUTION + "-old"))
 
+    def execute_mpy(self, console, **options):
+        from test_uiflow_main_loader import verified_capability
+        defaults = {"package_path": "/flash/.m5-live-packages/" + "a" * 64, "entrypoint_sha256": "b" * 64,
+                    "loader_capabilities": verified_capability(), "timeout": 2, "cancelled": lambda: False}
+        defaults.update(options)
+        return run_mpy(console, EXECUTION, **defaults)
+
+    def test_binary_load_marker_acknowledges_dispatch_without_inventing_application_start(self):
+        console = self.console(output=execution_markers(EXECUTION)["LOAD"])
+        result = self.execute_mpy(console)
+        self.assertEqual(result["state"], "running")
+        self.assertEqual(result["execution_phase"], "import-requested")
+        self.assertEqual(result["start_semantics"], "import-request-only")
+        self.assertIsNone(result["application_started"])
+        self.assertIsNone(result["application_ready"])
+        self.assertIsNone(result["owner_restored"])
+        self.assertNotIn(execution_markers(EXECUTION)["START"], console.source)
+        self.assert_no_reset(console)
+
+    def test_binary_terminal_markers_and_restore_failure_have_distinct_meanings(self):
+        markers = execution_markers(EXECUTION)
+        for marker, state, phase in (("DONE", "completed", "import-returned"), ("ERROR", "failed", "load-or-execute-failed")):
+            with self.subTest(marker=marker):
+                result = self.execute_mpy(self.console(output=markers["LOAD"] + markers[marker]))
+                self.assertEqual((result["state"], result["execution_phase"]), (state, phase))
+                self.assertTrue(result["owner_restored"])
+                self.assertIsNone(result["application_started"])
+        self.assert_error("program_main_loader_restore_failed", lambda: self.execute_mpy(
+            self.console(output=markers["LOAD"] + markers["RESTORE_ERROR"])))
+        scanner = ExecutionStateScanner(EXECUTION, 0)
+        self.assertEqual(scanner.scan(self.console(history=markers["RESTORE_ERROR"])), "failed")
+        self.assertTrue(scanner.restore_failed)
+
+    def test_binary_preflight_error_can_fail_without_ever_dispatching_import(self):
+        result = self.execute_mpy(self.console(output=b"AssertionError: invalid .mpy magic\r\n" + execution_markers(EXECUTION)["ERROR"]))
+        self.assertEqual(result["state"], "failed")
+        self.assertEqual(result["execution_phase"], "preflight-failed")
+        self.assertIsNone(result["application_started"])
+
+    def test_binary_wrapper_checks_exact_file_and_real_import_then_restores_in_finally(self):
+        console = self.console(output=execution_markers(EXECUTION)["LOAD"])
+        self.execute_mpy(console)
+        text = console.source.decode()
+        tree = ast.parse(text)
+        calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call)]
+        self.assertFalse(any(isinstance(node.func, ast.Name) and node.func.id in {"exec", "eval", "compile"} for node in calls))
+        real_imports = [node for node in calls if isinstance(node.func, ast.Name) and node.func.id == "__import__" and len(node.args) == 5]
+        self.assertEqual(len(real_imports), 1)
+        self.assertEqual([node.value for node in real_imports[0].args], ["main", None, None, False, 0])
+        self.assertLess(text.index("invalid .mpy magic"), text.index(execution_markers(EXECUTION)["LOAD"].decode()))
+        self.assertLess(text.index("entrypoint bytes changed"), text.index(execution_markers(EXECUTION)["LOAD"].decode()))
+        self.assertIn("'b" + "b" * 63 + "'", text)
+        self.assertIn("sys.modules.pop('main',None)", text)
+        self.assertIn("finally:", text)
+        self.assertLess(text.index("os.chdir(_m5_binary_cwd)"), text.index(execution_markers(EXECUTION)["DONE"].decode()))
+        self.assertIn("sys.modules[_m5_binary_name]=_m5_binary_pair[1]", text)
+        self.assertIn("sys.modules.pop(_m5_binary_name,None)", text)
+        self.assertIn("id(_m5_binary_owner)==101", text)
+
+    def test_binary_false_or_malformed_loader_and_nonmanaged_path_write_nothing(self):
+        cases = (("loader_capabilities", None, "program_mpy_entrypoint_unsupported"),
+                 ("loader_capabilities", {"mpy_entrypoint": True}, "program_mpy_entrypoint_unsupported"),
+                 ("package_path", "/flash/user", "program_package_integrity"),
+                 ("package_path", "/flash/.m5-live-packages/../main", "program_package_integrity"),
+                 ("entrypoint_sha256", "B" * 64, "program_package_integrity"))
+        for field, value, code in cases:
+            with self.subTest(field=field, value=value):
+                console = self.console(output=execution_markers(EXECUTION)["LOAD"])
+                self.assert_error(code, lambda: self.execute_mpy(console, **{field: value}))
+                self.assertEqual(console.writes, [])
+
+    def test_binary_load_scan_does_not_downgrade_a_terminal_execution(self):
+        markers = execution_markers(EXECUTION)
+        console = self.console(history=markers["LOAD"])
+        scanner = ExecutionStateScanner(EXECUTION, 0)
+        self.assertEqual(scanner.scan(console), "running")
+        console.log.extend(markers["DONE"])
+        self.assertEqual(scanner.scan(console), "completed")
+        console.log.extend(markers["LOAD"])
+        self.assertEqual(scanner.scan(console), "completed")
+
+    def test_binary_transfer_reuses_pacing_fragmentation_and_single_budget(self):
+        for mode in ("paste", "raw"):
+            with self.subTest(mode=mode):
+                console = self.console(mode=mode, fragmented=True, window=17, output=execution_markers(EXECUTION)["LOAD"])
+                result = self.execute_mpy(console, timeout=10)
+                self.assertEqual(result["state"], "running")
+                self.assertTrue(all(len(data) <= (17 if mode == "paste" else 128) for _, data in console.source_writes))
+                self.assert_no_reset(console)
+        console = self.console(output=b"only transport ACK")
+        started = self.clock.now
+        self.assert_error("program_timeout", lambda: self.execute_mpy(console, timeout=.5))
+        self.assertLessEqual(self.clock.now - started, .51)
+
     def test_error_overrides_done_and_start_in_one_serial_window(self):
         markers = execution_markers(EXECUTION)
         self.assertEqual(execution_state(markers["START"] + markers["DONE"], EXECUTION), "completed")
@@ -255,7 +352,7 @@ class UIFlowRuntimeTests(unittest.TestCase):
         scanner = ExecutionStateScanner(EXECUTION, len(prefix))
         self.assertIsNone(scanner.scan(console))
         self.assertEqual(scanner.cursor, len(prefix) + MAX_RESPONSE_BYTES)
-        self.assertLessEqual(len(scanner._tail), len(marker))
+        self.assertLess(len(scanner._tail), max(map(len, execution_markers(EXECUTION).values())))
         self.assertEqual(scanner.scan(console), "completed")
         self.assertEqual(scanner.cursor, console.offset())
         self.assertTrue(all(limit <= MAX_RESPONSE_BYTES for _, limit in console.reads))
@@ -522,6 +619,84 @@ class UIFlowRuntimeTests(unittest.TestCase):
             console, cancelled=lambda: self.clock.monotonic() - start >= 0.15,
         ), GuestConsoleError)
         self.assertFalse(console.negotiated)
+
+
+class BinaryWrapperControlFlowTests(unittest.TestCase):
+    """Exercise the trusted wrapper only; caller MPY bytes are never host-executed."""
+
+    def observe_wrapper(self, *, import_error=None, restore_error=False, magic=b"M\x06\x00\x1f", cached_main=True):
+        import binascii
+        from test_uiflow_main_loader import verified_capability
+        owner, previous, dependency = object(), object(), object()
+        package = "/flash/.m5-live-packages/" + "a" * 64
+        initial_modules = {"dep": dependency}
+        if cached_main:
+            initial_modules.update({"__main__": owner, "main": previous})
+        system = SimpleNamespace(modules=dict(initial_modules), path=["/original/library"])
+        errors, printed, imports = [], [], []
+        system.print_exception = lambda error: errors.append(type(error).__name__)
+        operating = SimpleNamespace(cwd="/original/cwd")
+        operating.getcwd = lambda: operating.cwd
+        def chdir(path):
+            if restore_error and path == "/original/cwd":
+                raise OSError("scripted restore failure")
+            operating.cwd = path
+        operating.chdir = chdir
+        operating.listdir = lambda path: ["main.mpy"]
+        operating.stat = lambda path: (0x8000,)
+        application = SimpleNamespace(__name__="__main__", __file__=package + "/main.mpy")
+        def importing(name, globals=None, locals=None, fromlist=(), level=0):
+            if name == "__main__":
+                return system.modules.get(name, owner)
+            if name == "main":
+                self.assertIs(fromlist, False)
+                self.assertEqual(operating.cwd, package)
+                self.assertEqual(system.path[0], package)
+                imports.append(name)
+                system.modules.update({"main": application, "__main__": application})
+                if import_error:
+                    raise import_error
+                return application
+            return {"sys": system, "os": operating, "hashlib": hashlib, "binascii": binascii}[name]
+        capability = verified_capability()
+        capability["probe"].update(owner_before_id=id(owner), owner_after_id=id(owner))
+        clock = VirtualClock()
+        console = ProtocolConsole(clock, output=execution_markers(EXECUTION)["LOAD"])
+        with mock.patch.object(uiflow_runtime, "time", SimpleNamespace(monotonic=clock.monotonic, sleep=clock.sleep)):
+            run_mpy(console, EXECUTION, package_path=package, entrypoint_sha256=hashlib.sha256(magic).hexdigest(),
+                    loader_capabilities=capability, timeout=2, cancelled=lambda: False)
+        environment = dict(vars(builtins), __import__=importing,
+                           open=lambda path, mode: io.BytesIO(magic),
+                           print=lambda *parts: printed.append(" ".join(map(str, parts))))
+        # This evaluates only our fixed, generated control wrapper using inert
+        # filesystem/import doubles. No file bytes are evaluated or imported.
+        exec(console.source.decode(), {"__builtins__": environment})
+        return system, operating, initial_modules, printed, errors, imports
+
+    def test_finite_exception_and_ctrl_c_restore_real_saved_cache_identities(self):
+        for error in (None, ImportError("scripted loader rejection"), RuntimeError("scripted top-level failure"), KeyboardInterrupt()):
+            for cached in (False, True):
+                with self.subTest(error=type(error).__name__, cached=cached):
+                    system, operating, initial, printed, errors, imports = self.observe_wrapper(import_error=error, cached_main=cached)
+                    self.assertEqual(system.modules, initial)
+                    self.assertEqual(system.path, ["/original/library"])
+                    self.assertEqual(operating.cwd, "/original/cwd")
+                    self.assertEqual(imports, ["main"])
+                    self.assertEqual(printed, [execution_markers(EXECUTION)["LOAD"].decode(), execution_markers(EXECUTION)["ERROR" if error else "DONE"].decode()])
+                    self.assertEqual(errors, [type(error).__name__] if error else [])
+
+    def test_unconfirmed_restoration_emits_only_dedicated_failure_after_load(self):
+        _, _, _, printed, errors, _ = self.observe_wrapper(restore_error=True)
+        self.assertEqual(printed, [execution_markers(EXECUTION)["LOAD"].decode(), execution_markers(EXECUTION)["RESTORE_ERROR"].decode()])
+        self.assertEqual(errors, ["OSError"])
+
+    def test_guest_bad_magic_preflight_never_requests_import_or_invents_start(self):
+        system, operating, initial, printed, errors, imports = self.observe_wrapper(magic=b"X\x06\x00\x1f")
+        self.assertEqual(imports, [])
+        self.assertEqual(printed, [execution_markers(EXECUTION)["ERROR"].decode()])
+        self.assertEqual(errors, ["AssertionError"])
+        self.assertEqual(system.modules, initial)
+        self.assertEqual(operating.cwd, "/original/cwd")
 
 
 if __name__ == "__main__":

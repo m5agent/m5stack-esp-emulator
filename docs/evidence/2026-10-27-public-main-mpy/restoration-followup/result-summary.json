@@ -1,0 +1,45 @@
+{
+  "abnormal_mutation_guest": "NOT RUN",
+  "automatic_guest_retries": 0,
+  "category": "gen46-normal-owner-restoration-followup",
+  "cleanup": {
+    "candidate": {
+      "flash_retained": false,
+      "lease_active": false,
+      "pid_gone": true,
+      "status": "PASS",
+      "zip_before_stop": true
+    },
+    "stock": {
+      "flash_retained": false,
+      "lease_active": false,
+      "pid_gone": true,
+      "status": "PASS",
+      "zip_before_stop": true
+    }
+  },
+  "executions": 9,
+  "final_active_leases": 0,
+  "final_active_sessions": 0,
+  "final_history_frame_sha256": {
+    "candidate": "e94c98d777799feb6de6025fcbc60f0d1e46faf415d98281204a2d85c95ca942",
+    "stock": "e94c98d777799feb6de6025fcbc60f0d1e46faf415d98281204a2d85c95ca942"
+  },
+  "hardware": "NOT RUN",
+  "input_observations": 10,
+  "load_is_not_application_start": true,
+  "missing_terminal_negative_evidence": "HOST ONLY; see ../host-followup/",
+  "mpy_executions": 5,
+  "new_web_execution": "NOT RUN",
+  "normal_loop_interrupt_and_source_recovery": "PASS",
+  "ordinary_candidate": "PASS",
+  "ordinary_sessions": 2,
+  "ordinary_stock": "PASS",
+  "runtime_sha256": "7c898e8d456f2d85bf75481f8d90b4ef493dcef00a290053c4b804c387f2018e",
+  "scope": "Virtual CoreS3 qemu normal stock/candidate UART MPY and PIR GPIO/QOM/frame only. Not a new Web or abnormal namespace-mutation guest verification; not hardware.",
+  "service_pid": 5495,
+  "source_pin_count": 83,
+  "status": "PASS",
+  "worker_generation": 46,
+  "zip_members": 58
+}
