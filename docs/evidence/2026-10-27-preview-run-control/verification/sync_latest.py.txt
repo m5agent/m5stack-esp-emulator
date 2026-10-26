@@ -1,0 +1,15 @@
+import datetime,hashlib,json,subprocess
+from pathlib import Path
+root=Path.cwd();out=root/'.work/preview-verification-20261027'
+def git(*args):return subprocess.run(['git',*args],cwd=root,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=120)
+def sha(p):return hashlib.sha256((root/p).read_bytes()).hexdigest()
+assert not git('status','--porcelain').stdout,'worktree must be clean before synchronization'
+paths=json.loads((root/'.work/preview-service-reload-r1-20261027/start.json').read_text())['source_sha256']
+source={p:sha(p) for p in paths};r={'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'implementation_commit':git('rev-parse','HEAD').stdout.strip(),'origin_main_before':git('rev-parse','origin/main').stdout.strip(),'source_sha256_before':source}
+f=git('fetch','origin','main');r['fetch_exit_code']=f.returncode
+(out/'fetch.txt').write_text(f.stdout)
+if f.returncode==0:
+ r['origin_main_after']=git('rev-parse','origin/main').stdout.strip();m=git('merge','--no-edit','origin/main');r.update(merge_exit_code=m.returncode,merge_output=m.stdout.strip());(out/'merge.txt').write_text(m.stdout)
+r['head_after']=git('rev-parse','HEAD').stdout.strip();r['worktree_clean_after']=not git('status','--porcelain').stdout;r['source_sha256_after']={p:sha(p) for p in paths};r['validated_runtime_sources_unchanged']=r['source_sha256_before']==r['source_sha256_after'];r['status']='PASS' if r.get('fetch_exit_code')==0 and r.get('merge_exit_code')==0 and r['worktree_clean_after'] and r['validated_runtime_sources_unchanged'] else 'REQUIRES_REVIEW'
+(out/'sync.json').write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:r.get(k) for k in ['status','implementation_commit','origin_main_after','head_after','merge_output','worktree_clean_after','validated_runtime_sources_unchanged']}))
+raise SystemExit(0 if r['status']=='PASS' else 1)

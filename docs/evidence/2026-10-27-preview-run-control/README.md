@@ -75,3 +75,7 @@ last-confirmed per-file进度不是guest磁盘全部字节的原子观察。范�
 源码和原始 Markdown 以追加 `.txt` 保存，bytes 不变；固件/ROM/compiler 不归档。
 本地测试控制 token 不入归档。敏感信息检查覆盖正文及 ZIP 成员中的密钥、MAC、
 私钥、URL userinfo 和本次实际控制 token；该检查不代表通用隐私分类已经完备。
+
+实施提交 `f510a908e918a4b455e0d55903d4d86657e47140` 后重新fetch并merge
+`origin/main@f2061759897955e6017d4aa2a41bd5ba962c35b6`，结果Already up to date；
+工作树干净、17份运行源码字节保持，服务gen33零active/lease。收据见`integration.json`。
