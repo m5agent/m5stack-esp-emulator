@@ -1,0 +1,249 @@
+diff --git a/include/hw/dma/esp_gdma.h b/include/hw/dma/esp_gdma.h
+index d555249..f1de4fd 100644
+--- a/include/hw/dma/esp_gdma.h
++++ b/include/hw/dma/esp_gdma.h
+@@ -114,6 +114,10 @@ typedef struct ESPGdmaState {
+     SysBusDevice parent_object;
+ 
+     DmaConfigState* ch_conf[ESP_GDMA_CONF_COUNT];
++    void (*start_cb[ESP_GDMA_CONF_COUNT][GDMA_LAST + 1])(void *opaque,
++                                                          GdmaPeripheral periph,
++                                                          int dir);
++    void *start_cb_opaque[ESP_GDMA_CONF_COUNT][GDMA_LAST + 1];
+     /* Use this register mainly for enabling and disabling priorities */
+     uint32_t misc_conf;
+     /* Keep a pointer to the SoC DRAM */
+@@ -156,6 +160,13 @@ bool esp_gdma_get_channel_periph(ESPGdmaState *s, GdmaPeripheral periph, int dir,
+ bool esp_gdma_get_channel_periph(ESPGdmaState *s, GdmaPeripheral periph, int dir,
+                                      uint32_t* chan);
+ 
++void esp_gdma_set_start_callback(ESPGdmaState *s, GdmaPeripheral periph,
++                                 int dir,
++                                 void (*callback)(void *opaque,
++                                                  GdmaPeripheral periph,
++                                                  int dir),
++                                 void *opaque);
++
+ bool esp_gdma_read_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint32_t size);
+ bool esp_gdma_write_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint32_t size);
+ uint32_t esp_gdma_get_out_transfer_size(ESPGdmaState *s, uint32_t chan,
+diff --git a/hw/dma/esp_gdma.c b/hw/dma/esp_gdma.c
+index 648e9ae..be83964 100644
+--- a/hw/dma/esp_gdma.c
++++ b/hw/dma/esp_gdma.c
+@@ -276,12 +276,20 @@ bool esp_gdma_get_channel_periph(ESPGdmaState *s, GdmaPeripheral periph, int dir
+ 
+     /* Check all the channels of the GDMA */
+     for (int i = 0; i < class->m_channel_count; i++) {
++        const uint32_t channel_periph =
++            FIELD_EX32(s->ch_conf[dir][i].peripheral, GDMA_PERI_SEL, PERI_SEL);
++        const bool channel_start =
++            dir == ESP_GDMA_IN_IDX
++            ? FIELD_EX32(s->ch_conf[dir][i].link, GDMA_IN_LINK, START)
++            : FIELD_EX32(s->ch_conf[dir][i].link, GDMA_OUT_LINK, START);
++        const bool channel_restart =
++            dir == ESP_GDMA_IN_IDX
++            ? FIELD_EX32(s->ch_conf[dir][i].link, GDMA_IN_LINK, RESTART)
++            : FIELD_EX32(s->ch_conf[dir][i].link, GDMA_OUT_LINK, RESTART);
+         /* IN/OUT PERI registers have the same organization, can use any macro.
+          * Look for the channel that was configured with the given peripheral. It must be marked as "started" too */
+-        if (FIELD_EX32(s->ch_conf[dir][i].peripheral, GDMA_PERI_SEL,
+-                       PERI_SEL) == periph &&
+-            (FIELD_EX32(s->ch_conf[dir][i].link, GDMA_OUT_LINK, START) ||
+-             FIELD_EX32(s->ch_conf[dir][i].link, GDMA_OUT_LINK, RESTART))) {
++        if (channel_periph == periph &&
++            (channel_start || channel_restart)) {
+ 
+             *chan = i;
+             return true;
+@@ -291,6 +299,20 @@ bool esp_gdma_get_channel_periph(ESPGdmaState *s, GdmaPeripheral periph, int dir
+     return false;
+ }
+ 
++void esp_gdma_set_start_callback(ESPGdmaState *s, GdmaPeripheral periph,
++                                 int dir,
++                                 void (*callback)(void *opaque,
++                                                  GdmaPeripheral periph,
++                                                  int dir),
++                                 void *opaque)
++{
++    if (!s || periph > GDMA_LAST || dir < 0 || dir >= ESP_GDMA_CONF_COUNT) {
++        return;
++    }
++    s->start_cb[dir][periph] = callback;
++    s->start_cb_opaque[dir][periph] = opaque;
++}
++
+ 
+ /**
+  * @brief Read data from guest RAM pointed by the linked list configured in the given DmaConfigState index.
+@@ -972,6 +994,20 @@ static void esp_gdma_write_chan_conf(ESPGdmaState *state, uint32_t dir, uint32_t
+             if ((value & start_mask) || (value & restart_mask))
+             {
+                 esp_gdma_check_and_start_mem_transfer(state, chan);
++                const GdmaPeripheral periph =
++                    FIELD_EX32(s->peripheral, GDMA_PERI_SEL, PERI_SEL);
++                if (getenv("M5SW_GDMA_TRACE")) {
++                    fprintf(stderr,
++                            "[gdma-link] dir=%u chan=%u periph=%u cb=%d value=%08x\n",
++                            dir, chan, periph,
++                            periph <= GDMA_LAST &&
++                            state->start_cb[dir][periph] != NULL,
++                            value);
++                }
++                if (periph <= GDMA_LAST && state->start_cb[dir][periph]) {
++                    state->start_cb[dir][periph](
++                        state->start_cb_opaque[dir][periph], periph, dir);
++                }
+             }
+             break;
+ 
+diff --git a/hw/m5stopwatch/m5_lcd_cam.c b/hw/m5stopwatch/m5_lcd_cam.c
+index 2b2b64d..9d0ea45 100644
+--- a/hw/m5stopwatch/m5_lcd_cam.c
++++ b/hw/m5stopwatch/m5_lcd_cam.c
+@@ -44,6 +44,7 @@ struct M5LcdCamState {
+     uint8_t *frame_data;
+     uint32_t frame_data_size;
+     bool started;
++    bool dma_armed;
+     QEMUTimer *capture_timer;
+ };
+ 
+@@ -116,12 +117,21 @@ static void lcd_cam_capture(M5LcdCamState *s)
+             if (getenv("M5SW_CAMERA_TRACE")) {
+                 fprintf(stderr, "[lcd-cam] waiting for camera GDMA channel\n");
+             }
++            /*
++             * The esp32-camera driver only programs the IN_LINK after its
++             * first VSYNC event.  A real sensor keeps producing VSYNC while
++             * the DMA channel is idle, so do the same instead of waiting for
++             * a DMA transfer that cannot start yet.
++             */
++            s->int_raw |= CAM_VSYNC_INT;
++            lcd_cam_update_irq(s);
+             timer_mod(s->capture_timer,
+                       qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
+             return;
+         }
++        s->dma_armed = false;
+         if (s->chunks_left) {
+-            esp_gdma_write_channel(s->gdma, channel, data, len);
++            esp_gdma_complete_in_descriptor(s->gdma, channel, data, len);
+             esp_gdma_set_chan_interrupt(s->gdma, ESP_GDMA_IN_IDX, channel,
+                                         R_GDMA_INTERRUPT_IN_SUC_EOF_MASK);
+             s->chunks_left--;
+@@ -138,6 +148,20 @@ static void lcd_cam_capture(M5LcdCamState *s)
+     }
+ }
+ 
++static void lcd_cam_gdma_started(void *opaque, GdmaPeripheral periph, int dir)
++{
++    M5LcdCamState *s = opaque;
++
++    if (getenv("M5SW_CAMERA_TRACE")) {
++        fprintf(stderr,
++                "[lcd-cam] gdma-start periph=%u dir=%d started=%d\n",
++                periph, dir, s->started);
++    }
++    if (periph == GDMA_LCDCAM && dir == ESP_GDMA_IN_IDX) {
++        s->dma_armed = true;
++    }
++}
++
+ static uint64_t lcd_cam_read(void *opaque, hwaddr addr, unsigned size)
+ {
+     M5LcdCamState *s = opaque;
+@@ -166,6 +190,10 @@ static void lcd_cam_write(void *opaque, hwaddr addr, uint64_t value,
+     case R_CAM_CTRL1: {
+         bool start = !!(v & CAM_START);
+         bool rising = start && !s->started;
++        if (getenv("M5SW_CAMERA_TRACE")) {
++            fprintf(stderr, "[lcd-cam] ctrl1=%08x start=%d rising=%d armed=%d\n",
++                    (unsigned)v, start, rising, s->dma_armed);
++        }
+         s->regs[addr / 4] = v & ~(CAM_RESET | CAM_AFIFO_RST);
+         s->started = start;
+         if (rising) {
+@@ -215,6 +243,7 @@ static void lcd_cam_reset(DeviceState *dev)
+     s->chunk_len = 0;
+     s->chunks_left = 0;
+     s->started = false;
++    s->dma_armed = false;
+ }
+ 
+ static void lcd_cam_init(Object *obj)
+@@ -256,6 +285,8 @@ void m5_lcd_cam_attach(DeviceState *dev, ESPGdmaState *gdma,
+     s->gdma = gdma;
+     s->width = width;
+     s->height = height;
++    esp_gdma_set_start_callback(gdma, GDMA_LCDCAM, ESP_GDMA_IN_IDX,
++                                lcd_cam_gdma_started, s);
+     const char *frame_path = getenv("M5SW_CAMERA_FRAME");
+     if (frame_path) {
+         gsize size = 0;
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index 063de24..df4612d 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -45,5 +45,6 @@ enum {
+     M_BQ27220,
+     M_ES8389,
++    M_IP2315,
+ };
+ 
+ typedef struct M5swI2CDev {
+@@ -1048,6 +1049,14 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+             return 0x0D;                                 /* ES8389_STATE_ON */
+         }
+         break;
++    case M_IP2315:
++        if (r == 0xc7) {
++            if (!(s->regs[0x01] & BIT(0))) {
++                return 0x00;
++            }
++            return s->charging ? 0x82 : 0x45;
++        }
++        break;
+     default:
+         break;
+     }
+@@ -1376,6 +1386,13 @@ static int dev_recv(I2CSlave *i2c, uint8_t data)
+             return 0;
+         }
+         break;
++    case M_IP2315:
++        if (r == 0x01) {
++            s->regs[r] = data & BIT(0);
++            s->ptr++;
++            return 0;
++        }
++        break;
+     default:
+         break;
+     }
+@@ -1647,5 +1664,12 @@ static void dev_realize(DeviceState *dev, Error **errp)
+         object_property_add(OBJECT(s), "pa-enabled", "bool", prop_get_bool, NULL, NULL, &s->pm1_pa_enabled);
+         g_pm1 = s;
++    } else if (!strcmp(m, "ip2315")) {
++        s->model = M_IP2315;
++        s->regs[0x01] = BIT(0);   /* charger enable */
++        s->charging = false;
++        object_property_add(OBJECT(s), "charging", "bool",
++                            prop_get_bool, prop_set_bool, NULL,
++                            &s->charging);
+     } else if (!strcmp(m, "m5ioe1")) {
+         s->model = M_IOE1;
+         s->regs[0x00] = 0x34; s->regs[0x01] = 0x12;   /* UID */
+diff --git a/hw/m5stopwatch/m5papermono.c b/hw/m5stopwatch/m5papermono.c
+index 39310c6..e0e91be 100644
+--- a/hw/m5stopwatch/m5papermono.c
++++ b/hw/m5stopwatch/m5papermono.c
+@@ -43,6 +43,7 @@ void m5papermono_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+         { "rx8130", 0x32 },
+         { "bmi270", 0x68 },
+         { "st25r3916", 0x50 },
++        { "ip2315", 0x75 },
+     };
+     for (int i = 0; i < ARRAY_SIZE(devs); i++) {
+         DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);

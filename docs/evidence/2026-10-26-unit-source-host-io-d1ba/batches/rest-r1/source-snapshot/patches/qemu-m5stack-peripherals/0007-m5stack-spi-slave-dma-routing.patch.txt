@@ -1,0 +1,90 @@
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -90,6 +90,8 @@
+ void esp32s3_gpspi_attach_spi_slave(DeviceState *dev,
+                                     const M5SpiSlaveOps *ops,
+                                     void *opaque, int cs_pin);
++void esp32s3_gpspi_set_spi_slave_dma(DeviceState *dev, int cs_pin,
++                                     uint32_t gdma_periph);
+ void m5_sx1262_attach(DeviceState *spi, int cs_pin);
+ void m5_st25r3916_spi_attach(DeviceState *spi, int cs_pin, int irq_pin);
+ void m5_cc1101_spi_attach(DeviceState *spi, int cs_pin, int gdo0_pin);
+--- a/hw/m5stopwatch/esp32s3_gpspi.c
++++ b/hw/m5stopwatch/esp32s3_gpspi.c
+@@ -45,6 +45,7 @@
+     void *opaque;
+     int cs_pin;
+     int cs_level;
++    int gdma_periph;
+ } M5GpspiSlave;
+ 
+ struct Esp32s3GpspiState {
+@@ -139,6 +140,15 @@
+     }
+ }
+ 
++static uint32_t gpspi_active_dma_periph(Esp32s3GpspiState *s)
++{
++    if (s->active_slave >= 0 &&
++        s->slaves[s->active_slave].gdma_periph >= 0) {
++        return s->slaves[s->active_slave].gdma_periph;
++    }
++    return s->gdma_periph;
++}
++
+ static void gpspi_cs_line(void *opaque, int pin, int level)
+ {
+     Esp32s3GpspiState *s = opaque;
+@@ -178,7 +188,7 @@
+ static uint32_t gpspi_dma_pull(Esp32s3GpspiState *s, uint8_t *dst, uint32_t n)
+ {
+     uint32_t got = 0;
+-    const uint32_t periph = s->gdma_periph;
++    const uint32_t periph = gpspi_active_dma_periph(s);
+     if (!s->gdma) {
+         return 0;
+     }
+@@ -289,7 +299,7 @@
+             }
+             if (s->gdma && rx_dma) {
+                 uint32_t ch;
+-                const uint32_t periph = s->gdma_periph;
++                const uint32_t periph = gpspi_active_dma_periph(s);
+                 if (esp_gdma_get_channel_periph(s->gdma, periph,
+                                                 ESP_GDMA_IN_IDX, &ch)) {
+                     bool ok = esp_gdma_write_channel(s->gdma, ch,
+@@ -538,10 +548,25 @@
+     s->slaves[index].opaque = opaque;
+     s->slaves[index].cs_pin = cs_pin;
+     s->slaves[index].cs_level = 1;
++    s->slaves[index].gdma_periph = -1;
+     esp32_gpio_set_input(cs_pin, 1);
+     esp32_gpio_add_out_listener(cs_pin, gpspi_cs_line, s);
+ }
+ 
++void esp32s3_gpspi_set_spi_slave_dma(DeviceState *dev, int cs_pin,
++                                     uint32_t gdma_periph)
++{
++    Esp32s3GpspiState *s = ESP32S3_GPSPI(dev);
++
++    for (int index = 0; index < s->slave_count; index++) {
++        if (s->slaves[index].cs_pin == cs_pin) {
++            s->slaves[index].gdma_periph = gdma_periph;
++            return;
++        }
++    }
++    assert(0 && "GP-SPI slave CS is not attached");
++}
++
+ /* ---- board glue ---- */
+ #include "hw/xtensa/esp32s3_intc.h"
+ #include "hw/qdev-properties.h"
+--- a/hw/m5stopwatch/m5cores3.c
++++ b/hw/m5stopwatch/m5cores3.c
+@@ -106,4 +106,6 @@
+      */
+     m5_spi_sd_attach(spi, 4);
+     m5_max3421e_attach(spi, 0, 14);
++    esp32s3_gpspi_set_spi_slave_dma(spi, 4, GDMA_SPI2);
++    esp32s3_gpspi_set_spi_slave_dma(spi, 0, GDMA_SPI2);
+ }

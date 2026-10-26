@@ -1,0 +1,57 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] hw/ssi/esp32s3_spi: complete QIO read phase
+
+ESP-IDF programs a one-byte dummy phase for 0xEB QIO reads. The m25p80
+model requires five bytes after the 24-bit address (one mode byte and
+four dummy bytes), so the first four data bytes were consumed as header
+bytes and every read was shifted by four bytes.
+
+Keep the guest controller timing unchanged while adding the missing
+bytes only for QIO reads selected on flash CS0. This restores NVS,
+LittleFS and instruction/data reads for Arduino ESP32 4.4.
+---
+ hw/ssi/esp32s3_spi.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/hw/ssi/esp32s3_spi.c b/hw/ssi/esp32s3_spi.c
+index 90250e7..d49ce45 100644
+--- a/hw/ssi/esp32s3_spi.c
++++ b/hw/ssi/esp32s3_spi.c
+@@ -50,6 +50,7 @@ typedef struct ESP32S3SpiTransaction {
+     uint32_t addr_bytes;
+ 
+     uint32_t dummy_bytes;
++    uint32_t extra_dummy_bytes;
+ 
+     void* data;
+     uint32_t tx_bytes;
+@@ -192,7 +193,7 @@ static void esp32s3_spi_perform_transaction(ESP32S3SpiState *s, ESP32S3SpiTransa
+     esp32s3_spi_cs_set(s, 0);
+     esp32s3_spi_txrx_buffer(s, &t->cmd, t->cmd_bytes, NULL, 0);
+     esp32s3_spi_txrx_buffer(s, &t->addr, t->addr_bytes, NULL, 0);
+-    esp32s3_spi_dummy_cycles(s, t->dummy_bytes);
++    esp32s3_spi_dummy_cycles(s, t->dummy_bytes + t->extra_dummy_bytes);
+     esp32s3_spi_txrx_buffer(s, t->data, t->tx_bytes, t->data, t->rx_bytes);
+     qemu_set_irq(s->cs_gpio[0], 1);
+     esp32s3_spi_cs_set(s, 1);
+@@ -262,6 +263,20 @@ static void esp32s3_spi_begin_transaction(ESP32S3SpiState *s)
+         if (s->mem_user & R_SPI_MEM_USER_USR_DUMMY_MASK) {
+             esp32s3_spi_get_dummy(s, &t.dummy_bytes);
+         }
++
++        /*
++         * m25p80 models QIO continuous reads as five bytes after the 24-bit
++         * address (one mode byte and four dummy bytes). ESP-IDF programs only
++         * one byte of that phase in SPI_MEM_USER1, so supply the remaining
++         * four bytes before the first data byte.
++         */
++        if ((t.cmd == 0xeb) &&
++            !FIELD_EX32(s->misc, SPI_MEM_MISC, CS0_DIS)) {
++            uint32_t mode_bytes = t.addr_bytes > 3 ? t.addr_bytes - 3 : 0;
++            uint32_t modeled_dummy = mode_bytes + t.dummy_bytes;
++            t.extra_dummy_bytes =
++                modeled_dummy < 5 ? 5 - modeled_dummy : 0;
++        }
+     }
+ 
+     esp32s3_spi_perform_transaction(s, &t);

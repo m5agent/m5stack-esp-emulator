@@ -1,0 +1,43 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] hw/block/m25p80: mirror ISSI quad enable into status register 2
+
+ISSI IS25LP/WP parts use status register 1 bit 6 as the quad-enable control,
+but the ESP32-C6 flash startup path verifies the resulting QE state through
+RDSR2 (0x35) bit 1. Mirror the modeled quad-enable state into that register
+so QIO setup succeeds for ISSI flash identities such as IS25LP128.
+
+Apply after 0016-gigadevice-status2-qio.patch.
+
+---
+ hw/block/m25p80.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/hw/block/m25p80.c b/hw/block/m25p80.c
+--- a/hw/block/m25p80.c
++++ b/hw/block/m25p80.c
+@@ -836,6 +836,7 @@ static void complete_collecting_data(Flash *s)
+         switch (get_man(s)) {
+         case MAN_WINBOND:
+         case MAN_GIGADEVICE:
++        case MAN_ISSI:
+             s->quad_enable = !!(s->data[0] & 0x02);
+             break;
+         default:
+@@ -1323,6 +1324,7 @@ static void decode_new_cmd(Flash *s, uint32_t value)
+         switch (get_man(s)) {
+         case MAN_WINBOND:
+         case MAN_GIGADEVICE:
++        case MAN_ISSI:
+             s->needed_bytes = 1;
+             s->state = STATE_COLLECTING_DATA;
+             s->pos = 0;
+@@ -1508,7 +1510,8 @@ static void decode_new_cmd(Flash *s, uint32_t value)
+             s->state = STATE_READING_DATA;
+             break;
+         case MAN_GIGADEVICE:
+-            /* GD25Qxx status register 2 bit 1 is the quad-enable bit. */
++        case MAN_ISSI:
++            /* GigaDevice/ISSI status register 2 bit 1 mirrors quad enable. */
+             s->data[0] = (!!s->quad_enable) << 1;
+             s->pos = 0;
+             s->len = 1;

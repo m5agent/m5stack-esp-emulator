@@ -1,0 +1,2291 @@
+diff --git a/hw/dma/esp32s3_gdma.c b/hw/dma/esp32s3_gdma.c
+index 91b9251..3b27fd3 100644
+--- a/hw/dma/esp32s3_gdma.c
++++ b/hw/dma/esp32s3_gdma.c
+@@ -81,6 +81,12 @@ static uint64_t esp32s3_gdma_read(void *opaque, hwaddr addr, unsigned int size)
+ 
+     if (chan < ESP32S3_GDMA_CHANNEL_COUNT) {
+         r = esp_gdma_read_chan_register(parent, dir, chan, esp32s3_generic_reg(reg));
++        if (getenv("M5SW_GDMA_TRACE") && reg <= R_DMA_INT_CLR) {
++            fprintf(stderr,
++                    "[gdma-mmio] rd addr=%04lx dir=%u chan=%u reg=%02x val=%08lx\n",
++                    (unsigned long)addr, dir, chan, reg,
++                    (unsigned long)r);
++        }
+     } else if (addr == A_DMA_MISC_CONF) {
+         r = esp_gdma_read_register(parent, GDMA_MISC_REG);
+     } else {
+@@ -114,6 +120,12 @@ static void esp32s3_gdma_write(void *opaque, hwaddr addr,
+     const uint32_t dir = (chan_with_dir & 1) ? ESP_GDMA_OUT_IDX : ESP_GDMA_IN_IDX;
+     const uint32_t reg = addr % DMA_DIR_REGS_SIZE;
+ 
++    if (getenv("M5SW_GDMA_TRACE")) {
++        fprintf(stderr, "[gdma-mmio] addr=%04lx val=%08lx dir=%u chan=%u reg=%02x\n",
++                (unsigned long)addr, (unsigned long)value,
++                dir, chan, reg);
++    }
++
+ 
+     if (chan < ESP32S3_GDMA_CHANNEL_COUNT) {
+         esp_gdma_write_chan_register(parent, dir, chan, esp32s3_generic_reg(reg), value);
+diff --git a/hw/dma/esp_gdma.c b/hw/dma/esp_gdma.c
+index 6640fca..41005ba 100644
+--- a/hw/dma/esp_gdma.c
++++ b/hw/dma/esp_gdma.c
+@@ -277,7 +277,7 @@ bool esp_gdma_get_channel_periph(ESPGdmaState *s, GdmaPeripheral periph, int dir
+     for (int i = 0; i < class->m_channel_count; i++) {
+         /* IN/OUT PERI registers have the same organization, can use any macro.
+          * Look for the channel that was configured with the given peripheral. It must be marked as "started" too */
+-        if ( FIELD_EX32(s->ch_conf[dir][i].peripheral, GDMA_PERI_SEL, PERI_SEL) == periph ||
++        if ( FIELD_EX32(s->ch_conf[dir][i].peripheral, GDMA_PERI_SEL, PERI_SEL) == periph &&
+              FIELD_EX32(s->ch_conf[dir][i].link, GDMA_OUT_LINK, START)) {
+ 
+             *chan = i;
+@@ -400,6 +400,63 @@ bool esp_gdma_read_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint
+     return !error;
+ }
+ 
++uint32_t esp_gdma_get_out_transfer_size(ESPGdmaState *s, uint32_t chan,
++                                        uint32_t max_size)
++{
++    DmaConfigState *state = &s->ch_conf[ESP_GDMA_OUT_IDX][chan];
++    uint32_t addr = ((ESP_GDMA_RAM_ADDR >> 20) << 20)
++                  | FIELD_EX32(state->link, GDMA_OUT_LINK, ADDR);
++    uint32_t total = 0;
++
++    for (int i = 0; addr && i < 256; i++) {
++        GdmaLinkedList desc;
++        if (!esp_gdma_read_descr(s, addr, &desc)) {
++            break;
++        }
++        total += MIN(desc.config.length, max_size - total);
++        if (total >= max_size || desc.config.suc_eof) {
++            break;
++        }
++        addr = desc.next_addr;
++    }
++    return total;
++}
++
++uint32_t esp_gdma_snapshot_out_channel(ESPGdmaState *s, uint32_t chan,
++                                       uint8_t *buffer, uint32_t size)
++{
++    DmaConfigState *state = &s->ch_conf[ESP_GDMA_OUT_IDX][chan];
++    uint32_t addr = ((ESP_GDMA_RAM_ADDR >> 20) << 20)
++                  | FIELD_EX32(state->link, GDMA_OUT_LINK, ADDR);
++    const uint32_t start = addr;
++    uint32_t consumed = 0;
++
++    /*
++     * This is a read-only view of the descriptor ring. Peripheral models use
++     * it to observe data written by the guest without clearing owner bits or
++     * advancing GDMA state.
++     */
++    for (int i = 0; addr && i < 256 && consumed < size; i++) {
++        GdmaLinkedList desc;
++        uint32_t copy;
++
++        if (!esp_gdma_read_descr(s, addr, &desc)) {
++            break;
++        }
++        copy = MIN(desc.config.length, size - consumed);
++        if (copy && !esp_gdma_read_guest(s, desc.buf_addr,
++                                         buffer + consumed, copy)) {
++            break;
++        }
++        consumed += copy;
++        if (!desc.next_addr || desc.next_addr == start) {
++            break;
++        }
++        addr = desc.next_addr;
++    }
++    return consumed;
++}
++
+ 
+ /**
+  * @brief Write data to the guest RAM pointed by the linked list configured in the given DmaConfigState index.
+@@ -866,6 +923,18 @@ void esp_gdma_write_chan_register(ESPGdmaState* s, uint32_t dir, uint32_t chan,
+     }
+ }
+ 
++void esp_gdma_set_chan_interrupt(ESPGdmaState *s, uint32_t dir, uint32_t chan,
++                                 uint32_t mask)
++{
++    ESPGdmaClass *class = ESP_GDMA_GET_CLASS(s);
++    assert(s != NULL && chan < class->m_channel_count && dir < ESP_GDMA_CONF_COUNT);
++    if (getenv("M5SW_GDMA_TRACE")) {
++        DmaIntState *st = &s->ch_conf[dir][chan].int_state;
++        fprintf(stderr, "[gdma] set irq dir=%u chan=%u mask=%02x ena=%02x raw=%02x\n",
++                dir, chan, mask, st->ena, st->raw);
++    }
++    esp_gdma_set_status(&s->ch_conf[dir][chan].int_state, mask);
++}
+ 
+ void esp_gdma_write_register(ESPGdmaState* s, DmaRegister reg, uint32_t value)
+ {
+diff --git a/hw/m5stopwatch/esp32s3_i2c.c b/hw/m5stopwatch/esp32s3_i2c.c
+index a4f6d61..5f61ef6 100644
+--- a/hw/m5stopwatch/esp32s3_i2c.c
++++ b/hw/m5stopwatch/esp32s3_i2c.c
+@@ -83,6 +83,7 @@ static void s3i2c_end_xfer(Esp32s3I2CState *s)
+ 
+ static void s3i2c_run(Esp32s3I2CState *s)
+ {
++    m5stopwatch_soft_i2c_set_hardware_active();
+     for (int i = 0; i < 8; i++) {
+         uint32_t c = s->cmd[i];
+         int op = (c >> 11) & 7;
+@@ -91,7 +92,14 @@ static void s3i2c_run(Esp32s3I2CState *s)
+         switch (op) {
+         case OP_RSTART:
+             if (s->in_xfer) {
+-                /* repeated start: QEMU core supports start without end */
++                /*
++                 * QEMU has no distinct repeated-start callback.  A FINISH
++                 * followed by a fresh START keeps the slave register pointer
++                 * intact while clearing any stale bus ownership from a
++                 * preceding NACK/read transaction.
++                 */
++                i2c_end_transfer(s->bus);
++                s->in_xfer = false;
+             }
+             s->need_addr = true;
+             s->nacked = false;
+@@ -102,6 +110,10 @@ static void s3i2c_run(Esp32s3I2CState *s)
+                 if (tx_cnt(s)) {
+                     b = s->txfifo[s->tx_rd++ % I2C_FIFO_LEN];
+                 }
++                if (getenv("M5SW_I2C_CTRL_TRACE")) {
++                    fprintf(stderr, "[i2c-ctrl] write[%d/%d]=%02x need_addr=%d tx=%u/%u\n",
++                            k, n, b, s->need_addr, s->tx_rd, s->tx_wr);
++                }
+                 if (s->need_addr) {
+                     s->need_addr = false;
+                     bool recv = b & 1;
+@@ -184,9 +196,28 @@ static uint64_t s3i2c_read(void *opaque, hwaddr addr, unsigned size)
+     case R_DATE:
+         return 0x20070201;
+     case R_TXFIFO_MEM ... R_TXFIFO_MEM + 0x7f:
+-        return s->txfifo[((addr - R_TXFIFO_MEM) / 4) % I2C_FIFO_LEN];
++        /*
++         * The FIFO RAM is byte-addressed even though ESP-IDF normally accesses
++         * it with 32-bit loads/stores.  Return a little-endian word so a driver
++         * can move up to four queued bytes per access.
++         */
++        {
++            hwaddr off = addr - R_TXFIFO_MEM;
++            uint32_t value = 0;
++            for (unsigned i = 0; i < 4 && off + i < I2C_FIFO_LEN; i++) {
++                value |= (uint32_t)s->txfifo[off + i] << (i * 8);
++            }
++            return value;
++        }
+     case R_RXFIFO_MEM ... R_RXFIFO_MEM + 0x7f:
+-        return s->rxfifo[((addr - R_RXFIFO_MEM) / 4) % I2C_FIFO_LEN];
++        {
++            hwaddr off = addr - R_RXFIFO_MEM;
++            uint32_t value = 0;
++            for (unsigned i = 0; i < 4 && off + i < s->rx_wr; i++) {
++                value |= (uint32_t)s->rxfifo[off + i] << (i * 8);
++            }
++            return value;
++        }
+     default:
+         if (addr < 0x100) {
+             return s->regs[addr / 4];
+@@ -242,11 +273,15 @@ static void s3i2c_write(void *opaque, hwaddr addr, uint64_t val, unsigned size)
+         s->cmd[(addr - R_COMD0) / 4] = val;
+         break;
+     case R_TXFIFO_MEM ... R_TXFIFO_MEM + 0x7f: {
+-        uint32_t idx = (addr - R_TXFIFO_MEM) / 4;
+-        if (idx < I2C_FIFO_LEN) {
+-            s->txfifo[idx] = val;
+-            if (idx + 1 > s->tx_wr) {
+-                s->tx_wr = idx + 1;
++        hwaddr off = addr - R_TXFIFO_MEM;
++        if (getenv("M5SW_I2C_CTRL_TRACE")) {
++            fprintf(stderr, "[i2c-ctrl] txfifo[%03lx]=%08lx\n",
++                    (unsigned long)off, (unsigned long)val);
++        }
++        for (unsigned i = 0; i < 4 && off + i < I2C_FIFO_LEN; i++) {
++            s->txfifo[off + i] = (val >> (i * 8)) & 0xff;
++            if (off + i + 1 > s->tx_wr) {
++                s->tx_wr = off + i + 1;
+             }
+         }
+         break;
+diff --git a/hw/m5stopwatch/esp32s3_soft_i2c.c b/hw/m5stopwatch/esp32s3_soft_i2c.c
+index a972537..1ced298 100644
+--- a/hw/m5stopwatch/esp32s3_soft_i2c.c
++++ b/hw/m5stopwatch/esp32s3_soft_i2c.c
+@@ -49,6 +49,9 @@ typedef struct M5StopwatchSoftI2C {
+     uint8_t rx;
+ } M5StopwatchSoftI2C;
+ 
++static bool soft_i2c_hardware_active;
++static M5StopwatchSoftI2C *soft_i2c_instance;
++
+ static void soft_i2c_trace(const char *fmt, ...)
+ {
+     va_list ap;
+@@ -89,6 +92,21 @@ static void soft_i2c_line(void *opaque, int pin, int level)
+     int old_sda = s->sda;
+     int old_scl = s->scl;
+ 
++    /*
++     * M5GFX first bit-bangs the bus to identify the board, then hands the
++     * same pins to the ESP32-S3 I2C controller.  Keep decoding only through
++     * the hand-off: otherwise every hardware waveform is mirrored into the
++     * same QEMU I2CBus and corrupts the controller transaction.
++     */
++    if (soft_i2c_hardware_active) {
++        if (pin == s->sda_pin) {
++            s->sda = level;
++        } else if (pin == s->scl_pin) {
++            s->scl = level;
++        }
++        return;
++    }
++
+     if (pin == s->sda_pin) {
+         s->sda = level;
+     } else if (pin == s->scl_pin) {
+@@ -261,9 +279,26 @@ void m5stopwatch_soft_i2c_init_pins(I2CBus *bus, int sda_pin, int scl_pin)
+     esp32_gpio_set_open_drain(scl_pin, true);
+     esp32_gpio_add_out_listener(sda_pin, soft_i2c_line, s);
+     esp32_gpio_add_out_listener(scl_pin, soft_i2c_line, s);
++    soft_i2c_instance = s;
+ }
+ 
+ void m5stopwatch_soft_i2c_init(I2CBus *bus)
+ {
+     m5stopwatch_soft_i2c_init_pins(bus, 47, 48);
+ }
++
++void m5stopwatch_soft_i2c_set_hardware_active(void)
++{
++    if (!soft_i2c_hardware_active && soft_i2c_instance) {
++        /*
++         * QEMU can still have current_devs after a partially decoded
++         * bit-banged transaction even if the decoder no longer thinks it is
++         * in a transfer.  Always close the QEMU bus at the hand-off.
++         */
++        i2c_end_transfer(soft_i2c_instance->bus);
++        soft_i2c_instance->in_xfer = false;
++        soft_i2c_instance->active = false;
++        soft_i2c_instance->state = SOFT_I2C_IDLE;
++    }
++    soft_i2c_hardware_active = true;
++}
+diff --git a/hw/m5stopwatch/m5_epd_panel.c b/hw/m5stopwatch/m5_epd_panel.c
+index 5cc5d49..f68c9ed 100644
+--- a/hw/m5stopwatch/m5_epd_panel.c
++++ b/hw/m5stopwatch/m5_epd_panel.c
+@@ -179,7 +179,11 @@ static void m5_epd_input(DeviceState *dev, QemuConsole *src, InputEvent *evt)
+             pin = s->key_c_pin;
+         }
+         if (pin != UINT32_MAX) {
+-            esp32_gpio_set_input(pin, !down);
++            /*
++             * Buttons are external mechanical pulls.  Force the line so an
++             * output latch left enabled by the guest cannot mask a press.
++             */
++            esp32_gpio_force_line(pin, !down);
+             if (getenv("M5SW_EPD_INPUT_TRACE")) {
+                 fprintf(stderr, "[m5epd-input] pin=%u level=%d line=%d\n",
+                         pin, !down, esp32_gpio_get_line(pin));
+@@ -239,6 +243,15 @@ static void m5_epd_realize(DeviceState *dev, Error **errp)
+     esp32_gpio_set_input(s->busy_pin, s->busy_ready_level);
+     esp32_gpio_set_open_drain(s->busy_pin, true);
+     esp32_gpio_force_line(s->busy_pin, s->busy_ready_level);
++    if (s->key_a_pin != UINT32_MAX) {
++        esp32_gpio_force_line(s->key_a_pin, 1);
++    }
++    if (s->key_b_pin != UINT32_MAX) {
++        esp32_gpio_force_line(s->key_b_pin, 1);
++    }
++    if (s->key_c_pin != UINT32_MAX) {
++        esp32_gpio_force_line(s->key_c_pin, 1);
++    }
+     s->con = graphic_console_init(dev, 0, &m5_epd_ops, s);
+     qemu_console_resize(s->con, s->out_w, s->out_h);
+     QemuInputHandlerState *hs = qemu_input_handler_register(dev, &m5_epd_input_handler);
+diff --git a/hw/m5stopwatch/m5_i2s.c b/hw/m5stopwatch/m5_i2s.c
+new file mode 100644
+index 0000000..55c1e77
+--- /dev/null
++++ b/hw/m5stopwatch/m5_i2s.c
+@@ -0,0 +1,325 @@
++/*
++ * ESP32-S3 I2S register front-end.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/timer.h"
++#include "hw/dma/esp_gdma.h"
++#include "hw/irq.h"
++#include "hw/sysbus.h"
++#include "hw/xtensa/esp32s3_intc.h"
++#include "m5stopwatch.h"
++
++#define R_INT_RAW  0x0c
++#define R_INT_ST   0x10
++#define R_INT_ENA  0x14
++#define R_INT_CLR  0x18
++#define R_RX_CONF  0x20
++#define R_TX_CONF  0x24
++#define RX_UPDATE  (1u << 8)
++#define TX_UPDATE  (1u << 8)
++#define RX_START   (1u << 2)
++#define TX_START   (1u << 2)
++
++struct M5I2SState {
++    SysBusDevice parent_obj;
++    MemoryRegion iomem;
++    qemu_irq irq;
++    uint32_t regs[0x1000 / 4];
++    uint32_t int_ena;
++    uint32_t int_raw;
++    ESPGdmaState *gdma;
++    uint32_t port;
++    FILE *pcm_file;
++    uint64_t pcm_bytes;
++    uint64_t pcm_limit;
++    uint32_t last_pcm_hash;
++    uint32_t pcm_writes;
++    QEMUTimer *tx_timer;
++    int64_t capture_until_ms;
++    int64_t dma_due_ms;
++    uint32_t dma_events;
++    bool dma_irq;
++    bool tx_started;
++    bool trace;
++};
++
++static void i2s_update_irq(M5I2SState *s)
++{
++    qemu_set_irq(s->irq, !!(s->int_raw & s->int_ena));
++}
++
++static uint64_t i2s_read(void *opaque, hwaddr addr, unsigned size)
++{
++    M5I2SState *s = opaque;
++    switch (addr) {
++    case R_INT_RAW:
++        return s->int_raw;
++    case R_INT_ST:
++        return s->int_raw & s->int_ena;
++    case R_INT_ENA:
++        return s->int_ena;
++    default:
++        return addr < sizeof(s->regs) ? s->regs[addr / 4] : 0;
++    }
++}
++
++static void i2s_capture_tx(M5I2SState *s)
++{
++    uint32_t channel;
++    uint32_t bytes;
++    GdmaPeripheral periph = s->port ? GDMA_I2S1 : GDMA_I2S0;
++
++    if (!s->gdma
++        || !esp_gdma_get_channel_periph(s->gdma, periph,
++                                         ESP_GDMA_OUT_IDX, &channel)) {
++        return;
++    }
++    bytes = esp_gdma_get_out_transfer_size(s->gdma, channel, 1 << 20);
++    if (!bytes) {
++        return;
++    }
++    if (s->trace) {
++        fprintf(stderr, "[i2s%d] dma start bytes=%u\n", s->port, bytes);
++    }
++}
++
++static void i2s_complete_dma(M5I2SState *s)
++{
++    const uint32_t snapshot_size = 1 << 20;
++    uint32_t channel;
++    uint32_t bytes;
++    g_autofree uint8_t *buffer = NULL;
++    GdmaPeripheral periph = s->port ? GDMA_I2S1 : GDMA_I2S0;
++
++    if (!s->gdma
++        || !esp_gdma_get_channel_periph(s->gdma, periph,
++                                         ESP_GDMA_OUT_IDX, &channel)) {
++        return;
++    }
++    bytes = esp_gdma_get_out_transfer_size(s->gdma, channel, snapshot_size);
++    if (!bytes) {
++        return;
++    }
++    buffer = g_malloc0(bytes);
++    if (!esp_gdma_read_channel(s->gdma, channel, buffer, bytes)) {
++        return;
++    }
++    esp_gdma_set_chan_interrupt(s->gdma, ESP_GDMA_OUT_IDX, channel,
++                                R_GDMA_INTERRUPT_OUT_EOF_MASK);
++    s->dma_events++;
++}
++
++static uint32_t i2s_hash(const uint8_t *data, uint32_t size)
++{
++    uint32_t hash = 2166136261u;
++    for (uint32_t i = 0; i < size; i++) {
++        hash ^= data[i];
++        hash *= 16777619u;
++    }
++    return hash;
++}
++
++static void i2s_tx_timer(void *opaque)
++{
++    M5I2SState *s = opaque;
++    const uint32_t snapshot_size = 1 << 20;
++    g_autofree uint8_t *buffer = NULL;
++    uint32_t channel;
++    uint32_t bytes;
++    uint32_t hash;
++    bool any_nonzero = false;
++    GdmaPeripheral periph = s->port ? GDMA_I2S1 : GDMA_I2S0;
++
++    if (qemu_clock_get_ms(QEMU_CLOCK_REALTIME) >= s->capture_until_ms
++        || s->pcm_writes >= 8) {
++        return;
++    }
++    timer_mod(s->tx_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1);
++    if (s->dma_irq && s->dma_events < 128
++        && qemu_clock_get_ms(QEMU_CLOCK_REALTIME) >= s->dma_due_ms) {
++        i2s_complete_dma(s);
++        s->dma_due_ms = qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 20;
++    }
++    if (!s->gdma
++        || !esp_gdma_get_channel_periph(s->gdma, periph,
++                                         ESP_GDMA_OUT_IDX, &channel)) {
++        return;
++    }
++
++    buffer = g_malloc(snapshot_size);
++    bytes = esp_gdma_snapshot_out_channel(s->gdma, channel, buffer,
++                                          snapshot_size);
++    if (s->trace) {
++        fprintf(stderr, "[i2s%d] timer snapshot bytes=%u writes=%u\n",
++                s->port, bytes, s->pcm_writes);
++    }
++    if (!bytes) {
++        return;
++    }
++    for (uint32_t i = 0; i < bytes; i++) {
++        if (buffer[i]) {
++            any_nonzero = true;
++            break;
++        }
++    }
++    if (!any_nonzero) {
++        return;
++    }
++    hash = i2s_hash(buffer, bytes);
++    if (!s->pcm_writes) {
++        const char *path = getenv("M5SW_I2S_PCM_FILE");
++        if (path) {
++            s->pcm_file = fopen(path, "wb");
++        }
++    }
++    if (hash == s->last_pcm_hash && s->pcm_writes) {
++        return;
++    }
++    if (s->pcm_file && s->pcm_bytes < s->pcm_limit) {
++        uint32_t write_size = MIN(bytes, s->pcm_limit - s->pcm_bytes);
++        fwrite(buffer, 1, write_size, s->pcm_file);
++        fflush(s->pcm_file);
++        s->pcm_bytes += write_size;
++        s->pcm_writes++;
++        s->last_pcm_hash = hash;
++    }
++    if (s->trace) {
++        fprintf(stderr,
++                "[i2s%d] tx snapshot bytes=%u total=%" PRIu64
++                " writes=%u hash=%08x\n",
++                s->port, bytes, s->pcm_bytes, s->pcm_writes, hash);
++    }
++}
++
++static void i2s_write(void *opaque, hwaddr addr, uint64_t value,
++                      unsigned size)
++{
++    M5I2SState *s = opaque;
++    uint32_t v = value;
++
++    if (s->trace) {
++        fprintf(stderr, "[i2s] wr %03x <- %08x\n",
++                (unsigned)addr, v);
++    }
++    switch (addr) {
++    case R_INT_ENA:
++        s->int_ena = v;
++        i2s_update_irq(s);
++        break;
++    case R_INT_CLR:
++        s->int_raw &= ~v;
++        i2s_update_irq(s);
++        break;
++    case R_RX_CONF:
++        s->regs[addr / 4] = v & ~RX_UPDATE;
++        break;
++    case R_TX_CONF:
++        if ((v & TX_START) && !s->tx_started) {
++            i2s_capture_tx(s);
++            s->pcm_writes = 0;
++            s->last_pcm_hash = 0;
++            s->dma_events = 0;
++            s->capture_until_ms =
++                qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 2000;
++            s->dma_due_ms = qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 500;
++            timer_mod(s->tx_timer,
++                      qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1);
++        }
++        s->tx_started = !!(v & TX_START);
++        s->regs[addr / 4] = v & ~TX_UPDATE;
++        break;
++    default:
++        if (addr < sizeof(s->regs)) {
++            s->regs[addr / 4] = v;
++        }
++        break;
++    }
++}
++
++static const MemoryRegionOps i2s_ops = {
++    .read = i2s_read,
++    .write = i2s_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 1,
++    .valid.max_access_size = 4,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
++static void i2s_reset(DeviceState *dev)
++{
++    M5I2SState *s = M5_I2S(dev);
++    memset(s->regs, 0, sizeof(s->regs));
++    s->int_ena = 0;
++    s->int_raw = 0;
++    s->tx_started = false;
++    if (s->tx_timer) {
++        timer_del(s->tx_timer);
++    }
++}
++
++static void i2s_init(Object *obj)
++{
++    M5I2SState *s = M5_I2S(obj);
++    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
++    memory_region_init_io(&s->iomem, obj, &i2s_ops, s, TYPE_M5_I2S, 0x1000);
++    sysbus_init_mmio(sbd, &s->iomem);
++    sysbus_init_irq(sbd, &s->irq);
++    s->trace = getenv("M5SW_I2S_TRACE") != NULL;
++    s->dma_irq = getenv("M5SW_I2S_DMA_IRQ") != NULL;
++    s->pcm_limit = 4 << 20;
++    s->tx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, i2s_tx_timer, s);
++}
++
++void m5_i2s_attach(DeviceState *dev, ESPGdmaState *gdma, uint32_t port)
++{
++    M5I2SState *s = M5_I2S(dev);
++    s->gdma = gdma;
++    s->port = port;
++}
++
++static void i2s_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    device_class_set_legacy_reset(dc, i2s_reset);
++}
++
++static const TypeInfo i2s_info = {
++    .name = TYPE_M5_I2S,
++    .parent = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(M5I2SState),
++    .instance_init = i2s_init,
++    .class_init = i2s_class_init,
++};
++
++static void i2s_register(void)
++{
++    type_register_static(&i2s_info);
++}
++type_init(i2s_register)
++
++void m5_i2s_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                       ESPGdmaState *gdma)
++{
++    static const struct {
++        hwaddr base;
++        int irq_source;
++    } ports[] = {
++        { 0x6000f000, ETS_I2S0_INTR_SOURCE },
++        { 0x6002d000, ETS_I2S1_INTR_SOURCE },
++    };
++
++    for (int i = 0; i < ARRAY_SIZE(ports); i++) {
++        DeviceState *dev = qdev_new(TYPE_M5_I2S);
++        m5_i2s_attach(dev, gdma, i);
++        sysbus_realize_and_unref(SYS_BUS_DEVICE(dev), &error_fatal);
++        memory_region_add_subregion_overlap(
++            sys_mem, ports[i].base,
++            sysbus_mmio_get_region(SYS_BUS_DEVICE(dev), 0), 1);
++        sysbus_connect_irq(
++            SYS_BUS_DEVICE(dev), 0,
++            qdev_get_gpio_in(intmatrix, ports[i].irq_source));
++    }
++}
+diff --git a/hw/m5stopwatch/m5_lcd_cam.c b/hw/m5stopwatch/m5_lcd_cam.c
+new file mode 100644
+index 0000000..4f698e0
+--- /dev/null
++++ b/hw/m5stopwatch/m5_lcd_cam.c
+@@ -0,0 +1,269 @@
++/*
++ * Minimal ESP32-S3 LCD_CAM camera front-end.
++ *
++ * The camera sensor is configured through SCCB by the guest.  This model
++ * supplies deterministic RGB565 frames through the real LCD_CAM interrupt
++ * and GDMA RX descriptor path used by esp32-camera.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/timer.h"
++#include "hw/dma/esp_gdma.h"
++#include "hw/irq.h"
++#include "hw/sysbus.h"
++#include "m5stopwatch.h"
++
++#define R_CAM_CTRL   0x04
++#define R_CAM_CTRL1  0x08
++#define R_CAM_RGB    0x0c
++#define R_INT_ENA    0x64
++#define R_INT_RAW    0x68
++#define R_INT_ST     0x6c
++#define R_INT_CLR    0x70
++#define CAM_UPDATE   (1u << 4)
++#define CAM_START    (1u << 29)
++#define CAM_RESET    (1u << 30)
++#define CAM_AFIFO_RST (1u << 31)
++#define CAM_VSYNC_INT (1u << 2)
++
++struct M5LcdCamState {
++    SysBusDevice parent_obj;
++    MemoryRegion iomem;
++    qemu_irq irq;
++    ESPGdmaState *gdma;
++    uint32_t regs[0x100 / 4];
++    uint32_t int_ena;
++    uint32_t int_raw;
++    uint32_t width;
++    uint32_t height;
++    uint32_t frame_offset;
++    uint32_t frame_bytes;
++    uint32_t chunk_len;
++    uint32_t chunks_left;
++    uint8_t *frame_data;
++    uint32_t frame_data_size;
++    bool started;
++    QEMUTimer *capture_timer;
++};
++
++static void lcd_cam_update_irq(M5LcdCamState *s)
++{
++    qemu_set_irq(s->irq, !!(s->int_raw & s->int_ena));
++}
++
++static uint16_t camera_pattern_pixel(M5LcdCamState *s, uint32_t pixel)
++{
++    uint32_t area = MAX(1u, s->width * s->height);
++    uint32_t p = pixel % area;
++    uint32_t x = p % MAX(1u, s->width);
++    uint32_t y = p / MAX(1u, s->width);
++    uint8_t r, g, b;
++
++    if (y < MAX(1u, s->height / 4)) {
++        r = 235; g = 48; b = 48;
++    } else if (y < MAX(1u, s->height / 2)) {
++        r = 235; g = 190; b = 35;
++    } else if (y < MAX(1u, (s->height * 3) / 4)) {
++        r = 40; g = 190; b = 80;
++    } else {
++        r = 35; g = 105; b = 235;
++    }
++    if ((x % 40) < 2 || (y % 40) < 2) {
++        r = g = b = 245;
++    }
++    return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
++}
++
++static void lcd_cam_fill_frame(M5LcdCamState *s, uint8_t *data, uint32_t len)
++{
++    uint32_t frame_bytes = MAX(2u, s->width * s->height * 2);
++    if (s->frame_data && s->frame_data_size >= frame_bytes) {
++        for (uint32_t i = 0; i < len; i++) {
++            data[i] = s->frame_data[(s->frame_offset + i) % frame_bytes];
++        }
++        s->frame_offset = (s->frame_offset + len) % frame_bytes;
++        return;
++    }
++    for (uint32_t i = 0; i < len; i += 2) {
++        uint32_t offset = (s->frame_offset + i) % frame_bytes;
++        uint16_t pixel = camera_pattern_pixel(s, offset / 2);
++        data[i] = pixel & 0xff;
++        if (i + 1 < len) {
++            data[i + 1] = pixel >> 8;
++        }
++    }
++    s->frame_offset = (s->frame_offset + len) % frame_bytes;
++}
++
++static void lcd_cam_capture(M5LcdCamState *s)
++{
++    uint32_t channel;
++    uint32_t len = s->chunk_len;
++    g_autofree uint8_t *data = g_malloc0(len);
++
++    if (!(s->int_ena & CAM_VSYNC_INT)) {
++        timer_mod(s->capture_timer,
++                  qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
++        return;
++    }
++
++    lcd_cam_fill_frame(s, data, len);
++    if (s->gdma) {
++        bool found = esp_gdma_get_channel_periph(
++            s->gdma, GDMA_LCDCAM, ESP_GDMA_IN_IDX, &channel);
++        if (!found) {
++            if (getenv("M5SW_CAMERA_TRACE")) {
++                fprintf(stderr, "[lcd-cam] waiting for camera GDMA channel\n");
++            }
++            timer_mod(s->capture_timer,
++                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 10);
++            return;
++        }
++        if (s->chunks_left) {
++            esp_gdma_write_channel(s->gdma, channel, data, len);
++            esp_gdma_set_chan_interrupt(s->gdma, ESP_GDMA_IN_IDX, channel,
++                                        R_GDMA_INTERRUPT_IN_SUC_EOF_MASK);
++            s->chunks_left--;
++            timer_mod(s->capture_timer,
++                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
++        } else {
++            s->int_raw |= CAM_VSYNC_INT;
++            lcd_cam_update_irq(s);
++            if (getenv("M5SW_CAMERA_TRACE")) {
++                fprintf(stderr, "[lcd-cam] frame complete bytes=%u\n",
++                        s->frame_bytes);
++            }
++        }
++    }
++}
++
++static uint64_t lcd_cam_read(void *opaque, hwaddr addr, unsigned size)
++{
++    M5LcdCamState *s = opaque;
++    switch (addr) {
++    case R_INT_ENA:
++        return s->int_ena;
++    case R_INT_RAW:
++        return s->int_raw;
++    case R_INT_ST:
++        return s->int_raw & s->int_ena;
++    default:
++        return addr < sizeof(s->regs) ? s->regs[addr / 4] : 0;
++    }
++}
++
++static void lcd_cam_write(void *opaque, hwaddr addr, uint64_t value,
++                          unsigned size)
++{
++    M5LcdCamState *s = opaque;
++    uint32_t v = value;
++
++    switch (addr) {
++    case R_CAM_CTRL:
++        s->regs[addr / 4] = v & ~CAM_UPDATE;
++        break;
++    case R_CAM_CTRL1: {
++        bool start = !!(v & CAM_START);
++        bool rising = start && !s->started;
++        s->regs[addr / 4] = v & ~(CAM_RESET | CAM_AFIFO_RST);
++        s->started = start;
++        if (rising) {
++            s->frame_bytes = MAX(2u, s->width * s->height * 2);
++            s->chunk_len = (v & 0xffff) + 1;
++            s->chunks_left = (s->frame_bytes + s->chunk_len - 1)
++                           / s->chunk_len;
++            s->frame_offset = 0;
++            lcd_cam_capture(s);
++        }
++        break;
++    }
++    case R_INT_ENA:
++        s->int_ena = v;
++        lcd_cam_update_irq(s);
++        break;
++    case R_INT_CLR:
++        s->int_raw &= ~v;
++        lcd_cam_update_irq(s);
++        break;
++    default:
++        if (addr < sizeof(s->regs)) {
++            s->regs[addr / 4] = v;
++        }
++        break;
++    }
++}
++
++static const MemoryRegionOps lcd_cam_ops = {
++    .read = lcd_cam_read,
++    .write = lcd_cam_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 1,
++    .valid.max_access_size = 4,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
++static void lcd_cam_reset(DeviceState *dev)
++{
++    M5LcdCamState *s = M5_LCD_CAM(dev);
++    memset(s->regs, 0, sizeof(s->regs));
++    s->int_ena = 0;
++    s->int_raw = 0;
++    s->frame_offset = 0;
++    s->frame_bytes = 0;
++    s->chunk_len = 0;
++    s->chunks_left = 0;
++    s->started = false;
++}
++
++static void lcd_cam_init(Object *obj)
++{
++    M5LcdCamState *s = M5_LCD_CAM(obj);
++    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
++    memory_region_init_io(&s->iomem, obj, &lcd_cam_ops, s,
++                          TYPE_M5_LCD_CAM, 0x1000);
++    sysbus_init_mmio(sbd, &s->iomem);
++    sysbus_init_irq(sbd, &s->irq);
++    s->capture_timer = timer_new_ms(QEMU_CLOCK_VIRTUAL,
++                                    (QEMUTimerCB *)lcd_cam_capture, s);
++}
++
++static void lcd_cam_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    device_class_set_legacy_reset(dc, lcd_cam_reset);
++}
++
++static const TypeInfo lcd_cam_info = {
++    .name = TYPE_M5_LCD_CAM,
++    .parent = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(M5LcdCamState),
++    .instance_init = lcd_cam_init,
++    .class_init = lcd_cam_class_init,
++};
++
++static void lcd_cam_register(void)
++{
++    type_register_static(&lcd_cam_info);
++}
++type_init(lcd_cam_register)
++
++void m5_lcd_cam_attach(DeviceState *dev, ESPGdmaState *gdma,
++                       uint32_t width, uint32_t height)
++{
++    M5LcdCamState *s = M5_LCD_CAM(dev);
++    s->gdma = gdma;
++    s->width = width;
++    s->height = height;
++    const char *frame_path = getenv("M5SW_CAMERA_FRAME");
++    if (frame_path) {
++        gsize size = 0;
++        if (!g_file_get_contents(frame_path, (gchar **)&s->frame_data,
++                                 &size, NULL)) {
++            s->frame_data = NULL;
++            size = 0;
++        }
++        s->frame_data_size = MIN(size, UINT32_MAX);
++    }
++}
+diff --git a/hw/m5stopwatch/m5_rmt.c b/hw/m5stopwatch/m5_rmt.c
+new file mode 100644
+index 0000000..2fd3c85
+--- /dev/null
++++ b/hw/m5stopwatch/m5_rmt.c
+@@ -0,0 +1,284 @@
++/*
++ * ESP32-S3 RMT APB and hardware-memory model.
++ *
++ * The UIFlow2 IR stack uses the new RMT driver in non-DMA mode: the encoder
++ * writes rmt_symbol_word_t entries into RMTMEM, starts the channel through
++ * CHnCONF0, and waits for the TX_END interrupt. This model implements that
++ * data path and records transmitted symbols for host-side assertions.
++ *
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ */
++#include "qemu/osdep.h"
++#include "qemu/timer.h"
++#include "hw/irq.h"
++#include "hw/misc/esp32s3_reg.h"
++#include "hw/sysbus.h"
++#include "hw/xtensa/esp32s3_intc.h"
++#include "m5stopwatch.h"
++
++#define RMT_MEM_OFFSET      0x800
++#define RMT_MEM_SIZE        0x800
++#define RMT_TX_CHANNELS     4
++#define RMT_SYMBOLS_PER_CH  48
++
++#define RMT_CH0CONF0        0x20
++#define RMT_CH4CONF0        0x30
++#define RMT_CH4STATUS       0x60
++#define RMT_INT_RAW         0x70
++#define RMT_INT_ST          0x74
++#define RMT_INT_ENA         0x78
++#define RMT_INT_CLR         0x7c
++
++struct M5RmtState {
++    SysBusDevice parent_obj;
++    MemoryRegion mmio;
++    MemoryRegion mem;
++    qemu_irq irq;
++    uint32_t regs[RMT_MEM_OFFSET / 4];
++    uint32_t symbols[RMT_MEM_SIZE / 4];
++    uint32_t int_ena;
++    uint32_t int_raw;
++    QEMUTimer *tx_timer;
++    QEMUTimer *rx_timer;
++    FILE *tx_file;
++    uint32_t pending_mask;
++    uint32_t rx_pending_mask;
++    bool rx_injected[4];
++    bool trace;
++};
++
++static void rmt_update_irq(M5RmtState *s)
++{
++    qemu_set_irq(s->irq, !!(s->int_raw & s->int_ena));
++}
++
++static void rmt_capture_tx(M5RmtState *s, uint32_t channel)
++{
++    uint32_t conf = s->regs[(RMT_CH0CONF0 + channel * 4) / 4];
++    uint32_t blocks = MAX((conf >> 16) & 0xf, 1);
++    uint32_t count = 0;
++    uint32_t limit = MIN(blocks * RMT_SYMBOLS_PER_CH,
++                         RMT_SYMBOLS_PER_CH);
++    uint32_t base = channel * RMT_SYMBOLS_PER_CH;
++
++    for (uint32_t i = 0; i < limit; i++) {
++        uint32_t symbol = s->symbols[base + i];
++        if ((symbol & 0x7fff) == 0
++            && ((symbol >> 16) & 0x7fff) == 0) {
++            break;
++        }
++        count++;
++    }
++    if (!s->tx_file) {
++        const char *path = getenv("M5SW_RMT_TX_FILE");
++        if (path) {
++            s->tx_file = fopen(path, "wb");
++        }
++    }
++    if (s->tx_file && count) {
++        fwrite(&s->symbols[base], sizeof(uint32_t), count, s->tx_file);
++        fflush(s->tx_file);
++    }
++    if (s->trace) {
++        fprintf(stderr, "[rmt] tx channel=%u symbols=%u blocks=%u\n",
++                channel, count, blocks);
++    }
++
++    s->int_raw |= 1u << channel;
++    rmt_update_irq(s);
++}
++
++static void rmt_tx_timer(void *opaque)
++{
++    M5RmtState *s = opaque;
++    uint32_t pending = s->pending_mask;
++    s->pending_mask = 0;
++
++    for (uint32_t channel = 0; channel < RMT_TX_CHANNELS; channel++) {
++        if (pending & (1u << channel)) {
++            rmt_capture_tx(s, channel);
++        }
++    }
++}
++
++static void rmt_rx_timer(void *opaque)
++{
++    M5RmtState *s = opaque;
++    uint32_t pending = s->rx_pending_mask;
++    s->rx_pending_mask = 0;
++
++    for (uint32_t channel = 0; channel < 4; channel++) {
++        if (pending & (1u << channel)) {
++            s->int_raw |= 1u << (16 + channel);
++        }
++    }
++    rmt_update_irq(s);
++}
++
++static void rmt_inject_rx(M5RmtState *s, uint32_t channel)
++{
++    const char *path = getenv("M5SW_RMT_RX_FILE");
++    g_autofree uint8_t *data = NULL;
++    gsize size = 0;
++    uint32_t count;
++
++    if (!path || s->rx_injected[channel]) {
++        return;
++    }
++    if (!g_file_get_contents(path, (gchar **)&data, &size, NULL)) {
++        return;
++    }
++    count = MIN(size / sizeof(uint32_t), RMT_SYMBOLS_PER_CH);
++    memcpy(&s->symbols[(4 + channel) * RMT_SYMBOLS_PER_CH],
++           data, count * sizeof(uint32_t));
++    /* mem_waddr_ex is an absolute RMTMEM word address; each channel
++     * occupies 48 words on ESP32-S3 and starts at (channel + 4) * 48. */
++    s->regs[(RMT_CH4STATUS + channel * 4) / 4] =
++        (channel + 4) * 48 + count;
++    s->rx_injected[channel] = true;
++    s->rx_pending_mask |= 1u << channel;
++    timer_mod(s->rx_timer,
++              qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 20);
++    if (s->trace) {
++        fprintf(stderr, "[rmt] rx inject channel=%u symbols=%u\n",
++                channel, count);
++    }
++}
++
++static uint64_t rmt_read(void *opaque, hwaddr addr, unsigned size)
++{
++    M5RmtState *s = opaque;
++
++    if (addr == RMT_INT_RAW) {
++        return s->int_raw;
++    }
++    if (addr == RMT_INT_ST) {
++        return s->int_raw & s->int_ena;
++    }
++    if (addr == RMT_INT_ENA) {
++        return s->int_ena;
++    }
++    return addr < RMT_MEM_OFFSET ? s->regs[addr / 4] : 0;
++}
++
++static void rmt_write(void *opaque, hwaddr addr, uint64_t value,
++                      unsigned size)
++{
++    M5RmtState *s = opaque;
++    uint32_t v = value;
++
++    if (s->trace) {
++        fprintf(stderr, "[rmt] wr %03x <- %08x\n", (unsigned)addr, v);
++    }
++    if (addr == RMT_INT_ENA) {
++        s->int_ena = v;
++        rmt_update_irq(s);
++        return;
++    }
++    if (addr == RMT_INT_CLR) {
++        s->int_raw &= ~v;
++        rmt_update_irq(s);
++        return;
++    }
++    if (addr >= RMT_CH0CONF0 && addr < RMT_CH0CONF0 + RMT_TX_CHANNELS * 4) {
++        uint32_t channel = (addr - RMT_CH0CONF0) / 4;
++        s->regs[addr / 4] = v & ~1u;
++        if (v & 1u) {
++            s->pending_mask |= 1u << channel;
++            timer_mod(s->tx_timer,
++                      qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 2);
++        }
++        return;
++    }
++    if (addr >= RMT_CH4CONF0 && addr < RMT_CH4CONF0 + 4 * 8) {
++        uint32_t offset = addr - RMT_CH4CONF0;
++        uint32_t channel = offset / 8;
++        if ((offset % 8) == 4) {
++            bool was_enabled = s->regs[addr / 4] & 1u;
++            s->regs[addr / 4] = v;
++            if (!was_enabled && (v & 1u)) {
++                rmt_inject_rx(s, channel);
++            }
++            return;
++        }
++    }
++    if (addr < RMT_MEM_OFFSET) {
++        s->regs[addr / 4] = v;
++    }
++}
++
++static const MemoryRegionOps rmt_ops = {
++    .read = rmt_read,
++    .write = rmt_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++    .impl.min_access_size = 4,
++    .impl.max_access_size = 4,
++};
++
++static void rmt_reset(DeviceState *dev)
++{
++    M5RmtState *s = M5_RMT(dev);
++    memset(s->regs, 0, sizeof(s->regs));
++    memset(s->symbols, 0, sizeof(s->symbols));
++    s->int_ena = 0;
++    s->int_raw = 0;
++    s->pending_mask = 0;
++    s->rx_pending_mask = 0;
++    memset(s->rx_injected, 0, sizeof(s->rx_injected));
++    timer_del(s->tx_timer);
++    timer_del(s->rx_timer);
++}
++
++static void rmt_init(Object *obj)
++{
++    M5RmtState *s = M5_RMT(obj);
++    SysBusDevice *sbd = SYS_BUS_DEVICE(obj);
++
++    memory_region_init_io(&s->mmio, obj, &rmt_ops, s, TYPE_M5_RMT,
++                          RMT_MEM_OFFSET);
++    memory_region_init_ram_ptr(&s->mem, obj, TYPE_M5_RMT ".mem",
++                               RMT_MEM_SIZE, s->symbols);
++    sysbus_init_mmio(sbd, &s->mmio);
++    sysbus_init_mmio(sbd, &s->mem);
++    sysbus_init_irq(sbd, &s->irq);
++    s->trace = getenv("M5SW_RMT_TRACE") != NULL;
++    s->tx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, rmt_tx_timer, s);
++    s->rx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, rmt_rx_timer, s);
++}
++
++static void rmt_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    device_class_set_legacy_reset(dc, rmt_reset);
++}
++
++static const TypeInfo rmt_info = {
++    .name = TYPE_M5_RMT,
++    .parent = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(M5RmtState),
++    .instance_init = rmt_init,
++    .class_init = rmt_class_init,
++};
++
++static void rmt_register(void)
++{
++    type_register_static(&rmt_info);
++}
++type_init(rmt_register)
++
++void esp32s3_rmt_init(MemoryRegion *sys_mem, DeviceState *intmatrix)
++{
++    DeviceState *dev = qdev_new(TYPE_M5_RMT);
++    object_property_add_child(qdev_get_machine(), "rmt0", OBJECT(dev));
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(dev), &error_fatal);
++    memory_region_add_subregion_overlap(
++        sys_mem, DR_REG_RMT_BASE,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(dev), 0), 1);
++    memory_region_add_subregion_overlap(
++        sys_mem, DR_REG_RMT_BASE + RMT_MEM_OFFSET,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(dev), 1), 1);
++    sysbus_connect_irq(SYS_BUS_DEVICE(dev), 0,
++                       qdev_get_gpio_in(intmatrix, ETS_RMT_INTR_SOURCE));
++}
+diff --git a/hw/m5stopwatch/m5atoms3r.c b/hw/m5stopwatch/m5atoms3r.c
+index c928cd9..2801385 100644
+--- a/hw/m5stopwatch/m5atoms3r.c
++++ b/hw/m5stopwatch/m5atoms3r.c
+@@ -36,11 +36,18 @@ void m5atoms3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     I2CBus *bus = (I2CBus *)qdev_get_child_bus(i2c0, "i2c");
+     esp32s3_i2c_set_bus(i2c1, bus);
+ 
+-    /*
+-     * Keep the first AtomS3R bring-up display/input focused.  The BMI270
+-     * model needs a follow-up fix for the post-soft-reset transaction
+-     * sequence before it can be attached without blocking UIFlow startup.
+-     */
++    static const struct { const char *model; uint8_t addr; } devs[] = {
++        { "bmm150", 0x10 },
++        { "bmi270", 0x68 },
++    };
++    for (int i = 0; i < ARRAY_SIZE(devs); i++) {
++        DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
++        qdev_prop_set_string(d, "model", devs[i].model);
++        qdev_prop_set_uint8(d, "address", devs[i].addr);
++        object_property_add_child(qdev_get_machine(), devs[i].model, OBJECT(d));
++        qdev_realize_and_unref(d, (BusState *)bus, &error_fatal);
++    }
++    m5stopwatch_soft_i2c_init(bus);
+ 
+     DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
+diff --git a/hw/m5stopwatch/m5cardputeradv.c b/hw/m5stopwatch/m5cardputeradv.c
+index 7ff6c93..1349173 100644
+--- a/hw/m5stopwatch/m5cardputeradv.c
++++ b/hw/m5stopwatch/m5cardputeradv.c
+@@ -38,7 +38,8 @@ void m5cardputeradv_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+ 
+     static const struct { const char *model; uint8_t addr; } devs[] = {
+         { "tca8418", 0x34 },
+-        { "bmi270", 0x68 },
++        { "bmi270", 0x69 },
++        { "es8311", 0x18 },
+     };
+     for (int i = 0; i < ARRAY_SIZE(devs); i++) {
+         DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
+diff --git a/hw/m5stopwatch/m5core2.c b/hw/m5stopwatch/m5core2.c
+index 714b8ec..2fbe1ae 100644
+--- a/hw/m5stopwatch/m5core2.c
++++ b/hw/m5stopwatch/m5core2.c
+@@ -21,12 +21,18 @@ void m5core2_board_init(Esp32SocState *s)
+     object_property_add_child(qdev_get_machine(), "axp192", OBJECT(axp));
+     qdev_realize_and_unref(axp, (BusState *)bus0, &error_fatal);
+ 
+-    DeviceState *touch = qdev_new(TYPE_M5SW_I2C_DEV);
+-    qdev_prop_set_string(touch, "model", "ft5x06");
+-    qdev_prop_set_uint8(touch, "address", 0x38);
+-    object_property_add_child(qdev_get_machine(), "core2-ft5x06",
+-                              OBJECT(touch));
+-    qdev_realize_and_unref(touch, (BusState *)bus1, &error_fatal);
++    static const struct { const char *model; uint8_t addr; const char *path; } devs[] = {
++        { "ft5x06", 0x38, "core2-ft5x06" },
++        { "mpu6886", 0x68, "mpu6886" },
++        { "pcf8563", 0x51, "pcf8563" },
++    };
++    for (int i = 0; i < ARRAY_SIZE(devs); i++) {
++        DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
++        qdev_prop_set_string(d, "model", devs[i].model);
++        qdev_prop_set_uint8(d, "address", devs[i].addr);
++        object_property_add_child(qdev_get_machine(), devs[i].path, OBJECT(d));
++        qdev_realize_and_unref(d, (BusState *)bus1, &error_fatal);
++    }
+ 
+     m5stopwatch_soft_i2c_init_pins(bus0, 21, 22);
+     esp32_gpio_set_input(39, 1);
+diff --git a/hw/m5stopwatch/m5cores3.c b/hw/m5stopwatch/m5cores3.c
+index 09f0443..4208822 100644
+--- a/hw/m5stopwatch/m5cores3.c
++++ b/hw/m5stopwatch/m5cores3.c
+@@ -1,6 +1,7 @@
+ /*
+  * M5Stack CoreS3 board glue: ESP32-S3 + ILI9342 320x240 SPI panel,
+- * AXP2101 PMIC, AW9523 GPIO expander and FT5x06-compatible touch.
++ * AXP2101 PMIC, AW9523 GPIO expander, GC0308 camera and
++ * FT5x06-compatible touch.
+  *
+  * SPDX-License-Identifier: GPL-2.0-or-later
+  */
+@@ -39,8 +40,14 @@ void m5cores3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     static const struct { const char *model; uint8_t addr; } devs[] = {
+         { "axp2101", 0x34 },
+         { "aw9523", 0x58 },
++        { "bmm150", 0x10 },
++        { "gc0308", 0x21 },
++        { "ltr553", 0x23 },
++        { "aw88298", 0x36 },
+         { "ft5x06", 0x38 },
+-        { "bmi270", 0x68 },
++        { "pcf8563", 0x51 },
++        { "es7210", 0x40 },
++        { "bmi270", 0x69 },
+         { "rx8130", 0x32 },
+         { "es8311", 0x18 },
+     };
+@@ -53,6 +60,16 @@ void m5cores3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     }
+     m5stopwatch_soft_i2c_init_pins(bus, 12, 11);
+ 
++    DeviceState *cam = qdev_new(TYPE_M5_LCD_CAM);
++    m5_lcd_cam_attach(cam, gdma, 320, 240);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(cam), &error_fatal);
++    memory_region_add_subregion_overlap(
++        sys_mem, 0x60041000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(cam), 0), 1);
++    sysbus_connect_irq(
++        SYS_BUS_DEVICE(cam), 0,
++        qdev_get_gpio_in(intmatrix, ETS_LCD_CAM_INTR_SOURCE));
++
+     DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
+     MemoryRegion *spi_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0);
+diff --git a/hw/m5stopwatch/m5papercolor.c b/hw/m5stopwatch/m5papercolor.c
+index 654a91e..d615f3a 100644
+--- a/hw/m5stopwatch/m5papercolor.c
++++ b/hw/m5stopwatch/m5papercolor.c
+@@ -39,7 +39,9 @@ void m5papercolor_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     static const struct { const char *model; uint8_t addr; } devs[] = {
+         { "m5pm1", 0x6E },
+         { "rx8130", 0x32 },
+-        { "generic", 0x44 },
++        { "es8311", 0x18 },
++        { "es7210", 0x40 },
++        { "sht40", 0x44 },
+     };
+     for (int i = 0; i < ARRAY_SIZE(devs); i++) {
+         DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
+diff --git a/hw/m5stopwatch/m5papermono.c b/hw/m5stopwatch/m5papermono.c
+index 2a5b82b..34cbb8e 100644
+--- a/hw/m5stopwatch/m5papermono.c
++++ b/hw/m5stopwatch/m5papermono.c
+@@ -42,7 +42,7 @@ void m5papermono_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+         { "ft5x06", 0x38 },
+         { "rx8130", 0x32 },
+         { "bmi270", 0x68 },
+-        { "generic", 0x50 },
++        { "st25r3916", 0x50 },
+     };
+     for (int i = 0; i < ARRAY_SIZE(devs); i++) {
+         DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
+@@ -75,6 +75,9 @@ void m5papermono_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     qdev_prop_set_bit(panel, "rotate", true);
+     qdev_prop_set_bit(panel, "touch", true);
+     qdev_prop_set_uint32(panel, "touch-int-pin", 4);
++    qdev_prop_set_uint32(panel, "key-a-pin", 2);
++    qdev_prop_set_uint32(panel, "key-b-pin", 3);
++    qdev_prop_set_uint32(panel, "key-c-pin", UINT32_MAX);
+     qdev_prop_set_uint32(panel, "busy-pin", 18);
+     qdev_prop_set_bit(panel, "busy-ready-level", false);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
+diff --git a/hw/m5stopwatch/m5stackchan.c b/hw/m5stopwatch/m5stackchan.c
+index d0afee8..003b352 100644
+--- a/hw/m5stopwatch/m5stackchan.c
++++ b/hw/m5stopwatch/m5stackchan.c
+@@ -39,12 +39,17 @@ void m5stackchan_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     static const struct { const char *model; uint8_t addr; } devs[] = {
+         { "axp2101", 0x34 },
+         { "aw9523", 0x58 },
++        { "bmm150", 0x10 },
+         { "ft5x06", 0x38 },
+         { "gc0308", 0x21 },
++        { "aw88298", 0x36 },
++        { "es7210", 0x40 },
+         { "m5ioe1_v4", 0x6F },
+-        { "bmi270", 0x68 },
++        { "bmi270", 0x69 },
+         { "rx8130", 0x32 },
+-        { "es8311", 0x18 },
++        { "ina226", 0x41 },
++        { "st25r3916", 0x50 },
++        { "si12t", 0x68 },
+     };
+     for (int i = 0; i < ARRAY_SIZE(devs); i++) {
+         DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
+@@ -55,6 +60,16 @@ void m5stackchan_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     }
+     m5stopwatch_soft_i2c_init_pins(bus, 12, 11);
+ 
++    DeviceState *cam = qdev_new(TYPE_M5_LCD_CAM);
++    m5_lcd_cam_attach(cam, gdma, 320, 240);
++    sysbus_realize_and_unref(SYS_BUS_DEVICE(cam), &error_fatal);
++    memory_region_add_subregion_overlap(
++        sys_mem, 0x60041000,
++        sysbus_mmio_get_region(SYS_BUS_DEVICE(cam), 0), 1);
++    sysbus_connect_irq(
++        SYS_BUS_DEVICE(cam), 0,
++        qdev_get_gpio_in(intmatrix, ETS_LCD_CAM_INTR_SOURCE));
++
+     DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
+     MemoryRegion *spi_mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(spi), 0);
+diff --git a/hw/m5stopwatch/m5stamplc.c b/hw/m5stopwatch/m5stamplc.c
+index f888184..a429779 100644
+--- a/hw/m5stopwatch/m5stamplc.c
++++ b/hw/m5stopwatch/m5stamplc.c
+@@ -36,11 +36,20 @@ void m5stamplc_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     I2CBus *bus = (I2CBus *)qdev_get_child_bus(i2c0, "i2c");
+     esp32s3_i2c_set_bus(i2c1, bus);
+ 
+-    DeviceState *io = qdev_new(TYPE_M5SW_I2C_DEV);
+-    qdev_prop_set_string(io, "model", "pi4ioe");
+-    qdev_prop_set_uint8(io, "address", 0x43);
+-    object_property_add_child(qdev_get_machine(), "pi4ioe", OBJECT(io));
+-    qdev_realize_and_unref(io, (BusState *)bus, &error_fatal);
++    static const struct { const char *model; uint8_t addr; } devs[] = {
++        { "ina226", 0x40 },
++        { "pi4ioe", 0x43 },
++        { "lm75", 0x48 },
++        { "aw9523", 0x59 },
++        { "rx8130", 0x32 },
++    };
++    for (int i = 0; i < ARRAY_SIZE(devs); i++) {
++        DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
++        qdev_prop_set_string(d, "model", devs[i].model);
++        qdev_prop_set_uint8(d, "address", devs[i].addr);
++        object_property_add_child(qdev_get_machine(), devs[i].model, OBJECT(d));
++        qdev_realize_and_unref(d, (BusState *)bus, &error_fatal);
++    }
+ 
+     DeviceState *spi = qdev_new(TYPE_ESP32S3_GPSPI);
+     sysbus_realize_and_unref(SYS_BUS_DEVICE(spi), &error_fatal);
+diff --git a/hw/m5stopwatch/m5sticks3.c b/hw/m5stopwatch/m5sticks3.c
+index 148b9aa..69458db 100644
+--- a/hw/m5stopwatch/m5sticks3.c
++++ b/hw/m5stopwatch/m5sticks3.c
+@@ -37,7 +37,9 @@ void m5sticks3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     esp32s3_i2c_set_bus(i2c1, bus);
+ 
+     static const struct { const char *model; uint8_t addr; } devs[] = {
+-        { "m5pm1", 0x6E }, { "bmi270", 0x68 },
++        { "m5pm1", 0x6E },
++        { "bmi270", 0x68 },
++        { "es8311", 0x18 },
+     };
+     for (int i = 0; i < ARRAY_SIZE(devs); i++) {
+         DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
+@@ -79,6 +81,7 @@ void m5sticks3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+ void m5_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                    ESPGdmaState *gdma)
+ {
++    m5_i2s_board_init(sys_mem, intmatrix, gdma);
+     switch (m5_board) {
+     case M5_BOARD_STOPWATCH:
+         m5stopwatch_board_init(sys_mem, intmatrix, gdma);
+diff --git a/hw/m5stopwatch/m5stopwatch.h b/hw/m5stopwatch/m5stopwatch.h
+index e9cc3e3..4e2128e 100644
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -21,6 +21,15 @@ OBJECT_DECLARE_SIMPLE_TYPE(M5SpiPanelState, M5_SPI_PANEL)
+ #define TYPE_M5_EPD_PANEL "m5.epd-panel"
+ OBJECT_DECLARE_SIMPLE_TYPE(M5EpdPanelState, M5_EPD_PANEL)
+ 
++#define TYPE_M5_LCD_CAM "m5.lcd-cam"
++OBJECT_DECLARE_SIMPLE_TYPE(M5LcdCamState, M5_LCD_CAM)
++
++#define TYPE_M5_I2S "m5.i2s"
++OBJECT_DECLARE_SIMPLE_TYPE(M5I2SState, M5_I2S)
++
++#define TYPE_M5_RMT "m5.rmt"
++OBJECT_DECLARE_SIMPLE_TYPE(M5RmtState, M5_RMT)
++
+ typedef enum {
+     M5_BOARD_NONE = 0,
+     M5_BOARD_STOPWATCH,
+@@ -54,6 +63,12 @@ void m5_spi_panel_write(M5SpiPanelState *s, const uint8_t *buf, uint32_t len,
+ uint32_t m5_spi_panel_read_id(M5SpiPanelState *s);
+ void m5_epd_panel_write(M5EpdPanelState *s, const uint8_t *buf, uint32_t len,
+                         bool command_phase);
++void m5_lcd_cam_attach(DeviceState *dev, struct ESPGdmaState *gdma,
++                       uint32_t width, uint32_t height);
++void m5_i2s_attach(DeviceState *dev, struct ESPGdmaState *gdma, uint32_t port);
++void m5_i2s_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
++                       struct ESPGdmaState *gdma);
++void esp32s3_rmt_init(MemoryRegion *sys_mem, DeviceState *intmatrix);
+ void esp32s3_gpspi_attach(DeviceState *dev, struct ESPGdmaState *gdma,
+                           Co5300State *co, M5SpiPanelState *spi,
+                           uint32_t gdma_periph);
+@@ -79,6 +94,7 @@ void m5stopwatch_fe_init(MemoryRegion *sys_mem);
+ void m5stopwatch_phy_init(MemoryRegion *sys_mem);
+ void m5stopwatch_soft_i2c_init(I2CBus *bus);
+ void m5stopwatch_soft_i2c_init_pins(I2CBus *bus, int sda_pin, int scl_pin);
++void m5stopwatch_soft_i2c_set_hardware_active(void);
+ void m5_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+                    struct ESPGdmaState *gdma);
+ void m5sticks3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index aefe5e9..55005f2 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -22,14 +22,25 @@ enum {
+     M_IOE1,
+     M_CST820,
+     M_BMI270,
++    M_BMM150,
++    M_MPU6886,
+     M_RX8130,
++    M_PCF8563,
+     M_ES8311,
++    M_ES7210,
++    M_AW88298,
++    M_LTR553,
++    M_ST25R3916,
+     M_AXP192,
+     M_AXP2101,
+     M_AW9523,
+     M_FT5X06,
+     M_TCA8418,
+     M_PI4IOE,
++    M_LM75,
++    M_INA226,
++    M_SHT40,
++    M_SI12T,
+ };
+ 
+ typedef struct M5swI2CDev {
+@@ -44,8 +55,29 @@ typedef struct M5swI2CDev {
+     /* live, QOM-settable sensor state (qom-set /machine/bmi270 accel-x 0.5 ...) */
+     double accel[3];       /* g   (BMI270 sensor frame) */
+     double gyro[3];        /* dps */
++    double mag[3];         /* uT */
+     int64_t vbat_mv, vin_mv, vinout_mv; /* M5PM1 */
++    int64_t battery_level;
++    double temperature_c;
++    double humidity_pct;
++    double bus_voltage_mv;
++    double current_ma;
++    double shunt_ohms;
++    int64_t light_level;
++    int64_t aw9523_input_bits;
++    int64_t si12t_touch_bits;
++    uint8_t command;
++    uint8_t read_start;
+     bool charging;         /* M5PM1 G2 CHG_STAT low = charging */
++    uint8_t st25_space_b[64];
++    uint8_t st25_fifo[512];
++    uint32_t st25_fifo_len;
++    uint32_t st25_fifo_pos;
++    uint8_t st25_tx[64];
++    uint32_t st25_tx_len;
++    uint8_t st25_mode;
++    bool st25_read_space_b;
++    uint8_t st25_tag[180];
+ } M5swI2CDev;
+ 
+ OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
+@@ -53,6 +85,8 @@ OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
+ static M5swI2CDev *g_touch;
+ static M5swI2CDev *g_ft_touch;
+ static M5swI2CDev *g_pm1;
++static M5swI2CDev *g_axp2101;
++static M5swI2CDev *g_bmm150;
+ static M5swI2CDev *g_keyboard;
+ static uint8_t g_key_events[16];
+ static unsigned g_key_event_head;
+@@ -61,12 +95,22 @@ static uint8_t g_plc_keys = 0x07;
+ 
+ void m5sw_pwr_button(int pressed)
+ {
++    if (getenv("M5SW_INPUT_TRACE")) {
++        fprintf(stderr, "[pwr-button] pressed=%d pm1=%p axp2101=%p\n",
++                pressed, (void *)g_pm1, (void *)g_axp2101);
++    }
+     if (g_pm1) {
+         if (pressed) {
+             g_pm1->regs[0x48] |= 0x01;      /* BTN_STATUS bit0 = pressed */
+         } else {
+             g_pm1->regs[0x48] &= ~0x01;
+         }
++        if (pressed) {
++            g_pm1->regs[0x42] |= 0x01;      /* IRQ_STATUS3: short press */
++        }
++    }
++    if (g_axp2101 && pressed) {
++        g_axp2101->regs[0x49] |= 0x04;      /* AXP2101 short press */
+     }
+ }
+ static int g_touch_pressed, g_touch_x, g_touch_y;
+@@ -132,6 +176,37 @@ void m5sw_plc_key_set(int key, bool pressed)
+ static inline uint8_t bcd(int v) { return ((v / 10) << 4) | (v % 10); }
+ static inline int unbcd(uint8_t v) { return (v >> 4) * 10 + (v & 0xf); }
+ 
++static uint16_t encode_be16(double value, double resolution)
++{
++    int32_t raw = (int32_t)lrint(value / resolution);
++    raw = MAX(-32768, MIN(raw, 65535));
++    return (uint16_t)raw;
++}
++
++static uint16_t ina226_u16(M5swI2CDev *s, double value)
++{
++    int64_t raw = (int64_t)lrint(value);
++    return (uint16_t)MAX(0, MIN(raw, 65535));
++}
++
++static uint16_t ina226_current_raw(M5swI2CDev *s)
++{
++    uint16_t cal = ((uint16_t)s->regs[0x05] << 8) | s->regs[0x06];
++    if (!cal || s->shunt_ohms <= 0.0) {
++        return 0;
++    }
++    double current_lsb = 0.00512 / ((double)cal * s->shunt_ohms);
++    return ina226_u16(s, (s->current_ma / 1000.0) / current_lsb);
++}
++
++static uint16_t bmm150_raw(double value, bool z_axis)
++{
++    static const double resolution = 10.0 * 4912.0 / 32760.0;
++    int32_t raw = (int32_t)lrint(value / resolution);
++    raw = MAX(-8192, MIN(raw, 8191));
++    return z_axis ? (uint16_t)((raw << 1) & ~1) : (uint16_t)(raw << 2);
++}
++
+ static void rx8130_fill_time(M5swI2CDev *s)
+ {
+     time_t t = time(NULL) + s->rtc_offset;
+@@ -159,6 +234,129 @@ static void rx8130_time_written(M5swI2CDev *s)
+     s->rtc_offset = (int64_t)t - (int64_t)time(NULL);
+ }
+ 
++static void pcf8563_fill_time(M5swI2CDev *s)
++{
++    time_t t = time(NULL) + s->rtc_offset;
++    struct tm tm;
++    gmtime_r(&t, &tm);
++    s->regs[0x02] = bcd(tm.tm_sec);
++    s->regs[0x03] = bcd(tm.tm_min);
++    s->regs[0x04] = bcd(tm.tm_hour);
++    s->regs[0x05] = bcd(tm.tm_mday);
++    s->regs[0x06] = tm.tm_wday;
++    s->regs[0x07] = bcd(tm.tm_mon + 1);
++    s->regs[0x08] = bcd(tm.tm_year % 100);
++}
++
++static void pcf8563_time_written(M5swI2CDev *s)
++{
++    struct tm tm = {0};
++    tm.tm_sec = unbcd(s->regs[0x02] & 0x7f);
++    tm.tm_min = unbcd(s->regs[0x03] & 0x7f);
++    tm.tm_hour = unbcd(s->regs[0x04] & 0x3f);
++    tm.tm_mday = unbcd(s->regs[0x05] & 0x3f);
++    tm.tm_mon = unbcd(s->regs[0x07] & 0x1f) - 1;
++    tm.tm_year = unbcd(s->regs[0x08]) + 100;
++    time_t t = timegm(&tm);
++    s->rtc_offset = (int64_t)t - (int64_t)time(NULL);
++}
++
++static void st25_set_fifo(M5swI2CDev *s, const uint8_t *data, uint32_t size)
++{
++    size = MIN(size, sizeof(s->st25_fifo));
++    if (size) {
++        memcpy(s->st25_fifo, data, size);
++    }
++    s->st25_fifo_len = size;
++    s->st25_fifo_pos = 0;
++}
++
++static void st25_set_fifo_byte(M5swI2CDev *s, uint8_t value)
++{
++    st25_set_fifo(s, &value, 1);
++}
++
++static void st25_init_tag(M5swI2CDev *s)
++{
++    static const uint8_t uid[4] = { 0xde, 0xad, 0xbe, 0xef };
++    static const uint8_t page4[4] = { 'M', '5', 'N', '1' };
++
++    memset(s->st25_tag, 0, sizeof(s->st25_tag));
++    memcpy(s->st25_tag, uid, sizeof(uid));
++    s->st25_tag[4] = uid[0] ^ uid[1] ^ uid[2] ^ uid[3];
++    s->st25_tag[5] = 0x48;
++    s->st25_tag[6] = 0x00;
++    s->st25_tag[7] = 0x00;
++    s->st25_tag[12] = 0xe1;  /* NDEF capability container */
++    s->st25_tag[13] = 0x10;
++    s->st25_tag[14] = 0x12;  /* NTAG213 user memory */
++    s->st25_tag[15] = 0x00;
++    memcpy(&s->st25_tag[16], page4, sizeof(page4));
++}
++
++static void st25_execute_command(M5swI2CDev *s, uint8_t command)
++{
++    static const uint8_t atqa[2] = { 0x44, 0x00 };
++    static const uint8_t version[10] = {
++        0x00, 0x04, 0x04, 0x02, 0x02, 0x01, 0x0b, 0x03, 0x00, 0x00,
++    };
++    uint8_t response[18] = { 0 };
++
++    switch (command) {
++    case 0xc1: /* SET_DEFAULT */
++        memset(s->regs, 0, sizeof(s->regs));
++        memset(s->st25_space_b, 0, sizeof(s->st25_space_b));
++        s->regs[0x3f] = 0x2a;
++        st25_set_fifo(s, NULL, 0);
++        break;
++    case 0xc6: /* TRANSMIT_REQA */
++    case 0xc7: /* TRANSMIT_WUPA */
++        st25_set_fifo(s, atqa, sizeof(atqa));
++        break;
++    case 0xc5: /* TRANSMIT_WITHOUT_CRC */
++        if (s->st25_tx_len >= 1 && s->st25_tx[0] == 0x93) {
++            response[0] = s->st25_tag[0];
++            response[1] = s->st25_tag[1];
++            response[2] = s->st25_tag[2];
++            response[3] = s->st25_tag[3];
++            response[4] = s->st25_tag[4];
++            st25_set_fifo(s, response, 5);
++        }
++        break;
++    case 0xc4: /* TRANSMIT_WITH_CRC */
++        if (s->st25_tx_len >= 2 && s->st25_tx[0] == 0x93) {
++            response[0] = 0x00; /* SAK: MIFARE Ultralight / NTAG */
++            st25_set_fifo(s, response, 1);
++        } else if (s->st25_tx_len >= 1 && s->st25_tx[0] == 0x60) {
++            st25_set_fifo(s, version, sizeof(version));
++        } else if (s->st25_tx_len >= 2 && s->st25_tx[0] == 0x30) {
++            uint32_t base = (s->st25_tx[1] & ~3u) * 4;
++            uint32_t available = sizeof(s->st25_tag) - MIN(base,
++                                                         sizeof(s->st25_tag));
++            uint32_t copy = MIN(available, 16);
++            memcpy(response, &s->st25_tag[base], copy);
++            st25_set_fifo(s, response, copy + 2);
++        } else if (s->st25_tx_len >= 6 && s->st25_tx[0] == 0xa2) {
++            uint32_t page = s->st25_tx[1] & 0x3f;
++            uint32_t offset = page * 4;
++            if (offset + 4 <= sizeof(s->st25_tag)) {
++                memcpy(&s->st25_tag[offset], &s->st25_tx[2], 4);
++            }
++            st25_set_fifo_byte(s, 0x0a);
++        } else if (s->st25_tx_len >= 1 && s->st25_tx[0] == 0x50) {
++            st25_set_fifo(s, NULL, 0);
++        }
++        break;
++    case 0xdb: /* CLEAR_FIFO */
++        st25_set_fifo(s, NULL, 0);
++        s->st25_tx_len = 0;
++        break;
++    default:
++        break;
++    }
++    s->regs[0x1a] = command == 0xc8 ? 0x80 : s->regs[0x1a];
++}
++
+ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+ {
+     switch (s->model) {
+@@ -185,16 +383,22 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+         }
+         break;
+     case M_AW9523:
++        if (r == 0x00) {
++            return s->aw9523_input_bits & 0xff;
++        }
++        if (r == 0x01) {
++            return (s->aw9523_input_bits >> 8) & 0xff;
++        }
+         if (r == 0x10) {
+             return 0x23;
+         }
+         break;
+-    case M_AXP2101:
+-    case M_AXP192:
+-        if (r == 0x49) {
+-            uint8_t v = s->regs[r];
+-            s->regs[r] = 0;
+-            return v;
++    case M_SI12T:
++        if (r == 0x10) {
++            return s->si12t_touch_bits & 0xff;
++        }
++        if (r == 0x11 || r == 0x12) {
++            return 0;
+         }
+         break;
+     case M_FT5X06:
+@@ -231,6 +435,11 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+         }
+         break;
+     case M_PM1:
++        if (r == 0x42) {                                 /* IRQ_STATUS3: latched, read-to-clear */
++            uint8_t v = s->regs[r];
++            s->regs[r] = 0;
++            return v;
++        }
+         if (r == 0x12) {                                 /* GPIO_IN: G2 = CHG_STAT (active low) */
+             return (s->regs[0x12] & ~0x04) | (s->charging ? 0 : 0x04);
+         }
+@@ -240,22 +449,183 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+             return (r & 1) ? (v >> 8) & 0xff : v & 0xff;
+         }
+         break;
++    case M_AXP2101:
++        if (r == 0x00) {
++            return 0x28;  /* battery present + VBUS good */
++        }
++        if (r == 0x01) {
++            return s->charging ? 0x20 : 0;
++        }
++        if (r == 0xA4) {
++            return MAX(0, MIN(s->battery_level, 100));
++        }
++        if (r == 0x34 || r == 0x35) {
++            return r & 1 ? s->vbat_mv & 0xff : (s->vbat_mv >> 8) & 0x3f;
++        }
++        if (r == 0x38 || r == 0x39 || r == 0x3A || r == 0x3B) {
++            return r & 1 ? s->vin_mv & 0xff : (s->vin_mv >> 8) & 0x3f;
++        }
++        break;
++    case M_BMM150:
++        if (r == 0x40) {
++            return 0x32;
++        }
++        if (r == 0x48) {
++            return 0x01;  /* data ready */
++        }
++        if (r >= 0x42 && r <= 0x47) {
++            int index = (r - 0x42) / 2;
++            uint16_t raw = bmm150_raw(s->mag[index], index == 2);
++            return (r & 1) ? raw >> 8 : raw & 0xff;
++        }
++        break;
++    case M_MPU6886:
++        if (r == 0x75) {
++            return 0x19;
++        }
++        if (r == 0x3A) {
++            return 0x01;  /* data ready */
++        }
++        if (r >= 0x3B && r <= 0x40) {
++            int index = (r - 0x3B) / 2;
++            uint16_t raw = encode_be16(s->accel[index], 8.0 / 32768.0);
++            return (r & 1) ? raw & 0xff : raw >> 8;
++        }
++        if (r == 0x41 || r == 0x42) {
++            uint16_t raw = encode_be16((s->temperature_c - 25.0) * 326.8, 1.0);
++            return r == 0x41 ? raw >> 8 : raw & 0xff;
++        }
++        if (r >= 0x43 && r <= 0x48) {
++            int index = (r - 0x43) / 2;
++            uint16_t raw = encode_be16(s->gyro[index], 2000.0 / 32768.0);
++            return (r & 1) ? raw & 0xff : raw >> 8;
++        }
++        break;
++    case M_LM75:
++        if (r == 0x00 || r == 0x01) {
++            uint16_t raw = encode_be16(s->temperature_c, 1.0 / 256.0);
++            return r == 0 ? raw >> 8 : raw & 0xe0;
++        }
++        break;
++    case M_INA226:
++        if (s->read_start == 0xFE) {
++            return (s->ptr - s->read_start) & 1 ? 0x49 : 0x54;
++        }
++        if (s->read_start == 0xFF) {
++            return (s->ptr - s->read_start) & 1 ? 0x60 : 0x22;
++        }
++        if (s->read_start == 0x01) {
++            uint16_t raw = ina226_u16(
++                s, (s->current_ma / 1000.0) * s->shunt_ohms / 2.5e-6);
++            return r == 0x01 ? raw >> 8 : raw & 0xff;
++        }
++        if (s->read_start == 0x02) {
++            uint16_t raw = ina226_u16(s, s->bus_voltage_mv / 1.25);
++            return r == 0x02 ? raw >> 8 : raw & 0xff;
++        }
++        if (s->read_start == 0x03) {
++            uint16_t cal = ((uint16_t)s->regs[0x05] << 8) | s->regs[0x06];
++            double current_lsb = cal && s->shunt_ohms > 0.0
++                ? 0.00512 / ((double)cal * s->shunt_ohms) : 0.0;
++            double power_lsb = current_lsb * 25.0;
++            uint16_t raw = power_lsb
++                ? ina226_u16(s, (s->bus_voltage_mv / 1000.0)
++                                  * (s->current_ma / 1000.0) / power_lsb)
++                : 0;
++            return r == 0x03 ? raw >> 8 : raw & 0xff;
++        }
++        if (s->read_start == 0x04) {
++            uint16_t raw = ina226_current_raw(s);
++            if (s->trace && r == 0x04) {
++                uint16_t cal = ((uint16_t)s->regs[0x05] << 8) | s->regs[0x06];
++                fprintf(stderr, "[ina226] state current_ma=%.3f shunt=%.6f cal=%04x raw=%u\n",
++                        s->current_ma, s->shunt_ohms, cal, raw);
++            }
++            return r == 0x04 ? raw >> 8 : raw & 0xff;
++        }
++        if (s->read_start == 0x05) {
++            return r == 0x05 ? s->regs[0x05] : s->regs[0x06];
++        }
++        break;
++    case M_LTR553:
++        if (r == 0x86) {
++            return 0x92;  /* LTR-553ALS-WA part/revision ID */
++        }
++        if (r == 0x87) {
++            return 0x05;  /* Lite-On manufacturer ID */
++        }
++        if (r == 0x88 || r == 0x89 || r == 0x8A || r == 0x8B) {
++            uint16_t raw = MAX(0, MIN(s->light_level, 65535));
++            return (r & 1) ? raw >> 8 : raw & 0xff;
++        }
++        break;
++    case M_ST25R3916:
++    {
++        uint8_t rr = r & 0x3f;
++        if (s->read_start == 0x9f) {
++            return s->st25_fifo_pos < s->st25_fifo_len
++                 ? s->st25_fifo[s->st25_fifo_pos++] : 0;
++        }
++        if (s->st25_read_space_b) {
++            return s->st25_space_b[rr];
++        }
++        if (rr == 0x3f) {
++            return 0x2A;  /* IC type 0x05, revision 0x02 */
++        }
++        if (rr == 0x31) {
++            return 0x10;  /* auxiliary display: OSC_OK */
++        }
++        if (rr >= 0x1a && rr <= 0x1d) {
++            return rr == 0x1a ? 0x80 : 0;
++        }
++        if (rr == 0x1e || rr == 0x1f) {
++            uint32_t count = MIN(s->st25_fifo_len, 0x3ff);
++            if (rr == 0x1e) {
++                return count & 0xff;
++            }
++            return ((count >> 8) & 0x03) << 6;
++        }
++        return s->regs[rr];
++    }
++    case M_SHT40:
++        if (s->command == 0xFD || s->command == 0xF6 || s->command == 0xE0) {
++            double t_max = s->command == 0xE0 ? 125.0 : 175.0;
++            double t_min = s->command == 0xE0 ? -40.0 : -45.0;
++            uint16_t traw = (uint16_t)lrint(
++                (s->temperature_c - t_min) * 65535.0 / (t_max - t_min));
++            uint16_t hraw = (uint16_t)lrint(
++                (s->humidity_pct + 6.0) * 65535.0 / 125.0);
++            uint8_t data[6] = {
++                traw >> 8, traw & 0xff,
++                hraw >> 8, hraw & 0xff,
++                0x00, 0x00,
++            };
++            return data[r % 6];
++        }
++        break;
+     case M_BMI270:
++        if (r >= 0x04 && r <= 0x09 && g_bmm150) {
++            int index = (r - 0x04) / 2;
++            if (s->regs[0x4D] == 0x40) {
++                return 0x32;  /* AUX X LSB register is reused for BMM150 ID probe */
++            }
++            uint16_t raw = bmm150_raw(g_bmm150->mag[index], index == 2);
++            return (r & 1) ? raw >> 8 : raw & 0xff;
++        }
+         if (r >= 0x0C && r <= 0x17) {                    /* ACC_X..GYR_Z, LSB first */
+             int i = (r - 0x0C) / 2;
+             double v;
+-            if (i < 3) {        /* ACC_RANGE[1:0]: 0=2g 1=4g 2=8g 3=16g */
+-                v = s->accel[i] * 32768.0 / (2 << (s->regs[0x41] & 3));
+-            } else {            /* GYR_RANGE[2:0]: 0=2000 .. 4=125 dps */
+-                int gr = s->regs[0x43] & 7;
+-                v = s->gyro[i - 3] * 32768.0 / (2000 >> (gr > 4 ? 4 : gr));
++            if (i < 3) {
++                v = s->accel[i] * 32768.0 / 8.0;
++            } else {
++                v = s->gyro[i - 3] * 32768.0 / 2000.0;
+             }
+             int32_t iv = (int32_t)lrint(v);
+             iv = MAX(-32768, MIN(iv, 32767));
+             return ((r - 0x0C) & 1) ? ((uint16_t)iv >> 8) : ((uint16_t)iv & 0xff);
+         }
+         if (r == 0x1D) {                                 /* INT_STATUS_1: acc/gyr drdy */
+-            return 0xC0;
++            return g_bmm150 ? 0xE0 : 0xC0;
+         }
+         if (r == 0x21) {                                 /* INTERNAL_STATUS */
+             return s->regs[0x59] & 1 ? 0x01 : 0x00;      /* init OK after INIT_CTRL=1 */
+@@ -275,9 +645,17 @@ static int dev_event(I2CSlave *i2c, enum i2c_event ev)
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
+     if (ev == I2C_START_SEND) {
+         s->ptr_set = false;
++        s->st25_mode = 0;
++        s->st25_read_space_b = false;
+     } else if (ev == I2C_START_RECV) {
++        s->read_start = s->ptr;
++        if (s->model == M_ST25R3916) {
++            s->st25_read_space_b = s->st25_mode == 3;
++        }
+         if (s->model == M_RX8130) {
+             rx8130_fill_time(s);
++        } else if (s->model == M_PCF8563) {
++            pcf8563_fill_time(s);
+         }
+     } else if (ev == I2C_FINISH) {
+         if (s->model == M_RX8130 && s->ptr_set) {
+@@ -294,13 +672,68 @@ static uint8_t dev_recv(I2CSlave *i2c)
+     if (s->trace) {
+         qemu_log("[%s] rd %02x -> %02x\n", s->model_name, s->ptr, v);
+     }
+-    s->ptr++;
++    if (!(s->model == M_ST25R3916 && s->read_start == 0x9f)) {
++        s->ptr++;
++    }
++    if (s->model == M_SHT40 && s->command && s->ptr >= 6) {
++        s->command = 0;
++        s->ptr = 0;
++    }
+     return v;
+ }
+ 
+ static int dev_send(I2CSlave *i2c, uint8_t data)
+ {
+     M5swI2CDev *s = M5SW_I2C_DEV(i2c);
++    if (s->model == M_ST25R3916) {
++        if (s->trace) {
++            qemu_log("[st25r3916] tx mode=%u data=%02x\n",
++                     s->st25_mode, data);
++        }
++        switch (s->st25_mode) {
++        case 0:
++            if (data == 0xfb) {
++                s->st25_mode = 2;
++            } else if (data == 0x80) {
++                s->st25_tx_len = 0;
++                s->st25_mode = 4;
++            } else if (data >= 0xc0) {
++                st25_execute_command(s, data);
++                s->st25_mode = 5;
++            } else {
++                s->ptr = data;
++                s->ptr_set = true;
++                s->st25_mode = 1;
++            }
++            return 0;
++        case 1:
++            s->regs[s->ptr] = data;
++            s->ptr++;
++            return 0;
++        case 2:
++            s->ptr = data & 0x3f;
++            s->ptr_set = true;
++            s->st25_mode = 3;
++            return 0;
++        case 3:
++            s->st25_space_b[s->ptr & 0x3f] = data;
++            s->st25_mode = 0;
++            return 0;
++        case 4:
++            if (s->st25_tx_len < sizeof(s->st25_tx)) {
++                s->st25_tx[s->st25_tx_len++] = data;
++            }
++            return 0;
++        default:
++            return 0;
++        }
++    }
++    if (s->model == M_SHT40 && !s->ptr_set) {
++        s->command = data;
++        s->ptr = 0;
++        s->ptr_set = true;
++        return 0;
++    }
+     if (!s->ptr_set) {
+         s->ptr = data;
+         s->ptr_set = true;
+@@ -316,9 +749,6 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+             return 0;
+         }
+         if (r == 0x7E && data == 0xB6) {  /* soft reset */
+-            uint8_t id = s->regs[0];
+-            memset(s->regs, 0, sizeof(s->regs));
+-            s->regs[0] = id;
+             s->regs[0x7C] = 0x03;
+             s->ptr++;
+             return 0;
+@@ -327,6 +757,16 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+     case M_IOE1:
+         if (r == 0x07 || r == 0x08) { s->ptr++; return 0; }  /* RO */
+         break;
++    case M_PM1:
++        if (r == 0x42) { s->ptr++; return 0; }  /* IRQ status is driven by input events */
++        break;
++    case M_AXP2101:
++        if (r == 0x49) {
++            s->regs[r] &= ~data;
++            s->ptr++;
++            return 0;
++        }
++        break;
+     case M_RX8130:
+         s->regs[r] = data;
+         if (r >= 0x10 && r <= 0x16) {
+@@ -336,6 +776,13 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+         }
+         s->ptr++;
+         return 0;
++    case M_PCF8563:
++        s->regs[r] = data;
++        if (r == 0x08) {
++            pcf8563_time_written(s);
++        }
++        s->ptr++;
++        return 0;
+     default:
+         break;
+     }
+@@ -423,15 +870,86 @@ static void dev_realize(DeviceState *dev, Error **errp)
+             object_property_add(OBJECT(s), an[i], "number", prop_get_num, prop_set_num, NULL, &s->accel[i]);
+             object_property_add(OBJECT(s), gn[i], "number", prop_get_num, prop_set_num, NULL, &s->gyro[i]);
+         }
++    } else if (!strcmp(m, "bmm150")) {
++        s->model = M_BMM150;
++        s->regs[0x40] = 0x32;
++        s->regs[0x48] = 0x01;
++        static const char *props[] = { "mag-x", "mag-y", "mag-z" };
++        for (int i = 0; i < 3; i++) {
++            object_property_add(OBJECT(s), props[i], "number",
++                                prop_get_num, prop_set_num, NULL, &s->mag[i]);
++        }
++        g_bmm150 = s;
++    } else if (!strcmp(m, "mpu6886")) {
++        s->model = M_MPU6886;
++        s->regs[0x75] = 0x19;
++        s->accel[2] = 1.0;
++        s->temperature_c = 25.0;
++        static const char *aprops[] = { "accel-x", "accel-y", "accel-z" };
++        static const char *gprops[] = { "gyro-x", "gyro-y", "gyro-z" };
++        for (int i = 0; i < 3; i++) {
++            object_property_add(OBJECT(s), aprops[i], "number",
++                                prop_get_num, prop_set_num, NULL, &s->accel[i]);
++            object_property_add(OBJECT(s), gprops[i], "number",
++                                prop_get_num, prop_set_num, NULL, &s->gyro[i]);
++        }
++    } else if (!strcmp(m, "lm75")) {
++        s->model = M_LM75;
++        s->temperature_c = 25.0;
++        object_property_add(OBJECT(s), "temperature-c", "number",
++                            prop_get_num, prop_set_num, NULL, &s->temperature_c);
++    } else if (!strcmp(m, "ina226")) {
++        s->model = M_INA226;
++        s->bus_voltage_mv = 5000.0;
++        s->current_ma = 500.0;
++        s->shunt_ohms = 0.005;
++        s->regs[0x00] = 0x45; s->regs[0x01] = 0x27;
++        s->regs[0x05] = 0x0c; s->regs[0x06] = 0x80;
++        object_property_add(OBJECT(s), "bus-voltage-mv", "number",
++                            prop_get_num, prop_set_num, NULL, &s->bus_voltage_mv);
++        object_property_add(OBJECT(s), "current-ma", "number",
++                            prop_get_num, prop_set_num, NULL, &s->current_ma);
++        object_property_add(OBJECT(s), "shunt-ohms", "number",
++                            prop_get_num, prop_set_num, NULL, &s->shunt_ohms);
++    } else if (!strcmp(m, "ltr553")) {
++        s->model = M_LTR553;
++        s->light_level = 320;
++        object_property_add(OBJECT(s), "light-level", "int",
++                            prop_get_i64, prop_set_i64, NULL, &s->light_level);
++    } else if (!strcmp(m, "st25r3916")) {
++        s->model = M_ST25R3916;
++        s->regs[0x3F] = 0x2A;
++        st25_init_tag(s);
++    } else if (!strcmp(m, "sht40")) {
++        s->model = M_SHT40;
++        s->temperature_c = 25.0;
++        s->humidity_pct = 50.0;
++        object_property_add(OBJECT(s), "temperature-c", "number",
++                            prop_get_num, prop_set_num, NULL, &s->temperature_c);
++        object_property_add(OBJECT(s), "humidity-pct", "number",
++                            prop_get_num, prop_set_num, NULL, &s->humidity_pct);
++    } else if (!strcmp(m, "si12t")) {
++        s->model = M_SI12T;
++        s->regs[0x08] = 0x22;
++        s->regs[0x09] = 0x07;
++        object_property_add(OBJECT(s), "touch-bits", "int",
++                            prop_get_i64, prop_set_i64, NULL,
++                            &s->si12t_touch_bits);
+     } else if (!strcmp(m, "rx8130")) {
+         s->model = M_RX8130;
+         s->regs[0x1E] = 0x00;
+         s->regs[0x1D] = 0x00;
++    } else if (!strcmp(m, "pcf8563")) {
++        s->model = M_PCF8563;
+     } else if (!strcmp(m, "es8311")) {
+         s->model = M_ES8311;
+         s->regs[0xFD] = 0x83;   /* CHIP ID1 */
+         s->regs[0xFE] = 0x11;   /* CHIP ID2 */
+         s->regs[0xFF] = 0x00;   /* version */
++    } else if (!strcmp(m, "es7210")) {
++        s->model = M_ES7210;
++    } else if (!strcmp(m, "aw88298")) {
++        s->model = M_AW88298;
+     } else if (!strcmp(m, "axp192")) {
+         s->model = M_AXP192;
+         s->regs[0x03] = 0x03;   /* AXP192 chip ID */
+@@ -440,12 +958,26 @@ static void dev_realize(DeviceState *dev, Error **errp)
+         s->model = M_AXP2101;
+         s->regs[0x03] = 0x4A;   /* chip id required by AXP2101_Class::begin */
+         s->regs[0x00] = 0x28;   /* battery present + VBUS good */
++        s->regs[0x01] = 0x20;   /* charging */
+         s->regs[0x18] = 0x06;
+         s->regs[0x90] = 0xBF;
+-        s->regs[0x49] = 0x04;   /* one short power-key event */
++        s->regs[0x49] = 0;
++        s->vbat_mv = 4000;
++        s->vin_mv = 5000;
++        s->charging = true;
++        s->battery_level = 87;
++        object_property_add(OBJECT(s), "vbat-mv", "int", prop_get_i64, prop_set_i64, NULL, &s->vbat_mv);
++        object_property_add(OBJECT(s), "vin-mv", "int", prop_get_i64, prop_set_i64, NULL, &s->vin_mv);
++        object_property_add(OBJECT(s), "charging", "bool", prop_get_bool, prop_set_bool, NULL, &s->charging);
++        object_property_add(OBJECT(s), "battery-level", "int", prop_get_i64, prop_set_i64, NULL, &s->battery_level);
++        g_axp2101 = s;
+     } else if (!strcmp(m, "aw9523")) {
+         s->model = M_AW9523;
+         s->regs[0x10] = 0x23;   /* M5GFX CoreS3 identity */
++        s->aw9523_input_bits = 0;
++        object_property_add(OBJECT(s), "input-bits", "int",
++                            prop_get_i64, prop_set_i64, NULL,
++                            &s->aw9523_input_bits);
+     } else if (!strcmp(m, "ft5x06")) {
+         s->model = M_FT5X06;
+         s->regs[0xA3] = 0x51;
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 26a001d..4cab684 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -881,7 +881,7 @@ static void esp32s3_machine_init(MachineState *machine)
+         memory_region_add_subregion_overlap(sys_mem, esp32s3_memmap[ESP32S3_MEMREGION_FRAMEBUF].base, &ss->rgb.vram, 0);
+     }
+ 
+-    esp32s3_soc_add_unimp_device(sys_mem, "esp32s3.rmt", DR_REG_RMT_BASE, 0x1000);
++    esp32s3_rmt_init(sys_mem, intmatrix_dev);
+     esp32s3_soc_add_unimp_device(sys_mem, "esp32s3.iomux", DR_REG_IO_MUX_BASE, 0x2000);
+ 
+     
+diff --git a/hw/xtensa/meson.build b/hw/xtensa/meson.build
+index 89fff71..ea852fa 100644
+--- a/hw/xtensa/meson.build
++++ b/hw/xtensa/meson.build
+@@ -4,6 +4,7 @@ xtensa_ss.add(files(
+   'pic_cpu.c',
+   'xtensa_memory.c',
+   '../m5stopwatch/m5_board.c',
++  '../m5stopwatch/m5_rmt.c',
+   '../m5stopwatch/m5_spi_panel.c',
+   '../m5stopwatch/m5sw_i2c_devs.c',
+   '../m5stopwatch/esp32s3_soft_i2c.c',
+@@ -34,6 +35,8 @@ xtensa_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+   '../m5stopwatch/m5stamplc.c',
+   '../m5stopwatch/m5stackchan.c',
+   '../m5stopwatch/m5_epd_panel.c',
++  '../m5stopwatch/m5_lcd_cam.c',
++  '../m5stopwatch/m5_i2s.c',
+   '../m5stopwatch/m5papermono.c',
+   '../m5stopwatch/m5papercolor.c',
+ ))
+diff --git a/include/hw/dma/esp_gdma.h b/include/hw/dma/esp_gdma.h
+index d555249..056c1bf 100644
+--- a/include/hw/dma/esp_gdma.h
++++ b/include/hw/dma/esp_gdma.h
+@@ -157,12 +157,18 @@ bool esp_gdma_get_channel_periph(ESPGdmaState *s, GdmaPeripheral periph, int dir
+ 
+ bool esp_gdma_read_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint32_t size);
+ bool esp_gdma_write_channel(ESPGdmaState *s, uint32_t chan, uint8_t* buffer, uint32_t size);
++uint32_t esp_gdma_get_out_transfer_size(ESPGdmaState *s, uint32_t chan,
++                                        uint32_t max_size);
++uint32_t esp_gdma_snapshot_out_channel(ESPGdmaState *s, uint32_t chan,
++                                       uint8_t *buffer, uint32_t size);
+ 
+ 
+ /**
+  * @brief Function only meant to be used by inherited classes
+  */
+ void esp_gdma_write_chan_register(ESPGdmaState* s, uint32_t dir, uint32_t chan, DmaRegister reg, uint32_t value);
++void esp_gdma_set_chan_interrupt(ESPGdmaState *s, uint32_t dir, uint32_t chan,
++                                 uint32_t mask);
+ void esp_gdma_write_register(ESPGdmaState* s, DmaRegister reg, uint32_t value);
+ 
+ uint64_t esp_gdma_read_chan_register(ESPGdmaState* state, uint32_t dir, uint32_t chan, DmaRegister reg);

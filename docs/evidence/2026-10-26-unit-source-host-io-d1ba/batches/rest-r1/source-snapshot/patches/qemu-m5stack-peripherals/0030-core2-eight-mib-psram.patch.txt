@@ -1,0 +1,304 @@
+diff --git a/hw/xtensa/esp32.c b/hw/xtensa/esp32.c
+--- a/hw/xtensa/esp32.c
++++ b/hw/xtensa/esp32.c
+@@ -814,6 +814,11 @@ static void esp32_machine_init(MachineState *machine)
+     qdev_prop_set_chr(DEVICE(ss), "serial2", serial_hd(2));
+     if (machine->ram_size > 0) {
+         qdev_prop_set_bit(DEVICE(&ss->dport), "has_psram", true);
++        qdev_prop_set_uint32(
++            DEVICE(&ss->dport),
++            "psram-size-mib",
++            (uint32_t) (machine->ram_size / MiB)
++        );
+     }
+ 
+     qdev_realize(DEVICE(ss), NULL, &error_fatal);
+@@ -914,9 +914,11 @@ static ram_addr_t esp32_fixup_ram_size(ram_addr_t requested_size)
+         size = 2 * MiB;
+     } else if (requested_size <= 4 * MiB ) {
+         size = 4 * MiB;
++    } else if (requested_size <= 8 * MiB ) {
++        size = 8 * MiB;
+     } else {
+-        qemu_log("RAM size larger than 4 MB not supported\n");
+-        size = 4 * MiB;
++        qemu_log("RAM size larger than 8 MB not supported\n");
++        size = 8 * MiB;
+     }
+     return size;
+ }
+@@ -1140,7 +1142,7 @@ static void m5core2_machine_class_init(ObjectClass *oc, void *data)
+     mc->init = m5core2_machine_init;
+     mc->max_cpus = 2;
+     mc->default_cpus = 2;
+-    mc->default_ram_size = 4 * MiB;
++    mc->default_ram_size = 8 * MiB;
+     mc->fixup_ram_size = esp32_fixup_ram_size;
+ }
+ 
+diff --git a/hw/misc/esp32_dport.c b/hw/misc/esp32_dport.c
+index 1bb2435..2062f18 100644
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -9,6 +9,7 @@
+  */
+ #include "qemu/osdep.h"
+ #include "qemu/log.h"
++#include "qemu/units.h"
+ #include "qemu/error-report.h"
+ #include "qapi/error.h"
+ #include "hw/hw.h"
+@@ -34,15 +35,21 @@
+ #define PRO_DROM0_MMU_LAST      (PRO_DROM0_MMU_FIRST + MMU_RANGE_LAST)
+ #define PRO_IRAM0_MMU_FIRST     (DR_REG_FLASH_MMU_TABLE_PRO - DR_REG_DPORT_BASE + MMU_RANGE_SIZE)
+ #define PRO_IRAM0_MMU_LAST      (PRO_IRAM0_MMU_FIRST + MMU_RANGE_LAST)
++#define PRO_DRAM1_MMU_FIRST     (DR_REG_FLASH_MMU_TABLE_PRO - DR_REG_DPORT_BASE + 1152 * sizeof(uint32_t))
++#define PRO_DRAM1_MMU_LAST      (PRO_DRAM1_MMU_FIRST + ESP32_PSRAM_PAGES_PER_REGION * sizeof(uint32_t) - 1)
+ #define APP_DROM0_MMU_FIRST     (DR_REG_FLASH_MMU_TABLE_APP - DR_REG_DPORT_BASE)
+ #define APP_DROM0_MMU_LAST      (APP_DROM0_MMU_FIRST + MMU_RANGE_LAST)
+ #define APP_IRAM0_MMU_FIRST     (DR_REG_FLASH_MMU_TABLE_APP - DR_REG_DPORT_BASE + MMU_RANGE_SIZE)
+ #define APP_IRAM0_MMU_LAST      (APP_IRAM0_MMU_FIRST + MMU_RANGE_LAST)
++#define APP_DRAM1_MMU_FIRST     (DR_REG_FLASH_MMU_TABLE_APP - DR_REG_DPORT_BASE + 1152 * sizeof(uint32_t))
++#define APP_DRAM1_MMU_LAST      (APP_DRAM1_MMU_FIRST + ESP32_PSRAM_PAGES_PER_REGION * sizeof(uint32_t) - 1)
+ #define MMU_ENTRY_MASK          0x1ff
+ 
+ static void esp32_cache_state_update(Esp32CacheState* cs);
+ static void esp32_cache_data_sync(Esp32CacheRegionState* crs);
+ static void esp32_cache_invalidate_all_entries(Esp32CacheRegionState* crs);
++static void esp32_cache_psram_set_mapping(Esp32CacheRegionState *crs, int page, uint32_t mmu_value);
++static void esp32_cache_init_psram_region(Esp32CacheState *cs);
+ 
+ static inline uint32_t get_mmu_entry(Esp32CacheRegionState* crs, hwaddr base, hwaddr addr)
+ {
+@@ -119,6 +126,16 @@ static uint64_t esp32_dport_read(void *opaque, hwaddr addr, unsigned int size)
+     case APP_IRAM0_MMU_FIRST ... APP_IRAM0_MMU_LAST:
+         r = get_mmu_entry(&s->cache_state[1].iram0, APP_IRAM0_MMU_FIRST, addr);
+         break;
++    case PRO_DRAM1_MMU_FIRST ... PRO_DRAM1_MMU_LAST:
++        r = s->cache_state[0].dram1.psram_mmu_table[
++            (addr - PRO_DRAM1_MMU_FIRST) / sizeof(uint32_t)
++        ];
++        break;
++    case APP_DRAM1_MMU_FIRST ... APP_DRAM1_MMU_LAST:
++        r = s->cache_state[1].dram1.psram_mmu_table[
++            (addr - APP_DRAM1_MMU_FIRST) / sizeof(uint32_t)
++        ];
++        break;
+     case A_DPORT_SLAVE_SPI_CONFIG:
+         r = s->slave_spi_config_reg;
+         break;
+@@ -221,6 +238,20 @@ static void esp32_dport_write(void *opaque, hwaddr addr,
+     case APP_IRAM0_MMU_FIRST ... APP_IRAM0_MMU_LAST:
+         set_mmu_entry(&s->cache_state[1].iram0, APP_IRAM0_MMU_FIRST, addr, value);
+         break;
++    case PRO_DRAM1_MMU_FIRST ... PRO_DRAM1_MMU_LAST:
++        esp32_cache_psram_set_mapping(
++            &s->cache_state[0].dram1,
++            (addr - PRO_DRAM1_MMU_FIRST) / sizeof(uint32_t),
++            value
++        );
++        break;
++    case APP_DRAM1_MMU_FIRST ... APP_DRAM1_MMU_LAST:
++        esp32_cache_psram_set_mapping(
++            &s->cache_state[1].dram1,
++            (addr - APP_DRAM1_MMU_FIRST) / sizeof(uint32_t),
++            value
++        );
++        break;
+     case A_DPORT_SLAVE_SPI_CONFIG:
+         s->slave_spi_config_reg = value;
+         qemu_set_irq(s->flash_enc_en_gpio, FIELD_EX32(value, DPORT_SLAVE_SPI_CONFIG, SLAVE_SPI_ENCRYPT_ENABLE));
+@@ -235,6 +266,30 @@ static const MemoryRegionOps esp32_dport_ops = {
+     .endianness = DEVICE_LITTLE_ENDIAN,
+ };
+ 
++static void esp32_cache_psram_set_mapping(
++    Esp32CacheRegionState *crs,
++    int page,
++    uint32_t mmu_value
++)
++{
++    Esp32DportState *dport = crs->cache->dport;
++    uint32_t physical_page = mmu_value & MMU_ENTRY_MASK;
++    uint32_t physical_offset = physical_page * ESP32_PSRAM_PAGE_SIZE;
++    uint64_t psram_size = (uint64_t) dport->psram_size_mib * MiB;
++    bool valid = !(mmu_value & ESP32_CACHE_MMU_INVALID_VAL)
++        && physical_offset + ESP32_PSRAM_PAGE_SIZE <= psram_size;
++
++    crs->psram_mmu_table[page] = mmu_value & 0xffff;
++    if (valid) {
++        memory_region_set_alias_offset(
++            &crs->psram_page_mem[page],
++            physical_offset
++        );
++    }
++    memory_region_set_enabled(&crs->psram_page_mem[page], valid);
++    memory_region_set_enabled(&crs->psram_page_ill[page], !valid);
++}
++
+ static void esp32_cache_data_sync(Esp32CacheRegionState* crs)
+ {
+     if (crs->cache->dport->flash_blk == NULL) {
+@@ -306,6 +361,14 @@ static void esp32_cache_region_reset(Esp32CacheRegionState *crs)
+     for (int i = 0; i < ESP32_CACHE_PAGES_PER_REGION; ++i) {
+         crs->mmu_table[i] = ESP32_CACHE_MMU_ENTRY_CHANGED;
+     }
++    if (
++        crs->type == ESP32_DCACHE_PSRAM
++        && crs->cache->dport->has_psram
++    ) {
++        for (int i = 0; i < ESP32_PSRAM_PAGES_PER_REGION; ++i) {
++            esp32_cache_psram_set_mapping(crs, i, i);
++        }
++    }
+     crs->illegal_access_trap_en = false;
+ }
+ 
+@@ -313,6 +376,7 @@ static void esp32_cache_reset(Esp32CacheState *cs)
+ {
+     esp32_cache_region_reset(&cs->drom0);
+     esp32_cache_region_reset(&cs->iram0);
++    esp32_cache_region_reset(&cs->dram1);
+ }
+ 
+ static uint64_t esp32_cache_ill_read(void *opaque, hwaddr addr, unsigned int size)
+@@ -384,6 +448,25 @@ static void esp32_dport_realize(DeviceState *dev, Error **errp)
+     MachineState *ms = MACHINE(qdev_get_machine());
+ 
+     s->cpu_count = ms->smp.cpus;
++    if (s->has_psram) {
++        if (s->psram_size_mib < 1 || s->psram_size_mib > 8) {
++            error_setg(
++                errp,
++                "ESP32 PSRAM size must be from 1 to 8 MiB"
++            );
++            return;
++        }
++        memory_region_init_ram(
++            &s->psram,
++            OBJECT(s),
++            "psram",
++            (uint64_t) s->psram_size_mib * MiB,
++            &error_fatal
++        );
++        for (int i = 0; i < ESP32_CPU_COUNT; ++i) {
++            esp32_cache_init_psram_region(&s->cache_state[i]);
++        }
++    }
+ }
+ 
+ static void esp32_cache_init_region(Esp32DportState *ds,
+@@ -399,10 +482,7 @@ static void esp32_cache_init_region(Esp32DportState *ds,
+     crs->base = base;
+     crs->illegal_access_retval = illegal_access_retval;
+     snprintf(desc, sizeof(desc), "cpu%d-%s", cs->core_id, name);
+-    if (type == ESP32_DCACHE_PSRAM) {
+-        memory_region_init_alias(&crs->mem, OBJECT(cs->dport), desc,
+-                                 &ds->psram, 0, ESP32_CACHE_REGION_SIZE);
+-    } else {
++    if (type != ESP32_DCACHE_PSRAM) {
+         memory_region_init_rom_device(&crs->mem, OBJECT(cs->dport),
+                                     &esp32_cache_ops, crs,
+                                     desc, ESP32_CACHE_REGION_SIZE, &error_abort);
+@@ -414,6 +494,53 @@ static void esp32_cache_init_region(Esp32DportState *ds,
+                           desc, ESP32_CACHE_REGION_SIZE);
+ }
+ 
++static void esp32_cache_init_psram_region(Esp32CacheState *cs)
++{
++    Esp32DportState *ds = cs->dport;
++    Esp32CacheRegionState *crs = &cs->dram1;
++    char desc[32];
++
++    memory_region_init(
++        &crs->mem,
++        OBJECT(ds),
++        "cpu-psram-window",
++        ESP32_CACHE_REGION_SIZE
++    );
++    for (int page = 0; page < ESP32_PSRAM_PAGES_PER_REGION; ++page) {
++        snprintf(desc, sizeof(desc), "cpu%d-psram-%d", cs->core_id, page);
++        memory_region_init_alias(
++            &crs->psram_page_mem[page],
++            OBJECT(ds),
++            desc,
++            &ds->psram,
++            page * ESP32_PSRAM_PAGE_SIZE,
++            ESP32_PSRAM_PAGE_SIZE
++        );
++        snprintf(desc, sizeof(desc), "cpu%d-psram-ill-%d", cs->core_id, page);
++        memory_region_init_alias(
++            &crs->psram_page_ill[page],
++            OBJECT(ds),
++            desc,
++            &crs->illegal_access_trap_mem,
++            0,
++            ESP32_PSRAM_PAGE_SIZE
++        );
++        memory_region_add_subregion_overlap(
++            &crs->mem,
++            page * ESP32_PSRAM_PAGE_SIZE,
++            &crs->psram_page_ill[page],
++            -2
++        );
++        memory_region_add_subregion_overlap(
++            &crs->mem,
++            page * ESP32_PSRAM_PAGE_SIZE,
++            &crs->psram_page_mem[page],
++            -1
++        );
++        esp32_cache_psram_set_mapping(crs, page, page);
++    }
++}
++
+ static void esp32_dport_init(Object *obj)
+ {
+     Esp32DportState *s = ESP32_DPORT(obj);
+@@ -423,8 +550,6 @@ static void esp32_dport_init(Object *obj)
+                           TYPE_ESP32_DPORT, ESP32_DPORT_SIZE);
+     sysbus_init_mmio(sbd, &s->iomem);
+ 
+-    memory_region_init_ram(&s->psram, obj, "psram", ESP32_CACHE_REGION_SIZE, &error_fatal);
+-
+     for (int i = 0; i < ESP32_CPU_COUNT; ++i) {
+         Esp32CacheState* cs = &s->cache_state[i];
+         cs->core_id = i;
+@@ -448,6 +573,7 @@ static void esp32_dport_init(Object *obj)
+ static Property esp32_dport_properties[] = {
+     DEFINE_PROP_DRIVE("flash", Esp32DportState, flash_blk),
+     DEFINE_PROP_BOOL("has_psram", Esp32DportState, has_psram, false),
++    DEFINE_PROP_UINT32("psram-size-mib", Esp32DportState, psram_size_mib, 0),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/include/hw/misc/esp32_dport.h b/include/hw/misc/esp32_dport.h
+index 3dfc0ab..9dfc963 100644
+--- a/include/hw/misc/esp32_dport.h
++++ b/include/hw/misc/esp32_dport.h
+@@ -18,6 +18,8 @@ typedef struct Esp32CacheState Esp32CacheState;
+ #define ESP32_CACHE_MMU_INVALID_VAL     0x100
+ #define ESP32_CACHE_MMU_ENTRY_CHANGED   0x200     /* not a hardware flag; used here to check if the page data needs to be updated */
+ #define ESP32_CACHE_MAX_PHYS_PAGES      0x100
++#define ESP32_PSRAM_PAGE_SIZE           0x8000
++#define ESP32_PSRAM_PAGES_PER_REGION    128
+ 
+ typedef enum Esp32CacheRegionType {
+     ESP32_DCACHE_FLASH,
+@@ -35,6 +37,9 @@ typedef struct Esp32CacheRegionState {
+     bool illegal_access_trap_en;
+     bool illegal_access_status;
+     uint16_t mmu_table[ESP32_CACHE_PAGES_PER_REGION];
++    uint16_t psram_mmu_table[ESP32_PSRAM_PAGES_PER_REGION];
++    MemoryRegion psram_page_mem[ESP32_PSRAM_PAGES_PER_REGION];
++    MemoryRegion psram_page_ill[ESP32_PSRAM_PAGES_PER_REGION];
+ } Esp32CacheRegionState;
+ 
+ typedef struct Esp32CacheState {
+@@ -56,6 +61,7 @@ typedef struct Esp32DportState {
+ 
+     MemoryRegion iomem;
+     bool has_psram;
++    uint32_t psram_size_mib;
+     int cpu_count;
+     Esp32CacheState cache_state[ESP32_CPU_COUNT];
+     MemoryRegion psram;         /* Shared between the CPUs: the actual memory region for PSRAM */

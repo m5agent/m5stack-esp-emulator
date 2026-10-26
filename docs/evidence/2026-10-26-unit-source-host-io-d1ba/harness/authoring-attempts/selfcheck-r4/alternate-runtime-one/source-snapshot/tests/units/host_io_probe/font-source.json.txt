@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "scope": "Official source references for the existing UIFlow2 2.5.3 display configuration; no firmware reproducibility or new readability claim. Guest fontHeight/textWidth guards remain authoritative at execution.",
+  "font": "Montserrat12",
+  "uiflow_version": "2.5.3",
+  "sources": [
+    {
+      "repo": "m5stack/uiflow-micropython",
+      "resolved_commit": "50e440780492aa847378c7d3477ab912f7063bac",
+      "source_path": "m5stack/components/M5Unified/mpy_m5gfx.cpp",
+      "sha256": "b13f252dbfd05eaa9135169acb13c65766af7529973debdc45690e4e9ae853f7",
+      "url": "https://github.com/m5stack/uiflow-micropython/blob/50e440780492aa847378c7d3477ab912f7063bac/m5stack/components/M5Unified/mpy_m5gfx.cpp"
+    },
+    {
+      "repo": "m5stack/uiflow-micropython",
+      "resolved_commit": "50e440780492aa847378c7d3477ab912f7063bac",
+      "source_path": "m5stack/components/M5Unified/mpy_lgfx_lvgl_font.cpp",
+      "sha256": "a83940ce9bbc687d10aee7c66dad77759acf211fa3ba06753a77a4827bc0641b",
+      "url": "https://github.com/m5stack/uiflow-micropython/blob/50e440780492aa847378c7d3477ab912f7063bac/m5stack/components/M5Unified/mpy_lgfx_lvgl_font.cpp"
+    },
+    {
+      "repo": "m5stack/uiflow-micropython",
+      "resolved_commit": "50e440780492aa847378c7d3477ab912f7063bac",
+      "source_path": "m5stack/components/M5Unified/fonts/Montserrat_1BPP_12.c",
+      "sha256": "dea9f66d480b3f1ae175981a2a03f7eb11eb2a9b899965fcc853e23c2beaec1d",
+      "url": "https://github.com/m5stack/uiflow-micropython/blob/50e440780492aa847378c7d3477ab912f7063bac/m5stack/components/M5Unified/fonts/Montserrat_1BPP_12.c"
+    },
+    {
+      "repo": "m5stack/M5GFX",
+      "resolved_commit": "9bcedf4e19d4cab7a0793de0598ae5390b4689fe",
+      "source_path": "src/lgfx/v1/LGFXBase.hpp",
+      "sha256": "e595198f2a0872c55a854b78d8a1d48cb656c534b62da183e4334f148afa01c1",
+      "url": "https://github.com/m5stack/M5GFX/blob/9bcedf4e19d4cab7a0793de0598ae5390b4689fe/src/lgfx/v1/LGFXBase.hpp"
+    },
+    {
+      "repo": "m5stack/M5GFX",
+      "resolved_commit": "9bcedf4e19d4cab7a0793de0598ae5390b4689fe",
+      "source_path": "src/lgfx/v1/LGFXBase.cpp",
+      "sha256": "c9bff4ce17f1e2127bf708ad6ebc9d10b4ac7bfed557340811cfea61769f9918",
+      "url": "https://github.com/m5stack/M5GFX/blob/9bcedf4e19d4cab7a0793de0598ae5390b4689fe/src/lgfx/v1/LGFXBase.cpp"
+    },
+    {
+      "repo": "tobozo/LGFX_Fonts",
+      "resolved_commit": "253cf549fe0b1aa932be68fe06a13c3077918d61",
+      "source_path": "src/Fonts/lvgl/lgfx_lv_font_montserrat_12.c",
+      "sha256": "bb9f62ead96038851a5ca634e9ad229876ae7af408493ebcdf2d73a88e985572",
+      "url": "https://github.com/tobozo/LGFX_Fonts/blob/253cf549fe0b1aa932be68fe06a13c3077918d61/src/Fonts/lvgl/lgfx_lv_font_montserrat_12.c"
+    }
+  ]
+}

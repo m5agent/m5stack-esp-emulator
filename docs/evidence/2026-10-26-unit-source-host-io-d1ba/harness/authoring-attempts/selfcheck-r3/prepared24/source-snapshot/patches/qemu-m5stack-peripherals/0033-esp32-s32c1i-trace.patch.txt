@@ -1,0 +1,62 @@
+diff --git a/target/xtensa/helper.h b/target/xtensa/helper.h
+--- a/target/xtensa/helper.h
++++ b/target/xtensa/helper.h
+@@ -27,6 +27,7 @@ DEF_HELPER_1(check_interrupts, void, env)
+ DEF_HELPER_2(intset, void, env, i32)
+ DEF_HELPER_2(intclear, void, env, i32)
+ DEF_HELPER_3(check_atomctl, void, env, i32, i32)
++DEF_HELPER_7(s32c1i_trace, void, env, i32, i32, i32, i32, i32, i32)
+ DEF_HELPER_4(check_exclusive, void, env, i32, i32, i32)
+ DEF_HELPER_2(wsr_memctl, void, env, i32)
+ 
+diff --git a/target/xtensa/op_helper.c b/target/xtensa/op_helper.c
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -131,6 +131,27 @@ void HELPER(check_atomctl)(CPUXtensaState *env, uint32_t pc, uint32_t vaddr)
+     }
+ }
+ 
++void HELPER(s32c1i_trace)(CPUXtensaState *env, uint32_t pc, uint32_t vaddr,
++                          uint32_t compare, uint32_t desired,
++                          uint32_t old, uint32_t success)
++{
++    uint32_t prid = env->sregs[PRID];
++
++    if (!getenv("M5SW_S32C1I_TRACE")) {
++        return;
++    }
++    fprintf(stderr,
++            "[esp32-s32c1i] core=%u prid=0x%08" PRIx32
++            " sp=0x%08" PRIx32
++            " pc=0x%08" PRIx32 " addr=0x%08" PRIx32
++            " compare=0x%08" PRIx32 " desired=0x%08" PRIx32
++            " old=0x%08" PRIx32 " success=%" PRIu32 "\n",
++            (prid >> 13) & 1, prid, env->regs[1], pc, vaddr, compare,
++            desired, old,
++            success);
++    fflush(stderr);
++}
++
+ void HELPER(check_exclusive)(CPUXtensaState *env, uint32_t pc, uint32_t vaddr,
+                              uint32_t is_write)
+ {
+diff --git a/target/xtensa/translate.c b/target/xtensa/translate.c
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -2216,6 +2216,16 @@ static void translate_s32c1i(DisasContext *dc, const OpcodeArg arg[],
+     gen_check_atomctl(dc, addr);
+     tcg_gen_atomic_cmpxchg_i32(arg[0].out, addr, cpu_SR[SCOMPARE1],
+                                tmp, dc->cring, mop);
++#ifndef CONFIG_USER_ONLY
++    if (getenv("M5SW_S32C1I_TRACE")) {
++        TCGv_i32 success = tcg_temp_new_i32();
++
++        tcg_gen_setcond_i32(TCG_COND_EQ, success, arg[0].out,
++                            cpu_SR[SCOMPARE1]);
++        gen_helper_s32c1i_trace(tcg_env, tcg_constant_i32(dc->pc), addr,
++                                cpu_SR[SCOMPARE1], tmp, arg[0].out, success);
++    }
++#endif
+ }
+ 
+ static void translate_s32e(DisasContext *dc, const OpcodeArg arg[],

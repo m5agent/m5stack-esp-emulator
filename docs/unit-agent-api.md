@@ -8,7 +8,8 @@ Unit 输入/guest 读取/画面 → evidence 的最短流程。CoreS3 已有选�
 下方给出可直接重放的源码 JSON；它们来自多批独立会话，不是原版 27 项
 单次全绿运行。下面逐字 Button 与 HUB + ENV III + NCIR 示例也已独立运行。
 AtomS3R、StickS3、StopWatch 的 Button/Relay/ENV III 另有九个源码 API
-会话独立通过；其它组合或任意代码不继承 PASS。当前能力、未完成
+会话通过；随后新增八种 Unit、24 个组合通过，三主机各有11种选定源码场景。
+本页共60份场景请求，各批固件与运行时分别绑定；其它组合或任意代码不继承 PASS。当前能力、未完成
 门禁和日期化结果分别见[项目当前状态](project-status.md)、
 [项目 Backlog](project-backlog.md)、[验证台账](validation-ledger.md)。
 完整对象、错误码和安全约束见[API](device-service-api.md)与
@@ -412,9 +413,41 @@ pin。这些主机的入口使用原 `host_probe` 四个 Python 文件和显式�
 scan/两个输入向量、Button 四次 GPIO/IRQ 边沿和 Relay 双输出。原生 frame
 分别为 128×128、135×240、466×466；StopWatch 的 guest canvas 仍为
 468×468，不能据此把原生 PNG 判错。该批验证非空帧和尺寸，不把这些检查等同
-于所有显示状态的可读性或跨请求原子快照。每款主机的其它 24 种 Unit 尚未由
-本批源码路径验证；此前的 BIN 路径结果也不自动转授。详见
+于所有显示状态的可读性或跨请求原子快照。该九组合不转授其它 Unit，后续
+八种见下节；此前的 BIN 路径结果也不自动转授。详见
 [九组合证据](evidence/2026-10-26-unit-source-hosts-29d8/README.md)。
+
+## 三主机：新增八种 Unit
+
+以下24个实际源码 API 会话已通过，均为原驱动；范例沿用上述 JSON 重放步骤，
+主机接线从同目录 `prepared.json` 读取，使用新 compose 响应创建带 Unit 附件的
+session。附件在创建时固定，运行中 hotplug 尚未实现。Fan三例在同步前的
+`cba4e3c` 上执行，其余21例在PWM块提交 `0a6a9a2` 并fetch/merge之后全新准备；
+两批481项源码依赖清单和字节哈希相同，运行时均为 `d1ba`、worker gen12。
+
+| Unit | AtomS3R 源码 | StickS3 源码 | StopWatch 源码 |
+| --- | --- | --- | --- |
+| PIR | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/pir/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/pir/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/pir/source-request.json) |
+| Dual Button | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/dual-button/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/dual-button/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/dual-button/source-request.json) |
+| LIMIT | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/limit/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/limit/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/limit/source-request.json) |
+| Key | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/key/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/key/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/key/source-request.json) |
+| RGB | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/rgb/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/rgb/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/rgb/source-request.json) |
+| Fan | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/fan-r1/atoms3r/fan/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/fan-r1/sticks3/fan/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/fan-r1/stopwatch/fan/source-request.json) |
+| RS485 | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/rs485/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/rs485/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/rs485/source-request.json) |
+| HUB + ENV III + NCIR + TVOC | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/hub/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/hub/source-request.json) | [JSON](evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/hub/source-request.json) |
+
+每份请求保留原 host IO 探针、原13个driver Python文件和主机配置，共19个caller
+文件；初始化、负控、完整原控制器断言、BMI270内部总线前后/loop与native显示
+合同均保留。PIR/按钮/Limit/Key有新鲜GPIO输入，RGB含full→短帧负控→full的
+真实RMT路径，Fan保留三阶段LEDC，RS485保留UART FIFO与超限负控，HUB有
+三个独立I2C leaf。RGB/Fan为output-only，实际网页零正向input POST。
+
+逐例源码CAS/固件/直接PID、真实DOM/HTTP、输入前与下一输入前的串口边界、
+Unit QOM、停止前ZIP和停止后history/最后帧/Flash释放/进程退出均绑定。
+显示可读性限实际看过的捕获帧；三主机的HUB长数字会跨行，numeric-token
+连续性为PARTIAL，完整数值另由UART/QOM核对。Fan动画不外推其它duty或物理转速。ADC准入、
+Thermal fixture、原IR/Buzzer、其它Unit/主机和任意新固件不继承。
+详见[24组合与完整边界](evidence/2026-10-26-unit-source-host-io-d1ba/README.md)。
 
 ## 结果边界
 
@@ -425,8 +458,8 @@ missing-fixture 负控 PASS、原 IR 的待审观察和原 Buzzer FAIL。具体�
 [首批](evidence/2026-10-26-unit-source-api-29d8/README.md)与
 [扩展批次](evidence/2026-10-26-unit-source-api-expanded-29d8/README.md)。
 
-- CoreS3 选定 27 种场景与三主机各 Button/Relay/ENV III 分别有实际源码 API
-  执行证据，具体固件/主机/输入单列；其它组合不继承。CoreS3 控制四例使用
+- CoreS3 选定27种场景与三主机各11种选定场景有实际源码API执行证据，
+  具体固件/主机/输入/运行时按批次单列；其它组合不继承。CoreS3 控制四例使用
   `controls-probe-cores3-native-display-v1`，原驱动和控制断言
   不改，只做可逆的 display-only 调整；显示可读性限实际捕获帧。Heart 不证明
   BPM/SpO2，Fan 动画不外推其它 duty、比例或物理转速。

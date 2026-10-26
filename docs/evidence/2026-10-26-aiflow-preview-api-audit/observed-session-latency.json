@@ -1,0 +1,432 @@
+{
+  "category": "offline analysis of immutable real API-session evidence; no new sessions",
+  "scope": "24 sequential source IO sessions on three hosts, runtime d1ba/gen12. ready_marker is IO_PROBE_READY; times include probe-specific guest initialization. Not UI first-pixel latency or an AIFlow end-to-end benchmark; no SLA inferred.",
+  "clock": "server wall-clock event timestamps from original evidence.zip manifest.timeline",
+  "flash_transports": {
+    "esp-emu-esptool": 24
+  },
+  "stats": {
+    "all": {
+      "n": 24,
+      "created_to_booting_seconds": {
+        "min": 12.07305,
+        "median": 14.787552,
+        "p95_nearest_rank": 18.496715,
+        "max": 18.82097
+      },
+      "booting_to_running_seconds": {
+        "min": 1.981635,
+        "median": 2.3255055000000002,
+        "p95_nearest_rank": 2.613548,
+        "max": 2.838046
+      },
+      "created_to_running_seconds": {
+        "min": 14.428464,
+        "median": 16.983722,
+        "p95_nearest_rank": 20.891616,
+        "max": 21.340714
+      }
+    },
+    "atoms3r": {
+      "n": 8,
+      "created_to_booting_seconds": {
+        "min": 12.07305,
+        "median": 12.307034999999999,
+        "p95_nearest_rank": 12.900653,
+        "max": 12.900653
+      },
+      "booting_to_running_seconds": {
+        "min": 2.355414,
+        "median": 2.5081545,
+        "p95_nearest_rank": 2.838046,
+        "max": 2.838046
+      },
+      "created_to_running_seconds": {
+        "min": 14.428464,
+        "median": 14.9097815,
+        "p95_nearest_rank": 15.305424,
+        "max": 15.305424
+      }
+    },
+    "sticks3": {
+      "n": 8,
+      "created_to_booting_seconds": {
+        "min": 14.623808,
+        "median": 14.787552,
+        "p95_nearest_rank": 14.905089,
+        "max": 14.905089
+      },
+      "booting_to_running_seconds": {
+        "min": 1.981635,
+        "median": 2.121111,
+        "p95_nearest_rank": 2.611343,
+        "max": 2.611343
+      },
+      "created_to_running_seconds": {
+        "min": 16.712653,
+        "median": 16.983722,
+        "p95_nearest_rank": 17.323603,
+        "max": 17.323603
+      }
+    },
+    "stopwatch": {
+      "n": 8,
+      "created_to_booting_seconds": {
+        "min": 18.267785,
+        "median": 18.390114,
+        "p95_nearest_rank": 18.82097,
+        "max": 18.82097
+      },
+      "booting_to_running_seconds": {
+        "min": 2.090626,
+        "median": 2.263686,
+        "p95_nearest_rank": 2.519744,
+        "max": 2.519744
+      },
+      "created_to_running_seconds": {
+        "min": 20.475284,
+        "median": 20.6455235,
+        "p95_nearest_rank": 21.340714,
+        "max": 21.340714
+      }
+    }
+  },
+  "samples": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "fan",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/fan-r1/atoms3r/fan/evidence.zip!manifest.json",
+      "zip_sha256": "63d4ac44705a0e291f9aaec3640ea08333cf16f604cc0f80da5cbb08ca8a2592",
+      "created_at": "2026-10-26T05:31:22.319105+00:00",
+      "booting_at": "2026-10-26T05:31:34.392155+00:00",
+      "running_at": "2026-10-26T05:31:36.747569+00:00",
+      "created_to_booting_seconds": 12.07305,
+      "booting_to_running_seconds": 2.355414,
+      "created_to_running_seconds": 14.428464,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "fbc4080e5c57f146be34a205acd7ed6d39a964b496b84247fd48098d9e197abe"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "fan",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/fan-r1/sticks3/fan/evidence.zip!manifest.json",
+      "zip_sha256": "21417dfa650cb24ed241bfbac5568b677c0462368fff3860b70f48b09f7eaf17",
+      "created_at": "2026-10-26T05:31:53.422412+00:00",
+      "booting_at": "2026-10-26T05:32:08.160065+00:00",
+      "running_at": "2026-10-26T05:32:10.300543+00:00",
+      "created_to_booting_seconds": 14.737653,
+      "booting_to_running_seconds": 2.140478,
+      "created_to_running_seconds": 16.878131,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "d4e76232770d840d555b6d8b3f70222429650f6699298566eda5eea7de48052d"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "fan",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/fan-r1/stopwatch/fan/evidence.zip!manifest.json",
+      "zip_sha256": "ac9d77e8921917683cf79b7c7bca788fe65a9aa4615c48ab20260b273c9e5b52",
+      "created_at": "2026-10-26T05:32:26.937021+00:00",
+      "booting_at": "2026-10-26T05:32:45.204806+00:00",
+      "running_at": "2026-10-26T05:32:47.439797+00:00",
+      "created_to_booting_seconds": 18.267785,
+      "booting_to_running_seconds": 2.234991,
+      "created_to_running_seconds": 20.502776,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "74cabc9f4d7877d1fd3251034a5fda82ce2bed41404c2cfb71a861b61d33e554"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "dual-button",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/dual-button/evidence.zip!manifest.json",
+      "zip_sha256": "08a40d571e975e1abbcf984b6c01826936f1f7de777c78a4f3fefdb91117afb8",
+      "created_at": "2026-10-26T05:55:38.930529+00:00",
+      "booting_at": "2026-10-26T05:55:51.332378+00:00",
+      "running_at": "2026-10-26T05:55:53.945926+00:00",
+      "created_to_booting_seconds": 12.401849,
+      "booting_to_running_seconds": 2.613548,
+      "created_to_running_seconds": 15.015397,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "f990e6cefe9a9ff8485bb1935dcf481350c701fbaf757a9f0efed511c9e0195f"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "hub",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/hub/evidence.zip!manifest.json",
+      "zip_sha256": "f589ba67f338cdd9828037211a78523a52e8e9b9ec60fd2768bee9df11206b85",
+      "created_at": "2026-10-26T05:57:39.570792+00:00",
+      "booting_at": "2026-10-26T05:57:51.800002+00:00",
+      "running_at": "2026-10-26T05:57:54.638048+00:00",
+      "created_to_booting_seconds": 12.22921,
+      "booting_to_running_seconds": 2.838046,
+      "created_to_running_seconds": 15.067256,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "3cf7ce45e97638743cb8e910e14d61fda890f9d86a790c12383f00c344dfef9b"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "key",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/key/evidence.zip!manifest.json",
+      "zip_sha256": "7683d7f5d3be0855cca0274677447124d34b50c58bee063342639d7163c0c115",
+      "created_at": "2026-10-26T05:56:24.113841+00:00",
+      "booting_at": "2026-10-26T05:56:36.498701+00:00",
+      "running_at": "2026-10-26T05:56:39.028088+00:00",
+      "created_to_booting_seconds": 12.38486,
+      "booting_to_running_seconds": 2.529387,
+      "created_to_running_seconds": 14.914247,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "ce2a47374fed8cd800c2c28a2414d19881433f0182d5176310ddc2314f9d3bac"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "limit",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/limit/evidence.zip!manifest.json",
+      "zip_sha256": "04b928cd65ccbf83599776be9ad30fb127c62f13cfc85db8da99fa6dcf104c7b",
+      "created_at": "2026-10-26T05:56:02.464469+00:00",
+      "booting_at": "2026-10-26T05:56:14.671825+00:00",
+      "running_at": "2026-10-26T05:56:17.177692+00:00",
+      "created_to_booting_seconds": 12.207356,
+      "booting_to_running_seconds": 2.505867,
+      "created_to_running_seconds": 14.713223,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "36690d22d2f0cde63de9d4b0923cc84be5f8e0fe3dac2038550b646197e13c04"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "pir",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/pir/evidence.zip!manifest.json",
+      "zip_sha256": "667abbe764f87f08932dc1875ed1993a334ebc5561f1f1fc42c391d107106fa2",
+      "created_at": "2026-10-26T05:55:10.311755+00:00",
+      "booting_at": "2026-10-26T05:55:22.809806+00:00",
+      "running_at": "2026-10-26T05:55:25.217071+00:00",
+      "created_to_booting_seconds": 12.498051,
+      "booting_to_running_seconds": 2.407265,
+      "created_to_running_seconds": 14.905316,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "4dd32f7a47b07bd5e36ac6be66dd7cfa59f8ba67cd43a5aac9fa0a526fdd3a71"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "rgb",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/rgb/evidence.zip!manifest.json",
+      "zip_sha256": "3317fa9f7004d0038f8c2851de3fd70ee8c47d3607c255cf9245696a834cff86",
+      "created_at": "2026-10-26T05:56:46.610186+00:00",
+      "booting_at": "2026-10-26T05:56:58.704352+00:00",
+      "running_at": "2026-10-26T05:57:01.214794+00:00",
+      "created_to_booting_seconds": 12.094166,
+      "booting_to_running_seconds": 2.510442,
+      "created_to_running_seconds": 14.604608,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "cdb0ebeea1034e8d903b0629f64beb53bb9e114620638060b56befa2dbe0f269"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "rs485",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/atoms3r/rs485/evidence.zip!manifest.json",
+      "zip_sha256": "79bb50ced3e24724ae9167f9eccebb1d8865c0f2da1ea4ac2a801cbc2df805b9",
+      "created_at": "2026-10-26T05:57:17.326170+00:00",
+      "booting_at": "2026-10-26T05:57:30.226823+00:00",
+      "running_at": "2026-10-26T05:57:32.631594+00:00",
+      "created_to_booting_seconds": 12.900653,
+      "booting_to_running_seconds": 2.404771,
+      "created_to_running_seconds": 15.305424,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "c6164ce87825599dce702085c73b4aba57453c8a93cc8315f1d0521413f1d9b3"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "dual-button",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/dual-button/evidence.zip!manifest.json",
+      "zip_sha256": "8379fff269c8a63e98dd0ddc25b3573bb7c8abb670086e9e1d3e81f44417f346",
+      "created_at": "2026-10-26T05:58:52.255179+00:00",
+      "booting_at": "2026-10-26T05:59:07.160268+00:00",
+      "running_at": "2026-10-26T05:59:09.255580+00:00",
+      "created_to_booting_seconds": 14.905089,
+      "booting_to_running_seconds": 2.095312,
+      "created_to_running_seconds": 17.000401,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "156c6d35d1a26b27619ff8debc005d84a5c9ef268d1120625cf8317658a9591c"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "hub",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/hub/evidence.zip!manifest.json",
+      "zip_sha256": "2fa50ebcc2cc2baa22da502c52fa1432919ca34c1fe00c29776b39603d3f2ff1",
+      "created_at": "2026-10-26T06:01:02.614139+00:00",
+      "booting_at": "2026-10-26T06:01:17.326399+00:00",
+      "running_at": "2026-10-26T06:01:19.937742+00:00",
+      "created_to_booting_seconds": 14.71226,
+      "booting_to_running_seconds": 2.611343,
+      "created_to_running_seconds": 17.323603,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "660b4725d845af4a3c3848f0dda287edbe52d85b22923f90263ec7aa8670214d"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "key",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/key/evidence.zip!manifest.json",
+      "zip_sha256": "09bf63c56370102d1bdb7f889170faff9ce4baef76e34043f52e39d6a9ae8f4b",
+      "created_at": "2026-10-26T05:59:41.749734+00:00",
+      "booting_at": "2026-10-26T05:59:56.430410+00:00",
+      "running_at": "2026-10-26T05:59:58.726007+00:00",
+      "created_to_booting_seconds": 14.680676,
+      "booting_to_running_seconds": 2.295597,
+      "created_to_running_seconds": 16.976273,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "bf519e1a52d324a96bff328a374ac10f35020a612d1efaec660ce1f936ed9cda"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "limit",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/limit/evidence.zip!manifest.json",
+      "zip_sha256": "dc6e13dadcbae52e6e91939e9b09a6075919159abbad180920725442b7ca711c",
+      "created_at": "2026-10-26T05:59:18.002400+00:00",
+      "booting_at": "2026-10-26T05:59:32.874516+00:00",
+      "running_at": "2026-10-26T05:59:35.068764+00:00",
+      "created_to_booting_seconds": 14.872116,
+      "booting_to_running_seconds": 2.194248,
+      "created_to_running_seconds": 17.066364,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "1bcd3e72cc4c09c19bc5996d8973ea5827900791900499a278be6fc6d13e260d"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "pir",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/pir/evidence.zip!manifest.json",
+      "zip_sha256": "f0b418f1698b09f29a7885d5c79c923aa1da1c6e2550816642e1d88e9ba0d054",
+      "created_at": "2026-10-26T05:58:21.489550+00:00",
+      "booting_at": "2026-10-26T05:58:36.378977+00:00",
+      "running_at": "2026-10-26T05:58:38.480721+00:00",
+      "created_to_booting_seconds": 14.889427,
+      "booting_to_running_seconds": 2.101744,
+      "created_to_running_seconds": 16.991171,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "fba8ee0ad165cbf78c981bbed872f68dbaead7b72977d82957154e6ca8d4a230"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "rgb",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/rgb/evidence.zip!manifest.json",
+      "zip_sha256": "763f10504706f1225fc2243bdaa500a44bac414aa71b790a34bef208e2a3e623",
+      "created_at": "2026-10-26T06:00:05.538024+00:00",
+      "booting_at": "2026-10-26T06:00:20.161832+00:00",
+      "running_at": "2026-10-26T06:00:22.250677+00:00",
+      "created_to_booting_seconds": 14.623808,
+      "booting_to_running_seconds": 2.088845,
+      "created_to_running_seconds": 16.712653,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "bcea1fa1bef6fd143f0e2cb467879f89f43e1bb03807d23e90af29bb34be03ab"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "rs485",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/sticks3/rs485/evidence.zip!manifest.json",
+      "zip_sha256": "9a30d230a46e21f4a6b0db4d06238326b26eec41b677009cdc3d835fff15acca",
+      "created_at": "2026-10-26T06:00:38.548061+00:00",
+      "booting_at": "2026-10-26T06:00:53.385512+00:00",
+      "running_at": "2026-10-26T06:00:55.367147+00:00",
+      "created_to_booting_seconds": 14.837451,
+      "booting_to_running_seconds": 1.981635,
+      "created_to_running_seconds": 16.819086,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "9decee44c68b746dd7360aa829c140af13249c39a722b0b75777c0abe9cfeeb8"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "dual-button",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/dual-button/evidence.zip!manifest.json",
+      "zip_sha256": "83cd2e2a2ed0cb4e1ed919624e051d87ce185cc2f613f4f76eb519d5c4e9af7e",
+      "created_at": "2026-10-26T06:02:21.806251+00:00",
+      "booting_at": "2026-10-26T06:02:40.256008+00:00",
+      "running_at": "2026-10-26T06:02:42.548389+00:00",
+      "created_to_booting_seconds": 18.449757,
+      "booting_to_running_seconds": 2.292381,
+      "created_to_running_seconds": 20.742138,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "46bafb9787a77a4bf4595d44f9a40b2509dcfe91dba04a8d9a2c7b767ce35994"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "hub",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/hub/evidence.zip!manifest.json",
+      "zip_sha256": "516e8ffed1b159a17b2fc2a16f7b5b1af1437ebf52740518ee1df2e626d159ba",
+      "created_at": "2026-10-26T06:04:55.325973+00:00",
+      "booting_at": "2026-10-26T06:05:14.146943+00:00",
+      "running_at": "2026-10-26T06:05:16.666687+00:00",
+      "created_to_booting_seconds": 18.82097,
+      "booting_to_running_seconds": 2.519744,
+      "created_to_running_seconds": 21.340714,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "32603d369d769b8623d623a578b5deb61040444013cf6c6eb5901c4d1b567697"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "key",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/key/evidence.zip!manifest.json",
+      "zip_sha256": "8cb744d8d3bbf56c9f2c4b014012561f3a92c5d7080b1ecab2b2aea1d151be41",
+      "created_at": "2026-10-26T06:03:20.767434+00:00",
+      "booting_at": "2026-10-26T06:03:39.041352+00:00",
+      "running_at": "2026-10-26T06:03:41.537464+00:00",
+      "created_to_booting_seconds": 18.273918,
+      "booting_to_running_seconds": 2.496112,
+      "created_to_running_seconds": 20.77003,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "e9be893392f78a55f742e124b6f673bd6352546df4dca1b9e8a9ff9c7315f197"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "limit",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/limit/evidence.zip!manifest.json",
+      "zip_sha256": "c49ae274ad081ca2beaa1a97a47e5288ee51a83c1a3b633cf3fb4270aa0dfa6b",
+      "created_at": "2026-10-26T06:02:51.529268+00:00",
+      "booting_at": "2026-10-26T06:03:09.800312+00:00",
+      "running_at": "2026-10-26T06:03:12.004552+00:00",
+      "created_to_booting_seconds": 18.271044,
+      "booting_to_running_seconds": 2.20424,
+      "created_to_running_seconds": 20.475284,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "2cc0e22ffb4f5fa866ea33dfaafef0427047295ce3ff82b9e8690a9f92a032ad"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "pir",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/pir/evidence.zip!manifest.json",
+      "zip_sha256": "03ce851a5b5b2a8b40225b5666d51be7348e4c3be912086efa26fa91ba147136",
+      "created_at": "2026-10-26T06:01:47.363859+00:00",
+      "booting_at": "2026-10-26T06:02:05.694330+00:00",
+      "running_at": "2026-10-26T06:02:07.881895+00:00",
+      "created_to_booting_seconds": 18.330471,
+      "booting_to_running_seconds": 2.187565,
+      "created_to_running_seconds": 20.518036,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "56697546b94df2f97fd6e80260bbeda3bdd069df61608066f2da68b830d84ce6"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "rgb",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/rgb/evidence.zip!manifest.json",
+      "zip_sha256": "ebd7d5f6dd584cef2feaf41d83887c4f4e50d4d1db6bee8bc39bdc7f42d794ba",
+      "created_at": "2026-10-26T06:03:50.458057+00:00",
+      "booting_at": "2026-10-26T06:04:08.954772+00:00",
+      "running_at": "2026-10-26T06:04:11.349673+00:00",
+      "created_to_booting_seconds": 18.496715,
+      "booting_to_running_seconds": 2.394901,
+      "created_to_running_seconds": 20.891616,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "81743a516f6a24b46ac554abdb3cfe116389e715680964336337b94633905b2d"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "rs485",
+      "source": "docs/evidence/2026-10-26-unit-source-host-io-d1ba/batches/rest-r1/stopwatch/rs485/evidence.zip!manifest.json",
+      "zip_sha256": "9234ad05b2b8635a2f7a4122868179c9210b93dd3765412f3614aa4fe5c42eff",
+      "created_at": "2026-10-26T06:04:27.653976+00:00",
+      "booting_at": "2026-10-26T06:04:46.112259+00:00",
+      "running_at": "2026-10-26T06:04:48.202885+00:00",
+      "created_to_booting_seconds": 18.458283,
+      "booting_to_running_seconds": 2.090626,
+      "created_to_running_seconds": 20.548909,
+      "flash_transport": "esp-emu-esptool",
+      "firmware_sha256": "2e5a8f54cf5ef5ec4b03533649d7bcfb98a61e8db8a0e34d3e5f6c452eb439f4"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# 三主机 IO source harness 独审
+
+PASS_OFFLINE_ONLY，无未关闭问题。作者freeze匹配；原24组合×19 caller源文件/CAS/实际host base与VFS、官方驱动与config均核对。原IO validate_io/validate_evidence直接调用；formal positive_input_binding、host字体/canvas/layout与新鲜BMI读取均保留。
+
+独立114项离线检查通过，包含source provenance字段负控、source-only mutation白名单、原正式input绑定、陈旧UART/零后缀/跨下一输入上界反例、runtime参数化、默认不构造Client与不生成BIN。禁止socket/HTTP/Client/进程调用，实际外部调用0。作者文件审前后不变。
+
+此结论仅说明harness可交root执行，不是虚拟设备或硬件PASS。原IR/Buzzer和ADC边界保持；实际功能、runtime/worker、DOM/HTTP、ZIP/cleanup及native frame人工可读性仍需root执行和审查。

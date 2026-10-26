@@ -1,0 +1,64 @@
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -27,6 +27,8 @@
+ #include "hw/misc/esp32_handoff_trace.h"
+ #include "hw/nvram/esp32_efuse.h"
+ 
++#include <signal.h>
++
+ 
+ #define ESP32_DPORT_SIZE        (DR_REG_DPORT_APB_BASE - DR_REG_DPORT_BASE)
+ 
+@@ -55,6 +57,7 @@
+ static uint64_t handoff_trace_count;
+ static uint64_t handoff_pc_sample_count;
+ static QEMUTimer *handoff_pc_sample_timer;
++static QEMUTimer *handoff_pause_timer;
+ 
+ static inline bool esp32_dport_trace_enabled(void)
+ {
+@@ -527,6 +530,36 @@
+     );
+ }
+ 
++static void esp32_handoff_pause_cb(void *opaque)
++{
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=cpu event=pause a=0 b=0 c=0 d=0\n",
++            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
++    fflush(stderr);
++    raise(SIGSTOP);
++}
++
++static void esp32_handoff_pause_start(void)
++{
++    const char *value = getenv("M5SW_ESP32_HANDOFF_PAUSE_NS");
++    uint64_t pause_ns;
++
++    if (!esp32_handoff_trace_enabled() || !value) {
++        return;
++    }
++    pause_ns = strtoull(value, NULL, 10);
++    if (pause_ns == 0) {
++        return;
++    }
++    if (!handoff_pause_timer) {
++        handoff_pause_timer = timer_new_ns(
++            QEMU_CLOCK_VIRTUAL, esp32_handoff_pause_cb, NULL
++        );
++    }
++    timer_mod_ns(handoff_pause_timer, pause_ns);
++}
++
+ static void esp32_cache_invalidate_all_entries(Esp32CacheRegionState* crs)
+ {
+     for (int i = 0; i < ESP32_CACHE_PAGES_PER_REGION; ++i) {
+@@ -684,6 +717,7 @@
+         }
+     }
+     esp32_handoff_pc_sample_start();
++    esp32_handoff_pause_start();
+ }
+ 
+ static void esp32_cache_init_region(Esp32DportState *ds,

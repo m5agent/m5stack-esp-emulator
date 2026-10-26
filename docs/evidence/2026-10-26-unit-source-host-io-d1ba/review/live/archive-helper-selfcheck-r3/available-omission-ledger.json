@@ -1,0 +1,988 @@
+{
+  "status": "PENDING_AVAILABLE_INPUTS_ONLY",
+  "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+  "omitted_payloads": 2,
+  "available_snapshot_copies_now": 22,
+  "files": {
+    "batches/fan-r1/source-snapshot/platform/tools/ble_probe.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/live-fan-r1/source-snapshot/platform/tools/ble_probe.py.txt",
+      "omitted_archive_path": "batches/fan-r1/source-snapshot/platform/tools/ble_probe.py.txt",
+      "dependency": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "size": 16955,
+      "git_blob_oid": "01f5af6b7aa298ba23ffe39d534be0de99d644b1",
+      "classification_evidence": {
+        "constructors": [
+          "LocalLink",
+          "Controller(network-lane-emu)",
+          "Controller(network-lane-phone)"
+        ],
+        "source_lines": [
+          174,
+          202,
+          210
+        ],
+        "role": "Static local virtual BLE controllers, not physical hardware or execution capture"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/ble_probe.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/live-fan-r1/tooling-source-freeze.json",
+        "manifest_archive": "batches/fan-r1/tooling-source-freeze.json",
+        "entry_name": "platform/tools/ble_probe.py",
+        "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/live-fan-r1/SHA256SUMS",
+          "manifest_archive": "batches/fan-r1/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  source-snapshot/platform/tools/ble_probe.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "batches/fan-r1/source-snapshot/platform/tools/network_fabric.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/live-fan-r1/source-snapshot/platform/tools/network_fabric.py.txt",
+      "omitted_archive_path": "batches/fan-r1/source-snapshot/platform/tools/network_fabric.py.txt",
+      "dependency": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "size": 45221,
+      "git_blob_oid": "adf10856a4e76a2d1aae8f776e7d681d4052e203",
+      "classification_evidence": {
+        "constant": "GUEST_MACS",
+        "source_lines": [
+          27,
+          28
+        ],
+        "role": "Static virtual network fabric fixture, not measured execution identity"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/network_fabric.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/live-fan-r1/tooling-source-freeze.json",
+        "manifest_archive": "batches/fan-r1/tooling-source-freeze.json",
+        "entry_name": "platform/tools/network_fabric.py",
+        "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/live-fan-r1/SHA256SUMS",
+          "manifest_archive": "batches/fan-r1/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  source-snapshot/platform/tools/network_fabric.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r1/prepared24/source-snapshot/platform/tools/ble_probe.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r1/prepared24/source-snapshot/platform/tools/ble_probe.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r1/prepared24/source-snapshot/platform/tools/ble_probe.py.txt",
+      "dependency": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "size": 16955,
+      "git_blob_oid": "01f5af6b7aa298ba23ffe39d534be0de99d644b1",
+      "classification_evidence": {
+        "constructors": [
+          "LocalLink",
+          "Controller(network-lane-emu)",
+          "Controller(network-lane-phone)"
+        ],
+        "source_lines": [
+          174,
+          202,
+          210
+        ],
+        "role": "Static local virtual BLE controllers, not physical hardware or execution capture"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/ble_probe.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r1/prepared24/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r1/prepared24/tooling-source-freeze.json",
+        "entry_name": "platform/tools/ble_probe.py",
+        "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757"
+      },
+      "original_nested_checksum_entries": [],
+      "nested_checksum_entry_status": "NO_NESTED_CHECKSUM_ENTRY_WAS_PRODUCED_IN_ORIGINAL_PARTIAL_ATTEMPT"
+    },
+    "harness/authoring-attempts/selfcheck-r1/prepared24/source-snapshot/platform/tools/network_fabric.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r1/prepared24/source-snapshot/platform/tools/network_fabric.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r1/prepared24/source-snapshot/platform/tools/network_fabric.py.txt",
+      "dependency": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "size": 45221,
+      "git_blob_oid": "adf10856a4e76a2d1aae8f776e7d681d4052e203",
+      "classification_evidence": {
+        "constant": "GUEST_MACS",
+        "source_lines": [
+          27,
+          28
+        ],
+        "role": "Static virtual network fabric fixture, not measured execution identity"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/network_fabric.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r1/prepared24/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r1/prepared24/tooling-source-freeze.json",
+        "entry_name": "platform/tools/network_fabric.py",
+        "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef"
+      },
+      "original_nested_checksum_entries": [],
+      "nested_checksum_entry_status": "NO_NESTED_CHECKSUM_ENTRY_WAS_PRODUCED_IN_ORIGINAL_PARTIAL_ATTEMPT"
+    },
+    "harness/authoring-attempts/selfcheck-r2/alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r2/alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r2/alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt",
+      "dependency": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "size": 16955,
+      "git_blob_oid": "01f5af6b7aa298ba23ffe39d534be0de99d644b1",
+      "classification_evidence": {
+        "constructors": [
+          "LocalLink",
+          "Controller(network-lane-emu)",
+          "Controller(network-lane-phone)"
+        ],
+        "source_lines": [
+          174,
+          202,
+          210
+        ],
+        "role": "Static local virtual BLE controllers, not physical hardware or execution capture"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/ble_probe.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/alternate-runtime-one/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r2/alternate-runtime-one/tooling-source-freeze.json",
+        "entry_name": "platform/tools/ble_probe.py",
+        "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r2/SHA256SUMS",
+          "entry_name": "alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/alternate-runtime-one/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r2/alternate-runtime-one/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  source-snapshot/platform/tools/ble_probe.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r2/alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r2/alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r2/alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt",
+      "dependency": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "size": 45221,
+      "git_blob_oid": "adf10856a4e76a2d1aae8f776e7d681d4052e203",
+      "classification_evidence": {
+        "constant": "GUEST_MACS",
+        "source_lines": [
+          27,
+          28
+        ],
+        "role": "Static virtual network fabric fixture, not measured execution identity"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/network_fabric.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/alternate-runtime-one/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r2/alternate-runtime-one/tooling-source-freeze.json",
+        "entry_name": "platform/tools/network_fabric.py",
+        "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r2/SHA256SUMS",
+          "entry_name": "alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/alternate-runtime-one/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r2/alternate-runtime-one/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  source-snapshot/platform/tools/network_fabric.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r2/default-one/source-snapshot/platform/tools/ble_probe.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r2/default-one/source-snapshot/platform/tools/ble_probe.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r2/default-one/source-snapshot/platform/tools/ble_probe.py.txt",
+      "dependency": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "size": 16955,
+      "git_blob_oid": "01f5af6b7aa298ba23ffe39d534be0de99d644b1",
+      "classification_evidence": {
+        "constructors": [
+          "LocalLink",
+          "Controller(network-lane-emu)",
+          "Controller(network-lane-phone)"
+        ],
+        "source_lines": [
+          174,
+          202,
+          210
+        ],
+        "role": "Static local virtual BLE controllers, not physical hardware or execution capture"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/ble_probe.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/default-one/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r2/default-one/tooling-source-freeze.json",
+        "entry_name": "platform/tools/ble_probe.py",
+        "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r2/SHA256SUMS",
+          "entry_name": "default-one/source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  default-one/source-snapshot/platform/tools/ble_probe.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/default-one/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r2/default-one/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  source-snapshot/platform/tools/ble_probe.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r2/default-one/source-snapshot/platform/tools/network_fabric.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r2/default-one/source-snapshot/platform/tools/network_fabric.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r2/default-one/source-snapshot/platform/tools/network_fabric.py.txt",
+      "dependency": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "size": 45221,
+      "git_blob_oid": "adf10856a4e76a2d1aae8f776e7d681d4052e203",
+      "classification_evidence": {
+        "constant": "GUEST_MACS",
+        "source_lines": [
+          27,
+          28
+        ],
+        "role": "Static virtual network fabric fixture, not measured execution identity"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/network_fabric.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/default-one/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r2/default-one/tooling-source-freeze.json",
+        "entry_name": "platform/tools/network_fabric.py",
+        "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r2/SHA256SUMS",
+          "entry_name": "default-one/source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  default-one/source-snapshot/platform/tools/network_fabric.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/default-one/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r2/default-one/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  source-snapshot/platform/tools/network_fabric.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r2/prepared24/source-snapshot/platform/tools/ble_probe.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r2/prepared24/source-snapshot/platform/tools/ble_probe.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r2/prepared24/source-snapshot/platform/tools/ble_probe.py.txt",
+      "dependency": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "size": 16955,
+      "git_blob_oid": "01f5af6b7aa298ba23ffe39d534be0de99d644b1",
+      "classification_evidence": {
+        "constructors": [
+          "LocalLink",
+          "Controller(network-lane-emu)",
+          "Controller(network-lane-phone)"
+        ],
+        "source_lines": [
+          174,
+          202,
+          210
+        ],
+        "role": "Static local virtual BLE controllers, not physical hardware or execution capture"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/ble_probe.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/prepared24/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r2/prepared24/tooling-source-freeze.json",
+        "entry_name": "platform/tools/ble_probe.py",
+        "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r2/SHA256SUMS",
+          "entry_name": "prepared24/source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  prepared24/source-snapshot/platform/tools/ble_probe.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/prepared24/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r2/prepared24/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  source-snapshot/platform/tools/ble_probe.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r2/prepared24/source-snapshot/platform/tools/network_fabric.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r2/prepared24/source-snapshot/platform/tools/network_fabric.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r2/prepared24/source-snapshot/platform/tools/network_fabric.py.txt",
+      "dependency": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "size": 45221,
+      "git_blob_oid": "adf10856a4e76a2d1aae8f776e7d681d4052e203",
+      "classification_evidence": {
+        "constant": "GUEST_MACS",
+        "source_lines": [
+          27,
+          28
+        ],
+        "role": "Static virtual network fabric fixture, not measured execution identity"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/network_fabric.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/prepared24/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r2/prepared24/tooling-source-freeze.json",
+        "entry_name": "platform/tools/network_fabric.py",
+        "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r2/SHA256SUMS",
+          "entry_name": "prepared24/source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  prepared24/source-snapshot/platform/tools/network_fabric.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r2/prepared24/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r2/prepared24/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  source-snapshot/platform/tools/network_fabric.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r3/alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r3/alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r3/alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt",
+      "dependency": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "size": 16955,
+      "git_blob_oid": "01f5af6b7aa298ba23ffe39d534be0de99d644b1",
+      "classification_evidence": {
+        "constructors": [
+          "LocalLink",
+          "Controller(network-lane-emu)",
+          "Controller(network-lane-phone)"
+        ],
+        "source_lines": [
+          174,
+          202,
+          210
+        ],
+        "role": "Static local virtual BLE controllers, not physical hardware or execution capture"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/ble_probe.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/alternate-runtime-one/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r3/alternate-runtime-one/tooling-source-freeze.json",
+        "entry_name": "platform/tools/ble_probe.py",
+        "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r3/SHA256SUMS",
+          "entry_name": "alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/alternate-runtime-one/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r3/alternate-runtime-one/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  source-snapshot/platform/tools/ble_probe.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r3/alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r3/alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r3/alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt",
+      "dependency": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "size": 45221,
+      "git_blob_oid": "adf10856a4e76a2d1aae8f776e7d681d4052e203",
+      "classification_evidence": {
+        "constant": "GUEST_MACS",
+        "source_lines": [
+          27,
+          28
+        ],
+        "role": "Static virtual network fabric fixture, not measured execution identity"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/network_fabric.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/alternate-runtime-one/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r3/alternate-runtime-one/tooling-source-freeze.json",
+        "entry_name": "platform/tools/network_fabric.py",
+        "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r3/SHA256SUMS",
+          "entry_name": "alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/alternate-runtime-one/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r3/alternate-runtime-one/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  source-snapshot/platform/tools/network_fabric.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r3/default-one/source-snapshot/platform/tools/ble_probe.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r3/default-one/source-snapshot/platform/tools/ble_probe.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r3/default-one/source-snapshot/platform/tools/ble_probe.py.txt",
+      "dependency": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "size": 16955,
+      "git_blob_oid": "01f5af6b7aa298ba23ffe39d534be0de99d644b1",
+      "classification_evidence": {
+        "constructors": [
+          "LocalLink",
+          "Controller(network-lane-emu)",
+          "Controller(network-lane-phone)"
+        ],
+        "source_lines": [
+          174,
+          202,
+          210
+        ],
+        "role": "Static local virtual BLE controllers, not physical hardware or execution capture"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/ble_probe.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/default-one/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r3/default-one/tooling-source-freeze.json",
+        "entry_name": "platform/tools/ble_probe.py",
+        "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r3/SHA256SUMS",
+          "entry_name": "default-one/source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  default-one/source-snapshot/platform/tools/ble_probe.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/default-one/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r3/default-one/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  source-snapshot/platform/tools/ble_probe.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r3/default-one/source-snapshot/platform/tools/network_fabric.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r3/default-one/source-snapshot/platform/tools/network_fabric.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r3/default-one/source-snapshot/platform/tools/network_fabric.py.txt",
+      "dependency": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "size": 45221,
+      "git_blob_oid": "adf10856a4e76a2d1aae8f776e7d681d4052e203",
+      "classification_evidence": {
+        "constant": "GUEST_MACS",
+        "source_lines": [
+          27,
+          28
+        ],
+        "role": "Static virtual network fabric fixture, not measured execution identity"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/network_fabric.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/default-one/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r3/default-one/tooling-source-freeze.json",
+        "entry_name": "platform/tools/network_fabric.py",
+        "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r3/SHA256SUMS",
+          "entry_name": "default-one/source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  default-one/source-snapshot/platform/tools/network_fabric.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/default-one/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r3/default-one/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  source-snapshot/platform/tools/network_fabric.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r3/prepared24/source-snapshot/platform/tools/ble_probe.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r3/prepared24/source-snapshot/platform/tools/ble_probe.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r3/prepared24/source-snapshot/platform/tools/ble_probe.py.txt",
+      "dependency": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "size": 16955,
+      "git_blob_oid": "01f5af6b7aa298ba23ffe39d534be0de99d644b1",
+      "classification_evidence": {
+        "constructors": [
+          "LocalLink",
+          "Controller(network-lane-emu)",
+          "Controller(network-lane-phone)"
+        ],
+        "source_lines": [
+          174,
+          202,
+          210
+        ],
+        "role": "Static local virtual BLE controllers, not physical hardware or execution capture"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/ble_probe.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/prepared24/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r3/prepared24/tooling-source-freeze.json",
+        "entry_name": "platform/tools/ble_probe.py",
+        "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r3/SHA256SUMS",
+          "entry_name": "prepared24/source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  prepared24/source-snapshot/platform/tools/ble_probe.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/prepared24/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r3/prepared24/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  source-snapshot/platform/tools/ble_probe.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r3/prepared24/source-snapshot/platform/tools/network_fabric.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r3/prepared24/source-snapshot/platform/tools/network_fabric.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r3/prepared24/source-snapshot/platform/tools/network_fabric.py.txt",
+      "dependency": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "size": 45221,
+      "git_blob_oid": "adf10856a4e76a2d1aae8f776e7d681d4052e203",
+      "classification_evidence": {
+        "constant": "GUEST_MACS",
+        "source_lines": [
+          27,
+          28
+        ],
+        "role": "Static virtual network fabric fixture, not measured execution identity"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/network_fabric.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/prepared24/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r3/prepared24/tooling-source-freeze.json",
+        "entry_name": "platform/tools/network_fabric.py",
+        "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r3/SHA256SUMS",
+          "entry_name": "prepared24/source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  prepared24/source-snapshot/platform/tools/network_fabric.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r3/prepared24/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r3/prepared24/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  source-snapshot/platform/tools/network_fabric.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r4/alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r4/alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r4/alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt",
+      "dependency": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "size": 16955,
+      "git_blob_oid": "01f5af6b7aa298ba23ffe39d534be0de99d644b1",
+      "classification_evidence": {
+        "constructors": [
+          "LocalLink",
+          "Controller(network-lane-emu)",
+          "Controller(network-lane-phone)"
+        ],
+        "source_lines": [
+          174,
+          202,
+          210
+        ],
+        "role": "Static local virtual BLE controllers, not physical hardware or execution capture"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/ble_probe.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/alternate-runtime-one/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r4/alternate-runtime-one/tooling-source-freeze.json",
+        "entry_name": "platform/tools/ble_probe.py",
+        "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r4/SHA256SUMS",
+          "entry_name": "alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  alternate-runtime-one/source-snapshot/platform/tools/ble_probe.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/alternate-runtime-one/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r4/alternate-runtime-one/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  source-snapshot/platform/tools/ble_probe.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r4/alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r4/alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r4/alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt",
+      "dependency": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "size": 45221,
+      "git_blob_oid": "adf10856a4e76a2d1aae8f776e7d681d4052e203",
+      "classification_evidence": {
+        "constant": "GUEST_MACS",
+        "source_lines": [
+          27,
+          28
+        ],
+        "role": "Static virtual network fabric fixture, not measured execution identity"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/network_fabric.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/alternate-runtime-one/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r4/alternate-runtime-one/tooling-source-freeze.json",
+        "entry_name": "platform/tools/network_fabric.py",
+        "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r4/SHA256SUMS",
+          "entry_name": "alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  alternate-runtime-one/source-snapshot/platform/tools/network_fabric.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/alternate-runtime-one/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r4/alternate-runtime-one/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  source-snapshot/platform/tools/network_fabric.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r4/default-one/source-snapshot/platform/tools/ble_probe.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r4/default-one/source-snapshot/platform/tools/ble_probe.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r4/default-one/source-snapshot/platform/tools/ble_probe.py.txt",
+      "dependency": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "size": 16955,
+      "git_blob_oid": "01f5af6b7aa298ba23ffe39d534be0de99d644b1",
+      "classification_evidence": {
+        "constructors": [
+          "LocalLink",
+          "Controller(network-lane-emu)",
+          "Controller(network-lane-phone)"
+        ],
+        "source_lines": [
+          174,
+          202,
+          210
+        ],
+        "role": "Static local virtual BLE controllers, not physical hardware or execution capture"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/ble_probe.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/default-one/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r4/default-one/tooling-source-freeze.json",
+        "entry_name": "platform/tools/ble_probe.py",
+        "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r4/SHA256SUMS",
+          "entry_name": "default-one/source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  default-one/source-snapshot/platform/tools/ble_probe.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/default-one/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r4/default-one/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  source-snapshot/platform/tools/ble_probe.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r4/default-one/source-snapshot/platform/tools/network_fabric.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r4/default-one/source-snapshot/platform/tools/network_fabric.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r4/default-one/source-snapshot/platform/tools/network_fabric.py.txt",
+      "dependency": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "size": 45221,
+      "git_blob_oid": "adf10856a4e76a2d1aae8f776e7d681d4052e203",
+      "classification_evidence": {
+        "constant": "GUEST_MACS",
+        "source_lines": [
+          27,
+          28
+        ],
+        "role": "Static virtual network fabric fixture, not measured execution identity"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/network_fabric.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/default-one/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r4/default-one/tooling-source-freeze.json",
+        "entry_name": "platform/tools/network_fabric.py",
+        "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r4/SHA256SUMS",
+          "entry_name": "default-one/source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  default-one/source-snapshot/platform/tools/network_fabric.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/default-one/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r4/default-one/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  source-snapshot/platform/tools/network_fabric.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r4/prepared24/source-snapshot/platform/tools/ble_probe.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r4/prepared24/source-snapshot/platform/tools/ble_probe.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r4/prepared24/source-snapshot/platform/tools/ble_probe.py.txt",
+      "dependency": "platform/tools/ble_probe.py",
+      "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+      "size": 16955,
+      "git_blob_oid": "01f5af6b7aa298ba23ffe39d534be0de99d644b1",
+      "classification_evidence": {
+        "constructors": [
+          "LocalLink",
+          "Controller(network-lane-emu)",
+          "Controller(network-lane-phone)"
+        ],
+        "source_lines": [
+          174,
+          202,
+          210
+        ],
+        "role": "Static local virtual BLE controllers, not physical hardware or execution capture"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/ble_probe.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/prepared24/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r4/prepared24/tooling-source-freeze.json",
+        "entry_name": "platform/tools/ble_probe.py",
+        "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r4/SHA256SUMS",
+          "entry_name": "prepared24/source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  prepared24/source-snapshot/platform/tools/ble_probe.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/prepared24/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r4/prepared24/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/ble_probe.py.txt",
+          "sha256": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757",
+          "original_entry_line": "2548151a414dc4ccc18d858d2d384c1a1ce0cb9d7f1d976646fb93f9c76d0757  source-snapshot/platform/tools/ble_probe.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    },
+    "harness/authoring-attempts/selfcheck-r4/prepared24/source-snapshot/platform/tools/network_fabric.py.txt": {
+      "source": ".work/unit-source-host-io-20261026/selfcheck-r4/prepared24/source-snapshot/platform/tools/network_fabric.py.txt",
+      "omitted_archive_path": "harness/authoring-attempts/selfcheck-r4/prepared24/source-snapshot/platform/tools/network_fabric.py.txt",
+      "dependency": "platform/tools/network_fabric.py",
+      "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+      "size": 45221,
+      "git_blob_oid": "adf10856a4e76a2d1aae8f776e7d681d4052e203",
+      "classification_evidence": {
+        "constant": "GUEST_MACS",
+        "source_lines": [
+          27,
+          28
+        ],
+        "role": "Static virtual network fabric fixture, not measured execution identity"
+      },
+      "fixed_git_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "git_show_reference": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc:platform/tools/network_fabric.py",
+      "byte_changes": false,
+      "bytes_in_archive": false,
+      "reason": "Exact omission requested by root to avoid newly copying static virtual MAC literals. Original files unchanged; all caller/driver/runtime HTTP/ZIP/serial remain byte-exact.",
+      "original_freeze_entry": {
+        "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/prepared24/tooling-source-freeze.json",
+        "manifest_archive": "harness/authoring-attempts/selfcheck-r4/prepared24/tooling-source-freeze.json",
+        "entry_name": "platform/tools/network_fabric.py",
+        "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef"
+      },
+      "original_nested_checksum_entries": [
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r4/SHA256SUMS",
+          "entry_name": "prepared24/source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  prepared24/source-snapshot/platform/tools/network_fabric.py.txt"
+        },
+        {
+          "manifest_source": ".work/unit-source-host-io-20261026/selfcheck-r4/prepared24/SHA256SUMS",
+          "manifest_archive": "harness/authoring-attempts/selfcheck-r4/prepared24/SHA256SUMS",
+          "entry_name": "source-snapshot/platform/tools/network_fabric.py.txt",
+          "sha256": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef",
+          "original_entry_line": "608f6df7d0dcffec56fe702e922b1412cb189acdd586b46e826c121746125aef  source-snapshot/platform/tools/network_fabric.py.txt"
+        }
+      ],
+      "nested_checksum_entry_status": "ORIGINAL_ENTRIES_PRESERVED"
+    }
+  },
+  "source_closure_byte_completeness": "NOT_FULL_IN_ARCHIVE_BY_EXPLICIT_ROOT_OMISSION"
+}

@@ -1,0 +1,32 @@
+{
+  "name": "sticks3.js",
+  "version": "0.1.0",
+  "description": "Pluggable, interactive three.js hardware views — ships with an M5Stack StickS3 model. Bridge any hardware simulator to a 3D device with buttons, pixel-accurate displays, touch, haptics and expansion modules.",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./core": "./src/core/index.js",
+    "./devices/sticks3": "./src/devices/sticks3/index.js",
+    "./modules": "./src/modules/index.js"
+  },
+  "files": [
+    "src",
+    "AGENTS.md",
+    "BUILD.md"
+  ],
+  "scripts": {
+    "dev": "vite demo --port 5173",
+    "build:demo": "vite build demo --outDir ../dist-demo --emptyOutDir",
+    "check": "node scripts/check.mjs"
+  },
+  "peerDependencies": {
+    "three": ">=0.160.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.1",
+    "three": "^0.186.1",
+    "vite": "^8.3.5"
+  },
+  "license": "MIT"
+}

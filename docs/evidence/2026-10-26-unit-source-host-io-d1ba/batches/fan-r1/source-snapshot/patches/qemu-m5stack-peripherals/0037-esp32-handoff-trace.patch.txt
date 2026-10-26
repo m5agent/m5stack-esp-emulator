@@ -1,0 +1,749 @@
+--- /dev/null
++++ b/include/hw/misc/esp32_handoff_trace.h
+@@ -0,0 +1,125 @@
++/*
++ * ESP32 flash/cache handoff diagnostic trace
++ *
++ * This is a default-off diagnostic channel. It does not alter controller or
++ * CPU behavior; it records the current virtual time, CPU, guest PC and four
++ * component-specific values in a common line format.
++ */
++
++#ifndef HW_MISC_ESP32_HANDOFF_TRACE_H
++#define HW_MISC_ESP32_HANDOFF_TRACE_H
++
++#include "qemu/osdep.h"
++#include "qemu/timer.h"
++#include "hw/core/cpu.h"
++
++static inline bool esp32_handoff_trace_enabled(void)
++{
++    static int enabled = -1;
++
++    if (enabled < 0) {
++        enabled = getenv("M5SW_ESP32_HANDOFF_TRACE") != NULL;
++    }
++    return enabled;
++}
++
++static inline uint64_t esp32_handoff_trace_sample_interval(void)
++{
++    static uint64_t sample;
++    static bool initialized;
++
++    if (!initialized) {
++        const char *sample_env =
++            getenv("M5SW_ESP32_HANDOFF_TRACE_SAMPLE");
++
++        sample = sample_env ? strtoull(sample_env, NULL, 10) : 1;
++        if (sample == 0) {
++            sample = 1;
++        }
++        initialized = true;
++    }
++    return sample;
++}
++
++static inline void esp32_handoff_trace_event_internal(uint64_t *counter,
++                                                      const char *component,
++                                                      const char *event,
++                                                      uint64_t a, uint64_t b,
++                                                      uint64_t c, uint64_t d,
++                                                      bool always)
++{
++    uint64_t sample;
++    int cpu_index = -1;
++    uint64_t pc = 0;
++
++    if (!esp32_handoff_trace_enabled()) {
++        return;
++    }
++
++    sample = esp32_handoff_trace_sample_interval();
++
++    ++*counter;
++    if (!always && sample > 1 && (*counter % sample) != 0) {
++        return;
++    }
++
++    if (current_cpu) {
++        cpu_index = current_cpu->cpu_index;
++        if (current_cpu->cc && current_cpu->cc->get_pc) {
++            pc = current_cpu->cc->get_pc(current_cpu);
++        }
++    }
++
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64 " cpu=%d pc=%08" PRIx64
++            " component=%s event=%s a=%" PRIu64 " b=%" PRIu64
++            " c=%" PRIu64 " d=%" PRIu64 "\n",
++            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL), cpu_index, pc,
++            component, event, a, b, c, d);
++    fflush(stderr);
++}
++
++static inline void esp32_handoff_trace_event(uint64_t *counter,
++                                             const char *component,
++                                             const char *event,
++                                             uint64_t a, uint64_t b,
++                                             uint64_t c, uint64_t d)
++{
++    esp32_handoff_trace_event_internal(
++        counter, component, event, a, b, c, d, false
++    );
++}
++
++static inline void esp32_handoff_trace_event_always(uint64_t *counter,
++                                                    const char *component,
++                                                    const char *event,
++                                                    uint64_t a, uint64_t b,
++                                                    uint64_t c, uint64_t d)
++{
++    esp32_handoff_trace_event_internal(
++        counter, component, event, a, b, c, d, true
++    );
++}
++
++static inline void esp32_handoff_trace_pc_sample(uint64_t *counter,
++                                                 uint64_t pc0,
++                                                 uint64_t pc1,
++                                                 unsigned state_flags,
++                                                 uint64_t interval_ns)
++{
++    if (!esp32_handoff_trace_enabled()) {
++        return;
++    }
++
++    ++*counter;
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=cpu event=sample"
++            " a=%08" PRIx64 " b=%08" PRIx64
++            " c=%u d=%" PRIu64 "\n",
++            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
++            pc0, pc1, state_flags, interval_ns);
++    fflush(stderr);
++}
++
++#endif
+--- a/include/hw/timer/esp32_timg.h
++++ b/include/hw/timer/esp32_timg.h
+@@ -63,6 +63,8 @@
+     int timeout[ESP32_TIMG_WDT_STAGE_COUNT];
+     uint32_t count_base;
+     uint64_t ns_base;
++    uint64_t last_feed_ns;
++    uint64_t feed_count;
+     int cur_stage;
+     uint32_t protect_reg;
+     QEMUTimer stage_timer;
+--- a/hw/char/esp32_uart.c
++++ b/hw/char/esp32_uart.c
+@@ -23,8 +23,10 @@
+ #include "hw/qdev-properties.h"
+ #include "hw/qdev-properties-system.h"
+ #include "hw/char/esp32_uart.h"
++#include "hw/misc/esp32_handoff_trace.h"
+ #include "trace.h"
+ 
++static uint64_t handoff_trace_count;
+ 
+ static gboolean uart_transmit(void *do_not_use, GIOCondition cond, void *opaque);
+ static void uart_receive(void *opaque, const uint8_t *buf, int size);
+@@ -33,6 +35,7 @@
+ void esp32_uart_update_irq(ESP32UARTState *s)
+ {
+     bool irq = false;
++    uint32_t old_int_st = s->reg[R_UART_INT_ST];
+ 
+     uint32_t tx_empty_raw = (fifo8_num_used(&s->tx_fifo) <= s->tx_empty_threshold);
+     uint32_t rx_full_raw = (fifo8_num_used(&s->rx_fifo) >= s->rx_full_threshold);
+@@ -51,6 +54,13 @@
+     s->reg[R_UART_INT_ST] = int_st;
+ 
+     qemu_set_irq(s->irq, irq);
++    if (old_int_st != int_st) {
++        esp32_handoff_trace_event(
++            &handoff_trace_count, "uart", "irq",
++            int_raw, s->reg[R_UART_INT_ENA], int_st,
++            fifo8_num_used(&s->rx_fifo)
++        );
++    }
+ }
+ 
+ 
+@@ -151,6 +161,12 @@
+         break;
+ 
+     case A_UART_INT_CLR:
++        esp32_handoff_trace_event(
++            &handoff_trace_count, "uart", "int-clr",
++            s->reg[R_UART_INT_RAW], value,
++            s->reg[R_UART_INT_ENA],
++            fifo8_num_used(&s->rx_fifo)
++        );
+         s->reg[R_UART_INT_ST] &= ~((uint32_t) value);
+         s->reg[addr / 4] = value;
+         if (value & R_UART_INT_CLR_RXFIFO_TOUT_MASK) {
+@@ -159,6 +175,12 @@
+         break;
+ 
+     case A_UART_INT_ENA:
++        esp32_handoff_trace_event(
++            &handoff_trace_count, "uart", "int-ena",
++            s->reg[R_UART_INT_ENA], value,
++            s->reg[R_UART_INT_RAW],
++            fifo8_num_used(&s->rx_fifo)
++        );
+         s->reg[addr / 4] = value;
+         break;
+ 
+@@ -195,6 +217,11 @@
+         break;
+ 
+     case A_UART_CONF1:
++        esp32_handoff_trace_event(
++            &handoff_trace_count, "uart", "conf1",
++            s->reg[R_UART_CONF1], value,
++            s->rx_full_threshold, s->rx_tout_thres
++        );
+         s->reg[addr / 4] = value;
+         s->tx_empty_threshold = FIELD_EX32(s->reg[R_UART_CONF1], UART_CONF1, TXFIFO_EMPTY_THRD);
+         s->rx_full_threshold = FIELD_EX32(s->reg[R_UART_CONF1], UART_CONF1, RXFIFO_FULL_THRD);
+--- a/hw/misc/esp32_crosscore_int.c
++++ b/hw/misc/esp32_crosscore_int.c
+@@ -19,7 +19,9 @@
+ #include "hw/qdev-properties.h"
+ #include "hw/misc/esp32_reg.h"
+ #include "hw/misc/esp32_crosscore_int.h"
++#include "hw/misc/esp32_handoff_trace.h"
+ 
++static uint64_t handoff_trace_count;
+ 
+ static inline bool esp32_crosscore_int_trace_enabled(void)
+ {
+@@ -44,6 +46,12 @@
+     int index = addr / 4;
+     uint64_t level = value & 0x1;
+     assert(index < s->n_irqs);
++    if (s->irq_level[index] != level) {
++        esp32_handoff_trace_event(
++            &handoff_trace_count, "crosscore", "write",
++            index, value, level, 0
++        );
++    }
+     if (esp32_crosscore_int_trace_enabled()
+         && s->irq_level[index] != level) {
+         fprintf(stderr,
+@@ -84,6 +92,9 @@
+ {
+     Esp32CrosscoreInt *s = ESP32_CROSSCORE_INT(obj);
+ 
++    esp32_handoff_trace_event_always(
++        &handoff_trace_count, "crosscore", "reset", 0, 0, 0, 0
++    );
+     if (esp32_crosscore_int_trace_enabled()) {
+         fprintf(stderr,
+                 "[esp32-crosscore] reset now=%" PRId64 "\n",
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -24,6 +24,7 @@
+ #include "hw/misc/esp32_dport.h"
+ 
+ #include "hw/misc/esp32_flash_enc.h"
++#include "hw/misc/esp32_handoff_trace.h"
+ #include "hw/nvram/esp32_efuse.h"
+ 
+ 
+@@ -51,6 +52,9 @@
+ static void esp32_cache_invalidate_all_entries(Esp32CacheRegionState* crs);
+ static void esp32_cache_psram_set_mapping(Esp32CacheRegionState *crs, int page, uint32_t mmu_value);
+ static void esp32_cache_init_psram_region(Esp32CacheState *cs);
++static uint64_t handoff_trace_count;
++static uint64_t handoff_pc_sample_count;
++static QEMUTimer *handoff_pc_sample_timer;
+ 
+ static inline bool esp32_dport_trace_enabled(void)
+ {
+@@ -160,6 +164,12 @@
+     case A_DPORT_APPCPU_RESET:
+         old_state = s->appcpu_reset_state;
+         s->appcpu_reset_state = value & 1;
++        if (old_state != s->appcpu_reset_state) {
++            esp32_handoff_trace_event(
++                &handoff_trace_count, "dport", "appcpu-reset",
++                old_state, s->appcpu_reset_state, 0, 0
++            );
++        }
+         if (esp32_dport_trace_enabled()) {
+             fprintf(stderr,
+                     "[esp32-dport] appcpu-reset old=%d new=%d\n",
+@@ -170,7 +180,15 @@
+         }
+         break;
+     case A_DPORT_APPCPU_CLK:
++        old_state = s->appcpu_clkgate_state;
+         s->appcpu_clkgate_state = value & 1;
++        if (old_state != s->appcpu_clkgate_state) {
++            esp32_handoff_trace_event(
++                &handoff_trace_count, "dport", "appcpu-clk",
++                old_state, s->appcpu_clkgate_state,
++                s->appcpu_stall_state, 0
++            );
++        }
+         if (esp32_dport_trace_enabled()) {
+             fprintf(stderr,
+                     "[esp32-dport] appcpu-clk clkgate=%d stall=%d\n",
+@@ -179,7 +197,15 @@
+         qemu_set_irq(s->appcpu_stall_req, s->appcpu_stall_state || !s->appcpu_clkgate_state);
+         break;
+     case A_DPORT_APPCPU_RUNSTALL:
++        old_state = s->appcpu_stall_state;
+         s->appcpu_stall_state = value & 1;
++        if (old_state != s->appcpu_stall_state) {
++            esp32_handoff_trace_event(
++                &handoff_trace_count, "dport", "appcpu-runstall",
++                old_state, s->appcpu_stall_state,
++                s->appcpu_clkgate_state, 0
++            );
++        }
+         if (esp32_dport_trace_enabled()) {
+             fprintf(stderr,
+                     "[esp32-dport] appcpu-runstall stall=%d clkgate=%d\n",
+@@ -189,6 +215,10 @@
+         break;
+     case A_DPORT_APPCPU_BOOT_ADDR:
+         s->appcpu_boot_addr = value;
++        esp32_handoff_trace_event(
++            &handoff_trace_count, "dport", "appcpu-boot",
++            value, 0, 0, 0
++        );
+         if (esp32_dport_trace_enabled()) {
+             fprintf(stderr,
+                     "[esp32-dport] appcpu-boot addr=0x%08" PRIx64 "\n",
+@@ -201,6 +231,15 @@
+         break;
+     case A_DPORT_PRO_CACHE_CTRL:
+         old_val = s->cache_state[0].cache_ctrl_reg;
++        if (old_val != value
++            || FIELD_EX32(value, DPORT_PRO_CACHE_CTRL, CACHE_FLUSH_ENA)) {
++            esp32_handoff_trace_event(
++                &handoff_trace_count, "dport", "pro-cache-ctrl",
++                old_val, value,
++                FIELD_EX32(value, DPORT_PRO_CACHE_CTRL, CACHE_FLUSH_ENA),
++                0
++            );
++        }
+         if (esp32_dport_trace_enabled()
+             && (old_val != value
+                 || FIELD_EX32(value, DPORT_PRO_CACHE_CTRL, CACHE_FLUSH_ENA))) {
+@@ -228,6 +267,12 @@
+         break;
+     case A_DPORT_PRO_CACHE_CTRL1:
+         old_val = s->cache_state[0].cache_ctrl1_reg;
++        if (old_val != value) {
++            esp32_handoff_trace_event(
++                &handoff_trace_count, "dport", "pro-cache-ctrl1",
++                old_val, value, 0, 0
++            );
++        }
+         if (esp32_dport_trace_enabled() && old_val != value) {
+             fprintf(stderr,
+                     "[esp32-dport] pro-cache-ctrl1 old=%08" PRIx32
+@@ -241,6 +286,15 @@
+         break;
+     case A_DPORT_APP_CACHE_CTRL:
+         old_val = s->cache_state[1].cache_ctrl_reg;
++        if (old_val != value
++            || FIELD_EX32(value, DPORT_APP_CACHE_CTRL, CACHE_FLUSH_ENA)) {
++            esp32_handoff_trace_event(
++                &handoff_trace_count, "dport", "app-cache-ctrl",
++                old_val, value,
++                FIELD_EX32(value, DPORT_APP_CACHE_CTRL, CACHE_FLUSH_ENA),
++                0
++            );
++        }
+         if (esp32_dport_trace_enabled()
+             && (old_val != value
+                 || FIELD_EX32(value, DPORT_APP_CACHE_CTRL, CACHE_FLUSH_ENA))) {
+@@ -267,6 +321,12 @@
+         break;
+     case A_DPORT_APP_CACHE_CTRL1:
+         old_val = s->cache_state[1].cache_ctrl1_reg;
++        if (old_val != value) {
++            esp32_handoff_trace_event(
++                &handoff_trace_count, "dport", "app-cache-ctrl1",
++                old_val, value, 0, 0
++            );
++        }
+         if (esp32_dport_trace_enabled() && old_val != value) {
+             fprintf(stderr,
+                     "[esp32-dport] app-cache-ctrl1 old=%08" PRIx32
+@@ -279,6 +339,10 @@
+         }
+         break;
+     case A_DPORT_CACHE_IA_INT_EN:
++        esp32_handoff_trace_event(
++            &handoff_trace_count, "dport", "cache-ia-int-en",
++            s->cache_ill_trap_en_reg, value, 0, 0
++        );
+         if (esp32_dport_trace_enabled()) {
+             fprintf(stderr,
+                     "[esp32-dport] cache-ia-int-en old=%08" PRIx32
+@@ -359,6 +423,8 @@
+ 
+ static void esp32_cache_data_sync(Esp32CacheRegionState* crs)
+ {
++    unsigned changed_pages = 0;
++
+     if (crs->cache->dport->flash_blk == NULL) {
+         return;
+     }
+@@ -373,6 +439,7 @@
+         if (!(mmu_entry & ESP32_CACHE_MMU_ENTRY_CHANGED)) {
+             continue;
+         }
++        ++changed_pages;
+         mmu_entry &= MMU_ENTRY_MASK;
+         if (mmu_entry & ESP32_CACHE_MMU_INVALID_VAL) {
+             uint32_t fill_val = crs->illegal_access_retval;
+@@ -389,6 +456,75 @@
+         crs->mmu_table[i] &= ~ESP32_CACHE_MMU_ENTRY_CHANGED;
+     }
+     memory_region_flush_rom_device(&crs->mem, 0, ESP32_CACHE_REGION_SIZE);
++    esp32_handoff_trace_event(
++        &handoff_trace_count, "dport", "cache-sync",
++        crs->cache->core_id, crs->type, changed_pages,
++        ESP32_CACHE_REGION_SIZE
++    );
++}
++
++static uint64_t esp32_handoff_pc_sample_interval_ns(void)
++{
++    const char *value =
++        getenv("M5SW_ESP32_HANDOFF_PC_SAMPLE_NS");
++
++    if (!value) {
++        return 0;
++    }
++    return strtoull(value, NULL, 10);
++}
++
++static void esp32_handoff_pc_sample_cb(void *opaque)
++{
++    uint64_t pcs[8] = { 0 };
++    unsigned states[8] = { 0 };
++    unsigned state_flags = 0;
++    uint64_t interval_ns = esp32_handoff_pc_sample_interval_ns();
++    CPUState *cpu;
++
++    CPU_FOREACH(cpu) {
++        if (cpu->cpu_index >= 0
++            && cpu->cpu_index < ARRAY_SIZE(pcs)) {
++            if (cpu->cc && cpu->cc->get_pc) {
++                pcs[cpu->cpu_index] = cpu->cc->get_pc(cpu);
++            }
++            states[cpu->cpu_index] =
++                (cpu->halted ? 1 : 0) | (cpu->running ? 2 : 0);
++        }
++    }
++    for (int i = 0; i < 2; ++i) {
++        state_flags |= states[i] << (i * 4);
++    }
++    esp32_handoff_trace_pc_sample(
++        &handoff_pc_sample_count, pcs[0], pcs[1],
++        state_flags, interval_ns
++    );
++    timer_mod(
++        handoff_pc_sample_timer,
++        qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + interval_ns
++    );
++}
++
++static void esp32_handoff_pc_sample_start(void)
++{
++    uint64_t interval_ns;
++
++    if (!esp32_handoff_trace_enabled()) {
++        return;
++    }
++    interval_ns = esp32_handoff_pc_sample_interval_ns();
++    if (interval_ns == 0) {
++        return;
++    }
++    if (!handoff_pc_sample_timer) {
++        handoff_pc_sample_timer = timer_new_ns(
++            QEMU_CLOCK_VIRTUAL, esp32_handoff_pc_sample_cb, NULL
++        );
++    }
++    timer_mod(
++        handoff_pc_sample_timer,
++        qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + interval_ns
++    );
+ }
+ 
+ static void esp32_cache_invalidate_all_entries(Esp32CacheRegionState* crs)
+@@ -504,6 +640,9 @@
+ {
+     Esp32DportState *s = ESP32_DPORT(obj);
+ 
++    esp32_handoff_trace_event_always(
++        &handoff_trace_count, "dport", "reset", 0, 0, 0, 0
++    );
+     if (esp32_dport_trace_enabled()) {
+         fprintf(stderr,
+                 "[esp32-dport] reset now=%" PRId64 "\n",
+@@ -544,6 +683,7 @@
+             esp32_cache_init_psram_region(&s->cache_state[i]);
+         }
+     }
++    esp32_handoff_pc_sample_start();
+ }
+ 
+ static void esp32_cache_init_region(Esp32DportState *ds,
+--- a/hw/timer/esp32_timg.c
++++ b/hw/timer/esp32_timg.c
+@@ -20,6 +20,7 @@
+ #include "hw/registerfields.h"
+ #include "hw/boards.h"
+ #include "hw/timer/esp32_timg.h"
++#include "hw/misc/esp32_handoff_trace.h"
+ #include "hw/xtensa/xtensa_irq_diag.h"
+ 
+ 
+@@ -36,6 +37,7 @@
+ static void esp32_timg_wdt_update_config(Esp32TimgWdtState *ws);
+ static void esp32_timg_wdt_feed(Esp32TimgWdtState *ws);
+ static void esp32_timg_wdt_arm(Esp32TimgWdtState *ws, uint64_t ns_now);
++static uint64_t handoff_trace_count;
+ 
+ 
+ #define TIMG_DEBUG_LOG(...) // qemu_log(__VA_ARGS__)
+@@ -56,6 +58,25 @@
+     }
+ }
+ 
++static void esp32_timg_handoff_trace(Esp32TimgState *s, const char *event,
++                                     uint64_t a, uint64_t b,
++                                     uint64_t c, uint64_t d)
++{
++    esp32_handoff_trace_event(
++        &handoff_trace_count, "timg", event, s->id, a, b, c
++    );
++}
++
++static void esp32_timg_handoff_trace_always(Esp32TimgState *s,
++                                            const char *event,
++                                            uint64_t a, uint64_t b,
++                                            uint64_t c, uint64_t d)
++{
++    esp32_handoff_trace_event_always(
++        &handoff_trace_count, "timg", event, s->id, a, b, c
++    );
++}
++
+ static inline void set_low_word(uint64_t *dst, uint32_t word)
+ {
+     *dst = (*dst & ~UINT32_MAX) | word;
+@@ -224,6 +245,10 @@
+ 
+     case A_TIMG_WDTCONFIG0:
+         if (!esp32_timg_wdt_protected(&s->wdt)) {
++            esp32_timg_handoff_trace(
++                s, "wdt-config0", value, s->wdt.config0_reg,
++                s->wdt.protect_reg, 0
++            );
+             if (esp32_timg_trace_enabled()) {
+                 fprintf(stderr,
+                         "[esp32-timg] TG%d WDTCONFIG0=%08" PRIx64 "\n",
+@@ -243,6 +268,10 @@
+         break;
+     case A_TIMG_WDTCONFIG1:
+         if (!esp32_timg_wdt_protected(&s->wdt)) {
++            esp32_timg_handoff_trace(
++                s, "wdt-config1", value, s->wdt.config1_reg,
++                s->wdt.protect_reg, 0
++            );
+             if (esp32_timg_trace_enabled()) {
+                 fprintf(stderr,
+                         "[esp32-timg] TG%d WDTCONFIG1=%08" PRIx64 "\n",
+@@ -258,6 +287,10 @@
+     case A_TIMG_WDTCONFIG5: {
+         if (!esp32_timg_wdt_protected(&s->wdt)) {
+             int stage = (addr - A_TIMG_WDTCONFIG2) / 4;
++            esp32_timg_handoff_trace(
++                s, "wdt-timeout-config", stage, value,
++                s->wdt.protect_reg, 0
++            );
+             if (esp32_timg_trace_enabled()) {
+                 fprintf(stderr,
+                         "[esp32-timg] TG%d WDTCONFIG%d=%08" PRIx64 "\n",
+@@ -269,6 +302,15 @@
+     }
+     case A_TIMG_WDTFEED:
+         if (!esp32_timg_wdt_protected(&s->wdt)) {
++            if (esp32_handoff_trace_enabled()) {
++                s->wdt.last_feed_ns =
++                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++                ++s->wdt.feed_count;
++            }
++            esp32_timg_handoff_trace(
++                s, "wdt-feed", s->wdt.cur_stage, s->wdt.en,
++                s->wdt.flashboot_en, s->wdt.protect_reg
++            );
+             if (esp32_timg_trace_enabled()) {
+                 fprintf(stderr, "[esp32-timg] TG%d WDTFEED\n", s->id);
+             }
+@@ -294,6 +336,12 @@
+         break;
+ 
+     case A_TIMG_INT_ENA:
++        if ((s->int_ena ^ value) & (1 << TIMG_WDT_INT)) {
++            esp32_timg_handoff_trace_always(
++                s, "wdt-int-ena", s->int_ena, value,
++                s->int_raw, s->int_ena & s->int_raw
++            );
++        }
+         if (esp32_timg_trace_enabled() && s->int_ena != value) {
+             fprintf(stderr,
+                     "[esp32-timg] TG%d INT_ENA old=%08" PRIx32
+@@ -305,6 +353,12 @@
+         esp32_timg_trace_wdt_int(s, "after-int-ena");
+         break;
+     case A_TIMG_INT_CLR:
++        if ((s->int_raw & value) & (1 << TIMG_WDT_INT)) {
++            esp32_timg_handoff_trace_always(
++                s, "wdt-int-clr", s->int_raw, value,
++                s->int_ena, s->int_ena & s->int_raw
++            );
++        }
+         if (esp32_timg_trace_enabled()
+             && (s->int_raw & (value | (1 << TIMG_WDT_INT)))) {
+             fprintf(stderr,
+@@ -341,6 +395,8 @@
+ static void esp32_timg_wdt_reset(Esp32TimgWdtState* ws)
+ {
+     timer_del(&ws->stage_timer);
++    ws->last_feed_ns = 0;
++    ws->feed_count = 0;
+ 
+     ws->config0_reg = 0x0004c000;
+     ws->config1_reg = 0x00010000;
+@@ -360,6 +416,10 @@
+     if (ws->parent->wdt_en_at_reset) {
+         ws->config0_reg &= (~R_TIMG_WDTCONFIG0_STG0_MASK);
+     }
++    esp32_timg_handoff_trace_always(
++        ws->parent, "wdt-reset", ws->config0_reg, ws->config1_reg,
++        ws->timeout[0], ws->protect_reg
++    );
+     if (esp32_timg_trace_enabled()) {
+         fprintf(stderr,
+                 "[esp32-timg] TG%d reset config0=%08" PRIx32
+@@ -641,6 +701,10 @@
+     uint32_t cur_count = esp32_timg_wdt_get_count(ws, ns_now);
+     uint32_t count_to_timeout = stage_timeout - cur_count;
+     uint64_t ns_to_timeout = muldiv64(count_to_timeout, 1000 * ws->prescale, ws->parent->apb_freq_hz / 1000000);
++    esp32_timg_handoff_trace(
++        ws->parent, "wdt-arm", ws->cur_stage, stage_timeout,
++        count_to_timeout, ns_to_timeout
++    );
+     if (esp32_timg_trace_enabled()) {
+         fprintf(stderr,
+                 "[esp32-timg] TG%d arm now=%" PRIu64
+@@ -659,6 +723,19 @@
+     Esp32TimgWdtState *ws = (Esp32TimgWdtState*) opaque;
+     Esp32TimgState *s = ws->parent;
+     Esp32TimgWdtStageMode mode = ws->mode[ws->cur_stage];
++    uint64_t ns_now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    if (esp32_handoff_trace_enabled()) {
++        uint64_t feed_gap_ns = ws->last_feed_ns
++                             ? ns_now - ws->last_feed_ns : 0;
++        esp32_timg_handoff_trace_always(
++            s, "wdt-timeout", ws->cur_stage, mode,
++            ws->last_feed_ns, ws->feed_count
++        );
++        esp32_timg_handoff_trace_always(
++            s, "wdt-timeout-gap", ws->cur_stage, feed_gap_ns,
++            ws->feed_count, s->int_raw
++        );
++    }
+     if (esp32_timg_trace_enabled()) {
+         fprintf(stderr,
+                 "[esp32-timg] TG%d timeout now=%" PRIu64
+@@ -681,8 +758,16 @@
+             if (s->int_ena & mask) {
+                 xtensa_irq_diag_mark_wdt();
+                 esp32_timg_trace_wdt_int(s, "raised");
++                esp32_timg_handoff_trace_always(
++                    s, "wdt-int-raised", s->int_ena, s->int_raw,
++                    ws->level_int_en, ws->edge_int_en
++                );
+             } else {
+                 esp32_timg_trace_wdt_int(s, "masked");
++                esp32_timg_handoff_trace_always(
++                    s, "wdt-int-masked", s->int_ena, s->int_raw,
++                    ws->level_int_en, ws->edge_int_en
++                );
+             }
+         }
+         if (ws->edge_int_en) {
+@@ -697,7 +782,6 @@
+     }
+ 
+     int next_stage = (ws->cur_stage + 1) % ESP32_TIMG_WDT_STAGE_COUNT;
+-    uint64_t ns_now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+     ws->count_base = 0;
+     ws->cur_stage = next_stage;
+     ws->ns_base = ns_now;
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -20,6 +20,7 @@
+ #include "hw/ssi/ssi.h"
+ #include "hw/ssi/esp32_spi.h"
+ #include "hw/misc/esp32_flash_enc.h"
++#include "hw/misc/esp32_handoff_trace.h"
+ #include "hw/m5stopwatch/m5stopwatch.h"
+ #include "exec/cpu-common.h"
+ 
+@@ -44,6 +45,7 @@
+ #define ESP32_SPI_REG_SIZE    0x1000
+ 
+ static void esp32_spi_do_command(Esp32SpiState* state, uint32_t cmd_reg);
++static uint64_t handoff_trace_count;
+ 
+ static void esp32_spi_m5_dma_panel(Esp32SpiState *s, uint32_t link)
+ {
+@@ -229,6 +231,10 @@
+ 
+ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+ {
++    esp32_handoff_trace_event(
++        &handoff_trace_count, "ssi", "transaction-begin",
++        t->cmd, t->addr, t->data_tx_bytes, t->data_rx_bytes
++    );
+     esp32_spi_cs_set(s, 0);
+     esp32_spi_txrx_buffer(s, &t->cmd, t->cmd_bytes, 0);
+     esp32_spi_txrx_buffer(s, &t->addr, t->addr_bytes, 0);
+@@ -236,6 +242,10 @@
+         ssi_transfer(s->spi, 0xff);
+     }
+     if (t->data_tx_bytes == 0 && t->data_rx_bytes > 0) {
++        esp32_handoff_trace_event(
++            &handoff_trace_count, "ssi", "receive-data",
++            t->cmd, t->addr, t->data_rx_bytes, t->extra_dummy_bytes
++        );
+         ssi_transfer_buf(
+             s->spi, NULL, (uint8_t *)t->data, t->data_rx_bytes
+         );
+@@ -268,6 +278,10 @@
+         }
+     }
+     esp32_spi_cs_set(s, 1);
++    esp32_handoff_trace_event(
++        &handoff_trace_count, "ssi", "transaction-end",
++        t->cmd, t->addr, t->data_tx_bytes, t->data_rx_bytes
++    );
+ }
+ 
+ void esp32_spi_attach_m5_panel(DeviceState *dev, DeviceState *panel,

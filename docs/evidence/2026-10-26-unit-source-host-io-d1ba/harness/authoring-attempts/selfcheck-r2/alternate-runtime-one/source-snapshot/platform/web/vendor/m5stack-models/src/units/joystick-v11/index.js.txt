@@ -1,0 +1,19 @@
+import * as THREE from 'three';
+import {Button,materials} from '../../core/index.js';
+import {slab,mesh} from '../../modeling/parts.js';
+import {makeUnit,cylinder} from '../shared/CADUnit.js';
+import {VisualJoint} from '../../core/components/VisualJoint.js';
+import {spec} from './dimensions.js';import data from './geometry-data.js';
+const models=makeUnit(spec,data,host=>{
+ slab(host.body,18,18,4,1.7,[0,9,4],materials.plastic(0x1e2427),[],.4);
+ const stick=new THREE.Group();stick.name='Joystick moving stick';
+ cylinder(stick,3,14,[0,0,7],materials.plastic(0x202629));
+ const profile=[[0,28],[7,27.7],[9.5,27],[10.4,25.6],[10.5,23.5],[9.5,21.6],[5,20.8],[0,20.8]].reverse().map(p=>new THREE.Vector2(...p));
+ mesh(stick,new THREE.LatheGeometry(profile,64).rotateX(Math.PI/2),materials.plastic(0x151a1d,{roughness:.88}),[0,0,-8],'Joystick thumb cap');
+ const press=host.add(new Button({id:'press',label:'Stick press',mesh:stick,position:[0,9,8],travel:.45,meta:{role:'visual-control',travelSource:'Visual approximation; no Z-input emulation'}}));
+ const range={visualRangeDeg:[-20,20],rangeEvidence:'Viewer range only; official tilt limits not supplied',axisEvidence:'Official U024-C X/Y tilt and Z push; pivot near the photo-visible stick seat'};
+ const x=host.add(new VisualJoint({id:'tilt-x',label:'Joystick tilt around X',position:[0,9,8],axis:[1,0,0],meta:range}));
+ const y=host.add(new VisualJoint({id:'tilt-y',label:'Joystick tilt around Y',position:[0,9,8],axis:[0,1,0],meta:range}));
+ y.adopt(press.object3d);x.adopt(y.object3d);
+});
+export const Model=models.Model;export const GroveModule=models.GroveModule;export default Model;

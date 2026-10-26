@@ -1,0 +1,49 @@
+{
+  "status": "PASS_OFFLINE_ONLY",
+  "checks": [
+    {
+      "name": "AST",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "default whole24 status PENDING",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "final24 gate before source copy",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "native firmware rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "path traversal rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "changed indirect snapshot cannot be omitted",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "real execution/raw payload never eligible for omission",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "exact omitted copy metadata recorded with no source bytes copied",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "captured MD transport exact bytes",
+      "status": "PASS_OFFLINE_ONLY"
+    }
+  ],
+  "check_count": 9,
+  "approved_omission_unique_source_payloads": 2,
+  "approved_omission_available_copies_now": 22,
+  "original_partial_attempt_without_nested_SHA_copies": 2,
+  "docs_evidence_written": false,
+  "assemble_called": false,
+  "API_guest_process_calls": 0,
+  "final_archive_hash": "NOT ESTABLISHED"
+}

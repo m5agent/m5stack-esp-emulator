@@ -1,0 +1,516 @@
+diff --git a/hw/m5stopwatch/co5300.c b/hw/m5stopwatch/co5300.c
+index 9d0948b..d263d67 100644
+--- a/hw/m5stopwatch/co5300.c
++++ b/hw/m5stopwatch/co5300.c
+@@ -145,6 +145,21 @@ void co5300_cs(Co5300State *s, int level)
+ 
+ void co5300_write(Co5300State *s, const uint8_t *buf, uint32_t len)
+ {
++    /*
++     * IDF's 32-bit command encoding uses [opcode, 0, command, 0] and the
++     * QSPI device CS is controlled by the controller rather than the GPIO
++     * model.  Treat a complete four-byte opcode header as a transaction
++     * boundary so a preceding RAMWR burst cannot swallow the next command
++     * as pixel data.
++     */
++    if (len == 4 && buf[1] == 0 && buf[3] == 0
++        && (buf[0] == 0x02 || buf[0] == 0x12 || buf[0] == 0x32)) {
++        s->nbytes = 0;
++        s->pixel_mode = false;
++        s->pix_half = false;
++        s->cmd = 0;
++        s->pidx = 0;
++    }
+     for (uint32_t i = 0; i < len; i++) {
+         uint8_t b = buf[i];
+         if (s->nbytes < 4) {
+diff --git a/hw/m5stopwatch/esp32s3_i2c.c b/hw/m5stopwatch/esp32s3_i2c.c
+index 5f61ef6..896cd91 100644
+--- a/hw/m5stopwatch/esp32s3_i2c.c
++++ b/hw/m5stopwatch/esp32s3_i2c.c
+@@ -177,6 +177,12 @@ static void s3i2c_run(Esp32s3I2CState *s)
+ static uint64_t s3i2c_read(void *opaque, hwaddr addr, unsigned size)
+ {
+     Esp32s3I2CState *s = opaque;
++    if (getenv("M5SW_I2C_CTRL_TRACE")) {
++        char *path = object_get_canonical_path(OBJECT(s));
++        fprintf(stderr, "[i2c-ctrl] %s rd %03" HWADDR_PRIx " size=%u\n",
++                path, addr, size);
++        g_free(path);
++    }
+     switch (addr) {
+     case R_SR:
+         return ((rx_cnt(s) & 0x3f) << 8) | ((tx_cnt(s) & 0x3f) << 18);
+@@ -229,6 +235,14 @@ static uint64_t s3i2c_read(void *opaque, hwaddr addr, unsigned size)
+ static void s3i2c_write(void *opaque, hwaddr addr, uint64_t val, unsigned size)
+ {
+     Esp32s3I2CState *s = opaque;
++    if (getenv("M5SW_I2C_CTRL_TRACE")) {
++        char *path = object_get_canonical_path(OBJECT(s));
++        fprintf(stderr,
++                "[i2c-ctrl] %s wr %03" HWADDR_PRIx
++                "=%08" PRIx64 " size=%u\n",
++                path, addr, val, size);
++        g_free(path);
++    }
+     switch (addr) {
+     case R_CTR:
+         if (val & CTR_FSM_RST) {
+diff --git a/hw/m5stopwatch/m5_spi_panel.c b/hw/m5stopwatch/m5_spi_panel.c
+index cbfc428..dd0bf03 100644
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -59,11 +59,83 @@ struct M5SpiPanelState {
+     bool immediate_update;
+     bool keyboard;
+     bool plc_keys;
++    bool infer_command;
++    uint32_t infer_params_left;
++    uint32_t pending_pixel_bytes;
+     int mouse_x, mouse_y;
+     bool mouse_btn;
+     char *dump_path;
+ };
+ 
++static bool m5_panel_is_dcs_command(uint8_t cmd)
++{
++    switch (cmd) {
++    case 0x01:
++    case 0x10:
++    case 0x11:
++    case 0x13:
++    case 0x20:
++    case 0x21:
++    case 0x28:
++    case 0x29:
++    case 0x2A:
++    case 0x2B:
++    case 0x2C:
++    case 0x36:
++    case 0x3A:
++    case 0xB1:
++    case 0xB2:
++    case 0xB3:
++    case 0xB4:
++    case 0xB6:
++    case 0xC0:
++    case 0xC1:
++    case 0xC2:
++    case 0xC3:
++    case 0xC4:
++    case 0xC5:
++    case 0xE0:
++    case 0xE1:
++    case 0xFC:
++        return true;
++    default:
++        return false;
++    }
++}
++
++static uint32_t m5_panel_dcs_param_count(uint8_t cmd)
++{
++    switch (cmd) {
++    case 0x2A:
++    case 0x2B:
++        return 4;
++    case 0xB1:
++    case 0xB2:
++    case 0xC0:
++        return 3;
++    case 0xB3:
++        return 6;
++    case 0xB4:
++    case 0xC1:
++    case 0xC5:
++        return 1;
++    case 0xB6:
++    case 0xC2:
++    case 0xC3:
++    case 0xC4:
++    case 0xFC:
++        return 2;
++    case 0xE0:
++    case 0xE1:
++        return 16;
++    case 0x36:
++    case 0x3A:
++        return 1;
++    default:
++        return 0;
++    }
++}
++
+ static void m5_panel_reset_window(M5SpiPanelState *s)
+ {
+     s->cx = s->xs;
+@@ -102,6 +174,11 @@ void m5_spi_panel_write(M5SpiPanelState *s, const uint8_t *buf, uint32_t len,
+     static unsigned stream_trace_count;
+     static unsigned stream_trace_group;
+     static unsigned dc_trace_count;
++    if (!command_phase && s->infer_command && len == 1
++        && s->infer_params_left == 0 && s->pending_pixel_bytes == 0
++        && m5_panel_is_dcs_command(buf[0])) {
++        command_phase = true;
++    }
+     if (getenv("M5SW_PANEL_DC_TRACE") && len && dc_trace_count++ < 1000) {
+         fprintf(stderr, "[m5panel-dc] phase=%d len=%u first=%02x\n",
+                 command_phase, len, buf[0]);
+@@ -123,6 +200,8 @@ void m5_spi_panel_write(M5SpiPanelState *s, const uint8_t *buf, uint32_t len,
+     for (uint32_t i = 0; i < len; i++) {
+         uint8_t b = buf[i];
+         if (command_phase) {
++            s->infer_params_left = m5_panel_dcs_param_count(b);
++            s->pending_pixel_bytes = 0;
+             if (b == 0x2c) {
+                 stream_trace_count = 0;
+                 if (getenv("M5SW_PANEL_STREAM_TRACE")) {
+@@ -186,6 +265,9 @@ void m5_spi_panel_write(M5SpiPanelState *s, const uint8_t *buf, uint32_t len,
+                 m5_panel_reset_window(s);
+                 s->pixel_mode = true;
+                 s->pix_half = false;
++                    s->pending_pixel_bytes =
++                        (uint32_t)(s->xe - s->xs + 1) *
++                        (uint32_t)(s->ye - s->ys + 1) * 2;
+             }
+             if (!s->pix_half) {
+                 s->pix_hi = b;
+@@ -206,6 +288,12 @@ void m5_spi_panel_write(M5SpiPanelState *s, const uint8_t *buf, uint32_t len,
+         default:
+             break;
+         }
++        if (s->infer_params_left) {
++            s->infer_params_left--;
++        }
++        if (s->pending_pixel_bytes) {
++            s->pending_pixel_bytes--;
++        }
+     }
+     if (s->immediate_update && s->dirty) {
+         qemu_bh_schedule(s->refresh_bh);
+@@ -593,6 +681,7 @@ static Property m5_panel_props[] = {
+     DEFINE_PROP_BOOL("immediate-update", M5SpiPanelState, immediate_update, false),
+     DEFINE_PROP_BOOL("keyboard", M5SpiPanelState, keyboard, false),
+     DEFINE_PROP_BOOL("plc-keys", M5SpiPanelState, plc_keys, false),
++    DEFINE_PROP_BOOL("infer-command", M5SpiPanelState, infer_command, false),
+     DEFINE_PROP_BOOL("invert", M5SpiPanelState, physical_invert, true),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+diff --git a/hw/m5stopwatch/m5atoms3r.c b/hw/m5stopwatch/m5atoms3r.c
+index e6c68cf..139845f 100644
+--- a/hw/m5stopwatch/m5atoms3r.c
++++ b/hw/m5stopwatch/m5atoms3r.c
+@@ -38,6 +38,8 @@ void m5atoms3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+ 
+     static const struct { const char *model; uint8_t addr; } devs[] = {
+         { "lp5562", 0x30 },
++        { "es8311", 0x18 },
++        { "pi4ioe", 0x43 },
+         { "bmm150", 0x10 },
+         { "bmi270", 0x68 },
+     };
+@@ -73,6 +75,7 @@ void m5atoms3r_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     qdev_prop_set_uint32(panel, "read-id", 0x00007683);
+     qdev_prop_set_uint32(panel, "glass-rotation", 0);
+     qdev_prop_set_bit(panel, "apply-madctl", false);
++    qdev_prop_set_bit(panel, "infer-command", true);
+     qdev_prop_set_bit(panel, "invert", true);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
+     esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
+diff --git a/hw/m5stopwatch/m5stamplc.c b/hw/m5stopwatch/m5stamplc.c
+index 4acf0d3..dd04eed 100644
+--- a/hw/m5stopwatch/m5stamplc.c
++++ b/hw/m5stopwatch/m5stamplc.c
+@@ -39,6 +39,7 @@ void m5stamplc_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     static const struct { const char *model; uint8_t addr; } devs[] = {
+         { "ina226", 0x40 },
+         { "pi4ioe", 0x43 },
++        { "pi4ioe", 0x44 },
+         { "lm75", 0x48 },
+         { "aw9523", 0x59 },
+         { "rx8130", 0x32 },
+@@ -47,7 +48,9 @@ void m5stamplc_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+         DeviceState *d = qdev_new(TYPE_M5SW_I2C_DEV);
+         qdev_prop_set_string(d, "model", devs[i].model);
+         qdev_prop_set_uint8(d, "address", devs[i].addr);
+-        object_property_add_child(qdev_get_machine(), devs[i].model, OBJECT(d));
++        g_autofree char *child_name =
++            g_strdup_printf("%s-%02x", devs[i].model, devs[i].addr);
++        object_property_add_child(qdev_get_machine(), child_name, OBJECT(d));
+         qdev_realize_and_unref(d, (BusState *)bus, &error_fatal);
+     }
+ 
+diff --git a/hw/m5stopwatch/m5sticks3.c b/hw/m5stopwatch/m5sticks3.c
+index 6d4df16..d268466 100644
+--- a/hw/m5stopwatch/m5sticks3.c
++++ b/hw/m5stopwatch/m5sticks3.c
+@@ -71,6 +71,7 @@ void m5sticks3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     qdev_prop_set_uint32(panel, "read-id", 0x00000081);
+     qdev_prop_set_uint32(panel, "key-a-pin", 11);
+     qdev_prop_set_uint32(panel, "key-b-pin", 12);
++    qdev_prop_set_bit(panel, "infer-command", true);
+     qdev_prop_set_bit(panel, "invert", true);
+     qdev_realize_and_unref(panel, NULL, &error_fatal);
+     esp32s3_gpspi_attach(spi, gdma, NULL, M5_SPI_PANEL(panel), GDMA_SPI3);
+diff --git a/hw/misc/esp32_ledc.c b/hw/misc/esp32_ledc.c
+index 9cebea9..dd81c31 100644
+--- a/hw/misc/esp32_ledc.c
++++ b/hw/misc/esp32_ledc.c
+@@ -2,6 +2,7 @@
+ #include "hw/sysbus.h"
+ #include "qemu/log.h"
+ #include "qapi/error.h"
++#include "hw/qdev-properties.h"
+ #include "hw/misc/esp32_ledc.h"
+ 
+ #define ESP32_LEDC_REGS_SIZE (A_LEDC_CONF_REG + 4)
+@@ -10,6 +11,16 @@ static uint64_t esp32_ledc_read(void *opaque, hwaddr addr, unsigned int size)
+ {
+     Esp32LEDCState *s = ESP32_LEDC(opaque);
+     uint64_t r = 0;
++    if (s->esp32s3_layout && addr >= 0xa0 && addr < 0xc0) {
++        unsigned index = (addr - 0xa0) / 8;
++        r = (addr & 4) ? s->timer_value_reg[index]
++                       : s->timer_conf_reg[index];
++        return r;
++    }
++    if (s->esp32s3_layout && addr == 0xd0) {
++        r = s->conf_reg;
++        return r;
++    }
+     switch (addr) {
+     case A_LEDC_HSTIMER0_CONF_REG ... A_LEDC_LSTIMER3_CONF_REG:
+         r = s->timer_conf_reg[(addr - A_LEDC_HSTIMER0_CONF_REG) / 0x8];
+@@ -55,6 +66,22 @@ static void esp32_ledc_write(void *opaque, hwaddr addr,
+                             uint64_t value, unsigned int size)
+ {
+     Esp32LEDCState *s = ESP32_LEDC(opaque);
++    if (s->esp32s3_layout && addr >= 0xa0 && addr < 0xc0) {
++        unsigned index = (addr - 0xa0) / 8;
++        if (addr & 4) {
++            s->timer_value_reg[index] = value;
++        } else {
++            s->timer_conf_reg[index] = value;
++            if ((value & 0xf) != 0) {
++                s->duty_res[index] = value & 0xf;
++            }
++        }
++        return;
++    }
++    if (s->esp32s3_layout && addr == 0xd0) {
++        s->conf_reg = value;
++        return;
++    }
+     switch (addr) {
+     case A_LEDC_HSTIMER0_CONF_REG ... A_LEDC_LSTIMER3_CONF_REG:
+         /* get duty resolution from timer config */
+@@ -132,10 +159,17 @@ static void esp32_ledc_init(Object *obj)
+     }
+ }
+ 
++static Property esp32_ledc_props[] = {
++    DEFINE_PROP_BOOL("esp32s3-layout", Esp32LEDCState,
++                     esp32s3_layout, false),
++    DEFINE_PROP_END_OF_LIST(),
++};
++
+ static void esp32_ledc_class_init(ObjectClass *klass, void *data)
+ {
+     DeviceClass *dc = DEVICE_CLASS(klass);
+     dc->realize = esp32_ledc_realize;
++    device_class_set_props(dc, esp32_ledc_props);
+ }
+ 
+ static const TypeInfo esp32_ledc_info = {
+diff --git a/hw/misc/esp32s3_cache.c b/hw/misc/esp32s3_cache.c
+index ef75966..3700dda 100644
+--- a/hw/misc/esp32s3_cache.c
++++ b/hw/misc/esp32s3_cache.c
+@@ -134,13 +134,13 @@ static uint64_t esp32s3_cache_read(void *opaque, hwaddr addr, unsigned int size)
+             r = s->dcache_enable;
+             break;
+         case A_EXTMEM_DCACHE_CTRL1:
+-            r = s->dcache_enable;
++            r = s->regs[index];
+             break;
+         case A_EXTMEM_ICACHE_CTRL:
+             r = s->icache_enable;
+             break;
+         case A_EXTMEM_ICACHE_CTRL1:
+-            r = s->icache_enable;
++            r = s->regs[index];
+             break;
+         /* For the following registers, mark the bit as done only if the feature was enabled */
+         case A_EXTMEM_DCACHE_SYNC_CTRL:
+@@ -223,13 +223,13 @@ static void esp32s3_cache_write(void *opaque, hwaddr addr, uint64_t value,
+                 s->dcache_enable = value & 1;
+                 break;
+             case A_EXTMEM_DCACHE_CTRL1:
+-                s->dcache_enable = value & 1;
++                s->regs[index] = value;
+                 break;
+             case A_EXTMEM_ICACHE_CTRL:
+                 s->icache_enable = value & 1;
+                 break;
+             case A_EXTMEM_ICACHE_CTRL1:
+-                s->icache_enable = value & 1;
++                s->regs[index] = value;
+                 break;
+             case A_EXTMEM_ICACHE_FREEZE:
+                 if (value & R_EXTMEM_ICACHE_FREEZE_ICACHE_FREEZE_ENA_MASK) {
+diff --git a/hw/misc/esp32s3_rtc_cntl.c b/hw/misc/esp32s3_rtc_cntl.c
+index 76076c7..c27e85e 100644
+--- a/hw/misc/esp32s3_rtc_cntl.c
++++ b/hw/misc/esp32s3_rtc_cntl.c
+@@ -30,7 +30,16 @@ static uint64_t esp32s3_rtc_cntl_read(void *opaque, hwaddr addr, unsigned int si
+     uint64_t r = 0;
+     switch (addr) {
+     case A_RTC_CNTL_OPTIONS0:
+-        r = s->options0_reg;
++        /*
++         * The software CPU reset bits are write-one-to-trigger strobes.
++         * Reading them back as set makes ESP-IDF's read-modify-write
++         * unstall sequence pulse PROCPU and restart the bootloader while
++         * bringing up APPCPU.
++         */
++        r = s->options0_reg &
++            ~(R_RTC_CNTL_OPTIONS0_SW_SYS_RESET_MASK |
++              R_RTC_CNTL_OPTIONS0_SW_PROCPU_RESET_MASK |
++              R_RTC_CNTL_OPTIONS0_SW_APPCPU_RESET_MASK);
+         break;
+     case A_RTC_CNTL_TIME_UPDATE:
+         r = R_RTC_CNTL_TIME_UPDATE_VALID_MASK;
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 828e885..3ac3621 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -66,6 +66,7 @@
+ #include "hw/misc/esp32s3_xts_aes.h"
+ #include "hw/misc/esp32s3_pms.h"
+ #include "hw/misc/esp32s3_wifi.h"
++#include "hw/misc/esp32_ledc.h"
+ #include "hw/net/can/esp32s3_twai.h"
+ 
+ #include "cpu_esp32s3.h"
+@@ -125,6 +126,7 @@ typedef struct Esp32s3SocState {
+     XtensaCPU cpu[ESP32S3_CPU_COUNT];
+     Esp32s3IntMatrixState intmatrix;
+     ESP32S3UARTState uart[ESP32S3_UART_COUNT];
++    Esp32LEDCState ledc;
+     ESP32S3GPIOState gpio;
+     Esp32s3RngState rng;
+     Esp32S3TWAIState twai;
+@@ -205,12 +207,17 @@ static void esp32s3_cpu_reset(void* opaque, int n, int level)
+ {
+     Esp32s3SocState *s = ESP32S3_SOC(opaque);
+     if (level) {
+-        s->requested_reset = (n == 0) ? ESP32S3_SOC_RESET_PROCPU : ESP32S3_SOC_RESET_APPCPU;
+-        /* Use different cause for APP CPU so that its reset doesn't cause QEMU to exit,
+-         * when -no-reboot option is given.
+-         */
+-        ShutdownCause cause = (n == 0) ? SHUTDOWN_CAUSE_GUEST_RESET : SHUTDOWN_CAUSE_SUBSYSTEM_RESET;
+-        qemu_system_reset_request(cause);
++        if (n == 0) {
++            s->requested_reset = ESP32S3_SOC_RESET_PROCPU;
++            qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
++        } else {
++            /*
++             * APPCPU is already spinning in the ROM mailbox loop.  ESP-IDF
++             * pulses this reset before publishing the CPU1 entry point, so
++             * resetting the whole machine here restarts CPU0.  Keeping CPU1
++             * in its ROM wait state also preserves the mailbox hand-off.
++             */
++        }
+     }
+ }
+ 
+@@ -467,6 +474,9 @@ static void esp32s3_soc_realize(DeviceState *dev, Error **errp)
+                            qdev_get_gpio_in(intmatrix_dev, ETS_UART0_INTR_SOURCE + i));
+     }
+ 
++    qdev_realize(DEVICE(&s->ledc), &s->periph_bus, &error_fatal);
++    esp32s3_soc_add_periph_device(sys_mem, &s->ledc, DR_REG_LEDC_BASE);
++
+     qdev_realize(DEVICE(&s->sdmmc), &s->periph_bus, &error_fatal);
+     esp32s3_soc_add_periph_device(sys_mem, &s->sdmmc, DR_REG_SDMMC_BASE);
+     sysbus_connect_irq(SYS_BUS_DEVICE(&s->sdmmc), 0,
+@@ -586,6 +596,8 @@ static void esp32s3_soc_init(Object *obj)
+     // qdev_prop_set_chr(DEVICE(&s->uart[2]), "chardev", serial_hd(2));
+ 
+     object_initialize_child(obj, "intmatrix", &s->intmatrix, TYPE_ESP32S3_INTMATRIX);
++    object_initialize_child(obj, "ledc", &s->ledc, TYPE_ESP32_LEDC);
++    qdev_prop_set_bit(DEVICE(&s->ledc), "esp32s3-layout", true);
+ 
+     object_initialize_child(obj, "rtc_cntl", &s->rtc_cntl, TYPE_ESP32S3_RTC_CNTL);
+ 
+@@ -921,6 +933,24 @@ static void esp32s3_machine_init(MachineState *machine)
+ 
+     esp32s3_rmt_init(sys_mem, intmatrix_dev);
+     esp32s3_soc_add_unimp_device(sys_mem, "esp32s3.iomux", DR_REG_IO_MUX_BASE, 0x2000);
++    esp32s3_soc_add_unimp_device(
++        sys_mem,
++        "esp32s3.assist-debug",
++        DR_REG_ASSIST_DEBUG_BASE,
++        0x1000
++    );
++    /*
++     * ESP-IDF's CPU1 startup reaches a ROM cache helper before the shared
++     * CPU-id variable has been initialized.  The 0xff sentinel indexes this
++     * reserved peripheral window; treating it as a PIF data error resets the
++     * boot before the CPU1 entry point can run.
++     */
++    esp32s3_soc_add_unimp_device(
++        sys_mem,
++        "esp32s3.cpu-id-sentinel-alias",
++        0x60ffe000,
++        0x1000
++    );
+ 
+     
+     esp32s3_machine_init_sd(ss);
+diff --git a/include/hw/misc/esp32_ledc.h b/include/hw/misc/esp32_ledc.h
+index 818b984..28eec04 100644
+--- a/include/hw/misc/esp32_ledc.h
++++ b/include/hw/misc/esp32_ledc.h
+@@ -15,7 +15,10 @@ typedef struct Esp32LEDCState {
+     MemoryRegion iomem;
+     uint32_t duty_res[ESP32_LEDC_TIMER_CNT];
+     uint32_t timer_conf_reg[ESP32_LEDC_TIMER_CNT];
++    uint32_t timer_value_reg[ESP32_LEDC_TIMER_CNT];
+     uint32_t channel_conf0_reg[ESP32_LEDC_CHANNEL_CNT];
++    uint32_t conf_reg;
++    bool esp32s3_layout;
+     LEDState led[ESP32_LEDC_CHANNEL_CNT];
+ } Esp32LEDCState;
+ 
+diff --git a/target/xtensa/cpu.c b/target/xtensa/cpu.c
+index 6f9039a..6647c11 100644
+--- a/target/xtensa/cpu.c
++++ b/target/xtensa/cpu.c
+@@ -110,6 +110,7 @@ static void xtensa_cpu_reset_hold(Object *obj, ResetType type)
+ #ifndef CONFIG_USER_ONLY
+     env->sregs[PS] = xtensa_option_enabled(env->config,
+             XTENSA_OPTION_INTERRUPT) ? 0x1f : 0x10;
++    env->sregs[CPENABLE] = 0xff;
+     env->pending_irq_level = 0;
+ #else
+     env->sregs[PS] = PS_UM | (3 << PS_RING_SHIFT);
+diff --git a/target/xtensa/exc_helper.c b/target/xtensa/exc_helper.c
+index ca629f0..151dd78 100644
+--- a/target/xtensa/exc_helper.c
++++ b/target/xtensa/exc_helper.c
+@@ -77,6 +77,14 @@ void HELPER(exception_cause_vaddr)(CPUXtensaState *env,
+ 
+ void debug_exception_env(CPUXtensaState *env, uint32_t cause)
+ {
++    if (getenv("M5SW_XTENSA_DEBUG_TRACE")) {
++        fprintf(stderr,
++                "[xtensa-debug] pc=%08x cause=%08x ps=%08x "
++                "intlevel=%u excm=%u\n",
++                env->pc, cause, env->sregs[PS],
++                xtensa_get_cintlevel(env),
++                !!(env->sregs[PS] & PS_EXCM));
++    }
+     if (xtensa_get_cintlevel(env) < env->config->debug_level) {
+         HELPER(debug_exception)(env, env->pc, cause);
+     }

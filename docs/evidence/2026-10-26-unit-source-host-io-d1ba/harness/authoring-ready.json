@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "status": "READY_FOR_ROOT_OFFLINE_REVIEW_NOT_EXECUTED",
+  "created_at": "2026-10-26T05:28:01.654211+00:00",
+  "files": {
+    "run_source_host_io.py": {
+      "sha256": "211365bb5abafc2390fb7e0da72da3b8b1ff224beaba750785dcd88b786534b2",
+      "size_bytes": 71126
+    },
+    "source_api_common.py": {
+      "sha256": "301f8b136da486c7909e23fe9a30d859048acf1a389cad3061dcfd1fb08fb0eb",
+      "size_bytes": 3332
+    },
+    "offline_selfcheck.py": {
+      "sha256": "c6ae984811719f7484a1030a0a6b67dd5b68d041555a28442d634773948bb328",
+      "size_bytes": 9911
+    },
+    "README.md": {
+      "sha256": "a7f5d7b6f2c562f7913c65087eab26cb5751a39f56521ff1e220a9eb76c99314",
+      "size_bytes": 6415
+    },
+    "common-origin.json": {
+      "sha256": "c61171d22ecc1027f3669515b5678997fb0efb445cd921a226c69694a74b7827",
+      "size_bytes": 1052
+    }
+  },
+  "offline_selfcheck": {
+    "path": "selfcheck-r4/offline-selfcheck.json",
+    "sha256": "54c3c38847cf3ddce1167231b9580e5038f53de7e8ad05c1e74e517f605785c6",
+    "status": "PASS_OFFLINE_ONLY",
+    "checks": 61,
+    "prepared_combinations": 24,
+    "checksums_path": "selfcheck-r4/SHA256SUMS",
+    "checksums_sha256": "286ed87cb1e27cc56447d7322046c6f6a4c976b737529df8b317a877694ff6a6"
+  },
+  "selected_devices": [
+    "atoms3r",
+    "sticks3",
+    "stopwatch"
+  ],
+  "selected_cases": [
+    "pir",
+    "dual-button",
+    "limit",
+    "key",
+    "rgb",
+    "fan",
+    "rs485",
+    "hub"
+  ],
+  "caller_python_files_per_case": 19,
+  "authoring_source_context_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+  "authoring_runtime_default_sha256": "29d8f6ecdc83f4cbd2ca013291b05bc9ef44fb438a115b0ca97f7b5d46d8d28d",
+  "expected_runtime_is_parameterized": true,
+  "final_runtime_source_context_freeze": false,
+  "source_and_toolchain_change_require_fresh_prepare": true,
+  "only_root_may_execute": true,
+  "API_browser_guest_subprocess_calls": 0,
+  "BIN_build_or_upload": false,
+  "runtime_result": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "native_frame_readability": "NOT REVIEWED",
+  "blocked_or_excluded": [
+    "Angle/Light: ADC application fixture boundary; StopWatch additionally ADC2 versus original ADC1 oracle",
+    "Original IR/Buzzer: explicit scope exclusion; historical original/custom results unchanged"
+  ],
+  "required_next_step": "Independent offline review; root then confirms current exact source commit/runtime SHA/generation and idle service, and invokes --execute which always prepares a fresh output."
+}

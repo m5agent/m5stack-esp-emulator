@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+"""Validate external Unit data planes using visible Device Service sessions."""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import io
+import json
+import os
+import re
+import shutil
+import sys
+import time
+import urllib.error
+import urllib.request
+import zipfile
+from datetime import datetime, timezone
+from pathlib import Path
+from types import SimpleNamespace
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "tests/uiflow2"))
+from run_profile_ui_test import build_image  # noqa: E402
+from user_firmware_matrix import png_metrics  # noqa: E402
+
+
+class Client:
+    def __init__(self, url):
+        self.url = url.rstrip("/")
+        self.web_ui = None
+        self.web_ui_sessions = {}
+        if os.environ.get("M5_UNIT_WEB_BRIDGE") == "1":
+            from web_ui_bridge import WebUIBridge
+            self.web_ui = WebUIBridge(self.url)
+
+    def _open_web_ui(self, session_id, verify_runtime=True):
+        entry = self.web_ui_sessions.get(session_id)
+        if entry is None:
+            entry = {"session": self.json(f"sessions/{session_id}", via_ui=False), "opened": False}
+            self.web_ui_sessions[session_id] = entry
+        if verify_runtime and not entry.get("provenance_done"):
+            current = self.json(f"sessions/{session_id}", via_ui=False)
+            self.web_ui.runtime_provenance(current, lambda: self.json(f"sessions/{session_id}", via_ui=False))
+            entry["provenance_done"] = True
+        if not entry["opened"]:
+            self.web_ui.call("open", session=entry["session"])
+            entry["opened"] = True
+
+    def unit_double_tap(self, session_id, instance, field, index):
+        if not self.web_ui:
+            raise RuntimeError("unit_double_tap is only available with the explicit Web bridge opt-in")
+        self._open_web_ui(session_id)
+        return self.web_ui.call("double-tap", session_id=session_id, instance=instance, field=field, index=index)
+
+    def raw(self, path, method="GET", payload=None, body=None, headers=None, via_ui=True):
+        parts = path.split("?")[0].split("/")
+        if self.web_ui and via_ui and method == "POST" and path == "artifacts":
+            self.web_ui.call("prepare")
+        if self.web_ui and via_ui and method == "POST" and len(parts) == 3 and parts[0] == "sessions" and parts[2] == "unit-input":
+            self._open_web_ui(parts[1])
+            return json.dumps(self.web_ui.call("input", session_id=parts[1], payload=payload), allow_nan=False).encode()
+        if self.web_ui and via_ui and method == "GET" and len(parts) == 3 and parts[0] == "sessions" and parts[2] == "evidence":
+            try:
+                self._open_web_ui(parts[1])
+                self.web_ui.call("capture", session_id=parts[1], phase="before-evidence", screenshot=True)
+            except Exception as error:
+                # A browser/provenance failure must fail the Web result while
+                # still allowing the original failure ZIP to be downloaded.
+                self.web_ui.note_failure(parts[1], "before-evidence", error)
+        if self.web_ui and via_ui and method == "GET" and len(parts) == 3 and parts[0] == "sessions" and parts[2] == "units":
+            self._open_web_ui(parts[1])
+            self.web_ui.call("capture", session_id=parts[1], phase="observed-units", screenshot=False)
+        headers = dict(headers or {})
+        if payload is not None:
+            body = json.dumps(payload, allow_nan=False).encode()
+            headers["Content-Type"] = "application/json"
+        request = urllib.request.Request(self.url + "/api/v1/" + path, data=body, headers=headers, method=method)
+        try:
+            with urllib.request.urlopen(request, timeout=180) as response:
+                data = response.read()
+            if self.web_ui:
+                if method == "POST" and path == "sessions":
+                    # Attach lazily after the caller receives its lease id, so
+                    # an unavailable browser cannot hide a created session
+                    # from the runner's existing evidence/stop finally block.
+                    session = json.loads(data)
+                    self.web_ui_sessions[session["session_id"]] = {"session": session, "opened": False}
+                elif via_ui and method == "GET" and len(parts) == 2 and parts[0] == "sessions" and parts[1] in self.web_ui_sessions:
+                    self._open_web_ui(parts[1], verify_runtime=False)
+                elif method == "DELETE" and len(parts) == 2 and parts[0] == "sessions":
+                    self.web_ui.call("close", session_id=parts[1])
+            return data
+        except urllib.error.HTTPError as error:
+            raise RuntimeError(f"{method} {path}: HTTP {error.code} {error.read().decode()}") from error
+
+    def json(self, *args, **kwargs):
+        return json.loads(self.raw(*args, **kwargs))
+
+
+def wait_for(client, session_id, predicate, timeout=60):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        session = client.json(f"sessions/{session_id}")
+        if session["state"] in {"failed", "stopped"}:
+            raise RuntimeError(session.get("error") or "session ended before observation")
+        serial = client.json(f"sessions/{session_id}/serial?limit=262144").get("data", "")
+        if session["state"] == "running" and predicate(serial):
+            return serial
+        time.sleep(0.3)
+    raise RuntimeError("expected guest observation did not arrive before timeout")
+
+
+def run_case(client, args, case):
+    output = args.out_dir / case
+    output.mkdir(parents=True, exist_ok=True)
+    matrix = json.loads((ROOT / "tests/uiflow2/device_matrix.json").read_text())
+    device = next(row for row in matrix["devices"] if row["id"] == args.device)
+    registry = client.json(f"units?device_id={args.device}")
+    port = next(port for port in registry["hosts"][0]["ports"] if port.get("visual_port") == "grove")
+    files = output / "files"
+    shutil.copytree(Path(__file__).parent / "probe", files, dirs_exist_ok=True)
+    (files / "probe_config.py").write_text(
+        f"CASE = {case!r}\nWHITE = {port['pins']['white']}\nYELLOW = {port['pins']['yellow']}\nDEVICE_ID = {args.device!r}\n",
+        encoding="utf-8",
+    )
+    image = build_image(SimpleNamespace(
+        base=ROOT / device["base"], flash_size=int(device["flash_size"], 0),
+        files_dir=files, mklittlefs=None, preserve_vfs=False,
+        vfs_offset=int(device["vfs_offset"], 0), vfs_size=int(device["vfs_size"], 0),
+        prog_size=32, out_dir=output,
+    ))
+    firmware_bytes = image.read_bytes()
+    artifact = client.json("artifacts", method="POST", body=firmware_bytes, headers={
+        "Content-Type": "application/octet-stream", "X-Artifact-Name": f"{args.device}-unit-{case}.bin",
+    })
+    firmware = client.json("firmware", method="POST", payload={
+        "device_id": args.device, "kind": "merged", "artifact_id": artifact["artifact_id"],
+    })
+    result = {
+        "schema_version": 1, "date": datetime.now(timezone.utc).astimezone().isoformat(),
+        "validation": "guest-boot-control" if args.control_no_unit else "virtual-device validation", "device_id": args.device,
+        "unit_id": case, "runtime": "qemu", "status": "FAIL", "checks": {},
+        "firmware_sha256": hashlib.sha256(firmware_bytes).hexdigest(),
+        "probe_sha256": {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in files.glob("*.py")},
+    }
+    session_id = None
+    try:
+        session = client.json("sessions", method="POST", payload={
+            "device_id": args.device, "firmware_id": firmware["firmware_id"], "runtime": "qemu",
+            "ttl_seconds": 300, "ready_marker": "UNIT_PROBE_READY", "ready_timeout_seconds": 120,
+            "units": [] if args.control_no_unit else [{"id": "external1", "unit_id": case, "port_id": port["id"]}],
+        })
+        session_id = session["session_id"]
+        result["session_id"] = session_id
+        print(f"{case}: visible session created", flush=True)
+        serial = wait_for(client, session_id, lambda text: "UNIT_PROBE_READY" in text, 150)
+        result["checks"]["official_driver_ready"] = True
+        if args.control_no_unit:
+            result["checks"]["no_unit_attached"] = not session.get("units")
+        elif case == "button":
+            for pressed, expected in ((True, "UNIT_BUTTON 0"), (False, "UNIT_BUTTON 1"), (True, "UNIT_BUTTON 0"), (False, "UNIT_BUTTON 1")):
+                offset = len(serial)
+                state = client.json(f"sessions/{session_id}/unit-input", method="POST", payload={"id": "external1", "values": {"pressed": pressed}})
+                assert state["units"][0]["properties"]["pressed"] is pressed
+                serial = wait_for(client, session_id, lambda text: expected in text[offset:])
+            result["checks"]["web_input_reaches_guest_gpio"] = True
+        elif case == "relay":
+            serial = wait_for(client, session_id, lambda text: "UNIT_RELAY 1" in text and "UNIT_RELAY 0" in text)
+            observed = []
+            for _ in range(12):
+                observed.append(client.json(f"sessions/{session_id}/units")["units"][0]["properties"]["output-level"])
+                time.sleep(0.2)
+            assert set(observed) == {True, False}, observed
+            result["checks"]["guest_gpio_output_readback"] = True
+        else:
+            expected = (31.5, 67.0, 98765.0)
+            state = client.json(f"sessions/{session_id}/unit-input", method="POST", payload={
+                "id": "external1", "values": dict(zip(("temperature-c", "humidity-pct", "pressure-pa"), expected)),
+            })
+            offset = len(serial)
+            def matches(text):
+                for row in re.findall(r"UNIT_ENV ([\d.-]+) ([\d.-]+) ([\d.-]+)", text[offset:]):
+                    if all(abs(float(value) - target) < tolerance for value, target, tolerance in zip(row, expected, (0.2, 0.2, 1.0))):
+                        return True
+                return False
+            serial = wait_for(client, session_id, matches)
+            result["checks"]["official_sensor_compensation_matches_input"] = True
+        state = client.json(f"sessions/{session_id}/units")
+        result["unit_state"] = state
+        if not args.control_no_unit:
+            result["checks"]["live_controller_state"] = state["source"] == "live" and state["units"][0]["available"]
+        screenshot = client.raw(f"sessions/{session_id}/frame.png")
+        (output / "frame.png").write_bytes(screenshot)
+        result["frame_sha256"] = hashlib.sha256(screenshot).hexdigest()
+        result["frame_metrics"] = png_metrics(screenshot)
+        result["checks"]["nonempty_application_frame"] = result["frame_metrics"]["unique_colors"] > 1
+        result["status"] = "PASS" if all(result["checks"].values()) else "FAIL"
+    except Exception as error:
+        result["error"] = str(error)
+    finally:
+        if session_id:
+            try:
+                bundle = client.raw(f"sessions/{session_id}/evidence")
+                (output / "evidence.zip").write_bytes(bundle)
+                result["evidence_sha256"] = hashlib.sha256(bundle).hexdigest()
+                with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
+                    required = {"manifest.json", "serial.log"}
+                    if not args.control_no_unit:
+                        required |= {"units/runtime.json", "units/state.json", "units/contract.json"}
+                    result["checks"]["evidence_complete"] = required.issubset(archive.namelist())
+                    (output / "serial.txt").write_bytes(archive.read("serial.log"))
+            except Exception as error:
+                result["evidence_error"] = str(error)
+                result["status"] = "FAIL"
+            try:
+                stopped = client.json(f"sessions/{session_id}?purge=0", method="DELETE")
+                history = client.json(f"sessions/{session_id}")
+                result["checks"]["stopped_with_history"] = stopped["state"] in {"stopped", "failed"} and history["state"] in {"stopped", "failed"}
+            except Exception as error:
+                result["stop_error"] = str(error)
+                result["checks"]["stopped_with_history"] = False
+            if result.get("error") or result.get("evidence_error") or not all(result["checks"].values()):
+                result["status"] = "FAIL"
+        (output / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"{case}: {result['status']}" + (f" ({result['error']})" if result.get("error") else ""), flush=True)
+    return result
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--api-url", default="http://127.0.0.1:8787")
+    parser.add_argument("--device", default="cores3")
+    parser.add_argument("--case", choices=["button", "relay", "env-iii", "all"], default="all")
+    parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument("--control-no-unit", action="store_true", help="Guest boot control only; does not claim a Unit PASS")
+    args = parser.parse_args()
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    client = Client(args.api_url)
+    cases = ["button", "relay", "env-iii"] if args.case == "all" else [args.case]
+    results = [run_case(client, args, case) for case in cases]
+    raise SystemExit(0 if all(row["status"] == "PASS" for row in results) else 1)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,512 @@
+{
+  "schema_version": 2,
+  "status": "PARTIAL_NUMERIC_TOKEN_LAYOUT",
+  "expected_native_frames": 24,
+  "reviewed_native_frames": 24,
+  "remaining_native_frames": 0,
+  "all_frames_viewed_individually": true,
+  "glyph_containment": "WITHIN_CAPTURED_FRAME",
+  "numeric_token_full_frames": 21,
+  "numeric_token_partial_frames": 3,
+  "functional_raw_review_status": "PASS",
+  "supersedes_readability_classification_in": [
+    "native-visual-fan3.json",
+    "native-visual-rest10.json",
+    "native-visual-rest15.json"
+  ],
+  "supersession_reason": "Earlier incremental READABLE labels did not distinguish glyph containment from numeric-token continuity; originals remain unchanged.",
+  "source_context_by_batch": {
+    "fan-r1": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+    "rest-r1": "0a6a9a2a4201f49464afb6cd6e36c321d3305cb6"
+  },
+  "scope": "Actual 24 captured native PNGs only. Controller/UART/QOM functional24 PASS is separate from the three HUB numeric-token layout issues.",
+  "frames": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "fan",
+      "session_id": "5368ae5747c2406f944665297fa662fb",
+      "source": ".work/unit-source-host-io-20261026/live-fan-r1/atoms3r/fan/frame.png",
+      "sha256": "0dd5295e9fe2d7e34516552636387823b42576d0caec3be9739b6684e4ed186c",
+      "native_size": [
+        128,
+        128
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "fan",
+      "session_id": "def70d6301564f5b969f8e3538f8fa2f",
+      "source": ".work/unit-source-host-io-20261026/live-fan-r1/sticks3/fan/frame.png",
+      "sha256": "e948a7e3c88c8544b0947623f69ebb7089d21ee408f352d162203bf1329f035b",
+      "native_size": [
+        135,
+        240
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "fan",
+      "session_id": "33160a60920b49329c6c7038b5677e4c",
+      "source": ".work/unit-source-host-io-20261026/live-fan-r1/stopwatch/fan/frame.png",
+      "sha256": "4c1f89bc9b0d729902b1cf1e29ff0f3c14876ea79f61adc03da383f7e3703ce3",
+      "native_size": [
+        466,
+        466
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "pir",
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/atoms3r/pir/frame.png",
+      "sha256": "2874c0950acc5f1b072f2185ee9e8aff87db1b21e285ca46be6983e7bd6f549c",
+      "native_size": [
+        128,
+        128
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "dual-button",
+      "session_id": "2e0744ef327647f1b2fe412611c4d4fb",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/atoms3r/dual-button/frame.png",
+      "sha256": "5a11d280b20dc0bc8ea1f6a49feafe8bb8684f94000e0796705e4c918bf8078f",
+      "native_size": [
+        128,
+        128
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "limit",
+      "session_id": "f57eda67d2a74e719bbf887a90c03cbe",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/atoms3r/limit/frame.png",
+      "sha256": "9febeaaef53224fe94981b7db16cc02ba4036a0e32acda23710f7942722dab3e",
+      "native_size": [
+        128,
+        128
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "key",
+      "session_id": "f1f7832423394e33bb9282ae935efadc",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/atoms3r/key/frame.png",
+      "sha256": "ea1d96327b25b0e580ea4bc2904b25315b3ad4bb527208bb11e516bbc2a9220e",
+      "native_size": [
+        128,
+        128
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "rgb",
+      "session_id": "8f546ffe4d4c44a0a6e0ec40a380dc0b",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/atoms3r/rgb/frame.png",
+      "sha256": "eebcba90cc70605b7a608803ca09178817b6eb175463cc608214ac0f7f94c01f",
+      "native_size": [
+        128,
+        128
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "RGB hex tokens remain continuous although the GRB tuple can wrap between hex tokens.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "rs485",
+      "session_id": "79204aacba834cb8a0b7c16e40658b28",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/atoms3r/rs485/frame.png",
+      "sha256": "09490a09c0c090b81675a7084c86196195748884a10749d51f919dd7b4475edc",
+      "native_size": [
+        128,
+        128
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "UART1 9600 / UART0 log label can wrap; observed numeric digits remain continuous.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "hub",
+      "session_id": "404965a84ae341d682014c2364c35250",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/atoms3r/hub/frame.png",
+      "sha256": "e69f42e80c4f3d7081c891621c2e0216b777f8439dbf44754fecf7c4fc8f4dbb",
+      "native_size": [
+        128,
+        128
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "PARTIAL",
+      "readability": "PARTIAL_NUMERIC_TOKEN_CONTINUITY",
+      "clipping_observed": false,
+      "layout_status": "OPEN_NUMERIC_TOKEN_WRAPPING",
+      "affected_fields": [
+        "HUB long floating-point tuple"
+      ],
+      "observation": "HUB long floating-point tuple wraps within a numeric token; every observed glyph remains inside this captured frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "pir",
+      "session_id": "8df4228240f14ae78e8c2923cd525ebb",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/sticks3/pir/frame.png",
+      "sha256": "c2184b59de04858f3d1880e1cf216cfa1f0171d05b6b71c2a6a401ac2540be66",
+      "native_size": [
+        135,
+        240
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "dual-button",
+      "session_id": "cc395a7930f2465fa59fa3ab7e986237",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/sticks3/dual-button/frame.png",
+      "sha256": "ca7845ea6e0e8a3e1a5157a9d8480db473b1f26fa45c043763d72d4be1a5edfd",
+      "native_size": [
+        135,
+        240
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "limit",
+      "session_id": "b88801419eab479a8c279d87d404cad8",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/sticks3/limit/frame.png",
+      "sha256": "c01922265d2ae5ac6448c0bf66c68ae7abfb29a4d71362a0c2dc3a80a9bed8e8",
+      "native_size": [
+        135,
+        240
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "key",
+      "session_id": "22099f7261574979bb5522ed8c2470bb",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/sticks3/key/frame.png",
+      "sha256": "d35f57835d4d5c6eb6b596cfe2931e1acedc71bd3e1ac3697a2de362edb62887",
+      "native_size": [
+        135,
+        240
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "rgb",
+      "session_id": "ad43b6deb65a4045ae1bd2e069dffa5c",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/sticks3/rgb/frame.png",
+      "sha256": "d371b09db2ee312763664eb1a06e428dfb597c4745bb6100d094bc3e82fec85c",
+      "native_size": [
+        135,
+        240
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "RGB hex tokens remain continuous although the GRB tuple can wrap between hex tokens.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "rs485",
+      "session_id": "a8d3c1f3498f458b9c6381fe799c3230",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/sticks3/rs485/frame.png",
+      "sha256": "4afd2a15cce910ed6f48a1906ed8cdc279e922c884b0637e083cdcc3511f14fa",
+      "native_size": [
+        135,
+        240
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "UART1 9600 / UART0 log label can wrap; observed numeric digits remain continuous.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "hub",
+      "session_id": "9fbad077234640d4b44b9efb7776b0c9",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/sticks3/hub/frame.png",
+      "sha256": "778070983f53af358dbfa324b21ca93f99c179cbae2631a54240c97f0c98a234",
+      "native_size": [
+        135,
+        240
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "PARTIAL",
+      "readability": "PARTIAL_NUMERIC_TOKEN_CONTINUITY",
+      "clipping_observed": false,
+      "layout_status": "OPEN_NUMERIC_TOKEN_WRAPPING",
+      "affected_fields": [
+        "HUB long floating-point tuple",
+        "eCO2 integer"
+      ],
+      "observation": "HUB ambient decimal and eCO2 integer are split across rows; every observed glyph remains inside this captured frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "pir",
+      "session_id": "f5f839b8685c49f282c56ef3a21b12c1",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/stopwatch/pir/frame.png",
+      "sha256": "04253f41d5439692730f7aab92a2c80fc9f75d85a71ce6f4f8c1d198ae0c9497",
+      "native_size": [
+        466,
+        466
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "dual-button",
+      "session_id": "120d0b0cdbae4893b6a7d054e2053a7a",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/stopwatch/dual-button/frame.png",
+      "sha256": "38038b53435f81c341b762799777c2b26821b4f0fbe55aa2a74f2e304668c18f",
+      "native_size": [
+        466,
+        466
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "limit",
+      "session_id": "f81e7f48249848aa83302d5984bf3c3f",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/stopwatch/limit/frame.png",
+      "sha256": "50f14cd1c132dcea76f66c2e045f769189d66c7653f6db30a8536162cb596f6e",
+      "native_size": [
+        466,
+        466
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "key",
+      "session_id": "471f7494835b4b33a630058fae3fe82c",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/stopwatch/key/frame.png",
+      "sha256": "fd45e53629b148229f7be44a1df056265d16a11ea76035c8d3be3cf1f9f950c9",
+      "native_size": [
+        466,
+        466
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "Headers and telemetry remain inside this captured native frame.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "rgb",
+      "session_id": "c6453661b6ad4c6d96a0f89f90067ad2",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/stopwatch/rgb/frame.png",
+      "sha256": "ec087474b3aad65ba289eafdc5970aae4dc3931a2dd0c336bdfe6be6700fc902",
+      "native_size": [
+        466,
+        466
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "RGB hex tokens remain continuous although the GRB tuple can wrap between hex tokens.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "rs485",
+      "session_id": "53479db52ce04e7c84685290680f6cdc",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/stopwatch/rs485/frame.png",
+      "sha256": "c6490ff05dc82c81c4e20e28413eeb651399d9390e84b628ebdca03e66a9b8c5",
+      "native_size": [
+        466,
+        466
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "FULL",
+      "readability": "READABLE_CAPTURED_NATIVE_FRAME_ONLY",
+      "clipping_observed": false,
+      "layout_status": "ACCEPTED_CAPTURED_FRAME_ONLY",
+      "affected_fields": [],
+      "observation": "UART1 9600 / UART0 log label can wrap; observed numeric digits remain continuous.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "hub",
+      "session_id": "c1868885523e412eb0fe88f71fa99e5f",
+      "source": ".work/unit-source-host-io-20261026/live-rest-r1/stopwatch/hub/frame.png",
+      "sha256": "1e383857a0fc84c0b7cf696bc93c8b017ee2d203d52d9b514fbe780d53c58650",
+      "native_size": [
+        466,
+        466
+      ],
+      "actual_view_image_inspection": true,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_continuity": "PARTIAL",
+      "readability": "PARTIAL_NUMERIC_TOKEN_CONTINUITY",
+      "clipping_observed": false,
+      "layout_status": "OPEN_NUMERIC_TOKEN_WRAPPING",
+      "affected_fields": [
+        "HUB long floating-point tuple"
+      ],
+      "observation": "HUB ambient 17.309998 is split as 1 / 7.309998 across two rows; every observed glyph remains inside the circular captured display.",
+      "scope": "Only this exact captured PNG; continuous/all-stage/physical-display fidelity and hardware legibility are not inferred."
+    }
+  ]
+}

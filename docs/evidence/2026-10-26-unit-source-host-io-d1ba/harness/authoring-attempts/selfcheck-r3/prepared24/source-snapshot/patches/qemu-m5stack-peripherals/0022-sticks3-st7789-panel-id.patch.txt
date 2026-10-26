@@ -1,0 +1,11 @@
+diff --git a/hw/m5stopwatch/m5sticks3.c b/hw/m5stopwatch/m5sticks3.c
+index d268466..c095a95 100644
+--- a/hw/m5stopwatch/m5sticks3.c
++++ b/hw/m5stopwatch/m5sticks3.c
+@@ -68,5 +68,6 @@ void m5sticks3_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     qdev_prop_set_uint32(panel, "vis-height", 240);
+     qdev_prop_set_uint32(panel, "offset-x", 52);
+     qdev_prop_set_uint32(panel, "offset-y", 40);
++    qdev_prop_set_uint32(panel, "read-id", 0x00000081);
+     qdev_prop_set_uint32(panel, "key-a-pin", 11);
+     qdev_prop_set_uint32(panel, "key-b-pin", 12);

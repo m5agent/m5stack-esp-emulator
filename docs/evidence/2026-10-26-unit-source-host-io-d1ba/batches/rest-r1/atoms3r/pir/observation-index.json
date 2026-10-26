@@ -1,0 +1,1756 @@
+[
+  {
+    "at": "2026-10-26T05:55:25.348106+00:00",
+    "event_id": 0,
+    "kind": "wait-success",
+    "phase": "startup",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00000-serial.txt",
+    "serial_sha256": "840abd95a2bda995a103f49d28e068b3da35b9677d27dc44d8ef2f9d5500451a"
+  },
+  {
+    "at": "2026-10-26T05:55:25.348269+00:00",
+    "event_id": 1,
+    "kind": "marker",
+    "marker": "IO_PROBE_READY pir",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00001-marker.txt",
+    "serial_sha256": "840abd95a2bda995a103f49d28e068b3da35b9677d27dc44d8ef2f9d5500451a"
+  },
+  {
+    "at": "2026-10-26T05:55:25.372932+00:00",
+    "event_id": 2,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "motion": true
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "offset": 0,
+      "next_offset": 562,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d24\r\nentry 0x403c8890\r\nE (1285) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START pir\r\nHOST_IO_DEFAULT_FONT_HEIGHT 15\r\nHOST_IO_FONT Montserrat12 0.7 10\r\nHOST_IO_GEOMETRY 128 128 0\r\nHOST_IO_LAYOUT 4 4 120 28 11 8 116 2\r\nHOST_IO_INTERNAL before 36 1\r\nHOST_IO_INTERNAL after_init 36 2\r\nIO_PROBE_READY pir\r\nIO_PIR 0 0 0 0\r\n",
+      "bytes": 562
+    },
+    "before_live_state": {
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "state": "running",
+      "source": "live",
+      "captured_at": "2026-10-26T05:55:25.369469+00:00",
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "pir",
+          "port_id": "custom",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {},
+          "source": "guest-qom",
+          "available": true,
+          "properties": {
+            "motion": false,
+            "input-level": false,
+            "transactions": 0,
+            "read-bytes": 0,
+            "written-bytes": 0,
+            "input-events": 0,
+            "output-transitions": 0
+          },
+          "errors": {}
+        }
+      ],
+      "definitions": [
+        {
+          "id": "pir",
+          "name": "PIR",
+          "sku": "U004",
+          "visual_asset": {
+            "entry": "src/units/pir/index.js",
+            "export": "GroveModule"
+          },
+          "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+          "checked_at": "2026-10-26",
+          "chips": [
+            {
+              "part": "AS312",
+              "status": "officially-documented"
+            },
+            {
+              "part": "HT7533",
+              "status": "officially-documented"
+            }
+          ],
+          "interface": {
+            "bus": "gpio",
+            "connector": "HY2.0-4P",
+            "address_7bit": [],
+            "pins": {
+              "red": {
+                "signal": "5V",
+                "direction": "power"
+              },
+              "black": {
+                "signal": "GND",
+                "direction": "ground"
+              },
+              "yellow": {
+                "signal": "NC",
+                "direction": "none"
+              },
+              "white": {
+                "signal": "motion",
+                "direction": "unit-to-host",
+                "active_level": 1
+              }
+            },
+            "power": {
+              "nominal_v": 5,
+              "source": "official-product-PinMap",
+              "logic_v": null,
+              "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+            }
+          },
+          "protocol": {
+            "status": "documented",
+            "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+            "registers": [],
+            "gaps": [
+              "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+            ]
+          },
+          "inputs": {
+            "motion": {
+              "type": "boolean",
+              "label": "检测到移动",
+              "default": false,
+              "default_source": "synthetic-test-fixture",
+              "readOnly": false
+            }
+          },
+          "outputs": {},
+          "evidence": [
+            {
+              "kind": "official-product",
+              "url": "https://docs.m5stack.com/en/unit/PIR",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "SKU and chip identity",
+                "PinMap wire colors",
+                "documented electrical and functional limits"
+              ]
+            },
+            {
+              "kind": "official-driver",
+              "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "guest driver transaction path and encoding"
+              ],
+              "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+            }
+          ],
+          "research_status": "confirmed-contract",
+          "model_status": "implemented",
+          "runtime": {
+            "status": "implemented",
+            "hosts": [
+              "cores3",
+              "atoms3r",
+              "sticks3",
+              "stopwatch"
+            ],
+            "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+            "inputs": {
+              "motion": {
+                "property": "motion"
+              }
+            },
+            "state": {
+              "motion": {
+                "property": "motion"
+              },
+              "input-level": {
+                "property": "input-level"
+              },
+              "transactions": {
+                "property": "transactions"
+              },
+              "read-bytes": {
+                "property": "read-bytes"
+              },
+              "written-bytes": {
+                "property": "written-bytes"
+              },
+              "input-events": {
+                "property": "input-events"
+              },
+              "output-transitions": {
+                "property": "output-transitions"
+              }
+            },
+            "guest_validation": {
+              "status": "PASS",
+              "device_id": "cores3",
+              "runtime": "qemu",
+              "firmware_sha256": "4cfef2efd48b1951a7f579e55469b146862f2ad9a3f6e48d98dda68a6d78e913",
+              "firmware_flavor": "reference-app-with-original-unit-drivers",
+              "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+              "report_sha256": "4fe54a7e8a30611a11d06a64c8f6b032a069d952cb2ba0e54dec13c7efcb4cb0",
+              "evidence_sha256": "21b069f25ab1520f4fbb341b4d9ea6775879acc515881c4295f0e4381b80b362",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 8,
+              "live_browser": "PASS",
+              "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+              "hardware": "NOT RUN"
+            },
+            "host_validation": {
+              "atoms3r": {
+                "status": "NOT RUN",
+                "device_id": "atoms3r",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              },
+              "sticks3": {
+                "status": "NOT RUN",
+                "device_id": "sticks3",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              },
+              "stopwatch": {
+                "status": "NOT RUN",
+                "device_id": "stopwatch",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              }
+            }
+          },
+          "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+          "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+          "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+          "limitations": [
+            "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+            "This catalog alone does not authorize a simulated or functional-PASS claim."
+          ],
+          "research_snapshot": {
+            "scope": "protocol research only; not current runtime capability",
+            "model_status": "planned",
+            "runtime_status": "unsupported",
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+          }
+        }
+      ],
+      "contract_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+      },
+      "contract_status": "frozen"
+    },
+    "accepted": true,
+    "requested": {
+      "id": "external1",
+      "values": {
+        "motion": true
+      }
+    },
+    "serial_offset_before_ui": 562,
+    "before_serial_sha256": "840abd95a2bda995a103f49d28e068b3da35b9677d27dc44d8ef2f9d5500451a",
+    "request_started_at": "2026-10-26T05:55:25.372926+00:00",
+    "request_returned_at": "2026-10-26T05:55:26.583384+00:00"
+  },
+  {
+    "at": "2026-10-26T05:55:26.587031+00:00",
+    "event_id": 3,
+    "kind": "wait-success",
+    "phase": "IO_PROBE_READY pir",
+    "offset": 0,
+    "input_event": 2,
+    "serial_file": "observations/00003-serial.txt",
+    "serial_sha256": "a8c3796042fca2416128fa61b4953ae743e9c2a5be261cc902b81731ca773088"
+  },
+  {
+    "at": "2026-10-26T05:55:26.587394+00:00",
+    "event_id": 4,
+    "kind": "marker",
+    "marker": "IO_PIR_CALLBACK 1 1",
+    "offset": 0,
+    "input_event": 2,
+    "serial_file": "observations/00004-marker.txt",
+    "serial_sha256": "a8c3796042fca2416128fa61b4953ae743e9c2a5be261cc902b81731ca773088"
+  },
+  {
+    "at": "2026-10-26T05:55:26.592709+00:00",
+    "event_id": 5,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "motion": false
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "offset": 0,
+      "next_offset": 599,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d24\r\nentry 0x403c8890\r\nE (1285) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START pir\r\nHOST_IO_DEFAULT_FONT_HEIGHT 15\r\nHOST_IO_FONT Montserrat12 0.7 10\r\nHOST_IO_GEOMETRY 128 128 0\r\nHOST_IO_LAYOUT 4 4 120 28 11 8 116 2\r\nHOST_IO_INTERNAL before 36 1\r\nHOST_IO_INTERNAL after_init 36 2\r\nIO_PROBE_READY pir\r\nIO_PIR 0 0 0 0\r\nIO_PIR_CALLBACK 1 1\r\nIO_PIR 1 1 0 0\r\n",
+      "bytes": 599
+    },
+    "before_live_state": {
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "state": "running",
+      "source": "live",
+      "captured_at": "2026-10-26T05:55:26.589539+00:00",
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "pir",
+          "port_id": "custom",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {},
+          "source": "guest-qom",
+          "available": true,
+          "properties": {
+            "motion": true,
+            "input-level": true,
+            "transactions": 0,
+            "read-bytes": 0,
+            "written-bytes": 0,
+            "input-events": 1,
+            "output-transitions": 0
+          },
+          "errors": {}
+        }
+      ],
+      "definitions": [
+        {
+          "id": "pir",
+          "name": "PIR",
+          "sku": "U004",
+          "visual_asset": {
+            "entry": "src/units/pir/index.js",
+            "export": "GroveModule"
+          },
+          "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+          "checked_at": "2026-10-26",
+          "chips": [
+            {
+              "part": "AS312",
+              "status": "officially-documented"
+            },
+            {
+              "part": "HT7533",
+              "status": "officially-documented"
+            }
+          ],
+          "interface": {
+            "bus": "gpio",
+            "connector": "HY2.0-4P",
+            "address_7bit": [],
+            "pins": {
+              "red": {
+                "signal": "5V",
+                "direction": "power"
+              },
+              "black": {
+                "signal": "GND",
+                "direction": "ground"
+              },
+              "yellow": {
+                "signal": "NC",
+                "direction": "none"
+              },
+              "white": {
+                "signal": "motion",
+                "direction": "unit-to-host",
+                "active_level": 1
+              }
+            },
+            "power": {
+              "nominal_v": 5,
+              "source": "official-product-PinMap",
+              "logic_v": null,
+              "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+            }
+          },
+          "protocol": {
+            "status": "documented",
+            "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+            "registers": [],
+            "gaps": [
+              "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+            ]
+          },
+          "inputs": {
+            "motion": {
+              "type": "boolean",
+              "label": "检测到移动",
+              "default": false,
+              "default_source": "synthetic-test-fixture",
+              "readOnly": false
+            }
+          },
+          "outputs": {},
+          "evidence": [
+            {
+              "kind": "official-product",
+              "url": "https://docs.m5stack.com/en/unit/PIR",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "SKU and chip identity",
+                "PinMap wire colors",
+                "documented electrical and functional limits"
+              ]
+            },
+            {
+              "kind": "official-driver",
+              "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "guest driver transaction path and encoding"
+              ],
+              "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+            }
+          ],
+          "research_status": "confirmed-contract",
+          "model_status": "implemented",
+          "runtime": {
+            "status": "implemented",
+            "hosts": [
+              "cores3",
+              "atoms3r",
+              "sticks3",
+              "stopwatch"
+            ],
+            "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+            "inputs": {
+              "motion": {
+                "property": "motion"
+              }
+            },
+            "state": {
+              "motion": {
+                "property": "motion"
+              },
+              "input-level": {
+                "property": "input-level"
+              },
+              "transactions": {
+                "property": "transactions"
+              },
+              "read-bytes": {
+                "property": "read-bytes"
+              },
+              "written-bytes": {
+                "property": "written-bytes"
+              },
+              "input-events": {
+                "property": "input-events"
+              },
+              "output-transitions": {
+                "property": "output-transitions"
+              }
+            },
+            "guest_validation": {
+              "status": "PASS",
+              "device_id": "cores3",
+              "runtime": "qemu",
+              "firmware_sha256": "4cfef2efd48b1951a7f579e55469b146862f2ad9a3f6e48d98dda68a6d78e913",
+              "firmware_flavor": "reference-app-with-original-unit-drivers",
+              "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+              "report_sha256": "4fe54a7e8a30611a11d06a64c8f6b032a069d952cb2ba0e54dec13c7efcb4cb0",
+              "evidence_sha256": "21b069f25ab1520f4fbb341b4d9ea6775879acc515881c4295f0e4381b80b362",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 8,
+              "live_browser": "PASS",
+              "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+              "hardware": "NOT RUN"
+            },
+            "host_validation": {
+              "atoms3r": {
+                "status": "NOT RUN",
+                "device_id": "atoms3r",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              },
+              "sticks3": {
+                "status": "NOT RUN",
+                "device_id": "sticks3",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              },
+              "stopwatch": {
+                "status": "NOT RUN",
+                "device_id": "stopwatch",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              }
+            }
+          },
+          "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+          "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+          "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+          "limitations": [
+            "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+            "This catalog alone does not authorize a simulated or functional-PASS claim."
+          ],
+          "research_snapshot": {
+            "scope": "protocol research only; not current runtime capability",
+            "model_status": "planned",
+            "runtime_status": "unsupported",
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+          }
+        }
+      ],
+      "contract_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+      },
+      "contract_status": "frozen"
+    },
+    "accepted": true,
+    "requested": {
+      "id": "external1",
+      "values": {
+        "motion": false
+      }
+    },
+    "serial_offset_before_ui": 599,
+    "before_serial_sha256": "a8c3796042fca2416128fa61b4953ae743e9c2a5be261cc902b81731ca773088",
+    "request_started_at": "2026-10-26T05:55:26.592703+00:00",
+    "request_returned_at": "2026-10-26T05:55:26.806955+00:00"
+  },
+  {
+    "at": "2026-10-26T05:55:28.681624+00:00",
+    "event_id": 6,
+    "kind": "wait-success",
+    "phase": "IO_PIR_CALLBACK 1 1",
+    "offset": 0,
+    "input_event": 5,
+    "serial_file": "observations/00006-serial.txt",
+    "serial_sha256": "1b7e887a7289dd63a7e6afb97fdaf3629544bbc01323c46ed94d64af0c5e0360"
+  },
+  {
+    "at": "2026-10-26T05:55:28.682160+00:00",
+    "event_id": 7,
+    "kind": "marker",
+    "marker": "IO_PIR_CALLBACK 0 1",
+    "offset": 0,
+    "input_event": 5,
+    "serial_file": "observations/00007-marker.txt",
+    "serial_sha256": "1b7e887a7289dd63a7e6afb97fdaf3629544bbc01323c46ed94d64af0c5e0360"
+  },
+  {
+    "at": "2026-10-26T05:55:28.686633+00:00",
+    "event_id": 8,
+    "kind": "wait-success",
+    "phase": "IO_PIR_CALLBACK 0 1",
+    "offset": 0,
+    "input_event": 5,
+    "serial_file": "observations/00008-serial.txt",
+    "serial_sha256": "1b7e887a7289dd63a7e6afb97fdaf3629544bbc01323c46ed94d64af0c5e0360"
+  },
+  {
+    "at": "2026-10-26T05:55:28.687237+00:00",
+    "event_id": 9,
+    "kind": "marker",
+    "marker": "IO_PIR_DISABLED 1 1",
+    "offset": 0,
+    "input_event": 5,
+    "serial_file": "observations/00009-marker.txt",
+    "serial_sha256": "1b7e887a7289dd63a7e6afb97fdaf3629544bbc01323c46ed94d64af0c5e0360"
+  },
+  {
+    "at": "2026-10-26T05:55:28.693377+00:00",
+    "event_id": 10,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "motion": true
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "offset": 0,
+      "next_offset": 733,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d24\r\nentry 0x403c8890\r\nE (1285) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START pir\r\nHOST_IO_DEFAULT_FONT_HEIGHT 15\r\nHOST_IO_FONT Montserrat12 0.7 10\r\nHOST_IO_GEOMETRY 128 128 0\r\nHOST_IO_LAYOUT 4 4 120 28 11 8 116 2\r\nHOST_IO_INTERNAL before 36 1\r\nHOST_IO_INTERNAL after_init 36 2\r\nIO_PROBE_READY pir\r\nIO_PIR 0 0 0 0\r\nIO_PIR_CALLBACK 1 1\r\nIO_PIR 1 1 0 0\r\nHOST_IO_INTERNAL loop 36 141\r\nIO_PIR 1 1 0 0\r\nHOST_IO_INTERNAL loop 36 280\r\nIO_PIR_CALLBACK 0 1\r\nIO_PIR_DISABLED 1 1\r\nIO_PIR 0 1 1 1\r\n",
+      "bytes": 733
+    },
+    "before_live_state": {
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "state": "running",
+      "source": "live",
+      "captured_at": "2026-10-26T05:55:28.689908+00:00",
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "pir",
+          "port_id": "custom",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {},
+          "source": "guest-qom",
+          "available": true,
+          "properties": {
+            "motion": false,
+            "input-level": false,
+            "transactions": 0,
+            "read-bytes": 0,
+            "written-bytes": 0,
+            "input-events": 2,
+            "output-transitions": 0
+          },
+          "errors": {}
+        }
+      ],
+      "definitions": [
+        {
+          "id": "pir",
+          "name": "PIR",
+          "sku": "U004",
+          "visual_asset": {
+            "entry": "src/units/pir/index.js",
+            "export": "GroveModule"
+          },
+          "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+          "checked_at": "2026-10-26",
+          "chips": [
+            {
+              "part": "AS312",
+              "status": "officially-documented"
+            },
+            {
+              "part": "HT7533",
+              "status": "officially-documented"
+            }
+          ],
+          "interface": {
+            "bus": "gpio",
+            "connector": "HY2.0-4P",
+            "address_7bit": [],
+            "pins": {
+              "red": {
+                "signal": "5V",
+                "direction": "power"
+              },
+              "black": {
+                "signal": "GND",
+                "direction": "ground"
+              },
+              "yellow": {
+                "signal": "NC",
+                "direction": "none"
+              },
+              "white": {
+                "signal": "motion",
+                "direction": "unit-to-host",
+                "active_level": 1
+              }
+            },
+            "power": {
+              "nominal_v": 5,
+              "source": "official-product-PinMap",
+              "logic_v": null,
+              "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+            }
+          },
+          "protocol": {
+            "status": "documented",
+            "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+            "registers": [],
+            "gaps": [
+              "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+            ]
+          },
+          "inputs": {
+            "motion": {
+              "type": "boolean",
+              "label": "检测到移动",
+              "default": false,
+              "default_source": "synthetic-test-fixture",
+              "readOnly": false
+            }
+          },
+          "outputs": {},
+          "evidence": [
+            {
+              "kind": "official-product",
+              "url": "https://docs.m5stack.com/en/unit/PIR",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "SKU and chip identity",
+                "PinMap wire colors",
+                "documented electrical and functional limits"
+              ]
+            },
+            {
+              "kind": "official-driver",
+              "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "guest driver transaction path and encoding"
+              ],
+              "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+            }
+          ],
+          "research_status": "confirmed-contract",
+          "model_status": "implemented",
+          "runtime": {
+            "status": "implemented",
+            "hosts": [
+              "cores3",
+              "atoms3r",
+              "sticks3",
+              "stopwatch"
+            ],
+            "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+            "inputs": {
+              "motion": {
+                "property": "motion"
+              }
+            },
+            "state": {
+              "motion": {
+                "property": "motion"
+              },
+              "input-level": {
+                "property": "input-level"
+              },
+              "transactions": {
+                "property": "transactions"
+              },
+              "read-bytes": {
+                "property": "read-bytes"
+              },
+              "written-bytes": {
+                "property": "written-bytes"
+              },
+              "input-events": {
+                "property": "input-events"
+              },
+              "output-transitions": {
+                "property": "output-transitions"
+              }
+            },
+            "guest_validation": {
+              "status": "PASS",
+              "device_id": "cores3",
+              "runtime": "qemu",
+              "firmware_sha256": "4cfef2efd48b1951a7f579e55469b146862f2ad9a3f6e48d98dda68a6d78e913",
+              "firmware_flavor": "reference-app-with-original-unit-drivers",
+              "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+              "report_sha256": "4fe54a7e8a30611a11d06a64c8f6b032a069d952cb2ba0e54dec13c7efcb4cb0",
+              "evidence_sha256": "21b069f25ab1520f4fbb341b4d9ea6775879acc515881c4295f0e4381b80b362",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 8,
+              "live_browser": "PASS",
+              "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+              "hardware": "NOT RUN"
+            },
+            "host_validation": {
+              "atoms3r": {
+                "status": "NOT RUN",
+                "device_id": "atoms3r",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              },
+              "sticks3": {
+                "status": "NOT RUN",
+                "device_id": "sticks3",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              },
+              "stopwatch": {
+                "status": "NOT RUN",
+                "device_id": "stopwatch",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              }
+            }
+          },
+          "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+          "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+          "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+          "limitations": [
+            "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+            "This catalog alone does not authorize a simulated or functional-PASS claim."
+          ],
+          "research_snapshot": {
+            "scope": "protocol research only; not current runtime capability",
+            "model_status": "planned",
+            "runtime_status": "unsupported",
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+          }
+        }
+      ],
+      "contract_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+      },
+      "contract_status": "frozen"
+    },
+    "accepted": true,
+    "requested": {
+      "id": "external1",
+      "values": {
+        "motion": true
+      }
+    },
+    "serial_offset_before_ui": 733,
+    "before_serial_sha256": "1b7e887a7289dd63a7e6afb97fdaf3629544bbc01323c46ed94d64af0c5e0360",
+    "request_started_at": "2026-10-26T05:55:28.693371+00:00",
+    "request_returned_at": "2026-10-26T05:55:28.775588+00:00"
+  },
+  {
+    "at": "2026-10-26T05:55:28.779667+00:00",
+    "event_id": 11,
+    "kind": "wait-success",
+    "phase": "IO_PIR_DISABLED 1 1",
+    "offset": 733,
+    "input_event": 10,
+    "serial_file": "observations/00011-serial.txt",
+    "serial_sha256": "471f219ce1dae32d0bce5f0dff76c555cd8b74d504cff9d922967a34d6f04ac3"
+  },
+  {
+    "at": "2026-10-26T05:55:28.785464+00:00",
+    "event_id": 12,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "motion": false
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "offset": 0,
+      "next_offset": 749,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d24\r\nentry 0x403c8890\r\nE (1285) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START pir\r\nHOST_IO_DEFAULT_FONT_HEIGHT 15\r\nHOST_IO_FONT Montserrat12 0.7 10\r\nHOST_IO_GEOMETRY 128 128 0\r\nHOST_IO_LAYOUT 4 4 120 28 11 8 116 2\r\nHOST_IO_INTERNAL before 36 1\r\nHOST_IO_INTERNAL after_init 36 2\r\nIO_PROBE_READY pir\r\nIO_PIR 0 0 0 0\r\nIO_PIR_CALLBACK 1 1\r\nIO_PIR 1 1 0 0\r\nHOST_IO_INTERNAL loop 36 141\r\nIO_PIR 1 1 0 0\r\nHOST_IO_INTERNAL loop 36 280\r\nIO_PIR_CALLBACK 0 1\r\nIO_PIR_DISABLED 1 1\r\nIO_PIR 0 1 1 1\r\nIO_PIR 1 1 1 1\r\n",
+      "bytes": 749
+    },
+    "before_live_state": {
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "state": "running",
+      "source": "live",
+      "captured_at": "2026-10-26T05:55:28.782223+00:00",
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "pir",
+          "port_id": "custom",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {},
+          "source": "guest-qom",
+          "available": true,
+          "properties": {
+            "motion": true,
+            "input-level": true,
+            "transactions": 0,
+            "read-bytes": 0,
+            "written-bytes": 0,
+            "input-events": 3,
+            "output-transitions": 0
+          },
+          "errors": {}
+        }
+      ],
+      "definitions": [
+        {
+          "id": "pir",
+          "name": "PIR",
+          "sku": "U004",
+          "visual_asset": {
+            "entry": "src/units/pir/index.js",
+            "export": "GroveModule"
+          },
+          "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+          "checked_at": "2026-10-26",
+          "chips": [
+            {
+              "part": "AS312",
+              "status": "officially-documented"
+            },
+            {
+              "part": "HT7533",
+              "status": "officially-documented"
+            }
+          ],
+          "interface": {
+            "bus": "gpio",
+            "connector": "HY2.0-4P",
+            "address_7bit": [],
+            "pins": {
+              "red": {
+                "signal": "5V",
+                "direction": "power"
+              },
+              "black": {
+                "signal": "GND",
+                "direction": "ground"
+              },
+              "yellow": {
+                "signal": "NC",
+                "direction": "none"
+              },
+              "white": {
+                "signal": "motion",
+                "direction": "unit-to-host",
+                "active_level": 1
+              }
+            },
+            "power": {
+              "nominal_v": 5,
+              "source": "official-product-PinMap",
+              "logic_v": null,
+              "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+            }
+          },
+          "protocol": {
+            "status": "documented",
+            "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+            "registers": [],
+            "gaps": [
+              "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+            ]
+          },
+          "inputs": {
+            "motion": {
+              "type": "boolean",
+              "label": "检测到移动",
+              "default": false,
+              "default_source": "synthetic-test-fixture",
+              "readOnly": false
+            }
+          },
+          "outputs": {},
+          "evidence": [
+            {
+              "kind": "official-product",
+              "url": "https://docs.m5stack.com/en/unit/PIR",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "SKU and chip identity",
+                "PinMap wire colors",
+                "documented electrical and functional limits"
+              ]
+            },
+            {
+              "kind": "official-driver",
+              "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "guest driver transaction path and encoding"
+              ],
+              "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+            }
+          ],
+          "research_status": "confirmed-contract",
+          "model_status": "implemented",
+          "runtime": {
+            "status": "implemented",
+            "hosts": [
+              "cores3",
+              "atoms3r",
+              "sticks3",
+              "stopwatch"
+            ],
+            "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+            "inputs": {
+              "motion": {
+                "property": "motion"
+              }
+            },
+            "state": {
+              "motion": {
+                "property": "motion"
+              },
+              "input-level": {
+                "property": "input-level"
+              },
+              "transactions": {
+                "property": "transactions"
+              },
+              "read-bytes": {
+                "property": "read-bytes"
+              },
+              "written-bytes": {
+                "property": "written-bytes"
+              },
+              "input-events": {
+                "property": "input-events"
+              },
+              "output-transitions": {
+                "property": "output-transitions"
+              }
+            },
+            "guest_validation": {
+              "status": "PASS",
+              "device_id": "cores3",
+              "runtime": "qemu",
+              "firmware_sha256": "4cfef2efd48b1951a7f579e55469b146862f2ad9a3f6e48d98dda68a6d78e913",
+              "firmware_flavor": "reference-app-with-original-unit-drivers",
+              "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+              "report_sha256": "4fe54a7e8a30611a11d06a64c8f6b032a069d952cb2ba0e54dec13c7efcb4cb0",
+              "evidence_sha256": "21b069f25ab1520f4fbb341b4d9ea6775879acc515881c4295f0e4381b80b362",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 8,
+              "live_browser": "PASS",
+              "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+              "hardware": "NOT RUN"
+            },
+            "host_validation": {
+              "atoms3r": {
+                "status": "NOT RUN",
+                "device_id": "atoms3r",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              },
+              "sticks3": {
+                "status": "NOT RUN",
+                "device_id": "sticks3",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              },
+              "stopwatch": {
+                "status": "NOT RUN",
+                "device_id": "stopwatch",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              }
+            }
+          },
+          "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+          "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+          "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+          "limitations": [
+            "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+            "This catalog alone does not authorize a simulated or functional-PASS claim."
+          ],
+          "research_snapshot": {
+            "scope": "protocol research only; not current runtime capability",
+            "model_status": "planned",
+            "runtime_status": "unsupported",
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+          }
+        }
+      ],
+      "contract_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+      },
+      "contract_status": "frozen"
+    },
+    "accepted": true,
+    "requested": {
+      "id": "external1",
+      "values": {
+        "motion": false
+      }
+    },
+    "serial_offset_before_ui": 749,
+    "before_serial_sha256": "471f219ce1dae32d0bce5f0dff76c555cd8b74d504cff9d922967a34d6f04ac3",
+    "request_started_at": "2026-10-26T05:55:28.785459+00:00",
+    "request_returned_at": "2026-10-26T05:55:28.994287+00:00"
+  },
+  {
+    "at": "2026-10-26T05:55:30.861724+00:00",
+    "event_id": 13,
+    "kind": "wait-success",
+    "phase": "IO_PIR_DISABLED 1 1",
+    "offset": 733,
+    "input_event": 12,
+    "serial_file": "observations/00013-serial.txt",
+    "serial_sha256": "b69b7be74d1b799685bd3e013da1b35dc4e9c1965066f47e301e23473ca991a2"
+  },
+  {
+    "at": "2026-10-26T05:55:30.862548+00:00",
+    "event_id": 14,
+    "kind": "marker",
+    "marker": "IO_PIR_DISABLED_DONE 1 1",
+    "offset": 733,
+    "input_event": 12,
+    "serial_file": "observations/00014-marker.txt",
+    "serial_sha256": "b69b7be74d1b799685bd3e013da1b35dc4e9c1965066f47e301e23473ca991a2"
+  },
+  {
+    "at": "2026-10-26T05:55:30.866311+00:00",
+    "event_id": 15,
+    "kind": "wait-success",
+    "phase": "IO_PIR_DISABLED_DONE 1 1",
+    "offset": 733,
+    "input_event": 12,
+    "serial_file": "observations/00015-serial.txt",
+    "serial_sha256": "b69b7be74d1b799685bd3e013da1b35dc4e9c1965066f47e301e23473ca991a2"
+  },
+  {
+    "at": "2026-10-26T05:55:30.867189+00:00",
+    "event_id": 16,
+    "kind": "marker",
+    "marker": "IO_PIR_REENABLED",
+    "offset": 733,
+    "input_event": 12,
+    "serial_file": "observations/00016-marker.txt",
+    "serial_sha256": "b69b7be74d1b799685bd3e013da1b35dc4e9c1965066f47e301e23473ca991a2"
+  },
+  {
+    "at": "2026-10-26T05:55:30.873151+00:00",
+    "event_id": 17,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "motion": true
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "offset": 0,
+      "next_offset": 855,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d24\r\nentry 0x403c8890\r\nE (1285) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START pir\r\nHOST_IO_DEFAULT_FONT_HEIGHT 15\r\nHOST_IO_FONT Montserrat12 0.7 10\r\nHOST_IO_GEOMETRY 128 128 0\r\nHOST_IO_LAYOUT 4 4 120 28 11 8 116 2\r\nHOST_IO_INTERNAL before 36 1\r\nHOST_IO_INTERNAL after_init 36 2\r\nIO_PROBE_READY pir\r\nIO_PIR 0 0 0 0\r\nIO_PIR_CALLBACK 1 1\r\nIO_PIR 1 1 0 0\r\nHOST_IO_INTERNAL loop 36 141\r\nIO_PIR 1 1 0 0\r\nHOST_IO_INTERNAL loop 36 280\r\nIO_PIR_CALLBACK 0 1\r\nIO_PIR_DISABLED 1 1\r\nIO_PIR 0 1 1 1\r\nIO_PIR 1 1 1 1\r\nHOST_IO_INTERNAL loop 36 419\r\nIO_PIR 1 1 1 1\r\nIO_PIR_DISABLED_DONE 1 1\r\nIO_PIR_REENABLED\r\nIO_PIR 0 1 1 2\r\n",
+      "bytes": 855
+    },
+    "before_live_state": {
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "state": "running",
+      "source": "live",
+      "captured_at": "2026-10-26T05:55:30.870021+00:00",
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "pir",
+          "port_id": "custom",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {},
+          "source": "guest-qom",
+          "available": true,
+          "properties": {
+            "motion": false,
+            "input-level": false,
+            "transactions": 0,
+            "read-bytes": 0,
+            "written-bytes": 0,
+            "input-events": 4,
+            "output-transitions": 0
+          },
+          "errors": {}
+        }
+      ],
+      "definitions": [
+        {
+          "id": "pir",
+          "name": "PIR",
+          "sku": "U004",
+          "visual_asset": {
+            "entry": "src/units/pir/index.js",
+            "export": "GroveModule"
+          },
+          "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+          "checked_at": "2026-10-26",
+          "chips": [
+            {
+              "part": "AS312",
+              "status": "officially-documented"
+            },
+            {
+              "part": "HT7533",
+              "status": "officially-documented"
+            }
+          ],
+          "interface": {
+            "bus": "gpio",
+            "connector": "HY2.0-4P",
+            "address_7bit": [],
+            "pins": {
+              "red": {
+                "signal": "5V",
+                "direction": "power"
+              },
+              "black": {
+                "signal": "GND",
+                "direction": "ground"
+              },
+              "yellow": {
+                "signal": "NC",
+                "direction": "none"
+              },
+              "white": {
+                "signal": "motion",
+                "direction": "unit-to-host",
+                "active_level": 1
+              }
+            },
+            "power": {
+              "nominal_v": 5,
+              "source": "official-product-PinMap",
+              "logic_v": null,
+              "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+            }
+          },
+          "protocol": {
+            "status": "documented",
+            "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+            "registers": [],
+            "gaps": [
+              "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+            ]
+          },
+          "inputs": {
+            "motion": {
+              "type": "boolean",
+              "label": "检测到移动",
+              "default": false,
+              "default_source": "synthetic-test-fixture",
+              "readOnly": false
+            }
+          },
+          "outputs": {},
+          "evidence": [
+            {
+              "kind": "official-product",
+              "url": "https://docs.m5stack.com/en/unit/PIR",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "SKU and chip identity",
+                "PinMap wire colors",
+                "documented electrical and functional limits"
+              ]
+            },
+            {
+              "kind": "official-driver",
+              "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "guest driver transaction path and encoding"
+              ],
+              "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+            }
+          ],
+          "research_status": "confirmed-contract",
+          "model_status": "implemented",
+          "runtime": {
+            "status": "implemented",
+            "hosts": [
+              "cores3",
+              "atoms3r",
+              "sticks3",
+              "stopwatch"
+            ],
+            "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+            "inputs": {
+              "motion": {
+                "property": "motion"
+              }
+            },
+            "state": {
+              "motion": {
+                "property": "motion"
+              },
+              "input-level": {
+                "property": "input-level"
+              },
+              "transactions": {
+                "property": "transactions"
+              },
+              "read-bytes": {
+                "property": "read-bytes"
+              },
+              "written-bytes": {
+                "property": "written-bytes"
+              },
+              "input-events": {
+                "property": "input-events"
+              },
+              "output-transitions": {
+                "property": "output-transitions"
+              }
+            },
+            "guest_validation": {
+              "status": "PASS",
+              "device_id": "cores3",
+              "runtime": "qemu",
+              "firmware_sha256": "4cfef2efd48b1951a7f579e55469b146862f2ad9a3f6e48d98dda68a6d78e913",
+              "firmware_flavor": "reference-app-with-original-unit-drivers",
+              "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+              "report_sha256": "4fe54a7e8a30611a11d06a64c8f6b032a069d952cb2ba0e54dec13c7efcb4cb0",
+              "evidence_sha256": "21b069f25ab1520f4fbb341b4d9ea6775879acc515881c4295f0e4381b80b362",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 8,
+              "live_browser": "PASS",
+              "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+              "hardware": "NOT RUN"
+            },
+            "host_validation": {
+              "atoms3r": {
+                "status": "NOT RUN",
+                "device_id": "atoms3r",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              },
+              "sticks3": {
+                "status": "NOT RUN",
+                "device_id": "sticks3",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              },
+              "stopwatch": {
+                "status": "NOT RUN",
+                "device_id": "stopwatch",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              }
+            }
+          },
+          "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+          "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+          "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+          "limitations": [
+            "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+            "This catalog alone does not authorize a simulated or functional-PASS claim."
+          ],
+          "research_snapshot": {
+            "scope": "protocol research only; not current runtime capability",
+            "model_status": "planned",
+            "runtime_status": "unsupported",
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+          }
+        }
+      ],
+      "contract_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+      },
+      "contract_status": "frozen"
+    },
+    "accepted": true,
+    "requested": {
+      "id": "external1",
+      "values": {
+        "motion": true
+      }
+    },
+    "serial_offset_before_ui": 855,
+    "before_serial_sha256": "b69b7be74d1b799685bd3e013da1b35dc4e9c1965066f47e301e23473ca991a2",
+    "request_started_at": "2026-10-26T05:55:30.873146+00:00",
+    "request_returned_at": "2026-10-26T05:55:30.960197+00:00"
+  },
+  {
+    "at": "2026-10-26T05:55:30.965948+00:00",
+    "event_id": 18,
+    "kind": "wait-success",
+    "phase": "IO_PIR_REENABLED",
+    "offset": 0,
+    "input_event": 17,
+    "serial_file": "observations/00018-serial.txt",
+    "serial_sha256": "0c062cf086679fbc7e74db2c0d0b42f9b6fcc5b1bdca01532c6f8d725e2dd13d"
+  },
+  {
+    "at": "2026-10-26T05:55:30.966922+00:00",
+    "event_id": 19,
+    "kind": "marker",
+    "marker": "IO_PIR_CALLBACK 1 2",
+    "offset": 0,
+    "input_event": 17,
+    "serial_file": "observations/00019-marker.txt",
+    "serial_sha256": "0c062cf086679fbc7e74db2c0d0b42f9b6fcc5b1bdca01532c6f8d725e2dd13d"
+  },
+  {
+    "at": "2026-10-26T05:55:30.976267+00:00",
+    "event_id": 20,
+    "kind": "input",
+    "id": "external1",
+    "values": {
+      "motion": false
+    },
+    "via_ui": true,
+    "before_cursor": {
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "offset": 0,
+      "next_offset": 892,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d24\r\nentry 0x403c8890\r\nE (1285) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START pir\r\nHOST_IO_DEFAULT_FONT_HEIGHT 15\r\nHOST_IO_FONT Montserrat12 0.7 10\r\nHOST_IO_GEOMETRY 128 128 0\r\nHOST_IO_LAYOUT 4 4 120 28 11 8 116 2\r\nHOST_IO_INTERNAL before 36 1\r\nHOST_IO_INTERNAL after_init 36 2\r\nIO_PROBE_READY pir\r\nIO_PIR 0 0 0 0\r\nIO_PIR_CALLBACK 1 1\r\nIO_PIR 1 1 0 0\r\nHOST_IO_INTERNAL loop 36 141\r\nIO_PIR 1 1 0 0\r\nHOST_IO_INTERNAL loop 36 280\r\nIO_PIR_CALLBACK 0 1\r\nIO_PIR_DISABLED 1 1\r\nIO_PIR 0 1 1 1\r\nIO_PIR 1 1 1 1\r\nHOST_IO_INTERNAL loop 36 419\r\nIO_PIR 1 1 1 1\r\nIO_PIR_DISABLED_DONE 1 1\r\nIO_PIR_REENABLED\r\nIO_PIR 0 1 1 2\r\nIO_PIR_CALLBACK 1 2\r\nIO_PIR 1 2 1 2\r\n",
+      "bytes": 892
+    },
+    "before_live_state": {
+      "session_id": "10f29130920a4c70ae9fd0c457768fdb",
+      "state": "running",
+      "source": "live",
+      "captured_at": "2026-10-26T05:55:30.970506+00:00",
+      "units": [
+        {
+          "id": "external1",
+          "unit_id": "pir",
+          "port_id": "custom",
+          "pins": {
+            "yellow": 2,
+            "white": 1
+          },
+          "visual_port": "grove",
+          "initial": {},
+          "source": "guest-qom",
+          "available": true,
+          "properties": {
+            "motion": true,
+            "input-level": true,
+            "transactions": 0,
+            "read-bytes": 0,
+            "written-bytes": 0,
+            "input-events": 5,
+            "output-transitions": 0
+          },
+          "errors": {}
+        }
+      ],
+      "definitions": [
+        {
+          "id": "pir",
+          "name": "PIR",
+          "sku": "U004",
+          "visual_asset": {
+            "entry": "src/units/pir/index.js",
+            "export": "GroveModule"
+          },
+          "official_docs": "https://docs.m5stack.com/en/unit/PIR",
+          "checked_at": "2026-10-26",
+          "chips": [
+            {
+              "part": "AS312",
+              "status": "officially-documented"
+            },
+            {
+              "part": "HT7533",
+              "status": "officially-documented"
+            }
+          ],
+          "interface": {
+            "bus": "gpio",
+            "connector": "HY2.0-4P",
+            "address_7bit": [],
+            "pins": {
+              "red": {
+                "signal": "5V",
+                "direction": "power"
+              },
+              "black": {
+                "signal": "GND",
+                "direction": "ground"
+              },
+              "yellow": {
+                "signal": "NC",
+                "direction": "none"
+              },
+              "white": {
+                "signal": "motion",
+                "direction": "unit-to-host",
+                "active_level": 1
+              }
+            },
+            "power": {
+              "nominal_v": 5,
+              "source": "official-product-PinMap",
+              "logic_v": null,
+              "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+            }
+          },
+          "protocol": {
+            "status": "documented",
+            "summary": "White wire outputs high on motion detection, with a fixed 2-second retriggerable hold described by the product. UIFlow reads the white GPIO and registers rising/falling interrupts.",
+            "registers": [],
+            "gaps": [
+              "A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+            ]
+          },
+          "inputs": {
+            "motion": {
+              "type": "boolean",
+              "label": "检测到移动",
+              "default": false,
+              "default_source": "synthetic-test-fixture",
+              "readOnly": false
+            }
+          },
+          "outputs": {},
+          "evidence": [
+            {
+              "kind": "official-product",
+              "url": "https://docs.m5stack.com/en/unit/PIR",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "SKU and chip identity",
+                "PinMap wire colors",
+                "documented electrical and functional limits"
+              ]
+            },
+            {
+              "kind": "official-driver",
+              "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/pir.py",
+              "checked_at": "2026-10-26",
+              "claims": [
+                "guest driver transaction path and encoding"
+              ],
+              "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0"
+            }
+          ],
+          "research_status": "confirmed-contract",
+          "model_status": "implemented",
+          "runtime": {
+            "status": "implemented",
+            "hosts": [
+              "cores3",
+              "atoms3r",
+              "sticks3",
+              "stopwatch"
+            ],
+            "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+            "inputs": {
+              "motion": {
+                "property": "motion"
+              }
+            },
+            "state": {
+              "motion": {
+                "property": "motion"
+              },
+              "input-level": {
+                "property": "input-level"
+              },
+              "transactions": {
+                "property": "transactions"
+              },
+              "read-bytes": {
+                "property": "read-bytes"
+              },
+              "written-bytes": {
+                "property": "written-bytes"
+              },
+              "input-events": {
+                "property": "input-events"
+              },
+              "output-transitions": {
+                "property": "output-transitions"
+              }
+            },
+            "guest_validation": {
+              "status": "PASS",
+              "device_id": "cores3",
+              "runtime": "qemu",
+              "firmware_sha256": "4cfef2efd48b1951a7f579e55469b146862f2ad9a3f6e48d98dda68a6d78e913",
+              "firmware_flavor": "reference-app-with-original-unit-drivers",
+              "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/pir/report.json",
+              "report_sha256": "4fe54a7e8a30611a11d06a64c8f6b032a069d952cb2ba0e54dec13c7efcb4cb0",
+              "evidence_sha256": "21b069f25ab1520f4fbb341b4d9ea6775879acc515881c4295f0e4381b80b362",
+              "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+              "runtime_proof_kind": "direct-pid",
+              "worker_generation": 8,
+              "live_browser": "PASS",
+              "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+              "hardware": "NOT RUN"
+            },
+            "host_validation": {
+              "atoms3r": {
+                "status": "NOT RUN",
+                "device_id": "atoms3r",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              },
+              "sticks3": {
+                "status": "NOT RUN",
+                "device_id": "sticks3",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              },
+              "stopwatch": {
+                "status": "NOT RUN",
+                "device_id": "stopwatch",
+                "unit_id": "pir",
+                "runtime": "qemu",
+                "validation": "development-admission-only",
+                "guest_controller": "NOT RUN",
+                "live_browser": "NOT RUN",
+                "hardware": "NOT RUN",
+                "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+              }
+            }
+          },
+          "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+          "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+          "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+          "limitations": [
+            "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+            "This catalog alone does not authorize a simulated or functional-PASS claim."
+          ],
+          "research_snapshot": {
+            "scope": "protocol research only; not current runtime capability",
+            "model_status": "planned",
+            "runtime_status": "unsupported",
+            "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: A raw GPIO override is not a validated model of AS312 hold/retrigger timing."
+          }
+        }
+      ],
+      "contract_hashes": {
+        "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+        "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+        "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+      },
+      "contract_status": "frozen"
+    },
+    "accepted": true,
+    "requested": {
+      "id": "external1",
+      "values": {
+        "motion": false
+      }
+    },
+    "serial_offset_before_ui": 892,
+    "before_serial_sha256": "0c062cf086679fbc7e74db2c0d0b42f9b6fcc5b1bdca01532c6f8d725e2dd13d",
+    "request_started_at": "2026-10-26T05:55:30.976262+00:00",
+    "request_returned_at": "2026-10-26T05:55:31.095339+00:00"
+  },
+  {
+    "at": "2026-10-26T05:55:32.974745+00:00",
+    "event_id": 21,
+    "kind": "wait-success",
+    "phase": "IO_PIR_CALLBACK 1 2",
+    "offset": 0,
+    "input_event": 20,
+    "serial_file": "observations/00021-serial.txt",
+    "serial_sha256": "189b0e90f9df1a05dda994a63db282e3c64f695e4b2fc35bebe900f11adf83e6"
+  },
+  {
+    "at": "2026-10-26T05:55:32.976175+00:00",
+    "event_id": 22,
+    "kind": "marker",
+    "marker": "IO_PIR_CALLBACK 0 2",
+    "offset": 0,
+    "input_event": 20,
+    "serial_file": "observations/00022-marker.txt",
+    "serial_sha256": "189b0e90f9df1a05dda994a63db282e3c64f695e4b2fc35bebe900f11adf83e6"
+  },
+  {
+    "at": "2026-10-26T05:55:34.223618+00:00",
+    "event_id": 23,
+    "kind": "wait-success",
+    "phase": "IO_PIR_CALLBACK 0 2",
+    "offset": 1005,
+    "input_event": 20,
+    "serial_file": "observations/00023-serial.txt",
+    "serial_sha256": "d00ea3ba103c7201cd8111480518df48eadaf2f4735c6c1b4a9264c343ae82d8"
+  },
+  {
+    "at": "2026-10-26T05:55:34.652607+00:00",
+    "event_id": 24,
+    "kind": "state",
+    "file": "observations/00024-state.json",
+    "phase": "IO_PIR_CALLBACK 0 2",
+    "input_event": 20
+  }
+]

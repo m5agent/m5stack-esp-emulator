@@ -1,0 +1,48 @@
+{
+  "status": "PASS_OFFLINE_AUTHORING_ONLY",
+  "helper_sha256": "213502d757b9bc7dc7693a6c4201baacbbacc42dfbffcdb0721a96ee1dec3b94",
+  "standalone_archive_assembly": "NOT RUN",
+  "docs_evidence_written": false,
+  "API_guest_process_calls": 0,
+  "default_preflight": {
+    "status": "PENDING",
+    "reviewed_selected_cases": 3,
+    "expected_selected_cases": 24,
+    "source_context_by_batch": {
+      "fan-r1": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc"
+    },
+    "same_source_dependency_bytes": null,
+    "pending": [
+      "live-rest-r1: no terminal batch result",
+      "final24 independent raw live review absent",
+      "actual 24 native visual reviews absent",
+      "missing selected case: atoms3r/dual-button",
+      "missing selected case: atoms3r/hub",
+      "missing selected case: atoms3r/key",
+      "missing selected case: atoms3r/limit",
+      "missing selected case: atoms3r/pir",
+      "missing selected case: atoms3r/rgb",
+      "missing selected case: atoms3r/rs485",
+      "missing selected case: sticks3/dual-button",
+      "missing selected case: sticks3/hub",
+      "missing selected case: sticks3/key",
+      "missing selected case: sticks3/limit",
+      "missing selected case: sticks3/pir",
+      "missing selected case: sticks3/rgb",
+      "missing selected case: sticks3/rs485",
+      "missing selected case: stopwatch/dual-button",
+      "missing selected case: stopwatch/hub",
+      "missing selected case: stopwatch/key",
+      "missing selected case: stopwatch/limit",
+      "missing selected case: stopwatch/pir",
+      "missing selected case: stopwatch/rgb",
+      "missing selected case: stopwatch/rs485"
+    ]
+  },
+  "actual_post_PWM_sync_schema_validated": true,
+  "actual_Fan_root_transcription_schema_validated": true,
+  "prior_9_check_receipt": "archive-helper-selfcheck-r3/selfcheck.json",
+  "two_omission_fixed_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+  "source_closure_bytes_claim": "EXCEPT_TWO_PINNED_INDIRECT_STATIC_FIXTURE_SNAPSHOT_PAYLOADS",
+  "final_archive_hash": "NOT ESTABLISHED"
+}

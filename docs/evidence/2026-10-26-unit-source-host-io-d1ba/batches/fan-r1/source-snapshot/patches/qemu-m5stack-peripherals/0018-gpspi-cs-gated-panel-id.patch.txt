@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: M5Stack Agent <agent@m5stack.local>
+Date: Thu, 22 Oct 2026 21:40:00 +0800
+Subject: [PATCH] hw/m5stopwatch: gate SPI panel id on chip select
+
+The direct SPI panel model returned its ST7789 ID for every W0..W15
+read, regardless of the chip-select pin. M5GFX autodetection probes
+several pin groups; an unasserted probe could therefore observe the
+panel ID and select a different board (for example Cardputer became
+DinMeter).
+
+Return the panel ID only while the attached panel CS is asserted. This
+keeps real CS-driven reads working while making non-selected probes
+return zero.
+---
+ hw/m5stopwatch/esp32s3_gpspi.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/hw/m5stopwatch/esp32s3_gpspi.c b/hw/m5stopwatch/esp32s3_gpspi.c
+--- a/hw/m5stopwatch/esp32s3_gpspi.c
++++ b/hw/m5stopwatch/esp32s3_gpspi.c
+@@ -363,7 +363,15 @@ static uint64_t gpspi_read_reg(Esp32s3GpspiState *s, hwaddr addr)
+             }
+             return value;
+         }
+-        if (s->spi_panel && addr >= R_W0 && addr < R_W0 + 0x40) {
++        /*
++         * A direct SPI panel must only answer while its CS pin is asserted.
++         * Returning the panel ID for every W0..W15 read makes unrelated
++         * M5GFX autodetect probes observe the same ST7789 ID and select the
++         * wrong board (for example Cardputer becomes DinMeter).
++         */
++        if (s->spi_panel
++            && (s->panel_cs_pin < 0 || !s->panel_cs_level)
++            && addr >= R_W0 && addr < R_W0 + 0x40) {
+             return m5_spi_panel_read_id(s->spi_panel);
+         }
+         return addr < 0x100 ? s->regs[addr / 4] : 0;
+-- 
+2.39.2

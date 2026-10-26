@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "status": "PASS_OFFLINE_ONLY",
+  "helper_sha256": "f61cf6290c74519c14bf527af950e310867c994d425a97e752b32a2b716c4080",
+  "checks_by_receipt": {
+    "helper-review-v3.json": 51,
+    "helper-schema-delta-review.json": 34,
+    "archive-review.json": 31
+  },
+  "reviewed_archive_file_count": 15742,
+  "reviewed_archive_bytes": 459532872,
+  "reviewed_archive_inventory_sha256": "b40618962d2a53af49bc6e6d713e4a69fd8c2c726caef5a5a71c48a1d7000aff",
+  "provenance_files": 15734,
+  "original_nested_SHA_entries": 21486,
+  "transported_Markdown_files": 3,
+  "omitted_source_snapshot_copies": 24,
+  "omitted_unique_payloads": 2,
+  "source_closure_bytes_in_archive": "EXCEPT_TWO_PINNED_INDIRECT_STATIC_FIXTURE_SNAPSHOTS",
+  "source_recheck_requirement": "The two omitted static-fixture source payloads require the fixed cba repository Git blobs; default no.work audit checks their recorded references/hashes, not missing source bytes.",
+  "fresh_root_without_work_default_audit": "PASS",
+  "default_audit_write_attempts": 0,
+  "API_network_browser_guest_subprocess_calls_during_helper_and_archive_tests": 0,
+  "separate_read_only_Git_binding_calls": 4,
+  "original_archive_bytes_unchanged_through_review": true,
+  "native_visual_summary": {
+    "reviewed_native_frames": 24,
+    "numeric_token_full_frames": 21,
+    "numeric_token_partial_frames": 3,
+    "partial_pairs": [
+      "atoms3r/hub",
+      "sticks3/hub",
+      "stopwatch/hub"
+    ],
+    "independent_view_image_spot_checks": [
+      "atoms3r/hub",
+      "sticks3/hub",
+      "stopwatch/hub"
+    ],
+    "scope": "Three HUB captured frames inspected at native size; all24 PNG hashes and dimensions independently checked; the archived live reviewer separately viewed all24."
+  },
+  "exact_original_binary_UART_payload_copies": 6,
+  "hardware_validation": "NOT RUN",
+  "receipt_files": [
+    {
+      "file": "helper-review-v3.json",
+      "sha256": "a8dcc2505423c4cc2a179fdf966dd2735f2d7f12c93fd4d208c79decad3d3f8f",
+      "size": 9266
+    },
+    {
+      "file": "helper-schema-delta-review.json",
+      "sha256": "b7b7a659be8b720e88c188c1ea6a8b3d355c3a86952ec287fee90c16a117bcb0",
+      "size": 9445
+    },
+    {
+      "file": "archive-review.json",
+      "sha256": "6bd0a6b1fcba65b7835379beb131ffc3658a0554e8582c5e469066ad74657c9f",
+      "size": 13480
+    },
+    {
+      "file": "fixed-git-bindings.json",
+      "sha256": "001cbc742da2a6cee3eb616f255d4719bbb8252a8992c6ccecdb57a1d77a2a65",
+      "size": 731
+    },
+    {
+      "file": "archive-reviewed-inventory.json",
+      "sha256": "86e3031a694e2131c4399f78ea633fe7588e086758099ea96bd1a900bed08c32",
+      "size": 3039873
+    }
+  ],
+  "review_scope_boundary": "This fingerprint and exact inventory end before root appends this review or later verification files. Root must rerun the archived audit and regenerate SHA256SUMS after those explicit additions. This review does not recursively claim to validate its own later inclusion.",
+  "open_findings": []
+}

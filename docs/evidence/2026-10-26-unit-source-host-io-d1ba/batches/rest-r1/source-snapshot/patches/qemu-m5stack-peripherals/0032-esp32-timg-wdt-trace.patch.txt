@@ -1,0 +1,145 @@
+--- a/hw/timer/esp32_timg.c
++++ b/hw/timer/esp32_timg.c
+@@ -39,6 +39,11 @@ static void esp32_timg_wdt_arm(Esp32TimgWdtState *ws, uint64_t ns_now);
+ 
+ #define TIMG_DEBUG_LOG(...) // qemu_log(__VA_ARGS__)
+ 
++static inline bool esp32_timg_trace_enabled(void)
++{
++    return getenv("M5SW_TIMG_TRACE") != NULL;
++}
++
+ static inline void set_low_word(uint64_t *dst, uint32_t word)
+ {
+     *dst = (*dst & ~UINT32_MAX) | word;
+@@ -207,14 +212,30 @@ static void esp32_timg_write(void *opaque, hwaddr addr,
+ 
+     case A_TIMG_WDTCONFIG0:
+         if (!esp32_timg_wdt_protected(&s->wdt)) {
++            if (esp32_timg_trace_enabled()) {
++                fprintf(stderr,
++                        "[esp32-timg] TG%d WDTCONFIG0=%08" PRIx64 "\n",
++                        s->id, value);
++            }
+             s->wdt.config0_reg = value;
+             esp32_timg_wdt_update_config(&s->wdt);
+         } else {
++            if (esp32_timg_trace_enabled()) {
++                fprintf(stderr,
++                        "[esp32-timg] TG%d WDTCONFIG0 protected=%08" PRIx32
++                        " value=%08" PRIx64 "\n",
++                        s->id, s->wdt.protect_reg, value);
++            }
+             TIMG_DEBUG_LOG("failed to write TIMG_WDTCONFIG0, write protected (0x%08x)\n", s->wdt.protect_reg);
+         }
+         break;
+     case A_TIMG_WDTCONFIG1:
+         if (!esp32_timg_wdt_protected(&s->wdt)) {
++            if (esp32_timg_trace_enabled()) {
++                fprintf(stderr,
++                        "[esp32-timg] TG%d WDTCONFIG1=%08" PRIx64 "\n",
++                        s->id, value);
++            }
+             s->wdt.config1_reg = value;
+             esp32_timg_wdt_update_config(&s->wdt);
+         }
+@@ -225,16 +246,29 @@ static void esp32_timg_write(void *opaque, hwaddr addr,
+     case A_TIMG_WDTCONFIG5: {
+         if (!esp32_timg_wdt_protected(&s->wdt)) {
+             int stage = (addr - A_TIMG_WDTCONFIG2) / 4;
++            if (esp32_timg_trace_enabled()) {
++                fprintf(stderr,
++                        "[esp32-timg] TG%d WDTCONFIG%d=%08" PRIx64 "\n",
++                        s->id, stage + 2, value);
++            }
+             s->wdt.timeout[stage] = value;
+         }
+         break;
+     }
+     case A_TIMG_WDTFEED:
+         if (!esp32_timg_wdt_protected(&s->wdt)) {
++            if (esp32_timg_trace_enabled()) {
++                fprintf(stderr, "[esp32-timg] TG%d WDTFEED\n", s->id);
++            }
+             esp32_timg_wdt_feed(&s->wdt);
+         }
+         break;
+     case A_TIMG_WDTPROTECT:
++        if (esp32_timg_trace_enabled()) {
++            fprintf(stderr,
++                    "[esp32-timg] TG%d WDTPROTECT=%08" PRIx64 "\n",
++                    s->id, value);
++        }
+         s->wdt.protect_reg = value;
+         break;
+ 
+@@ -299,6 +333,15 @@ static void esp32_timg_wdt_reset(Esp32TimgWdtState* ws)
+     if (ws->parent->wdt_en_at_reset) {
+         ws->config0_reg &= (~R_TIMG_WDTCONFIG0_STG0_MASK);
+     }
++    if (esp32_timg_trace_enabled()) {
++        fprintf(stderr,
++                "[esp32-timg] TG%d reset config0=%08" PRIx32
++                " config1=%08" PRIx32 " timeout=%08" PRIx32
++                " en_at_reset=%u flash_boot=%u\n",
++                ws->parent->id, ws->config0_reg, ws->config1_reg,
++                ws->timeout[0], ws->parent->wdt_en_at_reset,
++                ws->parent->flash_boot_mode);
++    }
+ }
+ 
+ static void esp32_timg_reset_hold(Object *obj, ResetType type)
+@@ -531,11 +574,24 @@ static void esp32_timg_wdt_update_config(Esp32TimgWdtState *ws)
+ 
+     TIMG_DEBUG_LOG("%s: TG%d config 0x%08x prescale=0x%08x en=%d fb_en=%d level_int_en=%d\n", __func__, ws->parent->id,
+                    ws->config0_reg, ws->prescale, ws->en, ws->flashboot_en, ws->level_int_en);
++    if (esp32_timg_trace_enabled()) {
++        fprintf(stderr,
++                "[esp32-timg] TG%d config en=%u mode=%u/%u/%u/%u"
++                " prescale=%" PRIu32 " flashboot=%u\n",
++                s->id, ws->en, ws->mode[0], ws->mode[1], ws->mode[2],
++                ws->mode[3], ws->prescale, ws->flashboot_en);
++    }
+     esp32_timg_wdt_arm(ws, ns_now);
+ }
+ 
+ static void esp32_timg_wdt_feed(Esp32TimgWdtState *ws)
+ {
++    if (esp32_timg_trace_enabled()) {
++        fprintf(stderr,
++                "[esp32-timg] TG%d feed stage=%d timeout=%08" PRIx32 "\n",
++                ws->parent->id, ws->cur_stage,
++                ws->timeout[ws->cur_stage]);
++    }
+     TIMG_DEBUG_LOG("%s TG%d\n", __func__, ws->parent->id);
+     uint64_t ns_now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+     ws->cur_stage = 0;
+@@ -556,6 +612,14 @@ static void esp32_timg_wdt_arm(Esp32TimgWdtState *ws, uint64_t ns_now)
+     uint32_t cur_count = esp32_timg_wdt_get_count(ws, ns_now);
+     uint32_t count_to_timeout = stage_timeout - cur_count;
+     uint64_t ns_to_timeout = muldiv64(count_to_timeout, 1000 * ws->prescale, ws->parent->apb_freq_hz / 1000000);
++    if (esp32_timg_trace_enabled()) {
++        fprintf(stderr,
++                "[esp32-timg] TG%d arm now=%" PRIu64
++                " stage=%d timeout=%08" PRIx32 " count=%08" PRIx32
++                " delta=%08" PRIx32 " ns=%" PRIu64 "\n",
++                ws->parent->id, ns_now, ws->cur_stage, stage_timeout,
++                cur_count, count_to_timeout, ns_to_timeout);
++    }
+     TIMG_DEBUG_LOG("%s: TG%d ns=0x%08llx stage %d count=0x%08x count_to_timeout=0x%08x ns_to_timeout=0x%08llx\n",
+                    __func__, ws->parent->id, ns_now, ws->cur_stage, cur_count, count_to_timeout, ns_to_timeout);
+     timer_mod_anticipate_ns(&ws->stage_timer, ns_now + ns_to_timeout);
+@@ -566,6 +630,13 @@ static void esp32_timg_wdt_cb(void *opaque)
+     Esp32TimgWdtState *ws = (Esp32TimgWdtState*) opaque;
+     Esp32TimgState *s = ws->parent;
+     Esp32TimgWdtStageMode mode = ws->mode[ws->cur_stage];
++    if (esp32_timg_trace_enabled()) {
++        fprintf(stderr,
++                "[esp32-timg] TG%d timeout now=%" PRIu64
++                " stage=%d mode=%d\n",
++                s->id, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
++                ws->cur_stage, mode);
++    }
+     TIMG_DEBUG_LOG("%s: TG%d stage %d timeout mode %d\n", __func__, s->id, ws->cur_stage, mode);
+     if (mode == WDT_MODE_INT) {
+         uint32_t mask = 1 << TIMG_WDT_INT;

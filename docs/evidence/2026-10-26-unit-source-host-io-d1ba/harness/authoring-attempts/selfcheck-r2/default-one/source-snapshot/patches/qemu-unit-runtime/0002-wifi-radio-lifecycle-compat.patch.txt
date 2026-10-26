@@ -1,0 +1,141 @@
+diff --git a/hw/misc/esp32_wifi_ap.c b/hw/misc/esp32_wifi_ap.c
+index 6614746..a564de3 100644
+--- a/hw/misc/esp32_wifi_ap.c
++++ b/hw/misc/esp32_wifi_ap.c
+@@ -32,6 +32,7 @@
+ #include "qemu/error-report.h"
+ #include "qemu/guest-random.h"
+ #include "qapi/error.h"
++#include "qapi/visitor.h"
+ #include "crypto/cipher.h"
+ #include "crypto/hmac.h"
+ #include "crypto/pbkdf.h"
+@@ -654,6 +655,7 @@ static void Esp32_WLAN_beacon_timer(void *opaque)
+     struct mac80211_frame *frame;
+     Esp32WifiState *s = (Esp32WifiState *)opaque;
+ 
++    if (!s->radio_enabled || s->wlan_closed) { return; }
+     // only send a beacon if we are an access point
+     if(s->ap_state!=Esp32_WLAN__STATE_STA_ASSOCIATED) {
+         if (access_points[s->beacon_ap].channel==esp32_wifi_channel) {
+@@ -679,6 +681,7 @@ static void Esp32_WLAN_inject_timer(void *opaque)
+     Esp32WifiState *s = (Esp32WifiState *)opaque;
+     struct mac80211_frame *frame;
+ 
++    if (!s->radio_enabled || s->wlan_closed) { return; }
+     frame = s->inject_queue;
+     if (frame) {
+         // remove from queue
+@@ -771,6 +774,7 @@ static ssize_t Esp32_WLAN_receive(NetClientState *ncs,
+ {
+     Esp32WifiState *s = qemu_get_nic_opaque(ncs);
+     struct mac80211_frame *frame;
++    if (!s->radio_enabled || s->wlan_closed || ncs->link_down) { return size; }
+     if (!Esp32_WLAN_can_receive(ncs)) {
+         // this should not happen, but in
+         // case it does, let's simply drop
+@@ -829,7 +833,70 @@ static ssize_t Esp32_WLAN_receive(NetClientState *ncs,
+     }
+     return size;
+ }
+-static void Esp32_WLAN_cleanup(NetClientState *ncs) { }
++static void wlan_drop_inject_queue(Esp32WifiState *s)
++{
++    while (s->inject_queue) {
++        struct mac80211_frame *frame = s->inject_queue;
++        s->inject_queue = frame->next_frame;
++        free(frame);
++    }
++    s->inject_queue_size = 0;
++    s->inject_timer_running = 0;
++    if (s->inject_timer) { timer_del(s->inject_timer); }
++}
++
++static void Esp32_WLAN_cleanup(NetClientState *ncs)
++{
++    Esp32WifiState *s = qemu_get_nic_opaque(ncs);
++    if (s->wlan_closed) { return; }
++    s->wlan_closed = true;
++    s->radio_enabled = false;
++    wlan_drop_inject_queue(s);
++    if (s->beacon_timer) { timer_free(s->beacon_timer); s->beacon_timer = NULL; }
++    if (s->inject_timer) { timer_free(s->inject_timer); s->inject_timer = NULL; }
++}
++
++static void wlan_get_radio(Object *obj, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    Esp32WifiState *s = opaque;
++    bool enabled = s->radio_enabled;
++    visit_type_bool(v, name, &enabled, errp);
++}
++
++static void wlan_set_radio(Object *obj, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    Esp32WifiState *s = opaque;
++    bool enabled;
++    if (!visit_type_bool(v, name, &enabled, errp)) { return; }
++    if (s->wlan_closed) { error_setg(errp, "WiFi device is closed"); return; }
++    if (enabled == s->radio_enabled) { return; }
++    if (!enabled) {
++        /* Deliver a real management frame through the guest RX DMA before
++         * removing the AP, so the guest driver observes deauthentication. */
++        if (s->dma_inlink_address && s->ap_state == Esp32_WLAN__STATE_ASSOCIATED) {
++            struct mac80211_frame *frame = Esp32_WLAN_create_deauthentication();
++            memcpy(frame->receiver_address, BROADCAST, 6);
++            memcpy(frame->transmitter_address, s->ap_macaddr, 6);
++            memcpy(frame->address_3, s->ap_macaddr, 6);
++            Esp32_WLAN_init_ap_frame(s, frame);
++            Esp32_sendFrame(s, frame, frame->frame_length, -10);
++            free(frame);
++        }
++        timer_del(s->beacon_timer);
++        wlan_drop_inject_queue(s);
++    }
++    s->radio_enabled = enabled;
++    s->ap_state = Esp32_WLAN__STATE_NOT_AUTHENTICATED;
++    s->wpa_state = ESP32_WIFI_WPA_IDLE;
++    s->beacon_ap = 0;
++    if (enabled) {
++        timer_mod(s->beacon_timer, qemu_clock_get_ns(QEMU_CLOCK_REALTIME) + 1000000);
++        qemu_flush_queued_packets(qemu_get_queue(s->nic));
++    }
++}
++
+ 
+ static NetClientInfo net_info = {
+     .type = NET_CLIENT_DRIVER_NIC,
+@@ -847,6 +914,10 @@ static bool esp32_wlan_has_configured_mac(Esp32WifiState *s)
+ }
+ 
+ void Esp32_WLAN_setup_ap(DeviceState *dev,Esp32WifiState *s) {
++    s->radio_enabled = true;
++    s->wlan_closed = false;
++    object_property_add(OBJECT(dev), "radio-enabled", "bool",
++                        wlan_get_radio, wlan_set_radio, NULL, s);
+     const char *wifi_ssid = getenv("M5SW_WIFI_SSID");
+     const char *wifi_password = getenv("M5SW_WIFI_PASSWORD");
+     const char *wifi_auth = getenv("M5SW_WIFI_AUTH");
+@@ -1183,6 +1254,8 @@ static bool wpa_handle_eapol(Esp32WifiState *s,
+ 
+ void Esp32_WLAN_handle_frame(Esp32WifiState *s, struct mac80211_frame *frame)
+ {
++    if (!s->radio_enabled || s->wlan_closed ||
++        (s->nic && qemu_get_queue(s->nic)->link_down)) { return; }
+     struct mac80211_frame *reply = NULL;
+     static access_point_info dummy_ap={0};
+     bool start_wpa = false;
+diff --git a/include/hw/misc/esp32_wifi.h b/include/hw/misc/esp32_wifi.h
+index 924474e..de99cb8 100644
+--- a/include/hw/misc/esp32_wifi.h
++++ b/include/hw/misc/esp32_wifi.h
+@@ -41,6 +41,8 @@ typedef struct Esp32WifiState {
+     uint32_t rx_frame_us;
+     bool access_points;
+     bool is_s3;
++    bool radio_enabled;
++    bool wlan_closed;
+     unsigned int inject_sequence_number;
+     int beacon_ap;
+ 

@@ -1,0 +1,29 @@
+From 9b18f8c6f1be7f1d5f1b9b7c8f0f6e5d4c3b2a10 Mon Sep 17 00:00:00 2001
+From: m5agent <329351612+m5agent@users.noreply.github.com>
+Date: Mon, 26 Oct 2026 04:10:00 +0800
+Subject: [PATCH] hw/timer/esp32: respect WDT INT_ENA for level interrupts
+
+The ESP32 TIMG WDT raw status is not an interrupt request by itself. The
+masked status is INT_RAW & INT_ENA. The ESP32 model currently raises the
+WDT level line even when INT_ENA.WDT is clear, which injects a spurious
+interrupt into guests that have deliberately masked the WDT source.
+
+Only raise the level interrupt when the WDT enable bit is set. Keep the
+raw status visible and leave the WDT stage timer behavior unchanged.
+
+diff --git a/hw/timer/esp32_timg.c b/hw/timer/esp32_timg.c
+--- a/hw/timer/esp32_timg.c
++++ b/hw/timer/esp32_timg.c
+@@ -669,9 +669,9 @@ static void esp32_timg_wdt_cb(void *opaque)
+         uint32_t mask = 1 << TIMG_WDT_INT;
+         if (ws->level_int_en) {
+             s->int_raw |= mask;
+-            if (true) { /* should be checking s->int_ena & mask, but ESP32 seems to raise interrupt regardless? */
++            if (s->int_ena & mask) {
+                 qemu_irq_raise(get_level_irq(s, TIMG_WDT_INT));
+             }
+         }
+         if (ws->edge_int_en) {
+             if (s->int_ena & mask) {
+-- 
+2.39.5

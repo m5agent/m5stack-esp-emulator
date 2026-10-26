@@ -1,0 +1,17 @@
+{
+  "status": "PENDING",
+  "expected_combinations": 24,
+  "independently_reviewed_cases": 3,
+  "pending_cases": 21,
+  "Fan_duplicate_count": 0,
+  "review_receipt": "fan3-review-r2.json",
+  "review_receipt_sha256": "056906d8707bd047b3184f7bc82fbb2212381c9394a2b40801a6e1ebf15cc4be",
+  "auditor": "audit.py",
+  "auditor_sha256": "44193233dad53b09658cc198196d7249f4cb6d8eb8fdad2d5ca70faa2da2d39e",
+  "visual_receipt": "native-visual-fan3.json",
+  "visual_receipt_sha256": "3fd2d95901a519b1372d848cb90e2ea80169215d096d0352e4aac63514dfbcb4",
+  "API_browser_guest_subprocess_calls": 0,
+  "runtime_expected_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+  "next_step": "Wait for root live-rest-r1 terminal21. Then audit both disjoint batches with --final, and actually view each remaining21 native frame.png before final merge.",
+  "final_command": "M5_PYTHON_DEPS=.work/py312 PYTHONPATH=.work/py312 /opt/miniconda3/bin/python3.12 -B .work/unit-source-host-io-live-independent-review-20261026/audit.py --batch live-fan-r1 --batch live-rest-r1 --final --receipt-name final24-review.json"
+}

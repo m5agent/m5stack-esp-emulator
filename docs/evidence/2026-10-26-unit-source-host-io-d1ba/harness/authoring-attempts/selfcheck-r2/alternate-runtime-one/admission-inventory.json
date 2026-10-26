@@ -1,0 +1,1038 @@
+{
+  "status": "READ_ONLY_ADMISSION_NOT_EXECUTION",
+  "selected_unit_count": 8,
+  "selected_combinations": 24,
+  "controller_runtime": "NOT RUN",
+  "rows": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "pir",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "GPIO white input/IRQ; AS312 virtual hold timer",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "dual-button",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "GPIO blue=white, red=yellow; original software click state machines",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "limit",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "GPIO white input/IRQ counter and reset",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "key",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "GPIO white active-low input + native RMT yellow single LED",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "rgb",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "native RMT yellow 3xGRB; threshold/refill/completion and short-frame negative",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "angle",
+      "selected": false,
+      "selection_reason": "ADC fixture/oracle blocked",
+      "status": "BLOCKED",
+      "blockers": [
+        {
+          "code": "adc_fixture_application_mismatch",
+          "kind": "fixture-boundary",
+          "reason": "synthetic ADC calibration is not validated for these firmware application bytes; original calibrated oracle is retained. Light raw/digital data plane is not inferred unsupported."
+        }
+      ],
+      "known_risks": [],
+      "controller_path": "SAR ADC white, original read_u16/read_uv and IDF curve fitting",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0
+      },
+      "adc_unit": 1,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "light",
+      "selected": false,
+      "selection_reason": "ADC fixture/oracle blocked",
+      "status": "BLOCKED",
+      "blockers": [
+        {
+          "code": "adc_fixture_application_mismatch",
+          "kind": "fixture-boundary",
+          "reason": "synthetic ADC calibration is not validated for these firmware application bytes; original calibrated oracle is retained. Light raw/digital data plane is not inferred unsupported."
+        }
+      ],
+      "known_risks": [],
+      "controller_path": "SAR ADC white read_u16 + independent GPIO yellow digital; read_uv is not called",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0
+      },
+      "adc_unit": 1,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "buzzer",
+      "selected": false,
+      "selection_reason": "explicitly excluded original IR/Buzzer risk; historical result preserved",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [
+        "Original Haptic timer callback arity and separate LEDC getter gap remain open observations; preserve natural-zero assertion. Custom callback-arity flag is explicit."
+      ],
+      "controller_path": "LEDC channel/timer -> GPIO matrix yellow; original Haptic.once timer and natural-zero window",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "fan",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "LEDC channel/timer -> GPIO matrix yellow; original speed transfer",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "ir",
+      "selected": false,
+      "selection_reason": "explicitly excluded original IR/Buzzer risk; historical result preserved",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [
+        "Original callback GC lifetime and raw16 wrapper payload remain observed limitations; only actual host execution can classify this firmware. Custom callback-root flag is explicit."
+      ],
+      "controller_path": "native RMT TX yellow out81+channel, RX white in81+channel; original enabled GC/callback flow",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "rs485",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "UART1 signal15 TX yellow/RX white; binary FIFO and oversized-RX rejection; UART0 log separate",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": true,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "atoms3r",
+      "unit_id": "hub",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "passive same-pin I2C0 bus; ENV-III/NCIR/TVOC child drivers; no HUB slave address",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 0
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "pir",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "GPIO white input/IRQ; AS312 virtual hold timer",
+      "pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "dual-button",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "GPIO blue=white, red=yellow; original software click state machines",
+      "pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "limit",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "GPIO white input/IRQ counter and reset",
+      "pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "key",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "GPIO white active-low input + native RMT yellow single LED",
+      "pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "rgb",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "native RMT yellow 3xGRB; threshold/refill/completion and short-frame negative",
+      "pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "angle",
+      "selected": false,
+      "selection_reason": "ADC fixture/oracle blocked",
+      "status": "BLOCKED",
+      "blockers": [
+        {
+          "code": "adc_fixture_application_mismatch",
+          "kind": "fixture-boundary",
+          "reason": "synthetic ADC calibration is not validated for these firmware application bytes; original calibrated oracle is retained. Light raw/digital data plane is not inferred unsupported."
+        }
+      ],
+      "known_risks": [],
+      "controller_path": "SAR ADC white, original read_u16/read_uv and IDF curve fitting",
+      "pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": 1,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "light",
+      "selected": false,
+      "selection_reason": "ADC fixture/oracle blocked",
+      "status": "BLOCKED",
+      "blockers": [
+        {
+          "code": "adc_fixture_application_mismatch",
+          "kind": "fixture-boundary",
+          "reason": "synthetic ADC calibration is not validated for these firmware application bytes; original calibrated oracle is retained. Light raw/digital data plane is not inferred unsupported."
+        }
+      ],
+      "known_risks": [],
+      "controller_path": "SAR ADC white read_u16 + independent GPIO yellow digital; read_uv is not called",
+      "pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": 1,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "buzzer",
+      "selected": false,
+      "selection_reason": "explicitly excluded original IR/Buzzer risk; historical result preserved",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [
+        "Original Haptic timer callback arity and separate LEDC getter gap remain open observations; preserve natural-zero assertion. Custom callback-arity flag is explicit."
+      ],
+      "controller_path": "LEDC channel/timer -> GPIO matrix yellow; original Haptic.once timer and natural-zero window",
+      "pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "fan",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "LEDC channel/timer -> GPIO matrix yellow; original speed transfer",
+      "pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "ir",
+      "selected": false,
+      "selection_reason": "explicitly excluded original IR/Buzzer risk; historical result preserved",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [
+        "Original callback GC lifetime and raw16 wrapper payload remain observed limitations; only actual host execution can classify this firmware. Custom callback-root flag is explicit."
+      ],
+      "controller_path": "native RMT TX yellow out81+channel, RX white in81+channel; original enabled GC/callback flow",
+      "pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "rs485",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "UART1 signal15 TX yellow/RX white; binary FIFO and oversized-RX rejection; UART0 log separate",
+      "pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": true,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "hub",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "passive same-pin I2C0 bus; ENV-III/NCIR/TVOC child drivers; no HUB slave address",
+      "pins": {
+        "yellow": 9,
+        "white": 10
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "pir",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "GPIO white input/IRQ; AS312 virtual hold timer",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "dual-button",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "GPIO blue=white, red=yellow; original software click state machines",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "limit",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "GPIO white input/IRQ counter and reset",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "key",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "GPIO white active-low input + native RMT yellow single LED",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "rgb",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "native RMT yellow 3xGRB; threshold/refill/completion and short-frame negative",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "angle",
+      "selected": false,
+      "selection_reason": "ADC fixture/oracle blocked",
+      "status": "BLOCKED",
+      "blockers": [
+        {
+          "code": "adc_fixture_application_mismatch",
+          "kind": "fixture-boundary",
+          "reason": "synthetic ADC calibration is not validated for these firmware application bytes; original calibrated oracle is retained. Light raw/digital data plane is not inferred unsupported."
+        },
+        {
+          "code": "adc_oracle_unit_mismatch",
+          "kind": "oracle-boundary",
+          "reason": "white11 uses S3 ADC2 channel0; original validate_io fixes adc_unit=1. Do not inherit the ADC1 curve oracle."
+        }
+      ],
+      "known_risks": [],
+      "controller_path": "SAR ADC white, original read_u16/read_uv and IDF curve fitting",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": 2,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "light",
+      "selected": false,
+      "selection_reason": "ADC fixture/oracle blocked",
+      "status": "BLOCKED",
+      "blockers": [
+        {
+          "code": "adc_fixture_application_mismatch",
+          "kind": "fixture-boundary",
+          "reason": "synthetic ADC calibration is not validated for these firmware application bytes; original calibrated oracle is retained. Light raw/digital data plane is not inferred unsupported."
+        },
+        {
+          "code": "adc_oracle_unit_mismatch",
+          "kind": "oracle-boundary",
+          "reason": "white11 uses S3 ADC2 channel0; original validate_io fixes adc_unit=1. Do not inherit the ADC1 curve oracle."
+        }
+      ],
+      "known_risks": [],
+      "controller_path": "SAR ADC white read_u16 + independent GPIO yellow digital; read_uv is not called",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": 2,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "buzzer",
+      "selected": false,
+      "selection_reason": "explicitly excluded original IR/Buzzer risk; historical result preserved",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [
+        "Original Haptic timer callback arity and separate LEDC getter gap remain open observations; preserve natural-zero assertion. Custom callback-arity flag is explicit."
+      ],
+      "controller_path": "LEDC channel/timer -> GPIO matrix yellow; original Haptic.once timer and natural-zero window",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "fan",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "LEDC channel/timer -> GPIO matrix yellow; original speed transfer",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "ir",
+      "selected": false,
+      "selection_reason": "explicitly excluded original IR/Buzzer risk; historical result preserved",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [
+        "Original callback GC lifetime and raw16 wrapper payload remain observed limitations; only actual host execution can classify this firmware. Custom callback-root flag is explicit."
+      ],
+      "controller_path": "native RMT TX yellow out81+channel, RX white in81+channel; original enabled GC/callback flow",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "rs485",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "UART1 signal15 TX yellow/RX white; binary FIFO and oversized-RX rejection; UART0 log separate",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": true,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "hub",
+      "selected": true,
+      "selection_reason": "selected unchanged source IO",
+      "status": "ADMITTED_NOT_EXECUTED",
+      "blockers": [],
+      "known_risks": [],
+      "controller_path": "passive same-pin I2C0 bus; ENV-III/NCIR/TVOC child drivers; no HUB slave address",
+      "pins": {
+        "yellow": 10,
+        "white": 11
+      },
+      "uart0_log": [
+        43,
+        44
+      ],
+      "uart1_for_rs485": false,
+      "internal_bmi_i2c": {
+        "controller": 1,
+        "sda": 47,
+        "scl": 48
+      },
+      "adc_unit": null,
+      "pin_sets_disjoint": true,
+      "controller_execution": "NOT RUN"
+    }
+  ]
+}

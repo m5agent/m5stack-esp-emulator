@@ -1,0 +1,88 @@
+# AIFlow 消费者与实时虚拟预览架构审查
+
+日期：2026-10-26。只读核验 `/Users/yunyu/Desktop/git/aiflow-sdk`。开始 HEAD 为 `3f0eb383a363d826732b0b09faba35f3b7562eb6`，收尾为 `b49940608b12d8d60645efe6f319a2314316c696`，两次工作树均干净；期间由其他工作更新的相关文件只有 gateway.py，其 SSE SQLite 读取改为 to_thread，已按当前字节重新核对，另一并发 bench 脚本不在本次内容审查范围。下方 receipt 固定最终 HEAD 与所引用源文件 hash。先读该仓 AGENTS.md，未读 `.env*`、本机部署凭据、运行数据库或用户工作区，未修改该仓，未调用外部 API、模型、设备 push、8787、guest、浏览器或新服务。历史记忆只用于定位 V3 文件，以下结论均来自当前源码与文档。本文是代码架构审查，不是已完成的跨服务联调结果。
+
+## 结论
+
+现有 AIFlow V3 能承担“连续对话编程、实时展示模型输出、任务恢复、取得任务结束后的文件”，与 emulator 的 source compose / 可见虚拟会话结合，可以做首版“生成一个完整版本后运行并实时看设备与 Unit 状态”。但当前 AIFlow 没有 emulator 执行目标、可重复的文件版本快照或任务中途的可运行 checkpoint；不能直接称为已经实现“边改完整项目、边可靠刷新虚拟预览”。
+
+建议保留 AIFlow Coding 和物理 push 的原契约，新增独立的 **源代码版本发布 → 虚拟预览执行 → 实时状态消费** 链路。首版 Coding 固定 `deploy_mode=none`，完成后发布不可变版本；后续再加经校验的中途 checkpoint。不要把模型文本 delta、工具输入、现有 `direct-run` 或物理 push 的 HTTP 成功当成虚拟设备正在执行的证据。
+
+## 当前代码已经提供什么
+
+| 需求 | 实现与精确入口 | 判断 |
+| --- | --- | --- |
+| 建立项目与能力 token | [app.py:403](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/app.py:403)，按 device_id 查最近 context；新建或重连后返回 context/conversation/token。输入模型要求 device_id、client_id，见 [schemas.py:12](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/schemas.py:12)、[schemas.py:44](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/schemas.py:44)。 | 可复用项目归属；不是虚拟 target 注册接口。 |
+| 一次 Coding | [schemas.py:127](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/schemas.py:127)、[app.py:613](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/app.py:613)：prompt、图片/音频 attachments、`none/server/agent` 三种 deploy_mode，HTTP 202。未知字段被 StrictModel 拒绝，见 [schemas.py:8](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/schemas.py:8)。 | 可进行同 context 的多轮编程；目前没有 `preview` / 虚拟执行字段。 |
+| 上传当前代码继续编程 | [app.py:651](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/app.py:651)：multipart 同时上传精确文件名 `main.py` 与 `AGENTS.md`，加 prompt；AGENTS 首行必须符合项目名格式。写入及创建任务位于 [tasks.py:715](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/tasks.py:715) 的任务起始锁内，失败恢复原文件。 | 可复用编辑后继续任务；这个接口不是完整多文件项目上传。 |
+| 每项目单活动任务、全局队列 | [tasks.py:715](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/tasks.py:715) 首先查 active task，冲突 `context_busy`；容量超限 `task_queue_full`。 | 适合编程任务顺序执行。虚拟启动/重建仍需独立限流和代次控制。 |
+| 模型实时事件 | [gateway.py:556](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/gateway.py:556) 是公网 BFF 的真正 SSE 路径：token 检查、history 游标、订阅唤醒、终态排空、可选逐帧 gzip。[sse_wire.py:26](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/sse_wire.py:26) 编码 `id/event/data`。 | 可直接复用作编程活动流；没有设备帧、Unit QOM 或 guest serial。 |
+| 文件取得 | [tasks.py:962](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/tasks.py:962) 在 runner 完成并修复 AGENTS 后遍历文件并发 `file_ready`；[app.py:954](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/app.py:954) 提供列表/上传/下载。 | 文件内容可完整下载；事件不是持续文件修改通知。 |
+| 项目恢复 | [app.py:520](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/app.py:520) 返回 context/conversation/current_session/active_task/files；[web/app.js:647](/Users/yunyu/Desktop/git/aiflow-sdk/web/app.js:647) 在任务终态后刷新项目。 | 有项目与任务恢复基础，尚无预览会话恢复绑定。 |
+| 取消与续编 | [tasks.py:1286](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/tasks.py:1286)、[agent.py:1817](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/agent.py:1817)：排队任务直接结束，运行任务先 SDK interrupt，失败再 disconnect。init session 原子存入 context/task，见 [tasks.py:889](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/tasks.py:889)、[storage.py:854](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/storage.py:854)；下一轮 `resume=context.session_id`，见 [agent.py:1204](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/agent.py:1204)。 | 连续编程可复用；取消不回滚已经写入的工作区或执行过的外部动作。 |
+| 物理设备运行 | [tasks.py:976](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/tasks.py:976) 的 server 分支及 [tasks.py:1101](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/tasks.py:1101) 的 direct-run 均调用 DevicePusher。 | 不是 emulator adapter；预览按钮不得复用为虚拟执行。 |
+
+## AIFlow 事件如何消费
+
+现有 SSE 支持 task stream token 或 context token；task stream token 只读指定任务，不能因此下载项目文件或调用有副作用的接口。浏览器原生 EventSource 用返回的 `events_url + stream_token`；普通文件与任务接口仍走 context token。公网 BFF 已在进程内处理核心签名，[gateway.py:478](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/gateway.py:478)；客户端不应接触核心 HMAC 或模型凭据。
+
+实时模型文本按 `response_id + block_index` 合并 delta，最终块覆盖校准，晚到 delta 忽略。源码见 [sse_wire.py:11](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/sse_wire.py:11)，接入合同见 [WEB_CLIENT_INTEGRATION.md:206](/Users/yunyu/Desktop/git/aiflow-sdk/docs/WEB_CLIENT_INTEGRATION.md:206)。现有客户端已经用 sequence 去重并按 history 分页恢复，见 [web/app.js:1153](/Users/yunyu/Desktop/git/aiflow-sdk/web/app.js:1153)。不要在新增预览 UI 时另造一套不兼容的 SSE 包装或把 heartbeat 显示为模型执行进度。
+
+history 是有界保留的事件日志：[storage.py:1503](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/storage.py:1503) 为每个 task 分配递增 sequence，并在 1560 行按 event_retention 清理。客户端断线后需要检查游标缺口，任务状态仍以 `GET /tasks/{id}` 为准；长期预览恢复不能只依赖旧事件仍存在，必须有当前源代码版本与 preview 状态查询。
+
+`tool_started/tool_finished` 是经过脱敏且可能截断的观测事件，不是可执行源码传输：输入通过 [agent.py:904](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/agent.py:904) 的 `_sanitize_event`，替换与截断规则在 [agent.py:399](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/agent.py:399)。即使工具名为 Write/Edit，也不能把事件中的 content 反向拼成程序执行；也不能从尚未完成的 assistant code fence 触发编译。
+
+## 完整代码与资源分发的关键缺口
+
+1. **当前文件 URL 指向可变工作区。** `FileInfo` 只有 path/size/modified_at，没有内容 hash、revision 或 task 版本，[schemas.py:185](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/schemas.py:185)；[app.py:995](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/app.py:995) 每次下载都重新定位当前 workspace。消费旧 `file_ready` 时，下一个 task 或文件上传可能已经改变内容，不能重建该事件时刻的同一程序。
+2. **目前只在成功收尾时发布文件列表。** `file_ready` 发生在 runner 返回之后、server push 之前。任务中途没有源码版本提交事件；取消路径直接结束，不经过这个收集阶段。边写边轮询文件只能取得未定义的一组可变字节，不能保证 main/module/resource 属于同一版本。
+3. **普通上传与活动任务没有同一个事务边界。** multipart Coding pair 受 `_start_lock + active task` 保护；[app.py:959](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/app.py:959) 的普通文件上传仅对单个目标临时文件 `os.replace`，此路径没有 active-task 检查、项目版本 compare-and-swap 或多文件原子提交。用于新在线编辑器时，应增加冲突检测或提交到独立草稿版本，不能边覆盖 runner workspace 边组装预览。
+4. **物理部署计划不是完整项目快照。** [device_push.py:56](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/device_push.py:56) 读取私有 `.aiflow/deploy.json` 的资源；该路径被普通文件 API 隐藏，[workspaces.py:409](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/workspaces.py:409)。plan 只返回 code 名称/bytes、资源 basename/devicePath 等，[aiflow_push.py:466](/Users/yunyu/Desktop/git/aiflow-sdk/skills/aiflow-device-push/scripts/aiflow_push.py:466)，没有完整 workspace 相对路径、hash 或不可变字节。不能靠 basename 猜路径。
+5. **server/direct-run 不是完整 Python 文件包部署。** [device_push.py:122](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/device_push.py:122) 只做资源 push 再单代码 push；独立 Skill 虽有 push-python 分支，但不能据此声称 V3 server 路径已原子分发全部 Python modules。虚拟运行应显式包含 entrypoint、必要本地 `.py`、目标路径明确的资源；不要把 AGENTS、用户输入原图或所有可见文件一股脑写入 guest。
+
+建议新增服务端不可变 `SourceRevision` / artifact manifest（名称为设计建议，当前 API 未实现）：`revision_id`、context/task/checkpoint、父版本、entrypoint、每文件源相对路径/guest 路径/类型/SHA256/size、完整源码/资源集合 hash、目标 profile 与 firmware base SHA、生成时间和完成/partial 状态。发布后通过 revision 专属只读 URL 或 bundle 读取；服务器解析内部资源计划并输出安全字段，不把内部设备配置或凭据带给浏览器。
+
+先实现任务成功后发布一个 revision，可立即为首版预览形成稳定边界；之后在真正完成且验证过的文件写入/工具轮次边界增加 checkpoint。多文件修改应一次提交一个 manifest；普通 file watcher 或每个 Write 结束最多是触发提示，必须等源集合冻结并通过校验后才能发布。
+
+## 物理 push 与虚拟执行必须显式选择
+
+`DevicePusher._prepare` 取真实 device_id/client_id 与设备 push base URL，[device_push.py:83](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/device_push.py:83)。单代码路径为第三方 `push-code`，资源路径为 `upload-resource-batch-and-push`，见 [aiflow_push.py:587](/Users/yunyu/Desktop/git/aiflow-sdk/skills/aiflow-device-push/scripts/aiflow_push.py:587)、[aiflow_push.py:627](/Users/yunyu/Desktop/git/aiflow-sdk/skills/aiflow-device-push/scripts/aiflow_push.py:627)。这些结果没有 emulator session、frame、serial 或 Unit 状态。
+
+物理推送的当前官方仓内合同明确：单包 ACK 超时不使 HTTP 失败，chunkCount 只代表发布数量，[THIRD_PARTY_DEVICE_PUSH_API.md:73](/Users/yunyu/Desktop/git/aiflow-sdk/docs/THIRD_PARTY_DEVICE_PUSH_API.md:73)；资源 HTTP 200 不等于设备下载/保存，[THIRD_PARTY_DEVICE_PUSH_API.md:217](/Users/yunyu/Desktop/git/aiflow-sdk/docs/THIRD_PARTY_DEVICE_PUSH_API.md:217)。因此 `deployment_finished` 不能当作执行/渲染成功事件，虚拟预览也不能继续沿用这个含糊结果。
+
+推荐独立 `PreviewRun` endpoint/worker，消费指定 SourceRevision 和虚拟硬件合同；物理 `deploy_mode` 的默认值与含义保持。未来若合并 execution target，也必须用判别类型明确 `physical` / `virtual`，并让 authorization、target 信息、回执与失败码各自明确。新增 preview 不能顺带触发一次物理 push。
+
+纯虚拟用户还需要身份与额度模型设计：目前连接要求 platform device_id/client_id；启用 ai_quota 时 `accept_coding_task` 在 [app.py:570](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/app.py:570) 要求绑定 MAC，runner 前 [tasks.py:873](/Users/yunyu/Desktop/git/aiflow-sdk/aiflow_server/tasks.py:873) 再检查。不能把 emulator profile/session 当成真实平台 deviceId/clientId，也不能编造 MAC 绕过额度。首版可在已合法配对的真实 AIFlow 项目上仅生成代码并额外预览；纯虚拟 Coding 应另增受信的逻辑项目/用户授权或明确批准的额度身份，不改变真实设备链的安全语义。
+
+## 建议的预览消费者链路
+
+以下均为待实现的桥接设计，不是当前存在的路由或已联调能力。
+
+1. AIFlow BFF 受理正常 Coding，首版固定 `deploy_mode=none`，前端按现有 SSE 显示编程活动；编程任务与虚拟执行任务使用独立状态。
+2. 版本发布器冻结完整 SourceRevision，发 `source_revision_ready` 或同等清晰事件；旧任务事件保留其 revision_id。浏览器只提交 revision_id、选定主机 profile、Unit 附件/端口/初始输入配置和客户端代次，不发送任意宿主文件路径、进程命令或后端 URL。
+3. preview worker 重新检查目标型号、UIFlow firmware base、Flash/PSRAM/安全配置和 Unit/controller/端口合同。视觉库存存在不授予 runtime 准入；unsupported/planned 应直接返回结构化原因。代码与资源通过 emulator 的正式 source compose / visible session 通道运行，不走 review control plane，也不直接启动 QEMU。
+4. 持久化映射至少为 `context_id + task_id + revision_id + target_config_hash + preview_generation → firmware/source CAS + emulator session + runtime/profile`。同一项目只允许一个正在构建/替换的预览动作；短防抖与背压可配置。相同版本和配置应幂等；晚完成的旧代次只留证据，不切换前端或控制新会话。
+5. 前端通过 AIFlow 同源、受限的 preview 消费接口读取同一 emulator session 的帧、guest serial、unit state 和执行状态；Unit 输入也经此桥接并校验当前会话与端口准入。源代码版本、runtime/profile、采样时间、session 与状态来源可见。帧与 QOM 若不是原子快照，应各自保留时间/sequence，不能伪称同一采样瞬间。3D 外观只消费经过映射验证的实际 Unit 状态，不从聊天文本推断状态或用前端动画代替 data plane。
+6. 首版新代码版本通常需要 compose 并启动新的虚拟会话，应明确显示 composing/booting/ready/failed，而非承诺每个 token 或每次按键的无延迟热更新。新会话达到真实 ready 条件后再切换当前预览，失败保留上一份可用预览及诊断；停止、回收与证据保留遵循 Device Service 的正式契约。
+
+浏览器不宜直接连接用户机器的 `localhost:8787` 或把无鉴权的 trusted-host 服务暴露给公网：远端 AIFlow、用户浏览器和本机 worker 对 localhost 的含义不同，HTTPS 网页还有跨域/混合内容边界。桥接应使用明确注册且受信的 worker/反向代理；后端地址不可由普通 prompt 或任意用户 URL 决定。context 能力与 preview read/input 权限应绑定具体项目/会话，浏览器只拿受限引用，不拿 worker 管理能力或内部 HMAC。
+
+## 取消、续编和刷新时的具体规则
+
+- `POST cancel` 是请求取消，前端等任务真正 cancelled/failed/completed 后再提交下一轮，避免 `context_busy`。复用同一 conversation 即可续编，不自动 reset 或重发整段聊天。
+- 被取消任务的文件可能已部分改写；不要自动把它发布为 runnable revision。保持最后已验证版本的预览，或显式发布标为 interrupted 的草稿供核对。已有文件和外部效果不会随 SDK interrupt 回滚。
+- 取消 Coding 与取消 PreviewRun 是两个动作。预览构建若取消，构建结果受代次 fence；已在运行的虚拟 session 要明确选择继续显示或停止并留历史，不能用取消模型任务暗示设备已经停机。
+- 项目 reset 创建新 context 且旧项目仍保留，其 token/文件继续属于旧项目，[WEB_CLIENT_INTEGRATION.md:327](/Users/yunyu/Desktop/git/aiflow-sdk/docs/WEB_CLIENT_INTEGRATION.md:327)。预览必须绑定 context，不能只按同一个 device_id 覆盖旧项目映射。重连 token 轮换也不应导致他人或旧标签页继续控制当前预览。
+- 页面刷新先查询 project active_task/current revision/current preview，再恢复编程 history/SSE 与预览流；检测 event-retention 缺口，不能从最后一条 assistant 回复推断当前运行版本。
+
+## 实施优先级与验收边界
+
+**第一步可做端到端首版：** 保持现有编程 API，增加成功后的不可变源码/资源 revision 与 preview worker/消费者；限定明确已支持的 UIFlow 主机/Unit，完整代码版本更新后重建预览。验收要能证明 A/B 两个版本分别执行，当前 UI 始终对应所显示的 revision/session，Unit 输入真的经过 controller/guest/QOM，刷新能恢复，失败不误覆盖旧版本，取消不遗留无主 session。
+
+**第二步再做任务中的 checkpoint：** 增加服务端的可靠发布点、运行前校验、依赖/资源齐套、单飞队列、幂等键、旧代次丢弃、取消/错误/超时与恢复。不要先让前端轮询可变 `main.py` 再补一致性。
+
+**第三步再产品化纯虚拟编程：** 虚拟身份/额度授权、跨机器 worker、持久化调度、同源代理和精细权限。当前 AIFlow 单进程内的队列、订阅器和取消状态不能直接横向多 worker 复制，项目 AGENTS 的该不变量仍适用。
+
+本次未运行 AIFlow 测试或启动服务，以遵守只读与不调真实模型/设备的边界。可复用的现有回归入口已确认存在：`tests/test_server_v3.py` 的 multipart/context_busy/SSE/cancel-resume 测试、`tests/test_agent_behavior.py` 的 interrupt/partial 对齐测试、`tests/test_device_push.py` 的 fake push server，以及前端流 reducer 测试；它们不等于新的 revision/preview 链路已测试。新的跨服务合同应补 fake runner、immutable bundle、乱序/重复事件、缺文件/hash 失配、旧代次回流、取消和可见同会话真实运行验收。
+
+当前源码中对 `emulator/preview/snapshot_id/revision_ready/file_changed/code_changed/artifact_ready` 的限定搜索未发现相应实现；范围为 `aiflow_server/`、`web/`、API_V3 和 WEB_CLIENT_INTEGRATION。这是当前本机源码结论，未确认线上部署版本或线上 API 状态。

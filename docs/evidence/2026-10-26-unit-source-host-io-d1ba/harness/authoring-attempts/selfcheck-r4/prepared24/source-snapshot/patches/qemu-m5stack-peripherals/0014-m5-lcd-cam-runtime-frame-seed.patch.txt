@@ -1,0 +1,94 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Thu, 22 Oct 2026 08:30:00 +0800
+Subject: [PATCH] m5-lcd-cam: expose runtime frame seed and auto-increment
+
+Expose the deterministic GC0308/LCD_CAM test pattern through QOM and register
+the camera model at /machine/m5-lcd-cam.  In auto-increment mode each completed
+frame advances the seed, so a running guest can take multiple snapshots and
+observe changing frame content instead of one boot-time image.
+
+Signed-off-by: m5agent <m5agent@m5stack.com>
+---
+ hw/m5stopwatch/m5_lcd_cam.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5_lcd_cam.c b/hw/m5stopwatch/m5_lcd_cam.c
+index 0000000..0000000 100644
+--- a/hw/m5stopwatch/m5_lcd_cam.c
++++ b/hw/m5stopwatch/m5_lcd_cam.c
+@@ -37,6 +37,8 @@ struct M5LcdCamState {
+     uint32_t int_raw;
+     uint32_t width;
+     uint32_t height;
++    uint32_t frame_seed;
++    bool frame_auto_increment;
+     uint32_t frame_offset;
+     uint32_t frame_bytes;
+     uint32_t chunk_len;
+@@ -61,11 +63,12 @@ static uint16_t camera_pattern_pixel(M5LcdCamState *s, uint32_t pixel)
+     uint32_t y = p / MAX(1u, s->width);
+     uint8_t r, g, b;
+ 
+-    if (y < MAX(1u, s->height / 4)) {
++    uint32_t band = (y * 4 / MAX(1u, s->height) + s->frame_seed) & 3;
++    if (band == 0) {
+         r = 235; g = 48; b = 48;
+-    } else if (y < MAX(1u, s->height / 2)) {
++    } else if (band == 1) {
+         r = 235; g = 190; b = 35;
+-    } else if (y < MAX(1u, (s->height * 3) / 4)) {
++    } else if (band == 2) {
+         r = 40; g = 190; b = 80;
+     } else {
+         r = 35; g = 105; b = 235;
+@@ -138,6 +141,9 @@ static void lcd_cam_capture(M5LcdCamState *s)
+             timer_mod(s->capture_timer,
+                       qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + 1);
+         } else {
++            if (s->frame_auto_increment) {
++                s->frame_seed++;
++            }
+             s->int_raw |= CAM_VSYNC_INT;
+             lcd_cam_update_irq(s);
+             if (getenv("M5SW_CAMERA_TRACE")) {
+@@ -246,6 +252,16 @@ static void lcd_cam_reset(DeviceState *dev)
+     s->dma_armed = false;
+ }
+ 
++static bool frame_auto_increment_get(Object *obj, Error **errp)
++{
++    return M5_LCD_CAM(obj)->frame_auto_increment;
++}
++
++static void frame_auto_increment_set(Object *obj, bool value, Error **errp)
++{
++    M5_LCD_CAM(obj)->frame_auto_increment = value;
++}
++
+ static void lcd_cam_init(Object *obj)
+ {
+     M5LcdCamState *s = M5_LCD_CAM(obj);
+@@ -254,6 +270,11 @@ static void lcd_cam_init(Object *obj)
+                           TYPE_M5_LCD_CAM, 0x1000);
+     sysbus_init_mmio(sbd, &s->iomem);
+     sysbus_init_irq(sbd, &s->irq);
++    object_property_add_uint32_ptr(
++        obj, "frame-seed", &s->frame_seed, OBJ_PROP_FLAG_READWRITE);
++    object_property_add_bool(
++        obj, "auto-increment", frame_auto_increment_get,
++        frame_auto_increment_set);
+     s->capture_timer = timer_new_ms(QEMU_CLOCK_VIRTUAL,
+                                     (QEMUTimerCB *)lcd_cam_capture, s);
+ }
+@@ -282,6 +303,7 @@ void m5_lcd_cam_attach(DeviceState *dev, ESPGdmaState *gdma,
+                        uint32_t width, uint32_t height)
+ {
+     M5LcdCamState *s = M5_LCD_CAM(dev);
++    object_property_add_child(qdev_get_machine(), "m5-lcd-cam", OBJECT(dev));
+     s->gdma = gdma;
+     s->width = width;
+     s->height = height;
+-- 
+2.51.0
+

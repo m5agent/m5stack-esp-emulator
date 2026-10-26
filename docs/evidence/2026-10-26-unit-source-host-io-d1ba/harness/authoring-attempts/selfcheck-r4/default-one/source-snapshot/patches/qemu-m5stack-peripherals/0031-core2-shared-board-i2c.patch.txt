@@ -1,0 +1,55 @@
+--- a/hw/i2c/esp32_i2c.c
++++ b/hw/i2c/esp32_i2c.c
+@@ -181,7 +181,13 @@
+ {
+     bool stop_or_end = false;
+     if (getenv("M5SW_I2C_CTRL_TRACE")) {
+-        fprintf(stderr, "[esp32-i2c] transaction\n");
++        g_autofree char *controller_path =
++            object_get_canonical_path(OBJECT(s));
++        g_autofree char *bus_path =
++            object_get_canonical_path(OBJECT(s->bus));
++        fprintf(stderr,
++                "[esp32-i2c] transaction controller=%s bus=%s\n",
++                controller_path, bus_path);
+     }
+     for (int i_cmd = 0; i_cmd < ESP32_I2C_CMD_COUNT && !stop_or_end; ++i_cmd) {
+         uint32_t cmd = s->cmd_reg[i_cmd];
+--- a/hw/m5stopwatch/m5core2.c
++++ b/hw/m5stopwatch/m5core2.c
+@@ -1,6 +1,6 @@
+ /*
+  * M5Stack Core2 board glue: ESP32 LX6 + ILI9342 320x240 SPI panel,
+- * AXP192 PMIC and FT5x06-compatible touch.
++ * AXP2101/AXP192 PMIC and FT5x06-compatible touch.
+  *
+  * SPDX-License-Identifier: GPL-2.0-or-later
+  */
+@@ -13,9 +13,17 @@
+ void m5core2_board_init(Esp32SocState *s)
+ {
+     I2CBus *bus0 = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[0]), "i2c");
+-    I2CBus *bus1 = (I2CBus *)qdev_get_child_bus(DEVICE(&s->i2c[1]), "i2c");
+     const char *pmic_override = getenv("M5SW_CORE2_PMIC");
+     bool legacy_axp192 = pmic_override && !strcmp(pmic_override, "axp192");
++
++    /*
++     * Core2 wires AXP, RTC, touch and IMU to one physical GPIO21/22 bus.
++     * ESP32 has two controller register blocks, either of which firmware may
++     * route to those pins. Point both controllers at the same board bus and
++     * attach each slave once.
++     */
++    esp32_i2c_set_bus(DEVICE(&s->i2c[0]), bus0);
++    esp32_i2c_set_bus(DEVICE(&s->i2c[1]), bus0);
+ 
+     DeviceState *axp = qdev_new(TYPE_M5SW_I2C_DEV);
+     qdev_prop_set_string(axp, "model", legacy_axp192 ? "axp192" : "axp2101");
+@@ -48,7 +56,7 @@
+         qdev_prop_set_string(d, "model", devs[i].model);
+         qdev_prop_set_uint8(d, "address", devs[i].addr);
+         object_property_add_child(qdev_get_machine(), devs[i].path, OBJECT(d));
+-        qdev_realize_and_unref(d, (BusState *)bus1, &error_fatal);
++        qdev_realize_and_unref(d, (BusState *)bus0, &error_fatal);
+     }
+ 
+     m5stopwatch_soft_i2c_init_pins(bus0, 21, 22);

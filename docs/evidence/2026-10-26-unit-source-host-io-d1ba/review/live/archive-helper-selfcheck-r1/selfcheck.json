@@ -1,0 +1,51 @@
+{
+  "status": "PASS_OFFLINE_ONLY",
+  "checks": [
+    {
+      "name": "helper AST",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "default preflight remains3/24 PENDING",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "final24 gate rejects missing rest21",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "path traversal",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "absolute path",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "native ELF magic",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "firmware suffix",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "MD transport is exact .md.txt bytes/provenance",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "actual Fan tool-call transcription/env/handles accepted as transcription only",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "wrong actual runtime pin",
+      "status": "PASS_OFFLINE_REJECTION"
+    }
+  ],
+  "check_count": 10,
+  "archive_assembly": "NOT RUN",
+  "docs_evidence_written": false,
+  "actual_API_process_guest_calls": 0,
+  "final_archive_hash": "NOT ESTABLISHED",
+  "live24": "PENDING"
+}

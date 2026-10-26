@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-26",
+  "kind": "offline-synthetic-register-fixture",
+  "provenance": "Synthetic legal-domain OTP; no physical sensor calibration or runtime PASS is claimed.",
+  "official_driver": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+  "address_7bit": 112,
+  "chip_id": {
+    "register": "0xD1",
+    "value": "0x5C"
+  },
+  "calibration": {
+    "register": "0xA0",
+    "length": 25,
+    "hex": "4e200000000000000000000000000000000002800000000000"
+  },
+  "reference_coefficients": {
+    "b00": 20000.0,
+    "bt1": 0.1,
+    "bt2": 1.2e-08,
+    "bp1": 0.033,
+    "b11": 2.1e-07,
+    "bp2": -6.3e-10,
+    "b12": 2.9e-13,
+    "b21": 2.1e-15,
+    "bp3": 1.3e-16,
+    "a0": 640.0,
+    "a1": -0.0063,
+    "a2": -1.9e-11
+  },
+  "cases": [
+    {
+      "requested": {
+        "temperature_c": 25,
+        "pressure_pa": 101325
+      },
+      "register_f7_hex": "a49d387202ab",
+      "decoded": {
+        "temperature_c": 25.00000642900477,
+        "pressure_pa": 101324.99406272186
+      },
+      "quantization_error": {
+        "temperature_c": 6.429004770325264e-06,
+        "pressure_pa": -0.0059372781397541985
+      }
+    },
+    {
+      "requested": {
+        "temperature_c": -40,
+        "pressure_pa": 30000
+      },
+      "register_f7_hex": "857c3d9a3742",
+      "decoded": {
+        "temperature_c": -40.000003552405296,
+        "pressure_pa": 30000.003836028623
+      },
+      "quantization_error": {
+        "temperature_c": -3.5524052961477537e-06,
+        "pressure_pa": 0.0038360286234819796
+      }
+    },
+    {
+      "requested": {
+        "temperature_c": 120,
+        "pressure_pa": 110000
+      },
+      "register_f7_hex": "a1e91036109e",
+      "decoded": {
+        "temperature_c": 120.0000040496332,
+        "pressure_pa": 109999.99032384354
+      },
+      "quantization_error": {
+        "temperature_c": 4.049633204772363e-06,
+        "pressure_pa": -0.009676156463683583
+      }
+    },
+    {
+      "requested": {
+        "temperature_c": 0,
+        "pressure_pa": 80000
+      },
+      "register_f7_hex": "9c5d1c818cb4",
+      "decoded": {
+        "temperature_c": 4.8484313123145365e-06,
+        "pressure_pa": 79999.98550045856
+      },
+      "quantization_error": {
+        "temperature_c": 4.8484313123145365e-06,
+        "pressure_pa": -0.014499541444820352
+      }
+    },
+    {
+      "requested": {
+        "temperature_c": 50,
+        "pressure_pa": 95000
+      },
+      "register_f7_hex": "a01996625fe9",
+      "decoded": {
+        "temperature_c": 49.99999642678574,
+        "pressure_pa": 95000.00027667213
+      },
+      "quantization_error": {
+        "temperature_c": -3.5732142578126513e-06,
+        "pressure_pa": 0.00027667212998494506
+      }
+    }
+  ],
+  "official_driver_sha256": "48ea71495622173423fb296c846d6fcf371c6fa0646d92f764822519388b8d7d",
+  "offline_validation": {
+    "checked_at": "2026-10-26",
+    "method": "Unmodified official QMP6988 class read these synthetic register bytes in an offline in-memory transport; not an emulated controller test.",
+    "cases": 42,
+    "temperature_grid_c": [
+      -40,
+      -10,
+      0,
+      25,
+      50,
+      85,
+      120
+    ],
+    "pressure_grid_pa": [
+      30000,
+      60000,
+      80000,
+      95000,
+      101325,
+      110000
+    ],
+    "max_temperature_error_c": 6.429004770325264e-06,
+    "max_pressure_error_pa": 0.017242305912077427,
+    "runtime_evidence": false
+  }
+}

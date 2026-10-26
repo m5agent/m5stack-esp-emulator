@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-26T05:42:04.545848+00:00",
+  "recording_type": "root transcription of actual exec_command tool calls; not OS exec trace",
+  "source_context_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+  "calls": [
+    {
+      "purpose": "fresh source API Fan3 execution",
+      "exec_session_id": 59946,
+      "observed_exit_code": 0,
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        ".work/unit-source-host-io-20261026/run_source_host_io.py",
+        "--execute",
+        "--case",
+        "fan",
+        "--source-context-commit",
+        "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+        "--expected-runtime-sha256",
+        "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+        "--expected-worker-generation",
+        "12",
+        "--out-dir",
+        ".work/unit-source-host-io-20261026/live-fan-r1"
+      ],
+      "env": {
+        "M5_UNIT_WEB_BRIDGE": "1",
+        "M5_PYTHON_DEPS": ".work/py312",
+        "PYTHONPATH": ".work/py312"
+      },
+      "stdout_log": ".work/unit-source-host-io-20261026/live-fan-r1.log"
+    },
+    {
+      "purpose": "Fan3 offline replay",
+      "exec_session_id": 92880,
+      "observed_exit_code": 0,
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        ".work/unit-source-host-io-20261026/run_source_host_io.py",
+        "--check",
+        "--out-dir",
+        ".work/unit-source-host-io-20261026/live-fan-r1"
+      ],
+      "env": {
+        "M5_PYTHON_DEPS": ".work/py312",
+        "PYTHONPATH": ".work/py312"
+      },
+      "stdout_log": ".work/unit-source-host-io-20261026/live-fan-r1-check.log"
+    },
+    {
+      "purpose": "fresh post-PWM-sync source API rest21 execution",
+      "exec_session_id": 46271,
+      "observed_exit_code": 0,
+      "source_context_commit": "0a6a9a2a4201f49464afb6cd6e36c321d3305cb6",
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        ".work/unit-source-host-io-20261026/run_source_host_io.py",
+        "--execute",
+        "--case",
+        "pir",
+        "--case",
+        "dual-button",
+        "--case",
+        "limit",
+        "--case",
+        "key",
+        "--case",
+        "rgb",
+        "--case",
+        "rs485",
+        "--case",
+        "hub",
+        "--source-context-commit",
+        "0a6a9a2a4201f49464afb6cd6e36c321d3305cb6",
+        "--expected-runtime-sha256",
+        "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+        "--expected-worker-generation",
+        "12",
+        "--out-dir",
+        ".work/unit-source-host-io-20261026/live-rest-r1"
+      ],
+      "env": {
+        "M5_UNIT_WEB_BRIDGE": "1",
+        "M5_PYTHON_DEPS": ".work/py312",
+        "PYTHONPATH": ".work/py312"
+      },
+      "stdout_log": ".work/unit-source-host-io-20261026/live-rest-r1.log"
+    },
+    {
+      "purpose": "rest21 offline replay",
+      "exec_session_id": 57436,
+      "observed_exit_code": 0,
+      "argv": [
+        "/opt/miniconda3/bin/python3.12",
+        "-B",
+        ".work/unit-source-host-io-20261026/run_source_host_io.py",
+        "--check",
+        "--out-dir",
+        ".work/unit-source-host-io-20261026/live-rest-r1"
+      ],
+      "env": {
+        "M5_PYTHON_DEPS": ".work/py312",
+        "PYTHONPATH": ".work/py312"
+      },
+      "stdout_log": ".work/unit-source-host-io-20261026/live-rest-r1-check.log"
+    }
+  ],
+  "rest_recorded_at": "2026-10-26T06:07:33.895070+00:00"
+}

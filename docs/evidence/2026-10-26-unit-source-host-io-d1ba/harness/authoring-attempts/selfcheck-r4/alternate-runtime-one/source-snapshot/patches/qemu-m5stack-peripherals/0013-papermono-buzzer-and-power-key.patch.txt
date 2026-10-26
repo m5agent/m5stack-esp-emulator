@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Thu, 22 Oct 2026 07:30:00 +0800
+Subject: [PATCH] m5papermono: attach buzzer I2S and power-key input
+
+Wire GPIO42's M5Unified buzzer path to the ESP32-S3 I2S/GDMA model and
+route the VNC P key to the board power-key signal.  This makes the
+PaperMono buzzer observable through real TX PCM capture and allows both
+PaperMono and PaperColor power-key paths to be exercised by QMP.
+
+Signed-off-by: m5agent <m5agent@m5stack.com>
+---
+ hw/m5stopwatch/m5_epd_panel.c | 3 +++
+ hw/m5stopwatch/m5papermono.c  | 1 +
+ 2 files changed, 4 insertions(+)
+
+diff --git a/hw/m5stopwatch/m5_epd_panel.c b/hw/m5stopwatch/m5_epd_panel.c
+index 542ffc7..0000000 100644
+--- a/hw/m5stopwatch/m5_epd_panel.c
++++ b/hw/m5stopwatch/m5_epd_panel.c
+@@ -177,6 +177,9 @@ static void m5_epd_input(DeviceState *dev, QemuConsole *src, InputEvent *evt)
+             pin = s->key_b_pin;
+         } else if (q == Q_KEY_CODE_C || q == Q_KEY_CODE_3) {
+             pin = s->key_c_pin;
++        } else if (q == Q_KEY_CODE_P) {
++            m5sw_pwr_button(down);
++            break;
+         }
+         if (pin != UINT32_MAX) {
+             /*
+diff --git a/hw/m5stopwatch/m5papermono.c b/hw/m5stopwatch/m5papermono.c
+index c7d9ff1..0000000 100644
+--- a/hw/m5stopwatch/m5papermono.c
++++ b/hw/m5stopwatch/m5papermono.c
+@@ -89,4 +89,5 @@ void m5papermono_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+     esp32s3_gpspi_set_dc_pin(spi2, 17);
+     esp32s3_gpspi_attach(spi3, gdma, NULL, NULL, GDMA_SPI3);
+     m5_sx1262_attach(spi3, 41);
++    m5_i2s_board_init(sys_mem, intmatrix, gdma);
+ }
+-- 
+2.51.0
+

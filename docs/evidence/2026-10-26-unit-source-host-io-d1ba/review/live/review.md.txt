@@ -1,0 +1,11 @@
+# Source IO 24组合终态独立审阅
+
+原始 source API/HTTP/CAS/PID/UART/QOM/产品 DOM/ZIP/cleanup 的独立检查为 **24/24 PASS**。逐例结果见 `final24-review.json`；该脚本只读原件，不调用API、浏览器、guest或子进程。完整原IO与ZIP oracle均回放，60个fresh UART窗口均约束在对应输入后、下一输入前。RGB/Fan为output-only零POST，其余输入不继承历史累计串口。
+
+Fan3绑定source HEAD `cba4e3cda263bc15ed98bf9aa997e48e19f404cc`；Rest21绑定`0a6a9a2a4201f49464afb6cd6e36c321d3305cb6`。两批481项source freeze的清单与SHA完全相同，但不能声称24例同HEAD。runtime均为`d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff`、worker generation12；每例19份caller Python字节均被绑定。
+
+24张native PNG均已逐张目视，最终分类见`native-visual-final24.json`。字符均在捕获框内；**AtomS3R、StickS3、StopWatch三张HUB均为numeric-token continuity PARTIAL / 排版待改善**，不能称全部文字或数字完整连续可读。StopWatch把17.309998拆为1 / 7.309998，StickS3另把eCO2整数拆行；Atom的长浮点数也跨行。其余21张捕获图数字token连续。最终分类替代旧增量receipt过宽的READABLE标签，旧receipt原样保留。controller/UART/QOM functional24 PASS与这3个layout issue独立记录。
+
+范围仅实际捕获PNG与本24条同会话source路径；不推导连续/所有阶段视觉保真，不关闭原IR/Buzzer风险、ADC fixture/oracle、其他Unit/拓扑、完整共享runtime回归或硬件/电气/声学等价。
+
+归档helper新版本保留24图门禁并绑定实际session/frame SHA/size，允许如实保存3项layout PARTIAL；README、machine-summary和audit-report必须显式列同一组问题。其它source/protocol/CAS/runtime/privacy/精确omission门禁未放松。helper自检仅离线，组装和最终archive SHA仍待root实际执行。

@@ -1,0 +1,66 @@
+--- a/hw/m5stopwatch/m5_i2s_esp32.c
++++ b/hw/m5stopwatch/m5_i2s_esp32.c
+@@ -230,7 +230,7 @@
+         return;
+     }
+     timer_mod(s->tx_timer,
+-              qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + I2S_DMA_PERIOD_MS);
++              qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + I2S_DMA_PERIOD_MS);
+ }
+ 
+ static void i2s_load_rx_pcm(M5Esp32I2SState *s)
+@@ -310,7 +310,7 @@
+         return;
+     }
+     timer_mod(s->rx_timer,
+-              qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + I2S_DMA_PERIOD_MS);
++              qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + I2S_DMA_PERIOD_MS);
+ }
+ 
+ static uint64_t i2s_read(void *opaque, hwaddr addr, unsigned size)
+@@ -346,7 +346,7 @@
+             s->tx_running = true;
+             if (s->regs[R_CONF / 4] & CONF_TX_START) {
+                 timer_mod(s->tx_timer,
+-                          qemu_clock_get_ms(QEMU_CLOCK_REALTIME)
++                          qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL)
+                           + I2S_DMA_PERIOD_MS);
+             }
+         }
+@@ -362,7 +362,7 @@
+             i2s_load_rx_pcm(s);
+             if (s->regs[R_CONF / 4] & CONF_RX_START) {
+                 timer_mod(s->rx_timer,
+-                          qemu_clock_get_ms(QEMU_CLOCK_REALTIME)
++                          qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL)
+                           + I2S_DMA_PERIOD_MS);
+             }
+         }
+@@ -417,7 +417,7 @@
+                 s->pcm_bytes = 0;
+             }
+             timer_mod(s->tx_timer,
+-                      qemu_clock_get_ms(QEMU_CLOCK_REALTIME)
++                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL)
+                       + I2S_DMA_PERIOD_MS);
+         }
+         if ((v & CONF_RX_START) && !old_rx_start && s->rx_first_desc) {
+@@ -425,7 +425,7 @@
+             s->rx_running = true;
+             i2s_load_rx_pcm(s);
+             timer_mod(s->rx_timer,
+-                      qemu_clock_get_ms(QEMU_CLOCK_REALTIME)
++                      qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL)
+                       + I2S_DMA_PERIOD_MS);
+         }
+         if (!(v & CONF_TX_START)) {
+@@ -485,7 +485,7 @@
+                           TYPE_M5_ESP32_I2S, 0x1000);
+     sysbus_init_mmio(SYS_BUS_DEVICE(obj), &s->iomem);
+     sysbus_init_irq(SYS_BUS_DEVICE(obj), &s->irq);
+-    s->tx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, i2s_tx_timer, s);
+-    s->rx_timer = timer_new_ms(QEMU_CLOCK_REALTIME, i2s_rx_timer, s);
++    s->tx_timer = timer_new_ms(QEMU_CLOCK_VIRTUAL, i2s_tx_timer, s);
++    s->rx_timer = timer_new_ms(QEMU_CLOCK_VIRTUAL, i2s_rx_timer, s);
+     s->trace = getenv("M5SW_I2S_TRACE") != NULL;
+ }

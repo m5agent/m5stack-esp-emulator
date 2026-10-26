@@ -1,0 +1,10 @@
+--- a/io_drivers/buzzer.py
++++ b/io_drivers/buzzer.py
+@@ -8,3 +8,7 @@
+ class BuzzerUnit(Haptic):
+     def __init__(self, port):
+         super().__init__(port[1], freq=4000)
++
++    # SoftTimerScheduler calls callback(timer); frozen Haptic._cb takes no timer.
++    def _cb(self, timer=None):
++        super()._cb()

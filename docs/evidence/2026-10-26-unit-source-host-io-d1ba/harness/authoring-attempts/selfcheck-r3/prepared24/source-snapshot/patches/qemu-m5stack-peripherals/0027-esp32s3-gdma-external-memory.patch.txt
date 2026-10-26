@@ -1,0 +1,32 @@
+diff --git a/hw/dma/esp_gdma.c b/hw/dma/esp_gdma.c
+--- a/hw/dma/esp_gdma.c
++++ b/hw/dma/esp_gdma.c
+@@ -11,6 +11,7 @@
+ #include "qemu/osdep.h"
+ #include "qemu/error-report.h"
+ #include "sysemu/dma.h"
++#include "exec/address-spaces.h"
+ #include "hw/sysbus.h"
+ #include "hw/irq.h"
+ #include "hw/dma/esp_gdma.h"
+@@ -179,12 +180,20 @@ static bool esp_gdma_write_descr(ESPGdmaState *s, uint32_t addr, GdmaLinkedList*
+ static bool esp_gdma_read_guest(ESPGdmaState *s, uint32_t addr, void* data, uint32_t len)
+ {
+     MemTxResult res = dma_memory_read(&s->dma_as, addr, data, len, MEMTXATTRS_UNSPECIFIED);
++    if (res != MEMTX_OK) {
++        res = address_space_rw(&address_space_memory, addr,
++                               MEMTXATTRS_UNSPECIFIED, data, len, false);
++    }
+     return res == MEMTX_OK;
+ }
+ 
+ static bool esp_gdma_write_guest(ESPGdmaState *s, uint32_t addr, void* data, uint32_t len)
+ {
+     MemTxResult res = dma_memory_write(&s->dma_as, addr, data, len, MEMTXATTRS_UNSPECIFIED);
++    if (res != MEMTX_OK) {
++        res = address_space_rw(&address_space_memory, addr,
++                               MEMTXATTRS_UNSPECIFIED, data, len, true);
++    }
+     return res == MEMTX_OK;
+ }
+ 

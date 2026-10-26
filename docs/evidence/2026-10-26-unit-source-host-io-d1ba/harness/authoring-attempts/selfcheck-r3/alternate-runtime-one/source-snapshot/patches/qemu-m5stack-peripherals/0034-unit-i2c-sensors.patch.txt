@@ -1,0 +1,621 @@
+diff --git a/hw/m5stopwatch/m5_unit_i2c_sensors.c b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+new file mode 100644
+index 0000000..5bcfddc
+--- /dev/null
++++ b/hw/m5stopwatch/m5_unit_i2c_sensors.c
+@@ -0,0 +1,615 @@
++/*
++ * External Grove sensors: controller-visible transactions, not guest API hooks.
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ *
++ * Register/transaction references: official m5stack/uiflow-micropython drivers
++ * checked 2026-10-26; see docs/unit-research/official-protocols.md in the host
++ * project. Synthetic identity/default samples are fixtures, not hardware data.
++ * MLX90640 deliberately has no invented calibration or temperature-to-raw map:
++ * EEPROM and both raw subframes must be supplied explicitly before it ACKs.
++ */
++#include "qemu/osdep.h"
++#include "qemu/module.h"
++#include "qemu/timer.h"
++#include "qapi/error.h"
++#include "qapi/visitor.h"
++#include "hw/i2c/i2c.h"
++#include "hw/qdev-properties.h"
++#include "m5_unit_runtime.h"
++#include <math.h>
++
++#define TYPE_M5_UNIT_SENSOR "m5-unit-i2c-sensor"
++typedef enum {
++    US_COLOR, US_TOF, US_NCIR, US_HEART, US_TVOC, US_SONIC, US_THERMAL,
++} UnitSensorKind;
++
++typedef struct M5UnitSensor {
++    I2CSlave parent_obj;
++    M5Unit *unit;
++    UnitSensorKind kind;
++    uint8_t regs[8][256];
++    uint16_t pointer, command;
++    uint8_t page, write_buf[32], response[32];
++    unsigned write_pos, read_pos, response_len;
++    double values[8];
++    int64_t due, aux_due, last_sample, iaq_started;
++    bool pending, continuous, reset_asserted, iaq_initialized, command_error;
++    uint16_t baseline_co2, baseline_tvoc, absolute_humidity;
++    uint16_t fifo[16][2];
++    unsigned fifo_count, fifo_write, fifo_read, fifo_byte;
++    uint16_t eeprom[832], thermal_frames[2][832], thermal_latched[832];
++    uint16_t thermal_control;
++    bool have_eeprom, have_frame[2], thermal_ready;
++    unsigned thermal_page;
++    uint64_t transactions, read_bytes, written_bytes, samples, crc_errors;
++} M5UnitSensor;
++OBJECT_DECLARE_SIMPLE_TYPE(M5UnitSensor, M5_UNIT_SENSOR)
++
++typedef struct SensorNumber {
++    M5UnitSensor *sensor;
++    double *value, lo, hi;
++    bool integer;
++} SensorNumber;
++
++static int64_t now_ns(void)
++{
++    return qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++}
++
++static uint8_t crc8(const uint8_t *data, size_t count, uint8_t poly, uint8_t crc)
++{
++    for (size_t i = 0; i < count; i++) {
++        crc ^= data[i];
++        for (unsigned bit = 0; bit < 8; bit++) {
++            crc = (crc & 0x80) ? (crc << 1) ^ poly : crc << 1;
++        }
++    }
++    return crc;
++}
++
++static void get_count(Object *obj, Visitor *v, const char *name,
++                      void *opaque, Error **errp)
++{
++    uint64_t value = *(uint64_t *)opaque;
++    visit_type_uint64(v, name, &value, errp);
++}
++
++static void get_number(Object *obj, Visitor *v, const char *name,
++                       void *opaque, Error **errp)
++{
++    double value = *(((SensorNumber *)opaque)->value);
++    visit_type_number(v, name, &value, errp);
++}
++
++static void set_number(Object *obj, Visitor *v, const char *name,
++                       void *opaque, Error **errp)
++{
++    SensorNumber *p = opaque;
++    double value;
++    if (!visit_type_number(v, name, &value, errp)) {
++        return;
++    }
++    if (!isfinite(value) || value < p->lo || value > p->hi ||
++        (p->integer && trunc(value) != value)) {
++        error_setg(errp, "%s requires %s in [%g,%g]", name,
++                   p->integer ? "an integer" : "a finite number", p->lo, p->hi);
++        return;
++    }
++    if (*p->value != value) {
++        p->sensor->unit->input_events++;
++    }
++    *p->value = value;
++}
++
++static void release_number(Object *obj, const char *name, void *opaque)
++{
++    g_free(opaque);
++}
++
++static void add_number(M5UnitSensor *s, const char *name, unsigned slot,
++                       double initial, double lo, double hi, bool integer)
++{
++    SensorNumber *p = g_new0(SensorNumber, 1);
++    s->values[slot] = initial;
++    *p = (SensorNumber){ s, &s->values[slot], lo, hi, integer };
++    object_property_add(OBJECT(s->unit), name, "number", get_number, set_number,
++                        release_number, p);
++}
++
++static void le16(uint8_t *p, uint16_t value)
++{
++    p[0] = value; p[1] = value >> 8;
++}
++
++static void be16(uint8_t *p, uint16_t value)
++{
++    p[0] = value >> 8; p[1] = value;
++}
++
++static bool thermal_configured(M5UnitSensor *s)
++{
++    return s->have_eeprom && s->have_frame[0] && s->have_frame[1];
++}
++
++static void get_configured(Object *obj, Visitor *v, const char *name,
++                           void *opaque, Error **errp)
++{
++    bool configured = thermal_configured(opaque);
++    visit_type_bool(v, name, &configured, errp);
++}
++
++static void thermal_control(Object *obj, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    uint16_t value = s->thermal_control;
++    if (visit_type_uint16(v, name, &value, errp) && visit_is_input(v)) {
++        if (s->thermal_control != value) { s->unit->input_events++; }
++        s->thermal_control = value;
++    }
++}
++
++static void thermal_fixture(Object *obj, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    M5UnitSensor *s = opaque;
++    uint16_t *words = !strcmp(name, "eeprom-hex") ? s->eeprom :
++                      s->thermal_frames[!strcmp(name, "frame1-hex")];
++    bool *have = !strcmp(name, "eeprom-hex") ? &s->have_eeprom :
++                 &s->have_frame[!strcmp(name, "frame1-hex")];
++    char *hex = NULL;
++    if (visit_is_input(v)) {
++        if (!visit_type_str(v, name, &hex, errp)) {
++            return;
++        }
++        if (strlen(hex) != 832 * 4 || strspn(hex, "0123456789abcdefABCDEF") != 832 * 4) {
++            error_setg(errp, "%s requires exactly 832 big-endian words (3328 hex digits)", name);
++            g_free(hex);
++            return;
++        }
++        for (unsigned i = 0; i < 832; i++) {
++            uint16_t value = 0;
++            for (unsigned j = 0; j < 4; j++) {
++                value = (value << 4) | g_ascii_xdigit_value(hex[i * 4 + j]);
++            }
++            words[i] = value;
++        }
++        *have = true;
++        s->thermal_ready = false;
++        s->due = now_ns();
++        s->unit->input_events++;
++    } else {
++        hex = g_malloc(832 * 4 + 1);
++        for (unsigned i = 0; i < 832; i++) {
++            snprintf(hex + i * 4, 5, "%04x", words[i]);
++        }
++        visit_type_str(v, name, &hex, errp);
++    }
++    g_free(hex);
++}
++
++static void tof_reset(M5UnitSensor *s)
++{
++    memset(s->regs, 0, sizeof(s->regs));
++    s->page = 0;
++    s->regs[0][0xc0] = 0xee; s->regs[0][0xc1] = 0xaa;
++    s->regs[0][0xc2] = 0x10; s->regs[0][0xbf] = 1;
++    s->regs[0][0x50] = 6; s->regs[0][0x70] = 4;
++    s->regs[0][0x51] = 0; s->regs[0][0x52] = 0x96;
++    s->regs[0][0x71] = 1; s->regs[0][0x72] = 0xfe;
++    s->regs[0][0xf9] = 1;
++    s->regs[1][0x91] = 0x3c;
++    s->regs[7][0x92] = 0x8c;
++    memset(s->regs[0] + 0xb0, 0xff, 6);
++    s->pending = s->continuous = s->reset_asserted = false;
++}
++
++static void sensor_update(M5UnitSensor *s)
++{
++    int64_t now = now_ns();
++    uint8_t *r = s->regs[0];
++    if (s->kind == US_COLOR && (r[0] & 3) == 3 && now >= s->due) {
++        unsigned cycles = 256 - r[1];
++        unsigned maximum = MIN(65535, cycles * 1024);
++        for (unsigned i = 0; i < 4; i++) {
++            le16(r + 0x14 + i * 2, MIN((unsigned)s->values[i], maximum));
++        }
++        r[0x13] |= 1;
++        unsigned clear = r[0x14] | r[0x15] << 8;
++        unsigned lower = r[4] | r[5] << 8, upper = r[6] | r[7] << 8;
++        if ((r[0] & 0x10) && (clear < lower || clear > upper)) {
++            r[0x13] |= 0x10;
++        }
++        s->due = now + cycles * INT64_C(2400000);
++        s->samples++;
++    } else if (s->kind == US_TOF) {
++        if (s->aux_due && now >= s->aux_due) {
++            s->regs[7][0x83] = 1;
++            s->aux_due = 0;
++        }
++        if (s->pending && now >= s->due) {
++            r[0] &= ~1; r[0x13] = 7;
++            be16(r + 0x1e, llround(s->values[0]));
++            s->pending = false;
++            s->samples++;
++        }
++    } else if (s->kind == US_NCIR && now >= s->due) {
++        le16(r + 0x0c, llround((s->values[0] + 273.15) / .02));
++        le16(r + 0x0e, llround((s->values[1] + 273.15) / .02));
++        s->due = now + 100 * INT64_C(1000000);
++        s->samples++;
++    } else if (s->kind == US_SONIC && s->pending && now >= s->due) {
++        uint32_t raw = llround(s->values[0] * 1000);
++        s->response[0] = raw >> 16; s->response[1] = raw >> 8;
++        s->response[2] = raw; s->response_len = 3;
++        s->pending = false; s->samples++;
++    } else if (s->kind == US_HEART) {
++        if ((r[6] & 0x40) && now >= s->aux_due) {
++            r[6] &= ~0x40;
++        }
++        if ((r[6] & 8) && now >= s->due) {
++            double t = s->unit->temperature_c;
++            r[0x16] = (int8_t)floor(t);
++            r[0x17] = llround((t - floor(t)) * 16) & 15;
++            r[6] &= ~8; r[0] |= 0x40;
++        }
++        static const unsigned rates[] = { 50, 100, 167, 200, 400, 600, 800, 1000 };
++        int64_t step = NANOSECONDS_PER_SECOND / rates[(r[7] >> 2) & 7];
++        if (!(r[6] & 0xc0) && (r[6] & 3) >= 2 && now > s->last_sample) {
++            uint64_t count = (now - s->last_sample) / step;
++            s->last_sample += count * step;
++            unsigned bits = 13 + (r[7] & 3);
++            unsigned maximum = (1U << bits) - 1;
++            unsigned fill = MIN(count, 16 - s->fifo_count);
++            for (unsigned i = 0; i < fill; i++) {
++                s->fifo[s->fifo_write][0] = MIN((unsigned)s->values[0], maximum);
++                s->fifo[s->fifo_write][1] = (r[6] & 3) == 3 ? MIN((unsigned)s->values[1], maximum) : 0;
++                s->fifo_write = (s->fifo_write + 1) & 15;
++                s->fifo_count++;
++            }
++            if (count) {
++                s->samples += count;
++                r[0] |= (r[6] & 3) == 3 ? 0x10 : 0x20;
++                r[3] = MIN(UINT64_C(15), r[3] + count - fill);
++                if (s->fifo_count >= 15) { r[0] |= 0x80; }
++            }
++            r[2] = s->fifo_write; r[4] = s->fifo_read;
++        } else if ((r[6] & 0x80) || (r[6] & 3) < 2) {
++            s->last_sample = now;
++        }
++    } else if (s->kind == US_THERMAL && thermal_configured(s) &&
++               !s->thermal_ready && now >= s->due) {
++        if (s->samples) { s->thermal_page ^= 1; }
++        memcpy(s->thermal_latched, s->thermal_frames[s->thermal_page],
++               sizeof(s->thermal_latched));
++        s->thermal_ready = true;
++        s->samples++;
++    }
++}
++
++static void response_word(M5UnitSensor *s, unsigned word, uint16_t value)
++{
++    be16(s->response + word * 3, value);
++    s->response[word * 3 + 2] = crc8(s->response + word * 3, 2, 0x31, 0xff);
++    s->response_len = MAX(s->response_len, (word + 1) * 3);
++}
++
++static bool tvoc_command(M5UnitSensor *s)
++{
++    s->response_len = 0;
++    unsigned delay_ms = 10;
++    switch (s->command) {
++    case 0x2003:
++        s->iaq_initialized = true; s->iaq_started = now_ns(); break;
++    case 0x2008:
++        if (!s->iaq_initialized) { return false; }
++        response_word(s, 0, now_ns() - s->iaq_started < 15 * NANOSECONDS_PER_SECOND ?
++                      400 : llround(s->values[0]));
++        response_word(s, 1, now_ns() - s->iaq_started < 15 * NANOSECONDS_PER_SECOND ?
++                      0 : llround(s->values[1]));
++        delay_ms = 12; s->samples++; break;
++    case 0x2015:
++        response_word(s, 0, s->baseline_co2); response_word(s, 1, s->baseline_tvoc); break;
++    case 0x201e: case 0x2061: case 0x2077: break;
++    case 0x2032: response_word(s, 0, 0xd400); delay_ms = 220; break;
++    case 0x202f: response_word(s, 0, 0x0022); break;
++    case 0x2050:
++        response_word(s, 0, llround(s->values[2]));
++        response_word(s, 1, llround(s->values[3])); delay_ms = 25; s->samples++; break;
++    case 0x20b3: response_word(s, 0, s->baseline_tvoc); break;
++    case 0x3682:
++        response_word(s, 0, 1); response_word(s, 1, 2); response_word(s, 2, 3); break;
++    default: return false;
++    }
++    s->due = now_ns() + delay_ms * INT64_C(1000000);
++    return true;
++}
++
++static unsigned tvoc_arg_words(uint16_t command)
++{
++    return command == 0x201e ? 2 :
++           (command == 0x2061 || command == 0x2077) ? 1 : 0;
++}
++
++static void thermal_write(M5UnitSensor *s, uint16_t value)
++{
++    if (s->pointer == 0x800d) {
++        s->thermal_control = value;
++    } else if (s->pointer == 0x8000 && !(value & 8)) {
++        s->thermal_ready = false;
++        unsigned rate = (s->thermal_control >> 7) & 7;
++        s->due = now_ns() + (2 * NANOSECONDS_PER_SECOND >> rate);
++    }
++}
++
++static int sensor_send(I2CSlave *dev, uint8_t data)
++{
++    M5UnitSensor *s = M5_UNIT_SENSOR(dev);
++    unsigned pos = s->write_pos++;
++    s->written_bytes++; s->unit->written_bytes++;
++    sensor_update(s);
++    if (s->kind == US_TVOC) {
++        if (pos >= sizeof(s->write_buf)) { return 1; }
++        s->write_buf[pos] = data;
++        if (pos == 0) {
++            s->command = data << 8; s->response_len = 0; s->command_error = false;
++        } else if (pos == 1) {
++            s->command |= data; s->command_error = !tvoc_command(s);
++            return s->command_error;
++        }
++        else {
++            unsigned args = tvoc_arg_words(s->command);
++            if (s->command_error || !args || pos >= 2 + args * 3) { return 1; }
++            if ((pos - 2) % 3 == 2 &&
++                crc8(s->write_buf + pos - 2, 2, 0x31, 0xff) != data) {
++                s->crc_errors++; s->command_error = true; return 1;
++            }
++            if (pos == 2 + args * 3 - 1) {
++                uint16_t first = s->write_buf[2] << 8 | s->write_buf[3];
++                if (s->command == 0x201e) {
++                    s->baseline_tvoc = first;
++                    s->baseline_co2 = s->write_buf[5] << 8 | s->write_buf[6];
++                } else if (s->command == 0x2061) { s->absolute_humidity = first; }
++                else { s->baseline_tvoc = first; }
++            }
++        }
++        return 0;
++    }
++    if (s->kind == US_SONIC) {
++        if (pos || data != 1) { return 1; }
++        s->pending = true; s->response_len = 0;
++        s->due = now_ns() + 50 * INT64_C(1000000);
++        return 0;
++    }
++    if (s->kind == US_THERMAL) {
++        if (pos == 0) { s->pointer = data << 8; return 0; }
++        if (pos == 1) { s->pointer |= data; return 0; }
++        if (s->pointer != 0x800d && s->pointer != 0x8000) { return 1; }
++        if (!(pos & 1)) { s->command = data << 8; }
++        else { thermal_write(s, s->command | data); s->pointer++; }
++        return 0;
++    }
++    if (!pos) {
++        if (s->kind == US_COLOR && data == 0xe6) {
++            s->regs[0][0x13] &= ~0x10; return 0;
++        }
++        if (s->kind == US_COLOR && !(data & 0x80)) { return 1; }
++        s->pointer = s->kind == US_COLOR ? data & 0x1f : data;
++        return 0;
++    }
++    if (s->kind == US_NCIR) { return 1; }
++    uint8_t reg = s->pointer++;
++    if (s->kind == US_TOF) {
++        if (reg == 0xff) {
++            if (data > 7) { return 1; }
++            s->page = data; return 0;
++        }
++        if (!s->page && reg == 0xbf) {
++            if (!data) { s->reset_asserted = true; s->pending = false; }
++            else { tof_reset(s); }
++        } else if (!s->page && reg == 0x8a) {
++            i2c_slave_set_address(dev, data & 0x7f);
++        } else if (s->page == 7 && reg == 0x83 && data == 0) {
++            s->aux_due = now_ns() + INT64_C(1000000);
++        } else if (!s->page && reg == 0) {
++            s->pending = !!data; s->continuous = !!(data & 6);
++            s->due = now_ns() + 20 * INT64_C(1000000);
++            s->regs[0][0x13] = 0;
++        } else if (!s->page && reg == 0x0b && (data & 1)) {
++            s->regs[0][0x13] = 0;
++            if (s->continuous) {
++                s->pending = true; s->due = now_ns() + 20 * INT64_C(1000000);
++            }
++        }
++        s->regs[s->page][reg] = data;
++    } else if (s->kind == US_COLOR) {
++        if (reg >= 0x12 && reg <= 0x1b) { return 1; }
++        uint8_t old = s->regs[0][reg];
++        s->regs[0][reg] = data;
++        if ((reg == 0 && (data & 3) != (old & 3)) || reg == 1) {
++            s->regs[0][0x13] &= ~1;
++            s->due = now_ns() + (256 - s->regs[0][1]) * INT64_C(2400000);
++        }
++    } else if (s->kind == US_HEART) {
++        uint8_t *r = s->regs[0];
++        if (reg == 6 && (data & 0x40)) {
++            memset(r, 0, 256); r[0xfe] = 0; r[0xff] = 0x11;
++            s->fifo_count = s->fifo_write = s->fifo_read = s->fifo_byte = 0;
++            s->aux_due = now_ns() + INT64_C(1000000);
++        }
++        if (reg == 6 && (data & 8)) { s->due = now_ns() + 16 * INT64_C(1000000); }
++        if (reg == 6 || reg == 7) { s->last_sample = now_ns(); }
++        if (reg == 2) { s->fifo_write = data & 15; s->fifo_count = 0; }
++        if (reg == 4) { s->fifo_read = data & 15; s->fifo_byte = 0; s->fifo_count = 0; }
++        if (reg == 0 || reg == 5 || reg == 0xfe || reg == 0xff) { return 1; }
++        r[reg] = data;
++    }
++    return 0;
++}
++
++static uint16_t thermal_read(M5UnitSensor *s)
++{
++    uint16_t reg = s->pointer;
++    if (reg >= 0x2400 && reg < 0x2400 + 832) { return s->eeprom[reg - 0x2400]; }
++    if (reg >= 0x0400 && reg < 0x0400 + 832) {
++        return s->thermal_latched[reg - 0x0400];
++    }
++    if (reg == 0x800d) { return s->thermal_control; }
++    if (reg == 0x8000) { return (s->thermal_ready ? 8 : 0) | s->thermal_page; }
++    return 0xffff;
++}
++
++static uint8_t sensor_recv(I2CSlave *dev)
++{
++    M5UnitSensor *s = M5_UNIT_SENSOR(dev);
++    unsigned pos = s->read_pos++;
++    uint8_t value = 0xff;
++    s->read_bytes++; s->unit->read_bytes++;
++    sensor_update(s);
++    if (s->kind == US_TVOC || s->kind == US_SONIC) {
++        return pos < s->response_len ? s->response[pos] : 0xff;
++    }
++    if (s->kind == US_THERMAL) {
++        uint16_t word = thermal_read(s);
++        if (pos & 1) { s->pointer++; return word; }
++        return word >> 8;
++    }
++    if (s->kind == US_NCIR) {
++        unsigned reg = s->pointer;
++        uint8_t bytes[5] = { 0x5a << 1, reg, (0x5a << 1) | 1, 0xff, 0xff };
++        if (reg == 6 || reg == 7) {
++            bytes[3] = s->regs[0][reg * 2]; bytes[4] = s->regs[0][reg * 2 + 1];
++        }
++        if (pos < 2) { return bytes[3 + pos]; }
++        return pos == 2 ? crc8(bytes, sizeof(bytes), 7, 0) : 0xff;
++    }
++    uint8_t reg = s->pointer;
++    if (s->kind == US_HEART && reg == 5) {
++        if (!s->fifo_count) { return 0; }
++        uint16_t word = s->fifo[s->fifo_read][s->fifo_byte / 2];
++        value = (s->fifo_byte & 1) ? word : word >> 8;
++        if (++s->fifo_byte == 4) {
++            s->fifo_byte = 0; s->fifo_read = (s->fifo_read + 1) & 15;
++            s->fifo_count--; s->regs[0][4] = s->fifo_read;
++        }
++        return value;
++    }
++    s->pointer++;
++    if (s->kind == US_TOF) {
++        if (reg == 0xff) { return s->page; }
++        if (!s->page && reg >= 0xc0 && reg <= 0xc2 && s->reset_asserted) { return 0; }
++        return s->regs[s->page][reg];
++    }
++    value = s->regs[0][reg];
++    if (s->kind == US_HEART && reg == 0) { s->regs[0][0] = 0; }
++    return value;
++}
++
++static int sensor_event(I2CSlave *dev, enum i2c_event event)
++{
++    M5UnitSensor *s = M5_UNIT_SENSOR(dev);
++    sensor_update(s);
++    if (event == I2C_FINISH && s->kind == US_TVOC && s->read_pos) {
++        /* SGP30 measurement results are consumed once, including short reads. */
++        s->response_len = 0;
++    }
++    if (event == I2C_START_SEND || event == I2C_START_RECV) {
++        s->transactions++; s->unit->transactions++;
++        s->write_pos = s->read_pos = 0;
++        if (s->kind == US_THERMAL && !thermal_configured(s)) { return 1; }
++        if (s->kind == US_TVOC && now_ns() < s->due) { return 1; }
++        if (event == I2C_START_RECV) {
++            if ((s->kind == US_SONIC && (s->pending || !s->response_len)) ||
++                (s->kind == US_TVOC && (s->command_error || now_ns() < s->due || !s->response_len))) {
++                return 1;
++            }
++        }
++    }
++    return 0;
++}
++
++bool m5_unit_sensor_supported(const char *id)
++{
++    static const char *ids[] = { "color", "tof", "ncir", "heart", "tvoc", "ultrasonic-i2c", "thermal" };
++    for (unsigned i = 0; i < G_N_ELEMENTS(ids); i++) {
++        if (!strcmp(id, ids[i])) { return true; }
++    }
++    return false;
++}
++
++void m5_unit_sensor_realize(M5Unit *u, Error **errp)
++{
++    M5UnitSensor *s = M5_UNIT_SENSOR(qdev_new(TYPE_M5_UNIT_SENSOR));
++    uint8_t address = 0;
++    s->unit = u;
++    if (!strcmp(u->unit_id, "color")) {
++        s->kind = US_COLOR; address = 0x29; s->regs[0][0x12] = 0x44;
++        s->regs[0][1] = 0xff;
++        add_number(s, "clear-raw", 0, 1000, 0, 65535, true);
++        add_number(s, "red-raw", 1, 400, 0, 65535, true);
++        add_number(s, "green-raw", 2, 300, 0, 65535, true);
++        add_number(s, "blue-raw", 3, 200, 0, 65535, true);
++    } else if (!strcmp(u->unit_id, "tof")) {
++        s->kind = US_TOF; address = 0x29; tof_reset(s);
++        add_number(s, "distance-mm", 0, 1000, 30, 2000, true);
++    } else if (!strcmp(u->unit_id, "ncir")) {
++        s->kind = US_NCIR; address = 0x5a;
++        add_number(s, "ambient-c", 0, 25, -40, 125, false);
++        add_number(s, "object-c", 1, 32, -70, 380, false);
++    } else if (!strcmp(u->unit_id, "heart")) {
++        s->kind = US_HEART; address = 0x57; s->regs[0][0xff] = 0x11;
++        s->regs[0][0] = 1; s->last_sample = now_ns();
++        add_number(s, "ir-sample", 0, 0, 0, 65535, true);
++        add_number(s, "red-sample", 1, 0, 0, 65535, true);
++    } else if (!strcmp(u->unit_id, "tvoc")) {
++        s->kind = US_TVOC; address = 0x58;
++        add_number(s, "eco2-ppm", 0, 400, 400, 60000, true);
++        add_number(s, "tvoc-ppb", 1, 0, 0, 60000, true);
++        add_number(s, "raw-h2", 2, 20000, 0, 65535, true);
++        add_number(s, "raw-ethanol", 3, 20000, 0, 65535, true);
++    } else if (!strcmp(u->unit_id, "ultrasonic-i2c")) {
++        s->kind = US_SONIC; address = 0x57;
++        add_number(s, "distance-mm", 0, 1000, 20, 4500, false);
++    } else if (!strcmp(u->unit_id, "thermal")) {
++        s->kind = US_THERMAL; address = 0x33;
++        object_property_add(OBJECT(u), "raw-fixture-ready", "bool", get_configured, NULL, NULL, s);
++        object_property_add(OBJECT(u), "control-word", "uint16", thermal_control, thermal_control, NULL, s);
++        const char *props[] = { "eeprom-hex", "frame0-hex", "frame1-hex" };
++        for (unsigned i = 0; i < G_N_ELEMENTS(props); i++) {
++            object_property_add(OBJECT(u), props[i], "str", thermal_fixture, thermal_fixture, NULL, s);
++        }
++    } else {
++        error_setg(errp, "unknown external I2C sensor %s", u->unit_id);
++        object_unref(OBJECT(s)); return;
++    }
++    object_property_add_child(OBJECT(u), "chip", OBJECT(s));
++    struct { const char *name; uint64_t *value; } counts[] = {
++        { "transactions", &s->transactions }, { "read-bytes", &s->read_bytes },
++        { "written-bytes", &s->written_bytes }, { "samples-generated", &s->samples },
++        { "crc-errors", &s->crc_errors },
++    };
++    for (unsigned i = 0; i < G_N_ELEMENTS(counts); i++) {
++        object_property_add(OBJECT(s), counts[i].name, "uint64", get_count, NULL, NULL, counts[i].value);
++    }
++    qdev_prop_set_uint8(DEVICE(s), "address", address);
++    i2c_slave_realize_and_unref(I2C_SLAVE(s), u->bus, errp);
++}
++
++static void sensor_class_init(ObjectClass *klass, void *data)
++{
++    I2CSlaveClass *k = I2C_SLAVE_CLASS(klass);
++    k->event = sensor_event; k->send = sensor_send; k->recv = sensor_recv;
++}
++
++static const TypeInfo sensor_type = {
++    .name = TYPE_M5_UNIT_SENSOR,
++    .parent = TYPE_I2C_SLAVE,
++    .instance_size = sizeof(M5UnitSensor),
++    .class_init = sensor_class_init,
++};
++
++static void sensor_register_types(void)
++{
++    type_register_static(&sensor_type);
++}
++type_init(sensor_register_types)

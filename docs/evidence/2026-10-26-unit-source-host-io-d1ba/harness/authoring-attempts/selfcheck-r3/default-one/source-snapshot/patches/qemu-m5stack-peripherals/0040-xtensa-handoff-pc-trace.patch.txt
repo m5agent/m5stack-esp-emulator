@@ -1,0 +1,94 @@
+--- a/target/xtensa/helper.h
++++ b/target/xtensa/helper.h
+@@ -8,6 +8,7 @@
+ DEF_HELPER_3(native_hci_send_packet, void, env, i32, i32)
+ DEF_HELPER_1(native_hci_semaphore_take_bypass, void, env)
+ DEF_HELPER_2(native_hci_trace_pc, void, env, i32)
++DEF_HELPER_2(handoff_pc_trace, void, env, i32)
+ DEF_HELPER_2(test_ill_retw, void, env, i32)
+ DEF_HELPER_2(test_underflow_retw, void, env, i32)
+ DEF_HELPER_2(retw, void, env, i32)
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -153,6 +153,22 @@
+     }
+ }
+ 
++void HELPER(handoff_pc_trace)(CPUXtensaState *env, uint32_t pc)
++{
++    uint32_t prid = env->sregs[PRID];
++
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=%d pc=%08" PRIx32
++            " component=cpu event=pc-trace"
++            " a=%08" PRIx32 " b=%08" PRIx32
++            " c=%08" PRIx32 " d=%08" PRIx32 "\n",
++            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
++            env_cpu(env)->cpu_index, pc, prid, env->sregs[PS],
++            env->sregs[INTENABLE], env->sregs[INTSET]);
++    fflush(stderr);
++}
++
+ void HELPER(update_ccount)(CPUXtensaState *env)
+ {
+     XtensaCPU *cpu = env_archcpu(env);
+--- a/target/xtensa/translate.c
++++ b/target/xtensa/translate.c
+@@ -1134,6 +1134,45 @@
+     tcg_gen_insn_start(dcbase->pc_next);
+ }
+ 
++static bool xtensa_handoff_pc_trace_match(uint32_t pc)
++{
++    static uint32_t trace_pcs[32];
++    static unsigned int trace_pc_count;
++    static bool initialized;
++
++    if (!initialized) {
++        const char *value = getenv("M5SW_XTENSA_PC_TRACE");
++
++        if (value) {
++            gchar **parts = g_strsplit(value, ",", -1);
++
++            for (unsigned int i = 0;
++                 parts[i] && trace_pc_count < ARRAY_SIZE(trace_pcs); ++i) {
++                char *end = NULL;
++                char *token = g_strstrip(parts[i]);
++                unsigned long long address;
++
++                if (!*token) {
++                    continue;
++                }
++                address = strtoull(token, &end, 0);
++                if (end && !*end) {
++                    trace_pcs[trace_pc_count++] = address;
++                }
++            }
++            g_strfreev(parts);
++        }
++        initialized = true;
++    }
++
++    for (unsigned int i = 0; i < trace_pc_count; ++i) {
++        if (trace_pcs[i] == pc) {
++            return true;
++        }
++    }
++    return false;
++}
++
+ static void xtensa_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
+ {
+     DisasContext *dc = container_of(dcbase, DisasContext, base);
+@@ -1192,6 +1231,10 @@
+             break;
+         }
+     }
++    if (xtensa_handoff_pc_trace_match(dc->pc)) {
++        gen_helper_handoff_pc_trace(
++            tcg_env, tcg_constant_i32(dc->pc));
++    }
+ 
+     /* These two conditions only apply to the first insn in the TB,
+        but this is the first TranslateOps hook that allows exiting.  */

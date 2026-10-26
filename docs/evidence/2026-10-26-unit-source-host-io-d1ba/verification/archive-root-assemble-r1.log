@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/archive_unit_source_host_io_20261026.py", line 595, in <module>
+    main()
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/archive_unit_source_host_io_20261026.py", line 569, in main
+    report = audit(root, archive, check_manifest=False)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/archive_unit_source_host_io_20261026.py", line 469, in audit
+    inspect(path.read_bytes(), name)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/archive_unit_source_host_io_20261026.py", line 455, in inspect
+    inspect(archive_zip.read(member), locator + '!' + member.filename, True)
+  File "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/archive_unit_source_host_io_20261026.py", line 462, in inspect
+    text = raw.decode('utf-8')
+           ^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 15: invalid start byte

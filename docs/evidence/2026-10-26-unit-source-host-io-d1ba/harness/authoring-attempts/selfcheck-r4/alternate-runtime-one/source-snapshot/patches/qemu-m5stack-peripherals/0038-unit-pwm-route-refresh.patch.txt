@@ -1,0 +1,118 @@
+diff --git a/hw/gpio/esp32_gpio.c b/hw/gpio/esp32_gpio.c
+--- a/hw/gpio/esp32_gpio.c
++++ b/hw/gpio/esp32_gpio.c
+@@ -18,6 +18,7 @@
+ #include "hw/irq.h"
+ #include "hw/qdev-properties.h"
+ #include "hw/gpio/esp32_gpio.h"
++#include "hw/misc/esp32_ledc.h"
+ #include "../m5stopwatch/m5stopwatch.h"
+ 
+ 
+@@ -269,7 +270,14 @@
+         break;
+     default:
+         if (addr < sizeof(g_regs)) {
++            uint32_t previous = g_regs[addr / 4];
++            unsigned output_base = g_gpio_s3 ? 0x554 : 0x530;
+             g_regs[addr / 4] = value;
++            if (addr >= output_base &&
++                addr < output_base + (g_gpio_s3 ? 49 : 40) * 4 &&
++                ((previous ^ (uint32_t)value) & 0x3ff)) {
++                esp32_ledc_gpio_route_changed(g_gpio_s3);
++            }
+             /*
+              * GPIO_PIN0_REG starts at 0x74 on ESP32-S3.  M5GFX's
+              * pinMode(input*) uses gpio_ll_od_enable(), which leaves the
+diff --git a/hw/m5stopwatch/m5_unit_gpio.c b/hw/m5stopwatch/m5_unit_gpio.c
+--- a/hw/m5stopwatch/m5_unit_gpio.c
++++ b/hw/m5stopwatch/m5_unit_gpio.c
+@@ -192,7 +192,8 @@
+     double percent = resolution ? MIN(100, (duty >> 4) * 100.0 / (1u << resolution)) : 0;
+     if (!(conf & BIT(2)) || (timer & (BIT(22) | BIT(23)))) { percent = 0; }
+     for (GPIOUnit *g = gpio_units; g; g = g->next) {
+-        if ((!strcmp(g->unit->unit_id, "fan") || !strcmp(g->unit->unit_id, "buzzer")) &&
++        if (g->s3 == s3 &&
++            (!strcmp(g->unit->unit_id, "fan") || !strcmp(g->unit->unit_id, "buzzer")) &&
+             esp32_gpio_matrix_out_signal(g->unit->yellow, s3) == signal) {
+             if (g->frequency != frequency || g->duty != percent) { g->unit->output_transitions++; }
+             g->frequency = frequency; g->duty = percent; g->pwm_signal = signal;
+diff --git a/hw/misc/esp32_ledc.c b/hw/misc/esp32_ledc.c
+--- a/hw/misc/esp32_ledc.c
++++ b/hw/misc/esp32_ledc.c
+@@ -8,6 +8,9 @@
+ 
+ #define ESP32_LEDC_REGS_SIZE (A_LEDC_CONF_REG + 4)
+ 
++static QLIST_HEAD(, Esp32LEDCState) ledc_devices =
++    QLIST_HEAD_INITIALIZER(ledc_devices);
++
+ static void ledc_observe(Esp32LEDCState *s)
+ {
+     for (unsigned channel = 0; channel < (s->esp32s3_layout ? 8 : 16); channel++) {
+@@ -16,6 +19,19 @@
+         m5_unit_pwm_observe(s->esp32s3_layout, channel,
+             s->timer_conf_reg[timer], s->channel_duty_reg[channel],
+             s->channel_conf0_reg[channel]);
++    }
++}
++
++void esp32_ledc_gpio_route_changed(bool esp32s3_layout)
++{
++    Esp32LEDCState *s;
++
++    QLIST_FOREACH(s, &ledc_devices, route_observer_next) {
++        if (s->esp32s3_layout == esp32s3_layout) {
++            /* Recompute from the live registers; do not replay MMIO writes
++             * or their LED/output side effects. */
++            ledc_observe(s);
++        }
+     }
+ }
+ 
+@@ -168,6 +184,14 @@
+     for (int i = 0; i < ESP32_LEDC_CHANNEL_CNT; i++) {
+         qdev_realize(DEVICE(&s->led[i]), NULL, &error_fatal);
+     }
++    QLIST_INSERT_HEAD(&ledc_devices, s, route_observer_next);
++}
++
++static void esp32_ledc_unrealize(DeviceState *dev)
++{
++    Esp32LEDCState *s = ESP32_LEDC(dev);
++
++    QLIST_REMOVE(s, route_observer_next);
+ }
+ 
+ static void esp32_ledc_init(Object *obj)
+@@ -193,6 +217,7 @@
+ {
+     DeviceClass *dc = DEVICE_CLASS(klass);
+     dc->realize = esp32_ledc_realize;
++    dc->unrealize = esp32_ledc_unrealize;
+     device_class_set_props(dc, esp32_ledc_props);
+ }
+ 
+diff --git a/include/hw/misc/esp32_ledc.h b/include/hw/misc/esp32_ledc.h
+--- a/include/hw/misc/esp32_ledc.h
++++ b/include/hw/misc/esp32_ledc.h
+@@ -4,6 +4,7 @@
+ #include "hw/sysbus.h"
+ #include "hw/registerfields.h"
+ #include "hw/misc/led.h"
++#include "qemu/queue.h"
+ 
+ #define TYPE_ESP32_LEDC "misc.esp32.ledc"
+ #define ESP32_LEDC(obj) OBJECT_CHECK(Esp32LEDCState, (obj), TYPE_ESP32_LEDC)
+@@ -21,7 +22,11 @@
+     uint32_t conf_reg;
+     bool esp32s3_layout;
+     LEDState led[ESP32_LEDC_CHANNEL_CNT];
++    QLIST_ENTRY(Esp32LEDCState) route_observer_next;
+ } Esp32LEDCState;
++
++/* Observe existing register state after a GPIO matrix output-route change. */
++void esp32_ledc_gpio_route_changed(bool esp32s3_layout);
+ 
+ REG32(LEDC_CONF_REG, 0x190)
+ 

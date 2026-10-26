@@ -61,9 +61,17 @@ eFuse 或生产 key。
 
 ## 当前执行顺序
 
-按最新用户优先级，`UNIT-01` 已具备 CoreS3 选定场景及三主机首批 Unit 的
-UIFlow 源码 API→可见 session→实时读写控制闭环，范围与复现入口见
-[源码 API 指南](unit-agent-api.md)。下一步扩展这三款主机剩余 Unit 的实际
+最新用户场景为AIFlow实时编程/实时预览，`UNIT-01`下一块优先补预览执行闭环：
+先修provision/stop取消fence，再做逻辑Preview/不可变Revision/Run与快速Flash准备、
+统一帧/事件分发，随后验证同guest代码传输。当前source API可支持完整代码后的
+新session预览，不能承诺同guest热部署或低秒级SLA；量化证据、拟定契约及验收见
+[AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
+checkpoint/artifact snapshot/virtual target也需衔接；尚未实现新接口或变更部署。
+三主机HUB数字token换行按`UNIT-HOST-23`单独改善，保留既有controller PASS。
+
+`UNIT-01` 已具备 CoreS3 27种选定场景与三主机各11种
+场景的源码API→可见session→实时读写控制闭环；新增24组合已完成，范围与入口见
+[源码 API 指南](unit-agent-api.md)。预览API闭环之后的Unit支线包括这三款主机剩余 Unit 的实际
 源码 API 执行，并解决这些主机的 ADC app calibration/ADC2 oracle 与 Thermal
 fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、原 Buzzer、
 完整 PWM 周期语义与矩阵命令记录。初始化 route 已修复、新完整矩阵已通过，
@@ -114,7 +122,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
-| `UNIT-01` | 进行中 | 其它三款准入主机剩余 Unit 的实际源码 API 执行、三主机 IO 的 ADC app calibration/ADC2 oracle 与 Thermal fixture、新 HUB 拓扑、原 IR GC 长期风险、原 Buzzer、完整 PWM 周期语义、矩阵命令记录、Heart 零值暂态/生理算法和视觉缺口 | 新固件重新验证；逐型号同 guest 读写、Web 输入/输出、可见 session 和 evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有 UI 状态；主机问题单独记录，不以诊断、custom guest 或桥契约替代原固件结论；真机同路径另验 |
+| `UNIT-01` | 进行中 | AIFlow预览的取消fence、Preview/Revision/Run、快速准备及实时分发；其它三款准入主机剩余 Unit 的实际源码 API 执行、三主机 IO 的 ADC app calibration/ADC2 oracle 与 Thermal fixture、新 HUB 拓扑、原 IR GC 长期风险、原 Buzzer、完整 PWM 周期语义、矩阵命令记录、Heart 零值暂态/生理算法和视觉缺口 | 新固件重新验证；逐型号同 guest 读写、Web 输入/输出、可见 session 和 evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有 UI 状态；主机问题单独记录，不以诊断、custom guest 或桥契约替代原固件结论；真机同路径另验 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
 ## P0：Core2 legacy UIFlow 运行时

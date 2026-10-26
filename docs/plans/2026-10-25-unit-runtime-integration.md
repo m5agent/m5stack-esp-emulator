@@ -178,3 +178,17 @@ mutable Flash hash变化均如实保留，最终Python源码与输入冻结一�
 详见[本块证据](../evidence/2026-10-26-unit-pwm-route-d1ba/README.md)。外部
 agent-work-logs继续 `SKIPPED_BY_USER`。本块提交后再次fetch/merge，再按新HEAD
 准备三主机其余IO源码会话；此前Fan3证据与后续21例分批记录。
+
+PWM块 `0a6a9a2` 后已正式fetch/merge最新origin/main@f206175，结果Already up
+to date、工作树干净。随后全新准备rest21，与Fan3组成24源码IO会话，八种×三
+主机全部PASS；两个准确HEAD和相同481依赖字节分别保留，不假称同HEAD。
+19caller/原驱动/host与IO断言、fresh UART/实际Web/controller/source-pin/PID、
+ZIP-before-stop/history/Flash/idle通过；具体可读性与两间接依赖精确omission见
+[本批证据](../evidence/2026-10-26-unit-source-host-io-d1ba/README.md)。外部日志仍SKIPPED_BY_USER。下一步
+继续剩余传感器/控制器源码场景、ADC/Thermal门禁、原IR/Buzzer与视觉固定版本
+导入；不关闭整个UNIT-01或推及真机。
+
+按最新用户的AIFlow实时编程/预览场景，后续优先级已转入API执行闭环，详见
+[API评估计划](2026-10-26-aiflow-live-preview-api.md)。当前仅评估与host取消竞态
+复现完成，新Preview/Revision/Run/stream与同guest部署尚未实现；实际队列仍以
+Backlog为准。三HUB数字token拆行另记UNIT-HOST-23，取消竞态记UNIT-HOST-24。

@@ -1,0 +1,36 @@
+From 4f5ebd19a9d352bc92a241fa8f8acd6ee90909d9 Mon Sep 17 00:00:00 2001
+From: m5agent <329351612+m5agent@users.noreply.github.com>
+Date: Mon, 26 Oct 2026 02:10:00 +0800
+Subject: [PATCH] target/xtensa: arm an equal CCOMPARE for the next tick
+
+A timer ISR can legitimately write CCOMPARE equal to the current CCOUNT
+while catching up in the final equal-cycle window.  The unsigned
+subtraction then wraps to 2^32 ticks, deferring the next timer interrupt
+by about 26.8 seconds on the ESP32 and starving the guest tick until the
+interrupt watchdog resets the system.
+
+Treat an equal deadline as due on the next cycle.  Preserve the existing
+32-bit wraparound interpretation for every other delta and do not add a
+catch-up path.
+
+diff --git a/target/xtensa/op_helper.c b/target/xtensa/op_helper.c
+--- a/target/xtensa/op_helper.c
++++ b/target/xtensa/op_helper.c
+@@ -65,6 +65,14 @@ void HELPER(update_ccompare)(CPUXtensaState *env, uint32_t i)
+     qatomic_and(&env->sregs[INTSET],
+                ~(1u << env->config->timerint[i]));
+     HELPER(update_ccount)(env);
+-    dcc = (uint64_t)(env->sregs[CCOMPARE + i] - env->sregs[CCOUNT] - 1) + 1;
++    uint32_t delta = env->sregs[CCOMPARE + i] - env->sregs[CCOUNT];
++
++    /*
++     * CCOMPARE == CCOUNT is a valid write when a timer ISR catches up during
++     * the final equal-cycle window. The next CCOUNT tick satisfies the match;
++     * treating zero as an underflow defers the timer by 2^32 ticks and can
++     * starve the guest tick ISR until the interrupt watchdog reset.
++     */
++    dcc = delta ? delta : 1;
+     timer_mod(env->ccompare[i].timer,
+               env->ccount_time + clock_ticks_to_ns(cpu->clock, dcc));
+-- 
+2.39.5

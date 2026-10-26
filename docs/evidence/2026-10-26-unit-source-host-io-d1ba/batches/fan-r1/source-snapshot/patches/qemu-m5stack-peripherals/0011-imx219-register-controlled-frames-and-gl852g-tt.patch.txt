@@ -1,0 +1,601 @@
+--- a/hw/m5stopwatch/m5stopwatch.h
++++ b/hw/m5stopwatch/m5stopwatch.h
+@@ -39,6 +39,26 @@
+     uint8_t (*transfer)(void *opaque, uint8_t tx);
+ } M5SpiSlaveOps;
+ 
++typedef struct M5Imx219FrameConfig {
++    bool available;
++    bool streaming;
++    uint32_t width;
++    uint32_t height;
++    uint32_t lanes;
++    uint32_t bpp;
++    uint32_t orientation;
++    uint32_t exposure;
++    uint32_t analog_gain;
++    uint32_t digital_gain;
++    uint32_t test_pattern;
++    uint32_t test_color[4];
++    uint64_t frame_interval_ns;
++    uint32_t frame_count;
++} M5Imx219FrameConfig;
++
++bool m5sw_imx219_frame_config(M5Imx219FrameConfig *config);
++void m5sw_imx219_note_frame(void);
++
+ typedef enum {
+     M5_BOARD_NONE = 0,
+     M5_BOARD_STOPWATCH,
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -122,6 +122,7 @@
+     uint16_t reg16;
+     uint8_t reg16_addr_bytes;
+     uint16_t reg16_read_index;
++    uint32_t imx219_frame_count;
+ } M5swI2CDev;
+ 
+ OBJECT_DECLARE_SIMPLE_TYPE(M5swI2CDev, M5SW_I2C_DEV)
+@@ -144,11 +145,88 @@
+ static M5swI2CDev *g_keyboard;
+ static M5swI2CDev *g_aw9523;
+ static M5swI2CDev *g_bq27220;
++static M5swI2CDev *g_imx219;
+ static uint8_t g_key_events[16];
+ static unsigned g_key_event_head;
+ static unsigned g_key_event_count;
+ static uint8_t g_plc_keys = 0x07;
++
++static uint16_t imx219_read16(M5swI2CDev *s, uint16_t reg)
++{
++    return ((uint16_t)s->regs16[reg] << 8) | s->regs16[reg + 1];
++}
++
++bool m5sw_imx219_frame_config(M5Imx219FrameConfig *config)
++{
++    M5swI2CDev *s = g_imx219;
++    uint32_t pixel_rate;
++    uint16_t frame_length;
++    uint16_t line_length;
++
++    if (!config) {
++        return false;
++    }
++    memset(config, 0, sizeof(*config));
++    if (!s || s->model != M_IMX219 || !s->regs16) {
++        return false;
++    }
++
++    config->available = true;
++    config->streaming = s->regs16[0x0100] == 0x01;
++    config->width = imx219_read16(s, 0x016c);
++    config->height = imx219_read16(s, 0x016e);
++    config->lanes = s->regs16[0x0114];
++    config->bpp = imx219_read16(s, 0x018c) & 0xff;
++    config->orientation = s->regs16[0x0172] & 0x03;
++    config->exposure = imx219_read16(s, 0x015a);
++    config->analog_gain = s->regs16[0x0157];
++    config->digital_gain = imx219_read16(s, 0x0158);
++    config->test_pattern = imx219_read16(s, 0x0600);
++    for (int i = 0; i < 4; i++) {
++        config->test_color[i] = imx219_read16(s, 0x0602 + i * 2);
++    }
++    config->frame_count = s->imx219_frame_count;
++
++    if (!config->width) {
++        config->width = 640;
++    }
++    if (!config->height) {
++        config->height = 480;
++    }
++    if (!config->lanes) {
++        config->lanes = 2;
++    }
++    if (!config->bpp) {
++        config->bpp = 10;
++    }
++    if (!config->digital_gain) {
++        config->digital_gain = 0x0100;
++    }
++
++    frame_length = imx219_read16(s, 0x0160);
++    line_length = imx219_read16(s, 0x0162);
++    if (!frame_length) {
++        frame_length = 1707;
++    }
++    if (!line_length) {
++        line_length = 0x0d78;
++    }
++    pixel_rate = config->lanes == 0x03 ? 281600000 : 182400000;
++    config->frame_interval_ns =
++        (uint64_t)frame_length * line_length * 1000000000ULL / pixel_rate;
++    if (!config->frame_interval_ns) {
++        config->frame_interval_ns = 33000000ULL;
++    }
++    return true;
++}
+ 
++void m5sw_imx219_note_frame(void)
++{
++    if (g_imx219 && g_imx219->model == M_IMX219) {
++        g_imx219->imx219_frame_count++;
++    }
++}
++
+ static uint8_t aw9523_input_read(M5swI2CDev *s, int bank)
+ {
+     uint8_t config = s->regs[0x04 + bank];
+@@ -1450,6 +1528,92 @@
+ {
+     visit_type_uint8(v, name, (uint8_t *)op, errp);
+ }
++
++enum {
++    IMX219_PROP_STREAMING,
++    IMX219_PROP_CONFIGURED,
++    IMX219_PROP_WIDTH,
++    IMX219_PROP_HEIGHT,
++    IMX219_PROP_LANES,
++    IMX219_PROP_EXPOSURE,
++    IMX219_PROP_ANALOG_GAIN,
++    IMX219_PROP_DIGITAL_GAIN,
++    IMX219_PROP_TEST_PATTERN,
++    IMX219_PROP_FRAME_LENGTH,
++    IMX219_PROP_LINE_LENGTH,
++    IMX219_PROP_FRAME_INTERVAL_MS,
++    IMX219_PROP_FRAME_COUNT,
++};
++
++static void imx219_get_prop(Object *o, Visitor *v, const char *name,
++                            void *opaque, Error **errp)
++{
++    M5swI2CDev *s = M5SW_I2C_DEV(o);
++    M5Imx219FrameConfig config;
++    int64_t value;
++
++    if (!m5sw_imx219_frame_config(&config) || g_imx219 != s) {
++        if (GPOINTER_TO_INT(opaque) == IMX219_PROP_STREAMING ||
++            GPOINTER_TO_INT(opaque) == IMX219_PROP_CONFIGURED) {
++            bool false_value = false;
++            visit_type_bool(v, name, &false_value, errp);
++        } else {
++            value = 0;
++            visit_type_int64(v, name, &value, errp);
++        }
++        return;
++    }
++
++    switch (GPOINTER_TO_INT(opaque)) {
++    case IMX219_PROP_STREAMING:
++        visit_type_bool(v, name, &config.streaming, errp);
++        return;
++    case IMX219_PROP_CONFIGURED: {
++        bool configured = imx219_read16(s, 0x016c) &&
++                          imx219_read16(s, 0x016e);
++        visit_type_bool(v, name, &configured, errp);
++        return;
++    }
++    case IMX219_PROP_WIDTH:
++        value = config.width;
++        break;
++    case IMX219_PROP_HEIGHT:
++        value = config.height;
++        break;
++    case IMX219_PROP_LANES:
++        value = config.lanes;
++        break;
++    case IMX219_PROP_EXPOSURE:
++        value = config.exposure;
++        break;
++    case IMX219_PROP_ANALOG_GAIN:
++        value = config.analog_gain;
++        break;
++    case IMX219_PROP_DIGITAL_GAIN:
++        value = config.digital_gain;
++        break;
++    case IMX219_PROP_TEST_PATTERN:
++        value = config.test_pattern;
++        break;
++    case IMX219_PROP_FRAME_LENGTH:
++        value = imx219_read16(s, 0x0160);
++        break;
++    case IMX219_PROP_LINE_LENGTH:
++        value = imx219_read16(s, 0x0162);
++        break;
++    case IMX219_PROP_FRAME_INTERVAL_MS:
++        value = DIV_ROUND_UP(config.frame_interval_ns, 1000000ULL);
++        break;
++    case IMX219_PROP_FRAME_COUNT:
++        value = config.frame_count;
++        break;
++    default:
++        value = 0;
++        break;
++    }
++    visit_type_int64(v, name, &value, errp);
++}
++
+ static void prop_set_key_event(Object *o, Visitor *v, const char *name,
+                                void *op, Error **errp)
+ {
+@@ -1692,6 +1856,67 @@
+         /* Sony IMX219 chip ID 0x0219, exposed through CCI 16-bit reads. */
+         s->regs16[0x0000] = 0x02;
+         s->regs16[0x0001] = 0x19;
++        s->regs16[0x0157] = 0x00;
++        s->regs16[0x0158] = 0x01;
++        s->regs16[0x0159] = 0x00;
++        s->regs16[0x015a] = 0x06;
++        s->regs16[0x015b] = 0x40;
++        s->regs16[0x0160] = 0x06;
++        s->regs16[0x0161] = 0xab;
++        s->regs16[0x0162] = 0x0d;
++        s->regs16[0x0163] = 0x78;
++        s->regs16[0x016c] = 0x02;
++        s->regs16[0x016d] = 0x80;
++        s->regs16[0x016e] = 0x01;
++        s->regs16[0x016f] = 0xe0;
++        s->regs16[0x0174] = 0x03;
++        s->regs16[0x0175] = 0x03;
++        s->regs16[0x018c] = 0x0a;
++        s->regs16[0x018d] = 0x0a;
++        for (int i = 0; i < 4; i++) {
++            s->regs16[0x0602 + i * 2] = 0x03;
++            s->regs16[0x0603 + i * 2] = 0xff;
++        }
++        g_imx219 = s;
++        object_property_add(OBJECT(s), "streaming", "bool",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_STREAMING));
++        object_property_add(OBJECT(s), "configured", "bool",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_CONFIGURED));
++        object_property_add(OBJECT(s), "sensor-width", "int",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_WIDTH));
++        object_property_add(OBJECT(s), "sensor-height", "int",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_HEIGHT));
++        object_property_add(OBJECT(s), "lanes", "int",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_LANES));
++        object_property_add(OBJECT(s), "exposure", "int",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_EXPOSURE));
++        object_property_add(OBJECT(s), "analog-gain", "int",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_ANALOG_GAIN));
++        object_property_add(OBJECT(s), "digital-gain", "int",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_DIGITAL_GAIN));
++        object_property_add(OBJECT(s), "test-pattern", "int",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_TEST_PATTERN));
++        object_property_add(OBJECT(s), "frame-length", "int",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_FRAME_LENGTH));
++        object_property_add(OBJECT(s), "line-length", "int",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_LINE_LENGTH));
++        object_property_add(OBJECT(s), "frame-interval-ms", "int",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_FRAME_INTERVAL_MS));
++        object_property_add(OBJECT(s), "frame-count", "int",
++                            imx219_get_prop, NULL, NULL,
++                            GINT_TO_POINTER(IMX219_PROP_FRAME_COUNT));
+     } else if (!strcmp(m, "m5ioe1")) {
+         s->model = M_IOE1;
+         s->regs[0x00] = 0x34; s->regs[0x01] = 0x12;   /* UID */
+--- a/hw/misc/bcm2835_unicam.c
++++ b/hw/misc/bcm2835_unicam.c
+@@ -19,6 +19,8 @@
+ #include "qemu/log.h"
+ #include "qemu/module.h"
+ #include "qemu/units.h"
++#include <math.h>
++#include "../m5stopwatch/m5stopwatch.h"
+ 
+ enum {
+     UNICAM_CTRL = 0x000,
+@@ -56,14 +58,84 @@
+                        & (UNICAM_REG(s, UNICAM_ICTL) & 0x3);
+ 
+     qemu_set_irq(s->irq, enabled != 0);
++}
++
++static uint32_t imx219_bayer_value(const M5Imx219FrameConfig *config,
++                                   uint32_t x, uint32_t y)
++{
++    uint32_t color;
++
++    if (!(y & 1)) {
++        color = (x & 1) ? 1 : 0;
++    } else {
++        color = (x & 1) ? 3 : 2;
++    }
++    return config->test_color[color] & 0x03ff;
++}
++
++static uint32_t imx219_pattern_value(const M5Imx219FrameConfig *config,
++                                     uint32_t x, uint32_t y,
++                                     uint32_t frame, uint32_t width,
++                                     uint32_t height)
++{
++    uint32_t pattern = config->test_pattern;
++    uint32_t seed;
++    uint32_t bar;
++
++    switch (pattern) {
++    case 1:
++        return imx219_bayer_value(config, x, y);
++    case 2:
++    case 5:
++    case 6:
++        bar = pattern == 2 ? x * 8 / MAX(width, 1) :
++              x * 16 / MAX(width, 1);
++        if (pattern == 6) {
++            bar = 15 - bar;
++        }
++        return config->test_color[bar & 3] & 0x03ff;
++    case 3:
++        bar = x * 8 / MAX(width, 1);
++        return bar * 0x03ff / 7;
++    case 4:
++        seed = x * 2654435761U ^ y * 2246822519U ^ frame * 3266489917U;
++        seed ^= seed >> 16;
++        seed *= 0x7feb352dU;
++        seed ^= seed >> 15;
++        return seed & 0x03ff;
++    case 7:
++        return x & 0x03ff;
++    case 8:
++        return (~x) & 0x03ff;
++    case 9:
++        seed = x * 747796405U + y * 2891336453U + frame * 277803737U;
++        seed = ((seed >> ((seed >> 28) + 4)) ^ seed) * 277803737U;
++        return (seed >> 22) & 0x03ff;
++    default:
++        return UINT32_MAX;
++    }
++}
++
++static uint32_t imx219_apply_controls(uint32_t value,
++                                      const M5Imx219FrameConfig *config)
++{
++    double analog_db = config->analog_gain * 0.3;
++    double analog = pow(2.0, analog_db / 20.0);
++    double digital = MAX(config->digital_gain, 1U) / 256.0;
++    double exposure = sqrt(MAX(config->exposure, 1U) / 1600.0);
++    double scaled = value * analog * digital * exposure;
++
++    return MIN((uint32_t)lrint(scaled), 0x03ffU);
+ }
+ 
+ static void unicam_fill_frame(BCM2835UnicamState *s, uint8_t *data,
+-                              uint32_t size, uint32_t stride)
++                              uint32_t size, uint32_t stride,
++                              const M5Imx219FrameConfig *config)
+ {
+     uint32_t width = stride / 2;
+     uint32_t height = stride ? size / stride : 0;
+-    uint32_t frame = s->frame_count + s->pattern_seed;
++    uint32_t frame = (config && config->available ? config->frame_count :
++                      s->frame_count) + s->pattern_seed;
+ 
+     if (!width || !height) {
+         for (uint32_t i = 0; i < size; i++) {
+@@ -83,15 +155,39 @@
+         for (uint32_t x = 0; x < width; x++) {
+             uint32_t px = (x * 4 + y * 2 + frame * 17) & 0x3ff;
+             uint32_t block_x = (frame * 23) % MAX(width, 1);
++            uint32_t sx = config && (config->orientation & 0x01) ?
++                          width - 1 - x : x;
++            uint32_t sy = config && (config->orientation & 0x02) ?
++                          height - 1 - y : y;
++            uint32_t pattern_px;
+             bool in_block = x >= block_x && x < block_x + width / 8 + 1 &&
+                             y >= height / 3 && y < height * 2 / 3;
+ 
+-            if (in_block) {
++            pattern_px = config ?
++                imx219_pattern_value(config, sx, sy, frame, width, height) :
++                UINT32_MAX;
++            if (pattern_px != UINT32_MAX) {
++                px = pattern_px;
++            } else if (in_block) {
+                 px = ((x / 16 + y / 16) & 1) ? 0x3ff : 0;
+             }
++            if (config) {
++                px = imx219_apply_controls(px, config);
++            }
+             line[x] = cpu_to_le16(px);
+         }
+     }
++}
++
++static uint64_t unicam_sensor_frame_interval_ns(BCM2835UnicamState *s)
++{
++    M5Imx219FrameConfig config;
++
++    if (m5sw_imx219_frame_config(&config) && config.available &&
++        config.frame_interval_ns) {
++        return config.frame_interval_ns;
++    }
++    return (uint64_t)s->frame_interval_ms * UNICAM_NS_PER_MS;
+ }
+ 
+ static void unicam_frame_start(BCM2835UnicamState *s)
+@@ -103,15 +199,24 @@
+     uint32_t width = stride / 2;
+     uint32_t height = stride ? size / stride : 0;
+     g_autofree uint8_t *frame = NULL;
++    M5Imx219FrameConfig config;
++    bool sensor_available = m5sw_imx219_frame_config(&config);
+ 
+     if (!s->streaming) {
++        return;
++    }
++    if (sensor_available && !config.streaming) {
++        timer_mod_ns(s->frame_timer,
++                     qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL)
++                     + UNICAM_NS_PER_MS);
+         return;
+     }
+ 
+     size = MIN(size, s->max_frame_bytes);
+     if (start && size) {
+         frame = g_malloc0(size);
+-        unicam_fill_frame(s, frame, size, stride);
++        unicam_fill_frame(s, frame, size, stride,
++                          sensor_available ? &config : NULL);
+         if (address_space_write(&s->dma_as, start, MEMTXATTRS_UNSPECIFIED,
+                                 frame, size) != MEMTX_OK) {
+             qemu_log_mask(LOG_GUEST_ERROR,
+@@ -123,6 +228,7 @@
+         s->frame_width = width;
+         s->frame_height = height;
+         s->frame_stride = stride;
++        m5sw_imx219_note_frame();
+     }
+ 
+     UNICAM_REG(s, UNICAM_STA) |= UNICAM_IS;
+@@ -153,7 +259,7 @@
+     s->frame_end_pending = false;
+     timer_mod_ns(s->frame_timer,
+                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL)
+-                 + (uint64_t)s->frame_interval_ms * UNICAM_NS_PER_MS);
++                 + unicam_sensor_frame_interval_ns(s));
+ 
+     if (s->trace) {
+         qemu_log("[unicam] FE frame=%u\n", s->frame_count);
+--- a/hw/usb/dev-hub.c
++++ b/hw/usb/dev-hub.c
+@@ -24,6 +24,7 @@
+ 
+ #include "qemu/osdep.h"
+ #include "qapi/error.h"
++#include "qapi/visitor.h"
+ #include "qemu/timer.h"
+ #include "trace.h"
+ #include "hw/qdev-properties.h"
+@@ -48,6 +49,7 @@
+     uint32_t num_ports;
+     bool port_power;
+     bool high_speed;
++    bool tt_compat;
+     QEMUTimer *port_timer;
+     USBHubPort ports[MAX_PORTS];
+ };
+@@ -243,16 +245,20 @@
+ 
+ static bool usb_hub_port_update(USBHubPort *port)
+ {
++    USBHubState *s = port->port.opaque;
++    bool tt_translated = s->high_speed && s->tt_compat &&
++                         port->port.dev &&
++                         port->port.dev->speed != USB_SPEED_HIGH;
+     bool notify = false;
+ 
+     if (port->port.dev && port->port.dev->attached) {
+         notify = usb_hub_port_set(port, PORT_STAT_CONNECTION);
+-        if (port->port.dev->speed == USB_SPEED_LOW) {
++        if (port->port.dev->speed == USB_SPEED_LOW && !tt_translated) {
+             usb_hub_port_set(port, PORT_STAT_LOW_SPEED);
+         } else {
+             usb_hub_port_clear(port, PORT_STAT_LOW_SPEED);
+         }
+-        if (port->port.dev->speed == USB_SPEED_HIGH) {
++        if (port->port.dev->speed == USB_SPEED_HIGH || tt_translated) {
+             usb_hub_port_set(port, PORT_STAT_HIGH_SPEED);
+         } else {
+             usb_hub_port_clear(port, PORT_STAT_HIGH_SPEED);
+@@ -638,7 +644,26 @@
+     .wakeup = usb_hub_wakeup,
+     .complete = usb_hub_complete,
+ };
++
++static void usb_hub_get_tt_mask(Object *obj, Visitor *v, const char *name,
++                                void *opaque, Error **errp)
++{
++    USBHubState *s = USB_HUB(obj);
++    uint32_t value = 0;
++
++    if (s->high_speed && s->tt_compat) {
++        for (int i = 0; i < s->num_ports; i++) {
++            USBDevice *child = s->ports[i].port.dev;
+ 
++            if (child && child->attached &&
++                child->speed != USB_SPEED_HIGH) {
++                value |= BIT(i);
++            }
++        }
++    }
++    visit_type_uint32(v, name, &value, errp);
++}
++
+ static void usb_hub_realize(USBDevice *dev, Error **errp)
+ {
+     USBHubState *s = USB_HUB(dev);
+@@ -658,6 +683,8 @@
+ 
+     usb_desc_create_serial(dev);
+     usb_desc_init(dev);
++    object_property_add(OBJECT(dev), "tt-active-port-mask", "uint32",
++                        usb_hub_get_tt_mask, NULL, NULL, NULL);
+     s->port_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
+                                  usb_hub_port_update_timer, s);
+     s->intr = usb_ep_get(dev, USB_TOKEN_IN, 1);
+@@ -725,6 +752,7 @@
+     DEFINE_PROP_UINT32("ports", USBHubState, num_ports, 8),
+     DEFINE_PROP_BOOL("port-power", USBHubState, port_power, false),
+     DEFINE_PROP_BOOL("high-speed", USBHubState, high_speed, false),
++    DEFINE_PROP_BOOL("tt-compat", USBHubState, tt_compat, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+--- a/hw/usb/dev-hid.c
++++ b/hw/usb/dev-hid.c
+@@ -43,6 +43,7 @@
+     uint32_t usb_version;
+     char *display;
+     uint32_t head;
++    bool low_speed_only;
+ };
+ 
+ #define TYPE_USB_HID "usb-hid"
+@@ -718,6 +719,10 @@
+ 
+     usb_desc_create_serial(dev);
+     usb_desc_init(dev);
++    if (us->low_speed_only) {
++        dev->speed = USB_SPEED_LOW;
++        dev->speedmask = USB_SPEED_MASK_LOW;
++    }
+     us->intr = usb_ep_get(dev, USB_TOKEN_IN, 1);
+     hid_init(&us->hid, kind, usb_hid_changed);
+     if (us->display && us->hid.s) {
+@@ -797,6 +802,7 @@
+         DEFINE_PROP_UINT32("usb_version", USBHIDState, usb_version, 2),
+         DEFINE_PROP_STRING("display", USBHIDState, display),
+         DEFINE_PROP_UINT32("head", USBHIDState, head, 0),
++        DEFINE_PROP_BOOL("low-speed-only", USBHIDState, low_speed_only, false),
+         DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+@@ -820,6 +826,7 @@
+ 
+ static Property usb_mouse_properties[] = {
+         DEFINE_PROP_UINT32("usb_version", USBHIDState, usb_version, 2),
++        DEFINE_PROP_BOOL("low-speed-only", USBHIDState, low_speed_only, false),
+         DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+@@ -844,6 +851,7 @@
+ static Property usb_keyboard_properties[] = {
+         DEFINE_PROP_UINT32("usb_version", USBHIDState, usb_version, 2),
+         DEFINE_PROP_STRING("display", USBHIDState, display),
++        DEFINE_PROP_BOOL("low-speed-only", USBHIDState, low_speed_only, false),
+         DEFINE_PROP_END_OF_LIST(),
+ };
+ 

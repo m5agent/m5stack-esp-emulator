@@ -12,6 +12,12 @@
 
 ## 一页结论
 
+AIFlow实时编程场景已完成API只读评估：当前可做完整源码后的新session交互预览，
+24个具体source会话创建到探针READY中位约17秒；尚无持久guest代码部署、可靠的
+旧运行取消和实时分发契约。host测试已确定性复现stop后provision继续启动，仍待
+修复；拟定Preview/Revision/Run接口不是当前已实现能力。证据与后续门禁见
+[评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。
+
 项目已经不是单固件 PoC，而是可执行的多设备 virtual-device 平台：
 
 - Device Service 支持 lease、虚拟 Flash、串口、frame/input/QOM、网络故障、
@@ -332,6 +338,18 @@ freeze缺失，保留中途及终态观测，PaperColor RGB的profile命令仅�
 具体改写原因。平台 **652项全通过、零跳过**，四生成检查通过。原Buzzer定时
 回调、完整PWM周期/latch/fade、其它固件及硬件验证仍分别开放。精确来源见
 [PWM修复与回归归档](evidence/2026-10-26-unit-pwm-route-d1ba/README.md)。
+
+三主机后续八种 Unit 的24个实际源码会话现已全部通过：PIR、Dual Button、
+LIMIT、Key、RGB、Fan、RS485、HUB（ENV III/NCIR/TVOC三个leaf）。Fan3在
+`cba4e3c` 执行，其余21例在PWM块提交 `0a6a9a2` 并正式fetch/merge主线后
+全新准备；两批481项依赖清单/字节哈希相同，实际runtime均d1ba/gen12。
+每份19个原caller/driver/config保留，完整IO与host字体/canvas/BMI前后与loop
+断言未减；source-pin、真实Web与GPIO/RMT/LEDC/UART/I2C数据面、新鲜串口
+上下界、直接PID、停止前ZIP及历史/Flash/进程清理通过独审。结合此前9例，
+三主机各有11种选定源码场景，源码 API 指南共60份请求；不转授其它组合、原IR/Buzzer、
+ADC/Thermal准入、运行中hotplug或物理行为。三主机的HUB显示有数字token拆行，原生数值连续性为PARTIAL，
+控制器/串口的精确数值验证单列。取证与可读性范围见
+[24组合归档](evidence/2026-10-26-unit-source-host-io-d1ba/README.md)。
 
 CoreS3 无 DinBase、单层直连 HUB 的紧凑附件布局已加入全尺寸展开与真实端口
 线缆布置。ENV III/ToF/Color 四档场景、手机 Button 输入/聚焦和失败回滚共

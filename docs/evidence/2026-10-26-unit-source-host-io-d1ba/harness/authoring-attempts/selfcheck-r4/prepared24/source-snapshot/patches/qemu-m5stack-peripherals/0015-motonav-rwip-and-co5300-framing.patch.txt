@@ -1,0 +1,139 @@
+--- a/hw/xtensa/esp32s3_clk.c
++++ b/hw/xtensa/esp32s3_clk.c
+@@ -73,6 +73,20 @@
+         case A_SYSTEM_PERIP_RST_EN1:
+             r = s->perip_rst_en1;
+             break;
++        case A_SYSTEM_BT_LPCK_DIV_INT:
++            r = s->bt_lpck_div_int;
++            if (getenv("M5SW_CLK_TRACE")) {
++                fprintf(stderr, "[clk] rd %03" HWADDR_PRIx " -> %08" PRIx64 "\n",
++                        addr, r);
++            }
++            break;
++        case A_SYSTEM_BT_LPCK_DIV_FRAC:
++            r = s->bt_lpck_div_frac;
++            if (getenv("M5SW_CLK_TRACE")) {
++                fprintf(stderr, "[clk] rd %03" HWADDR_PRIx " -> %08" PRIx64 "\n",
++                        addr, r);
++            }
++            break;
+         case A_SYSTEM_CPU_INTR_FROM_CPU_0:
+         case A_SYSTEM_CPU_INTR_FROM_CPU_1:
+         case A_SYSTEM_CPU_INTR_FROM_CPU_2:
+@@ -100,7 +114,9 @@
+         && (addr == A_SYSTEM_PERIP_CLK_EN0
+             || addr == A_SYSTEM_PERIP_CLK_EN1
+             || addr == A_SYSTEM_PERIP_RST_EN0
+-            || addr == A_SYSTEM_PERIP_RST_EN1)) {
++            || addr == A_SYSTEM_PERIP_RST_EN1
++            || addr == A_SYSTEM_BT_LPCK_DIV_INT
++            || addr == A_SYSTEM_BT_LPCK_DIV_FRAC)) {
+         fprintf(stderr, "[clk] wr %03" HWADDR_PRIx " <- %08" PRIx64 "\n",
+                 addr, value);
+     }
+@@ -143,6 +159,18 @@
+                 s->perip_rst_en0 &= ~BIT(9);
+             }
+             break;
++        case A_SYSTEM_BT_LPCK_DIV_INT:
++            s->bt_lpck_div_int = (uint32_t)value & 0xfffU;
++            break;
++        case A_SYSTEM_BT_LPCK_DIV_FRAC:
++            /*
++             * BTDM programs the LP clock source and dividers here, then
++             * immediately reads the register back before returning success.
++             * Preserve the implemented fields so those hardware handshakes
++             * observe the same write/read semantics as the real SoC.
++             */
++            s->bt_lpck_div_frac = (uint32_t)value & 0x1fffffffU;
++            break;
+         case A_SYSTEM_CPU_INTR_FROM_CPU_0:
+         case A_SYSTEM_CPU_INTR_FROM_CPU_1:
+         case A_SYSTEM_CPU_INTR_FROM_CPU_2:
+@@ -194,6 +222,8 @@
+                        (1U << 6) | (1U << 5) | (1U << 4) |
+                        (1U << 3) | (1U << 2) | (1U << 1) |
+                        (1U << 0);
++    s->bt_lpck_div_int = 0xfff;
++    s->bt_lpck_div_frac = BIT(25) | (1U << 12) | 1U;
+ 
+     /* Initialize the IRQs */
+     s->levels = 0;
+--- a/include/hw/xtensa/esp32s3_clk.h
++++ b/include/hw/xtensa/esp32s3_clk.h
+@@ -52,6 +52,8 @@
+     uint32_t perip_clk_en1;
+     uint32_t perip_rst_en0;
+     uint32_t perip_rst_en1;
++    uint32_t bt_lpck_div_int;
++    uint32_t bt_lpck_div_frac;
+ 
+ 
+     /* IRQs for crosscore interrupts */
+--- a/hw/m5stopwatch/esp32s3_phy.c
++++ b/hw/m5stopwatch/esp32s3_phy.c
+@@ -12,6 +12,7 @@
+  * SPDX-License-Identifier: GPL-2.0-or-later
+  */
+ #include "qemu/osdep.h"
++#include "qemu/timer.h"
+ #include "exec/memory.h"
+ #include "m5stopwatch.h"
+ 
+@@ -20,6 +21,13 @@
+ #define PHY_READY_REG  0x4d14
+ #define PHY_READY      (1u << 0)
+ #define PHY_COUNTER_REG 0x607c
++#define PHY_RWIP_CTRL_REG 0x2000
++#define PHY_RWIP_BUSY (1u << 31)
++#define PHY_RWIP_ID_REG 0x2004
++#define PHY_RWIP_ID 0x09001b00U
++#define PHY_RWIP_TIME_REG 0x201c
++#define PHY_RWIP_TIME_MASK 0x0fffffffU
++#define PHY_RWIP_HALF_SLOT_NS 312500ULL
+ 
+ typedef struct M5StopwatchPhyState {
+     uint32_t regs[PHY_SIZE / sizeof(uint32_t)];
+@@ -40,6 +48,23 @@
+         value |= PHY_READY;
+     } else if (addr == PHY_COUNTER_REG) {
+         value = s->counter++;
++    } else if (addr == PHY_RWIP_CTRL_REG) {
++        /*
++         * Firmware starts an RWIP control transfer by setting bit 31 and
++         * polls until the baseband clears it.  The transfer completes
++         * synchronously in this model while the low 31 bits retain state.
++         */
++        value &= ~PHY_RWIP_BUSY;
++    } else if (addr == PHY_RWIP_ID_REG) {
++        value = PHY_RWIP_ID;
++    } else if (addr == PHY_RWIP_TIME_REG) {
++        /*
++         * r_rwip_time_get() starts a sample by setting bit 31 and polls
++         * until the hardware returns the current 28-bit RWIP time with the
++         * busy bit cleared.  BLE time advances in 312.5 us half-slots.
++         */
++        value = (qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) /
++                 PHY_RWIP_HALF_SLOT_NS) & PHY_RWIP_TIME_MASK;
+     }
+     return value;
+ }
+--- a/hw/m5stopwatch/co5300.c
++++ b/hw/m5stopwatch/co5300.c
+@@ -151,6 +151,15 @@
+             s->hdr[s->nbytes++] = b;
+             if (s->nbytes == 4) {
+                 uint8_t op = s->hdr[0], c = s->hdr[2];
++                /*
++                 * M5GFX releases differ in where the 8-bit CO5300 command
++                 * sits inside the QSPI address phase: the validated UIFlow2
++                 * path sends [op, 00, cmd, 00], while MotoNav sends
++                 * [op, cmd, 00, 00].  Accept both wire forms.
++                 */
++                if (!c) {
++                    c = s->hdr[1];
++                }
+                 if (op == 0x02) {
+                     co_command(s, c);
+                 } else if (op == 0x32 || op == 0x12) {

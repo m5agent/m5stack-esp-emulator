@@ -1,0 +1,114 @@
+atoms3r/fan: visible source session 5368ae5747c2406f944665297fa662fb
+atoms3r/fan: PASS 
+sticks3/fan: visible source session def70d6301564f5b969f8e3538f8fa2f
+sticks3/fan: PASS 
+stopwatch/fan: visible source session 33160a60920b49329c6c7038b5677e4c
+stopwatch/fan: PASS 
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "fan",
+      "session_id": "5368ae5747c2406f944665297fa662fb",
+      "status": "PASS",
+      "semantic": {
+        "status": "PASS",
+        "accepted_inputs": 0,
+        "bounded_windows": [],
+        "internal_log_records": 3,
+        "last_internal_counter": 4,
+        "native_readability": "NOT REVIEWED"
+      },
+      "positive_input_binding": {
+        "schema_version": 1,
+        "status": "VERIFIED_OUTPUT_ONLY_ZERO_POSTS",
+        "session_id": "5368ae5747c2406f944665297fa662fb",
+        "unit_id": "fan",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "fbc4080e5c57f146be34a205acd7ed6d39a964b496b84247fd48098d9e197abe",
+        "full_serial_sha256": "3ebe9d204cceffe36c564c422335e82a1c315b3ffe03c03b93b699e40dcc9730",
+        "serial_artifact": "controller/fan/serial.txt",
+        "post_count": 0,
+        "verified_noop_fields": 0,
+        "vectors": []
+      },
+      "browser": {
+        "running_snapshots": 6,
+        "real_posts": 0,
+        "actions": 0
+      },
+      "worker_generation": 12
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "fan",
+      "session_id": "def70d6301564f5b969f8e3538f8fa2f",
+      "status": "PASS",
+      "semantic": {
+        "status": "PASS",
+        "accepted_inputs": 0,
+        "bounded_windows": [],
+        "internal_log_records": 3,
+        "last_internal_counter": 4,
+        "native_readability": "NOT REVIEWED"
+      },
+      "positive_input_binding": {
+        "schema_version": 1,
+        "status": "VERIFIED_OUTPUT_ONLY_ZERO_POSTS",
+        "session_id": "def70d6301564f5b969f8e3538f8fa2f",
+        "unit_id": "fan",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "d4e76232770d840d555b6d8b3f70222429650f6699298566eda5eea7de48052d",
+        "full_serial_sha256": "6e3e21b940ff2d16263c1dfeb256defd05e14f257d2f3ab017d6cf53f90107ca",
+        "serial_artifact": "controller/fan/serial.txt",
+        "post_count": 0,
+        "verified_noop_fields": 0,
+        "vectors": []
+      },
+      "browser": {
+        "running_snapshots": 6,
+        "real_posts": 0,
+        "actions": 0
+      },
+      "worker_generation": 12
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "fan",
+      "session_id": "33160a60920b49329c6c7038b5677e4c",
+      "status": "PASS",
+      "semantic": {
+        "status": "PASS",
+        "accepted_inputs": 0,
+        "bounded_windows": [],
+        "internal_log_records": 3,
+        "last_internal_counter": 4,
+        "native_readability": "NOT REVIEWED"
+      },
+      "positive_input_binding": {
+        "schema_version": 1,
+        "status": "VERIFIED_OUTPUT_ONLY_ZERO_POSTS",
+        "session_id": "33160a60920b49329c6c7038b5677e4c",
+        "unit_id": "fan",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "74cabc9f4d7877d1fd3251034a5fda82ce2bed41404c2cfb71a861b61d33e554",
+        "full_serial_sha256": "220691895fa62d6fe23a444beeeea07dce624657d853bc252dba18b6cb157176",
+        "serial_artifact": "controller/fan/serial.txt",
+        "post_count": 0,
+        "verified_noop_fields": 0,
+        "vectors": []
+      },
+      "browser": {
+        "running_snapshots": 6,
+        "real_posts": 0,
+        "actions": 0
+      },
+      "worker_generation": 12
+    }
+  ],
+  "scope": "Exact original host IO/config/official driver bytes; complete unchanged validate_io/validate_evidence; actual source API/PID/DOM/HTTP/bounded UART/QOM/ZIP/cleanup. Hardware NOT RUN."
+}

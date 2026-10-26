@@ -1,0 +1,47 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] hw/block/m25p80: support GigaDevice status register 2
+
+GigaDevice GD25Qxx exposes the quad-enable bit in status register 2 bit 1.
+The ESP-IDF QIO boot path reads it with RDSR2 (0x35), writes it with WRSR2
+(0x31), then verifies the bit. Without this model support, QIO setup fails
+and firmware that asserts on esp_flash_init_default_chip() reboots at
+startup_funcs.c:118.
+
+---
+ hw/block/m25p80.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/hw/block/m25p80.c b/hw/block/m25p80.c
+index 46dbe7c..9f6cd57 100644
+--- a/hw/block/m25p80.c
++++ b/hw/block/m25p80.c
+@@ -835,6 +835,7 @@ static void complete_collecting_data(Flash *s)
+     case WRSR2:
+         switch (get_man(s)) {
+         case MAN_WINBOND:
++        case MAN_GIGADEVICE:
+             s->quad_enable = !!(s->data[0] & 0x02);
+             break;
+         default:
+@@ -1321,6 +1322,7 @@ static void decode_new_cmd(Flash *s, uint32_t value)
+ 
+         switch (get_man(s)) {
+         case MAN_WINBOND:
++        case MAN_GIGADEVICE:
+             s->needed_bytes = 1;
+             s->state = STATE_COLLECTING_DATA;
+             s->pos = 0;
+@@ -1505,6 +1507,13 @@ static void decode_new_cmd(Flash *s, uint32_t value)
+             s->len = 1;
+             s->state = STATE_READING_DATA;
+             break;
++        case MAN_GIGADEVICE:
++            /* GD25Qxx status register 2 bit 1 is the quad-enable bit. */
++            s->data[0] = (!!s->quad_enable) << 1;
++            s->pos = 0;
++            s->len = 1;
++            s->state = STATE_READING_DATA;
++            break;
+         default:
+             break;
+         }

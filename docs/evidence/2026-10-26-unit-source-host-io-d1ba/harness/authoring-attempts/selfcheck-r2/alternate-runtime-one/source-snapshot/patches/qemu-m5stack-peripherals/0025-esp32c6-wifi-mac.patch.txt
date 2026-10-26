@@ -1,0 +1,918 @@
+diff -ruN a/hw/misc/esp32c6_wifi.c b/hw/misc/esp32c6_wifi.c
+--- a/hw/misc/esp32c6_wifi.c	1970-01-01 08:00:00.000000000 +0800
++++ b/hw/misc/esp32c6_wifi.c	2026-10-23 16:02:59.998236202 +0800
+@@ -0,0 +1,792 @@
++/*
++ * ESP32-C6 WiFi MAC, DMA and QEMU NIC model.
++ *
++ * The model exposes the register windows used by the stock UIFlow2/ESP-IDF
++ * driver, connects TX/RX descriptor rings to an open virtual access point,
++ * and translates 802.11 data frames to a QEMU network backend.
++ */
++#include "qemu/osdep.h"
++#include "qemu/module.h"
++#include "qemu/timer.h"
++#include "hw/irq.h"
++#include "hw/qdev-properties.h"
++#include "hw/misc/esp32c6_wifi.h"
++#include "exec/address-spaces.h"
++
++#define C6_WIFI_IRQ_TX_DONE 0x00000080u
++#define C6_WIFI_IRQ_RX_DONE 0x00004000u
++#define C6_WIFI_RX_CTRL_LEN 92
++#define C6_WIFI_AP_MAC { 0x10, 0x01, 0x00, 0xc4, 0x0a, 0x50 }
++
++static bool esp32c6_wifi_queue_rx(Esp32C6WifiState *s,
++                                  const uint8_t *frame, size_t length)
++{
++    uint8_t next = (s->rx_queue_tail + 1) % ARRAY_SIZE(s->rx_queue);
++    Esp32C6WifiPendingFrame *pending;
++
++    if (next == s->rx_queue_head || length > 1600) {
++        return false;
++    }
++    pending = &s->rx_queue[s->rx_queue_tail];
++    pending->length = length;
++    memcpy(pending->data, frame, length);
++    s->rx_queue_tail = next;
++    if (s->beacon_timer) {
++        timer_mod(s->beacon_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 5 * SCALE_MS);
++    }
++    return true;
++}
++
++static size_t esp32c6_wifi_build_probe_response(uint8_t *frame,
++                                                const uint8_t *station)
++{
++    static const uint8_t ap_mac[] = C6_WIFI_AP_MAC;
++    const char ssid[] = "myssid";
++    uint32_t now = qemu_clock_get_us(QEMU_CLOCK_VIRTUAL);
++    size_t length = 36;
++
++    memset(frame, 0, 128);
++    frame[0] = 0x50;
++    memcpy(frame + 4, station, 6);
++    memcpy(frame + 10, ap_mac, 6);
++    memcpy(frame + 16, ap_mac, 6);
++    frame[24] = now;
++    frame[25] = now >> 8;
++    frame[26] = now >> 16;
++    frame[27] = now >> 24;
++    frame[32] = 100;
++    frame[34] = 1;
++    frame[36] = 0;
++    frame[37] = sizeof(ssid) - 1;
++    memcpy(frame + 38, ssid, sizeof(ssid) - 1);
++    length += 2 + sizeof(ssid) - 1;
++    frame[length++] = 1;
++    frame[length++] = 4;
++    frame[length++] = 0x82;
++    frame[length++] = 0x84;
++    frame[length++] = 0x8b;
++    frame[length++] = 0x96;
++    frame[length++] = 3;
++    frame[length++] = 1;
++    frame[length++] = 1;
++    return length;
++}
++
++static bool wifi_trace_enabled(void)
++{
++    return getenv("M5SW_C6_WIFI_TRACE") != NULL;
++}
++
++static uint64_t esp32c6_wifi_read(void *opaque, hwaddr addr, unsigned size)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++    uint32_t value;
++
++    if (addr == 0) {
++        value = qemu_clock_get_us(QEMU_CLOCK_VIRTUAL);
++    } else {
++        value = s->regs[addr / sizeof(uint32_t)];
++    }
++    if (wifi_trace_enabled() && addr != 0) {
++        fprintf(stderr, "[c6-wifi] rd %05x -> %08x\n",
++                (unsigned)addr, value);
++    }
++    return value;
++}
++
++static void esp32c6_wifi_write(void *opaque, hwaddr addr,
++                              uint64_t value, unsigned size)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++
++    if (wifi_trace_enabled() && addr != 0) {
++        fprintf(stderr, "[c6-wifi] wr %05x <- %08x\n",
++                (unsigned)addr, (unsigned)value);
++    }
++    s->regs[addr / sizeof(uint32_t)] = value;
++}
++
++static const MemoryRegionOps esp32c6_wifi_ops = {
++    .read = esp32c6_wifi_read,
++    .write = esp32c6_wifi_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++};
++
++static uint64_t esp32c6_wifi_phy_read(void *opaque, hwaddr addr,
++                                     unsigned size)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++    uint32_t value = s->phy_regs[addr / sizeof(uint32_t)];
++
++    /*
++     * The C6 PHY treats set/clear transitions in FE_DATA as commands.  The
++     * TX-DC calibration polls bit 22 after starting a calibration with bit 0.
++     * QEMU completes calibration immediately, so expose the done bit as soon
++     * as the start bit is observed.
++     */
++    if (addr == 0x418) {
++        if (value & BIT(0)) {
++            value |= BIT(22);
++        } else {
++            value &= ~BIT(22);
++        }
++    } else if (addr == 0x814) {
++        /*
++         * PWDET reports the SAR state machine values 7 (idle) in bits 16:14.
++         * Calibration and conversion complete synchronously in this model.
++         */
++        value |= 0x1c000;
++    } else if (addr == 0x4a0) {
++        /* IQ estimation completes synchronously. */
++        value |= BIT(16);
++    } else if (addr == 0x0cc) {
++        /* RF frequency updates are instantaneous in this model. */
++        value |= BIT(8);
++    }
++
++    if (wifi_trace_enabled()) {
++        fprintf(stderr, "[c6-wifi-phy] rd %05x -> %08x\n",
++                (unsigned)addr, value);
++    }
++    return value;
++}
++
++static void esp32c6_wifi_phy_write(void *opaque, hwaddr addr,
++                                   uint64_t value, unsigned size)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++
++    if (wifi_trace_enabled()) {
++        fprintf(stderr, "[c6-wifi-phy] wr %05x <- %08x\n",
++                (unsigned)addr, (unsigned)value);
++    }
++    s->phy_regs[addr / sizeof(uint32_t)] = value;
++}
++
++static const MemoryRegionOps esp32c6_wifi_phy_ops = {
++    .read = esp32c6_wifi_phy_read,
++    .write = esp32c6_wifi_phy_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++};
++
++static uint64_t esp32c6_wifi_agc_read(void *opaque, hwaddr addr,
++                                     unsigned size)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++    uint32_t value = s->agc_regs[addr / sizeof(uint32_t)];
++
++    if (wifi_trace_enabled()) {
++        fprintf(stderr, "[c6-wifi-agc] rd %05x -> %08x\n",
++                (unsigned)addr, value);
++    }
++    return value;
++}
++
++static void esp32c6_wifi_agc_write(void *opaque, hwaddr addr,
++                                   uint64_t value, unsigned size)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++
++    if (wifi_trace_enabled()) {
++        fprintf(stderr, "[c6-wifi-agc] wr %05x <- %08x\n",
++                (unsigned)addr, (unsigned)value);
++    }
++    s->agc_regs[addr / sizeof(uint32_t)] = value;
++}
++
++static const MemoryRegionOps esp32c6_wifi_agc_ops = {
++    .read = esp32c6_wifi_agc_read,
++    .write = esp32c6_wifi_agc_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++};
++
++/*
++ * MODEM_SYSCON and the private RF window are ordinary register files for the
++ * host-side WiFi stack.  Firmware uses MODEM_SYSCON to enable the WiFi clocks
++ * and, importantly, to leave scan mode before authentication.  Losing those
++ * reads and writes leaves the stock driver permanently in scan state.
++ */
++static uint64_t esp32c6_wifi_modem_read(void *opaque, hwaddr addr,
++                                        unsigned size)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++    uint32_t value = s->modem_regs[addr / sizeof(uint32_t)];
++
++    if (wifi_trace_enabled()) {
++        fprintf(stderr, "[c6-wifi-modem] rd %05x -> %08x\n",
++                (unsigned)addr, value);
++    }
++    return value;
++}
++
++static void esp32c6_wifi_modem_write(void *opaque, hwaddr addr,
++                                     uint64_t value, unsigned size)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++
++    if (wifi_trace_enabled()) {
++        fprintf(stderr, "[c6-wifi-modem] wr %05x <- %08x\n",
++                (unsigned)addr, (unsigned)value);
++    }
++    s->modem_regs[addr / sizeof(uint32_t)] = value;
++}
++
++static const MemoryRegionOps esp32c6_wifi_modem_ops = {
++    .read = esp32c6_wifi_modem_read,
++    .write = esp32c6_wifi_modem_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++};
++
++static uint64_t esp32c6_wifi_rf_read(void *opaque, hwaddr addr,
++                                     unsigned size)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++    uint32_t value = s->rf_regs[addr / sizeof(uint32_t)];
++
++    if (wifi_trace_enabled()) {
++        fprintf(stderr, "[c6-wifi-rf] rd %05x -> %08x\n",
++                (unsigned)addr, value);
++    }
++    return value;
++}
++
++static void esp32c6_wifi_rf_write(void *opaque, hwaddr addr,
++                                  uint64_t value, unsigned size)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++
++    if (wifi_trace_enabled()) {
++        fprintf(stderr, "[c6-wifi-rf] wr %05x <- %08x\n",
++                (unsigned)addr, (unsigned)value);
++    }
++    s->rf_regs[addr / sizeof(uint32_t)] = value;
++}
++
++static const MemoryRegionOps esp32c6_wifi_rf_ops = {
++    .read = esp32c6_wifi_rf_read,
++    .write = esp32c6_wifi_rf_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++};
++
++static uint64_t esp32c6_wifi_mac_read(void *opaque, hwaddr addr,
++                                     unsigned size)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++    uint32_t value = s->mac_regs[addr / sizeof(uint32_t)];
++
++    if (addr == 0x5c) {
++        value = (value & 0xffff0000) |
++                (uint32_t)s->macaddr[0] |
++                ((uint32_t)s->macaddr[1] << 8) |
++                ((uint32_t)s->macaddr[2] << 16) |
++                ((uint32_t)s->macaddr[3] << 24);
++    } else if (addr == 0x60) {
++        value = (value & 0xffff0000) |
++                (uint32_t)s->macaddr[4] |
++                ((uint32_t)s->macaddr[5] << 8);
++    } else if (addr == 0xc48) {
++        value = s->raw_interrupt;
++    } else if (addr == 0x80 && (value & BIT(0))) {
++        /*
++         * RX_DSCR_RELOAD is a self-clearing hardware status bit.  Reads
++         * observe the request once, then the MAC clears it.
++         */
++        s->mac_regs[addr / sizeof(uint32_t)] &= ~BIT(0);
++        value &= ~BIT(0);
++    }
++
++    /*
++     * MAC reset is acknowledged synchronously.  The HAL writes bit 1 to
++     * MAC_RESET and waits for the completion bit 0.
++     */
++    if (addr == 0xddc && (value & BIT(1))) {
++        value |= BIT(0);
++    }
++
++    if (wifi_trace_enabled()) {
++        fprintf(stderr, "[c6-wifi-mac] rd %05x -> %08x\n",
++                (unsigned)addr, value);
++    }
++    return value;
++}
++
++static void esp32c6_wifi_mac_write(void *opaque, hwaddr addr,
++                                   uint64_t value64, unsigned size)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++    uint32_t value = value64;
++
++    if (wifi_trace_enabled()) {
++        fprintf(stderr, "[c6-wifi-mac] wr %05x <- %08x\n",
++                (unsigned)addr, value);
++        if (addr == 0x84 && value) {
++            uint32_t words[3] = { 0 };
++            uint32_t first[4] = { 0 };
++
++            address_space_read(&address_space_memory, value,
++                               MEMTXATTRS_UNSPECIFIED, words, sizeof(words));
++            fprintf(stderr,
++                    "[c6-wifi-mac] rx head=%08x desc=%08x,%08x,%08x\n",
++                    value, words[0], words[1], words[2]);
++            if (words[1]) {
++                address_space_read(&address_space_memory, words[1],
++                                   MEMTXATTRS_UNSPECIFIED, first,
++                                   sizeof(first));
++                fprintf(stderr,
++                        "[c6-wifi-mac] rx buffer=%08x data=%08x,%08x,%08x,%08x\n",
++                        words[1], first[0], first[1], first[2], first[3]);
++            }
++        }
++    }
++    if (addr == 0x84) {
++        s->rx_ring_head = value;
++        s->rx_dma_ptr = value;
++        timer_mod(s->beacon_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 50 * SCALE_MS);
++    } else if (addr == 0xd6c && (value & 0xc0000000)) {
++        uint32_t descriptor = 0x40800000u | (value & 0x000fffffu);
++        uint32_t words[8] = { 0 };
++        uint8_t tx_data[2048] = { 0 };
++
++        address_space_read(&address_space_memory, descriptor,
++                           MEMTXATTRS_UNSPECIFIED, words, sizeof(words));
++        if (wifi_trace_enabled()) {
++            fprintf(stderr,
++                    "[c6-wifi-mac] TX trigger=%08x descriptor=%08x "
++                    "words=%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x\n",
++                    (unsigned)value, descriptor,
++                    words[0], words[1], words[2], words[3],
++                    words[4], words[5], words[6], words[7]);
++        }
++        if (words[1]) {
++            uint8_t response[256] = { 0 };
++
++            address_space_read(&address_space_memory, words[1],
++                               MEMTXATTRS_UNSPECIFIED, tx_data,
++                               sizeof(tx_data));
++            if (wifi_trace_enabled()) {
++                fprintf(stderr, "[c6-wifi-mac] TX data");
++                for (unsigned i = 0; i < 128; i++) {
++                    fprintf(stderr, " %02x", tx_data[i]);
++                }
++                fprintf(stderr, "\n");
++            }
++
++            {
++                size_t frame_length = ldl_le_p(tx_data);
++                uint8_t *mac = tx_data + 8;
++                uint16_t fc = mac[0] | (mac[1] << 8);
++                unsigned type = (fc >> 2) & 3;
++                unsigned subtype = (fc >> 4) & 0xf;
++
++                if (frame_length > sizeof(tx_data) - 8) {
++                    frame_length = sizeof(tx_data) - 8;
++                }
++                if (!memcmp(mac + 10, "\0\0\0\0\0\0", 6)) {
++                    memcpy(mac + 10, s->macaddr, 6);
++                }
++                if (wifi_trace_enabled()) {
++                    fprintf(stderr,
++                            "[c6-wifi-mac] TX frame type=%u subtype=%u "
++                            "len=%zu\n", type, subtype, frame_length);
++                }
++                if (type == 0 && subtype == 4) {
++                    size_t response_length =
++                        esp32c6_wifi_build_probe_response(response,
++                                                          mac + 10);
++                    esp32c6_wifi_queue_rx(s, response, response_length);
++                } else if (type == 0 && subtype == 11) {
++                    static const uint8_t ap_mac[] = C6_WIFI_AP_MAC;
++
++                    response[0] = 0xb0;
++                    memcpy(response + 4, mac + 10, 6);
++                    memcpy(response + 10, ap_mac, 6);
++                    memcpy(response + 16, ap_mac, 6);
++                    response[26] = 2;
++                    esp32c6_wifi_queue_rx(s, response, 30);
++                } else if (type == 0 && subtype == 0) {
++                    static const uint8_t ap_mac[] = C6_WIFI_AP_MAC;
++
++                    response[0] = 0x10;
++                    memcpy(response + 4, mac + 10, 6);
++                    memcpy(response + 10, ap_mac, 6);
++                    memcpy(response + 16, ap_mac, 6);
++                    response[24] = 1;
++                    response[28] = 1;
++                    response[29] = 0xc0;
++                    response[30] = 1;
++                    response[31] = 4;
++                    response[32] = 0x82;
++                    response[33] = 0x84;
++                    response[34] = 0x8b;
++                    response[35] = 0x96;
++                    s->associated = true;
++                    esp32c6_wifi_queue_rx(s, response, 36);
++                } else if (type == 0 &&
++                           (subtype == 10 || subtype == 12)) {
++                    s->associated = false;
++                } else if (type == 2 && s->associated) {
++                    uint8_t ethernet[1518] = { 0 };
++                    size_t payload_length =
++                        frame_length > 36 ? frame_length - 36 : 0;
++
++                    if (payload_length > sizeof(ethernet) - 14) {
++                        payload_length = sizeof(ethernet) - 14;
++                    }
++                    memcpy(ethernet, mac + 16, 6);
++                    memcpy(ethernet + 6, s->macaddr, 6);
++                    memcpy(ethernet + 12, mac + 30,
++                           payload_length + 2);
++                    ssize_t sent =
++                        qemu_send_packet(qemu_get_queue(s->nic), ethernet,
++                                         payload_length + 14);
++                    if (wifi_trace_enabled()) {
++                        fprintf(stderr,
++                                "[c6-wifi-mac] Ethernet TX len=%zu ret=%zd\n",
++                                payload_length + 14, sent);
++                        if (payload_length + 14 >= 42) {
++                            fprintf(stderr, "[c6-wifi-mac] Ethernet data:");
++                            for (size_t i = 0; i < 42; i++) {
++                                fprintf(stderr, " %02x", ethernet[i]);
++                            }
++                            fprintf(stderr, "\n");
++                        }
++                    }
++                }
++            }
++        }
++        /*
++         * DMA completion is reported through the MAC TX-state registers, not
++         * by the interrupt bit alone.  Queue 2 carries management frames and
++         * slot 0 is the currently used TX descriptor.  Returning zero here
++         * leaves the firmware lmac queue permanently busy after the first
++         * probe request, so it queues Authentication but never programs a
++         * second TX descriptor.
++         */
++        s->mac_regs[0xc34 / sizeof(uint32_t)] |= BIT(0);
++        s->mac_regs[0xcb8 / sizeof(uint32_t)] |= BIT(0);
++        s->raw_interrupt |= C6_WIFI_IRQ_TX_DONE;
++        qemu_irq_raise(s->irq);
++    } else if (addr == 0xc4c) {
++        s->raw_interrupt &= ~value;
++        if (!s->raw_interrupt) {
++            qemu_irq_lower(s->irq);
++        }
++        return;
++    } else if (addr == 0xcb4) {
++        s->mac_regs[0xcb8 / sizeof(uint32_t)] &= ~(value & 0x7ff);
++    }
++    s->mac_regs[addr / sizeof(uint32_t)] = value;
++    if (addr == 0x5c && value) {
++        memcpy(s->macaddr, &value, 4);
++    } else if (addr == 0x60 && (value & 0xffff)) {
++        s->macaddr[4] = value;
++        s->macaddr[5] = value >> 8;
++    }
++}
++
++static const MemoryRegionOps esp32c6_wifi_mac_ops = {
++    .read = esp32c6_wifi_mac_read,
++    .write = esp32c6_wifi_mac_write,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++    .valid.min_access_size = 4,
++    .valid.max_access_size = 4,
++};
++
++static void esp32c6_wifi_beacon_timer(void *opaque)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(opaque);
++    uint8_t packet[C6_WIFI_RX_CTRL_LEN + 1600] = { 0 };
++    uint8_t *frame = packet + C6_WIFI_RX_CTRL_LEN;
++    uint32_t descriptor = s->rx_dma_ptr;
++    uint32_t words[3] = { 0 };
++    uint32_t next = 0;
++    size_t frame_len = 0;
++    size_t total;
++    uint32_t word0;
++    bool queued = false;
++    bool group = false;
++
++    if (!descriptor || s->raw_interrupt) {
++        goto reschedule;
++    }
++    if (address_space_read(&address_space_memory, descriptor,
++                           MEMTXATTRS_UNSPECIFIED, words,
++                           sizeof(words)) != MEMTX_OK) {
++        goto reschedule;
++    }
++    if (!words[1] || !(words[0] & BIT(31))) {
++        goto reschedule;
++    }
++    next = words[2] ? words[2] : s->rx_ring_head;
++
++    if (s->rx_queue_head != s->rx_queue_tail) {
++        Esp32C6WifiPendingFrame *pending =
++            &s->rx_queue[s->rx_queue_head];
++
++        frame_len = pending->length;
++        memcpy(frame, pending->data, frame_len);
++        s->rx_queue_head =
++            (s->rx_queue_head + 1) % ARRAY_SIZE(s->rx_queue);
++        queued = true;
++    } else {
++        static const uint8_t ap_mac[] = C6_WIFI_AP_MAC;
++        const char ssid[] = "myssid";
++        uint32_t now = qemu_clock_get_us(QEMU_CLOCK_VIRTUAL);
++
++        frame[0] = (s->beacon_count & 1) ? 0x50 : 0x80;
++        memset(frame + 4, 0xff, 6);
++        memcpy(frame + 10, ap_mac, 6);
++        memcpy(frame + 16, ap_mac, 6);
++        frame[24] = now;
++        frame[25] = now >> 8;
++        frame[26] = now >> 16;
++        frame[27] = now >> 24;
++        frame[32] = 100;
++        frame[34] = 1;
++        frame_len = 36;
++        frame[37] = sizeof(ssid) - 1;
++        memcpy(frame + 38, ssid, sizeof(ssid) - 1);
++        frame_len += 2 + sizeof(ssid) - 1;
++        frame[frame_len++] = 1;
++        frame[frame_len++] = 4;
++        frame[frame_len++] = 0x82;
++        frame[frame_len++] = 0x84;
++        frame[frame_len++] = 0x8b;
++        frame[frame_len++] = 0x96;
++        frame[frame_len++] = 3;
++        frame[frame_len++] = 1;
++        frame[frame_len++] = 1;
++    }
++    /* FCS is appended to every injected MPDU. */
++    memset(frame + frame_len, 0, 4);
++    frame_len += 4;
++    group = !memcmp(frame + 4, "\xff\0\0\0\0\0", 6);
++
++    packet[0] = 0xdd;
++    packet[1] = 11;
++    packet[3] = group ? 0xf0 : 0x10;
++    packet[11] = group ? 0x80 : 0;
++    packet[12] = qemu_clock_get_us(QEMU_CLOCK_VIRTUAL);
++    packet[13] = qemu_clock_get_us(QEMU_CLOCK_VIRTUAL) >> 8;
++    packet[14] = qemu_clock_get_us(QEMU_CLOCK_VIRTUAL) >> 16;
++    packet[15] = qemu_clock_get_us(QEMU_CLOCK_VIRTUAL) >> 24;
++    packet[20] = 0x9f;
++    packet[21] = 1;
++    packet[39] = 0;
++    packet[84] = frame_len;
++    packet[85] = frame_len >> 8;
++    packet[86] = frame_len - 4;
++    packet[87] = (frame_len - 4) >> 8;
++
++    total = C6_WIFI_RX_CTRL_LEN + frame_len;
++    if ((words[0] & 0x3fff) < total) {
++        goto reschedule;
++    }
++    if (address_space_write(&address_space_memory, words[1],
++                            MEMTXATTRS_UNSPECIFIED, packet,
++                            total) != MEMTX_OK) {
++        goto reschedule;
++    }
++    if (wifi_trace_enabled()) {
++        fprintf(stderr, "[c6-wifi-mac] RX data %s len=%zu:",
++                queued ? "frame" : "beacon", frame_len);
++        for (size_t i = 0; i < MIN(frame_len, 64); i++) {
++            fprintf(stderr, " %02x", frame[i]);
++        }
++        fprintf(stderr, "\n");
++    }
++
++    word0 = (words[0] & 0x3fff) | ((uint32_t)total << 14) | BIT(30);
++    address_space_write(&address_space_memory, descriptor,
++                        MEMTXATTRS_UNSPECIFIED, &word0, sizeof(word0));
++    s->mac_regs[0x8c / sizeof(uint32_t)] = descriptor & 0x000fffff;
++    s->mac_regs[0xc70 / sizeof(uint32_t)] = descriptor & 0xfff00000;
++    s->mac_regs[0x88 / sizeof(uint32_t)] = next;
++    s->rx_dma_ptr = next;
++    s->raw_interrupt |= C6_WIFI_IRQ_RX_DONE;
++    s->beacon_count++;
++    qemu_irq_raise(s->irq);
++    if (wifi_trace_enabled()) {
++        fprintf(stderr,
++                "[c6-wifi-mac] RX %s descriptor=%08x next=%08x "
++                "len=%zu\n", queued ? "frame" : "beacon",
++                descriptor, next, total);
++    }
++
++reschedule:
++    if (s->rx_dma_ptr) {
++        timer_mod(s->beacon_timer,
++                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
++                  (s->rx_queue_head != s->rx_queue_tail ?
++                   5 * SCALE_MS : 50 * SCALE_MS));
++    }
++}
++
++static bool esp32c6_wifi_can_receive(NetClientState *ncs)
++{
++    Esp32C6WifiState *s = qemu_get_nic_opaque(ncs);
++    uint8_t next = (s->rx_queue_tail + 1) % ARRAY_SIZE(s->rx_queue);
++
++    return s->associated && next != s->rx_queue_head;
++}
++
++static ssize_t esp32c6_wifi_receive(NetClientState *ncs,
++                                    const uint8_t *buf, size_t size)
++{
++    Esp32C6WifiState *s = qemu_get_nic_opaque(ncs);
++    static const uint8_t ap_mac[] = C6_WIFI_AP_MAC;
++    uint8_t frame[1600] = { 0 };
++    size_t frame_length;
++    uint16_t sequence;
++
++    if (size < 14 || size > 1518) {
++        return -1;
++    }
++    frame_length = 24 + 6 + size - 12;
++    if (frame_length > sizeof(frame)) {
++        return -1;
++    }
++
++    frame[0] = 0x08;
++    frame[1] = 0x02;
++    frame[2] = 44;
++    memcpy(frame + 4, buf, 6);
++    memcpy(frame + 10, ap_mac, 6);
++    memcpy(frame + 16, buf + 6, 6);
++    sequence = s->sequence++ & 0xfff;
++    frame[22] = sequence << 4;
++    frame[23] = sequence >> 4;
++    frame[24] = 0xaa;
++    frame[25] = 0xaa;
++    frame[26] = 0x03;
++    memcpy(frame + 30, buf + 12, size - 12);
++    if (!esp32c6_wifi_queue_rx(s, frame, frame_length)) {
++        return -1;
++    }
++    if (wifi_trace_enabled()) {
++        fprintf(stderr,
++                "[c6-wifi-mac] Ethernet RX len=%zu -> 802.11 len=%zu\n",
++                size, frame_length);
++    }
++    return size;
++}
++
++static void esp32c6_wifi_cleanup(NetClientState *ncs)
++{
++}
++
++static NetClientInfo esp32c6_wifi_net_info = {
++    .type = NET_CLIENT_DRIVER_NIC,
++    .size = sizeof(NICState),
++    .can_receive = esp32c6_wifi_can_receive,
++    .receive = esp32c6_wifi_receive,
++    .cleanup = esp32c6_wifi_cleanup,
++};
++
++static void esp32c6_wifi_reset_hold(Object *obj, ResetType type)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(obj);
++    static const uint8_t sta_mac[] = { 0x02, 0x00, 0x00, 0x00, 0x00, 0x01 };
++
++    memset(s->regs, 0, sizeof(s->regs));
++    memset(s->phy_regs, 0, sizeof(s->phy_regs));
++    memset(s->agc_regs, 0, sizeof(s->agc_regs));
++    memset(s->mac_regs, 0, sizeof(s->mac_regs));
++    memset(s->modem_regs, 0, sizeof(s->modem_regs));
++    memset(s->rf_regs, 0, sizeof(s->rf_regs));
++    s->raw_interrupt = 0;
++    s->rx_dma_ptr = 0;
++    s->rx_ring_head = 0;
++    s->beacon_count = 0;
++    s->associated = false;
++    s->sequence = 0;
++    s->rx_queue_head = 0;
++    s->rx_queue_tail = 0;
++    memcpy(s->macaddr, sta_mac, sizeof(sta_mac));
++    s->phy_regs[0x0cc / sizeof(uint32_t)] = BIT(8);
++    qemu_irq_lower(s->irq);
++}
++
++static void esp32c6_wifi_realize(DeviceState *dev, Error **errp)
++{
++    Esp32C6WifiState *s = ESP32C6_WIFI(dev);
++    SysBusDevice *sbd = SYS_BUS_DEVICE(dev);
++
++    memory_region_init_io(&s->iomem, OBJECT(dev), &esp32c6_wifi_ops, s,
++                          TYPE_ESP32C6_WIFI, ESP32C6_WIFI_IO_SIZE);
++    memory_region_init_io(&s->phy_iomem, OBJECT(dev),
++                          &esp32c6_wifi_phy_ops, s,
++                          TYPE_ESP32C6_WIFI "-phy",
++                          ESP32C6_WIFI_PHY_IO_SIZE);
++    memory_region_init_io(&s->agc_iomem, OBJECT(dev),
++                          &esp32c6_wifi_agc_ops, s,
++                          TYPE_ESP32C6_WIFI "-agc",
++                          ESP32C6_WIFI_AGC_IO_SIZE);
++    memory_region_init_io(&s->mac_iomem, OBJECT(dev),
++                          &esp32c6_wifi_mac_ops, s,
++                          TYPE_ESP32C6_WIFI "-mac",
++                          ESP32C6_WIFI_MAC_IO_SIZE);
++    memory_region_init_io(&s->modem_iomem, OBJECT(dev),
++                          &esp32c6_wifi_modem_ops, s,
++                          TYPE_ESP32C6_WIFI "-modem",
++                          ESP32C6_WIFI_MODEM_IO_SIZE);
++    memory_region_init_io(&s->rf_iomem, OBJECT(dev), &esp32c6_wifi_rf_ops, s,
++                          TYPE_ESP32C6_WIFI "-rf",
++                          ESP32C6_WIFI_RF_IO_SIZE);
++    sysbus_init_mmio(sbd, &s->iomem);
++    sysbus_init_mmio(sbd, &s->phy_iomem);
++    sysbus_init_mmio(sbd, &s->agc_iomem);
++    sysbus_init_mmio(sbd, &s->mac_iomem);
++    sysbus_init_mmio(sbd, &s->modem_iomem);
++    sysbus_init_mmio(sbd, &s->rf_iomem);
++    sysbus_init_irq(sbd, &s->irq);
++    s->beacon_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL,
++                                   esp32c6_wifi_beacon_timer, s);
++    s->nic = qemu_new_nic(&esp32c6_wifi_net_info, &s->conf,
++                          object_get_typename(OBJECT(s)), dev->id,
++                          &s->reentrancy_guard, s);
++    qemu_format_nic_info_str(qemu_get_queue(s->nic), s->macaddr);
++}
++
++static Property esp32c6_wifi_properties[] = {
++    DEFINE_NIC_PROPERTIES(Esp32C6WifiState, conf),
++    DEFINE_PROP_END_OF_LIST(),
++};
++
++static void esp32c6_wifi_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    ResettableClass *rc = RESETTABLE_CLASS(klass);
++
++    dc->realize = esp32c6_wifi_realize;
++    dc->desc = "ESP32-C6 WiFi MAC";
++    set_bit(DEVICE_CATEGORY_NETWORK, dc->categories);
++    device_class_set_props(dc, esp32c6_wifi_properties);
++    rc->phases.hold = esp32c6_wifi_reset_hold;
++}
++
++static const TypeInfo esp32c6_wifi_info = {
++    .name = TYPE_ESP32C6_WIFI,
++    .parent = TYPE_SYS_BUS_DEVICE,
++    .instance_size = sizeof(Esp32C6WifiState),
++    .class_init = esp32c6_wifi_class_init,
++};
++
++static void esp32c6_wifi_register_types(void)
++{
++    type_register_static(&esp32c6_wifi_info);
++}
++
++type_init(esp32c6_wifi_register_types)
+diff -ruN a/hw/misc/meson.build b/hw/misc/meson.build
+--- a/hw/misc/meson.build	2026-10-23 16:03:00.007792650 +0800
++++ b/hw/misc/meson.build	2026-10-23 16:02:59.991645931 +0800
+@@ -178,6 +178,7 @@
+   'esp32c6_board_i2c.c',
+   'esp32c6_nesso_panel.c',
+   'esp32c6_soft_i2c.c',
++  'esp32c6_wifi.c',
+ ))
+ 
+ system_ss.add(when: 'CONFIG_XTENSA_ESP32S3', if_true: files(
+diff -ruN a/hw/riscv/esp32c6.c b/hw/riscv/esp32c6.c
+--- a/hw/riscv/esp32c6.c	2026-10-23 16:03:00.011283745 +0800
++++ b/hw/riscv/esp32c6.c	2026-10-23 16:02:59.993892896 +0800
+@@ -59,6 +59,7 @@
+ #include "hw/ssi/esp32c6_spi.h"
+ #include "hw/ssi/esp32c3_spi.h"
+ #include "hw/dma/esp32c6_gdma.h"
++#include "hw/misc/esp32c6_wifi.h"
+ 
+ #define ESP32C6_RESET_ADDRESS       0x40000000
+ #define ESP32C6_RESET_GPIO_NAME     "esp32c6.machine.reset_gpio"
+@@ -79,6 +80,7 @@
+     qemu_irq cpu_reset;
+ 
+     DeviceState *eth;
++    DeviceState *wifi;
+     ESP32C6IntMatrixState intmatrix;
+     ESP32C6IntpriState intpri;
+     ESP32C6UARTState uart[ESP32C6_UART_COUNT];
+@@ -487,6 +489,38 @@
+         memory_region_add_subregion_overlap(sys_mem, DR_REG_GPIO_BASE, mr, 0);
+     }
+ 
++    /*
++     * ESP32-C6 WiFi MAC register block. Keep it behind -nic so ordinary
++     * board-only QEMU launches do not instantiate a partial radio model.
++     */
++    {
++        DeviceState *wifi = qemu_create_nic_device(TYPE_ESP32C6_WIFI, true, NULL);
++        if (wifi) {
++            ms->wifi = wifi;
++            sysbus_realize(SYS_BUS_DEVICE(wifi), &error_fatal);
++            memory_region_add_subregion_overlap(
++                sys_mem, 0x600ad000,
++                sysbus_mmio_get_region(SYS_BUS_DEVICE(wifi), 0), 2);
++            memory_region_add_subregion_overlap(
++                sys_mem, 0x600a0000,
++                sysbus_mmio_get_region(SYS_BUS_DEVICE(wifi), 1), 2);
++            memory_region_add_subregion_overlap(
++                sys_mem, 0x600a7000,
++                sysbus_mmio_get_region(SYS_BUS_DEVICE(wifi), 2), 2);
++            memory_region_add_subregion_overlap(
++                sys_mem, 0x600a4000,
++                sysbus_mmio_get_region(SYS_BUS_DEVICE(wifi), 3), 2);
++            memory_region_add_subregion_overlap(
++                sys_mem, 0x600a9000,
++                sysbus_mmio_get_region(SYS_BUS_DEVICE(wifi), 4), 2);
++            memory_region_add_subregion_overlap(
++                sys_mem, 0x600af000,
++                sysbus_mmio_get_region(SYS_BUS_DEVICE(wifi), 5), 2);
++            sysbus_connect_irq(
++                SYS_BUS_DEVICE(wifi), 0,
++                qdev_get_gpio_in(intmatrix_dev, 0));
++        }
++    }
+ 
+     /* LEDC: six channels and four timers using the compact register layout. */
+     {
+diff -ruN a/include/hw/misc/esp32c6_wifi.h b/include/hw/misc/esp32c6_wifi.h
+--- a/include/hw/misc/esp32c6_wifi.h	1970-01-01 08:00:00.000000000 +0800
++++ b/include/hw/misc/esp32c6_wifi.h	2026-10-23 16:02:59.996049029 +0800
+@@ -0,0 +1,49 @@
++#pragma once
++
++#include "hw/sysbus.h"
++#include "net/net.h"
++
++#define TYPE_ESP32C6_WIFI "misc.esp32c6.wifi"
++#define ESP32C6_WIFI(obj) OBJECT_CHECK(Esp32C6WifiState, (obj), TYPE_ESP32C6_WIFI)
++#define ESP32C6_WIFI_IO_SIZE 0x2000
++#define ESP32C6_WIFI_PHY_IO_SIZE 0x2000
++#define ESP32C6_WIFI_AGC_IO_SIZE 0x1000
++#define ESP32C6_WIFI_MAC_IO_SIZE 0x2000
++#define ESP32C6_WIFI_MODEM_IO_SIZE 0x1000
++#define ESP32C6_WIFI_RF_IO_SIZE 0x1000
++
++typedef struct Esp32C6WifiPendingFrame {
++    uint16_t length;
++    uint8_t data[1600];
++} Esp32C6WifiPendingFrame;
++
++typedef struct Esp32C6WifiState {
++    SysBusDevice parent_obj;
++    MemoryRegion iomem;
++    MemoryRegion phy_iomem;
++    MemoryRegion agc_iomem;
++    MemoryRegion mac_iomem;
++    MemoryRegion modem_iomem;
++    MemoryRegion rf_iomem;
++    qemu_irq irq;
++    uint32_t regs[ESP32C6_WIFI_IO_SIZE / sizeof(uint32_t)];
++    uint32_t phy_regs[ESP32C6_WIFI_PHY_IO_SIZE / sizeof(uint32_t)];
++    uint32_t agc_regs[ESP32C6_WIFI_AGC_IO_SIZE / sizeof(uint32_t)];
++    uint32_t mac_regs[ESP32C6_WIFI_MAC_IO_SIZE / sizeof(uint32_t)];
++    uint32_t modem_regs[ESP32C6_WIFI_MODEM_IO_SIZE / sizeof(uint32_t)];
++    uint32_t rf_regs[ESP32C6_WIFI_RF_IO_SIZE / sizeof(uint32_t)];
++    uint32_t raw_interrupt;
++    uint32_t rx_dma_ptr;
++    uint32_t rx_ring_head;
++    uint32_t beacon_count;
++    QEMUTimer *beacon_timer;
++    bool associated;
++    uint16_t sequence;
++    uint8_t macaddr[6];
++    Esp32C6WifiPendingFrame rx_queue[8];
++    uint8_t rx_queue_head;
++    uint8_t rx_queue_tail;
++    NICConf conf;
++    NICState *nic;
++    MemReentrancyGuard reentrancy_guard;
++} Esp32C6WifiState;

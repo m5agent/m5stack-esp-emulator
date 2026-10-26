@@ -1,0 +1,2350 @@
+{
+  "preparedAt": "2026-10-25T13:20:33.030Z",
+  "sourceCommit": "6e6d5e925de80508499c5680897e7084de5a7ee8",
+  "scope": "Factual provenance only; no official reference binaries or MCP source text are included.",
+  "upstreams": {
+    "sticks3": {
+      "url": "https://github.com/MarsTechHAN/sticks3.js",
+      "snapshot": "974ebaa7ff35ad0ed9079211ef21b020cf0b7bcb",
+      "licenseDeclaration": "MIT",
+      "packageMetadata": "licenses/sticks3-upstream-package.json"
+    },
+    "hardware": {
+      "url": "https://github.com/m5stack/M5_Hardware",
+      "snapshot": "e29c139cbc7c80b5ccc5557e5ab8025a7a19a109",
+      "license": "MIT",
+      "notice": "licenses/M5_Hardware-MIT.txt"
+    },
+    "emulator": {
+      "url": "https://github.com/m5agent/m5stack-esp-emulator",
+      "snapshot": "e3c5d089c33397c1948fb611e776d75cb3c20bd8",
+      "license": "MIT",
+      "notice": "licenses/emulator-MIT.txt"
+    }
+  },
+  "products": [
+    {
+      "id": "sticks3",
+      "sku": "K150",
+      "officialDocs": "https://docs.m5stack.com/en/core/StickS3",
+      "reference": {
+        "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_01.webp",
+        "sha256": "04a3f2a9187c1244512e60b62727d2172e21af1d9fb7e5161597b904b2460939"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K150_StickS3/Structures/StickS3.stl",
+          "gitBlob": "5da93e9c27ee78cfc8a3586a8125d2bf2698cfef",
+          "sha256": "cadfa88716cb74a85d0d76dc866d83dbd627d6f5c310b528d43e588dab37ecec"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_01.webp",
+          "sha256": "04a3f2a9187c1244512e60b62727d2172e21af1d9fb7e5161597b904b2460939"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_02.webp",
+          "sha256": "fe1d62afe459a3ce01f408207425d598362fbd09455a00618d0b48094eec5c6b"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_04.webp",
+          "sha256": "5afbde5a8ed770f9aedd7f159ac2c29bfa23bab89fd451510921e70a1fe28908"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_05.webp",
+          "sha256": "f3ac3a59cc4e3b19822cfba14798642ef3705296f2aae67c7919895a5678ce74"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_06.webp",
+          "sha256": "c1e7183883943ce9286554cb2df756a75e51d9241ea354dcf69a56335c66c9b1"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_07.webp",
+          "sha256": "642aa5106f0b61e39d945d015d20900f54755e1eebb9370cd5a3c5e937fff532"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_08.webp",
+          "sha256": "79bb19a75b60b17d066b75f0a3be0abbdfa3b1c4785b8685b618334267d06d38"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_09.webp",
+          "sha256": "8cf532c3bcb3d64a9583f1e176577e5049cb4d7ff02e8e2e4698eed269cae925"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_10.webp",
+          "sha256": "4f32faf970d3cd320e87efb3024d5e381288f36a985b57dfc5193b5132022f4b"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_11.webp",
+          "sha256": "2ce514f039a1cfd01f0d23b5042fa2bbe9eeb58dcdf109d027a4e48c4eba3314"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-stickS3_main-products_12.webp",
+          "sha256": "b5b3e022cf3f8caefaa380a3f152349635e34d637b6dc198f098e798f6a1433f"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1207/K150-sticks3_page_01.png",
+          "sha256": "81b9f54bfc655e1391907ef10ed1e8463138aa53b11ec6cc057ab068c94d15e0"
+        }
+      ]
+    },
+    {
+      "id": "cores3",
+      "sku": "K128",
+      "officialDocs": "https://docs.m5stack.com/en/core/CoreS3",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/core/CoreS3/img-5aff2ea4-1943-4349-a70a-5d0c3e8b4214.webp",
+        "sha256": "cd4fa82cc80a2f560c50a52f28922d5989dfac2cb79014174f0e4d3125ea0ea1"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K128_CoreS3/Structures/CoreS3.stl",
+          "gitBlob": "838a4d9b6328dc9dfe1034c52a66b53d349c615b",
+          "sha256": "e113f76db8d829b8737cfcc79c1835fa98274a9fc828ef5df5173b1c9c58e585"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/CoreS3/img-5aff2ea4-1943-4349-a70a-5d0c3e8b4214.webp",
+          "sha256": "cd4fa82cc80a2f560c50a52f28922d5989dfac2cb79014174f0e4d3125ea0ea1"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/CoreS3/img-ac385703-414f-46dd-80b9-b49ebc68fdff.webp",
+          "sha256": "e771c90f3b76adc9b57332b0c898200256c284f4e59511c7a1f3b65ffbdbf4e4"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/CoreS3/img-520d34df-79e2-4905-a8e8-ef7629de6945.webp",
+          "sha256": "901ab086021a28550eb80d5afaf5a9204cf7c790274e108127c7b12b3fef1cd5"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/CoreS3/img-8845a4bb-1da2-46a2-85f8-8d787e6fe5e5.webp",
+          "sha256": "6d6c8331e6cf7a8d6a102b6015e8ff336215d5123da5e0d373aa7f3a42635e9c"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/CoreS3/img-150d1624-71b3-4d56-b19c-ace73b1ea407.webp",
+          "sha256": "618a0fb83ccf9967352f4a0028f22497d4de10620b8f24f5ac2b491fb8c5c71a"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/CoreS3/img-3e707c18-8110-47f9-af1c-ae3c056447d2.webp",
+          "sha256": "4bdadc07df3c07418a7798d029478e613cd0bdf4dee36ffe5bdcf88830863231"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/490/K128-weight.jpg",
+          "sha256": "6681a855beff5774b0c5b7b590ae5c4311d51af1ccd26da554df6a608d756b6b"
+        }
+      ]
+    },
+    {
+      "id": "stopwatch",
+      "sku": "C152",
+      "officialDocs": "https://docs.m5stack.com/en/core/StopWatch",
+      "reference": {
+        "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1242/C152_stopwatch_mainpictures_04.webp",
+        "sha256": "a62ec6d5b75a1157e1cc3789fa61ff1e91f43698c73a5fb4e01ef17fec34a305"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/C152_StopWatch/Structures/StopWatch.stl",
+          "gitBlob": "e4ff3f7febe0116d817950ee3effbeba5005dd00",
+          "sha256": "48b292c76f929acb75868cba47ccda86800fbff7cfff172161df64ff87f220d5"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1242/C152_stopwatch_mainpictures_04.webp",
+          "sha256": "a62ec6d5b75a1157e1cc3789fa61ff1e91f43698c73a5fb4e01ef17fec34a305"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1242/C152_stopwatch_mainpictures_05.webp",
+          "sha256": "2a9456482b5b7a2bcb4ad9e604ae4de80c7321e0bee4db02969d21958d65d407"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1242/C152_stopwatch_mainpictures_06.webp",
+          "sha256": "0ece84a39f3ff6e696db65118c380ed0c4af011d2574d3c2e832e10fe12ee7fc"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1242/C152_stopwatch_mainpictures_07.webp",
+          "sha256": "679e0cd5397e6877ef676e8ae8710fe1149f053d2ce30dad90626f0bc51ff9cd"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1242/C152_stopwatch_mainpictures_08.webp",
+          "sha256": "4d73b0b82c3f98a77bfe049a034729d3d7e6f644c229da187e2fe781b401a1a9"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1242/C152_stopwatch_mainpictures_09.webp",
+          "sha256": "dbc9d90f243436904fb9da02f7052dd0f9431c7c1d5effc271ea63866ab554e8"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1242/C152_stopwatch_mainpictures_10.webp",
+          "sha256": "9f4880cfd68cfb8fa41a978f353b077f1f07afcfcffe07ea4d184950c51662f8"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1242/C152_stopwatch_mainpictures_11.webp",
+          "sha256": "ca9b9c623c5fac246965dd0af3b9fb26dc7ad55716937be12fb53268de539844"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1242/C152_stopwatch_mainpictures_12.webp",
+          "sha256": "848b969a24e2d27e5c3da91284bc0ddf77dce0ba0af7b7cb87cf5cc99324dc5e"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1242/C152_stopwatch_mainpictures_13.webp",
+          "sha256": "87df7e76176f52c0f9f0fd776395f82032652bd76275e5ff4fe7084ef2ec7ca3"
+        }
+      ]
+    },
+    {
+      "id": "cardputer-adv",
+      "sku": "K132-Adv",
+      "officialDocs": "https://docs.m5stack.com/en/core/Cardputer-ADV",
+      "reference": {
+        "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1178/Cardputer-Adv_04.webp",
+        "sha256": "2bd8d099a4c3542d4afd1ac98823e7e76415d21b15c76007d8d4ebf67c4e2abb"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K132-Adv_Cardputer-Adv/Structures/Cardputer-Adv.stl",
+          "gitBlob": "a0c3f6964b471dceefee917edcbd194f52c80833",
+          "sha256": "50c2b2a72694dd7461125489d99a2f863630bb0c224f86f98f95dda15ae45c00"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1178/Cardputer-Adv_04.webp",
+          "sha256": "2bd8d099a4c3542d4afd1ac98823e7e76415d21b15c76007d8d4ebf67c4e2abb"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1178/Cardputer-Adv_05.webp",
+          "sha256": "bac7c2431fcc7aafb7658053dae8c4ded63050e0e8f86006d308c868c1847e3a"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1178/Cardputer-Adv_06.webp",
+          "sha256": "76c5c9df87643a60c3c7552f305dbba98a570ab418a84747ccad072dc108ed6b"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1178/Cardputer-Adv_07.webp",
+          "sha256": "c23e08eb450dc857ffca9197c1bd1d2accd9e7396d39045599d3032d623da158"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1178/Cardputer-Adv_08.webp",
+          "sha256": "d5dd644b46b6f064142da66aef669b860ae1edea44b2ed37c7cce65e96bf5d59"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1178/Cardputer-Adv_09.webp",
+          "sha256": "e809a0266555630e753b34ef3caaf90d022a6891b57bbe2e5868705376b813a4"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K132-Adv_Cardputer-Adv/Structures/Cardputer-Adv.stl",
+          "sha256": "50c2b2a72694dd7461125489d99a2f863630bb0c224f86f98f95dda15ae45c00"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1150/S007-V033_01.webp",
+          "sha256": "29121b8efb07ad5dc08e036e96061ae08d4719f2d915b93f687bde742c77ff73"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1150/S007-V033_03.webp",
+          "sha256": "8688586f0c3059a6e24123844356ca4834b3e9b044c44263af22bb0916ee2019"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1150/S007-V033_04.webp",
+          "sha256": "50a929e8afe116bec245afa26846f6884698e122198e7a6e92864d2d551d6e81"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1150/S007-V033_07.webp",
+          "sha256": "dc70861f499aff13322523157ba22038fbc07eaed10567ed8209af7c9d66761b"
+        }
+      ]
+    },
+    {
+      "id": "cardputer-zero",
+      "sku": "C154",
+      "officialDocs": "https://docs.m5stack.com/en/core/CardputerZero",
+      "reference": {
+        "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1243/C154-CardputerZero-main-pictures_04.jpg",
+        "sha256": "9ae1d04dcdf285f5c6edb4f31af02be00f3b3b2a7e7cfef6683efbaa7e563f24"
+      },
+      "structures": [],
+      "referenceSources": [
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1243/C154-CardputerZero-main-pictures_04.jpg",
+          "sha256": "9ae1d04dcdf285f5c6edb4f31af02be00f3b3b2a7e7cfef6683efbaa7e563f24"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1243/C154-CardputerZero-main-pictures_05.png",
+          "sha256": "b168c4c28c093faf5cb2ded7c736267cce73842af1702682b07b842a22c6f088"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1243/C154-CardputerZero-main-pictures_06.png",
+          "sha256": "d53b8011abecbfb8020af514eb51c889d9c1846380e538affefbf4e17b0e48e1"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1243/C154-CardputerZero-main-pictures_07.png",
+          "sha256": "21631f94165fdce7830e8d58d6fcfcaed8f2d1926d02ff1eda0be4fd881d6e36"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1243/C154-CardputerZero-main-pictures_08.png",
+          "sha256": "985cab63c2d6dde209a952656f3577858e60e8a1263fc4cb0910f94e9751bce6"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1243/C154-CardputerZero-main-pictures_09.png",
+          "sha256": "257a6bd8c6498d250752ee77010f5ae759146248623ac9acdd7aec5a5bd1c0ea"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1243/C154-CardputerZero-main-pictures_10.png",
+          "sha256": "7e560abae2616bc24b388c92038a801b5c850d47fc156ddee72738ca4c6b4b5c"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1243/C154-CardputerZero-main-pictures_11.png",
+          "sha256": "6aee9f746bd4b25c57dcb64e4337865e848b7dfc138bc2831a2e644c9f9c2259"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1243/C154-CardputerZero-main-pictures_12.png",
+          "sha256": "6afdf9641759d8d7cb8d1067ac7fc762c8dc610b6737ae6c86d6246d0d58d30e"
+        }
+      ]
+    },
+    {
+      "id": "papermono",
+      "sku": "C153",
+      "officialDocs": "https://docs.m5stack.com/en/core/PaperMono",
+      "reference": {
+        "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1267/C153_PaperMono_main_pictures_10.webp",
+        "sha256": "123566cac050fbb47a28bb2c4de402d395461fc02e17b41302a9bdc1164f6733"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/C153_PaperMono/Structures/PaperMono.stl",
+          "gitBlob": "3b24c73968059bb8566751fb61d34f1d4cb494aa",
+          "sha256": "23201352f9c4074e0cb610311b585e8e5080df99884701607039ff7fe06784f5"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1267/C153_PaperMono_main_pictures_10.webp",
+          "sha256": "123566cac050fbb47a28bb2c4de402d395461fc02e17b41302a9bdc1164f6733"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1267/C153_PaperMono_main_pictures_11.webp",
+          "sha256": "8f3442b140e68b71764930993d3aeb03e6b3496f407f7f8bafb91994f97862a6"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1267/C153_PaperMono_main_pictures_12.webp",
+          "sha256": "11b6e11b1b0077afbcef5575eaa1002b27871cebe800126a321838913416abd8"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1267/C153_PaperMono_main_pictures_04.webp",
+          "sha256": "0c970f9c40b548fe26320a5aa4658814afa2b4716230ebdade1f45dbf37b3d10"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1267/C153_PaperMono_main_pictures_05.webp",
+          "sha256": "17071d112026d59c1ce024e7a09ca74c44ac397dfba9d3ebf86270b9a18a4f56"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1267/C153_PaperMono_main_pictures_06.webp",
+          "sha256": "44fa09120f6b74364058a243090527c7138d48cb5d5fdb651504cfd9eea0802e"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1267/C153_PaperMono_main_pictures_07.webp",
+          "sha256": "d99cde8a26129dfb487746c6979d83ca809a20e52017509776d79fab6be10897"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1267/C153_PaperMono_main_pictures_08.webp",
+          "sha256": "f5ef27d8704514f83279e843f27bb1a7bfe3d8a7973b5b2054be95674d3bf525"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1267/C153_PaperMono_main_pictures_09.webp",
+          "sha256": "393f0b9c7e98b74d658af121ef34b3fd3acb9bd099acf2a65fe38961366a2c1d"
+        }
+      ]
+    },
+    {
+      "id": "core2",
+      "sku": "K010-V11",
+      "officialDocs": "https://docs.m5stack.com/zh_CN/core/Core2_v1.1",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/core/Core2 v1.1/img-1a949091-da2c-4fbb-bf4f-bce108cb43ec.webp",
+        "sha256": "03739a2c220254425b9f2d1058f6d817be72c40d689be2dd27f7ee83b21bb2ff"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K010-V11_Core2_v1.1/Structures/Core2_v1.1.stl",
+          "gitBlob": "ce417b483b0ce6e1359a3e8687cae75894db6816",
+          "sha256": "f883f94913bc81c78e63a3d873140f3555b1254718f6dcac731f71aef49f4010"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/Core2 v1.1/img-1ee68d74-996c-430b-acdf-45591a31e3e9.webp",
+          "sha256": "c86516ad8d73742b7803dc1f5bff76a624c42b2f559d9151069e31fd13cdf7bc"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/Core2 v1.1/img-a2f506a3-abd1-466c-8a05-6b79eff967c3.webp",
+          "sha256": "7534ef3851fa83d6646629c4f86df2065668b962fa707bca8acd2422d33ed59d"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/Core2 v1.1/img-4ff57e17-84db-4386-bc77-040a792972cb.webp",
+          "sha256": "5c9d3e6c30f77684ce7faada51faaf222f5f999d0858e8f885aae2a58e375a4c"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/Core2 v1.1/img-e2847063-4866-4a02-b08a-0fd991c757d4.webp",
+          "sha256": "751a92f493c9e0715108866ce53274a0ab6cd057537a04230256bcc16fe770be"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/Core2 v1.1/img-e68e1a0a-e0bc-4a80-a25a-d6e749d296a0.webp",
+          "sha256": "2d0daf73817e324dca2183b1578e96e2e0088d55f30ff599c55b17bec27f55a6"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/Core2 v1.1/img-6bd39535-26f9-4360-a88b-3537bd73b607.webp",
+          "sha256": "8ffd3c185175315675d094e7f5502c79535dad2b18b7d7b55c0e24a25e7de752"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/Core2%20v1.1/img-0c2e243c-4e58-43ce-8c35-3dd2dbda427e.webp",
+          "sha256": "a25c65b1afb8827d3792caae9adf721924346e7daf88fc90fb7eaf3f421864a6"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/Core2 v1.1/img-1a949091-da2c-4fbb-bf4f-bce108cb43ec.webp",
+          "sha256": "03739a2c220254425b9f2d1058f6d817be72c40d689be2dd27f7ee83b21bb2ff"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/644/core2_01.jpg",
+          "sha256": "df29b9bb5a3a705f3350faa9325a20f714c6567136e183aa7b192e7e993315a8"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/core2/core2_02.webp",
+          "sha256": "04e402b3dd546b72bd1d411af58304ffc69f1c58764ff62140f7fce7d53826b2"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/core2/core2_03.webp",
+          "sha256": "aba13cd2aab8eac6c7a69a13f8f441956b587c1fa9c0a5da842ee7c302067af7"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/core2/core2_04.webp",
+          "sha256": "efcbe0a3b2e0fdbd2e710f8e7444afd6f3c5dca1b57c170b7660ef197d3e5092"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/core2/core2_05.webp",
+          "sha256": "b0317a54bda6b2a00421ada4c39cd45bc397f33e488b799b0ab81dd0202d60b2"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/core2/core2_06.webp",
+          "sha256": "668d292ff4ed08818e0eb5986b02e4dc501c51e670e73a9415393906e96a4d8a"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/644/K010-weight.jpg",
+          "sha256": "f41fc22cdd382150732de7703468a70ee47a76bfeabf4de5cf79b992398821bf"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/644/IMU-Core2.jpg",
+          "sha256": "519b3a2d9dd2ad86a946b18331225519709bb936b080cb391815aa6df91acace"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/644/CORE2_V1.0_SCH_page_01.png",
+          "sha256": "6c305db1571c5d0b2bf6bf88a747719ac07a7be236002d15e44fc5974aa50204"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/644/CORE2_EXT_Board_page_01.png",
+          "sha256": "112373303e35fe1e47a55b650c144d0319d258fdbed06e33d7151f563a581ad3"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/Core2 v1.1/img-f43dd27e-347d-49f6-a4ce-c28d2a7e013b.webp",
+          "sha256": "401027a6fda1da405057454282223154488eab8334509cbfe3d7a2f90744c5d5"
+        }
+      ]
+    },
+    {
+      "id": "papercolor",
+      "sku": "C151",
+      "officialDocs": "https://docs.m5stack.com/en/core/PaperColor",
+      "reference": {
+        "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1239/C151_main-pictures_10.webp",
+        "sha256": "c6773955fcc588371f09815d84c2034d711dc12fc318647daa24cbe2458e7e99"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/C151_PaperColor/Structures/PaperColor.stl",
+          "gitBlob": "1a7925bcc1f7c651def1ba3f01ff196cf1527df8",
+          "sha256": "b31c38d082a96e65b71b3761282ac981f094c2cee6511e119210c5a678fa0e77"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1239/C151_main-pictures_10.webp",
+          "sha256": "c6773955fcc588371f09815d84c2034d711dc12fc318647daa24cbe2458e7e99"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1239/C151_main-pictures_11.webp",
+          "sha256": "f252d89208c945c9ee502d1a1471d0b5fd2fec95db43d961975844b79398030f"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1239/C151_main-pictures_12.webp",
+          "sha256": "1a9e6099d142fc1fc8df45d0a802fe98cbe48815206c4bd70834401a3e512c4b"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1239/C151_main-pictures_13.webp",
+          "sha256": "f8b779cf8a30513d518e939323353bcc3c63c78a327833b3df89c9fa04878d92"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1239/C151_main-pictures_04.webp",
+          "sha256": "dff9c0ba7c42f79db5037b4da69682d0fb492765e3d449df6ca73aafbc05e118"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1239/C151_main-pictures_05.webp",
+          "sha256": "266eae85be40799aa1ebf8fae3f25f73e8859da94f4d9b21e3467c86ea1d3a3e"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1239/C151_main-pictures_06.webp",
+          "sha256": "8ada06d902572be221f31493c078d7d470d509657a566526478d65f70b166ed4"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1239/C151_main-pictures_07.webp",
+          "sha256": "2fd0aa529f9b9f85b54e889b22f072daaecda67fd671999101cc28862d012a3c"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1239/C151_main-pictures_08.webp",
+          "sha256": "0dbf8de504e005ad576888d39186b5060dcc822b8e2da2e84f9a63775d84d899"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1239/C151_main-pictures_09.webp",
+          "sha256": "aec4bfe79ab6de512a2677ec402d4a2593677440ec2fa94bdb741d4b694d364b"
+        }
+      ]
+    },
+    {
+      "id": "nanoc6",
+      "sku": "C125",
+      "officialDocs": "https://docs.m5stack.com/en/core/NanoC6",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/core/M5NanoC6/img-a6ee31bc-623f-4d53-af92-797ccc6a03b4.webp",
+        "sha256": "0db82a8edb2f6d38c5f2bd814c8f04ae1169c452c5ad235466cdd7c410b3f3c4"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/C125_NanoC6/Structures/NanoC6.stl",
+          "gitBlob": "ca4e8e1d87ad5b75ba579f0cd12c7e3d10da32c9",
+          "sha256": "fbd54deabcb7612e784684be62e8d49d7028d1e6d6c2b6bc8ca94ccf5bd3e024"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/M5NanoC6/img-a6ee31bc-623f-4d53-af92-797ccc6a03b4.webp",
+          "sha256": "0db82a8edb2f6d38c5f2bd814c8f04ae1169c452c5ad235466cdd7c410b3f3c4"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/M5NanoC6/img-1228b929-959f-4940-b4fa-b14451eed567.webp",
+          "sha256": "a35e9d3ffdf440384a19e3577728c547196b3187304bcb8e3164f6b6b72cce90"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/M5NanoC6/img-b877ed06-0039-4aff-b380-44d5b797c71b.webp",
+          "sha256": "204f209a74c9489bcbd8d4493fbd1be4ff7891e8ef10c3964994179e5a16ce66"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/M5NanoC6/img-5f49bf45-e2de-4c18-87a5-460cc78cffcf.webp",
+          "sha256": "29055e95b86dea2037f3d7b2d05e5f6450e572fe2a0e2b42c44f95a088efd066"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/M5NanoC6/img-1118efa7-1956-49c2-9023-bd96402f6d81.webp",
+          "sha256": "7ddab0c0934c951a2eef928034b74d2fea26dee46f32fb4c245d4cb822438944"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/core/M5NanoC6/img-2e866aaa-29eb-42a2-a9fe-7808544e4e7d.webp",
+          "sha256": "b3f4ff9f730d5916f89a24add7f398ae9856242af86b66275ebd4e1702f48ce2"
+        }
+      ]
+    },
+    {
+      "id": "stackchan",
+      "sku": "K151/K151-R",
+      "officialDocs": "https://docs.m5stack.com/en/StackChan",
+      "reference": {
+        "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_03.webp",
+        "sha256": "4a02945e8298d57ad75d03614d52be9ffab43114389316a28c6496b3936af368"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-Base.stl",
+          "gitBlob": "7ba05da511195a3e6985e653647fc9120cc78b04",
+          "sha256": "46990c8941eca02082eca9b11b7dfdefd03d435142c52daee3dc95e1196271c8"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-BaseCover.stl",
+          "gitBlob": "3ae8152a6a0eb8565619ed3a77e5ffd5fefcbf41",
+          "sha256": "938ff6547f93ae7f20b26e253e0ee6221d9418c4ce2ea07bce52f8cee0a61495"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-BearingFixture.stl",
+          "gitBlob": "9506797bc7317385aef77bcc2fd726ba66e43fc4",
+          "sha256": "04f511c46afb82db49657daa8ec624e91d4d26d29712290e26d32084af6bc2f7"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-LightGuideBar-A.stl",
+          "gitBlob": "b3ef9d1ece22c63c532b1156cb4f3fa1ccf10d73",
+          "sha256": "05313220a4c3734dd0c412a9de04349e4f9b55024ff3a382ea0d85c1d297d2a3"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-LightGuideBar-B.stl",
+          "gitBlob": "4a0811d393795def3d12e304fc5553eca09fdcdc",
+          "sha256": "ba640a41fde8b197a20579814fd8ca94eba44e7b4cbcae3096d6a1e556dd7db2"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-MainBody.stl",
+          "gitBlob": "e25818d593104a307ee9dff5bc21c5adb00a11a4",
+          "sha256": "5495cd313847c2c135fa0309ee64747b93794e3d464a08e76d518b73b13a3107"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoArm.stl",
+          "gitBlob": "c7fdac6788939a69f5301865cdf3a9529d049a39",
+          "sha256": "e530ade0873df01ed5b8bf9275358ccf9ffddb494025f64465bf5efde886c9db"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoBody.stl",
+          "gitBlob": "dc8b06aa0ca8a4b1eb5a8023a8ac8f9e32d733b7",
+          "sha256": "c21e35ad812b71aa44933055d3873090ae8c184479edf8e66e1fe595df598e1b"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoCover.stl",
+          "gitBlob": "1b6130d8f8c4d12d43ad4699cbf003576ac88cf6",
+          "sha256": "f79ff641201fdbde78767cd08b29381ebb0146fa929bdd5e1aa41406e5c6280c"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoSideCover.stl",
+          "gitBlob": "5dd3ab8b4a3438e5dccbba214fefa9c4c3f07e5c",
+          "sha256": "b4e7906d2f4c5b4d5950c9421b8eadc9ba74b6073f5cee0a67835207d55135ce"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_01.webp",
+          "sha256": "6e26121a875ac16e9ccaddc191c5cbbaddcd1dbcab9e0813997c8c940f81029e"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_02.webp",
+          "sha256": "22ae2ab9c786694426f5873d04ed55813536fb79b1bc1244cff4df8f9923144a"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_03.webp",
+          "sha256": "4a02945e8298d57ad75d03614d52be9ffab43114389316a28c6496b3936af368"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_04.webp",
+          "sha256": "6efc720060e36d64306199fe11bd2d71f5f7baed8a65a51d5ce595e41932f6ba"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_13.webp",
+          "sha256": "4bb6fb1aebfa361689026b93597ce6a45bdc65fa662e38b8c609d7d40fa7f008"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_14.webp",
+          "sha256": "c102c509869f89a5ed52932203474984bad1e5a15c04605fe9b35a2ca4dfc614"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_15.webp",
+          "sha256": "29e9622db327c913ea0ca25341ecf25db1637c4c448cb9e290c733cf3d938f7b"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_16.webp",
+          "sha256": "c05e927af51b01838d7f61ca763bbf0018b27d86c105c1d71bcf9e931f0e1af7"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_17.webp",
+          "sha256": "27f7f4e07e0525dbb7671b239278e7c43aec3867700e48ecd2dd2ec87f881733"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_05.webp",
+          "sha256": "7a174ac8f94f83773893b893a6ee26f91f00c34f1d5a034602295e25be3883a3"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_06.webp",
+          "sha256": "9d9d3660998a0923e195c71d1a3f5c9c5a4dacb242815d286f762d638c96d9f8"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_07.webp",
+          "sha256": "d53bd95dc0ed026b3e71c35e6340096c593343b77877a649aa32e5c54199ee90"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_08.webp",
+          "sha256": "0a662b1e1b924c0f9ab10662392968632fc6ae7b74714cd28df87f64c6f3fa81"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_09.webp",
+          "sha256": "76a5f2906c66a58a82031a009e2d1c90b5ba66e886aa0556a1fe75831454a3f4"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_10.webp",
+          "sha256": "f4f94b97d7086e5edecd17d13c9518a2ed8a49b29d3a94ff201e0b68302e6c08"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_11.webp",
+          "sha256": "a801ef8b8a8b82a5e34da35cb2559155bd84cdca0b649657a4a4a16ebeb64687"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_12.webp",
+          "sha256": "f1a573ceb64e911955af60f9b69c2c9422350461ef6a144124dcf0cf67088bbe"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/SCS0009.pdf",
+          "sha256": "b8ce3f28a8c12d2ad9dee697087eae03eb716219016b48be9a7e1856755213c6"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_04.webp",
+          "sha256": "c4ec14c0d257bdacbf186c30f5ba495a583feadeade50f24c8e0b962dc8d7253"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_05.webp",
+          "sha256": "8517e98eaaecee9becb3e65ab0aa3d6e87ed49d4c088500114843f2e868428a5"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_06.webp",
+          "sha256": "45c5621fc74f8b9ccf3c70cc7526dd6a56d86e03fdf892b024961b0152b5b22c"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_07.webp",
+          "sha256": "00c50d4a4a11bf74e9b61ded21df4969707991c8fe6fa80b96668eb635b2fbb0"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_08.webp",
+          "sha256": "9852ea5f49e93002466c187ab4b4a35f6bc64e1709110cc82a7e5ca1054f8b51"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_09.webp",
+          "sha256": "5f966319522d86fa8e0c4f52f63444fce677f14f1d50f1574e4e7bf152b5dbf9"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-Base.stl",
+          "sha256": "46990c8941eca02082eca9b11b7dfdefd03d435142c52daee3dc95e1196271c8"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-BaseCover.stl",
+          "sha256": "938ff6547f93ae7f20b26e253e0ee6221d9418c4ce2ea07bce52f8cee0a61495"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-BearingFixture.stl",
+          "sha256": "04f511c46afb82db49657daa8ec624e91d4d26d29712290e26d32084af6bc2f7"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-LightGuideBar-A.stl",
+          "sha256": "05313220a4c3734dd0c412a9de04349e4f9b55024ff3a382ea0d85c1d297d2a3"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-LightGuideBar-B.stl",
+          "sha256": "ba640a41fde8b197a20579814fd8ca94eba44e7b4cbcae3096d6a1e556dd7db2"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-MainBody.stl",
+          "sha256": "5495cd313847c2c135fa0309ee64747b93794e3d464a08e76d518b73b13a3107"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoArm.stl",
+          "sha256": "e530ade0873df01ed5b8bf9275358ccf9ffddb494025f64465bf5efde886c9db"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoBody.stl",
+          "sha256": "c21e35ad812b71aa44933055d3873090ae8c184479edf8e66e1fe595df598e1b"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoCover.stl",
+          "sha256": "f79ff641201fdbde78767cd08b29381ebb0146fa929bdd5e1aa41406e5c6280c"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoSideCover.stl",
+          "sha256": "b4e7906d2f4c5b4d5950c9421b8eadc9ba74b6073f5cee0a67835207d55135ce"
+        }
+      ],
+      "movingAssembly": {
+        "sourceFacts": [
+          {
+            "source": "https://docs.m5stack.com/en/core/StackChan",
+            "fact": "K151 is CoreS3 with a StackChan body; body uses Adapter, Power, Ring and Touch boards, 550 mAh battery and two SCS0009 servos. Official MCP queried 2026-10-25."
+          },
+          {
+            "source": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_08.webp",
+            "fact": "The Power PCB is at the front Core attachment plane; the rear is genuinely open. The black and blue upper sockets are 4P Grove, not S1/S2 servo sockets."
+          },
+          {
+            "source": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_05.webp",
+            "fact": "Rear loom joins the pitching Power board to a neck Adapter. Model puts upper 7P on pitch and lower 7P/S1/S2 on yaw. Hidden routes and outline are photo-derived."
+          },
+          {
+            "source": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/SCS0009.pdf",
+            "fact": "Page 6/8 gives 23.3 x 11 x 25.25 mm case, 12.1 mm mounting-ear width and 3.2 mm output. Exact seating in K151 is inferred."
+          },
+          {
+            "source": "https://github.com/m5stack/M5_Hardware/tree/master/Products/K151_StackChan/Structures",
+            "fact": "Independent unchanged head-shell seat probes are Z15.95. Power PCB is Z16.0..16.8, in front of the flange. Base USB-C mouth is Y-27.7/Z-30.77; former Y-30.9 lies behind closed plastic."
+          }
+        ],
+        "limitations": [
+          "No assembled PCB STEP, motor-placement assembly or cable CAD was available in the official structure directory. Hidden PCB contours/components, battery envelope, connector bodies, loom slack and servo lead routes are appearance reconstructions.",
+          "Stock pitch servo case/gear cap partially overlaps the previously photo-positioned neck/cradle rear-cover interior. This is an acknowledged concealed fit uncertainty, not a passed manufacturing or complete interference check. Official enclosure meshes and original axes were not cut or shifted to mask it.",
+          "95-pose checks include actual wire tube endpoints and sampled PCB/connector volume containment, not continuous collision proof, electrical behavior, hardware motion, cable physics or physical-device validation."
+        ],
+        "scope": "Front Power PCB follows pitch, lower Adapter follows yaw; seven physical visual wires cross pitch; rear mechanism remains open, base USB stays fixed. Hidden servo package/routing are appearance approximations."
+      },
+      "servoPackageReview": {
+        "sources": [
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/SCS0009.pdf",
+            "sha256": "b8ce3f28a8c12d2ad9dee697087eae03eb716219016b48be9a7e1856755213c6",
+            "bytes": 451290
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChanBody_model_size.pdf",
+            "sha256": "51f4f1b9cdc4290f8dc43fed005911f2da10b384305b73775d465aef2cfb26ee",
+            "bytes": 372982
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_11.webp",
+            "sha256": "9079972d385ef1fb3e0f750fe6dfdf29797d805856a5cf66f4ba7fa1be237439",
+            "bytes": 34206
+          }
+        ],
+        "facts": [
+          {
+            "id": "official-servo-dimensions",
+            "source": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/SCS0009.pdf",
+            "page": 6,
+            "caseMm": [
+              23.3,
+              11,
+              25.25
+            ],
+            "overallEarEnvelopeMm": [
+              32.5,
+              12.1
+            ],
+            "shaftLengthMm": 3.2,
+            "gearCentreDistanceMm": 5.7,
+            "bodyCentreOffsetXmm": {
+              "value": 5.8,
+              "status": "drawing-derived, not an annotated dimension"
+            }
+          },
+          {
+            "id": "ear-topology",
+            "source": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/SCS0009.pdf",
+            "page": 6,
+            "fact": "The width 32.5 describes the envelope of two end tabs, not a 32.5 x 12.1 plate across the 23.3 x 11 case. Runtime now has independent front/rear tabs and open diameter-2 mounting holes.",
+            "holeXmm": [
+              -8.55,
+              19.95
+            ],
+            "nominalEarXEndsMm": [
+              -10.55,
+              21.95
+            ]
+          },
+          {
+            "id": "adapter-position-evidence",
+            "sources": [
+              "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_05.webp",
+              "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_09.webp",
+              "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_11.webp",
+              "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/K151_stack_chan_main_pictures_09.webp"
+            ],
+            "status": "unconfirmed",
+            "fact": "Photos establish front Power PCB and a rear loom but conceal the Adapter installation plane, fasteners and board centre. The current horizontal seat remains a visual reconstruction."
+          }
+        ],
+        "limitations": [
+          "Strict motor-fit diagnostic remains unresolved; no manufacturing or complete interference claim.",
+          "Existing board/connector motion checks apply to the retained provisional cover and Adapter seats. A passed local check does not prove those seats match the physical assembly."
+        ],
+        "unmergedCandidates": [
+          "cover XY alignment exposes current Adapter conflict",
+          "cover Z seating conflicts with inferred battery envelope",
+          "motor axial shift opens unconfirmed shaft/arm gap"
+        ],
+        "scope": "ear-only runtime correction; incomplete hidden fit diagnosis"
+      }
+    },
+    {
+      "id": "tab5",
+      "sku": "C145/K145",
+      "officialDocs": "https://docs.m5stack.com/en/core/Tab5",
+      "reference": {
+        "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_03.webp",
+        "sha256": "f8f5acb884c03a3c1e77a840746b4036701f5966bc88a563c89b8cba8510198b"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/C145_Tab5/Structures/Tab5.stl",
+          "gitBlob": "4cc142875bffa18c0ad5e2843deb308eac5f987d",
+          "sha256": "5e8e6398d85e4183af9040e9b12b1462fe74629b0ee6065581c7c897a8ba1a74"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_03.webp",
+          "sha256": "f8f5acb884c03a3c1e77a840746b4036701f5966bc88a563c89b8cba8510198b"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/K145_02.webp",
+          "sha256": "210c7a1f6ab97e2a1736c3def7f2967dbc7ca0d36196bff9d85eb4bc4950ed8b"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_04.webp",
+          "sha256": "554ad95f47f568123b32fda7af97a02f3dbd1db9f3734c79c7ddae0d8fdc1cb4"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_05.webp",
+          "sha256": "cbf091072c7b3b35cfac9f28aee3becbd997ccf2cf8d96dfb42b2fa4d34fcb43"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_06.webp",
+          "sha256": "704a8b8e39b05eb6e47727a3f1283ecccf30ff555195ff2ef782f7ae48abaf04"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_07.webp",
+          "sha256": "b8a25a03c906e1ea8c729611425178d63e81f31d824753b2e3c174b341b87777"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_08.webp",
+          "sha256": "c131b366bf69b588965d3654ea928573824b22fa2c67e570e0897e7d9e93fc02"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_09.webp",
+          "sha256": "92909fca6c2150f12e9954504d010e385b0b39b6c1aedb9ed1a9e0cdf0f72862"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_10.webp",
+          "sha256": "99ed324edd9508f375beb4fdd50612f017b74819c2eb8864d870cfb4e3e81943"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_11.webp",
+          "sha256": "c51feb2a57e0347c0497ed56bc132bb507f4ae749c905e0e62e6b9239ddf2315"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_12.webp",
+          "sha256": "a04be4a716358f459c0d0705b16d46e3eb8c0f17d5745a976dc140110cea5b69"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1132/C145_13.webp",
+          "sha256": "24a6f250941384944184e5e8ed15ba88235fa897401961ae401ecb5a00a910e6"
+        }
+      ]
+    },
+    {
+      "id": "atoms3r",
+      "sku": "C126",
+      "officialDocs": "https://docs.m5stack.com/en/core/AtomS3R",
+      "reference": {
+        "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/12.webp",
+        "sha256": "46247a9cf25b26ff0ab8e7d9370325687bdfed7f5f7231429ec99fa232e7bd40"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/C126_AtomS3R/Structures/AtomS3R.stl",
+          "gitBlob": "1ab203db30109f57494648c1ebe64e7ebb7f1859",
+          "sha256": "079245a667a8edf5dd7b609c3c963f7eb47caa61910ae70640d047264f2ca9d1"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/12.webp",
+          "sha256": "46247a9cf25b26ff0ab8e7d9370325687bdfed7f5f7231429ec99fa232e7bd40"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/15.webp",
+          "sha256": "957eb81be9b2bee728beb95b21dc2d1c156cb44e8f5bd1492917fcb8e24a5a45"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/680/C126_AtomS3R_main_pictures_02.jpg",
+          "sha256": "e4cf29d7c8509ba264fb7cf6de558fb827b8b8b9542ebd5046b95c4b9c448991"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/7.webp",
+          "sha256": "f444f7c194ad61ab08df9a562f03755d03dda590992e703d0e82f07473074b05"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/8.webp",
+          "sha256": "4ee36ac7f1ab4a10bce93d151c4b3e3745971240cf263f16497edd55fffe9818"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/10.webp",
+          "sha256": "35521168d5c625ce33c51e874bb539bd1c11e734206f8ac535461e6230e729c0"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/11.webp",
+          "sha256": "3b9adb398c4399d692e48eaf8b7712c9d0e9230fc078c72fbcccf60da6913204"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/680/C126_AtomS3R_main_pictures_01.jpg",
+          "sha256": "c689eaddc7a906354d5947e2a3cd3315bb39467d5370345fb6783900c1d872c3"
+        }
+      ]
+    },
+    {
+      "id": "nesso-n1",
+      "sku": "DK001",
+      "officialDocs": "https://docs.m5stack.com/en/core/Arduino_Nesso_N1",
+      "reference": {
+        "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_04.jpg",
+        "sha256": "d21c37470c2afc38fd9ecde0fcd0b94aa057bbdb2f999c7596259e73f49a18e8"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/DK001_Arduino_Nesso_N1/Structures/Arduino_Nesso_N1.stl",
+          "gitBlob": "1aeea56cb673334018a1f4246422dd53e9302d58",
+          "sha256": "38ca3562423fe099824d071ae537cf600b6475a1dcf4571e8414c1dc3741b04e"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_04.jpg",
+          "sha256": "d21c37470c2afc38fd9ecde0fcd0b94aa057bbdb2f999c7596259e73f49a18e8"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_05.jpg",
+          "sha256": "e5fd2b218c016d101ad79ee1b7244abdc4d2ba23b4240a1c977affa6165cc80e"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_06.jpg",
+          "sha256": "7cb2ce4d5417584fe328e257045984b93746adf16ea30e24eceebb7f665a4eae"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_07.jpg",
+          "sha256": "70b167270a1965510536e871c24ce2f66498b34505bb23f5e3ee06772c941e6f"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_08.jpg",
+          "sha256": "c75512d89bafa5eb05886b02252a6e3f3354bbbe0b927d2487c6b831e8b99585"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_09.jpg",
+          "sha256": "d1c4b4cb46fdfe3c4e7cfcb1b59487615aba53daf55c5bbb6fbff4a5e9d56cf9"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_10.jpg",
+          "sha256": "92fbbbc08de9ebb1b26126c830481286092d6f3f6a9309d4e4c37a937cba47de"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_11.jpg",
+          "sha256": "aaf9ffef118f9441af226429ca14da860820f6a36cfdc163be56c671f13cacf1"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_12.jpg",
+          "sha256": "907b15a0edf6fccfb1077740bf40254b6ff1995ce73e1720f381bab43fadc154"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_13.jpg",
+          "sha256": "8e06898b4a918b41dd82083b4f66eb2a26f1349b8d93b0203b8859ecfe6ed906"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_14.jpg",
+          "sha256": "e05fb2d229216a49bdbbe0181b642f2a4edb5724ff33d58d8c1c24e54b335322"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1198/DK001_main_pictures_15.jpg",
+          "sha256": "f58a502c217b09badcba90d70b71795741631c82dedd1fcf8a25923d27af84db"
+        },
+        {
+          "url": "https://docs.arduino.cc/resources/datasheets/TPX00227-datasheet.pdf#page=26",
+          "sha256": "2d74cb1e7c65de80bad1c7aa6519ffe7f3a61faa10a90d35d042252075c3e7da"
+        },
+        {
+          "url": "https://docs.arduino.cc/resources/datasheets/TPX00227-datasheet.pdf#page=27",
+          "sha256": "48325e23f762ccd8220dcd5d78690dd7facafd005ad3d6c36e56994c121beb4c"
+        }
+      ]
+    },
+    {
+      "id": "stamplc",
+      "sku": "K141",
+      "officialDocs": "https://docs.m5stack.com/en/core/StamPLC",
+      "reference": {
+        "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1129/K141_04.webp",
+        "sha256": "1a0cc7edc429a5bc36971c929caa7f10c1b565df6220f34e066fd2809b1f9966"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K141_StamPLC/Structures/StamPLC.stl",
+          "gitBlob": "9d94e2cca317df4e5bc4d453066403a87f40dd0d",
+          "sha256": "91745b5fc0d2a4bb7ac866271b03bcbd5324fbde2b7e51c220cb66fdfe4470d6"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1129/K141_04.webp",
+          "sha256": "1a0cc7edc429a5bc36971c929caa7f10c1b565df6220f34e066fd2809b1f9966"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1129/K141_05.webp",
+          "sha256": "6bb46b5eb5246a3793954e8c19384b213e113515db146432878759b3521dde32"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1129/K141_06.webp",
+          "sha256": "cdd2d19021d1f8abdd5620216976e2c3ec40b29e00d808e67c872536a12d6d4c"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1129/K141_07.webp",
+          "sha256": "d6c3deb929f17ba89d592c9a28e873bbc36c922918d2c445d0a9a72ac1147c9c"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1129/K141_08.webp",
+          "sha256": "8f9b0990b46f5228a7241291eb1e7551454d263e451ccd7fd7398a0ce846f167"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1129/K141_09.webp",
+          "sha256": "0a898ae44bd723d28ca4462b3b37f257777640a22d3c6cb6e6380853ca2f4c4f"
+        }
+      ]
+    },
+    {
+      "id": "env-iii",
+      "sku": "U001-C",
+      "officialDocs": "https://docs.m5stack.com/en/unit/envIII",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/envIII/envIII_01.webp",
+        "sha256": "ae8bd6bcfdea2004604378aabbab5c22edb3b7c6cf1422883c5a919e253b16dd"
+      },
+      "structures": [],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/envIII/envIII_01.webp",
+          "sha256": "ae8bd6bcfdea2004604378aabbab5c22edb3b7c6cf1422883c5a919e253b16dd"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/envIII/envIII_02.webp",
+          "sha256": "d11724bda0a1a5904c561a2365fd999bb09dfa08f4ebb57c366a109f88e7d2b8"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/envIII/%E5%B0%BA%E5%AF%B8%E5%9B%BE.jpg",
+          "sha256": "1fa43efb58c27cc402921d332a5a9002e8b977b9bfa4570db9124643aab8b2ea"
+        }
+      ]
+    },
+    {
+      "id": "pir",
+      "sku": "U004",
+      "officialDocs": "https://docs.m5stack.com/en/unit/PIR",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/PIR/img-4647c010-1e57-4cc9-85e3-cbd450882074.webp",
+        "sha256": "81c1d2e18361af933c6340d99927aa03014e67be11ab1756910bb23b997d97f0"
+      },
+      "structures": [],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/PIR/img-4647c010-1e57-4cc9-85e3-cbd450882074.webp",
+          "sha256": "81c1d2e18361af933c6340d99927aa03014e67be11ab1756910bb23b997d97f0"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/PIR/img-625b76c4-caf0-42c9-bc2d-8081d7a77e5e.webp",
+          "sha256": "b96d06e5dd2227f96771ff7a2b7434a9828ed051f7ed6aa6acb9342fa6b80eb0"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/PIR/%E5%B0%BA%E5%AF%B8%E5%9B%BE.jpg",
+          "sha256": "2e08d240d1840669c25fa9a141f639fada0b9f1b3aa09d596c4b32dc1729dc77"
+        }
+      ]
+    },
+    {
+      "id": "ultrasonic-i2c",
+      "sku": "U098-B1",
+      "officialDocs": "https://docs.m5stack.com/en/unit/ultrasonic_i2c",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/ULTRASONIC%20I2C/img-1e58d893-802c-4b8b-ad5e-704933a3c76e.webp",
+        "sha256": "1bc108fa1e1a0a923ad57153f1859f1dd95ef6fb0562fb21200e929b99c54324"
+      },
+      "structures": [],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/ULTRASONIC%20I2C/img-1e58d893-802c-4b8b-ad5e-704933a3c76e.webp",
+          "sha256": "1bc108fa1e1a0a923ad57153f1859f1dd95ef6fb0562fb21200e929b99c54324"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/ULTRASONIC%20I2C/img-deba1486-f2e6-4ab1-9b87-4d8acae20a51.webp",
+          "sha256": "c2e52a63149e1ffff0f6859577b19258c483391cf5948e9e8699acf0e5f19e83"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT%20SONIC%20I2C/model%20size.jpg",
+          "sha256": "e241d461687544cc6ff1d9813ca02a9eba7e12e1e18ea8e3d72cc0cdffe159dc"
+        }
+      ]
+    },
+    {
+      "id": "rgb",
+      "sku": "U003",
+      "officialDocs": "https://docs.m5stack.com/en/unit/rgb",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rgb/rgb_01.webp",
+        "sha256": "ec1d8c4127965ae9909459bc6661892c74e7d9233e6e273822102816498602c3"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U003_Unit_RGB/Structures/Unit_RGB.stl",
+          "gitBlob": "4314e62173589e1f4cc48a955762cc5e2caccd1e",
+          "sha256": "a0babc26f6d915fc15ff9c7683873d8c9c3d911c65fd367897c566e6a3203bcd"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rgb/rgb_01.webp",
+          "sha256": "ec1d8c4127965ae9909459bc6661892c74e7d9233e6e273822102816498602c3"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rgb/rgb_02.webp",
+          "sha256": "b08f866a6add31e7365f8a14fde214ce1fa3efb14bb53986d78274da26447115"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rgb/rgb_03.webp",
+          "sha256": "6d95f46bb8f54ba159d1a7f6a63123715faca3afd5fca10f5db0384fa0c86557"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rgb/rgb_05.webp",
+          "sha256": "7823ff01f3a5f9d40b169a31f2baf0aaaf11807c9d36e0890853aa0ddf74f45a"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rgb/rgb_06.webp",
+          "sha256": "1cb920a4cf4fbb8e8c6b9ed78a07d6451894be8c4a9a5c3151f5f598405cc18a"
+        }
+      ]
+    },
+    {
+      "id": "angle",
+      "sku": "U005",
+      "officialDocs": "https://docs.m5stack.com/en/unit/angle",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/angle/angle_01.webp",
+        "sha256": "18286326c79ed6d161b05bf3ae7a67e6f0300a74edac5caf565da9208f5e8c67"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U005_Unit_Angle/Structures/Unit_Angle.stl",
+          "gitBlob": "891e985ed1a84c290a65932a8c929453aeead5aa",
+          "sha256": "d032503d8c8604bca552cb28e18e6ca044276e572d544b40403952deffac5a12"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/angle/angle_01.webp",
+          "sha256": "18286326c79ed6d161b05bf3ae7a67e6f0300a74edac5caf565da9208f5e8c67"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/angle/angle_02.webp",
+          "sha256": "837ebd7aa50ed70e50db0a045a0ee0af963bd298982c7b11454af5f134705ba6"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/800/U005-package.jpg",
+          "sha256": "f6a55c2808cc0aea2abb8bf108ee7bf5ab8ee9f2950947333d1ccd7abad571d8"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/angle/angle_05.webp",
+          "sha256": "e5f4085018e47e90f8c3c876a3762c599ab1c31ae86e1f2ef961ce9aada58035"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/angle/angle_06.webp",
+          "sha256": "d7cfb6508f36c1a8f20d812ad11a50e779b14a14133e3f3230f446a0b48339ff"
+        }
+      ]
+    },
+    {
+      "id": "color",
+      "sku": "U009",
+      "officialDocs": "https://docs.m5stack.com/en/unit/color",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/COLOR/img-5e8f77b1-0a2d-4810-8b8d-c2374bd738fb.webp",
+        "sha256": "a08c039738baf820018bc360d7ca8bd111ef4af8ce57a376c97aebf32ec4e74c"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U009_Unit_Color/Structures/Unit_Color.stl",
+          "gitBlob": "6497db85de6bc1d918147dfa37bce6dbbe6f09a8",
+          "sha256": "f8988a9951e56ef5d3594ab69dc16cdc48c19f186b9c2b30eb9234e94beb10f0"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/COLOR/img-5e8f77b1-0a2d-4810-8b8d-c2374bd738fb.webp",
+          "sha256": "a08c039738baf820018bc360d7ca8bd111ef4af8ce57a376c97aebf32ec4e74c"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/COLOR/img-99d06578-bff0-4d57-bb82-a5debaca515f.webp",
+          "sha256": "07ea3b15675cb66cbab14ec6ce916c1758a9d6dbd1e681e975e053eb1e861116"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/COLOR/img-72160d6e-c47d-4d89-84a1-ba9a3bbb9239.webp",
+          "sha256": "b54cc79834818a58c9e2223525339f60d279470c09c881638cb500bd650d4e1b"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/COLOR/img-91e53454-e42d-4f33-87a2-2fa2f78c453a.webp",
+          "sha256": "3deb101e0577209a16585fe536cc6dd87d0735040af87559a63b78d35a0d7447"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/COLOR/img-8a6ebbb4-f768-466a-b7d4-53ae5318f8ed.webp",
+          "sha256": "502b4be2319e9706c27bd1c966dca914ab6df6650c4adce4f07cd97869f7808b"
+        }
+      ]
+    },
+    {
+      "id": "tof",
+      "sku": "U010",
+      "officialDocs": "https://docs.m5stack.com/en/unit/tof",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/TOF/img-1389686c-b643-4b4f-a74b-4dc070a32103.webp",
+        "sha256": "91ab7b820beb3bb9a25635073f41d830db6b3086b78a4e38f4f5abe30104a965"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U010_Unit_ToF/Structures/Unit_ToF.stl",
+          "gitBlob": "d38d50efc5a293443c8958e7f431a85879774aee",
+          "sha256": "d114742df1a40def503920bc04185c415ddc1887a5e0cf9b78076cd99468f5c6"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/TOF/img-1389686c-b643-4b4f-a74b-4dc070a32103.webp",
+          "sha256": "91ab7b820beb3bb9a25635073f41d830db6b3086b78a4e38f4f5abe30104a965"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/TOF/img-b7d05799-9772-4e4b-a8ef-8398360f57f1.webp",
+          "sha256": "f13ee53b7e914e23aad5a83ca8606eb12c2f281c35adf739f00adaa78fcfbfd4"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/699/U010_01.webp",
+          "sha256": "b70a38a675030c81a592737b0164d32f17bbf97ec3002e240ca16bc35f134aa8"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/TOF/img-17380a9a-eded-4cb1-8696-9cacb917b89a.webp",
+          "sha256": "89be0c92a8370c73500350f8824e7a357a3b353321af11c8d2199b19fe1b9141"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/TOF/img-6cdbc534-a578-4c37-bd1b-fde80b1b62e8.webp",
+          "sha256": "b3e2767e445935a709e4a9336be715a08cff29d8a1d64c92dfa87391d9a16a73"
+        }
+      ]
+    },
+    {
+      "id": "light",
+      "sku": "U021",
+      "officialDocs": "https://docs.m5stack.com/en/unit/light",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/LIGHT/img-0b6d72e0-3533-4245-9c84-bfe6c24a50a6.webp",
+        "sha256": "e034667d1aa92f00cdd1546613fb121e4a606b5ad8e6422af88b38b379c931c3"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U021_Unit_Light/Structures/Unit_Light.stl",
+          "gitBlob": "f1dc9670e78e7db4fd6a091b5dd2038c251842ae",
+          "sha256": "217de4e88c19b1b4992cd46178ddd01a8de18797b9f5ccfefd2a9a31b2d04c3e"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/LIGHT/img-0b6d72e0-3533-4245-9c84-bfe6c24a50a6.webp",
+          "sha256": "e034667d1aa92f00cdd1546613fb121e4a606b5ad8e6422af88b38b379c931c3"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/LIGHT/img-d4a40e15-134b-465f-9c31-d5f8388b0e2a.webp",
+          "sha256": "336cd8852da06eb62f85246e2ed091712e17154955f7461af43b34132129fbcf"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/LIGHT/img-1c3e73dd-9ccf-489d-9be1-948aad68fb54.webp",
+          "sha256": "ca76e3c2564450a580185aab6f4f950af3827b5a5ed0f959afea500a968d6933"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/LIGHT/img-7f73b96e-4887-4506-b0e1-ca8f250071a8.webp",
+          "sha256": "5c192dda0c0bfd1f75ccffab5757d28a37852e0123c91e92aa9e48adb09abb76"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/LIGHT/img-884c70cd-7472-465e-b3f2-1e80c3470a8a.webp",
+          "sha256": "f44b536da316c4601eca875e48c0233dc82cb4eefcf265152fe4ad0dc0994f81"
+        }
+      ]
+    },
+    {
+      "id": "relay",
+      "sku": "U023",
+      "officialDocs": "https://docs.m5stack.com/en/unit/relay",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_01.webp",
+        "sha256": "34077dc27afefa893545db945932f98b56b04e8b51a4bc9b7bd7c68b409997e6"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U023_Unit_Relay/Structures/Unit_Relay.stl",
+          "gitBlob": "1d150812085808c3ad6d3b3f3f1c8904e07007c8",
+          "sha256": "eed8682858423d06d6b625e22cf1991401f03ddd4d46ad5904a5f411a436b929"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_01.webp",
+          "sha256": "34077dc27afefa893545db945932f98b56b04e8b51a4bc9b7bd7c68b409997e6"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_02.webp",
+          "sha256": "50ba5b597aac9451328b0820c3cf77a86f167bdfbe7eed8bebae049891bbd54f"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/784/U023-package.jpg",
+          "sha256": "8aee89c4bc76140deb8b408e9d7179a2c6c5714f9b69174dcd4d1133f9d21285"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_05.webp",
+          "sha256": "31063ab5a4ac1851d3f4e81e1031c047c2c983d7234d1aecc0d1578fb20de34b"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_06.webp",
+          "sha256": "83e5d0d164339f93bab8708fb3e8e5fa782c1d3eaec41523fd498ea197037d10"
+        }
+      ]
+    },
+    {
+      "id": "joystick-v11",
+      "sku": "U024-C",
+      "officialDocs": "https://docs.m5stack.com/en/unit/joystick_1.1",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/joystick_1.1/joystick_1.1_01.webp",
+        "sha256": "df1f8764584730748c70e587b4a5b551a2fbbabfe9938fdc4eab5ed6193ec783"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U024-C_Unit_Joystick_v1.1/Structures/Unit_Joystick_v1.1.stl",
+          "gitBlob": "49594f8e474f94629d4aac069f8a16b79ef7e18a",
+          "sha256": "678e41ec7d38a7886eac9280fb732c6b9f00fed10e10b8f7483f5b4abcecfa84"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/joystick_1.1/joystick_1.1_01.webp",
+          "sha256": "df1f8764584730748c70e587b4a5b551a2fbbabfe9938fdc4eab5ed6193ec783"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/joystick_1.1/joystick_1.1_02.webp",
+          "sha256": "7a0b02e43e6577d5beada9be450874fae13d66f1b5125930b9894868040e02cf"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C-package.jpg",
+          "sha256": "07e310516abf1853a98f4785760f46dd1cb123cee4d5b5585e4a81894dafb62c"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/joystick_1.1/joystick_1.1_05.webp",
+          "sha256": "989bf5af8ca2d27c3189807556d17c1fd6e7e3c518a71601a414207f71292270"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/799/U024-C_UNIT_JOYSTICK_SCHE_page_01.png",
+          "sha256": "d0e504b66d0f12e38e9fe9a41fdffb1763d843b5c8358d0f3844f99a10126157"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/joystick_1.1/joystick_1.1_07.webp",
+          "sha256": "ed59ff8b1008259956fe9c413be9add8188b605b7ad81335b78c65162d5c8d53"
+        }
+      ]
+    },
+    {
+      "id": "dual-button",
+      "sku": "U025",
+      "officialDocs": "https://docs.m5stack.com/en/unit/dual_button",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dual_button/dual_button_01.webp",
+        "sha256": "71a73df79ff722c215a98094b554dc9c78c1756ff38a0a5295c102d6d2a97490"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U025_Unit_Dual_Button/Structures/Unit_Dual_Button.stl",
+          "gitBlob": "3cd80ce4cf1845feb82de0a568b54c810fececc8",
+          "sha256": "9c10606097cbd5e86ab7e83c8a84fbb502caf11cb1baf0cfbe18e27df039c2ad"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dual_button/dual_button_01.webp",
+          "sha256": "71a73df79ff722c215a98094b554dc9c78c1756ff38a0a5295c102d6d2a97490"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dual_button/dual_button_02.webp",
+          "sha256": "259e3370a80e39431108032c5860e42bec82948607f094856832afd7c2bd4b12"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/805/U025-package.jpg",
+          "sha256": "af5c799db977615712168c75828450cac0de918b95475809e40813f26ba3776e"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dual_button/dual_button_04.webp",
+          "sha256": "8626038e72d3f9ae417204b2da4d3b7a91590b78706a242b708f8075d2565787"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/dual_button/dual_button_05.webp",
+          "sha256": "c26e2da2b6416bec40a208148d6a36ff34c9710c09b99530d5ad52888fea4e02"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/805/U025_Model_Size_page_01.png",
+          "sha256": "a295a259de010b359cd24d93f27f3997a417ae331165a7a3435260daae86f494"
+        }
+      ],
+      "dimensions": {
+        "baseShellMm": [
+          24,
+          48,
+          8
+        ],
+        "nativePedestalMm": [
+          24,
+          48,
+          12
+        ],
+        "assemblyIncludingCapsMm": [
+          24,
+          48,
+          15
+        ],
+        "capDiameterMm": 11.5,
+        "keyPitchMm": 14
+      }
+    },
+    {
+      "id": "button",
+      "sku": "U027",
+      "officialDocs": "https://docs.m5stack.com/en/unit/button",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/button/button_01.webp",
+        "sha256": "267fc07b63f706554f97deafd962571755d005d4af2c63a7a6cd642ed7fa4010"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U027_Unit_Button/Structures/Unit_Button.stl",
+          "gitBlob": "51bc10515715fbfc9a65321e124a2bbfaa9d388d",
+          "sha256": "732a669e5a9ed65077f9e343a433f3989cc90a88619017cd8790b0bf2d531df8"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/button/button_01.webp",
+          "sha256": "267fc07b63f706554f97deafd962571755d005d4af2c63a7a6cd642ed7fa4010"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/button/button_02.webp",
+          "sha256": "b3f47c502d0fa35222535c9c4b3379d6a44e63cbaf8d3cba75b32537e5633237"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/button/button_05.webp",
+          "sha256": "5ae77e78d60293ace04ada604c9e22df012eec842f9a2ea23afdaccd99d2c4d5"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/button/button_06.webp",
+          "sha256": "abfeae1b9e71654f96b8ffd610010063c4a86b5735888fbbede867b159687ea2"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/button/button_07.webp",
+          "sha256": "1b5154b645f58f2ac4dd1f1c4cc4b119c6656be70f3c5b02af669b51c8987df3"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/804/U027_Model_Size_page_01.png",
+          "sha256": "b88d91527a3aba43016d3cf21ee1e37485cce260fbfc5bd67376519530f4a3ad"
+        }
+      ]
+    },
+    {
+      "id": "ncir",
+      "sku": "U028",
+      "officialDocs": "https://docs.m5stack.com/en/unit/ncir",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/ncir/ncir_01.webp",
+        "sha256": "2018117f7612134515d5688695b3a0da5a58053fdbbce8a45f535e04c0390ba1"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U028_Unit_NCIR/Structures/Unit_NCIR.stl",
+          "gitBlob": "63cb0a50618b85aa7fd988617ea246bc2d3675f9",
+          "sha256": "339c86e5b1609065ac3243db448a8ce5985ef28676eaa1bd85ca8be6c409efc6"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/ncir/ncir_01.webp",
+          "sha256": "2018117f7612134515d5688695b3a0da5a58053fdbbce8a45f535e04c0390ba1"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/ncir/ncir_02.webp",
+          "sha256": "8c421e2ea6994b9ff707f402be4916575b771443c31804bfea96ffbaa60b8c26"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/715/U028-package.jpg",
+          "sha256": "35969bc56b622f0f0a77e2d132bbbd9591a3d144877f56e5fb1100b0ddfc9179"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/ncir/ncir_05.webp",
+          "sha256": "72a8c52854e9af75c2f807f853990578ff5002ca925f5c0ad5944aa7a4dc0854"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/715/U028_Unit_NCIR_weight.jpg",
+          "sha256": "b0eae39d9c863a452c9be0721dbe5672ba3dfab2d116d2e1d4edab4e8b72effa"
+        }
+      ]
+    },
+    {
+      "id": "heart",
+      "sku": "U029",
+      "officialDocs": "https://docs.m5stack.com/en/unit/heart",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/heart/heart_01.webp",
+        "sha256": "77e7d027377c40f7a838b5c59ce0df832853ae753def241a9926072583924d94"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U029_Unit_Heart/Structures/Unit_Heart.stl",
+          "gitBlob": "bbc8ca4581fb8867006d144888625f596a87c211",
+          "sha256": "dbc381c6a94b5d6a163926091be107e59e5d06957f8813bdaae06a53be5a2b63"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/heart/heart_01.webp",
+          "sha256": "77e7d027377c40f7a838b5c59ce0df832853ae753def241a9926072583924d94"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/heart/heart_02.webp",
+          "sha256": "3aefb2e3e0bf0de967c9f8bcb0b72cb194c2ddc035215d6b252b8d397439fce0"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/heart/heart_03.webp",
+          "sha256": "2562d58cdee0a63f5a2c6bda98e97198286caf360362f55af202216485aeedd3"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/heart/heart_05.webp",
+          "sha256": "2dd17090cb599df4a393df7795fb303c9c8499dcde30e16440b92c4f8352cbdd"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/heart/heart_06.webp",
+          "sha256": "31caca6ebb5c5d22fd6040280f40295061527cd4104fb9a8bb4aecafdcfa9c59"
+        }
+      ]
+    },
+    {
+      "id": "encoder",
+      "sku": "U135",
+      "officialDocs": "https://docs.m5stack.com/en/unit/encoder",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_01.webp",
+        "sha256": "0c08f0f3a5bb7f529898b55e899961637c58262083f572e7b5af32f891a6a68b"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U135_Unit_Encoder/Structures/Unit_Encoder.stl",
+          "gitBlob": "80fe76b08428fd63646417f1c3ad7630c91adf49",
+          "sha256": "bf00ae0f6b2ba4a8a273618625ef61fc737effab85bff005d594c0920ea51dc9"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_01.webp",
+          "sha256": "0c08f0f3a5bb7f529898b55e899961637c58262083f572e7b5af32f891a6a68b"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_02.webp",
+          "sha256": "d6dbc4e054ad30e9329f2e9a93e31235b4d9e11eb34bf78912f3965e95975696"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/U135-package.jpg",
+          "sha256": "76e95b317c7664abad2f5b3fb9660c4e58b73154f3fa3921af4cc0fbfeb444a4"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_03.webp",
+          "sha256": "5cd35fa7e4f8b3955b10ecb252d03bcbd290935f723ccf86281ffe8a46d685b1"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_05.webp",
+          "sha256": "27086f1922c83d006101dd3e8b16d07699835f4ff5671977fab870b026dcc5ad"
+        }
+      ]
+    },
+    {
+      "id": "thermal",
+      "sku": "U016",
+      "officialDocs": "https://docs.m5stack.com/en/unit/thermal",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/THERMAL/img-92fc4d7d-3b52-4ee6-b483-80d7209289e3.webp",
+        "sha256": "aa91cb51a881cb956e73e67714d10287cf9dbe368c4b0337a04cc3bd3b00acdd"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U016_Unit_Thermal/Structures/Unit_Thermal.stl",
+          "gitBlob": "39176eea8043d847393cea36df98d87828eb3b22",
+          "sha256": "df58b3db5e61ec45f7f202071f00375d07be2d1dbdc57a23681231247d9f3b34"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/THERMAL/img-92fc4d7d-3b52-4ee6-b483-80d7209289e3.webp",
+          "sha256": "aa91cb51a881cb956e73e67714d10287cf9dbe368c4b0337a04cc3bd3b00acdd"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/THERMAL/img-55d31a15-2d3f-4f36-9b98-ad457a8be664.webp",
+          "sha256": "9e8d2b9a7cb360a144fdfc5ecc614ed918e77e0c44a50b8061ef8889320a7927"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/708/U016-package.jpg",
+          "sha256": "8162539f9ccfbf0080102afd28895db26d7b60b04b6db7988517787120997c3b"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/THERMAL/img-5cbd4577-b064-4e15-ba52-95063770d133.webp",
+          "sha256": "733f6be2a97189af13df56feb4c3816e9ab7766bde020def95852cc2b9d1a5fb"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/THERMAL/img-0ee52714-e57d-4ca9-86bf-d560f65ff9df.webp",
+          "sha256": "d489bcc2dd195bfa0c20bf08f0cfa98b62edfe3c9655d74f4df919288512e43a"
+        }
+      ]
+    },
+    {
+      "id": "tvoc",
+      "sku": "U088",
+      "officialDocs": "https://docs.m5stack.com/en/unit/tvoc",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/tvoc/tvoc_01.webp",
+        "sha256": "c13b50f05b7d628e0bc7d62ba93ecbd6e15df8bb3d5faac13bc5531be92379ec"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U088_Unit_Mini_TVOC_eCO2/Structures/Unit_Mini_TVOCeCO2.stl",
+          "gitBlob": "3e10d09983d07436a09b25d5ac558e3d12926807",
+          "sha256": "81e52ba8442293518c47cce8205814272bbf4f25856ca2260ef9cfb73cfcc320"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/tvoc/tvoc_01.webp",
+          "sha256": "c13b50f05b7d628e0bc7d62ba93ecbd6e15df8bb3d5faac13bc5531be92379ec"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/tvoc/tvoc_02.webp",
+          "sha256": "813c624a0cf1c8ae58f8618c2833c8f8b17689014ec0d9e499b80785462d5ec7"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/727/U088-package.jpg",
+          "sha256": "a75a93e0cfeefae2ebe6f37b3b68f5735c5f609211ebd1bbecdfffe62379fd92"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/tvoc/tvoc_05.webp",
+          "sha256": "efeb2dedf240b1f8b258ffcc7088c68126e7f6396a7d1694a6410d4dbae3802e"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/tvoc/tvoc_06.webp",
+          "sha256": "18f968947c36f0e5e75c6cefae45d284d83ded1a0d19c14a98b548e735bd4964"
+        }
+      ]
+    },
+    {
+      "id": "ir",
+      "sku": "U002",
+      "officialDocs": "https://docs.m5stack.com/en/unit/ir",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/ir/ir_01.webp",
+        "sha256": "aba25be11889701b3869484fe2feaa09654ec613b4238fc76a56efd98ceba55e"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U002_Unit_IR/Structures/Unit_IR.stl",
+          "gitBlob": "41f963992701f8e710dd060a4feab8f3ebc49ba4",
+          "sha256": "d5986250f3469b817bc48969ef6b96e6ce1a896255ad8235bb71886be26d4560"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/ir/ir_01.webp",
+          "sha256": "aba25be11889701b3869484fe2feaa09654ec613b4238fc76a56efd98ceba55e"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/ir/ir_02.webp",
+          "sha256": "f106abf69cdee1e832f3692d36c119e0696a3425001157f961abf54d60e9b868"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/833/U002-package.jpg",
+          "sha256": "dd2a1de9bb4127072beb34bea4c51bdc8f18f68a17dd22175a2e24c219eee2e1"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/ir/ir_05.webp",
+          "sha256": "2131ca0d925952f39010aee203873a0c40e335c35fb1ff9c95f4e2afef637d67"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/ir/ir_06.webp",
+          "sha256": "2dd3f8b5b2d09ae7964953f119bd630b144806b01a5f34f040c2086c72aec76f"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/833/U002-weight.jpg",
+          "sha256": "438f628a00be69230d1aeb999c34985dc4cecaec7f974555656ef9b9b58f5ca1"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/833/U002_Model_Size_sch_01.png",
+          "sha256": "aca8f8ada3661a0ce5b0e890422e3583107043e29d7ca157e9346c8792e36174"
+        }
+      ]
+    },
+    {
+      "id": "hub",
+      "sku": "U006",
+      "officialDocs": "https://docs.m5stack.com/en/unit/hub",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/hub/hub_01.webp",
+        "sha256": "011552c6164b237d667b28c6c3e28a127246826402576a1d448dd90ce8036ecc"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U006_Unit_Hub/Structures/Unit_Hub.stl",
+          "gitBlob": "30386d3830df45088f4c5f879e4ccb0db15c6e53",
+          "sha256": "9c7b50db80bad68206c763e07ea7dcbdb2e071dbd8b078e64586645f68046486"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/hub/hub_01.webp",
+          "sha256": "011552c6164b237d667b28c6c3e28a127246826402576a1d448dd90ce8036ecc"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/hub/hub_02.webp",
+          "sha256": "6f7d94f82b779a99dceb7885a962672e874a13be96a09705be73af279cb7bd55"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/hub/hub_03.webp",
+          "sha256": "09f28887cdac722a5bc11a5ce2356af7d66599cd70cc3758cbf1d72b9518746a"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/hub/hub_05.webp",
+          "sha256": "51a6edccd6f65a1c58232bdd8e42e54b58fc1eedc12be6f83429975f6525c6a6"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/hub/hub_06.webp",
+          "sha256": "3a0aab1645895a17fc858d1ed3214088d64c048b8fcc494654592b6683f17d62"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/791/U006_weight.jpg",
+          "sha256": "b6671e08c29d402183e3b2c1ee5ec8bc6d457f6ab18c4cb55094c634f1617099"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/638/UNIT-HUB_Model_Size_sch_01.png",
+          "sha256": "b4c285343b02b7a26e2d5d0eb1fd9d969cce357ec1ed5c15c49f0c86937cec9b"
+        }
+      ]
+    },
+    {
+      "id": "rfid2",
+      "sku": "U031-B",
+      "officialDocs": "https://docs.m5stack.com/en/unit/rfid2",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rfid2/rfid2_01.webp",
+        "sha256": "d9f4673f5ba8a79a53089479a619142e42b1e0e9fcd551b2e592d4a058f81e70"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U031-B_Unit_RFID2/Structures/Unit_RFID2_Bottom_Shell.stl",
+          "gitBlob": "4b6e485a9d0ade06316b52972b9943e50602f844",
+          "sha256": "d7e27c218c6f1a06bc0fc043711e2fbbcfa9ed410900aa8caddb97db42ce1194"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U031-B_Unit_RFID2/Structures/Unit_RFID2_Face_Shell.stl",
+          "gitBlob": "1bffe69b20b9abc580709145a29a838d2c7c5ce7",
+          "sha256": "085ab9d2823623cecfbd6e54b683ed44e7d244ab70d612f58fddbed8a87aca09"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rfid2/rfid2_01.webp",
+          "sha256": "d9f4673f5ba8a79a53089479a619142e42b1e0e9fcd551b2e592d4a058f81e70"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rfid2/rfid2_02.webp",
+          "sha256": "f020b2388b6e913948a6dc71ed12a22230c3720bbce523a7c022978bdab6c510"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/841/U031-B-package.jpg",
+          "sha256": "9908c06cc56d6b02bbf96697ffc481a79c2a58ba9d27423c5ffb4d9936dd571e"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rfid2/rfid2_03.webp",
+          "sha256": "b88234a8984ebb90f5e9121ba069866b4c8aad18661b729366de9bd5e24a6cb0"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rfid2/rfid2_04.webp",
+          "sha256": "547bef3d9df55875fadb96cbc3f367a10df2aa81beba03e22124b7c540995d8f"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rfid2/rfid2_05.webp",
+          "sha256": "bff214d1b2edda60277a1b8843fee3f03b26dbb8506e0ea87cabf893afc8a754"
+        }
+      ]
+    },
+    {
+      "id": "rs485",
+      "sku": "U034",
+      "officialDocs": "https://docs.m5stack.com/en/unit/rs485",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_01.webp",
+        "sha256": "332f1be343aec646f54d873bbc543f6c14cc084504f33d1deb906c83b7c9366b"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U034_Unit_RS485/Structures/Unit_RS485.stl",
+          "gitBlob": "ffd3294b2c0e698dd5c97eea2e41aa36ec762fae",
+          "sha256": "d3a3bf0fbfbb48f6bbcc26c7514be6e695119339f0376a50fc0f8f73dd0e55ac"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_sch_01.webp",
+          "sha256": "adc94e7b95ad3654e202ceb8758472441500e49b13069a97899f9f96e4500fd9"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/797/U020_Model_Size.png",
+          "sha256": "8df10079b8eb0e13ac672facbc1d969b0630373a9af1d8dd8fb298b97e0caf9b"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_01.webp",
+          "sha256": "332f1be343aec646f54d873bbc543f6c14cc084504f33d1deb906c83b7c9366b"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_02.webp",
+          "sha256": "f0480658ca54bf29a2e9d1095e56c152a42b5d94dc7fd91c3786157c21aca45a"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/837/U034-package.jpg",
+          "sha256": "95abe25ff753f4cc91138e5c50e8b178f5bac84d923967b57940f07b7f4a8e27"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_05.webp",
+          "sha256": "0c3ca4f8aabfd6a77ade5e2c9de1b8b98d67c6811919b75539bd8745a73d7351"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_06.webp",
+          "sha256": "f27ea4b3d17c7160c580fa4b67aab1de23bee45bccfdec9eb74cfe4dcb5089b9"
+        }
+      ]
+    },
+    {
+      "id": "buzzer",
+      "sku": "U132",
+      "officialDocs": "https://docs.m5stack.com/en/unit/buzzer",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/buzzer/buzzer_01.webp",
+        "sha256": "06dada673df2825022dc214854dfd3113574f360ff5c68ec4cd7ab297486262b"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U132_Unit_Buzzer/Structures/Unit_Buzzer.stl",
+          "gitBlob": "a37b3ac3ff1013593bfcbf7839d8f55e4edf1fe0",
+          "sha256": "79f19d17a8da5ad5f600d0dfb705bd206ad9912a2bed43314df46d615d9f4326"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/buzzer/buzzer_01.webp",
+          "sha256": "06dada673df2825022dc214854dfd3113574f360ff5c68ec4cd7ab297486262b"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/buzzer/buzzer_02.webp",
+          "sha256": "1b4a15d19de5526b173dc1a1b49372d849ed445e303b7d7d893fddc1beabcb0c"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/buzzer/buzzer_03.webp",
+          "sha256": "812afcb4eb5ffd05ec40eddfe799edfd0bc4c21e81ae6d27a13aee0ffd10d35f"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/735/U132-package.jpg",
+          "sha256": "d5592c0f0ba62e86a7dc91ef9219d2a7b2cbc0af3ec570ae9f94285c6c3e121d"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/buzzer/buzzer_05.webp",
+          "sha256": "a9ea4c2869e621440f93611ea225e7fce56236e9ee07f68f7414b23be230260d"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/buzzer/buzzer_06.webp",
+          "sha256": "990a68b122f50943466df52a232a5dde8d2636b6d30e23dab563894f11b86fd7"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/buzzer/moudle_zize.jpg",
+          "sha256": "f325a2e06246acb311a0fd71b8b1c5c02866a5b76e6cccf768b2ebcdad455020"
+        }
+      ]
+    },
+    {
+      "id": "fan",
+      "sku": "U063",
+      "officialDocs": "https://docs.m5stack.com/en/unit/fan",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/unit_fan/unit_fan_01.webp",
+        "sha256": "b4efc8ccb65b6abaaf4a6338a95595796defb13e3868f8103358a7558663f4af"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/U063_Unit_Fan/Structures/Unit_Fan.stl",
+          "gitBlob": "6135c2c1b1a0b0b002703b8106a3244e5cdf4eaf",
+          "sha256": "73a8c523f1d9afcc443cfb577a37e550716d15e575437f82a9dccbfcea66b75d"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/unit_fan/unit_fan_01.webp",
+          "sha256": "b4efc8ccb65b6abaaf4a6338a95595796defb13e3868f8103358a7558663f4af"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/unit_fan/unit_fan_02.webp",
+          "sha256": "64a0c30c4214ffe61565c538abe307aae9453587b9bdc3fd11661b6e59323768"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/759/U063-package.jpg",
+          "sha256": "a86f2f0cc2d8dff60b35ef7b31479df0e7036bffd546d631314e737bba7c3a2b"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/unit_fan/unit_fan_03.webp",
+          "sha256": "8446d7d1b30498051bcbdfe301be2aa72bf939727b523d93943b2061304d1c5b"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/unit_fan/unit_fan_06.webp",
+          "sha256": "1e66b6ed48b97be12a084738f7aeff2a81938794d2521fb64dd30c5820be22e4"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/759/U063-weight.jpg",
+          "sha256": "c15c330de2f42d402cab3830914261f3400288ba0c1671748536f20afc1c2af2"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/unit_fan/unit_fan_sch_01.webp",
+          "sha256": "b008603cddfd4c1b55a4a2b8159c2e476e85a252484dfee1f800f1a72e389981"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/unit_fan/model%20size.png",
+          "sha256": "77bc0c759772b255d3bba3858b6ee56b8e2065192d55d0c43f9b99dc74f3e0cd"
+        }
+      ]
+    },
+    {
+      "id": "limit",
+      "sku": "U145",
+      "officialDocs": "https://docs.m5stack.com/en/unit/Unit_Limit",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit%20Limit/img-7da470fe-12b4-4694-bcd7-62077c1cce2e.webp",
+        "sha256": "8ab4badc5c8f22a296d41fab02348abc7c5c25006562d6d33c46677e4e99718e"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/Products/U145_Unit_Limit/Structures/Unit_Limit.stl",
+          "gitBlob": "ec1be7107ff89c788790985fe52afff93172056e",
+          "sha256": "893a169a9ea7c20c373b182032204da215ba3623a1891110b9d67c70aa44fdc8"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit%20Limit/img-7da470fe-12b4-4694-bcd7-62077c1cce2e.webp",
+          "sha256": "8ab4badc5c8f22a296d41fab02348abc7c5c25006562d6d33c46677e4e99718e"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit%20Limit/img-acbc90b9-37cd-4322-8cb2-14e4c0f2697f.webp",
+          "sha256": "9a54c91354b0b9ec096142246b7413bb46f610d464e172fc96fdde891e84fbe4"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/700/U145-package.jpg",
+          "sha256": "ddb12c511d670dda75d0b89239554411f4632de7fdc906b90e540958b56dc316"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit%20Limit/img-233adf9a-007d-4fd4-ac39-c9496e4e2b0f.webp",
+          "sha256": "416ca3f92feafbd4ef1a51561bf493653761533a897d18f0bac1bc7417cb000c"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit%20Limit/img-f4bd733d-dfb7-47c8-9c51-7d029f83a252.webp",
+          "sha256": "c5a0e12c8c6be98bca68593bf1a5393f43b4804485c8bc106fe246c49a2cacba"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit%20Limit/img-a29416df-6194-4961-908b-1035a06fb498.webp",
+          "sha256": "5405d776b062e7dca606741732704647fc392067512b62ef85188352b18723c6"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/Unit%20Limit/img-3e647b89-c78a-47ce-8f6a-d5df3effcac9.webp",
+          "sha256": "52438a8a7bdd0ba91a88a6172448302e1e3628b20a3468260e4d7340f096e056"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/700/U145-weight.jpg",
+          "sha256": "9798fdc350403af238b45d10ea451aa54092c1593f144388c398520ee2041b68"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/600/SCH_unitLimit_V1.0_sch_01.png",
+          "sha256": "058f7b2378a39de5efc30f49af7528f7565a0df25372c173c1e3695e86605426"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit%20Limit/%E5%B0%BA%E5%AF%B8%E5%9B%BE.jpg",
+          "sha256": "7e8dd3f916b7eeb798c01df0110e3ad9d404b9e46fe07edaba466f675b231476"
+        }
+      ],
+      "dimensions": {
+        "shellMm": [
+          24,
+          32,
+          9.5
+        ],
+        "visibleRestMm": [
+          24,
+          35,
+          9.5
+        ],
+        "leverLengthMm": 16,
+        "restAngleDeg": 8,
+        "pressedAngleDeg": 0,
+        "angleEvidence": "Photo estimate; rated mechanical travel unconfirmed"
+      }
+    },
+    {
+      "id": "cardkb",
+      "sku": "U035-B",
+      "officialDocs": "https://docs.m5stack.com/en/unit/Unit_CardKB_v1.1",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/cardkb_1.1/cardkb_1.1_02.webp",
+        "sha256": "ede3bf0d0939d9c13b12aed9f4b766eb5eeceac8532a35bd75eefef749a03e9d"
+      },
+      "structures": [],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/cardkb_1.1/cardkb_1.1_01.webp",
+          "sha256": "94316b6ea628fac2bc185d8bf3ed8f6ad608f7b1955e79cffa97568f06e2707a"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/cardkb_1.1/cardkb_1.1_02.webp",
+          "sha256": "ede3bf0d0939d9c13b12aed9f4b766eb5eeceac8532a35bd75eefef749a03e9d"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/cardkb_1.1/cardkb_1.1_03.webp",
+          "sha256": "9fc34e91cae1fe851bb61eeb2c2cc640b8e9611bd1f73ad8b7f64a5ee74c3ba5"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/cardkb_1.1/cardkb_1.1_04.webp",
+          "sha256": "66012824359d720137b7bcaf0fb6ff8e544dda4477637b81e6e89b767c5fe59e"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/cardkb_1.1/cardkb_1.1_05.webp",
+          "sha256": "c75a18a7c536948f4bf0535fa9dfdb2d3ea56b97b7a8efb7d782a93b926effee"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/cardkb_1.1/cardkb_1.1_06.webp",
+          "sha256": "271c5db365e6cd70e5142e28061b13abfc9754403e94103ebaf5971ae021afca"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/806/cardkeyboard_v1_1_page_01.png",
+          "sha256": "76ed13c3d923979d359c94b7d89d10cab4bee078834088ca8683b88fe454ef57"
+        }
+      ],
+      "officialCad": false,
+      "method": "Procedural reconstruction from U035-B mechanical drawing and official photos",
+      "sourceDimensions": {
+        "specificationTableMm": [
+          88,
+          54,
+          5
+        ],
+        "mechanicalDrawingMm": [
+          84,
+          54,
+          6.3
+        ]
+      },
+      "excludedVariants": [
+        "U035 original",
+        "U215 CardKB2",
+        "HAT CardKB"
+      ]
+    },
+    {
+      "id": "key",
+      "sku": "U144",
+      "officialDocs": "https://docs.m5stack.com/en/unit/key",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/key/key_07.webp",
+        "sha256": "74acb4c4a6279cb838f897c9b74587c5d194bfc09f11d0bed215a5cb4f74db72"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/Products/U144_Unit_Key/Structures/Unit_Key.stl",
+          "gitBlob": "20c728a339792e647488979492e278be33dc9bff",
+          "sha256": "e9cd6bb75b3eef375aca1702564fdd2d17674532df99a3605840070adb1f3d75",
+          "commit": "e29c139cbc7c80b5ccc5557e5ab8025a7a19a109"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/key/key_01.webp",
+          "sha256": "7bf7b3b47047fa66b8864c32f7cca8cfb11cec1083138cca47617441242d1c55"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/key/key_02.webp",
+          "sha256": "7742ea48e138fce0a5d06e844c4dbd3b93576dba149f728f7a55c8d1fd252687"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/key/key_03.webp",
+          "sha256": "4ca979e2cd0fbf1b5e8ce2da4d37aa0f71bf5d41c2da226a54d8956b1452fa47"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/key/key_05.webp",
+          "sha256": "738ce46948fd9adc50e2ca9b8f78a48fec2206ffa7d2c7f293b33259abecf4b6"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/key/key_06.webp",
+          "sha256": "291e21ee453f767055f6c9eabeb8974ce8611566ee8a1065aa282279ef0e4e3f"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/key/key_07.webp",
+          "sha256": "74acb4c4a6279cb838f897c9b74587c5d194bfc09f11d0bed215a5cb4f74db72"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/803/U144_Model_Size_page_01.png",
+          "sha256": "10f8f0fa9a15cd03f93ebfb98b1efc6276363f3f4a57642b214af03b54b22fac"
+        }
+      ],
+      "mechanicalFacts": {
+        "sourceTableMm": [
+          24,
+          40,
+          22.6
+        ],
+        "drawingEnvelopeMm": [
+          24,
+          40,
+          24.3
+        ],
+        "visualEnvelopeMm": [
+          24,
+          40,
+          24.335
+        ],
+        "selectedShellComponents": [
+          0,
+          2
+        ],
+        "pressTravelMm": 1.6,
+        "travelEvidence": "Appearance estimate; fitted switch travel not confirmed",
+        "pcbEvidence": "Appearance board 19.8 x 36.4 x 0.8 mm at Z -1.9..-1.1, radius 4.1 mm side-post relief and radius 3.1 mm central hole; not original board CAD",
+        "method": "Selected official shell; cap, stem, clear enclosure, PCB and port reconstructed from official photos/drawing"
+      }
+    },
+    {
+      "id": "8encoder",
+      "sku": "U153",
+      "officialDocs": "https://docs.m5stack.com/en/unit/Unit_8Encoder",
+      "reference": {
+        "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-39bbe78d-4415-4a18-92b4-4c0e34dde190.webp",
+        "sha256": "98b149bc9d856360eaff4cdf343edc2a68fbe0da4db948097303d043fe71c232"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/Products/U153_Unit_8Encoder/Structures/Unit_8Encoder.stl",
+          "gitBlob": "bb6adeb0533ed0034d227fe85afaafff4605fe4a",
+          "sha256": "5b45475396b14f6def172c2b3cf20ed42471a4a8c049ec3c0316a8f89e25ef09",
+          "commit": "e29c139cbc7c80b5ccc5557e5ab8025a7a19a109"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-f745fc18-6237-4bc8-8500-6c91ce7e2d75.webp",
+          "sha256": "51b382e2c7ab6281255c97596dbacd2d90ba3d547d1b9d2e2f400431a7ddb5a0"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-39bbe78d-4415-4a18-92b4-4c0e34dde190.webp",
+          "sha256": "98b149bc9d856360eaff4cdf343edc2a68fbe0da4db948097303d043fe71c232"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-b1784732-4389-4ddf-8808-b4f90b6e6d00.webp",
+          "sha256": "a823d1e3d850c7998ccaa286b07988b523c79f567561dc23a5bdc54f8545d35f"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-f58d98c0-09a8-4f57-b884-b75fee80c118.webp",
+          "sha256": "51007f9353f66e0fe8fa39b970f17564b7b723b1ff24dcf8c028fa89acf85792"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-d69a78f9-230b-44cc-be35-09c2b50060f9.webp",
+          "sha256": "98b149bc9d856360eaff4cdf343edc2a68fbe0da4db948097303d043fe71c232"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-421a38df-45cc-478f-9501-7aba4e9fc29a.webp",
+          "sha256": "9cc7029129ed409a3e66576a5780d6ffb41e70409add6aec15739b779417f54f"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-8dd7a2f6-b40d-4782-a012-4dd6927011f2.webp",
+          "sha256": "9bd5fb3bd67e8d264d3338b78a624e03e1fae7c3c9e4b1f2f48f8df8550aee3f"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-3f5f0005-ea48-4ab7-9dbc-4f864e935cbc.webp",
+          "sha256": "2bef975a29e065825ff1e319f81a2a09528639aac05366e84e3cbab74d074bdb"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-878d09f7-aab2-4fda-a1f6-ecaab4a6cbf6.webp",
+          "sha256": "12d44200be3e2e648d0d54e048bc7ce3ce467734e54175a2c14f54272b8516f9"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/607/SCH_UNIT_8Encoder_V1.01_sch_01.png",
+          "sha256": "75d0558295a7325c0499d532af4081b0cf764bf37f0287085b962283fccbb332"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/img-55ebb676-2b3c-4b9a-a192-b85bf0d1a87c.png",
+          "sha256": "8f63277c68e8ff2d519ebe9f18c706ac5916f9a90e49c640b0b0dda91d5b61b3"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/8Encoder/arduinoCase-1668582336160map.png",
+          "sha256": "7db4ae85f4f6f324fbea30769bf704abe02236c541e560abcc8c2fc03d3517fd"
+        }
+      ],
+      "mechanicalFacts": {
+        "sourceTableMm": [
+          128,
+          24,
+          25
+        ],
+        "modelAxesMm": [
+          24,
+          128,
+          25
+        ],
+        "raisedPlatformEnvelopeMm": [
+          24,
+          128,
+          10
+        ],
+        "perimeterBaseThicknessMm": 8,
+        "selectedShellComponents": [
+          1,
+          2
+        ],
+        "channels": 8,
+        "knobDiameterMm": 10,
+        "knobPitchMm": 13,
+        "pressTravelMm": 0.35,
+        "stableSwitchTravelMm": 2.2,
+        "motionEvidence": "Travel and hidden packaging are appearance estimates",
+        "ledNumbering": "Physical positions only; no electrical chain mapping",
+        "pcbEvidence": "Appearance reconstruction: radius 4.2 mm post clearances, radius 3.3 mm central relief, ends at Y +/-60 mm; narrow local bridges are not fabrication CAD"
+      }
+    }
+  ],
+  "motionStructures": {
+    "product": "stackchan",
+    "mapping": "src/devices/stackchan/cad-map-motion.json",
+    "transform": "[x-originX, z-originZ, -(y-originY)]",
+    "generatedSource": {
+      "path": "src/devices/stackchan/geometry-data-motion.js",
+      "sha256": "9b3be4ae3477c1ad29c9b5807982f934892f452efac760f9a60234f40482ecab"
+    },
+    "assets": [
+      {
+        "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoArm.stl",
+        "immutableBlob": "https://api.github.com/repos/m5stack/M5_Hardware/git/blobs/c7fdac6788939a69f5301865cdf3a9529d049a39",
+        "gitBlob": "c7fdac6788939a69f5301865cdf3a9529d049a39",
+        "sha256": "e530ade0873df01ed5b8bf9275358ccf9ffddb494025f64465bf5efde886c9db",
+        "bytes": 187284,
+        "selectedComponent": 0,
+        "role": "moving left pitch arm"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-BearingFixture.stl",
+        "immutableBlob": "https://api.github.com/repos/m5stack/M5_Hardware/git/blobs/9506797bc7317385aef77bcc2fd726ba66e43fc4",
+        "gitBlob": "9506797bc7317385aef77bcc2fd726ba66e43fc4",
+        "sha256": "04f511c46afb82db49657daa8ec624e91d4d26d29712290e26d32084af6bc2f7",
+        "bytes": 58284,
+        "selectedComponent": 0,
+        "role": "moving right pitch bearing fixture"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoBody.stl",
+        "immutableBlob": "https://api.github.com/repos/m5stack/M5_Hardware/git/blobs/dc8b06aa0ca8a4b1eb5a8023a8ac8f9e32d733b7",
+        "gitBlob": "dc8b06aa0ca8a4b1eb5a8023a8ac8f9e32d733b7",
+        "sha256": "c21e35ad812b71aa44933055d3873090ae8c184479edf8e66e1fe595df598e1b",
+        "bytes": 323984,
+        "selectedComponent": 0,
+        "role": "existing neck axis evidence"
+      }
+    ]
+  },
+  "updatedAt": "2026-10-25T15:43:10.485Z",
+  "syncedAt": "2026-10-25T14:15:24.398Z"
+}

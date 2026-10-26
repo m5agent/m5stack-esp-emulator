@@ -1,0 +1,10 @@
+--- a/hw/i2c/esp32_i2c.c
++++ b/hw/i2c/esp32_i2c.c
+@@ -179,7 +179,6 @@
+     if (!s->trans_ongoing) {
+         s->bus = m5_unit_i2c_route(s->board_bus, s->controller_index, false);
+     }
+-    m5stopwatch_soft_i2c_set_hardware_active_on_bus(s->bus);
+     if (getenv("M5SW_I2C_CTRL_TRACE")) {
+         g_autofree char *controller_path = object_get_canonical_path(OBJECT(s));
+         g_autofree char *bus_path = object_get_canonical_path(OBJECT(s->bus));

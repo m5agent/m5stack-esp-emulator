@@ -1,0 +1,11 @@
+--- a/io_drivers/ir.py
++++ b/io_drivers/ir.py
+@@ -71,6 +71,8 @@
+                         ctrl = -1 if is_repeat else 0
+                         self._user_callback(cmd_8, addr_8, ctrl)
+ 
++            # Keep the nested callback reachable by MicroPython's GC.
++            self._ir_rx_callback = _ir_rx_callback
+             if self._tx_pin:
+                 self._rmt_ir_instance = rmt_ir.NEC_8(self._rx_pin, self._tx_pin, _ir_rx_callback)
+             else:

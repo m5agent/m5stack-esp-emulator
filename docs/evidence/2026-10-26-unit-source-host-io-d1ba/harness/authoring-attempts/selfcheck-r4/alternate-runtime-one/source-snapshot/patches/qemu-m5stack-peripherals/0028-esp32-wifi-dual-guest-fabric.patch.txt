@@ -1,0 +1,58 @@
+diff --git a/hw/misc/esp32_wifi_ap.c b/hw/misc/esp32_wifi_ap.c
+--- a/hw/misc/esp32_wifi_ap.c
++++ b/hw/misc/esp32_wifi_ap.c
+@@ -91,6 +91,7 @@ static void Esp32_WLAN_inject_timer(void *opaque)
+         // we wait until a new packet schedules
+         // us again
+         s->inject_timer_running = 0;
++        qemu_flush_queued_packets(qemu_get_queue(s->nic));
+     }
+ 
+ }
+@@ -154,6 +155,7 @@ static _Bool Esp32_WLAN_can_receive(NetClientState *ncs)
+     }
+     if (s->ap_state != Esp32_WLAN__STATE_ASSOCIATED &&
+-        s->ap_state != Esp32_WLAN__STATE_STA_ASSOCIATED) {
++        s->ap_state != Esp32_WLAN__STATE_STA_ASSOCIATED &&
++        s->ap_state != Esp32_WLAN__STATE_STA_DHCP) {
+         // we are currently not connected
+         // to the access point
+         return 0;
+@@ -221,6 +223,13 @@ static NetClientInfo net_info = {
+     .cleanup = Esp32_WLAN_cleanup,
+ };
+ 
++static bool esp32_wlan_has_configured_mac(Esp32WifiState *s)
++{
++    static const MACAddr zero = { .a = { 0, 0, 0, 0, 0, 0 } };
++
++    return memcmp(&s->conf.macaddr, &zero, sizeof(zero)) != 0;
++}
++
+ void Esp32_WLAN_setup_ap(DeviceState *dev,Esp32WifiState *s) {
+ 
+     s->radio_enabled = true;
+@@ -235,7 +244,11 @@ void Esp32_WLAN_setup_ap(DeviceState *dev,Esp32WifiState *s) {
+     s->ap_state = Esp32_WLAN__STATE_NOT_AUTHENTICATED;
+     s->beacon_ap=0;
+     memcpy(s->ap_macaddr,(uint8_t[]){0x01,0x13,0x46,0xbf,0x31,0x50},sizeof(s->ap_macaddr));
+-    memcpy(s->macaddr,(uint8_t[]){0x10,0x01,0x00,0xc4,0x0a,0x24},sizeof(s->macaddr));
++    if (esp32_wlan_has_configured_mac(s)) {
++        memcpy(s->macaddr, s->conf.macaddr.a, sizeof(s->macaddr));
++    } else {
++        memcpy(s->macaddr,(uint8_t[]){0x10,0x01,0x00,0xc4,0x0a,0x24},sizeof(s->macaddr));
++    }
+ 
+     s->inject_timer_running = 0;
+     s->inject_sequence_number = 0;
+@@ -422,7 +435,9 @@ void Esp32_WLAN_handle_frame(Esp32WifiState *s, struct mac80211_frame *frame)
+                 memcpy(frame1->receiver_address,frame->transmitter_address,6);
+                 send_single_frame(s,0,frame1);
+                 memcpy(s->ap_macaddr,(uint8_t[]){0x10,0x01,0x00,0xc4,0x0a,0x25},sizeof(s->ap_macaddr));
+-                memcpy(s->macaddr,(uint8_t[]){0x10,0x01,0x00,0xc4,0x0a,0x24},sizeof(s->macaddr));
++                if (!esp32_wlan_has_configured_mac(s)) {
++                    memcpy(s->macaddr,(uint8_t[]){0x10,0x01,0x00,0xc4,0x0a,0x24},sizeof(s->macaddr));
++                }
+                 memcpy(s->associated_ap_macaddr,s->ap_macaddr,sizeof(s->ap_macaddr));
+                 s->ap_state=Esp32_WLAN__STATE_STA_ASSOCIATED;
+             }

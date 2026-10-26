@@ -1,0 +1,293 @@
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -8,6 +8,7 @@
+  * (at your option) any later version.
+  */
+ #include "qemu/osdep.h"
++#include "exec/address-spaces.h"
+ #include "qemu/log.h"
+ #include "qemu/timer.h"
+ #include "qemu/units.h"
+@@ -58,6 +59,13 @@
+ static uint64_t handoff_pc_sample_count;
+ static QEMUTimer *handoff_pc_sample_timer;
+ static QEMUTimer *handoff_pause_timer;
++static uint64_t handoff_cache_sync_calls;
++static uint64_t handoff_cache_sync_pages;
++static uint64_t handoff_cache_state_updates;
++static uint64_t handoff_cache_invalidate_calls;
++static uint64_t handoff_cache_illegal_reads;
++static uint64_t handoff_last_cache_sync_ns;
++Esp32HandoffMetrics esp32_handoff_metrics;
+ 
+ static inline bool esp32_dport_trace_enabled(void)
+ {
+@@ -428,6 +436,8 @@
+ {
+     unsigned changed_pages = 0;
+ 
++    ++handoff_cache_sync_calls;
++    handoff_last_cache_sync_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+     if (crs->cache->dport->flash_blk == NULL) {
+         return;
+     }
+@@ -458,6 +468,7 @@
+         }
+         crs->mmu_table[i] &= ~ESP32_CACHE_MMU_ENTRY_CHANGED;
+     }
++    handoff_cache_sync_pages += changed_pages;
+     memory_region_flush_rom_device(&crs->mem, 0, ESP32_CACHE_REGION_SIZE);
+     esp32_handoff_trace_event(
+         &handoff_trace_count, "dport", "cache-sync",
+@@ -530,17 +541,143 @@
+     );
+ }
+ 
++static uint8_t esp32_handoff_pause_read_u8(hwaddr addr)
++{
++    MemTxResult result = MEMTX_OK;
++    uint8_t value = address_space_ldub(
++        &address_space_memory, addr, MEMTXATTRS_UNSPECIFIED, &result
++    );
++
++    return result == MEMTX_OK ? value : 0xff;
++}
++
++static uint32_t esp32_handoff_pause_read_u32(hwaddr addr)
++{
++    MemTxResult result = MEMTX_OK;
++    uint32_t value = address_space_ldl_le(
++        &address_space_memory, addr, MEMTXATTRS_UNSPECIFIED, &result
++    );
++
++    return result == MEMTX_OK ? value : 0xffffffff;
++}
++
++static void esp32_handoff_pause_dump_state(Esp32DportState *s, uint64_t now_ns)
++{
++    CPUState *cpu;
++
++    CPU_FOREACH(cpu) {
++        uint64_t pc = cpu->cc && cpu->cc->get_pc
++            ? cpu->cc->get_pc(cpu) : 0;
++
++        fprintf(stderr,
++                "[esp32-handoff] now=%" PRId64
++                " cpu=%d pc=%08" PRIx64
++                " component=cpu event=freeze"
++                " a=%08" PRIx32 " b=%u c=0 d=0\n",
++                now_ns, cpu->cpu_index, pc, cpu->interrupt_request,
++                (cpu->halted ? 1 : 0) | (cpu->running ? 2 : 0));
++    }
++
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=mem event=freeze-byte"
++            " a=%08" HWADDR_PRIx " b=%02x c=0 d=0\n",
++            now_ns, (hwaddr)0x3ffc7ec8,
++            esp32_handoff_pause_read_u8(0x3ffc7ec8));
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=mem event=freeze-byte"
++            " a=%08" HWADDR_PRIx " b=%02x c=0 d=0\n",
++            now_ns, (hwaddr)0x3ffc7ec9,
++            esp32_handoff_pause_read_u8(0x3ffc7ec9));
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=mem event=freeze-word"
++            " a=%08" HWADDR_PRIx " b=%08" PRIx32 " c=0 d=0\n",
++            now_ns, (hwaddr)0x3ffc7750,
++            esp32_handoff_pause_read_u32(0x3ffc7750));
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=mem event=freeze-word"
++            " a=%08" HWADDR_PRIx " b=%08" PRIx32 " c=0 d=0\n",
++            now_ns, (hwaddr)0x3ffc7754,
++            esp32_handoff_pause_read_u32(0x3ffc7754));
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=dport event=freeze-state"
++            " a=%u b=%u c=%08" PRIx32 " d=%08" PRIx32 "\n",
++            now_ns, s->appcpu_stall_state, s->appcpu_clkgate_state,
++            s->cache_state[0].cache_ctrl_reg,
++            s->cache_state[1].cache_ctrl_reg);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=dport event=freeze-state1"
++            " a=%08" PRIx32 " b=%08" PRIx32
++            " c=%08" PRIx32 " d=%08" PRIx32 "\n",
++            now_ns, s->cache_state[0].cache_ctrl1_reg,
++            s->cache_state[1].cache_ctrl1_reg,
++            s->cache_ill_trap_en_reg,
++            s->appcpu_boot_addr);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=dport event=freeze-counters"
++            " a=%" PRIu64 " b=%" PRIu64
++            " c=%" PRIu64 " d=%" PRIu64 "\n",
++            now_ns, handoff_cache_sync_calls, handoff_cache_sync_pages,
++            handoff_cache_state_updates, handoff_last_cache_sync_ns);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=dport event=freeze-counters1"
++            " a=%" PRIu64 " b=%" PRIu64 " c=0 d=0\n",
++            now_ns, handoff_cache_invalidate_calls,
++            handoff_cache_illegal_reads);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi event=freeze-counters"
++            " a=%" PRIu64 " b=%" PRIu64
++            " c=%" PRIu64 " d=%" PRIu64 "\n",
++            now_ns, esp32_handoff_metrics.ssi_transactions,
++            esp32_handoff_metrics.ssi_rx_bytes,
++            esp32_handoff_metrics.ssi_tx_bytes,
++            esp32_handoff_metrics.ssi_last_addr);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=ssi event=freeze-last"
++            " a=%" PRIu64 " b=%" PRIu64
++            " c=%" PRIu64 " d=%" PRIu64 "\n",
++            now_ns, esp32_handoff_metrics.ssi_last_cmd,
++            esp32_handoff_metrics.ssi_last_rx_bytes,
++            esp32_handoff_metrics.ssi_last_tx_bytes,
++            esp32_handoff_metrics.ssi_last_ns);
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=-1 pc=00000000 component=crosscore event=freeze-counters"
++            " a=%" PRIu64 " b=0 c=0 d=0\n",
++            now_ns, esp32_handoff_metrics.crosscore_writes);
++    fflush(stderr);
++}
++
+ static void esp32_handoff_pause_cb(void *opaque)
+ {
++    Esp32DportState *s = ESP32_DPORT(opaque);
++    uint64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
++    const char *action = getenv("M5SW_ESP32_HANDOFF_PAUSE_ACTION");
++
+     fprintf(stderr,
+             "[esp32-handoff] now=%" PRId64
+             " cpu=-1 pc=00000000 component=cpu event=pause a=0 b=0 c=0 d=0\n",
+-            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
++            now_ns);
+     fflush(stderr);
++    if (getenv("M5SW_ESP32_HANDOFF_DUMP_STATE")) {
++        esp32_handoff_pause_dump_state(s, now_ns);
++    }
++    if (action && strcmp(action, "exit") == 0) {
++        exit(0);
++    }
+     raise(SIGSTOP);
+ }
+ 
+-static void esp32_handoff_pause_start(void)
++static void esp32_handoff_pause_start(Esp32DportState *s)
+ {
+     const char *value = getenv("M5SW_ESP32_HANDOFF_PAUSE_NS");
+     uint64_t pause_ns;
+@@ -554,7 +691,7 @@
+     }
+     if (!handoff_pause_timer) {
+         handoff_pause_timer = timer_new_ns(
+-            QEMU_CLOCK_VIRTUAL, esp32_handoff_pause_cb, NULL
++            QEMU_CLOCK_VIRTUAL, esp32_handoff_pause_cb, s
+         );
+     }
+     timer_mod_ns(handoff_pause_timer, pause_ns);
+@@ -562,6 +699,7 @@
+ 
+ static void esp32_cache_invalidate_all_entries(Esp32CacheRegionState* crs)
+ {
++    ++handoff_cache_invalidate_calls;
+     for (int i = 0; i < ESP32_CACHE_PAGES_PER_REGION; ++i) {
+         crs->mmu_table[i] |= ESP32_CACHE_MMU_ENTRY_CHANGED;
+     }
+@@ -569,6 +707,7 @@
+ 
+ static void esp32_cache_state_update(Esp32CacheState* cs)
+ {
++    ++handoff_cache_state_updates;
+     bool cache_enabled = FIELD_EX32(cs->cache_ctrl_reg, DPORT_PRO_CACHE_CTRL, CACHE_ENA) != 0;
+ 
+     bool drom0_enabled = cache_enabled &&
+@@ -620,6 +759,7 @@
+     Esp32CacheRegionState *crs = (Esp32CacheRegionState*) opaque;
+     uint32_t ill_data[] = { crs->illegal_access_retval, crs->illegal_access_retval };
+     uint32_t result;
++    ++handoff_cache_illegal_reads;
+     if (getenv("M5SW_CACHE_TRACE")) {
+         fprintf(stderr, "M5SW_CACHE_ILL core=%d type=%d addr=0x%" HWADDR_PRIx
+                 " size=%u\n", crs->cache->core_id, crs->type, addr, size);
+@@ -673,6 +813,13 @@
+ {
+     Esp32DportState *s = ESP32_DPORT(obj);
+ 
++    handoff_cache_sync_calls = 0;
++    handoff_cache_sync_pages = 0;
++    handoff_cache_state_updates = 0;
++    handoff_cache_invalidate_calls = 0;
++    handoff_cache_illegal_reads = 0;
++    handoff_last_cache_sync_ns = 0;
++    memset(&esp32_handoff_metrics, 0, sizeof(esp32_handoff_metrics));
+     esp32_handoff_trace_event_always(
+         &handoff_trace_count, "dport", "reset", 0, 0, 0, 0
+     );
+@@ -717,7 +864,7 @@
+         }
+     }
+     esp32_handoff_pc_sample_start();
+-    esp32_handoff_pause_start();
++    esp32_handoff_pause_start(s);
+ }
+ 
+ static void esp32_cache_init_region(Esp32DportState *ds,
+--- a/include/hw/misc/esp32_handoff_trace.h
++++ b/include/hw/misc/esp32_handoff_trace.h
+@@ -13,6 +13,19 @@
+ #include "qemu/timer.h"
+ #include "hw/core/cpu.h"
+ 
++typedef struct Esp32HandoffMetrics {
++    uint64_t ssi_transactions;
++    uint64_t ssi_rx_bytes;
++    uint64_t ssi_tx_bytes;
++    uint64_t ssi_last_cmd;
++    uint64_t ssi_last_addr;
++    uint64_t ssi_last_rx_bytes;
++    uint64_t ssi_last_tx_bytes;
++    uint64_t ssi_last_ns;
++    uint64_t crosscore_writes;
++} Esp32HandoffMetrics;
++
++extern Esp32HandoffMetrics esp32_handoff_metrics;
+ 
+ static inline bool esp32_handoff_trace_enabled(void)
+ {
+--- a/hw/ssi/esp32_spi.c
++++ b/hw/ssi/esp32_spi.c
+@@ -231,6 +231,15 @@
+ 
+ static void esp32_spi_transaction(Esp32SpiState *s, Esp32SpiTransaction *t)
+ {
++    ++esp32_handoff_metrics.ssi_transactions;
++    esp32_handoff_metrics.ssi_rx_bytes += t->data_rx_bytes;
++    esp32_handoff_metrics.ssi_tx_bytes += t->data_tx_bytes;
++    esp32_handoff_metrics.ssi_last_cmd = t->cmd;
++    esp32_handoff_metrics.ssi_last_addr = t->addr;
++    esp32_handoff_metrics.ssi_last_rx_bytes = t->data_rx_bytes;
++    esp32_handoff_metrics.ssi_last_tx_bytes = t->data_tx_bytes;
++    esp32_handoff_metrics.ssi_last_ns =
++        qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+     esp32_handoff_trace_event(
+         &handoff_trace_count, "ssi", "transaction-begin",
+         t->cmd, t->addr, t->data_tx_bytes, t->data_rx_bytes
+--- a/hw/misc/esp32_crosscore_int.c
++++ b/hw/misc/esp32_crosscore_int.c
+@@ -47,6 +47,7 @@
+     uint64_t level = value & 0x1;
+     assert(index < s->n_irqs);
+     if (s->irq_level[index] != level) {
++        ++esp32_handoff_metrics.crosscore_writes;
+         esp32_handoff_trace_event(
+             &handoff_trace_count, "crosscore", "write",
+             index, value, level, 0

@@ -1,0 +1,46 @@
+From 6f9059cfaf57bb44d8d0855caf61eb7f5e6e7f50 Mon Sep 17 00:00:00 2001
+From: m5agent <329351612+m5agent@users.noreply.github.com>
+Date: Fri, 23 Oct 2026 11:20:00 +0800
+Subject: [PATCH] m5ioe1: expose PA output state through QOM
+
+StopWatch enables AW8737A through M5IOE1 G10, not M5PM1. Track writes to
+the output-high register and expose the decoded G10 level so device-state
+probes and unified-runtime evidence observe the actual amplifier path.
+---
+ hw/m5stopwatch/m5sw_i2c_devs.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index c8a7575..582c04b 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -78,6 +78,7 @@ typedef struct M5swI2CDev {
+     int64_t aw9523_input_bits;
+     int64_t pi4ioe_input_bits;
+     int64_t m5ioe1_input_bits;
++    bool m5ioe1_pa_enabled;
+     int64_t m5pm1_input_bits;
+     int64_t pm1_adc1_mv;
+     int64_t pm1_adc2_mv;
+@@ -1312,7 +1313,9 @@ static int dev_send(I2CSlave *i2c, uint8_t data)
+         break;
+     case M_IOE1:
+         if (r == 0x07 || r == 0x08) { s->ptr++; return 0; }  /* RO */
+-        if (r == 0x15) {
++        if (r == 0x06) {
++            s->m5ioe1_pa_enabled = !!(data & BIT(1));
++        } else if (r == 0x15) {
+             s->regs[r] = data & 0x83;
+         } else if (r == 0x18) {
+             s->regs[r] = data & 0x80;
+@@ -1965,6 +1968,8 @@ static void dev_realize(DeviceState *dev, Error **errp)
+                             prop_set_i64, NULL, &s->m5ioe1_adc_mv[2]);
+         object_property_add(OBJECT(s), "adc4-mv", "int", prop_get_i64,
+                             prop_set_i64, NULL, &s->m5ioe1_adc_mv[3]);
++        object_property_add(OBJECT(s), "pa-enabled", "bool", prop_get_bool,
++                            NULL, NULL, &s->m5ioe1_pa_enabled);
+     } else if (!strcmp(m, "cst820")) {
+         s->model = M_CST820;
+         s->regs[0xA7] = 0xB7;   /* chip id */
+-- 
+2.43.0

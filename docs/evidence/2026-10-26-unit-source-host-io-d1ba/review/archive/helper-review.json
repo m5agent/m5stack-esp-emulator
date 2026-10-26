@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "status": "PASS_OFFLINE_HELPER_REVIEW_ONLY",
+  "archive_completion": "PENDING",
+  "helper_sha256": "213502d757b9bc7dc7693a6c4201baacbbacc42dfbffcdb0721a96ee1dec3b94",
+  "check_count": 52,
+  "checks": [
+    {
+      "name": "helper exact final freeze SHA256",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "helper Python AST parses",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "no HTTP socket subprocess OS or API imports",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "generation12 exact freeze constant",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "runtime d1ba exact freeze constant",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "actual default preflight remains PENDING before final review",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "default preflight attempts zero filesystem mutations",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "parent traversal rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "absolute path rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "backslash separator rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "root path rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "symlink ancestor rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "normal relative path accepted",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "ELF magic rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "MZ magic rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "firmware suffix rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "platform/tools/network_fabric.py exact omission pin accepted",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/network_fabric.py altered bytes rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "platform/tools/network_fabric.py raw capture source never eligible",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/network_fabric.py raw capture destination never eligible",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/ble_probe.py exact omission pin accepted",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/ble_probe.py altered bytes rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "platform/tools/ble_probe.py raw capture source never eligible",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/ble_probe.py raw capture destination never eligible",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "unfinished selected batch cannot pass omission nested SHA gate",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "every current omission has original freeze binding",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "selected terminal omissions preserve original nested SHA entries",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "omission scopes exactly two dependencies",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "captured Markdown transport byte exact",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "different-byte destination overwrite rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "collision preserves old captured bytes",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "unrecognized non-UTF8 binary rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "UTF8 NUL payload rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ordinary UTF8 payload accepted",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "valid PNG fully decodes",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "valid ZIP CRC exact member SHA and size accepted",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "ZIP traversal rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP symlink rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP comment rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP duplicate member rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP nested archive rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP wrong member SHA rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP omitted manifest member rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP native firmware member rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "quoted credential recognized without raw value output",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "MAC literal recognized without raw value output",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "API token recognized without raw value output",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "Bearer token recognized without raw value output",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "private URL recognized without raw value output",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "public example URL and loopback retained",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/network_fabric.py fixed Git commit path OID SHA size independently verified",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/ble_probe.py fixed Git commit path OID SHA size independently verified",
+      "status": "PASS_OFFLINE_ONLY"
+    }
+  ],
+  "default_preflight": {
+    "status": "PENDING",
+    "reviewed_selected_cases": 3,
+    "expected_selected_cases": 24,
+    "source_context_by_batch": {
+      "fan-r1": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc"
+    },
+    "same_source_dependency_bytes": null,
+    "pending": [
+      "live-rest-r1: no terminal batch result",
+      "final24 independent raw live review absent",
+      "actual 24 native visual reviews absent",
+      "missing selected case: atoms3r/dual-button",
+      "missing selected case: atoms3r/hub",
+      "missing selected case: atoms3r/key",
+      "missing selected case: atoms3r/limit",
+      "missing selected case: atoms3r/pir",
+      "missing selected case: atoms3r/rgb",
+      "missing selected case: atoms3r/rs485",
+      "missing selected case: sticks3/dual-button",
+      "missing selected case: sticks3/hub",
+      "missing selected case: sticks3/key",
+      "missing selected case: sticks3/limit",
+      "missing selected case: sticks3/pir",
+      "missing selected case: sticks3/rgb",
+      "missing selected case: sticks3/rs485",
+      "missing selected case: stopwatch/dual-button",
+      "missing selected case: stopwatch/hub",
+      "missing selected case: stopwatch/key",
+      "missing selected case: stopwatch/limit",
+      "missing selected case: stopwatch/pir",
+      "missing selected case: stopwatch/rgb",
+      "missing selected case: stopwatch/rs485"
+    ]
+  },
+  "current_exact_omission_copies_verified": 24,
+  "completed_or_legacy_omission_bindings_verified": 22,
+  "unfinished_selected_batches": [
+    "live-rest-r1"
+  ],
+  "omitted_unique_payloads": 2,
+  "Git_read_only_calls_in_separate_binding_probe": 4,
+  "API_network_browser_guest_process_calls_during_helper_tests": 0,
+  "default_filesystem_mutation_attempts": 0,
+  "original_files_modified": false,
+  "assemble_called": false,
+  "source_closure_bytes_in_archive": "EXCEPT_TWO_PINNED_INDIRECT_STATIC_FIXTURE_SNAPSHOTS",
+  "limits": [
+    "Final archive not assembled or audited by this helper-only review.",
+    "ZIP and payload negatives exercise the unedited nested audit inspector AST independently of batch metadata.",
+    "The fixed Git binding probe used four read-only git subprocess calls; helper tests used zero subprocess calls."
+  ],
+  "open_findings": []
+}

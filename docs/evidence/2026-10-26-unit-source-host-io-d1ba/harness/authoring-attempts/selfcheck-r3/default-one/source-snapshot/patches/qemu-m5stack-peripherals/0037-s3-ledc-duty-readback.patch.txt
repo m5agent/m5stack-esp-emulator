@@ -1,0 +1,20 @@
+diff --git a/hw/misc/esp32_ledc.c b/hw/misc/esp32_ledc.c
+index ee03d2d..34672b2 100644
+--- a/hw/misc/esp32_ledc.c
++++ b/hw/misc/esp32_ledc.c
+@@ -23,6 +23,15 @@
+ {
+     Esp32LEDCState *s = ESP32_LEDC(opaque);
+     uint64_t r = 0;
++    if (s->esp32s3_layout && addr < 0xa0) {
++        unsigned offset = addr % 0x14;
++        if (offset == 8 || offset == 16) {
++            /* The existing model applies duty writes immediately. Expose
++             * that settled set+update state, without claiming pending/current
++             * cycle, fade or active-latch timing semantics. */
++            return s->channel_duty_reg[addr / 0x14] & 0x7ffff;
++        }
++    }
+     if (s->esp32s3_layout && addr >= 0xa0 && addr < 0xc0) {
+         unsigned index = (addr - 0xa0) / 8;
+         r = (addr & 4) ? s->timer_value_reg[index]

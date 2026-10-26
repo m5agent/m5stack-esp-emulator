@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "status": "CONFIRMED_HOST_LIFECYCLE_RACE",
+  "source_commit": "0a6a9a2a4201f49464afb6cd6e36c321d3305cb6",
+  "source_file": "platform/tools/device_service.py",
+  "source_sha256": "093e4738efa6b505b1505e5b635249b9ac992583ff587791e16011d29f3b80a8",
+  "actual_methods_used": [
+    "DeviceSession._provision",
+    "DeviceSession.stop",
+    "DeviceSession._set_state",
+    "DeviceSession._release_virtual_flash"
+  ],
+  "test_doubles": [
+    "prepare_flash Event barrier plus own inert byte fixture",
+    "_launch recorder; does not launch a process",
+    "_terminate_process recorder; no OS signals",
+    "_release_worker_lease recorder",
+    "_record_event/_persist_session/snapshot for minimal local fixture"
+  ],
+  "cases": [
+    {
+      "case": "uncancelled-control",
+      "at_prepare_barrier": {
+        "session_id": "offline-lifecycle-uncancelled-control",
+        "state": "flashing",
+        "virtual_flash_present": false
+      },
+      "stop_response_before_prepare_release": null,
+      "post_provision": {
+        "session_id": "offline-lifecycle-uncancelled-control",
+        "state": "running",
+        "virtual_flash_present": true
+      },
+      "launch_calls": 1,
+      "terminate_calls": 0,
+      "lease_release_calls": 0,
+      "stop_event_set": false,
+      "events": [
+        {
+          "event": "state",
+          "state": "flashing",
+          "details": {
+            "from": "provisioning",
+            "to": "flashing"
+          }
+        },
+        {
+          "event": "flash_prepared",
+          "state": "flashing",
+          "details": {
+            "test_only": true,
+            "session_isolated_copy": true
+          }
+        },
+        {
+          "event": "state",
+          "state": "booting",
+          "details": {
+            "from": "flashing",
+            "to": "booting"
+          }
+        },
+        {
+          "event": "MOCK_LAUNCH",
+          "state": "booting"
+        },
+        {
+          "event": "state",
+          "state": "running",
+          "details": {
+            "from": "booting",
+            "to": "running"
+          }
+        }
+      ],
+      "outcome": "EXPECTED_UNCANCELLED_CONTROL"
+    },
+    {
+      "case": "cancel-during-prepare",
+      "at_prepare_barrier": {
+        "session_id": "offline-lifecycle-cancel-during-prepare",
+        "state": "flashing",
+        "virtual_flash_present": false
+      },
+      "stop_response_before_prepare_release": {
+        "session_id": "offline-lifecycle-cancel-during-prepare",
+        "state": "stopped",
+        "virtual_flash_present": false
+      },
+      "post_provision": {
+        "session_id": "offline-lifecycle-cancel-during-prepare",
+        "state": "running",
+        "virtual_flash_present": true
+      },
+      "launch_calls": 1,
+      "terminate_calls": 1,
+      "lease_release_calls": 1,
+      "stop_event_set": false,
+      "events": [
+        {
+          "event": "state",
+          "state": "flashing",
+          "details": {
+            "from": "provisioning",
+            "to": "flashing"
+          }
+        },
+        {
+          "event": "MOCK_TERMINATE",
+          "state": "stopping"
+        },
+        {
+          "event": "stopped",
+          "state": "stopped",
+          "details": {
+            "purge": false
+          }
+        },
+        {
+          "event": "flash_prepared",
+          "state": "stopped",
+          "details": {
+            "test_only": true,
+            "session_isolated_copy": true
+          }
+        },
+        {
+          "event": "state",
+          "state": "booting",
+          "details": {
+            "from": "stopped",
+            "to": "booting"
+          }
+        },
+        {
+          "event": "MOCK_LAUNCH",
+          "state": "booting"
+        },
+        {
+          "event": "state",
+          "state": "running",
+          "details": {
+            "from": "booting",
+            "to": "running"
+          }
+        }
+      ],
+      "outcome": "REPRODUCED_STOPPED_SESSION_RESURRECTS"
+    }
+  ],
+  "API_network_QEMU_guest_subprocess_calls": 0,
+  "production_source_unchanged": true,
+  "scope": "Deterministic host lifecycle interleaving only; no API, QEMU, guest, controller or hardware execution."
+}

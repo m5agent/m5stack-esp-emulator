@@ -1,0 +1,894 @@
+{
+  "schema_version": 1,
+  "id": "esp32s3-unit-ideal-adc-v1",
+  "kind": "synthetic-virtual-device-calibration",
+  "checked_at": "2026-10-26",
+  "license": "Apache-2.0 (Espressif field definitions and numeric coefficients); MicroPython source is MIT",
+  "hardware_validation": false,
+  "backend": "qemu-esp32s3",
+  "efuse_layout": {
+    "kind": "qemu-esp-efuse-compact-blocks-le",
+    "image_bytes": 4096,
+    "block_byte_offsets": {
+      "0": 0,
+      "1": 24,
+      "2": 48
+    }
+  },
+  "firmware_binding": {
+    "reference_file": "platform/.cache/firmware/cores3/uiflow2.bin",
+    "reference_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+    "version": "V2.5.3",
+    "idf_version": "v5.5.5-dirty",
+    "app_elf_sha256": "65a206af9eb1cbcba2bb24278cd112ad5a68167d536a817ea1d2e62da11d1977",
+    "application_offset": 65536,
+    "application_segment_bytes": 10018400,
+    "application_segment_sha256": "c797c5c747fd5747233048b9e833137d5b7bd6d70da3f1135403614e3a9e442f",
+    "meaning": "SHA-256 over actual ESP image headers and segment bytes; excludes mutable VFS/NVS. app descriptor metadata alone is not the admission gate. The public IDF tag is the reference; private dirty changes are not assumed verified."
+  },
+  "sar_profile": {
+    "id": "s3-unit-ideal-12bit-v1",
+    "bit_width": 12,
+    "maximum_raw": 4095,
+    "full_scale_mv": [
+      950,
+      1250,
+      1750,
+      3100
+    ],
+    "reference_voltage_mv": 850,
+    "reference_digital": {
+      "adc1": [
+        3664,
+        2785,
+        1989,
+        1123
+      ],
+      "adc2": [
+        3664,
+        2785,
+        1989,
+        1123
+      ]
+    },
+    "raw_formula": "min(4095, floor(input_mv * 4095 / full_scale_mv[atten] + 0.5))",
+    "boundary": "IDF fixed curve correction is applied after the synthetic linear reference; calibrated read_uv is not an identity map of input millivolts or physical sensor accuracy."
+  },
+  "fields": [
+    {
+      "name": "ADC2_CAL_VOL_ATTEN3",
+      "block": 1,
+      "bit_start": 186,
+      "bit_count": 6,
+      "value": 15
+    },
+    {
+      "name": "BLK_VERSION_MAJOR",
+      "block": 2,
+      "bit_start": 128,
+      "bit_count": 2,
+      "value": 1
+    },
+    {
+      "name": "ADC1_INIT_CODE_ATTEN0",
+      "block": 2,
+      "bit_start": 149,
+      "bit_count": 8,
+      "value": 0
+    },
+    {
+      "name": "ADC1_INIT_CODE_ATTEN1",
+      "block": 2,
+      "bit_start": 157,
+      "bit_count": 6,
+      "value": 0
+    },
+    {
+      "name": "ADC1_INIT_CODE_ATTEN2",
+      "block": 2,
+      "bit_start": 163,
+      "bit_count": 6,
+      "value": 0
+    },
+    {
+      "name": "ADC1_INIT_CODE_ATTEN3",
+      "block": 2,
+      "bit_start": 169,
+      "bit_count": 6,
+      "value": 0
+    },
+    {
+      "name": "ADC2_INIT_CODE_ATTEN0",
+      "block": 2,
+      "bit_start": 175,
+      "bit_count": 8,
+      "value": 0
+    },
+    {
+      "name": "ADC2_INIT_CODE_ATTEN1",
+      "block": 2,
+      "bit_start": 183,
+      "bit_count": 6,
+      "value": 0
+    },
+    {
+      "name": "ADC2_INIT_CODE_ATTEN2",
+      "block": 2,
+      "bit_start": 189,
+      "bit_count": 6,
+      "value": 0
+    },
+    {
+      "name": "ADC2_INIT_CODE_ATTEN3",
+      "block": 2,
+      "bit_start": 195,
+      "bit_count": 6,
+      "value": 0
+    },
+    {
+      "name": "ADC1_CAL_VOL_ATTEN0",
+      "block": 2,
+      "bit_start": 201,
+      "bit_count": 8,
+      "value": 79
+    },
+    {
+      "name": "ADC1_CAL_VOL_ATTEN1",
+      "block": 2,
+      "bit_start": 209,
+      "bit_count": 8,
+      "value": 96
+    },
+    {
+      "name": "ADC1_CAL_VOL_ATTEN2",
+      "block": 2,
+      "bit_start": 217,
+      "bit_count": 8,
+      "value": 66
+    },
+    {
+      "name": "ADC1_CAL_VOL_ATTEN3",
+      "block": 2,
+      "bit_start": 225,
+      "bit_count": 8,
+      "value": 223
+    },
+    {
+      "name": "ADC2_CAL_VOL_ATTEN0",
+      "block": 2,
+      "bit_start": 233,
+      "bit_count": 8,
+      "value": 40
+    },
+    {
+      "name": "ADC2_CAL_VOL_ATTEN1",
+      "block": 2,
+      "bit_start": 241,
+      "bit_count": 7,
+      "value": 10
+    },
+    {
+      "name": "ADC2_CAL_VOL_ATTEN2",
+      "block": 2,
+      "bit_start": 248,
+      "bit_count": 7,
+      "value": 20
+    }
+  ],
+  "idf_second_stage_coefficients": {
+    "adc1": [
+      [
+        [
+          27856531419538344,
+          10000000000000000,
+          -1
+        ],
+        [
+          50871540569528,
+          10000000000000000,
+          -1
+        ],
+        [
+          9798249589,
+          1000000000000000,
+          1
+        ]
+      ],
+      [
+        [
+          29831022915028695,
+          10000000000000000,
+          -1
+        ],
+        [
+          49393185868806,
+          10000000000000000,
+          -1
+        ],
+        [
+          101379430548,
+          10000000000000000,
+          1
+        ]
+      ],
+      [
+        [
+          23285545746296417,
+          10000000000000000,
+          -1
+        ],
+        [
+          147640181047414,
+          10000000000000000,
+          -1
+        ],
+        [
+          208385525314,
+          10000000000000000,
+          1
+        ]
+      ],
+      [
+        [
+          644403418269478,
+          1000000000000000,
+          -1
+        ],
+        [
+          644334888647536,
+          10000000000000000,
+          -1
+        ],
+        [
+          1297891447611,
+          10000000000000000,
+          1
+        ],
+        [
+          70769718,
+          1000000000000000,
+          -1
+        ],
+        [
+          13515,
+          1000000000000000,
+          1
+        ]
+      ]
+    ],
+    "adc2": [
+      [
+        [
+          25668651654328927,
+          10000000000000000,
+          -1
+        ],
+        [
+          1353548869615,
+          10000000000000000,
+          1
+        ],
+        [
+          36615265189,
+          10000000000000000,
+          1
+        ]
+      ],
+      [
+        [
+          23690184690298404,
+          10000000000000000,
+          -1
+        ],
+        [
+          66319894226185,
+          10000000000000000,
+          -1
+        ],
+        [
+          118964995959,
+          10000000000000000,
+          1
+        ]
+      ],
+      [
+        [
+          9452499397020617,
+          10000000000000000,
+          -1
+        ],
+        [
+          200996773954387,
+          10000000000000000,
+          -1
+        ],
+        [
+          259011467956,
+          10000000000000000,
+          1
+        ]
+      ],
+      [
+        [
+          12247719764336924,
+          10000000000000000,
+          1
+        ],
+        [
+          755717904943462,
+          10000000000000000,
+          -1
+        ],
+        [
+          1478791187119,
+          10000000000000000,
+          1
+        ],
+        [
+          79672528,
+          1000000000000000,
+          -1
+        ],
+        [
+          15038,
+          1000000000000000,
+          1
+        ]
+      ]
+    ]
+  },
+  "sources": {
+    "esp_idf": {
+      "components/esp_adc/adc_cali_curve_fitting.c": {
+        "url": "https://raw.githubusercontent.com/espressif/esp-idf/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/esp_adc/adc_cali_curve_fitting.c",
+        "commit": "b774170ff46c393eeb5e495ea37936038d3f4f4f",
+        "git_blob_sha": "919614a5fca5831f54e27e641c0150d5407672fc",
+        "sha256": "c5298fde12b7d019148c9d26be894b4837bf99248a1ca5ebb9cfe5de2d8f47b9"
+      },
+      "components/esp_adc/esp32s3/curve_fitting_coefficients.c": {
+        "url": "https://raw.githubusercontent.com/espressif/esp-idf/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/esp_adc/esp32s3/curve_fitting_coefficients.c",
+        "commit": "b774170ff46c393eeb5e495ea37936038d3f4f4f",
+        "git_blob_sha": "ea10cfeb66e4e723a1f93541bb414d09eb65b750",
+        "sha256": "9995bb0e8b76caf0c41268391fcad62f94b6adf7dcdd76bbfb1e7dbb770a7191"
+      },
+      "components/efuse/esp32s3/esp_efuse_rtc_calib.c": {
+        "url": "https://raw.githubusercontent.com/espressif/esp-idf/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/efuse/esp32s3/esp_efuse_rtc_calib.c",
+        "commit": "b774170ff46c393eeb5e495ea37936038d3f4f4f",
+        "git_blob_sha": "2ede5610ba666f716729b2763cde82bb99abf27a",
+        "sha256": "449b9c4559a08cae21aacd5230390abb2966e25df9333b80fbcd2faa688128f1"
+      },
+      "components/efuse/esp32s3/esp_efuse_table.csv": {
+        "url": "https://raw.githubusercontent.com/espressif/esp-idf/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/efuse/esp32s3/esp_efuse_table.csv",
+        "commit": "b774170ff46c393eeb5e495ea37936038d3f4f4f",
+        "git_blob_sha": "a10c75587b9edd97f57c7a3091b10278cdd157a2",
+        "sha256": "cdbede45a9fa5f21d0948723e27b07f493e437bae3e35ff40148f00b46c248a6"
+      },
+      "components/efuse/esp32s3/include/esp_efuse_rtc_calib.h": {
+        "url": "https://raw.githubusercontent.com/espressif/esp-idf/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/efuse/esp32s3/include/esp_efuse_rtc_calib.h",
+        "commit": "b774170ff46c393eeb5e495ea37936038d3f4f4f",
+        "git_blob_sha": "49712040a03a73c77608552fa0ee010e0ad10254",
+        "sha256": "b85be53f788c688a863ac7ba35d8bfaef73c98057aaa86a3c95ce613c19d9e21"
+      }
+    },
+    "micropython": {
+      "uiflow-gitmodules": {
+        "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/.gitmodules",
+        "sha256": "ec350683b7d609ed97703e421587ea317598aced06ebba0e93e14524497608e3",
+        "bytes": 1603
+      },
+      "micropython-machine-adc": {
+        "url": "https://raw.githubusercontent.com/micropython/micropython/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/ports/esp32/machine_adc.c",
+        "sha256": "d5d6a652e5bca33013232ff1375fdb619ee6d6b09c60ddd4b07027ca7fa5db48",
+        "bytes": 13036
+      },
+      "micropython-adc": {
+        "url": "https://raw.githubusercontent.com/micropython/micropython/78ff170de9e32c79db6e64d3e33d2bd60002bdcd/ports/esp32/adc.c",
+        "sha256": "11b5c0de194eee30a6ddeeda320cdae4a63f7bcb501e3c5fe7c018fc0b51fce4",
+        "bytes": 3530
+      },
+      "s3-soc-caps": {
+        "url": "https://raw.githubusercontent.com/espressif/esp-idf/b774170ff46c393eeb5e495ea37936038d3f4f4f/components/soc/esp32s3/include/soc/soc_caps.h",
+        "sha256": "832796827709840fef9656bcb5711b952abd9d6923ffac729ec4526ae6cf4849",
+        "bytes": 32620
+      }
+    },
+    "qemu_compact_efuse_layout": {
+      "path": "hw/nvram/esp_efuse.c",
+      "sha256": "e3e04a3d93af9c58b67d421172d18d06f682233df6a5d99195bb3332b137e61a",
+      "evidence": "esp_offset_of_block: BLOCK0 and BLOCK1 each contain six uint32 words; later blocks each contain eight."
+    }
+  },
+  "identity_policy": "Only the 17 named ADC calibration/version fields are writable. Optional unique ID, MAC, package/revision, security and key fields are never imported, generated or changed. No real device calibration data is used.",
+  "numeric_oracle": {
+    "kind": "host-compiled-unmodified-IDF-C-arithmetic",
+    "method": "Compiled exact get_reading_error function body and complete S3 coefficient/sign arrays from the pinned official sources; minimal host typedef/logging stubs and driver first-stage integer expression; never started firmware or QEMU.",
+    "function_body_sha256": "39bc5167766f7f5d84199044c35ff7d440e5426355f99021626692199aa4cf77",
+    "coefficient_source_slice_sha256": "1bf0f3eedbd80ac00b276dbe73ddfc9d216b5c738be31955f94090082995661c",
+    "host_harness_sha256": "4edb5b717397fce2c129289fd799f76d4a2a103af45fdc771c755aa53bce6da0",
+    "test_vectors": [
+      {
+        "adc_unit": 1,
+        "attenuation": 0,
+        "raw_12bit": 0,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 0,
+        "raw_12bit": 1,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 0,
+        "raw_12bit": 330,
+        "read_uv": 78000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 0,
+        "raw_12bit": 660,
+        "read_uv": 155000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 0,
+        "raw_12bit": 1123,
+        "read_uv": 263000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 0,
+        "raw_12bit": 1651,
+        "read_uv": 384000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 0,
+        "raw_12bit": 2048,
+        "read_uv": 477000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 0,
+        "raw_12bit": 2642,
+        "read_uv": 614000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 0,
+        "raw_12bit": 3302,
+        "read_uv": 765000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 0,
+        "raw_12bit": 4095,
+        "read_uv": 947000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 1,
+        "raw_12bit": 0,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 1,
+        "raw_12bit": 1,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 1,
+        "raw_12bit": 330,
+        "read_uv": 102000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 1,
+        "raw_12bit": 660,
+        "read_uv": 203000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 1,
+        "raw_12bit": 1123,
+        "read_uv": 344000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 1,
+        "raw_12bit": 1651,
+        "read_uv": 505000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 1,
+        "raw_12bit": 2048,
+        "read_uv": 627000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 1,
+        "raw_12bit": 2642,
+        "read_uv": 805000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 1,
+        "raw_12bit": 3302,
+        "read_uv": 1003000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 1,
+        "raw_12bit": 4095,
+        "read_uv": 1242000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 2,
+        "raw_12bit": 0,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 2,
+        "raw_12bit": 1,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 2,
+        "raw_12bit": 330,
+        "read_uv": 145000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 2,
+        "raw_12bit": 660,
+        "read_uv": 287000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 2,
+        "raw_12bit": 1123,
+        "read_uv": 484000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 2,
+        "raw_12bit": 1651,
+        "read_uv": 707000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 2,
+        "raw_12bit": 2048,
+        "read_uv": 874000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 2,
+        "raw_12bit": 2642,
+        "read_uv": 1121000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 2,
+        "raw_12bit": 3302,
+        "read_uv": 1392000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 2,
+        "raw_12bit": 4095,
+        "read_uv": 1713000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 3,
+        "raw_12bit": 0,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 3,
+        "raw_12bit": 1,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 3,
+        "raw_12bit": 330,
+        "read_uv": 258000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 3,
+        "raw_12bit": 660,
+        "read_uv": 507000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 3,
+        "raw_12bit": 1123,
+        "read_uv": 846000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 3,
+        "raw_12bit": 1651,
+        "read_uv": 1232000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 3,
+        "raw_12bit": 2048,
+        "read_uv": 1523000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 3,
+        "raw_12bit": 2642,
+        "read_uv": 1959000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 3,
+        "raw_12bit": 3302,
+        "read_uv": 2427000
+      },
+      {
+        "adc_unit": 1,
+        "attenuation": 3,
+        "raw_12bit": 4095,
+        "read_uv": 2912000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 0,
+        "raw_12bit": 0,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 0,
+        "raw_12bit": 1,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 0,
+        "raw_12bit": 330,
+        "read_uv": 78000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 0,
+        "raw_12bit": 660,
+        "read_uv": 155000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 0,
+        "raw_12bit": 1123,
+        "read_uv": 262000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 0,
+        "raw_12bit": 1651,
+        "read_uv": 384000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 0,
+        "raw_12bit": 2048,
+        "read_uv": 477000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 0,
+        "raw_12bit": 2642,
+        "read_uv": 613000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 0,
+        "raw_12bit": 3302,
+        "read_uv": 765000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 0,
+        "raw_12bit": 4095,
+        "read_uv": 948000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 1,
+        "raw_12bit": 0,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 1,
+        "raw_12bit": 1,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 1,
+        "raw_12bit": 330,
+        "read_uv": 102000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 1,
+        "raw_12bit": 660,
+        "read_uv": 204000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 1,
+        "raw_12bit": 1123,
+        "read_uv": 345000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 1,
+        "raw_12bit": 1651,
+        "read_uv": 505000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 1,
+        "raw_12bit": 2048,
+        "read_uv": 627000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 1,
+        "raw_12bit": 2642,
+        "read_uv": 806000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 1,
+        "raw_12bit": 3302,
+        "read_uv": 1003000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 1,
+        "raw_12bit": 4095,
+        "read_uv": 1241000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 2,
+        "raw_12bit": 0,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 2,
+        "raw_12bit": 1,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 2,
+        "raw_12bit": 330,
+        "read_uv": 143000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 2,
+        "raw_12bit": 660,
+        "read_uv": 285000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 2,
+        "raw_12bit": 1123,
+        "read_uv": 483000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 2,
+        "raw_12bit": 1651,
+        "read_uv": 707000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 2,
+        "raw_12bit": 2048,
+        "read_uv": 873000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 2,
+        "raw_12bit": 2642,
+        "read_uv": 1118000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 2,
+        "raw_12bit": 3302,
+        "read_uv": 1388000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 2,
+        "raw_12bit": 4095,
+        "read_uv": 1705000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 3,
+        "raw_12bit": 0,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 3,
+        "raw_12bit": 1,
+        "read_uv": 0
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 3,
+        "raw_12bit": 330,
+        "read_uv": 258000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 3,
+        "raw_12bit": 660,
+        "read_uv": 508000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 3,
+        "raw_12bit": 1123,
+        "read_uv": 847000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 3,
+        "raw_12bit": 1651,
+        "read_uv": 1231000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 3,
+        "raw_12bit": 2048,
+        "read_uv": 1521000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 3,
+        "raw_12bit": 2642,
+        "read_uv": 1955000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 3,
+        "raw_12bit": 3302,
+        "read_uv": 2420000
+      },
+      {
+        "adc_unit": 2,
+        "attenuation": 3,
+        "raw_12bit": 4095,
+        "read_uv": 2897000
+      }
+    ],
+    "host_harness_path": "tests/units/adc_reference_oracle.c"
+  },
+  "license_file": "platform/units/fixtures/LICENSE.Espressif-ADC",
+  "copyright": "2019-2023 Espressif Systems (Shanghai) CO LTD; synthetic fixture and host integration modified 2026 by m5agent contributors"
+}

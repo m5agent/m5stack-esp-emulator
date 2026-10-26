@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <329351612+m5agent@users.noreply.github.com>
+Date: Fri, 23 Oct 2026 12:40:00 +0800
+Subject: [PATCH] esp32s3: map UART2 to an optional third serial chardev
+
+StackChan keeps UART1 on the SCS servo bus and runs external HCI over
+UART2. Without this mapping, QEMU accepted the third -serial argument but
+left UART2 disconnected, so NimBLE commands reached no controller and the
+host timed out with "HCI wait for ack returned 19".
+
+Attach UART2 only when serial_hd(2) exists so existing machines that expose
+one or two serials keep their current behavior.
+---
+ hw/xtensa/esp32s3.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/hw/xtensa/esp32s3.c b/hw/xtensa/esp32s3.c
+index 7f467b1..2055b90 100644
+--- a/hw/xtensa/esp32s3.c
++++ b/hw/xtensa/esp32s3.c
+@@ -591,7 +591,9 @@ static void esp32s3_soc_init(Object *obj)
+     object_property_add_alias(obj, "serial0", OBJECT(&s->uart[0]), "chardev");
+     object_property_add_alias(obj, "serial1", OBJECT(&s->uart[1]), "chardev");
+-    // object_property_add_alias(obj, "serial2", OBJECT(&s->uart[2]), "chardev");
++    object_property_add_alias(obj, "serial2", OBJECT(&s->uart[2]), "chardev");
+     qdev_prop_set_chr(DEVICE(&s->uart[0]), "chardev", serial_hd(0));
+     qdev_prop_set_chr(DEVICE(&s->uart[1]), "chardev", serial_hd(1));
+-    // qdev_prop_set_chr(DEVICE(&s->uart[2]), "chardev", serial_hd(2));
++    if (serial_hd(2)) {
++        qdev_prop_set_chr(DEVICE(&s->uart[2]), "chardev", serial_hd(2));
++    }
+ 
+     object_initialize_child(obj, "intmatrix", &s->intmatrix, TYPE_ESP32S3_INTMATRIX);
+     object_initialize_child(obj, "ledc", &s->ledc, TYPE_ESP32_LEDC);
+-- 
+2.51.0

@@ -1,0 +1,819 @@
+{
+  "schema_version": 1,
+  "device_id": "sticks3",
+  "unit_id": "rgb",
+  "runtime": "qemu",
+  "source_intake": "uiflow-source-api",
+  "source_context_commit": "0a6a9a2a4201f49464afb6cd6e36c321d3305cb6",
+  "source_context_stage": "ROOT_SUPPLIED_POST_SYNC",
+  "port_id": "custom",
+  "host_profile": {
+    "rotation": 0,
+    "size": [
+      135,
+      240
+    ],
+    "text": [
+      4,
+      4,
+      127
+    ],
+    "internal_sda": 47,
+    "internal_scl": 48,
+    "log_tx": 43,
+    "log_rx": 44,
+    "internal_controller": 1,
+    "external_controller": 0,
+    "canvas_size": [
+      135,
+      240
+    ]
+  },
+  "official_host_evidence": [
+    {
+      "url": "https://docs.m5stack.com/en/core/StickS3",
+      "checked_at": "2026-10-26",
+      "locator": "PinMap > HY2.0-4P (Black/Red/Yellow/White)"
+    }
+  ],
+  "attachments": [
+    {
+      "id": "external1",
+      "unit_id": "rgb",
+      "port_id": "custom"
+    }
+  ],
+  "layout_plan": {
+    "x": 4,
+    "y": 4,
+    "width": 127,
+    "headers": [
+      "sticks3",
+      "rgb"
+    ],
+    "font_height": 15,
+    "line_height": 16,
+    "body_y": 38,
+    "body_rows": 8,
+    "bottom": 166
+  },
+  "reference_layout": {
+    "source": "actual-reference-partition-table",
+    "offset": 6623232,
+    "size": 1761280,
+    "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3"
+  },
+  "reference_file": "platform/.cache/firmware/sticks3/uiflow2.bin",
+  "flash_size": 8388608,
+  "expected_size": [
+    135,
+    240
+  ],
+  "base_firmware_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+  "expected_runtime_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+  "source_cas_sha256": "30ee9d18731ed78336023e600c461d1d2bde6f649ad4ad47cc4187eeca429f20",
+  "probe_sha256": {
+    "boot.py": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+    "host_io_layout.py": "1da4be07ca78d3f4e88ff4dcf0c107394fc8912c7315778e4700b64c104d79dd",
+    "io_drivers/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "io_drivers/angle.py": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+    "io_drivers/button.py": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+    "io_drivers/buzzer.py": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+    "io_drivers/dual_button.py": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+    "io_drivers/fan.py": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+    "io_drivers/ir.py": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+    "io_drivers/key.py": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+    "io_drivers/light.py": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+    "io_drivers/limit.py": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+    "io_drivers/pir.py": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+    "io_drivers/rgb.py": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+    "io_drivers/rs485.py": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+    "io_program.py": "f64015b636f21cd658a7ac039657e5496d5ae8530be3b50d9ba87554ce13c979",
+    "main.py": "70df61b1fbdfc5d607321603e6fb3d97bc6636f3968fe75df0d733a7b26bc552",
+    "probe_config.py": "3e88d7a1789d7a5a51e58937a2a30a9f4ad3a9328d5a0fd3ace1c27157695ef4",
+    "probe_logging.py": "02ebce33cbd8b08aee17811593b9605e53a12fc9a6310cbb55396c1d14e2aea4"
+  },
+  "expected_composer_toolchain": {
+    "builder": "uiflow_source/1",
+    "python": "3.12.8",
+    "python_abi": "cpython-312",
+    "littlefs_python": "0.19.0",
+    "littlefs_library": "(2, 11)",
+    "littlefs_disk": "(2, 1)",
+    "config": {
+      "block_size": 4096,
+      "read_size": 128,
+      "prog_size": 32,
+      "lookahead_size": 128,
+      "block_cycles": 100
+    }
+  },
+  "official_drivers": {
+    "pir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/pir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "limit.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/limit.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "dual_button.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/dual_button.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "angle.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/angle.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "light.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/light.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "fan.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/fan.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "buzzer.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/buzzer.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rgb.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rgb.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "key.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/key.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "ir.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/ir.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    },
+    "rs485.py": {
+      "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/3a86d8f611b3639cca755a933e01a5a829771ef1/m5stack/libs/unit/rs485.py",
+      "commit": "3a86d8f611b3639cca755a933e01a5a829771ef1",
+      "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+      "license": "MIT (source SPDX)",
+      "checked_at": "2026-10-26"
+    }
+  },
+  "original_function_sha256": {
+    "tests/units/run_io_cases.py::attachments": "6eb3d027b7be8274af055026e7a82201e54033fd80cd70bfdf9cd546bf15a187",
+    "tests/units/run_io_cases.py::Observations": "9f204b66aef23a811cec4deb0e72f206f7796b4a1631ba3de84c9f43b83f57fd",
+    "tests/units/run_io_cases.py::validate_io": "fb252778935d9aad138096709235e159de57ed2d42f9402ee05a1ea62a09e56e",
+    "tests/units/run_io_cases.py::validate_evidence": "a3026d8b3b5dc7a218b9c522583bed5e3800bcce5a1dd733e2c13537f9ea197b",
+    "tests/units/run_host_io_cases.py::INPUTS": "4d66ab3ea317b14bf18200b987077b7570e3233721149ea2e8ff8bd521206a16",
+    "tests/units/run_host_io_cases.py::same_value": "e0f0785d3ba0cbd7f8a3d77396cad9d680fec8e33820e084f5d1edabc51b7c70",
+    "tests/units/run_host_io_cases.py::fresh_markers": "18bd9210aa3ce56b1bd1b5f196285bb896703df20a22c2669b29685370090733",
+    "tests/units/run_host_io_cases.py::positive_input_binding": "2fbf32f3332fe54fb86304103d5a5e01737ecff014c4ba7f35a8aa288e5f0bdd",
+    "tests/units/prepare_host_io.py::protocol_audit": "e9774bb21b3747f2414d03537337e32294f203a9d5591ff3506395522e542eaa",
+    "tests/units/prepare_host_io.py::config_bytes": "18b6dc7b6cdd908dbf1b745b57d95e5e1add2a76bbac7daef8b016dbef2f0262",
+    "tests/units/prepare_host_io.py::resource_preflight": "36c384f994140937ceb2f36d39eb3f789509d8829eaa304962d45bc29c526cf2"
+  },
+  "resource_preflight": {
+    "status": "ADMITTED_NOT_EXECUTED",
+    "blockers": [],
+    "known_risks": [],
+    "controller_path": "native RMT yellow 3xGRB; threshold/refill/completion and short-frame negative",
+    "pins": {
+      "yellow": 9,
+      "white": 10
+    },
+    "uart0_log": [
+      43,
+      44
+    ],
+    "uart1_for_rs485": false,
+    "internal_bmi_i2c": {
+      "controller": 1,
+      "sda": 47,
+      "scl": 48
+    },
+    "adc_unit": null,
+    "pin_sets_disjoint": true,
+    "controller_execution": "NOT RUN"
+  },
+  "firmware_flavor": "reference-app-with-original-unit-drivers-host-io-probe",
+  "custom_flags": {
+    "ir_callback_root_patch": false,
+    "buzzer_callback_arity_patch": false
+  },
+  "custom_driver_modification": false,
+  "adc_fixture": "NOT USED",
+  "host_admission_modified": false,
+  "caller_file_count": 19,
+  "ready_marker": "IO_PROBE_READY rgb",
+  "status": "PASS",
+  "case_directory": "/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/unit-source-host-io-20261026/live-rest-r1/sticks3/rgb",
+  "expected_worker_generation": 12,
+  "checks": {
+    "actual_partition_layout_checked": true,
+    "source_api_caller_bytes_base_cas_and_readback": true,
+    "direct_live_runtime_pid_sha_worker_verified": true,
+    "native_rmt_grb_all_three_leds_and_short_frame_negative": true,
+    "original_validate_io_completed_without_reduction": true,
+    "actual_host_font_canvas_layout_and_fresh_internal_bmi": true,
+    "nonblank_native_host_application_frame": true,
+    "zip_before_stop_original_oracle_source_pid_and_contract": true,
+    "purge_zero_history_frame_flash_release_pid_exit_idle": true,
+    "actual_product_dom_http_match": true
+  },
+  "required_markers": [
+    "IO_PROBE_READY rgb",
+    "IO_RGB_FULL 1",
+    "IO_RGB_SHORT 1",
+    "IO_RGB_FULL 2"
+  ],
+  "injections": [],
+  "started_at": "2026-10-26T06:00:04.062085+00:00",
+  "hardware_validation": "NOT RUN",
+  "source": {
+    "kind": "uiflow",
+    "artifact_id": "30ee9d18731ed78336023e600c461d1d2bde6f649ad4ad47cc4187eeca429f20",
+    "metadata": {
+      "schema_version": 1,
+      "kind": "uiflow2-source-composition",
+      "status": "COMPOSED_NOT_EXECUTED",
+      "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+      "entrypoint": "main.py",
+      "base_sha256": "c45d4514e21d94a6c069185e08f05851c75b4747d354c1423decdefa625e1dd3",
+      "base_size": 8384512,
+      "flash_size": 8388608,
+      "source_sha256": "30ee9d18731ed78336023e600c461d1d2bde6f649ad4ad47cc4187eeca429f20",
+      "effective_source_sha256": "30ee9d18731ed78336023e600c461d1d2bde6f649ad4ad47cc4187eeca429f20",
+      "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+      "files": [
+        {
+          "path": "boot.py",
+          "size": 24,
+          "sha256": "b69ee8814a8188b541bcb90f78d987ae9ed554e7109db0849600fb40b7ea6ca9",
+          "origin": "caller"
+        },
+        {
+          "path": "host_io_layout.py",
+          "size": 3822,
+          "sha256": "1da4be07ca78d3f4e88ff4dcf0c107394fc8912c7315778e4700b64c104d79dd",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/__init__.py",
+          "size": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/angle.py",
+          "size": 382,
+          "sha256": "b9934370de61335e21e1db00792c6ea03366120439e552b2656fc963f37fe2dd",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/button.py",
+          "size": 134,
+          "sha256": "4b1634a4d4390850f1a20348dfdd8630e05c59f7fd7a4fc746963f6df1edcf92",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/buzzer.py",
+          "size": 227,
+          "sha256": "a64cd1e918c92b97f3b0cd8c2e451416d0abfda7cd83aaef18883869f2e5c0c3",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/dual_button.py",
+          "size": 2288,
+          "sha256": "a734f1ae2bbd594f6d501ab9ee2dd8df170865fa0b3bbb91d6c1fa4da63626ac",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/fan.py",
+          "size": 559,
+          "sha256": "eff2225e312ef341eecd26afadb2094a10ad080c17e1d7b722bcb131daa5ac02",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/ir.py",
+          "size": 3178,
+          "sha256": "b342ff962ffe119e0f1e4d072182a6ea1b251d9dd52dcea8980e386b04ce3896",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/key.py",
+          "size": 2703,
+          "sha256": "fde43cccc637b8075585d61502bd5afcb14fc3dd5309e29b714055c99841b921",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/light.py",
+          "size": 548,
+          "sha256": "10142264cbc699c55c49ae5e0acd5c35855b361eb114a1fa12c02a7698d4768d",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/limit.py",
+          "size": 2207,
+          "sha256": "1cfeac648f99cb79b9e559a98a4771745cbda477ca2f604833afa7fe78d48a1f",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/pir.py",
+          "size": 1104,
+          "sha256": "0fa5fb6b512f682fb7adaabf0b09a9b3f76dea265f4406eea2bb8a23518a17e0",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/rgb.py",
+          "size": 238,
+          "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c",
+          "origin": "caller"
+        },
+        {
+          "path": "io_drivers/rs485.py",
+          "size": 1549,
+          "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432",
+          "origin": "caller"
+        },
+        {
+          "path": "io_program.py",
+          "size": 9992,
+          "sha256": "f64015b636f21cd658a7ac039657e5496d5ae8530be3b50d9ba87554ce13c979",
+          "origin": "caller"
+        },
+        {
+          "path": "main.py",
+          "size": 247,
+          "sha256": "70df61b1fbdfc5d607321603e6fb3d97bc6636f3968fe75df0d733a7b26bc552",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_config.py",
+          "size": 232,
+          "sha256": "3e88d7a1789d7a5a51e58937a2a30a9f4ad3a9328d5a0fd3ace1c27157695ef4",
+          "origin": "caller"
+        },
+        {
+          "path": "probe_logging.py",
+          "size": 162,
+          "sha256": "02ebce33cbd8b08aee17811593b9605e53a12fc9a6310cbb55396c1d14e2aea4",
+          "origin": "caller"
+        }
+      ],
+      "caller_file_count": 19,
+      "caller_source_bytes": 29596,
+      "generated_files": [],
+      "firmware_sha256": "bcea1fa1bef6fd143f0e2cb467879f89f43e1bb03807d23e90af29bb34be03ab",
+      "vfs": {
+        "label": "vfs",
+        "type": 1,
+        "subtype": 129,
+        "flags": 0,
+        "offset": 6623232,
+        "size": 1761280,
+        "partition_table_offset": 32768,
+        "source": "actual-base-partition-table",
+        "filesystem": "LittleFS",
+        "base_sha256": "d0a43cd215b9a1e611689c94c15b1b7f3967359d95a6ecfe9ebc139950ff1e31",
+        "derived_sha256": "3e2136c34517637b8c2985f72ed7453eb5752a65a5eabf2f397951d2decf2987",
+        "base_disk_version": 131072,
+        "derived_disk_version": 131073
+      },
+      "preservation": {
+        "base_file_count": 17,
+        "preserved_file_count": 15,
+        "overwritten_files": [
+          "boot.py",
+          "main.py"
+        ],
+        "outside_vfs_unchanged": true,
+        "existing_files_readback_verified": true,
+        "source_readback_verified": true
+      },
+      "toolchain": {
+        "builder": "uiflow_source/1",
+        "python": "3.12.8",
+        "python_abi": "cpython-312",
+        "littlefs_python": "0.19.0",
+        "littlefs_library": "(2, 11)",
+        "littlefs_disk": "(2, 1)",
+        "config": {
+          "block_size": 4096,
+          "read_size": 128,
+          "prog_size": 32,
+          "lookahead_size": 128,
+          "block_cycles": 100
+        }
+      }
+    }
+  },
+  "firmware_sha256": "bcea1fa1bef6fd143f0e2cb467879f89f43e1bb03807d23e90af29bb34be03ab",
+  "firmware_id": "bcea1fa1bef6fd143f0e2cb467879f89f43e1bb03807d23e90af29bb34be03ab",
+  "session_id": "ad43b6deb65a4045ae1bd2e069dffa5c",
+  "runtime_provenance": {
+    "session_id": "ad43b6deb65a4045ae1bd2e069dffa5c",
+    "kind": "direct-pid",
+    "status": "VERIFIED",
+    "observed_pid": 47432,
+    "worker_id": "worker-b71031d2aef3428b",
+    "worker_generation": 12,
+    "firmware_sha256": "bcea1fa1bef6fd143f0e2cb467879f89f43e1bb03807d23e90af29bb34be03ab",
+    "runtime_binary_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+    "executable_name": "qemu-system-xtensa",
+    "method": "Live API PID; macOS ps comm; executable SHA256; PID/firmware and exposed nested worker identity/generation confirmed again after hashing. Null worker fields remain unknown."
+  },
+  "rmt_controller": {
+    "tx-symbols": 552,
+    "tx-threshold-events": 23,
+    "tx-completions": 9,
+    "tx-errors": 0
+  },
+  "host_observation": {
+    "status": "VERIFIED",
+    "before_cursor": {
+      "session_id": "ad43b6deb65a4045ae1bd2e069dffa5c",
+      "offset": 0,
+      "next_offset": 591,
+      "data": "ESP-ROM:esp32s3-20210327\r\nBuild:Mar 27 2021\r\nrst:0x1 (POWERON),boot:0x4 (SPI_FLASH_BOOT)\r\nSPIWP:0xee\r\nmode:DIO, clock div:1\r\nload:0x3fce2820,len:0xcf8\r\nload:0x403c8700,len:0xb34\r\nload:0x403cb700,len:0x2d18\r\nentry 0x403c8890\r\nE (918) i2c.master: this port has not been initialized, please initialize it first\r\nIO_PROBE_START rgb\r\nHOST_IO_DEFAULT_FONT_HEIGHT 15\r\nHOST_IO_FONT Montserrat12 1.0 15\r\nHOST_IO_GEOMETRY 135 240 0\r\nHOST_IO_LAYOUT 4 4 127 38 16 8 166 2\r\nHOST_IO_INTERNAL before 36 1\r\nHOST_IO_INTERNAL after_init 36 2\r\nIO_PROBE_READY rgb\r\nIO_RGB_FULL 1\r\nIO_RGB_SHORT 1\r\nIO_RGB_FULL 2\r\n",
+      "bytes": 591
+    },
+    "fresh_loop_offset": 591,
+    "serial_file": "observations/00016-host-final.txt",
+    "serial_sha256": "947c8b59892123823d0280baa7db3eafabed735e29869cd9987a0a4dcb29aa06",
+    "layout_marker": "HOST_IO_LAYOUT 4 4 127 38 16 8 166 2",
+    "geometry_marker": "HOST_IO_GEOMETRY 135 240 0"
+  },
+  "unit_state": {
+    "session_id": "ad43b6deb65a4045ae1bd2e069dffa5c",
+    "state": "running",
+    "source": "live",
+    "captured_at": "2026-10-26T06:00:34.892575+00:00",
+    "units": [
+      {
+        "id": "external1",
+        "unit_id": "rgb",
+        "port_id": "custom",
+        "pins": {
+          "yellow": 9,
+          "white": 10
+        },
+        "visual_port": "grove",
+        "initial": {},
+        "source": "guest-qom",
+        "available": true,
+        "properties": {
+          "led-rgb": [
+            1122867,
+            4478310,
+            7833753
+          ],
+          "led-frames": 10,
+          "incomplete-frames": 2,
+          "transactions": 0,
+          "read-bytes": 0,
+          "written-bytes": 0,
+          "input-events": 0,
+          "output-transitions": 10
+        },
+        "errors": {}
+      }
+    ],
+    "definitions": [
+      {
+        "id": "rgb",
+        "name": "RGB LED",
+        "sku": "U003",
+        "visual_asset": {
+          "entry": "src/units/rgb/index.js",
+          "export": "GroveModule"
+        },
+        "official_docs": "https://docs.m5stack.com/en/unit/rgb",
+        "checked_at": "2026-10-26",
+        "chips": [
+          {
+            "part": "SK6812 x3",
+            "status": "officially-documented"
+          }
+        ],
+        "interface": {
+          "bus": "gpio-rmt",
+          "connector": "HY2.0-4P",
+          "address_7bit": [],
+          "pins": {
+            "red": {
+              "signal": "5V",
+              "direction": "power"
+            },
+            "black": {
+              "signal": "GND",
+              "direction": "ground"
+            },
+            "yellow": {
+              "signal": "LED data in",
+              "direction": "host-to-unit"
+            },
+            "white": {
+              "signal": "NC in product PinMap",
+              "direction": "none"
+            }
+          },
+          "power": {
+            "nominal_v": 5,
+            "source": "official-product-PinMap",
+            "logic_v": null,
+            "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+          }
+        },
+        "protocol": {
+          "status": "documented",
+          "summary": "Three daisy-chained addressable SK6812 RGB LEDs on the yellow data wire. The official RGBUnit delegates to SK6812; a model must decode the guest pulse stream instead of accepting a host-side color as guest output. Verified SK6812 driver has ORDER=(1,0,2,3), bpp=3 and timing=1: the RGB variant transmits GRB byte order.",
+          "registers": [],
+          "gaps": [
+            "The schematic exposes a chain DOUT on one connector while the current product PinMap labels white NC; preserve connector-specific uncertainty."
+          ]
+        },
+        "inputs": {},
+        "outputs": {
+          "led-rgb": {
+            "type": "array",
+            "label": "三颗灯颜色",
+            "default": [
+              0,
+              0,
+              0
+            ],
+            "default_source": "synthetic-test-fixture",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 16777215
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "readOnly": true
+          }
+        },
+        "evidence": [
+          {
+            "kind": "official-product",
+            "url": "https://docs.m5stack.com/en/unit/rgb",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "SKU and chip identity",
+              "PinMap wire colors",
+              "documented electrical and functional limits"
+            ]
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/rgb.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "68b3a4424e4d0d6233578b33941fce5652ce2c5df41614804a6b23a903be040c"
+          },
+          {
+            "kind": "official-driver",
+            "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/neopixel/sk6812.py",
+            "checked_at": "2026-10-26",
+            "claims": [
+              "guest driver transaction path and encoding"
+            ],
+            "sha256": "a03925be7ed5c61c644d3a176990a53c21dbb5bad4b2e854200ee4a0725ecb39"
+          },
+          {
+            "kind": "official-linked-datasheet-or-schematic",
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/760/U003-UNIT_RGB-SCHE.pdf",
+            "checked_at": "2026-10-26",
+            "retrieval_status": "linked-by-verified-product-page",
+            "claims": [
+              "reference for implementation; linked document content is not claimed to have been independently reviewed"
+            ]
+          }
+        ],
+        "research_status": "confirmed-contract",
+        "model_status": "implemented",
+        "runtime": {
+          "status": "implemented",
+          "hosts": [
+            "cores3",
+            "atoms3r",
+            "sticks3",
+            "stopwatch"
+          ],
+          "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+          "inputs": {},
+          "state": {
+            "led-rgb": {
+              "property": "led-rgb"
+            },
+            "led-frames": {
+              "property": "led-frames"
+            },
+            "incomplete-frames": {
+              "property": "incomplete-frames"
+            },
+            "transactions": {
+              "property": "transactions"
+            },
+            "read-bytes": {
+              "property": "read-bytes"
+            },
+            "written-bytes": {
+              "property": "written-bytes"
+            },
+            "input-events": {
+              "property": "input-events"
+            },
+            "output-transitions": {
+              "property": "output-transitions"
+            }
+          },
+          "guest_validation": {
+            "status": "PASS",
+            "device_id": "cores3",
+            "runtime": "qemu",
+            "firmware_sha256": "459c3bb719faf0530b81acc426ce58aae3ca71dfc92121db382aecaa94791568",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/rgb/report.json",
+            "report_sha256": "c14e8b11d410e95395c1eb83ac2154e3dfcac302eb16801c8e92176a3fcd917b",
+            "evidence_sha256": "284c86c8dcb643481bfa85b4f30082de54857d738a6dd595053d174a0f7b589a",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 7,
+            "live_browser": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+            "hardware": "NOT RUN"
+          },
+          "host_validation": {
+            "atoms3r": {
+              "status": "NOT RUN",
+              "device_id": "atoms3r",
+              "unit_id": "rgb",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            },
+            "sticks3": {
+              "status": "NOT RUN",
+              "device_id": "sticks3",
+              "unit_id": "rgb",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            },
+            "stopwatch": {
+              "status": "NOT RUN",
+              "device_id": "stopwatch",
+              "unit_id": "rgb",
+              "runtime": "qemu",
+              "validation": "development-admission-only",
+              "guest_controller": "NOT RUN",
+              "live_browser": "NOT RUN",
+              "hardware": "NOT RUN",
+              "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+            }
+          }
+        },
+        "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+        "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+        "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+        "limitations": [
+          "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+          "This catalog alone does not authorize a simulated or functional-PASS claim."
+        ],
+        "research_snapshot": {
+          "scope": "protocol research only; not current runtime capability",
+          "model_status": "planned",
+          "runtime_status": "unsupported",
+          "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: The schematic exposes a chain DOUT on one connector while the current product PinMap labels white NC; preserve connector-specific uncertainty."
+        }
+      }
+    ],
+    "contract_hashes": {
+      "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+      "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+      "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+    },
+    "contract_status": "frozen"
+  },
+  "frame": {
+    "sha256": "d371b09db2ee312763664eb1a06e428dfb597c4745bb6100d094bc3e82fec85c",
+    "size_bytes": 1753,
+    "native_size": [
+      135,
+      240
+    ],
+    "readability": "NOT REVIEWED"
+  },
+  "evidence_sha256": "763f10504706f1225fc2243bdaa500a44bac414aa71b790a34bef208e2a3e623",
+  "evidence_summary": {
+    "original": {
+      "files": [
+        "firmware/uiflow-source.json",
+        "frames/current.png",
+        "manifest.json",
+        "qemu.stderr",
+        "qemu.stdout",
+        "qom/snapshot.json",
+        "serial.log",
+        "serial1.log",
+        "units/contract.json",
+        "units/runtime.json",
+        "units/state.json"
+      ],
+      "session_id": "ad43b6deb65a4045ae1bd2e069dffa5c",
+      "frame_sha256": "d371b09db2ee312763664eb1a06e428dfb597c4745bb6100d094bc3e82fec85c"
+    },
+    "source_cas_sha256": "30ee9d18731ed78336023e600c461d1d2bde6f649ad4ad47cc4187eeca429f20",
+    "pid": 47432
+  },
+  "cleanup": {
+    "owned_pid": 47432,
+    "pid_gone": true,
+    "flash_retained": false,
+    "health_active_sessions": 0
+  },
+  "browser": {
+    "running_snapshots": 5,
+    "real_posts": 0,
+    "actions": 0
+  },
+  "finished_at": "2026-10-26T06:00:36.903384+00:00",
+  "saved_case_replay": {
+    "device_id": "sticks3",
+    "unit_id": "rgb",
+    "session_id": "ad43b6deb65a4045ae1bd2e069dffa5c",
+    "status": "PASS",
+    "semantic": {
+      "status": "PASS",
+      "accepted_inputs": 0,
+      "bounded_windows": [],
+      "internal_log_records": 3,
+      "last_internal_counter": 4,
+      "native_readability": "NOT REVIEWED"
+    },
+    "positive_input_binding": {
+      "schema_version": 1,
+      "status": "VERIFIED_OUTPUT_ONLY_ZERO_POSTS",
+      "session_id": "ad43b6deb65a4045ae1bd2e069dffa5c",
+      "unit_id": "rgb",
+      "device_id": "sticks3",
+      "runtime": "qemu",
+      "firmware_sha256": "bcea1fa1bef6fd143f0e2cb467879f89f43e1bb03807d23e90af29bb34be03ab",
+      "full_serial_sha256": "947c8b59892123823d0280baa7db3eafabed735e29869cd9987a0a4dcb29aa06",
+      "serial_artifact": "controller/rgb/serial.txt",
+      "post_count": 0,
+      "verified_noop_fields": 0,
+      "vectors": []
+    },
+    "browser": {
+      "running_snapshots": 5,
+      "real_posts": 0,
+      "actions": 0
+    },
+    "worker_generation": 12
+  }
+}

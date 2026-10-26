@@ -1,0 +1,101 @@
+From: m5agent <m5agent@local>
+Subject: [PATCH] hw/m5stopwatch: map QMP keys to Cardputer ADV matrix events
+
+The Cardputer ADV keyboard path previously emitted the same generic TCA8418
+event for every host key. Firmware therefore could not distinguish A, B,
+Enter, arrows, or printable keys. Encode the QMP key as the 7x10 hardware
+matrix position expected by the UIFlow2 KeyboardI2C decoder. Arrow keys are
+emitted as the FN+key combinations used by the physical layout.
+
+---
+--- a/hw/m5stopwatch/m5_spi_panel.c
++++ b/hw/m5stopwatch/m5_spi_panel.c
+@@ -397,6 +397,78 @@
+     }
+ }
+ 
++static uint8_t tca8418_event(int row, int col, bool down)
++{
++    int raw_row = col / 2;
++    int raw_col = row + ((col % 2) ? 4 : 0);
++    int value = raw_row * 10 + raw_col + 1;
++
++    return value | (down ? 0x80 : 0);
++}
++
++static bool tca8418_key_pos(int qcode, int *row, int *col)
++{
++    if (qcode >= Q_KEY_CODE_A && qcode <= Q_KEY_CODE_Z) {
++        int index = qcode - Q_KEY_CODE_A;
++        *row = index < 10 ? 2 : 3;
++        *col = index < 10 ? 2 + index : 3 + index - 10;
++        return true;
++    }
++    switch (qcode) {
++    case Q_KEY_CODE_RET:
++        *row = 2;
++        *col = 13;
++        return true;
++    case Q_KEY_CODE_SPC:
++        *row = 3;
++        *col = 13;
++        return true;
++    case Q_KEY_CODE_TAB:
++        *row = 1;
++        *col = 0;
++        return true;
++    case Q_KEY_CODE_BACKSPACE:
++        *row = 0;
++        *col = 13;
++        return true;
++    default:
++        return false;
++    }
++}
++
++static void m5_panel_keyboard_event(int qcode, bool down)
++{
++    int row, col;
++
++    if (qcode == Q_KEY_CODE_LEFT || qcode == Q_KEY_CODE_RIGHT ||
++        qcode == Q_KEY_CODE_UP || qcode == Q_KEY_CODE_DOWN) {
++        int fn_raw = tca8418_event(2, 0, down);
++        int direction_raw;
++
++        if (qcode == Q_KEY_CODE_LEFT) {
++            direction_raw = tca8418_event(3, 10, down);
++        } else if (qcode == Q_KEY_CODE_DOWN) {
++            direction_raw = tca8418_event(3, 11, down);
++        } else if (qcode == Q_KEY_CODE_RIGHT) {
++            direction_raw = tca8418_event(3, 12, down);
++        } else {
++            direction_raw = tca8418_event(2, 11, down);
++        }
++        if (down) {
++            m5sw_keyboard_event(fn_raw);
++            m5sw_keyboard_event(direction_raw);
++        } else {
++            m5sw_keyboard_event(direction_raw);
++            m5sw_keyboard_event(fn_raw);
++        }
++        return;
++    }
++
++    if (tca8418_key_pos(qcode, &row, &col)) {
++        m5sw_keyboard_event(tca8418_event(row, col, down));
++    }
++}
++
+ static void m5_panel_input(DeviceState *dev, QemuConsole *src, InputEvent *evt)
+ {
+     M5SpiPanelState *s = M5_SPI_PANEL(dev);
+@@ -412,8 +484,7 @@
+             fprintf(stderr, "[m5panel-input] qcode=%d down=%d\n", q, down);
+         }
+         if (s->keyboard) {
+-            uint8_t event = down ? 0x81 : 0x01;
+-            m5sw_keyboard_event(event);
++            m5_panel_keyboard_event(q, down);
+             break;
+         }
+         if (s->plc_keys) {

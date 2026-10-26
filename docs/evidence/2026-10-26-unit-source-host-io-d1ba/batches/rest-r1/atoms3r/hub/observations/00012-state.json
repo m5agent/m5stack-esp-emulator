@@ -1,0 +1,1251 @@
+{
+  "session_id": "404965a84ae341d682014c2364c35250",
+  "state": "running",
+  "source": "live",
+  "captured_at": "2026-10-26T05:58:15.432339+00:00",
+  "units": [
+    {
+      "id": "hub1",
+      "unit_id": "hub",
+      "port_id": "custom",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove",
+      "initial": {},
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "transactions": 0,
+        "read-bytes": 0,
+        "written-bytes": 0,
+        "input-events": 0,
+        "output-transitions": 0
+      },
+      "errors": {}
+    },
+    {
+      "id": "env",
+      "unit_id": "env-iii",
+      "port_id": "grove-1",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove/grove-1",
+      "initial": {
+        "temperature-c": 25,
+        "humidity-pct": 50,
+        "pressure-pa": 101325
+      },
+      "parent_id": "hub1",
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "temperature-c": 31.5,
+        "humidity-pct": 67,
+        "pressure-pa": 98765,
+        "transactions": 188,
+        "read-bytes": 366,
+        "written-bytes": 127,
+        "input-events": 6,
+        "output-transitions": 0
+      },
+      "errors": {}
+    },
+    {
+      "id": "ncir",
+      "unit_id": "ncir",
+      "port_id": "grove-2",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove/grove-2",
+      "initial": {
+        "ambient-c": 25,
+        "object-c": 32
+      },
+      "parent_id": "hub1",
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "ambient-c": 17.3,
+        "object-c": 37.1,
+        "transactions": 72,
+        "read-bytes": 68,
+        "written-bytes": 34,
+        "input-events": 2,
+        "output-transitions": 0,
+        "samples-generated": 18,
+        "crc-errors": 0
+      },
+      "errors": {}
+    },
+    {
+      "id": "tvoc",
+      "unit_id": "tvoc",
+      "port_id": "grove-3",
+      "pins": {
+        "yellow": 2,
+        "white": 1
+      },
+      "visual_port": "grove/grove-3",
+      "initial": {
+        "eco2-ppm": 800,
+        "tvoc-ppb": 40
+      },
+      "parent_id": "hub1",
+      "source": "guest-qom",
+      "available": true,
+      "properties": {
+        "eco2-ppm": 1250,
+        "tvoc-ppb": 230,
+        "raw-h2": 20000,
+        "raw-ethanol": 20000,
+        "transactions": 43,
+        "read-bytes": 114,
+        "written-bytes": 40,
+        "input-events": 4,
+        "output-transitions": 0,
+        "samples-generated": 17,
+        "crc-errors": 0
+      },
+      "errors": {}
+    }
+  ],
+  "definitions": [
+    {
+      "id": "hub",
+      "name": "HUB",
+      "sku": "U006",
+      "visual_asset": {
+        "entry": "src/units/hub/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/hub",
+      "checked_at": "2026-10-26",
+      "chips": [],
+      "interface": {
+        "bus": "passive-hub",
+        "connector": "HY2.0-4P",
+        "address_7bit": [],
+        "pins": {
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          },
+          "yellow": {
+            "signal": "shared yellow bus",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "shared white bus",
+            "direction": "bidirectional"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "Passive four-wire parallel wiring expands one input connection into three shared connectors. It is not an addressable I2C multiplexer, has no register map, and cannot resolve duplicate addresses.",
+        "registers": [],
+        "gaps": [
+          "Topology, duplicate I2C address, GPIO drive contention and aggregate power must be checked by the attachment layer."
+        ]
+      },
+      "inputs": {},
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/hub",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "SKU and chip identity",
+            "PinMap wire colors",
+            "documented electrical and functional limits"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "implemented",
+      "runtime": {
+        "status": "implemented",
+        "hosts": [
+          "cores3",
+          "atoms3r",
+          "sticks3",
+          "stopwatch"
+        ],
+        "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+        "inputs": {},
+        "state": {
+          "transactions": {
+            "property": "transactions"
+          },
+          "read-bytes": {
+            "property": "read-bytes"
+          },
+          "written-bytes": {
+            "property": "written-bytes"
+          },
+          "input-events": {
+            "property": "input-events"
+          },
+          "output-transitions": {
+            "property": "output-transitions"
+          }
+        },
+        "guest_validation": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "5fca91b7115e1035540aeba56fc0cb79a31c789dc310ff830b5250c64d71ddc1",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/hub/report.json",
+          "report_sha256": "22caa9654bdb8f424b0d1bb033de00d82a2fe0bad6bbe3e3a80b13aaf65d7f02",
+          "evidence_sha256": "7fd44b8e0200cb95ecc5a479c1f4f2313105ad7cdbdad6b32836d186352f0442",
+          "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 8,
+          "live_browser": "PASS",
+          "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+          "hardware": "NOT RUN"
+        },
+        "host_validation": {
+          "atoms3r": {
+            "status": "NOT RUN",
+            "device_id": "atoms3r",
+            "unit_id": "hub",
+            "runtime": "qemu",
+            "validation": "development-admission-only",
+            "guest_controller": "NOT RUN",
+            "live_browser": "NOT RUN",
+            "hardware": "NOT RUN",
+            "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+          },
+          "sticks3": {
+            "status": "NOT RUN",
+            "device_id": "sticks3",
+            "unit_id": "hub",
+            "runtime": "qemu",
+            "validation": "development-admission-only",
+            "guest_controller": "NOT RUN",
+            "live_browser": "NOT RUN",
+            "hardware": "NOT RUN",
+            "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+          },
+          "stopwatch": {
+            "status": "NOT RUN",
+            "device_id": "stopwatch",
+            "unit_id": "hub",
+            "runtime": "qemu",
+            "validation": "development-admission-only",
+            "guest_controller": "NOT RUN",
+            "live_browser": "NOT RUN",
+            "hardware": "NOT RUN",
+            "blocker": "Requires fresh prepared firmware, unchanged original driver/assertions, visible same-session controller/Web evidence and runtime provenance. Original IR/Buzzer risks require device-local execution; no cross-host FAIL or PASS inheritance."
+          }
+        }
+      },
+      "blocker": "Development admission includes AtomS3R/StickS3/StopWatch, but NOT RUN entries are not functional validation. Only exact recorded firmware/controller/Web paths have PASS; ADC calibration, original driver risks and physical/visual boundaries remain separate.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog alone does not authorize a simulated or functional-PASS claim."
+      ],
+      "research_snapshot": {
+        "scope": "protocol research only; not current runtime capability",
+        "model_status": "planned",
+        "runtime_status": "unsupported",
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Topology, duplicate I2C address, GPIO drive contention and aggregate power must be checked by the attachment layer."
+      }
+    },
+    {
+      "id": "env-iii",
+      "name": "ENV III",
+      "sku": "U001-C",
+      "visual_asset": {
+        "entry": "src/units/env-iii/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/envIII",
+      "checked_at": "2026-10-26",
+      "chips": [
+        {
+          "part": "SHT30",
+          "status": "officially-documented"
+        },
+        {
+          "part": "QMP6988",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          68,
+          112
+        ],
+        "pins": {
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          },
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "SHT30 uses 16-bit commands and six-byte T/RH responses with CRC8 per 16-bit word (poly 0x31, init 0xFF). QMP6988 requires chip identity, 25-byte calibration, configuration, status and compensated 24-bit pressure/temperature samples. ENVUnit pressure API returns hPa; the injected pressure-pa state uses Pa.",
+        "registers": [
+          {
+            "chip": "SHT30",
+            "commands": {
+              "measure-driver": "0x2C10",
+              "status": "0xF32D",
+              "reset": "0x30A2",
+              "clear-status": "0x3041",
+              "heater-on": "0x306D",
+              "heater-off": "0x3066"
+            },
+            "response": "T[15:8],T[7:0],CRC,RH[15:8],RH[7:0],CRC",
+            "warning": "Current driver comment mentions 0x2C06 but executable MEASURE_CMD is 0x2C10."
+          },
+          {
+            "chip": "QMP6988",
+            "chip_id": "0xD1 -> 0x5C",
+            "calibration": "0xA0, 25 bytes",
+            "reset": "0xE0 <- 0xE6",
+            "iir": "0xF1",
+            "status": "0xF3 bit3 measuring",
+            "control": "0xF4",
+            "io_setup": "0xF5",
+            "samples": "0xF7, pressure[3] then temperature[3], each unsigned 24-bit minus 2^23"
+          }
+        ],
+        "gaps": [
+          "QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.",
+          "Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH."
+        ],
+        "offline_reference": "platform/units/qmp6988_reference.py",
+        "synthetic_calibration_fixture": "platform/units/fixtures/env-iii-qmp6988.json"
+      },
+      "inputs": {
+        "temperature-c": {
+          "type": "number",
+          "label": "温度",
+          "default": 25,
+          "default_source": "synthetic-test-fixture",
+          "unit": "degC",
+          "minimum": -40,
+          "maximum": 120,
+          "readOnly": false
+        },
+        "humidity-pct": {
+          "type": "number",
+          "label": "相对湿度",
+          "default": 50,
+          "default_source": "synthetic-test-fixture",
+          "unit": "%RH",
+          "minimum": 0,
+          "maximum": 100,
+          "readOnly": false
+        },
+        "pressure-pa": {
+          "type": "number",
+          "label": "气压",
+          "default": 101325,
+          "default_source": "synthetic-test-fixture",
+          "unit": "Pa",
+          "minimum": 30000,
+          "maximum": 110000,
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/envIII",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "SKU and chip identity",
+            "PinMap wire colors",
+            "documented electrical and functional limits"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/env.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "a93c1b9fa822c2d707edd16205e68cf842160594993a4061044976fe96e2cce5"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sht30.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "7c8842ee297b2b50c888f2f28ab976e4cc1b1867078a4ffea5a9a68eae9db36d"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/qmp6988.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "48ea71495622173423fb296c846d6fcf371c6fa0646d92f764822519388b8d7d"
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/enviii/QMP6988%20Datasheet.pdf",
+          "checked_at": "2026-10-26",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/SHT3x_Datasheet_digital.pdf",
+          "checked_at": "2026-10-26",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "implemented",
+      "runtime": {
+        "status": "implemented",
+        "hosts": [
+          "cores3",
+          "atoms3r",
+          "sticks3",
+          "stopwatch"
+        ],
+        "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+        "inputs": {
+          "temperature-c": {
+            "property": "temperature-c"
+          },
+          "humidity-pct": {
+            "property": "humidity-pct"
+          },
+          "pressure-pa": {
+            "property": "pressure-pa"
+          }
+        },
+        "state": {
+          "temperature-c": {
+            "property": "temperature-c"
+          },
+          "humidity-pct": {
+            "property": "humidity-pct"
+          },
+          "pressure-pa": {
+            "property": "pressure-pa"
+          },
+          "transactions": {
+            "property": "transactions"
+          },
+          "read-bytes": {
+            "property": "read-bytes"
+          },
+          "written-bytes": {
+            "property": "written-bytes"
+          },
+          "input-events": {
+            "property": "input-events"
+          },
+          "output-transitions": {
+            "property": "output-transitions"
+          }
+        },
+        "guest_validation": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "8f1aa047a82ec2553de01508683f101130a72071a0b9e0ead62a5739ec24290f",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/env-iii/report.json",
+          "report_sha256": "534013775a0492903d5a76ab6c0f1091f0934b04966663d60e5f00804689c609",
+          "evidence_sha256": "e716be571cac956ec0d34092eb467597d308afb27e934ce22edebf942091e74d",
+          "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 7,
+          "live_browser": "PASS",
+          "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+          "hardware": "NOT RUN"
+        },
+        "host_validation": {
+          "atoms3r": {
+            "status": "PASS",
+            "validation": "virtual-device validation",
+            "device_id": "atoms3r",
+            "runtime": "qemu",
+            "session_id": "a2e0a769e927467eb6ed8be27b3cb146",
+            "firmware_sha256": "8ae66c45103807b66044e7a508809e8431015824805676cdea5fd636d2bc0a03",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/atoms3r/env-iii/report.json",
+            "report_sha256": "fdcbd5269a7365d240e3bf87f803d6d43a6188a639be003b4313cc958f250318",
+            "evidence_sha256": "b8ffac6dc9d87b8aec8dd44112165172fbf8fa19030368321e9abd9edab0b060",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "browser_framing": "PARTIAL",
+            "native_frame": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/atoms3r/selection.json",
+            "batch_selection_sha256": "2c0e03a4c92e4ea06abbeedc3583b96b21388638d66766942afa0d94ac6de8a2",
+            "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+            "hardware": "NOT RUN",
+            "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Browser framing remains PARTIAL: sticky header overlays the session title/top edge; functional/DOM/PID/ZIP strict PASS does not establish full visual acceptance."
+          },
+          "sticks3": {
+            "status": "PASS",
+            "validation": "virtual-device validation",
+            "device_id": "sticks3",
+            "runtime": "qemu",
+            "session_id": "316a5248034e4759a7da00f7b3969999",
+            "firmware_sha256": "3d1ac7110af04b0bcfc2ddc52064f818bafe3d6eb740984e35e81ddbfc9c4ea7",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/sticks3/env-iii/report.json",
+            "report_sha256": "b1eca887bf461773dcdd6d0e8ff9b2757321a52074e0aa9900435643824a36f8",
+            "evidence_sha256": "27c692a4b1bdb6d0fd891fdcdbf7873de3aa12897e7957d5ec1de02abe2c5d75",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "browser_framing": "PARTIAL",
+            "native_frame": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/sticks3/selection.json",
+            "batch_selection_sha256": "eb4845dc43c208fb3bf8c176ea8d63dec9e2839327f61c8a476120e7f4c34fae",
+            "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+            "hardware": "NOT RUN",
+            "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Browser framing remains PARTIAL: sticky header overlays the session title/top edge; functional/DOM/PID/ZIP strict PASS does not establish full visual acceptance."
+          },
+          "stopwatch": {
+            "status": "PASS",
+            "validation": "virtual-device validation",
+            "device_id": "stopwatch",
+            "runtime": "qemu",
+            "session_id": "8eeac2b285f343b68a6a54ff73442a3b",
+            "firmware_sha256": "6f7404b29519f6af8ca3ffb77cfdddeda265dffdae5319a10bece8322cb80110",
+            "firmware_flavor": "reference-app-with-original-unit-drivers",
+            "report": "docs/evidence/2026-10-26-unit-host-web-gen9-a8fe/reports/stopwatch/env-iii/report.json",
+            "report_sha256": "ad50a5b2b7cd1bb04b4f7efad4336a56e7af6efbe877a6ab3af48bd2be21e678",
+            "evidence_sha256": "2c2362aa74d42e5de35b2544cee56ef8b2b308b98c15a7ecaa11faeec8c379bd",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "browser_framing": "PARTIAL",
+            "native_frame": "PASS",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/stopwatch/selection.json",
+            "batch_selection_sha256": "9f5361faf2b643ab3af76d6163fef371452a021add731d4507add2e244aa3d86",
+            "strict_selected_aggregate": "docs/evidence/2026-10-26-unit-host9-selection-a8fe/aggregate.json",
+            "hardware": "NOT RUN",
+            "scope": "Only this recorded host/firmware/controller/real-Web path. Other24 Units on this host remain unadmitted. Browser framing remains PARTIAL: sticky header overlays the session title/top edge; functional/DOM/PID/ZIP strict PASS does not establish full visual acceptance."
+          }
+        }
+      },
+      "blocker": "Only the recorded firmware/controller/Web paths have device-local evidence. Other host and firmware combinations remain unvalidated; physical and visual-binding limits remain explicit.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog alone does not authorize a simulated or functional-PASS claim."
+      ],
+      "research_snapshot": {
+        "scope": "protocol research only; not current runtime capability",
+        "model_status": "planned",
+        "runtime_status": "unsupported",
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: QMP6988 raw bytes must be consistent with calibration and compensation; do not substitute host-calculated API values.; Fixture humidity permits the protocol range 0..100%RH; product accuracy specification is 10..90%RH."
+      }
+    },
+    {
+      "id": "ncir",
+      "name": "NCIR",
+      "sku": "U028",
+      "visual_asset": {
+        "entry": "src/units/ncir/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/ncir",
+      "checked_at": "2026-10-26",
+      "chips": [
+        {
+          "part": "MLX90614ESF-BAA",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          90
+        ],
+        "pins": {
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          },
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "SMBus/I2C memory reads at 0x5A. The official driver reads two little-endian bytes from ambient register 0x06 or object register 0x07 and converts raw*0.02 - 273.15 degrees Celsius.",
+        "registers": [
+          {
+            "ambient": "0x06",
+            "object": "0x07",
+            "encoding": "little-endian uint16 Kelvin in 0.02K units"
+          }
+        ],
+        "gaps": [
+          "Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+        ]
+      },
+      "inputs": {
+        "ambient-c": {
+          "type": "number",
+          "label": "环境温度",
+          "default": 25,
+          "default_source": "synthetic-test-fixture",
+          "unit": "degC",
+          "minimum": -40,
+          "maximum": 125,
+          "readOnly": false
+        },
+        "object-c": {
+          "type": "number",
+          "label": "目标温度",
+          "default": 32,
+          "default_source": "synthetic-test-fixture",
+          "unit": "degC",
+          "minimum": -70,
+          "maximum": 380,
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/ncir",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "SKU and chip identity",
+            "PinMap wire colors",
+            "documented electrical and functional limits"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/ncir.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "41909ef574150b5cffd4c9a33d73afd3c5eb75b89a4c0d8c660603b313b3a2c1"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/mlx90614.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "c766bd2c05d7c13f3d48034569923d4562604be176d608966045a40862087403"
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/hat/MLX90614-Datasheet-Melexis_en.pdf",
+          "checked_at": "2026-10-26",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "implemented",
+      "runtime": {
+        "status": "implemented",
+        "hosts": [
+          "cores3",
+          "atoms3r",
+          "sticks3",
+          "stopwatch"
+        ],
+        "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+        "inputs": {
+          "ambient-c": {
+            "property": "ambient-c"
+          },
+          "object-c": {
+            "property": "object-c"
+          }
+        },
+        "state": {
+          "ambient-c": {
+            "property": "ambient-c"
+          },
+          "object-c": {
+            "property": "object-c"
+          },
+          "transactions": {
+            "property": "transactions"
+          },
+          "read-bytes": {
+            "property": "read-bytes"
+          },
+          "written-bytes": {
+            "property": "written-bytes"
+          },
+          "input-events": {
+            "property": "input-events"
+          },
+          "output-transitions": {
+            "property": "output-transitions"
+          },
+          "samples-generated": {
+            "property": "samples-generated",
+            "path": "/chip"
+          },
+          "crc-errors": {
+            "property": "crc-errors",
+            "path": "/chip"
+          }
+        },
+        "guest_validation": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "4f1cee61528c3f2674860b9d581ba786306790753e1533f4c98620b2b25de5aa",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "report": "docs/evidence/2026-10-26-unit-web-cohort-a8fe/ncir/report.json",
+          "report_sha256": "bf259fb031c310b3cf238cae126b892b5424640e75271e9c5ded6556230f3f4a",
+          "evidence_sha256": "bf23aa8205c1049c5488bb2d9edf8054eb7d7e3c517bcee332a0b504c0aa7be0",
+          "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 7,
+          "live_browser": "PASS",
+          "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+          "hardware": "NOT RUN"
+        },
+        "host_validation": {
+          "atoms3r": {
+            "status": "PASS",
+            "device_id": "atoms3r",
+            "unit_id": "ncir",
+            "runtime": "qemu",
+            "session_id": "1efaf7cfd4f445fcaf989ea0e4a0207c",
+            "firmware_sha256": "a872618cdca070c9439268d19c64d4e804bb8c6c65b03aa721404e608ef5f322",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "53580d6f29cbe45b85ba10336f3938409d1d66ce2cda30fcabc36b905b37ef5a",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/ncir/report.json",
+            "report_sha256": "45943e044e1159d41d008e80abcc5bbf94a7d3f368844288258654606529c9fd",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/ncir/normalization-receipt.json",
+            "normalization_receipt_sha256": "20ca0f0ec4a439cea86da9270242932f0e69741bb3ac7484f3b151f26de6321b",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/atoms3r.json",
+            "batch_selection_sha256": "1456943fca60684dc38dd7027ade5e82237423dd13a2ec37a6ae0e8eadab7ea7"
+          },
+          "sticks3": {
+            "status": "PASS",
+            "device_id": "sticks3",
+            "unit_id": "ncir",
+            "runtime": "qemu",
+            "session_id": "2ac756f7b9294538a51fecca7e6bf12d",
+            "firmware_sha256": "949612ea1a843cbad1a9c852dab53308268153893d3e3cf53afbe88893d6c4ba",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "5c2b820c03664a5cb91be2cf9a519b6aec02d578ec9473d65f5474545908f278",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ncir/report.json",
+            "report_sha256": "6fd032458d4fc0a5597a94767ad8f723d72937d706b129d2cfe97a1502db2770",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/ncir/normalization-receipt.json",
+            "normalization_receipt_sha256": "ebf6fe4b847a161f920bf597c73b524e3220b5e4dec2245463f8ffb72da8eab7",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/sticks3.json",
+            "batch_selection_sha256": "2827cbf567a21be3205cdb8e75bb4e580d0f8a0ca00209a38f8eaca2838432e7"
+          },
+          "stopwatch": {
+            "status": "PASS",
+            "device_id": "stopwatch",
+            "unit_id": "ncir",
+            "runtime": "qemu",
+            "session_id": "86b54e3a34204535a73183929c2684f2",
+            "firmware_sha256": "4740a5647e1178d874ff7e1260fa2f8ad9e6f940237ccbde30066bde58eca2bc",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "9271677c2107a90d1fd518024eb2230952e1f172f37d408a6cd1280fdf7f2325",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/report.json",
+            "report_sha256": "f5dbd80348cbbdba86366351e096db8bd44b828d29fabdcc3fa782a17c29c1a3",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/ncir/normalization-receipt.json",
+            "normalization_receipt_sha256": "cfcc77dd37c53e9831c0764f58792acb47e5dafd43490163ea6146d5a0e0939e",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/stopwatch.json",
+            "batch_selection_sha256": "b10d1c077687af9ac0b8028559f2053955bcd3ee6ae89a82b4a6184abce0f558"
+          }
+        }
+      },
+      "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog alone does not authorize a simulated or functional-PASS claim."
+      ],
+      "research_snapshot": {
+        "scope": "protocol research only; not current runtime capability",
+        "model_status": "planned",
+        "runtime_status": "unsupported",
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: Official Python path reads two bytes without PEC; full SMBus PEC/EEPROM support is a separate requirement."
+      }
+    },
+    {
+      "id": "tvoc",
+      "name": "Mini TVOC/eCO2",
+      "sku": "U088",
+      "visual_asset": {
+        "entry": "src/units/tvoc/index.js",
+        "export": "GroveModule"
+      },
+      "official_docs": "https://docs.m5stack.com/en/unit/tvoc",
+      "checked_at": "2026-10-26",
+      "chips": [
+        {
+          "part": "SGP30",
+          "status": "officially-documented"
+        }
+      ],
+      "interface": {
+        "bus": "i2c",
+        "connector": "HY2.0-4P",
+        "address_7bit": [
+          88
+        ],
+        "pins": {
+          "yellow": {
+            "signal": "SDA",
+            "direction": "bidirectional"
+          },
+          "white": {
+            "signal": "SCL",
+            "direction": "bidirectional"
+          },
+          "red": {
+            "signal": "5V",
+            "direction": "power"
+          },
+          "black": {
+            "signal": "GND",
+            "direction": "ground"
+          }
+        },
+        "power": {
+          "nominal_v": 5,
+          "source": "official-product-PinMap",
+          "logic_v": null,
+          "logic_voltage_status": "do not derive GPIO logic voltage from the 5V supply label"
+        }
+      },
+      "protocol": {
+        "status": "documented",
+        "summary": "16-bit SGP30 commands at 0x58; responses contain big-endian 16-bit words with CRC8. Official driver initializes IAQ and performs eCO2/TVOC measurement, baseline, feature-set and humidity-compensation operations.",
+        "registers": [
+          {
+            "iaq_init": "0x2003",
+            "measure_iaq": "0x2008",
+            "get_baseline": "0x2015",
+            "set_baseline": "0x201E",
+            "humidity": "0x2061",
+            "test": "0x2032",
+            "feature": "0x202F",
+            "raw": "0x2050",
+            "serial": "0x3682",
+            "encoding": "big-endian words + CRC8 per word"
+          }
+        ],
+        "gaps": [
+          "eCO2 is a gas-derived estimate, not direct CO2 measurement; baseline and warm-up/timing semantics need separate coverage."
+        ]
+      },
+      "inputs": {
+        "eco2-ppm": {
+          "type": "integer",
+          "label": "等效CO2",
+          "default": 400,
+          "default_source": "synthetic-test-fixture",
+          "unit": "ppm",
+          "minimum": 400,
+          "maximum": 60000,
+          "readOnly": false
+        },
+        "tvoc-ppb": {
+          "type": "integer",
+          "label": "TVOC",
+          "default": 0,
+          "default_source": "synthetic-test-fixture",
+          "unit": "ppb",
+          "minimum": 0,
+          "maximum": 60000,
+          "readOnly": false
+        },
+        "raw-h2": {
+          "type": "integer",
+          "label": "原始H2信号",
+          "default": 20000,
+          "default_source": "synthetic-test-fixture",
+          "unit": "raw16",
+          "minimum": 0,
+          "maximum": 65535,
+          "readOnly": false
+        },
+        "raw-ethanol": {
+          "type": "integer",
+          "label": "原始乙醇信号",
+          "default": 20000,
+          "default_source": "synthetic-test-fixture",
+          "unit": "raw16",
+          "minimum": 0,
+          "maximum": 65535,
+          "readOnly": false
+        }
+      },
+      "outputs": {},
+      "evidence": [
+        {
+          "kind": "official-product",
+          "url": "https://docs.m5stack.com/en/unit/tvoc",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "SKU and chip identity",
+            "PinMap wire colors",
+            "documented electrical and functional limits"
+          ]
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/unit/tvoc.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "ce7f512456a9fceb08e0ccb20e7c53075b84a0a6a760b529339938f959bf6d27"
+        },
+        {
+          "kind": "official-driver",
+          "url": "https://raw.githubusercontent.com/m5stack/uiflow-micropython/master/m5stack/libs/driver/sgp30.py",
+          "checked_at": "2026-10-26",
+          "claims": [
+            "guest driver transaction path and encoding"
+          ],
+          "sha256": "885c494b1c28f459880e670df743560a944a2f31350a8c4a966e174e94e2e368"
+        },
+        {
+          "kind": "official-linked-datasheet-or-schematic",
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/Sensirion_Gas_Sensors_SGP30_Datasheet.pdf",
+          "checked_at": "2026-10-26",
+          "retrieval_status": "linked-by-verified-product-page",
+          "claims": [
+            "reference for implementation; linked document content is not claimed to have been independently reviewed"
+          ]
+        }
+      ],
+      "research_status": "confirmed-contract",
+      "model_status": "implemented",
+      "runtime": {
+        "status": "implemented",
+        "hosts": [
+          "cores3",
+          "atoms3r",
+          "sticks3",
+          "stopwatch"
+        ],
+        "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+        "inputs": {
+          "eco2-ppm": {
+            "property": "eco2-ppm"
+          },
+          "tvoc-ppb": {
+            "property": "tvoc-ppb"
+          },
+          "raw-h2": {
+            "property": "raw-h2"
+          },
+          "raw-ethanol": {
+            "property": "raw-ethanol"
+          }
+        },
+        "state": {
+          "eco2-ppm": {
+            "property": "eco2-ppm"
+          },
+          "tvoc-ppb": {
+            "property": "tvoc-ppb"
+          },
+          "raw-h2": {
+            "property": "raw-h2"
+          },
+          "raw-ethanol": {
+            "property": "raw-ethanol"
+          },
+          "transactions": {
+            "property": "transactions"
+          },
+          "read-bytes": {
+            "property": "read-bytes"
+          },
+          "written-bytes": {
+            "property": "written-bytes"
+          },
+          "input-events": {
+            "property": "input-events"
+          },
+          "output-transitions": {
+            "property": "output-transitions"
+          },
+          "samples-generated": {
+            "property": "samples-generated",
+            "path": "/chip"
+          },
+          "crc-errors": {
+            "property": "crc-errors",
+            "path": "/chip"
+          }
+        },
+        "guest_validation": {
+          "status": "PASS",
+          "device_id": "cores3",
+          "runtime": "qemu",
+          "firmware_sha256": "4fc99b2927c50e917ea88860b53081ae999e1881bbbeb66bd235b0ebf3b2345b",
+          "firmware_flavor": "reference-app-with-original-unit-drivers",
+          "report": "docs/evidence/2026-10-26-unit-web-supplement-gen8-a8fe/tvoc/report.json",
+          "report_sha256": "dfb26af771be109f21034ce41d137dc1e85ad398baf912bdd29627cfd5816ee9",
+          "evidence_sha256": "15772b4cfa6fdb5527ce977cea05a26988573d47497ae4815497e82c29cac97d",
+          "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+          "runtime_proof_kind": "direct-pid",
+          "worker_generation": 8,
+          "live_browser": "PASS",
+          "batch_selection": "docs/evidence/2026-10-26-unit-final-selection-a8fe/selection.json",
+          "hardware": "NOT RUN"
+        },
+        "host_validation": {
+          "atoms3r": {
+            "status": "PASS",
+            "device_id": "atoms3r",
+            "unit_id": "tvoc",
+            "runtime": "qemu",
+            "session_id": "5158b2e7d9f1460bab331822e13f5f91",
+            "firmware_sha256": "249d0fa06125309d8aa62a5385ae904ba0a7b1ae98ece9da38423010011ff7fc",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "d54f110a115316cf3d02fc20f5726082d907ace70dfac4db2b60f9f7cd38deb8",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/tvoc/report.json",
+            "report_sha256": "4a05ad918a643292790073ca2a1dce708331f7bffe3e7ef15d6b77a1197c526d",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/atoms3r/tvoc/normalization-receipt.json",
+            "normalization_receipt_sha256": "36deccc10480195621464e1b1dd5104cd7cf304a9ca45cb831e456b7326aa02e",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/atoms3r.json",
+            "batch_selection_sha256": "1456943fca60684dc38dd7027ade5e82237423dd13a2ec37a6ae0e8eadab7ea7"
+          },
+          "sticks3": {
+            "status": "PASS",
+            "device_id": "sticks3",
+            "unit_id": "tvoc",
+            "runtime": "qemu",
+            "session_id": "40ee335338964ad1af9abb6efcfeac0f",
+            "firmware_sha256": "ac7662e7540e2e6cc1154d0156f2f3d6a16a3251a735856596edce83b39f933a",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "288a57ba8331d2f2684d6132c4f891babd5dbe594a08ea2d92744047ce590d4c",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tvoc/report.json",
+            "report_sha256": "7ae6df59d838c70f3da766dd2ef7cbdf99f4f0b236066f8c13884040a97927ab",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/sticks3/tvoc/normalization-receipt.json",
+            "normalization_receipt_sha256": "9bddb5fa5125e87b5ec8048214be863b280e7742c0bf0f9d53afa3641b87dad1",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/sticks3.json",
+            "batch_selection_sha256": "2827cbf567a21be3205cdb8e75bb4e580d0f8a0ca00209a38f8eaca2838432e7"
+          },
+          "stopwatch": {
+            "status": "PASS",
+            "device_id": "stopwatch",
+            "unit_id": "tvoc",
+            "runtime": "qemu",
+            "session_id": "9a03d0b3567b4699915d6b04b7e1c525",
+            "firmware_sha256": "67d90671c7fe1bb8bb9b16fe19fbca049b1dac298b570dbbcc6a90c74fbb2914",
+            "firmware_flavor": "reference-app-with-vendored-official-sensor-drivers-host-probe",
+            "evidence_sha256": "e23a6e345495e079fa8a08afe56ef5b424df85246211ca9a357ccdec84103eed",
+            "validation": "virtual-device validation",
+            "evidence_contract": "device-service-sensor-web-v1",
+            "scope": "controller-and-browser-functionality",
+            "report": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tvoc/report.json",
+            "report_sha256": "cc701bab52bc5f66459074ec26981b7f004d280d8f2a801d41b43901732c8849",
+            "normalization_receipt": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/execution/stopwatch/tvoc/normalization-receipt.json",
+            "normalization_receipt_sha256": "205ef5ba5dbb28284e6589ef122db846b2e132d875478716f84525dd797ac845",
+            "runtime_binary_sha256": "a8fe15dbe7299c5be4b52eeac68a6d0012578950d267287630760bf8bec7d047",
+            "runtime_proof_kind": "direct-pid",
+            "worker_generation": 9,
+            "guest_controller": "PASS",
+            "live_browser": "PASS",
+            "native_frame": "PASS",
+            "native_readability": "PASS",
+            "browser_framing": "NOT REVIEWED",
+            "hardware": "NOT RUN",
+            "native_review": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/post-execution/native-review.json",
+            "native_review_sha256": "b03f7a187c83da0203848d59b35be9bc3d5f7470bcf55185a2d857c7537fdec0",
+            "native_readability_scope": "captured-final-native-frames-only",
+            "batch_selection": "docs/evidence/2026-10-26-unit-host-sensors-gen9-a8fe/host-selections/stopwatch.json",
+            "batch_selection_sha256": "b10d1c077687af9ac0b8028559f2053955bcd3ee6ae89a82b4a6184abce0f558"
+          }
+        }
+      },
+      "blocker": "Device-local results apply only to the recorded firmware, host, controller and Web paths. Other firmware or hosts do not inherit PASS. Captured-frame readability is separate from continuous sensor output, remaining visual bindings and physical validation.",
+      "input_semantics": "External world/fixture state, to be delivered through a controller-level device model; not direct guest API return values.",
+      "output_semantics": "Observed guest-to-Unit output; read-only to clients.",
+      "limitations": [
+        "All default values are synthetic UI/test fixtures, not measured hardware defaults.",
+        "This catalog alone does not authorize a simulated or functional-PASS claim."
+      ],
+      "research_snapshot": {
+        "scope": "protocol research only; not current runtime capability",
+        "model_status": "planned",
+        "runtime_status": "unsupported",
+        "blocker": "The official contract is documented, but no external Unit controller model, board routing and device-local runtime evidence is validated by this research artifact. Open protocol/electrical questions: eCO2 is a gas-derived estimate, not direct CO2 measurement; baseline and warm-up/timing semantics need separate coverage."
+      }
+    }
+  ],
+  "contract_hashes": {
+    "catalog.json": "57e015cf4e883b186940e1a4693fda8b0c28decf3bc7395a48f4c1e18a69845a",
+    "host-ports.json": "d11181483e9ee30cee948e8c0a7bb5d825c5266ec32c87b74570a0341f22bd39",
+    "runtime-profiles.json": "20b8ae5504627f6e0ee28709f5a8a761a4a8f917bc00594e9c4dfb45235b019a"
+  },
+  "contract_status": "frozen"
+}

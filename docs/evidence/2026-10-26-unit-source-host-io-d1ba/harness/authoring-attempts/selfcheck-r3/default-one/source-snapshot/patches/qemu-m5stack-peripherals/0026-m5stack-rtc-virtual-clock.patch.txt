@@ -1,0 +1,62 @@
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -56,7 +56,8 @@ typedef struct M5swI2CDev {
+     uint8_t regs[256];
+     uint8_t ptr;
+     bool ptr_set;          /* first byte of a write = register address */
+-    int64_t rtc_offset;    /* seconds added to host time (RX8130) */
++    int64_t rtc_base_seconds; /* host epoch captured at device realize */
++    int64_t rtc_offset;    /* seconds added to virtual-clock time */
+     bool trace;
+     /* live, QOM-settable sensor state (qom-set /machine/bmi270 accel-x 0.5 ...) */
+     double accel[3];       /* g   (BMI270 sensor frame) */
+@@ -501,9 +502,15 @@ static uint16_t mpu6886_encode_axis(double value, bool z_axis)
+     return z_axis ? (uint16_t)((raw << 1) & ~1) : (uint16_t)(raw << 2);
+ }
+ 
++static int64_t rtc_virtual_now(M5swI2CDev *s)
++{
++    return s->rtc_base_seconds
++        + qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) / NANOSECONDS_PER_SECOND;
++}
++
+ static void rx8130_fill_time(M5swI2CDev *s)
+ {
+-    time_t t = time(NULL) + s->rtc_offset;
++    time_t t = rtc_virtual_now(s) + s->rtc_offset;
+     struct tm tm;
+     gmtime_r(&t, &tm);
+     s->regs[0x10] = bcd(tm.tm_sec);
+@@ -530,12 +536,12 @@ static void rx8130_time_written(M5swI2CDev *s)
+     tm.tm_mon = unbcd(s->regs[0x15] & 0x1f) - 1;
+     tm.tm_year = unbcd(s->regs[0x16]) + 100;
+     time_t t = timegm(&tm);
+-    s->rtc_offset = (int64_t)t - (int64_t)time(NULL);
++    s->rtc_offset = (int64_t)t - rtc_virtual_now(s);
+ }
+ 
+ static void pcf8563_fill_time(M5swI2CDev *s)
+ {
+-    time_t t = time(NULL) + s->rtc_offset;
++    time_t t = rtc_virtual_now(s) + s->rtc_offset;
+     struct tm tm;
+     gmtime_r(&t, &tm);
+     s->regs[0x02] = bcd(tm.tm_sec);
+@@ -559,7 +565,7 @@ static void pcf8563_time_written(M5swI2CDev *s)
+     tm.tm_mon = unbcd(s->regs[0x07] & 0x1f) - 1;
+     tm.tm_year = unbcd(s->regs[0x08]) + 100;
+     time_t t = timegm(&tm);
+-    s->rtc_offset = (int64_t)t - (int64_t)time(NULL);
++    s->rtc_offset = (int64_t)t - rtc_virtual_now(s);
+ }
+ 
+ static void st25_set_fifo(M5swI2CDev *s, const uint8_t *data, uint32_t size)
+@@ -1839,6 +1845,7 @@ static void dev_realize(DeviceState *dev, Error **errp)
+     M5swI2CDev *s = M5SW_I2C_DEV(dev);
+     const char *m = s->model_name ? s->model_name : "generic";
+     memset(s->regs, 0, sizeof(s->regs));
++    s->rtc_base_seconds = time(NULL);
+     s->trace = getenv("M5SW_I2C_TRACE") != NULL;
+     if (!strcmp(m, "m5pm1")) {
+         s->model = M_PM1;

@@ -1,0 +1,16 @@
+{
+  "device_id": "stopwatch",
+  "runtime": "qemu",
+  "firmware_id": "2cc0e22ffb4f5fa866ea33dfaafef0427047295ce3ff82b9e8690a9f92a032ad",
+  "uiflow_source_sha256": "732525d5be2d0d7980e76d8ba6401c29c93771cf9b2ebafc65a27e4014028d5e",
+  "ttl_seconds": 900,
+  "ready_marker": "IO_PROBE_READY",
+  "ready_timeout_seconds": 180,
+  "units": [
+    {
+      "id": "external1",
+      "unit_id": "limit",
+      "port_id": "port-a"
+    }
+  ]
+}

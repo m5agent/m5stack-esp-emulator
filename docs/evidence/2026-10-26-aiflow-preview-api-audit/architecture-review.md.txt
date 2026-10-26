@@ -1,0 +1,101 @@
+# AIFlow 实时编程与预览：API 架构审查
+
+日期：2026-10-26。基线：integration 工作树 `0a6a9a2a4201f49464afb6cd6e36c321d3305cb6`；不是落后的 primary main。只读检查源码、OpenAPI 和浏览器调用链，并执行一个自有 `.work` 内的纯 host 生命周期复现；未调用服务 API、QEMU、guest 或真机，未修改生产代码。
+
+## 结论
+
+现有 API 可作为 AIFlow 的“提交源码 → 合成不可变固件 → 新建可观察 session → 交互与轮询预览”的基础。源码 CAS、来源 pin、独立 Flash、串口游标、frame/input/Unit 和 evidence 都能复用，无需重建仿真后端。
+
+当前还不能直接承诺“同一个 guest 中连续部署代码、取消旧版本后绝不复活、低延迟多订阅者帧流”。尤其启动取消存在已确定性复现的生命周期竞态，应先修复，再把每次编辑自动替换 session 接入 AIFlow。125 ms 是当前页面的名义抓帧间隔，不是已测量的 8 FPS 或端到端延迟保证。
+
+## 主要发现
+
+### 1. P1：取消启动后，旧 session 可以再次启动并恢复 running
+
+`DeviceSession.start()` 启动后台 `_provision`；后者先设 `flashing`，在没有 session 锁的情况下调用 `prepare_flash`，随后创建 Flash、设 `booting`、调用 `_launch`、最终设 `running`。`stop()` 能在准备期间完成并返回 `stopped`，但后台任务没有检查取消标记；已声明的 `_stop_event` 在此基线没有其它读写。`_set_state` 也没有禁止 `stopped → booting/running`。
+
+证据：[start/_set_state](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:3700)、[准备与启动](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:4517)、[无条件 running](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:4578)、[stop](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:7060)、[未使用的 Event](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:3022)。
+
+已用实际 `_provision/stop/_set_state/_release_virtual_flash` 做确定性复现：Event 屏障阻塞 `prepare_flash`，先执行 stop，确认返回 `stopped`、没有 Flash、尚未 launch；释放屏障后，仍调用一次 mock launch，最终 `running` 且重新出现 Flash。未取消 control 正常完成。mock 只代表 host 调度和资源边界，不模拟 guest/外设结果。
+
+复现记录：[cancel-race-reproduction.json](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/aiflow-api-architecture-review-20261026/cancel-race-reproduction.json)，SHA256 `d2078fef7af131861fb799d6a156fbabda3970ba9370a27be91afa7b0dd01480`；脚本：[reproduce_cancel_race.py](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/.work/aiflow-api-architecture-review-20261026/sandbox/reproduce_cancel_race.py)。执行器 `python3.12`。生产文件 SHA256 `093e4738efa6b505b1505e5b635249b9ac992583ff587791e16011d29f3b80a8` 前后相同。
+
+AIFlow 连续提交 A、B、C 并取消 A/B 时，这会让已被覆盖的运行重新出现，并占用原本已释放的资源。HTTP 连接 AbortController 不能解决这个后台竞态。
+
+最小修复落点与锁序：
+
+1. `stop` 入口设置单调取消 Event，随后进入 session 锁；同一 session 的 start/provision 不清除此标记。
+2. `_provision` 在准备前、每个耗时步骤返回后、发布 Flash/SD/NVS 等 session 资源前检查取消；检查与发布须受 session 锁保护，不能只在函数开头检查一次。避免在全局 service 锁内等待 prepare、QMP、peer 或进程结束。
+3. `_launch` 的“取消检查 → Popen → 将 process handle/PID 发布到 session”需要与 stop 使用同一资源生命周期锁，确保 stop 要么阻止创建，要么看见并回收刚创建的进程。现有 Popen/handle 发布位置在 [5681](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:5681)，QMP 握手在 [5702](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:5702)；不能为了简单加锁破坏已有 QMP 初始化锁序，也不要让 service 全局锁承担该等待。
+4. `_set_state` 禁止取消后的非终态迁移；取消使用专门分支退出，不落入当前 blanket exception 将已停止 session 改写为 failed。已创建的本 session runtime/companion 应回收，worker lease 应只释放一次。
+5. radio retry、Tab5/Network 子类和 HTTP/BLE companion 也要遵守同一取消约束；若暂时只关闭普通 qemu lane，必须明确该修复的覆盖范围。prepare 异常仍应按原规则 failed；用户取消不应被重试或恢复 running。
+
+验收：在 prepare、Flash 发布、进程发布、QMP/readiness、radio retry 等屏障分别 stop，stop 的完成态之后不得再 launch、变 running、创建可变 Flash 或占用 worker lease；重复 stop 幂等，普通成功和普通失败路径保持原行为。若不能在有界时间内回收，返回仍在 stopping 的确定状态，不能提前承诺 stopped。
+
+### 2. P1：源码入口是固件合成，不是持久会话代码部署
+
+实际链路是 `POST /firmware/uiflow` → `create_uiflow_firmware` → `FirmwareStore.create(kind=uiflow)` → `build_uiflow_source_image` → 修改 reference 的 LittleFS 副本 → 原 VFS 文件读回与外区保留校验 → 存完整 Flash image。只支持 CoreS3/AtomS3R/StickS3/StopWatch 的已准入 cached UIFlow2 base，caller 仅 `.py` 文本，要求 main.py。
+
+证据：[HTTP 路由](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/serve.py:707)、[source admission/composition](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:2456)、[LittleFS 写入/读回](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/uiflow_source.py:216)、[COMPOSED_NOT_EXECUTED](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/uiflow_source.py:313)。
+
+随后必须新建 session；constructor 绑定固定 firmware、source provenance 和 Unit contract，provision 从该 image 创建隔离 Flash。session action 只有 input、unit-input、qom、network-fault、snapshot、reset、renew、wait、stop，没有 deploy/files/run/serial-write。reset 只是 QMP system_reset。guest UART 主要是 file-backed 输出，现有 serial API 只读；没有可直接接入的双向 REPL 通道。
+
+证据：[session 固定绑定](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:2886)、[session actions 全表](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/serve.py:821)、[reset](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:6886)、[UART backend](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:5444)。
+
+因此“实时编程”第一版应明确是保存/运行后替换仿真实例。若产品要求同 guest 内保留状态、快速重复运行，则需新增真实 guest 文件传输/执行协议与执行边界，不能通过直接改写运行中的 raw Flash 或 host Python eval 冒充部署。
+
+### 3. P1：不可变来源隔离已有，但没有编辑器层 latest-wins/部署版本协议
+
+已有完整 Flash SHA256 ID、source JSON CAS、强制 `uiflow_source_sha256`、session UUID、worker generation 和 session create idempotency。它们能确保指定 session 的来源并隔离不同实例，值得保留。source pin 还覆盖“镜像 bytes 相同但 source 声明不同”的情况，不能仅保留 firmware SHA。
+
+证据：[source CAS](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:2478)、[image CAS](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:2653)、[强制来源 pin](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:8725)、[create 幂等](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:7908)。
+
+缺的是一个稳定的 editor/preview 身份，以及 `revision/run_id → desired/active session` 的条件更新规则。compose 是同步请求，既没有可取消 operation ID，也没有 `supersedes`/If-Match/单调 revision。多个保存并发完成时，后到的旧响应仍需要 AIFlow 自己识别和丢弃；worker generation 是执行者 ownership，不能充当编辑器代码 revision。job cancel 只属于 remote job 队列，不是 source compose/deploy cancellation。
+
+同 guest 未来重复执行也不能原封复用当前 readiness：`wait_for_marker` 搜索整个历史 serial，reset 不切换日志 epoch；旧 READY 可能满足新一轮等待。需要 run_id/起始 serial offset/唯一 marker 的新鲜性约束。
+
+证据：[worker generation](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:3028)、[历史串口 marker 匹配](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:5814)、[job cancel 路由](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/serve.py:761)。
+
+### 4. P2：帧是按需 snapshot；没有服务端实时分发、共享抓帧或有界订阅背压
+
+GET frame.png 每次执行 QMP screendump，写 PPM、读回、转 PNG、再读 PNG，过程占 session 锁。响应带 SHA/尺寸，但没有 frame sequence、captured_at、source=live/persisted、code revision 或条件 GET；停止后可以返回 persisted frame，但这些差异没有通过当前 PNG response metadata 完整表达。不能只凭屏幕仍显示图像判断 guest 仍在运行。
+
+证据：[抓帧实现](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:5977)、[persisted frame](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:6036)、[PNG HTTP headers](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/serve.py:609)。
+
+页面 foreground 目标 125 ms、hidden 1000 ms，await 所有 session 的抓帧再调度下轮，有防止本轮重叠的局部节流；但一个慢 session/未完成 fetch 会延迟该页面其它 session。fetch 未配置 timeout/AbortController。client 收到完整 PNG 后才比较 SHA，因此相同帧仍触发 backend 抓取/编码和传输。多个 tab/客户端没有共享 capture single-flight 或 latest-frame cache。
+
+证据：[名义间隔](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/web/sessions.js:4)、[fetch/hash](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/web/sessions.js:563)、[全 session await-all](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/web/sessions.js:587)、[线程式 HTTP 服务](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/serve.py:60)。
+
+### 5. P2：serial/events 能轮询审计，但不具备完整 stream/reconnect 游标契约
+
+serial 支持 byte offset、next_offset 和 limit，是可复用的断点基础；但每次先 read_bytes 整个日志再切片，大日志/多订阅者开销随历史增长。每段独立 UTF-8 errors=replace，跨 chunk 的多字节字符可能被替换；缺少 log epoch、截断/游标过期显式状态和 binary/base64 或流式 decoder 契约。页面 serial 约随 2 秒 session 刷新循环更新，游标仅在内存。
+
+events 返回整份事件数组 JSON；记录仅 at/event/details，没有单调 sequence、since、retention gap、Last-Event-ID、SSE 或 WebSocket。每次 record 会重写完整 events 文件，不宜直接用于高频 frame/serial 事件。有限 Content-Length response 也表明该端点不是现有推流接口。
+
+证据：[serial_read](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:5955)、[浏览器串口游标](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/web/sessions.js:538)、[2 秒轮询](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/web/sessions.js:775)、[事件写入](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:3042)、[events response](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:9522)、[有限 JSON response](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/serve.py:1019)。
+
+### 6. P2：输入与 Unit 有真实控制链和页面恢复措施，但没有跨运行的 input ACK 协议
+
+input 经 QMP/key/touch，unit-input 经冻结的 Unit schema 校验后 qom-set，再读回实际 runtime state；这不是 host 假值。页面已有按键 per-key queue、5 秒自动释放、Unit per-instance queue、本地 pending revision、session 绑定和不确定 release 补偿。不可把这些已存在的防护描述成全无。
+
+但 API 没有 command_id、run_id、服务端单调输入 sequence 或可重放 ACK。普通 input 返回 accepted；Unit 返回控制器状态，源码也明确“接受输入不证明固件已消费”。UI 的 revision 是本地 pending 清理编号，没有送到后端。多客户端/重连后的重发顺序、边缘事件 exactly-once 及旧运行输入 fencing 尚无契约。
+
+证据：[真实 Unit 注入](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:6141)、[普通 input accepted](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tools/device_service.py:6249)、[按键 queue/释放](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/web/sessions.js:280)、[Unit revision/queue](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/web/unit-panel.js:341)、[恢复轮询](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/web/unit-panel.js:550)。
+
+## 推荐的小步集成
+
+1. **先修取消竞态。** 同时保留现有 immutable session API、原始 evidence 和 first-failure 语义。AIFlow 每个编辑版本记录 `{preview_id, revision, source_sha256, firmware_id, session_id}`；当前 APIs 可先由 AIFlow 适配层编排，不必立即把 preview 状态塞进大 service 文件。
+2. **先交付保存后预览。** 防抖/显式 Run → source compose（固定 expected_base_sha256）→ 带 source pin 与 revision 专用 idempotency_key 建 session → 对该版本新鲜 READY/帧观察 → 原子切换 active session。晚到旧响应只能归入它自己的 revision；被覆盖 session 经 evidence-before-stop、purge=0 清理。启动失败保留上一可用画面并明确 failed/stale，不能冒称新代码已生效。并行“旧可用+新启动”需要两份容量；容量不足应明确采用先停再启动的降级策略。
+3. **强化观察接口，仍保留 polling fallback。** serial 改为 seek/read(limit) 并提供 epoch/严格 cursor 行为；frame 每 session 限制一次抓取、缓存 latest frame，为所有订阅者复用，增加 seq/captured_at/source/run_id/SHA/ETag。客户端每 session 独立有界请求，取消过期请求、指数退避；帧允许 latest-only 丢帧，生命周期事件保持有界可靠序列和 gap 标记。
+4. **再加一个观察流入口。** 可先用 authenticated fetch SSE 分发 state/serial/frame-available 元数据，PNG 仍用现有 GET。SSE 连接要有 heartbeat、断点游标、队列上限、慢客户端策略、过期/重启通知，并与当前 token rotation/request-drain 协调；不要把长连接永久计入阻断安全轮换的普通短请求 gate。帧不得按订阅人数重复 QMP 抓取。双向低延迟要求成熟后再考虑 WebSocket，HTTP input 可继续复用。
+5. **依据实测再决定持久 guest 部署。** 若 build/boot 实测无法满足产品要求，新增独立 guest runtime adapter：真实双向 UART/受控 guest agent、上传到临时路径并 guest 内校验、run boundary、打断/超时/恢复、明确 restart 与状态保留范围、每次 source/run provenance。默认按每次新运行重建 globals/软重启，不承诺任意程序可安全热重载。UIFlow 的 image composer 继续服务可复现冷启动与历史 evidence。
+
+现有 WebBurner 上传页只导入固件再创建 session，并让用户转到 Live sessions；Live sessions 创建表单使用 reference firmware 和 Unit picker，没有 source 编辑/compose 调用。AIFlow 因此还需要编辑器适配层，不能把当前页面当作已完成实时 IDE。
+
+证据：[WebBurner create](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/web/firmware.js:368)、[Live create](/Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/web/sessions.js:670)。
+
+## 验证范围与仍待测量
+
+本审查没有访问 8787，没有启动虚拟设备，也没有测量保存到首帧、输入到 guest 消费、断网恢复或多客户端 FPS。当前结论来自固定源码调用链；取消竞态另有实际 host-only 同步屏障复现，不能扩张成 QEMU/guest 测试。
+
+实现集成前，应选同固件/同 profile 的至少一个带屏 host，通过 Device Service 量出 compose、prepare、ready、首帧和输入反馈延迟，再确定“实时”的产品目标。验收必须包含快速 A/B/C 提交乱序、prepare 中取消、双客户端慢消费者、断线游标恢复、源码异常、卡住的 guest、旧 READY/旧 frame 拒绝以及服务重启；这些是计划中的验证，本文不声称已经 PASS。

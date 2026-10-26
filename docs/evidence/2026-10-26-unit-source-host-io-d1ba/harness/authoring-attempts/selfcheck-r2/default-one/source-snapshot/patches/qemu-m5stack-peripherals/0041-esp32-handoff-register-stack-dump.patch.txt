@@ -1,0 +1,153 @@
+diff --git a/include/hw/xtensa/xtensa_cpu_regs.h b/include/hw/xtensa/xtensa_cpu_regs.h
+new file mode 100644
+index 0000000..61dbbdb
+--- /dev/null
++++ b/include/hw/xtensa/xtensa_cpu_regs.h
+@@ -0,0 +1,6 @@
++#pragma once
++
++#include "hw/core/cpu.h"
++
++uint32_t xtensa_cpu_get_areg(CPUState *cpu, unsigned index);
++uint32_t xtensa_cpu_get_ps(CPUState *cpu);
+diff --git a/target/xtensa/helper.c b/target/xtensa/helper.c
+index 32b95d0..8e718f5 100644
+--- a/target/xtensa/helper.c
++++ b/target/xtensa/helper.c
+@@ -27,6 +27,7 @@
+ 
+ #include "qemu/osdep.h"
+ #include "qemu/log.h"
++#include "hw/xtensa/xtensa_cpu_regs.h"
+ #include "cpu.h"
+ #include "exec/exec-all.h"
+ #include "gdbstub/helpers.h"
+@@ -37,6 +38,18 @@
+ 
+ static struct XtensaConfigList *xtensa_cores;
+ 
++uint32_t xtensa_cpu_get_areg(CPUState *cpu, unsigned index)
++{
++    CPUXtensaState *env = cpu_env(cpu);
++
++    return index < ARRAY_SIZE(env->regs) ? env->regs[index] : 0;
++}
++
++uint32_t xtensa_cpu_get_ps(CPUState *cpu)
++{
++    return cpu_env(cpu)->sregs[PS];
++}
++
+ static void add_translator_to_hash(GHashTable *translator,
+                                    const char *name,
+                                    const XtensaOpcodeOps *opcode)
+diff --git a/hw/misc/esp32_dport.c b/hw/misc/esp32_dport.c
+--- a/hw/misc/esp32_dport.c
++++ b/hw/misc/esp32_dport.c
+@@ -26,6 +26,7 @@
+ 
+ #include "hw/misc/esp32_flash_enc.h"
+ #include "hw/misc/esp32_handoff_trace.h"
++#include "hw/xtensa/xtensa_cpu_regs.h"
+ #include "hw/nvram/esp32_efuse.h"
+ 
+ #include <signal.h>
+@@ -561,6 +562,90 @@
+     return result == MEMTX_OK ? value : 0xffffffff;
+ }
+ 
++static uint32_t esp32_handoff_pause_read_u32_as(
++    AddressSpace *as,
++    hwaddr addr
++)
++{
++    MemTxResult result = MEMTX_OK;
++    uint32_t value = address_space_ldl_le(
++        as, addr, MEMTXATTRS_UNSPECIFIED, &result
++    );
++
++    return result == MEMTX_OK ? value : 0xffffffff;
++}
++
++static void esp32_handoff_pause_dump_stack(uint64_t now_ns, CPUState *cpu)
++{
++    const char *words_value =
++        getenv("M5SW_ESP32_HANDOFF_STACK_WORDS");
++    unsigned words = words_value ? strtoul(words_value, NULL, 10) : 0;
++    uint32_t a0 = xtensa_cpu_get_areg(cpu, 0);
++    uint32_t a1 = xtensa_cpu_get_areg(cpu, 1);
++
++    if (words > 64) {
++        words = 64;
++    }
++
++    fprintf(stderr,
++            "[esp32-handoff] now=%" PRId64
++            " cpu=%d pc=%08" PRIx64
++            " component=cpu event=freeze-reg"
++            " a=%08" PRIx32 " b=%08" PRIx32
++            " c=%08" PRIx32 " d=0\n",
++            now_ns, cpu->cpu_index,
++            cpu->cc && cpu->cc->get_pc ? cpu->cc->get_pc(cpu) : 0,
++            a0, a1, xtensa_cpu_get_ps(cpu));
++    for (unsigned base = 2; base < 16; base += 4) {
++        fprintf(stderr,
++                "[esp32-handoff] now=%" PRId64
++                " cpu=%d pc=%08" PRIx64
++                " component=cpu event=freeze-reg%u"
++                " a=%08" PRIx32 " b=%08" PRIx32
++                " c=%08" PRIx32 " d=%08" PRIx32 "\n",
++                now_ns, cpu->cpu_index,
++                cpu->cc && cpu->cc->get_pc ? cpu->cc->get_pc(cpu) : 0,
++                base,
++                xtensa_cpu_get_areg(cpu, base),
++                xtensa_cpu_get_areg(cpu, base + 1),
++                xtensa_cpu_get_areg(cpu, base + 2),
++                xtensa_cpu_get_areg(cpu, base + 3));
++    }
++    for (unsigned index = 2; index < 16; ++index) {
++        uint32_t pointer = xtensa_cpu_get_areg(cpu, index);
++
++        if (index == 4 || index == 5 || index == 8 || index == 11
++            || index == 12 || index == 13 || index == 14) {
++            continue;
++        }
++        fprintf(stderr,
++                "[esp32-handoff] now=%" PRId64
++                " cpu=%d pc=%08" PRIx64
++                " component=mem event=freeze-point"
++                " a=%08" PRIx32 " b=%08" PRIx32
++                " c=%08" PRIx32 " d=%08" PRIx32 "\n",
++                now_ns, cpu->cpu_index,
++                cpu->cc && cpu->cc->get_pc ? cpu->cc->get_pc(cpu) : 0,
++                pointer,
++                esp32_handoff_pause_read_u32_as(cpu->as, pointer),
++                esp32_handoff_pause_read_u32_as(cpu->as, pointer + 24),
++                esp32_handoff_pause_read_u32_as(cpu->as, pointer + 28));
++    }
++    for (unsigned index = 0; index < words; ++index) {
++        hwaddr addr = a1 + index * sizeof(uint32_t);
++        fprintf(stderr,
++                "[esp32-handoff] now=%" PRId64
++                " cpu=%d pc=%08" PRIx64
++                " component=mem event=stack-word"
++                " a=%08" HWADDR_PRIx " b=%08" PRIx32
++                " c=%u d=%u\n",
++                now_ns, cpu->cpu_index,
++                cpu->cc && cpu->cc->get_pc ? cpu->cc->get_pc(cpu) : 0,
++                addr, esp32_handoff_pause_read_u32_as(cpu->as, addr),
++                cpu->cpu_index, index);
++    }
++}
++
+ static void esp32_handoff_pause_dump_state(Esp32DportState *s, uint64_t now_ns)
+ {
+     CPUState *cpu;
+@@ -576,6 +661,7 @@
+                 " a=%08" PRIx32 " b=%u c=0 d=0\n",
+                 now_ns, cpu->cpu_index, pc, cpu->interrupt_request,
+                 (cpu->halted ? 1 : 0) | (cpu->running ? 2 : 0));
++        esp32_handoff_pause_dump_stack(now_ns, cpu);
+     }
+ 
+     fprintf(stderr,

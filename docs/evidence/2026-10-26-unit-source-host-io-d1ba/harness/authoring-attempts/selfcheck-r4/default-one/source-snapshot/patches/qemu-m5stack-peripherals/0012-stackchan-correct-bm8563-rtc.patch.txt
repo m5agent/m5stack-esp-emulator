@@ -1,0 +1,110 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: m5agent <m5agent@m5stack.com>
+Date: Thu, 22 Oct 2026 04:30:00 +0800
+Subject: [PATCH] m5stackchan: correct RTC and ambient-light routing
+
+StackChan reuses the CoreS3 carrier, whose RTC is a BM8563 compatible with
+PCF8563 at I2C address 0x51.  The board previously attached an RX8130 at
+0x32, which is not present on StackChan and leaves the official RTC path
+unconnected.  Expose absolute epoch and offset injection on both PCF8563 and
+RX8130 models so automated tests can drive the real RTC register path.  Also
+attach the CoreS3 carrier's LTR-553ALS-WA ambient-light/proximity sensor.
+
+Signed-off-by: m5agent <m5agent@m5stack.com>
+---
+ hw/m5stopwatch/m5stackchan.c   |  3 +-
+ hw/m5stopwatch/m5sw_i2c_devs.c | 35 +++++++++++++++++++++++++++++++++++
+ 2 files changed, 37 insertions(+), 1 deletion(-)
+
+diff --git a/hw/m5stopwatch/m5stackchan.c b/hw/m5stopwatch/m5stackchan.c
+--- a/hw/m5stopwatch/m5stackchan.c
++++ b/hw/m5stopwatch/m5stackchan.c
+@@ -43,10 +43,11 @@ void m5stackchan_board_init(MemoryRegion *sys_mem, DeviceState *intmatrix,
+         { "ft5x06", 0x38 },
+         { "gc0308", 0x21 },
++        { "ltr553", 0x23 },
+         { "aw88298", 0x36 },
+         { "es7210", 0x40 },
+         { "m5ioe1_v4", 0x6F },
+         { "bmi270", 0x69 },
+-        { "rx8130", 0x32 },
++        { "pcf8563", 0x51 },
+         { "ina226", 0x41 },
+         { "st25r3916", 0x50 },
+         { "si12t", 0x68 },
+diff --git a/hw/m5stopwatch/m5sw_i2c_devs.c b/hw/m5stopwatch/m5sw_i2c_devs.c
+index 3972f20..6f09f06 100644
+--- a/hw/m5stopwatch/m5sw_i2c_devs.c
++++ b/hw/m5stopwatch/m5sw_i2c_devs.c
+@@ -73,5 +73,6 @@ typedef struct M5swI2CDev {
+     uint8_t ina3221_read_index;
+     int64_t light_level;
++    int64_t proximity_level;
+     int64_t aw9523_input_bits;
+     int64_t pi4ioe_input_bits;
+     int64_t m5ioe1_input_bits;
+@@ -969,4 +970,8 @@ static uint8_t dev_read_reg(M5swI2CDev *s, uint8_t r)
+             uint16_t raw = MAX(0, MIN(s->light_level, 65535));
+             return (r & 1) ? raw >> 8 : raw & 0xff;
+         }
++        if (r == 0x8D || r == 0x8E) {
++            uint16_t raw = MAX(0, MIN(s->proximity_level, 0x7ff));
++            return r == 0x8D ? raw & 0xff : raw >> 8;
++        }
+         break;
+@@ -1541,6 +1546,30 @@ static void prop_set_i64(Object *o, Visitor *v, const char *name, void *op, Erro
+         *(int64_t *)op = d;
+     }
+ }
++static void prop_get_rtc_time(Object *o, Visitor *v, const char *name,
++                              void *op, Error **errp)
++{
++    M5swI2CDev *s = M5SW_I2C_DEV(o);
++    int64_t value = (int64_t)time(NULL) + s->rtc_offset;
++    visit_type_int64(v, name, &value, errp);
++}
++static void prop_set_rtc_time(Object *o, Visitor *v, const char *name,
++                              void *op, Error **errp)
++{
++    M5swI2CDev *s = M5SW_I2C_DEV(o);
++    int64_t value;
++    if (visit_type_int64(v, name, &value, errp)) {
++        s->rtc_offset = value - (int64_t)time(NULL);
++    }
++}
++static void rtc_add_properties(M5swI2CDev *s)
++{
++    object_property_add(OBJECT(s), "rtc-offset", "int",
++                        prop_get_i64, prop_set_i64, NULL,
++                        &s->rtc_offset);
++    object_property_add(OBJECT(s), "unix-time", "int",
++                        prop_get_rtc_time, prop_set_rtc_time, NULL, NULL);
++}
+ static void prop_get_u8(Object *o, Visitor *v, const char *name, void *op,
+                         Error **errp)
+ {
+@@ -2023,6 +2052,10 @@ static void dev_realize(DeviceState *dev, Error **errp)
+     } else if (!strcmp(m, "ltr553")) {
+         s->model = M_LTR553;
+         s->light_level = 320;
++        s->proximity_level = 64;
+         object_property_add(OBJECT(s), "light-level", "int",
+                             prop_get_i64, prop_set_i64, NULL, &s->light_level);
++        object_property_add(OBJECT(s), "proximity-level", "int",
++                            prop_get_i64, prop_set_i64, NULL,
++                            &s->proximity_level);
+     } else if (!strcmp(m, "st25r3916")) {
+@@ -2090,8 +2123,10 @@ static void dev_realize(DeviceState *dev, Error **errp)
+         s->model = M_RX8130;
+         s->regs[0x1E] = 0x00;
+         s->regs[0x1D] = 0x00;
++        rtc_add_properties(s);
+     } else if (!strcmp(m, "pcf8563")) {
+         s->model = M_PCF8563;
++        rtc_add_properties(s);
+     } else if (!strcmp(m, "es8311")) {
+         s->model = M_ES8311;
+         s->regs[0xFD] = 0x83;   /* CHIP ID1 */
+-- 
+2.43.0
+

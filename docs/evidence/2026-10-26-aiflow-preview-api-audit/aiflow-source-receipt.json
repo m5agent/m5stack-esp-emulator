@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "status": "READ_ONLY_SOURCE_ARCHITECTURE_REVIEW_COMPLETE",
+  "initial_source_repository_head": "3f0eb383a363d826732b0b09faba35f3b7562eb6",
+  "final_source_repository_head": "b49940608b12d8d60645efe6f319a2314316c696",
+  "source_worktree_clean_before_and_after": true,
+  "head_changed_during_review": true,
+  "relevant_concurrent_change": "gateway SSE sync SQLite reads moved to asyncio.to_thread; current code and line references rechecked",
+  "source_files": {
+    "AGENTS.md": {
+      "sha256": "0679c4177e45f5200379be1c50673e2098f363b1ad3ce72d66bdb4ace8ed423c",
+      "size": 18121,
+      "matches_tracked_HEAD_blob": true
+    },
+    "docs/API_V3.md": {
+      "sha256": "162de41f2d1989b32726c71ebdaa04a02b4a952ab43662f3b3c8f260929a5c8f",
+      "size": 40371,
+      "matches_tracked_HEAD_blob": true
+    },
+    "docs/WEB_CLIENT_INTEGRATION.md": {
+      "sha256": "fdba800b9e8742aa317d8e48919b67eb9b91412525cc987700062a7629bf8a89",
+      "size": 21420,
+      "matches_tracked_HEAD_blob": true
+    },
+    "docs/THIRD_PARTY_DEVICE_PUSH_API.md": {
+      "sha256": "f0413ff3b4cae0cd0d7bc737807574a7a0d08fd73b4326273a1727ed3d97f81e",
+      "size": 16075,
+      "matches_tracked_HEAD_blob": true
+    },
+    "aiflow_server/app.py": {
+      "sha256": "86ed65ee032de23e24b58aafdeb817f5a46a0ce341aff2ba726d6e4aa52a7445",
+      "size": 43259,
+      "matches_tracked_HEAD_blob": true
+    },
+    "aiflow_server/gateway.py": {
+      "sha256": "46f15bbf4d5e2ef2a2c24759a1007a0e27a95d9937a698f2c267e1a9cbbcfda6",
+      "size": 27784,
+      "matches_tracked_HEAD_blob": true
+    },
+    "aiflow_server/agent.py": {
+      "sha256": "7ebb5d7743ebed5eb0dd392345e05e500aa4224adebfd358c114f666c68d1416",
+      "size": 84704,
+      "matches_tracked_HEAD_blob": true
+    },
+    "aiflow_server/tasks.py": {
+      "sha256": "cf0d5a8e956a3db19dcde5659fee7a9d011ca0a58c7c53e281047d074e95555f",
+      "size": 61352,
+      "matches_tracked_HEAD_blob": true
+    },
+    "aiflow_server/workspaces.py": {
+      "sha256": "2e4a7583161d8b0b147965974dd2bb856162c9cb381f4398ea2ec4b20a6aa712",
+      "size": 18388,
+      "matches_tracked_HEAD_blob": true
+    },
+    "aiflow_server/device_push.py": {
+      "sha256": "fb684c7d7b02602b085ca6ae9e8d327876196e269028587b2c8af4aad626f541",
+      "size": 6139,
+      "matches_tracked_HEAD_blob": true
+    },
+    "aiflow_server/schemas.py": {
+      "sha256": "0a48bfab0b216f53ac167d75cfd244d4bf0446a582f70aee4e064dbef1539335",
+      "size": 5678,
+      "matches_tracked_HEAD_blob": true
+    },
+    "aiflow_server/storage.py": {
+      "sha256": "c98babcdf43fa9c21d7fb3c195bead1c5d6ad0215860872df1a2f43755dee697",
+      "size": 66391,
+      "matches_tracked_HEAD_blob": true
+    },
+    "aiflow_server/sse_wire.py": {
+      "sha256": "004bf3977a2ff3c5016d37602ea6d83a5d8e13191108701644921dcf9762c410",
+      "size": 2766,
+      "matches_tracked_HEAD_blob": true
+    },
+    "aiflow_server/config.py": {
+      "sha256": "0e82402712175d2fbaeb862a3755166050787b84b33a6cb496a9f78a0eec0963",
+      "size": 36145,
+      "matches_tracked_HEAD_blob": true
+    },
+    "web/app.js": {
+      "sha256": "c47f330bc1dfa6755c62dc32555fa6862f8d5baca9c383959025699b8001e94f",
+      "size": 47524,
+      "matches_tracked_HEAD_blob": true
+    },
+    "skills/aiflow-device-push/scripts/aiflow_push.py": {
+      "sha256": "cad0250968dc204303c741bca0ab939315ce9140abe2d23c70e09adf92cfcad4",
+      "size": 30638,
+      "matches_tracked_HEAD_blob": true
+    },
+    "tests/test_server_v3.py": {
+      "sha256": "2a58a2fe2bad666cd0adf60498eaea264f287e1991818de268fce552f0fd22b0",
+      "size": 63779,
+      "matches_tracked_HEAD_blob": true
+    },
+    "tests/test_agent_behavior.py": {
+      "sha256": "43957bad42a267cee14e18d41ff1df179fb2f1428e64b4ab7ef39bb189b75e1b",
+      "size": 40235,
+      "matches_tracked_HEAD_blob": true
+    },
+    "tests/test_device_push.py": {
+      "sha256": "74b26a4bfda9dcdfb5f1f0a420481b345c0012acc1b5de29992a25651102a515",
+      "size": 23983,
+      "matches_tracked_HEAD_blob": true
+    },
+    "tests/test_task_event_efficiency.py": {
+      "sha256": "20870d5467f47917a7b14f1b629aa6e0e9ca846ce4eab7f6f8e01b019ebba021",
+      "size": 3096,
+      "matches_tracked_HEAD_blob": true
+    },
+    "tests/test_gateway.py": {
+      "sha256": "ab9b1981102bc27889c61b630668ee97f2fd01f804b2bb4190a1d399119f974e",
+      "size": 22223,
+      "matches_tracked_HEAD_blob": true
+    },
+    "tests/test_web_stream_state.py": {
+      "sha256": "b99ed965d5b9bb5ceea2079cd7c879e89b6ebc78f083af8af3acebdfb0ebabe6",
+      "size": 573,
+      "matches_tracked_HEAD_blob": true
+    }
+  },
+  "report": "aiflow-consumer-review.md",
+  "report_sha256": "50e4aee67de7b625ecc54195c350d5d19261e6299b9d9b19862101892d5e08eb",
+  "report_bytes": 19304,
+  "verified_nonempty_line_links": 44,
+  "links": [
+    {
+      "path": "aiflow_server/app.py",
+      "line": 403
+    },
+    {
+      "path": "aiflow_server/schemas.py",
+      "line": 12
+    },
+    {
+      "path": "aiflow_server/schemas.py",
+      "line": 44
+    },
+    {
+      "path": "aiflow_server/schemas.py",
+      "line": 127
+    },
+    {
+      "path": "aiflow_server/app.py",
+      "line": 613
+    },
+    {
+      "path": "aiflow_server/schemas.py",
+      "line": 8
+    },
+    {
+      "path": "aiflow_server/app.py",
+      "line": 651
+    },
+    {
+      "path": "aiflow_server/tasks.py",
+      "line": 715
+    },
+    {
+      "path": "aiflow_server/tasks.py",
+      "line": 715
+    },
+    {
+      "path": "aiflow_server/gateway.py",
+      "line": 556
+    },
+    {
+      "path": "aiflow_server/sse_wire.py",
+      "line": 26
+    },
+    {
+      "path": "aiflow_server/tasks.py",
+      "line": 962
+    },
+    {
+      "path": "aiflow_server/app.py",
+      "line": 954
+    },
+    {
+      "path": "aiflow_server/app.py",
+      "line": 520
+    },
+    {
+      "path": "web/app.js",
+      "line": 647
+    },
+    {
+      "path": "aiflow_server/tasks.py",
+      "line": 1286
+    },
+    {
+      "path": "aiflow_server/agent.py",
+      "line": 1817
+    },
+    {
+      "path": "aiflow_server/tasks.py",
+      "line": 889
+    },
+    {
+      "path": "aiflow_server/storage.py",
+      "line": 854
+    },
+    {
+      "path": "aiflow_server/agent.py",
+      "line": 1204
+    },
+    {
+      "path": "aiflow_server/tasks.py",
+      "line": 976
+    },
+    {
+      "path": "aiflow_server/tasks.py",
+      "line": 1101
+    },
+    {
+      "path": "aiflow_server/gateway.py",
+      "line": 478
+    },
+    {
+      "path": "aiflow_server/sse_wire.py",
+      "line": 11
+    },
+    {
+      "path": "docs/WEB_CLIENT_INTEGRATION.md",
+      "line": 206
+    },
+    {
+      "path": "web/app.js",
+      "line": 1153
+    },
+    {
+      "path": "aiflow_server/storage.py",
+      "line": 1503
+    },
+    {
+      "path": "aiflow_server/agent.py",
+      "line": 904
+    },
+    {
+      "path": "aiflow_server/agent.py",
+      "line": 399
+    },
+    {
+      "path": "aiflow_server/schemas.py",
+      "line": 185
+    },
+    {
+      "path": "aiflow_server/app.py",
+      "line": 995
+    },
+    {
+      "path": "aiflow_server/app.py",
+      "line": 959
+    },
+    {
+      "path": "aiflow_server/device_push.py",
+      "line": 56
+    },
+    {
+      "path": "aiflow_server/workspaces.py",
+      "line": 409
+    },
+    {
+      "path": "skills/aiflow-device-push/scripts/aiflow_push.py",
+      "line": 466
+    },
+    {
+      "path": "aiflow_server/device_push.py",
+      "line": 122
+    },
+    {
+      "path": "aiflow_server/device_push.py",
+      "line": 83
+    },
+    {
+      "path": "skills/aiflow-device-push/scripts/aiflow_push.py",
+      "line": 587
+    },
+    {
+      "path": "skills/aiflow-device-push/scripts/aiflow_push.py",
+      "line": 627
+    },
+    {
+      "path": "docs/THIRD_PARTY_DEVICE_PUSH_API.md",
+      "line": 73
+    },
+    {
+      "path": "docs/THIRD_PARTY_DEVICE_PUSH_API.md",
+      "line": 217
+    },
+    {
+      "path": "aiflow_server/app.py",
+      "line": 570
+    },
+    {
+      "path": "aiflow_server/tasks.py",
+      "line": 873
+    },
+    {
+      "path": "docs/WEB_CLIENT_INTEGRATION.md",
+      "line": 327
+    }
+  ],
+  "SDK_repo_modified_by_this_agent": false,
+  "env_credentials_private_deployment_data_read": false,
+  "API_model_device_push_8787_guest_browser_new_service_calls": 0,
+  "tests_run": "NOT RUN - read-only source review; existing tests inspected, not executed",
+  "memory_usage": "MEMORY.md 491-516 used only for V3/multipart navigation; all conclusions rechecked in current source"
+}

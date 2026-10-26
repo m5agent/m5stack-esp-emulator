@@ -1,0 +1,352 @@
+{
+  "status": "PENDING",
+  "scope": "Independent actual raw source API/PID/UART/QOM/host/DOM/ZIP/cleanup audit; native visual review separately required.",
+  "expected_combinations": 24,
+  "reviewed_combinations": 3,
+  "pending_combinations": [
+    [
+      "atoms3r",
+      "dual-button"
+    ],
+    [
+      "atoms3r",
+      "hub"
+    ],
+    [
+      "atoms3r",
+      "key"
+    ],
+    [
+      "atoms3r",
+      "limit"
+    ],
+    [
+      "atoms3r",
+      "pir"
+    ],
+    [
+      "atoms3r",
+      "rgb"
+    ],
+    [
+      "atoms3r",
+      "rs485"
+    ],
+    [
+      "sticks3",
+      "dual-button"
+    ],
+    [
+      "sticks3",
+      "hub"
+    ],
+    [
+      "sticks3",
+      "key"
+    ],
+    [
+      "sticks3",
+      "limit"
+    ],
+    [
+      "sticks3",
+      "pir"
+    ],
+    [
+      "sticks3",
+      "rgb"
+    ],
+    [
+      "sticks3",
+      "rs485"
+    ],
+    [
+      "stopwatch",
+      "dual-button"
+    ],
+    [
+      "stopwatch",
+      "hub"
+    ],
+    [
+      "stopwatch",
+      "key"
+    ],
+    [
+      "stopwatch",
+      "limit"
+    ],
+    [
+      "stopwatch",
+      "pir"
+    ],
+    [
+      "stopwatch",
+      "rgb"
+    ],
+    [
+      "stopwatch",
+      "rs485"
+    ]
+  ],
+  "batches": [
+    {
+      "batch": "live-fan-r1",
+      "cases": 3,
+      "source_inventory_SHA256": "2d47731c9b3c2833b3835e8f3166341efa80c679f68fcf36f59b1b7373c40449",
+      "original_files_unchanged": true
+    }
+  ],
+  "cases": [
+    {
+      "device_id": "atoms3r",
+      "unit_id": "fan",
+      "status": "PASS",
+      "batch": "live-fan-r1",
+      "session_id": "5368ae5747c2406f944665297fa662fb",
+      "source_context_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "source_CAS": "91a9389ec46bfba66ef78734ac804c572a99e9bd0fd337806c772d6692bfc153",
+      "firmware_SHA256": "fbc4080e5c57f146be34a205acd7ed6d39a964b496b84247fd48098d9e197abe",
+      "runtime_SHA256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "worker_generation": 12,
+      "PID": 38467,
+      "caller_python_files": 19,
+      "complete_original_IO_oracle_unchanged": true,
+      "original_ZIP_oracle_replayed": true,
+      "independent_semantics": {
+        "status": "PASS",
+        "accepted_input_count": 0,
+        "fresh_UART_windows": [],
+        "internal_read_log_records": 3,
+        "last_internal_counter": 4,
+        "actual_font": [
+          0.7,
+          10
+        ]
+      },
+      "positive_input_binding": {
+        "schema_version": 1,
+        "status": "VERIFIED_OUTPUT_ONLY_ZERO_POSTS",
+        "session_id": "5368ae5747c2406f944665297fa662fb",
+        "unit_id": "fan",
+        "device_id": "atoms3r",
+        "runtime": "qemu",
+        "firmware_sha256": "fbc4080e5c57f146be34a205acd7ed6d39a964b496b84247fd48098d9e197abe",
+        "full_serial_sha256": "3ebe9d204cceffe36c564c422335e82a1c315b3ffe03c03b93b699e40dcc9730",
+        "serial_artifact": "controller/fan/serial.txt",
+        "post_count": 0,
+        "verified_noop_fields": 0,
+        "vectors": []
+      },
+      "browser": {
+        "running_snapshots": 6,
+        "actions": 0,
+        "posts": 0
+      },
+      "ZIP_before_stop": true,
+      "history_frame_and_source_retained": true,
+      "mutable_Flash_released": true,
+      "worker_lease_ended": true,
+      "owned_PID_exit": "Verified saved runner observation; no new historical PID reprobe",
+      "service_idle": true,
+      "frames": {
+        "running": {
+          "sha256": "0dd5295e9fe2d7e34516552636387823b42576d0caec3be9739b6684e4ed186c",
+          "bytes": 811,
+          "native_size": [
+            128,
+            128
+          ]
+        },
+        "ZIP_current": {
+          "sha256": "0dd5295e9fe2d7e34516552636387823b42576d0caec3be9739b6684e4ed186c",
+          "bytes": 811,
+          "native_size": [
+            128,
+            128
+          ]
+        },
+        "history": {
+          "sha256": "0dd5295e9fe2d7e34516552636387823b42576d0caec3be9739b6684e4ed186c",
+          "bytes": 811,
+          "native_size": [
+            128,
+            128
+          ]
+        }
+      },
+      "native_frame_readability": "PENDING_SEPARATE_ACTUAL_VISUAL_INSPECTION",
+      "original_case_artifacts_unchanged": true,
+      "original_case_inventory_SHA256": "a6404048d3794acf7ea341e8a959a7d7696a5ab0ceb3af86e61fed1469946090"
+    },
+    {
+      "device_id": "sticks3",
+      "unit_id": "fan",
+      "status": "PASS",
+      "batch": "live-fan-r1",
+      "session_id": "def70d6301564f5b969f8e3538f8fa2f",
+      "source_context_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "source_CAS": "a5b0464e7d9cf588ecd43506e8029dd4cb0f02fca424ecfc983cd8f53fc22613",
+      "firmware_SHA256": "d4e76232770d840d555b6d8b3f70222429650f6699298566eda5eea7de48052d",
+      "runtime_SHA256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "worker_generation": 12,
+      "PID": 38661,
+      "caller_python_files": 19,
+      "complete_original_IO_oracle_unchanged": true,
+      "original_ZIP_oracle_replayed": true,
+      "independent_semantics": {
+        "status": "PASS",
+        "accepted_input_count": 0,
+        "fresh_UART_windows": [],
+        "internal_read_log_records": 3,
+        "last_internal_counter": 4,
+        "actual_font": [
+          1.0,
+          15
+        ]
+      },
+      "positive_input_binding": {
+        "schema_version": 1,
+        "status": "VERIFIED_OUTPUT_ONLY_ZERO_POSTS",
+        "session_id": "def70d6301564f5b969f8e3538f8fa2f",
+        "unit_id": "fan",
+        "device_id": "sticks3",
+        "runtime": "qemu",
+        "firmware_sha256": "d4e76232770d840d555b6d8b3f70222429650f6699298566eda5eea7de48052d",
+        "full_serial_sha256": "6e3e21b940ff2d16263c1dfeb256defd05e14f257d2f3ab017d6cf53f90107ca",
+        "serial_artifact": "controller/fan/serial.txt",
+        "post_count": 0,
+        "verified_noop_fields": 0,
+        "vectors": []
+      },
+      "browser": {
+        "running_snapshots": 6,
+        "actions": 0,
+        "posts": 0
+      },
+      "ZIP_before_stop": true,
+      "history_frame_and_source_retained": true,
+      "mutable_Flash_released": true,
+      "worker_lease_ended": true,
+      "owned_PID_exit": "Verified saved runner observation; no new historical PID reprobe",
+      "service_idle": true,
+      "frames": {
+        "running": {
+          "sha256": "e948a7e3c88c8544b0947623f69ebb7089d21ee408f352d162203bf1329f035b",
+          "bytes": 1303,
+          "native_size": [
+            135,
+            240
+          ]
+        },
+        "ZIP_current": {
+          "sha256": "e948a7e3c88c8544b0947623f69ebb7089d21ee408f352d162203bf1329f035b",
+          "bytes": 1303,
+          "native_size": [
+            135,
+            240
+          ]
+        },
+        "history": {
+          "sha256": "e948a7e3c88c8544b0947623f69ebb7089d21ee408f352d162203bf1329f035b",
+          "bytes": 1303,
+          "native_size": [
+            135,
+            240
+          ]
+        }
+      },
+      "native_frame_readability": "PENDING_SEPARATE_ACTUAL_VISUAL_INSPECTION",
+      "original_case_artifacts_unchanged": true,
+      "original_case_inventory_SHA256": "0e39640a85c7263d09a0c181defcfdf15f8227cacf168b2dce5836780079189d"
+    },
+    {
+      "device_id": "stopwatch",
+      "unit_id": "fan",
+      "status": "PASS",
+      "batch": "live-fan-r1",
+      "session_id": "33160a60920b49329c6c7038b5677e4c",
+      "source_context_commit": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "source_CAS": "218eb78f42b69e2ec905f7e42b9ee1f4d31d98043c6a80e5a3ef2696b12d3ade",
+      "firmware_SHA256": "74cabc9f4d7877d1fd3251034a5fda82ce2bed41404c2cfb71a861b61d33e554",
+      "runtime_SHA256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+      "worker_generation": 12,
+      "PID": 38876,
+      "caller_python_files": 19,
+      "complete_original_IO_oracle_unchanged": true,
+      "original_ZIP_oracle_replayed": true,
+      "independent_semantics": {
+        "status": "PASS",
+        "accepted_input_count": 0,
+        "fresh_UART_windows": [],
+        "internal_read_log_records": 3,
+        "last_internal_counter": 4,
+        "actual_font": [
+          2.0,
+          30
+        ]
+      },
+      "positive_input_binding": {
+        "schema_version": 1,
+        "status": "VERIFIED_OUTPUT_ONLY_ZERO_POSTS",
+        "session_id": "33160a60920b49329c6c7038b5677e4c",
+        "unit_id": "fan",
+        "device_id": "stopwatch",
+        "runtime": "qemu",
+        "firmware_sha256": "74cabc9f4d7877d1fd3251034a5fda82ce2bed41404c2cfb71a861b61d33e554",
+        "full_serial_sha256": "220691895fa62d6fe23a444beeeea07dce624657d853bc252dba18b6cb157176",
+        "serial_artifact": "controller/fan/serial.txt",
+        "post_count": 0,
+        "verified_noop_fields": 0,
+        "vectors": []
+      },
+      "browser": {
+        "running_snapshots": 6,
+        "actions": 0,
+        "posts": 0
+      },
+      "ZIP_before_stop": true,
+      "history_frame_and_source_retained": true,
+      "mutable_Flash_released": true,
+      "worker_lease_ended": true,
+      "owned_PID_exit": "Verified saved runner observation; no new historical PID reprobe",
+      "service_idle": true,
+      "frames": {
+        "running": {
+          "sha256": "4c1f89bc9b0d729902b1cf1e29ff0f3c14876ea79f61adc03da383f7e3703ce3",
+          "bytes": 3206,
+          "native_size": [
+            466,
+            466
+          ]
+        },
+        "ZIP_current": {
+          "sha256": "4c1f89bc9b0d729902b1cf1e29ff0f3c14876ea79f61adc03da383f7e3703ce3",
+          "bytes": 3206,
+          "native_size": [
+            466,
+            466
+          ]
+        },
+        "history": {
+          "sha256": "4c1f89bc9b0d729902b1cf1e29ff0f3c14876ea79f61adc03da383f7e3703ce3",
+          "bytes": 3206,
+          "native_size": [
+            466,
+            466
+          ]
+        }
+      },
+      "native_frame_readability": "PENDING_SEPARATE_ACTUAL_VISUAL_INSPECTION",
+      "original_case_artifacts_unchanged": true,
+      "original_case_inventory_SHA256": "b65fde21886a77fdd421df86a4d51f62b2c83cf43ffc5b02bd83c371e71a45b6"
+    }
+  ],
+  "API_browser_guest_subprocess_calls_during_review": 0,
+  "hardware_validation": "NOT RUN",
+  "original_IR_Buzzer_ADC_scope": "UNCHANGED_EXCLUDED",
+  "limitations": [
+    "Only exact firmware/controller/session/captured-frame scope; no hardware or continuous all-frame fidelity claim.",
+    "Original runtime PID exit is a saved runner observation, not a new historical PID live reprobe."
+  ]
+}

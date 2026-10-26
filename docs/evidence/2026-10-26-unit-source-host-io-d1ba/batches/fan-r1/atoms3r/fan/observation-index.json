@@ -1,0 +1,132 @@
+[
+  {
+    "at": "2026-10-26T05:31:36.831659+00:00",
+    "event_id": 0,
+    "kind": "wait-success",
+    "phase": "startup",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00000-serial.txt",
+    "serial_sha256": "8a65c504f0d952cd67e298fb3b375bfcc1b7ed2c76b2073b10d911ecbbe3904e"
+  },
+  {
+    "at": "2026-10-26T05:31:36.831830+00:00",
+    "event_id": 1,
+    "kind": "marker",
+    "marker": "IO_PROBE_READY fan",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00001-marker.txt",
+    "serial_sha256": "8a65c504f0d952cd67e298fb3b375bfcc1b7ed2c76b2073b10d911ecbbe3904e"
+  },
+  {
+    "at": "2026-10-26T05:31:36.854316+00:00",
+    "event_id": 2,
+    "kind": "wait-success",
+    "phase": "IO_PROBE_READY fan",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00002-serial.txt",
+    "serial_sha256": "8a65c504f0d952cd67e298fb3b375bfcc1b7ed2c76b2073b10d911ecbbe3904e"
+  },
+  {
+    "at": "2026-10-26T05:31:36.854485+00:00",
+    "event_id": 3,
+    "kind": "marker",
+    "marker": "IO_FAN 0 1000 0",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00003-marker.txt",
+    "serial_sha256": "8a65c504f0d952cd67e298fb3b375bfcc1b7ed2c76b2073b10d911ecbbe3904e"
+  },
+  {
+    "at": "2026-10-26T05:31:37.091153+00:00",
+    "event_id": 4,
+    "kind": "state",
+    "file": "observations/00004-state.json",
+    "phase": "IO_FAN 0 1000 0",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T05:31:40.868111+00:00",
+    "event_id": 5,
+    "kind": "wait-success",
+    "phase": "IO_FAN 0 1000 0",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00005-serial.txt",
+    "serial_sha256": "0f0623294aed1ce9ec0bf365ec9962bad7e44bb5a1c7305c41fb6b9f2237920a"
+  },
+  {
+    "at": "2026-10-26T05:31:40.868295+00:00",
+    "event_id": 6,
+    "kind": "marker",
+    "marker": "IO_FAN 1 1000 25",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00006-marker.txt",
+    "serial_sha256": "0f0623294aed1ce9ec0bf365ec9962bad7e44bb5a1c7305c41fb6b9f2237920a"
+  },
+  {
+    "at": "2026-10-26T05:31:41.144688+00:00",
+    "event_id": 7,
+    "kind": "state",
+    "file": "observations/00007-state.json",
+    "phase": "IO_FAN 1 1000 25",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T05:31:44.907340+00:00",
+    "event_id": 8,
+    "kind": "wait-success",
+    "phase": "IO_FAN 1 1000 25",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00008-serial.txt",
+    "serial_sha256": "df795c4568b193fb004f906d9d3b83adf6bba0ee05658f4d78c76d6ec0f24b34"
+  },
+  {
+    "at": "2026-10-26T05:31:44.907568+00:00",
+    "event_id": 9,
+    "kind": "marker",
+    "marker": "IO_FAN 2 1500 100",
+    "offset": 0,
+    "input_event": null,
+    "serial_file": "observations/00009-marker.txt",
+    "serial_sha256": "df795c4568b193fb004f906d9d3b83adf6bba0ee05658f4d78c76d6ec0f24b34"
+  },
+  {
+    "at": "2026-10-26T05:31:45.194070+00:00",
+    "event_id": 10,
+    "kind": "state",
+    "file": "observations/00010-state.json",
+    "phase": "IO_FAN 2 1500 100",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T05:31:45.700787+00:00",
+    "event_id": 11,
+    "kind": "state",
+    "file": "observations/00011-state.json",
+    "phase": "IO_FAN 2 1500 100",
+    "input_event": null
+  },
+  {
+    "at": "2026-10-26T05:31:48.863062+00:00",
+    "event_id": 12,
+    "kind": "wait-success",
+    "phase": "IO_FAN 2 1500 100",
+    "offset": 600,
+    "input_event": null,
+    "serial_file": "observations/00012-serial.txt",
+    "serial_sha256": "3ebe9d204cceffe36c564c422335e82a1c315b3ffe03c03b93b699e40dcc9730"
+  },
+  {
+    "at": "2026-10-26T05:31:49.243749+00:00",
+    "event_id": 13,
+    "kind": "state",
+    "file": "observations/00013-state.json",
+    "phase": "IO_FAN 2 1500 100",
+    "input_event": null
+  }
+]

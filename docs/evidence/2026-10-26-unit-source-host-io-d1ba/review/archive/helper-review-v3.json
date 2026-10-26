@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "status": "PASS_OFFLINE_HELPER_REVIEW_ONLY",
+  "archive_completion": "PENDING",
+  "helper_sha256": "f61cf6290c74519c14bf527af950e310867c994d425a97e752b32a2b716c4080",
+  "check_count": 51,
+  "checks": [
+    {
+      "name": "helper exact final freeze SHA256",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "helper Python AST parses",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "no HTTP socket subprocess OS or API imports",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "generation12 exact freeze constant",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "runtime d1ba exact freeze constant",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "actual final24 default preflight is READY before root assemble",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "default preflight attempts zero filesystem mutations",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "parent traversal rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "absolute path rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "backslash separator rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "root path rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "symlink ancestor rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "normal relative path accepted",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "ELF magic rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "MZ magic rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "firmware suffix rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "platform/tools/network_fabric.py exact omission pin accepted",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/network_fabric.py altered bytes rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "platform/tools/network_fabric.py raw capture source never eligible",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/network_fabric.py raw capture destination never eligible",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/ble_probe.py exact omission pin accepted",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/ble_probe.py altered bytes rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "platform/tools/ble_probe.py raw capture source never eligible",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/ble_probe.py raw capture destination never eligible",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "every current omission has original freeze binding",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "selected terminal omissions preserve original nested SHA entries",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "omission scopes exactly two dependencies",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "captured Markdown transport byte exact",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "different-byte destination overwrite rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "collision preserves old captured bytes",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "unrecognized non-UTF8 binary rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "UTF8 NUL payload rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ordinary UTF8 payload accepted",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "valid PNG fully decodes",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "valid ZIP CRC exact member SHA and size accepted",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "ZIP traversal rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP symlink rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP comment rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP duplicate member rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP nested archive rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP wrong member SHA rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP omitted manifest member rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "ZIP native firmware member rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "quoted credential recognized without raw value output",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "MAC literal recognized without raw value output",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "API token recognized without raw value output",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "Bearer token recognized without raw value output",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "private URL recognized without raw value output",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "public example URL and loopback retained",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/network_fabric.py fixed Git commit path OID SHA size independently verified",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "platform/tools/ble_probe.py fixed Git commit path OID SHA size independently verified",
+      "status": "PASS_OFFLINE_ONLY"
+    }
+  ],
+  "explicit_read_only_preflight": {
+    "status": "READY_FOR_ROOT_ASSEMBLE",
+    "reviewed_selected_cases": 24,
+    "expected_selected_cases": 24,
+    "source_context_by_batch": {
+      "fan-r1": "cba4e3cda263bc15ed98bf9aa997e48e19f404cc",
+      "rest-r1": "0a6a9a2a4201f49464afb6cd6e36c321d3305cb6"
+    },
+    "same_source_dependency_bytes": true,
+    "native_visual_review": {
+      "status": "PARTIAL_NUMERIC_TOKEN_LAYOUT",
+      "reviewed_native_frames": 24,
+      "glyph_containment": "WITHIN_CAPTURED_FRAME",
+      "numeric_token_full_frames": 21,
+      "numeric_token_partial_frames": 3,
+      "open_layout_issues": [
+        {
+          "device_id": "atoms3r",
+          "unit_id": "hub",
+          "session_id": "404965a84ae341d682014c2364c35250",
+          "frame_sha256": "e69f42e80c4f3d7081c891621c2e0216b777f8439dbf44754fecf7c4fc8f4dbb",
+          "frame": "batches/rest-r1/atoms3r/hub/frame.png",
+          "numeric_token_continuity": "PARTIAL",
+          "affected_fields": [
+            "HUB long floating-point tuple"
+          ],
+          "observation": "HUB long floating-point tuple wraps within a numeric token; every observed glyph remains inside this captured frame."
+        },
+        {
+          "device_id": "sticks3",
+          "unit_id": "hub",
+          "session_id": "9fbad077234640d4b44b9efb7776b0c9",
+          "frame_sha256": "778070983f53af358dbfa324b21ca93f99c179cbae2631a54240c97f0c98a234",
+          "frame": "batches/rest-r1/sticks3/hub/frame.png",
+          "numeric_token_continuity": "PARTIAL",
+          "affected_fields": [
+            "HUB long floating-point tuple",
+            "eCO2 integer"
+          ],
+          "observation": "HUB ambient decimal and eCO2 integer are split across rows; every observed glyph remains inside this captured frame."
+        },
+        {
+          "device_id": "stopwatch",
+          "unit_id": "hub",
+          "session_id": "c1868885523e412eb0fe88f71fa99e5f",
+          "frame_sha256": "1e383857a0fc84c0b7cf696bc93c8b017ee2d203d52d9b514fbe780d53c58650",
+          "frame": "batches/rest-r1/stopwatch/hub/frame.png",
+          "numeric_token_continuity": "PARTIAL",
+          "affected_fields": [
+            "HUB long floating-point tuple"
+          ],
+          "observation": "HUB ambient 17.309998 is split as 1 / 7.309998 across two rows; every observed glyph remains inside the circular captured display."
+        }
+      ],
+      "scope": "Only exact captured PNGs; functional controller/UART/QOM PASS is separate; no continuous/all-stage/hardware fidelity claim."
+    },
+    "pending": []
+  },
+  "current_exact_omission_copies_verified": 24,
+  "completed_or_legacy_omission_bindings_verified": 24,
+  "unfinished_selected_batches": [],
+  "omitted_unique_payloads": 2,
+  "Git_read_only_calls_in_separate_binding_probe": 4,
+  "API_network_browser_guest_process_calls_during_helper_tests": 0,
+  "default_filesystem_mutation_attempts": 0,
+  "original_files_modified": false,
+  "assemble_called": false,
+  "source_closure_bytes_in_archive": "EXCEPT_TWO_PINNED_INDIRECT_STATIC_FIXTURE_SNAPSHOTS",
+  "limits": [
+    "Final archive not assembled or audited by this helper-only review.",
+    "ZIP and payload negatives exercise the unedited nested audit inspector AST independently of batch metadata.",
+    "The fixed Git binding probe used four read-only git subprocess calls; helper tests used zero subprocess calls."
+  ],
+  "open_findings": []
+}

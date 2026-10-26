@@ -1,0 +1,47 @@
+{
+  "device_id": "stopwatch",
+  "runtime": "qemu",
+  "firmware_id": "32603d369d769b8623d623a578b5deb61040444013cf6c6eb5901c4d1b567697",
+  "uiflow_source_sha256": "5a6a40c893056c5b32dda69b76ef2fd9f32fed069ef4b880f9b067fd2088f4c3",
+  "ttl_seconds": 900,
+  "ready_marker": "IO_PROBE_READY",
+  "ready_timeout_seconds": 180,
+  "units": [
+    {
+      "id": "hub1",
+      "unit_id": "hub",
+      "port_id": "port-a"
+    },
+    {
+      "id": "env",
+      "unit_id": "env-iii",
+      "parent_id": "hub1",
+      "port_id": "grove-1",
+      "initial": {
+        "temperature-c": 25,
+        "humidity-pct": 50,
+        "pressure-pa": 101325
+      }
+    },
+    {
+      "id": "ncir",
+      "unit_id": "ncir",
+      "parent_id": "hub1",
+      "port_id": "grove-2",
+      "initial": {
+        "ambient-c": 25,
+        "object-c": 32
+      }
+    },
+    {
+      "id": "tvoc",
+      "unit_id": "tvoc",
+      "parent_id": "hub1",
+      "port_id": "grove-3",
+      "initial": {
+        "eco2-ppm": 800,
+        "tvoc-ppb": 40
+      }
+    }
+  ]
+}

@@ -1,0 +1,473 @@
+{
+  "schema_version": 1,
+  "product": "CardKB v1.1 U035-B",
+  "checked_at": "2026-10-26",
+  "source": {
+    "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/806/Unit_CardKB_v1_1_User_Manual_EN.pdf",
+    "sha256": "9e9ba13465fde853540b135e4cd64d5e6e0d59d1b4b99ea184b4f9d0378f88e8",
+    "pages": "1-2 key tables and operations",
+    "caveat": "Official product links this as v1.1; PDF title/body says v1.1 but footer says CardKB2. The v2 report protocol is not adopted."
+  },
+  "qom_keys": "50 bool items in the exact zero-based index order below. Modifier down edges precede simultaneous character edges; released keys have no byte output.",
+  "modes": {
+    "0": "normal",
+    "1": "one-shot-shift",
+    "2": "locked-shift",
+    "3": "one-shot-sym",
+    "4": "locked-sym",
+    "5": "one-shot-fn",
+    "6": "locked-fn"
+  },
+  "keys": [
+    {
+      "index": 0,
+      "id": "key-esc",
+      "normal": 27,
+      "shift": 27,
+      "sym": 27,
+      "fn": 128,
+      "modifier": null
+    },
+    {
+      "index": 1,
+      "id": "key-1",
+      "normal": 49,
+      "shift": 49,
+      "sym": 33,
+      "fn": 129,
+      "modifier": null
+    },
+    {
+      "index": 2,
+      "id": "key-2",
+      "normal": 50,
+      "shift": 50,
+      "sym": 64,
+      "fn": 130,
+      "modifier": null
+    },
+    {
+      "index": 3,
+      "id": "key-3",
+      "normal": 51,
+      "shift": 51,
+      "sym": 35,
+      "fn": 131,
+      "modifier": null
+    },
+    {
+      "index": 4,
+      "id": "key-4",
+      "normal": 52,
+      "shift": 52,
+      "sym": 36,
+      "fn": 132,
+      "modifier": null
+    },
+    {
+      "index": 5,
+      "id": "key-5",
+      "normal": 53,
+      "shift": 53,
+      "sym": 37,
+      "fn": 133,
+      "modifier": null
+    },
+    {
+      "index": 6,
+      "id": "key-6",
+      "normal": 54,
+      "shift": 54,
+      "sym": 94,
+      "fn": 134,
+      "modifier": null
+    },
+    {
+      "index": 7,
+      "id": "key-7",
+      "normal": 55,
+      "shift": 55,
+      "sym": 38,
+      "fn": 135,
+      "modifier": null
+    },
+    {
+      "index": 8,
+      "id": "key-8",
+      "normal": 56,
+      "shift": 56,
+      "sym": 42,
+      "fn": 136,
+      "modifier": null
+    },
+    {
+      "index": 9,
+      "id": "key-9",
+      "normal": 57,
+      "shift": 57,
+      "sym": 40,
+      "fn": 137,
+      "modifier": null
+    },
+    {
+      "index": 10,
+      "id": "key-0",
+      "normal": 48,
+      "shift": 48,
+      "sym": 41,
+      "fn": 138,
+      "modifier": null
+    },
+    {
+      "index": 11,
+      "id": "key-backspace",
+      "normal": 8,
+      "shift": 8,
+      "sym": 8,
+      "fn": 139,
+      "modifier": null
+    },
+    {
+      "index": 12,
+      "id": "key-tab",
+      "normal": 9,
+      "shift": 9,
+      "sym": 9,
+      "fn": 140,
+      "modifier": null
+    },
+    {
+      "index": 13,
+      "id": "key-q",
+      "normal": 113,
+      "shift": 81,
+      "sym": 123,
+      "fn": 141,
+      "modifier": null
+    },
+    {
+      "index": 14,
+      "id": "key-w",
+      "normal": 119,
+      "shift": 87,
+      "sym": 125,
+      "fn": 142,
+      "modifier": null
+    },
+    {
+      "index": 15,
+      "id": "key-e",
+      "normal": 101,
+      "shift": 69,
+      "sym": 91,
+      "fn": 143,
+      "modifier": null
+    },
+    {
+      "index": 16,
+      "id": "key-r",
+      "normal": 114,
+      "shift": 82,
+      "sym": 93,
+      "fn": 144,
+      "modifier": null
+    },
+    {
+      "index": 17,
+      "id": "key-t",
+      "normal": 116,
+      "shift": 84,
+      "sym": 47,
+      "fn": 145,
+      "modifier": null
+    },
+    {
+      "index": 18,
+      "id": "key-y",
+      "normal": 121,
+      "shift": 89,
+      "sym": 92,
+      "fn": 146,
+      "modifier": null
+    },
+    {
+      "index": 19,
+      "id": "key-u",
+      "normal": 117,
+      "shift": 85,
+      "sym": 124,
+      "fn": 147,
+      "modifier": null
+    },
+    {
+      "index": 20,
+      "id": "key-i",
+      "normal": 105,
+      "shift": 73,
+      "sym": 126,
+      "fn": 148,
+      "modifier": null
+    },
+    {
+      "index": 21,
+      "id": "key-o",
+      "normal": 111,
+      "shift": 79,
+      "sym": 39,
+      "fn": 149,
+      "modifier": null
+    },
+    {
+      "index": 22,
+      "id": "key-p",
+      "normal": 112,
+      "shift": 80,
+      "sym": 34,
+      "fn": 150,
+      "modifier": null
+    },
+    {
+      "index": 23,
+      "id": "key-fn",
+      "normal": 0,
+      "shift": 0,
+      "sym": 0,
+      "fn": 0,
+      "modifier": "fn"
+    },
+    {
+      "index": 24,
+      "id": "key-shift",
+      "normal": 0,
+      "shift": 0,
+      "sym": 0,
+      "fn": 0,
+      "modifier": "shift"
+    },
+    {
+      "index": 25,
+      "id": "key-a",
+      "normal": 97,
+      "shift": 65,
+      "sym": 59,
+      "fn": 154,
+      "modifier": null
+    },
+    {
+      "index": 26,
+      "id": "key-s",
+      "normal": 115,
+      "shift": 83,
+      "sym": 58,
+      "fn": 155,
+      "modifier": null
+    },
+    {
+      "index": 27,
+      "id": "key-d",
+      "normal": 100,
+      "shift": 68,
+      "sym": 96,
+      "fn": 156,
+      "modifier": null
+    },
+    {
+      "index": 28,
+      "id": "key-f",
+      "normal": 102,
+      "shift": 70,
+      "sym": 43,
+      "fn": 157,
+      "modifier": null
+    },
+    {
+      "index": 29,
+      "id": "key-g",
+      "normal": 103,
+      "shift": 71,
+      "sym": 45,
+      "fn": 158,
+      "modifier": null
+    },
+    {
+      "index": 30,
+      "id": "key-h",
+      "normal": 104,
+      "shift": 72,
+      "sym": 95,
+      "fn": 159,
+      "modifier": null
+    },
+    {
+      "index": 31,
+      "id": "key-j",
+      "normal": 106,
+      "shift": 74,
+      "sym": 61,
+      "fn": 160,
+      "modifier": null
+    },
+    {
+      "index": 32,
+      "id": "key-k",
+      "normal": 107,
+      "shift": 75,
+      "sym": 63,
+      "fn": 161,
+      "modifier": null
+    },
+    {
+      "index": 33,
+      "id": "key-l",
+      "normal": 108,
+      "shift": 76,
+      "sym": 0,
+      "fn": 162,
+      "modifier": null
+    },
+    {
+      "index": 34,
+      "id": "key-enter",
+      "normal": 13,
+      "shift": 13,
+      "sym": 13,
+      "fn": 163,
+      "modifier": null
+    },
+    {
+      "index": 35,
+      "id": "key-sym",
+      "normal": 0,
+      "shift": 0,
+      "sym": 0,
+      "fn": 0,
+      "modifier": "sym"
+    },
+    {
+      "index": 36,
+      "id": "key-z",
+      "normal": 122,
+      "shift": 90,
+      "sym": 0,
+      "fn": 166,
+      "modifier": null
+    },
+    {
+      "index": 37,
+      "id": "key-x",
+      "normal": 120,
+      "shift": 88,
+      "sym": 0,
+      "fn": 167,
+      "modifier": null
+    },
+    {
+      "index": 38,
+      "id": "key-c",
+      "normal": 99,
+      "shift": 67,
+      "sym": 0,
+      "fn": 168,
+      "modifier": null
+    },
+    {
+      "index": 39,
+      "id": "key-v",
+      "normal": 118,
+      "shift": 86,
+      "sym": 0,
+      "fn": 169,
+      "modifier": null
+    },
+    {
+      "index": 40,
+      "id": "key-b",
+      "normal": 98,
+      "shift": 66,
+      "sym": 0,
+      "fn": 170,
+      "modifier": null
+    },
+    {
+      "index": 41,
+      "id": "key-n",
+      "normal": 110,
+      "shift": 78,
+      "sym": 0,
+      "fn": 171,
+      "modifier": null
+    },
+    {
+      "index": 42,
+      "id": "key-m",
+      "normal": 109,
+      "shift": 77,
+      "sym": 0,
+      "fn": 172,
+      "modifier": null
+    },
+    {
+      "index": 43,
+      "id": "key-comma",
+      "normal": 44,
+      "shift": 44,
+      "sym": 60,
+      "fn": 173,
+      "modifier": null
+    },
+    {
+      "index": 44,
+      "id": "key-period",
+      "normal": 46,
+      "shift": 46,
+      "sym": 62,
+      "fn": 174,
+      "modifier": null
+    },
+    {
+      "index": 45,
+      "id": "key-space",
+      "normal": 32,
+      "shift": 32,
+      "sym": 32,
+      "fn": 175,
+      "modifier": null
+    },
+    {
+      "index": 46,
+      "id": "key-up",
+      "normal": 181,
+      "shift": 181,
+      "sym": 181,
+      "fn": 153,
+      "modifier": null
+    },
+    {
+      "index": 47,
+      "id": "key-left",
+      "normal": 180,
+      "shift": 180,
+      "sym": 180,
+      "fn": 152,
+      "modifier": null
+    },
+    {
+      "index": 48,
+      "id": "key-right",
+      "normal": 183,
+      "shift": 183,
+      "sym": 183,
+      "fn": 165,
+      "modifier": null
+    },
+    {
+      "index": 49,
+      "id": "key-down",
+      "normal": 182,
+      "shift": 182,
+      "sym": 182,
+      "fn": 164,
+      "modifier": null
+    }
+  ]
+}

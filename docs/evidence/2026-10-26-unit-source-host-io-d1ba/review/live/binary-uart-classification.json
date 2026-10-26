@@ -1,0 +1,65 @@
+{
+  "classification": "EXACT_ORIGINAL_RS485_UART1_BINARY_FIXTURE",
+  "copies": [
+    {
+      "locator": "batches/rest-r1/atoms3r/rs485/evidence.zip!serial1.log",
+      "sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+      "size": 37,
+      "bytes_changed": false
+    },
+    {
+      "locator": "batches/rest-r1/atoms3r/rs485/http/00052.response.raw!serial1.log",
+      "sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+      "size": 37,
+      "bytes_changed": false
+    },
+    {
+      "locator": "batches/rest-r1/sticks3/rs485/evidence.zip!serial1.log",
+      "sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+      "size": 37,
+      "bytes_changed": false
+    },
+    {
+      "locator": "batches/rest-r1/sticks3/rs485/http/00050.response.raw!serial1.log",
+      "sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+      "size": 37,
+      "bytes_changed": false
+    },
+    {
+      "locator": "batches/rest-r1/stopwatch/rs485/evidence.zip!serial1.log",
+      "sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+      "size": 37,
+      "bytes_changed": false
+    },
+    {
+      "locator": "batches/rest-r1/stopwatch/rs485/http/00098.response.raw!serial1.log",
+      "sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+      "size": 37,
+      "bytes_changed": false
+    }
+  ],
+  "unique_payloads": 1,
+  "fixture_sources": [
+    {
+      "source_snapshot": "batches/rest-r1/source-snapshot/tests/units/run_io_cases.py.txt",
+      "repository_path": "tests/units/run_io_cases.py",
+      "sha256": "6a837b03fa4cae6bf8072566c1d30b32cc5aeaf89cd8fa5ae7d9ecab84da5c1c"
+    },
+    {
+      "source_snapshot": "batches/rest-r1/source-snapshot/tests/units/host_io_probe/io_program.py.txt",
+      "repository_path": "tests/units/host_io_probe/io_program.py",
+      "sha256": "f64015b636f21cd658a7ac039657e5496d5ae8530be3b50d9ba87554ce13c979"
+    },
+    {
+      "source_snapshot": "batches/rest-r1/source-snapshot/tests/units/io_probe/io_drivers/rs485.py.txt",
+      "repository_path": "tests/units/io_probe/io_drivers/rs485.py",
+      "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+    }
+  ],
+  "payload_sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+  "payload_size": 37,
+  "fixture_expression": "initial + echo-prefix + incoming",
+  "ASCII_credential_scan_required": true,
+  "general_binary_allowance": false,
+  "bytes_changed": false
+}

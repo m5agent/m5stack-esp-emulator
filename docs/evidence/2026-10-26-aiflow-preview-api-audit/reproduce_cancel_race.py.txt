@@ -1,0 +1,96 @@
+"""Actual DeviceSession lifecycle, deterministic host-only scheduling doubles."""
+from __future__ import annotations
+import hashlib
+import json
+from pathlib import Path
+import sys
+import threading
+from types import SimpleNamespace
+from unittest import mock
+
+sys.dont_write_bytecode=True
+ROOT=Path(__file__).resolve().parents[3]
+OUT=Path(__file__).resolve().parents[1]
+BOX=OUT/'sandbox'
+sys.path[:0]=[str(ROOT/'platform/tools')]
+external=[]
+def guard(event,args):
+    if event.startswith(('subprocess.','socket.')) or event in ('os.system','os.posix_spawn','os.exec','os.fork'):
+        external.append(event);raise AssertionError('no API, socket or process may execute')
+sys.addaudithook(guard)
+import device_service
+
+source_path=ROOT/'platform/tools/device_service.py'
+source_before=source_path.read_bytes()
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+results=[]
+for cancel in (False,True):
+    name='cancel-during-prepare' if cancel else 'uncancelled-control'
+    work=BOX/name
+    work.mkdir(exist_ok=True)
+    base=work/'prepared-flash.fixture'
+    base.write_bytes(b'host lifecycle fixture; never a firmware image\n')
+    entered=threading.Event();release=threading.Event();events=[]
+    session=object.__new__(device_service.DeviceSession)
+    session.id='offline-lifecycle-'+name
+    session.spec=SimpleNamespace(has_display=False,state_probes={},id='mock-only-no-device')
+    session.dir=work
+    session.firmware_path=base
+    session.firmware_sha=sha(base.read_bytes())
+    session.virtual_flash=None
+    session.flash_info=None
+    session.state='provisioning'
+    session.runtime='qemu'
+    session.network_result=None
+    session.storage_config={}
+    session.nvs_config={}
+    session.ready_conditions={}
+    session.ready_marker=None
+    session.ready_timeout=2
+    session._lock=threading.RLock()
+    session._stop_event=threading.Event()
+    session._qmp=None
+    session._proc=None
+    session.error=None
+    session.completed_at=None
+    session.units=[]
+    session._record_event=lambda event,**details:events.append({'event':event,'state':session.state,'details':details})
+    session._persist_session=lambda:None
+    session.snapshot=lambda:{'session_id':session.id,'state':session.state,'virtual_flash_present':bool(session.virtual_flash and session.virtual_flash.is_file())}
+    session._launch=mock.Mock(side_effect=lambda:events.append({'event':'MOCK_LAUNCH','state':session.state}))
+    session._terminate_process=mock.Mock(side_effect=lambda:events.append({'event':'MOCK_TERMINATE','state':session.state}))
+    session._release_worker_lease=mock.Mock(return_value=None)
+    def prepare_flash(*args,**kwargs):
+        entered.set()
+        if not release.wait(3):raise AssertionError('scheduling barrier timed out')
+        return {'path':base,'info':{'test_only':True}}
+    session.service=SimpleNamespace(prepare_flash=prepare_flash,storage_policy=SimpleNamespace(retain_session_flash=False))
+    thread=threading.Thread(target=session._provision,name=name)
+    thread.start()
+    assert entered.wait(3),'prepare_flash was never entered'
+    assert session.state=='flashing'
+    at_barrier=session.snapshot()
+    stopped=None
+    try:
+        if cancel:
+            stopped=session.stop(purge=False)
+            assert stopped['state']=='stopped'
+            assert session._launch.call_count==0
+    finally:
+        release.set();thread.join(3)
+    assert not thread.is_alive()
+    result={'case':name,'at_prepare_barrier':at_barrier,'stop_response_before_prepare_release':stopped,'post_provision':session.snapshot(),'launch_calls':session._launch.call_count,'terminate_calls':session._terminate_process.call_count,'lease_release_calls':session._release_worker_lease.call_count,'stop_event_set':session._stop_event.is_set(),'events':events}
+    if cancel:
+        assert result['post_provision']['state']=='running' and result['launch_calls']==1,'expected old-code race not reproduced'
+        assert result['post_provision']['virtual_flash_present'] is True
+        result['outcome']='REPRODUCED_STOPPED_SESSION_RESURRECTS'
+    else:
+        assert result['post_provision']['state']=='running' and result['launch_calls']==1
+        result['outcome']='EXPECTED_UNCANCELLED_CONTROL'
+    results.append(result)
+
+assert source_path.read_bytes()==source_before
+assert not external
+report={'schema_version':1,'status':'CONFIRMED_HOST_LIFECYCLE_RACE','source_commit':'0a6a9a2a4201f49464afb6cd6e36c321d3305cb6','source_file':'platform/tools/device_service.py','source_sha256':sha(source_before),'actual_methods_used':['DeviceSession._provision','DeviceSession.stop','DeviceSession._set_state','DeviceSession._release_virtual_flash'],'test_doubles':['prepare_flash Event barrier plus own inert byte fixture','_launch recorder; does not launch a process','_terminate_process recorder; no OS signals','_release_worker_lease recorder','_record_event/_persist_session/snapshot for minimal local fixture'],'cases':results,'API_network_QEMU_guest_subprocess_calls':0,'production_source_unchanged':True,'scope':'Deterministic host lifecycle interleaving only; no API, QEMU, guest, controller or hardware execution.'}
+(OUT/'cancel-race-reproduction.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps({'status':report['status'],'source_sha256':report['source_sha256'],'results':[{'case':r['case'],'outcome':r['outcome'],'stop_response':r['stop_response_before_prepare_release'],'final':r['post_provision'],'launch_calls':r['launch_calls']} for r in results],'external_calls':len(external)},indent=2))

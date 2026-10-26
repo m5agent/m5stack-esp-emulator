@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "status": "PASS_OFFLINE_HELPER_SCHEMA_DELTA_REVIEW",
+  "helper_sha256": "f61cf6290c74519c14bf527af950e310867c994d425a97e752b32a2b716c4080",
+  "check_count": 34,
+  "checks": [
+    {
+      "name": "archived helper exact final freeze",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "v3 modified only assemble audit main plus exact binary additions",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "all24 source session hash dimensions accepted with three partial HUBs",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "visual missing capture rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "visual duplicate capture rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "uninspected capture rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "clipped capture rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "wrong native size rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "wrong session binding rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "wrong source path binding rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "wrong frame SHA binding rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "visual top PASS promotion rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "wrong partial count rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "HUB continuity FULL promotion rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "HUB missing affected fields rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "binary exception limited to six exact original ZIP member paths",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "binary fixture independently reconstructed exact37 SHA",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "exact captured binary classification batches/rest-r1/sticks3/rs485/evidence.zip!serial1.log",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "exact captured binary classification batches/rest-r1/stopwatch/rs485/http/00098.response.raw!serial1.log",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "exact captured binary classification batches/rest-r1/sticks3/rs485/http/00050.response.raw!serial1.log",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "exact captured binary classification batches/rest-r1/atoms3r/rs485/evidence.zip!serial1.log",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "exact captured binary classification batches/rest-r1/atoms3r/rs485/http/00052.response.raw!serial1.log",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "exact captured binary classification batches/rest-r1/stopwatch/rs485/evidence.zip!serial1.log",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "binary changed content rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "binary changed size rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "same binary outside approved ZIP locator never exempt",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "similar but wrong HTTP ZIP locator never exempt",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "actual archive oracle driver probe and six payload bindings validate",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "binary source freeze pin mismatch rejected",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "original binary inspector invokes ASCII credential scan",
+      "status": "PASS_OFFLINE_ONLY"
+    },
+    {
+      "name": "binary inspector rejects same bytes at unapproved locator",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "binary inspector rejects arbitrary NUL bytes",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "binary inspector rejects credential addition at exact locator",
+      "status": "PASS_OFFLINE_REJECTION"
+    },
+    {
+      "name": "no external operations occurred",
+      "status": "PASS_OFFLINE_ONLY"
+    }
+  ],
+  "visual_summary": {
+    "status": "PARTIAL_NUMERIC_TOKEN_LAYOUT",
+    "reviewed_native_frames": 24,
+    "glyph_containment": "WITHIN_CAPTURED_FRAME",
+    "numeric_token_full_frames": 21,
+    "numeric_token_partial_frames": 3,
+    "open_layout_issues": [
+      {
+        "device_id": "atoms3r",
+        "unit_id": "hub",
+        "session_id": "404965a84ae341d682014c2364c35250",
+        "frame_sha256": "e69f42e80c4f3d7081c891621c2e0216b777f8439dbf44754fecf7c4fc8f4dbb",
+        "frame": "batches/rest-r1/atoms3r/hub/frame.png",
+        "numeric_token_continuity": "PARTIAL",
+        "affected_fields": [
+          "HUB long floating-point tuple"
+        ],
+        "observation": "HUB long floating-point tuple wraps within a numeric token; every observed glyph remains inside this captured frame."
+      },
+      {
+        "device_id": "sticks3",
+        "unit_id": "hub",
+        "session_id": "9fbad077234640d4b44b9efb7776b0c9",
+        "frame_sha256": "778070983f53af358dbfa324b21ca93f99c179cbae2631a54240c97f0c98a234",
+        "frame": "batches/rest-r1/sticks3/hub/frame.png",
+        "numeric_token_continuity": "PARTIAL",
+        "affected_fields": [
+          "HUB long floating-point tuple",
+          "eCO2 integer"
+        ],
+        "observation": "HUB ambient decimal and eCO2 integer are split across rows; every observed glyph remains inside this captured frame."
+      },
+      {
+        "device_id": "stopwatch",
+        "unit_id": "hub",
+        "session_id": "c1868885523e412eb0fe88f71fa99e5f",
+        "frame_sha256": "1e383857a0fc84c0b7cf696bc93c8b017ee2d203d52d9b514fbe780d53c58650",
+        "frame": "batches/rest-r1/stopwatch/hub/frame.png",
+        "numeric_token_continuity": "PARTIAL",
+        "affected_fields": [
+          "HUB long floating-point tuple"
+        ],
+        "observation": "HUB ambient 17.309998 is split as 1 / 7.309998 across two rows; every observed glyph remains inside the circular captured display."
+      }
+    ],
+    "scope": "Only exact captured PNGs; functional controller/UART/QOM PASS is separate; no continuous/all-stage/hardware fidelity claim."
+  },
+  "binary_uart_metadata": {
+    "classification": "EXACT_ORIGINAL_RS485_UART1_BINARY_FIXTURE",
+    "copies": [
+      {
+        "locator": "batches/rest-r1/atoms3r/rs485/evidence.zip!serial1.log",
+        "sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+        "size": 37,
+        "bytes_changed": false
+      },
+      {
+        "locator": "batches/rest-r1/atoms3r/rs485/http/00052.response.raw!serial1.log",
+        "sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+        "size": 37,
+        "bytes_changed": false
+      },
+      {
+        "locator": "batches/rest-r1/sticks3/rs485/evidence.zip!serial1.log",
+        "sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+        "size": 37,
+        "bytes_changed": false
+      },
+      {
+        "locator": "batches/rest-r1/sticks3/rs485/http/00050.response.raw!serial1.log",
+        "sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+        "size": 37,
+        "bytes_changed": false
+      },
+      {
+        "locator": "batches/rest-r1/stopwatch/rs485/evidence.zip!serial1.log",
+        "sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+        "size": 37,
+        "bytes_changed": false
+      },
+      {
+        "locator": "batches/rest-r1/stopwatch/rs485/http/00098.response.raw!serial1.log",
+        "sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+        "size": 37,
+        "bytes_changed": false
+      }
+    ],
+    "unique_payloads": 1,
+    "fixture_sources": [
+      {
+        "source_snapshot": "batches/rest-r1/source-snapshot/tests/units/run_io_cases.py.txt",
+        "repository_path": "tests/units/run_io_cases.py",
+        "sha256": "6a837b03fa4cae6bf8072566c1d30b32cc5aeaf89cd8fa5ae7d9ecab84da5c1c"
+      },
+      {
+        "source_snapshot": "batches/rest-r1/source-snapshot/tests/units/host_io_probe/io_program.py.txt",
+        "repository_path": "tests/units/host_io_probe/io_program.py",
+        "sha256": "f64015b636f21cd658a7ac039657e5496d5ae8530be3b50d9ba87554ce13c979"
+      },
+      {
+        "source_snapshot": "batches/rest-r1/source-snapshot/tests/units/io_probe/io_drivers/rs485.py.txt",
+        "repository_path": "tests/units/io_probe/io_drivers/rs485.py",
+        "sha256": "c388ef8e7e43f25e4f3ae05b646949dc1f7fbcb70d395884c1ca6e997dca2432"
+      }
+    ],
+    "payload_sha256": "da4787a28a6eb88dbd2a6cd43c82b2bcf075dc57b1ad9a1ef3ce237df228c12f",
+    "payload_size": 37,
+    "fixture_expression": "initial + echo-prefix + incoming",
+    "ASCII_credential_scan_required": true,
+    "general_binary_allowance": false,
+    "bytes_changed": false
+  },
+  "API_network_browser_guest_subprocess_calls": 0,
+  "assemble_called": false,
+  "original_archive_modified": false,
+  "scope": "Incremental v2/v3 schema review and direct positive/negative controls. Full final-archive fingerprint and no.work replay are reported separately.",
+  "open_findings": []
+}
