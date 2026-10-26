@@ -4,6 +4,7 @@ import {slab,mesh} from '../../modeling/parts.js';
 import {physicalButton} from '../../modeling/actuators.js';
 import {makeUnit,cylinder} from '../shared/CADUnit.js';
 import {spec} from './dimensions.js';import data from './geometry-data.js';
+import {addStickers} from './stickers.js';
 void 0;
 const models=makeUnit(spec,data,host=>{
  for(const [id,y,color]of [['blue',13,0x008ec4],['red',-1,0xc61722]]){
@@ -15,5 +16,6 @@ const models=makeUnit(spec,data,host=>{
   cylinder(host.body,5.55,5.15,[0,y,3.625],materials.plastic(0x242a2b)).name=`Dual Button ${id} recessed switch body`;
   for(const x of [-4.2,4.2])for(const dy of [-3.6,3.6])slab(host.body,.7,1.4,.2,.1,[x,y+dy,1.03],materials.metal(0xada99a),[],.02).name=`Dual Button ${id} switch solder foot`;
  }
+ addStickers(host);
 });
 export const Model=models.Model;export const GroveModule=models.GroveModule;export default Model;

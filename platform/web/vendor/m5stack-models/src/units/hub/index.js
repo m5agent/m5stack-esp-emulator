@@ -6,6 +6,7 @@ import {unitPcb} from '../shared/parts.js';
 import {spec} from './dimensions.js';
 import data from './geometry-data.js';
 import {buildGroveModuleAssembly} from '../../modeling/grove-cable.js';
+import {addStickers} from './stickers.js';
 
 function buildHub(host){
  addCadParts(host,data,{shell:materials.plastic(0xe0e3dc,{roughness:.8})});
@@ -21,6 +22,7 @@ function buildHub(host){
  }
  screw(host.body,[0,-4,-4.025],'back',1.4);
  host.add(new Component({id:'sensor',label:'Passive 1-to-3 connector board',meta:{role:'visual-anchor',scope:'no-bus-behavior'}}));
+ addStickers(host);
 }
 export class Model extends Device{
  static meta={id:'m5stack.unit.hub',name:spec.name,sku:spec.sku,vendor:'M5Stack',size:spec.size,keymap:{}};

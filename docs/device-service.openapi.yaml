@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: M5Stack Device Service API
-  version: 1.36.0
+  version: 1.37.0
   description: >
     Leased, on-demand virtual M5Stack device service. QEMU unified sessions
     keep board and radio evidence in one guest; separate esp-emu network/BLE
@@ -2301,6 +2301,21 @@ components:
       type: object
       required: [device_id]
       properties:
+        program_mode:
+          type: string
+          enum: [uiflow-live]
+          description: >
+            Initialize the admitted cores3/atoms3r/sticks3/stopwatch cached UIFlow2
+            reference once with a guest UART REPL bootstrap, then opt into
+            program_transport=uart-repl. Only runtime=qemu is admitted. Omit
+            firmware_id and uiflow_source_sha256; this mode rejects custom
+            firmware/source pins instead of silently replacing them. Initialization
+            uses the existing source composer and isolated virtual Flash. Subsequent
+            POST program requests execute in this same guest without flashing.
+            Readiness waits for M5EMU_UART_REPL_READY; custom application readiness
+            conditions belong to each program, not this empty bootstrap. Original
+            caller create idempotency remains effective. GET devices advertises
+            program_modes per device; admission alone is not hardware validation.
         units:
           type: array
           maxItems: 16

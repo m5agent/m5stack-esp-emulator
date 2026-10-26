@@ -59,9 +59,13 @@ I2C/SPI/UART/GPIO/ADC/PWM/单线总线按真实控制器接线。若现有后端
 ## 当前检查点
 
 已定位模型会话「为 M5Stack Unit 建立 3D 模型」，公开库
-`m5stack-models` 固定导入候选 `48ab992f5ff63c1a91296051e1afcb5959877903`，
-包含 14 款主机和 27 款 Unit。视觉源声明 `visual-only`，当前没有内部电气
-模拟，必须由本项目补齐。
+`m5stack-models` 当前固定导入 `48667b728736fbfd4365a06575473ce538d3c972`，
+包含14款主机和29款视觉Unit；内部协议库仍为27种。新增Scroll/Roller485
+只有visual-only外壳，未实现controller/firmware准入。65张PNG仅从固定公开Git
+对象按精确路径、SHA256与provider许可通知导入，保留图像/商标权利；Three同锁包
+补齐DecalGeometry并验资源闭包。14主机51层实际贴纸材质、65图解码及29Unit
+浏览器装配/输入/反馈不回声/释放通过，来源见[外壳更新](../evidence/2026-10-26-visual-refresh-48667b7/README.md)。
+该视觉结果不升级原固件证据、内部电气、机械保真或硬件结论。
 
 初始检查发现系统 `python3` 为 3.9；本轮使用 Python 3.12 和独立依赖目录。
 Xtensa 运行时已恢复并从固定公开源码冷构建，补丁正反重放及源码指纹可核对。
@@ -189,12 +193,26 @@ ZIP-before-stop/history/Flash/idle通过；具体可读性与两间接依赖精�
 导入；不关闭整个UNIT-01或推及真机。
 
 按最新用户的AIFlow实时编程/预览场景，后续优先级已转入API执行闭环，详见
-[API评估计划](2026-10-26-aiflow-live-preview-api.md)。当前仅评估与host取消竞态
-复现完成，新Preview/Revision/Run/stream与同guest部署尚未实现；实际队列仍以
-Backlog为准。三HUB数字token拆行另记UNIT-HOST-23，取消竞态记UNIT-HOST-24。
+[API评估计划](2026-10-26-aiflow-live-preview-api.md)。评估与host取消竞态复现
+随后已有独立修复和同guest程序实现；逻辑Preview/Run与stream仍未实现，实际
+队列仍以Backlog为准。三HUB数字token拆行另记UNIT-HOST-23，取消竞态记UNIT-HOST-24。
 
 后续取消块已实现生命周期事务、pending自动收尾、停止意图版本、Network child
 收据与draining/janitor门禁；各adapter有隔离宿主回归，实际AtomS3R源码冷准备
 取消及同镜像新guest的PIR交互通过。具体证据、其它后端现场门禁及非SLA范围见
-[取消回归](../evidence/2026-10-26-session-cancellation-f309/README.md)。新预览编排
-与持久guest部署仍未实现，不以本次修复关闭整个Unit/API工作流。
+[取消回归](../evidence/2026-10-26-session-cancellation-f309/README.md)。本取消块不授予
+新预览编排、同guest程序部署或整个Unit/API工作流完成结论。
+
+同guest程序块现已增加`program_mode=uiflow-live`创建入口：首次准备真实UART
+REPL，后续`/program`通过raw-paste在同一MicroPython VM传输、编译和运行，
+不为每次修改重新刷固件。CoreS3/AtomS3R/StickS3/StopWatch × PIR/Relay的八个
+实际session各提交五次，共40次预期结果通过；同PID/固件、VM nonce、单次
+bootstrap、原驱动/控制器读回、应用帧、无限循环替换、故意SyntaxError及恢复、
+revision/source和停止前ZIP均绑定。包含预期失败的语法负控，不称40次正常完成。
+真实CoreS3网页PIR/Relay两例另验证编辑器创建/替换、Web→guest输入与guest→Web
+读回、实际frame角像素到模型display、错误显示与恢复、停止历史。初始picker
+跨主机竞态的409负控保留为UNIT-HOST-27，修复后的13项browser fixture通过；
+它与真实guest证据分开。详见[Web与四主机程序证据](../evidence/2026-10-26-live-program-web-and-hosts/README.md)。
+其它Unit、其它主机的Web整页、多文件/资源、二进制`.mpy`、Run Always、AIFlow
+checkpoint/虚拟目标、Preview/Run与SSE仍待完成；interrupt-only不保证native、
+定时器、IRQ与线程清理，不将提交确认当作首帧或低延迟SLA，不转授硬件PASS。

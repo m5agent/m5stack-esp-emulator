@@ -1,0 +1,160 @@
+{
+  "validation": "virtual-device validation",
+  "hardware_validation": "NOT RUN",
+  "status": "PASS",
+  "session_id": "9aa9cb98517b44e6953ff1626b3821dc",
+  "device_id": "atoms3r",
+  "unit_id": "relay",
+  "pins": {
+    "yellow": 2,
+    "white": 1
+  },
+  "bootstrap": "program_mode=uiflow-live",
+  "runtime": "qemu",
+  "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+  "pid": 23983,
+  "runtime_provenance": {
+    "schema_version": 1,
+    "status": "PASS",
+    "session_id": "9aa9cb98517b44e6953ff1626b3821dc",
+    "pid": 23983,
+    "method": "macOS-proc_pidpath",
+    "captured_at": "2026-10-26T09:50:47.137655+00:00",
+    "expected_binary_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+    "observed_binary_sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff",
+    "executable_name": "qemu-system-xtensa",
+    "hardware_validation": false
+  },
+  "executions": [
+    {
+      "session_id": "9aa9cb98517b44e6953ff1626b3821dc",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "522fd11491a94479b0c22b83a5ce4062",
+        "revision_id": "4e91ce19ed1a1d999a392aa9612fad5158400d9110762cbf59f70d328bee681e",
+        "source_sha256": "33cb3a926e6d5372edb9d95f6ee0d34d4742de8e242d9c1343e2ebe5d4685b67",
+        "source_bytes": 98,
+        "state": "completed",
+        "submitted_at": "2026-10-26T09:50:47.141119+00:00",
+        "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+        "pid": 23983,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 500,
+        "next_offset": 560,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T09:50:47.352914+00:00"
+      },
+      "history_error": null,
+      "request_seconds": 0.21442520804703236
+    },
+    {
+      "session_id": "9aa9cb98517b44e6953ff1626b3821dc",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "133492c934674ec08808c5a4aa8b42a4",
+        "revision_id": "e21c82eb3a2cd4753176f6bb443a6153d0727aa28570f72c05edbf6fbecfc0ed",
+        "source_sha256": "90ac0ec6b2b9ca0df2a6161b3fe32bd48bac87ad8edeba6ea3a9d4e326ca2259",
+        "source_bytes": 682,
+        "state": "running",
+        "submitted_at": "2026-10-26T09:50:47.356158+00:00",
+        "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+        "pid": 23983,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 661,
+        "next_offset": 727,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T09:50:47.657301+00:00"
+      },
+      "history_error": null,
+      "request_seconds": 0.303836332866922
+    },
+    {
+      "session_id": "9aa9cb98517b44e6953ff1626b3821dc",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "9b44bf931e3042b79ab7298b62b9a965",
+        "revision_id": "b2ad3d6fa061105c7dfba5c28c055dbc652585118d33ff488abcc6c75130087b",
+        "source_sha256": "8738989ff83e41f25c645ae1275a3d3254e9e89e6bbb8da77a4c3ecd4c449ec5",
+        "source_bytes": 678,
+        "state": "running",
+        "submitted_at": "2026-10-26T09:50:47.844094+00:00",
+        "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+        "pid": 23983,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 1005,
+        "next_offset": 1071,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T09:50:48.184319+00:00"
+      },
+      "history_error": null,
+      "request_seconds": 0.3537156251259148
+    },
+    {
+      "session_id": "9aa9cb98517b44e6953ff1626b3821dc",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "440372602ada4988a0517f7dc9ac42d9",
+        "revision_id": "ee6d99b65e348c103d6778bd3190b53180c45507d77744c6c6cea65514d338cf",
+        "source_sha256": "4803f262333502d83e1bed493d5e97cafb0d615e19b67a3b20548cb06c9b6299",
+        "source_bytes": 13,
+        "state": "failed",
+        "submitted_at": "2026-10-26T09:50:48.356722+00:00",
+        "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+        "pid": 23983,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 1349,
+        "next_offset": 1568,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T09:50:48.542741+00:00"
+      },
+      "history_error": null,
+      "request_seconds": 0.19008754193782806
+    },
+    {
+      "session_id": "9aa9cb98517b44e6953ff1626b3821dc",
+      "program_transport": "uart-repl",
+      "program": {
+        "execution_id": "a826a9fe8f3941d7a9ff20e5e718d0cc",
+        "revision_id": "d188866f0180d7e087d9c279159e635c6f4d189ddeee00b08775f84938209ee2",
+        "source_sha256": "438d481133fafe81cedf95b74ff682d2961c0e8ccc021eddb97901a2c43a6d2a",
+        "source_bytes": 98,
+        "state": "completed",
+        "submitted_at": "2026-10-26T09:50:48.545992+00:00",
+        "firmware_sha256": "0c70da2a56102dc812f380ac24fcb0a75bd3cb0c70e5380d97c11baeca935323",
+        "pid": 23983,
+        "execution_mode": "same-guest-uart-repl",
+        "cleanup_mode": "interrupt-only",
+        "serial_offset": 1600,
+        "next_offset": 1662,
+        "acknowledged": true,
+        "transfer_mode": "raw-paste",
+        "observed_at": "2026-10-26T09:50:48.761819+00:00"
+      },
+      "history_error": null,
+      "request_seconds": 0.21953441598452628
+    }
+  ],
+  "frame_sha256": [
+    "833d6d9147e3b593e6eec72e8d41bb0dc80968ae6530752efd951e686df4d472",
+    "ca41b14eac0de12822e22ae0e6fd12dc08d80cd380dfc76e6410e74f848bf097"
+  ],
+  "checks": {
+    "same_process": true,
+    "same_firmware": true,
+    "vm_nonce_preserved": true,
+    "no_reboot_banner": true,
+    "relay_guest_readback": true,
+    "different_guest_frames": true,
+    "infinite_loop_replaced": true,
+    "syntax_error_recovered": true,
+    "revision_sources_in_evidence": true
+  }
+}

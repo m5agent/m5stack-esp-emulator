@@ -1,6 +1,6 @@
 # 外部 Agent：UIFlow 实时编程与 Unit 会话
 
-日期：`2026-10-26`。API 契约：`1.36.0`。
+日期：`2026-10-26`。API 契约：`1.37.0`。
 
 实时编程使用“首次启动 UIFlow2 → 同一 guest 连续下发程序 → 读取实际屏幕、
 串口及 Unit 状态”的路径。每次改源码调用 `/sessions/{id}/program`，不重刷
@@ -9,11 +9,27 @@
 
 ## 同一设备实时运行程序
 
-创建 session 时指定 `program_transport="uart-repl"`。目前只准入 `runtime=qemu`
-和 CoreS3、AtomS3R、StickS3、StopWatch 的 reference/composed UIFlow2 固件；
-实际 guest 验证范围需按主机单独确认。该选项建立双向 UART 传输，不自动改造
-guest 的 REPL 路由。AtomS3R 首次准备时使用如下 `boot.py`，配一个 `pass` 的
-`main.py` 经下方 composer 初始化一次，再创建带 Unit 装配的 session：
+推荐直接创建 `program_mode="uiflow-live"` 会话。后端从缓存的 UIFlow2 reference
+初始化 UART REPL 一次，自动设置 source pin、串口传输与 bootstrap READY；之后
+只调用 `/program`。该模式只准入 `runtime=qemu` 和 CoreS3、AtomS3R、StickS3、
+StopWatch，且拒绝同时传入 `firmware_id`、`uiflow_source_sha256` 或应用 ready
+条件；不会替换调用者指定的固件。`GET /devices` 的 `program_modes` 声明准入。
+
+```http
+POST /api/v1/sessions
+Content-Type: application/json
+
+{"device_id":"cores3","program_mode":"uiflow-live","ttl_seconds":600,"units":[{"id":"external1","unit_id":"pir","port_id":"port-a"}]}
+```
+
+Unit 端口必须来自该主机 `/units?device_id=...` 的确认接线，源码里的白黄 GPIO
+使用返回 session 的冻结 `units[].pins`。网页 Live sessions 可勾选“开启实时编程”，
+再在该会话下编辑源码和运行；模式不替代每段应用自己的 READY 与控制器读回。
+首次创建的幂等键仍绑定原始请求，不因内部派生固件增加而失效。
+
+兼容路径仍可自行准备固件，再指定 `program_transport="uart-repl"`。这个低层
+选项不自动改造 guest 的 REPL 路由。已验证的 S3 reference 的一次性 `boot.py`
+如下，配一个 `pass` 的 `main.py` 经下方 composer 初始化，再创建带 Unit 的会话：
 
 ```python
 from machine import UART
@@ -25,7 +41,7 @@ _uiflow_run_main = False
 print("M5EMU_UART_REPL_READY")
 ```
 
-该初始化已按本仓 AtomS3R reference 路径设计。已有原生 UART REPL 的固件不应
+该初始化只适用于已准入的 USB-console S3 reference。已有原生 UART REPL 的固件不应
 重复安装动态 UART IRQ；其他主机不得直接继承这段路由的验证结论。首次准备
 使用原有固件 source pin。之后提交完整单文件源码：
 
@@ -52,11 +68,15 @@ Ctrl-C 中断并通过 raw REPL 执行，不保证清空 native 模块、定时�
 Unit 仍在创建 session 时接线；运行期间通过现有 `unit-input`、`units`、
 `serial`、`frame.png` 观察同一 guest 的控制器与应用效果。当前尚无运行中热插拔、
 Preview 编排、SSE 或共享帧生产者，也没有 AIFlow 前后端接入的验收结论。
-可复现的 AtomS3R 同 guest/PIR/屏幕/程序异常恢复探针见
+可复现的四款主机同 guest/PIR、Relay/屏幕/程序异常恢复探针见
 [`run_live_program.py`](../tests/units/run_live_program.py)，以 Device Service
 创建可见 session，停止前取证，停止后保留历史。
-本次仅 AtomS3R 的同 guest/PIR 实际结果见
-[实时程序证据](evidence/2026-10-26-uiflow-live-program/README.md)，其它主机不继承。
+CoreS3、AtomS3R、StickS3、StopWatch 各自的 PIR/Relay 共8组合、40次程序通过；
+CoreS3 另有真实网页创建、输入、程序替换、画面进入模型屏幕和异常恢复证据，见
+[直接创建与 Web 验证](evidence/2026-10-26-live-program-web-and-hosts/README.md)。
+早期手动 bootstrap 的 AtomS3R 基线保留在
+[首轮实时程序证据](evidence/2026-10-26-uiflow-live-program/README.md)。
+上述结果不外推其它 Unit、任意源码、多文件资源或物理设备。
 每 session 最多保留 256 次 execution；当前服务级 revision 存储上限 256，额度
 耗尽返回明确错误，不自动删除历史或重跑未知提交。服务重连期间可能丢失串口输出，
 原活跃程序保持 unknown，不能仅根据旧 START 恢复 running。

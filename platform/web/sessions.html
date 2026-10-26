@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/platform/web/sessions.css?v=20261022e">
   <link rel="stylesheet" href="/platform/web/three-device-viewer.css?v=20261022e">
   <link rel="stylesheet" href="/platform/web/unit-panel.css?v=20261026a">
+  <link rel="stylesheet" href="/platform/web/program-panel.css?v=20261026a">
   <link rel="stylesheet" href="/platform/web/m5-tokens.css">
   <link rel="stylesheet" href="/platform/web/m5-brand.css">
   <script type="importmap">
@@ -50,8 +51,10 @@
         <select class="field" id="deviceSelect"></select>
         <label class="field-label" for="ttlInput">Lease TTL (seconds)</label>
         <input class="field" id="ttlInput" type="number" min="30" value="600">
+        <label class="program-mode"><input id="programModeInput" type="checkbox" disabled aria-describedby="programModeHint">开启实时编程（UIFlow）</label>
+        <div class="hint" id="programModeHint">读取实时编程能力…</div>
         <div id="unitPicker"></div>
-        <button class="btn primary" id="createBtn" type="button">创建参考设备</button>
+        <button class="btn primary" id="createBtn" type="button" disabled>创建参考设备</button>
         <div class="hint">Tab5 可用烧录、启动、串口、GDB 截图和触摸；外设仍是 partial。</div>
       </div>
 
@@ -84,6 +87,6 @@
 
   <footer class="m5-page-footer"><div class="m5-page-footer__inner"><span>M5 AI OPERATIONS</span><span>VIRTUAL DEVICE LEASES</span><span>© 2026 M5Stack</span></div></footer>
 
-  <script type="module" src="/platform/web/sessions.js?v=20261026a"></script>
+  <script type="module" src="/platform/web/sessions.js?v=20261026c"></script>
 </body>
 </html>

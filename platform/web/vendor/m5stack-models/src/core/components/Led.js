@@ -22,15 +22,17 @@ function getGlowTexture() {
 /**
  * Indicator LED (single colour or RGB). Pass the lens mesh or let it create a
  * small dome. `set({ on, color, brightness })` or `set('#ff0000')`.
- * `invisible: true` renders the light the way a phone camera sees an IR LED.
+ * `invisible: true` preserves the lens and commanded state but suppresses
+ * emissive/glow in the human-visible scene. No camera or IR optics simulation.
  */
 export class Led extends Component {
   static kind = 'led';
 
-  constructor({ mesh, color = 0xff2020, radius = 0.6, glowSize = 4, lensColor = 0xdddddd, ...rest }) {
+  constructor({ mesh, color = 0xff2020, radius = 0.6, glowSize = 4, lensColor = 0xdddddd, invisible = false, ...rest }) {
     super(rest);
     this.color = new THREE.Color(color);
     this.brightness = 0;
+    this.invisible = !!invisible;
     if (!mesh) {
       mesh = new THREE.Mesh(
         new THREE.SphereGeometry(radius, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2).rotateX(Math.PI / 2),
@@ -50,6 +52,7 @@ export class Led extends Component {
     this.glow.position.z = radius * 0.5;
     this.glow.visible = false;
     this.object3d.add(this.glow);
+    if (this.invisible) this.#sync();
   }
 
   /** `set(true|false)`, `set('#00ff00')`, `set({ on, color, brightness })` */
@@ -64,7 +67,7 @@ export class Led extends Component {
   }
 
   #sync() {
-    const b = this.brightness;
+    const b = this.invisible ? 0 : this.brightness;
     this.lensMaterial.emissive.copy(this.color).multiplyScalar(b * 2.2);
     this.glow.material.color.copy(this.color);
     this.glow.material.opacity = b * 0.85;

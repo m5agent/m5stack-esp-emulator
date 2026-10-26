@@ -1,0 +1,49 @@
+{
+  "category": "virtual-device-live-program-browser",
+  "status": "FAIL",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "hardware_validation": "NOT RUN",
+  "captured_at": "2026-10-26T09:40:15.591Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "0f20bb1c166b2d9876424071f4b15ea8a2daa57f59feabcac7716e65709877d8",
+    "platform/web/sessions.html": "618e7ce0e09ad0b0331b6f39dace6f63f8cbea8ae6e5e772e720d0a660114b29",
+    "platform/web/program-panel.js": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+    "platform/web/program-panel.css": "0a9a8ce32a02fa962ca6d569b1d779275dd2d5b17f79595f3cb9bb91cd4add9a",
+    "platform/web/unit-panel.js": "cd0590b63b95dd4e93e6e66ea2fac4a4e428945c7d7fc2f8136a99b0a472c84f",
+    "platform/web/model-shell.js": "5157b3df83ab0e27e7fa7bc0c591410abe51b9a25622b9564c7498b5fa5900d3",
+    "platform/web/vendor/m5stack-models/vendor-manifest.json": "a26ae90cd9f4eef4c1379cc513911650253ef226070629d8001185a38dd5386a",
+    "platform/tests/test_live_program_service_browser.mjs": "f4804479e392d2de7f9ae5382309b6f3abb08e3564f69d4ea18fa21f6d79d853"
+  },
+  "instrumentation": "Only window.__liveProgramProbe={state,SessionVisual}; product methods and API data remain unchanged.",
+  "cases": [
+    {
+      "unit_id": "pir",
+      "checks": {},
+      "submissions": [],
+      "unit_posts": [],
+      "creation_request": {
+        "device_id": "cores3",
+        "ttl_seconds": 600,
+        "program_mode": "uiflow-live",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "custom"
+          }
+        ]
+      },
+      "creation_response": {
+        "error": {
+          "code": "unit_port_not_supported",
+          "message": "selected physical port wiring is not confirmed"
+        }
+      }
+    }
+  ],
+  "page_errors": [],
+  "resource_errors": [],
+  "browser_version": "156.0.8078.48",
+  "error": "AssertionError [ERR_ASSERTION]: {\"error\":{\"code\":\"unit_port_not_supported\",\"message\":\"selected physical port wiring is not confirmed\"}}\n\n409 !== 202\n\n    at file:///Users/yunyu/.codex/worktrees/unit-runtime-integration/m5stack-esp-emulator/platform/tests/test_live_program_service_browser.mjs:75:12\n    at runNextTicks (node:internal/process/task_queues:64:5)\n    at process.processImmediate (node:internal/timers:452:9)\n    at process.callbackTrampoline (node:internal/async_hooks:130:17)"
+}

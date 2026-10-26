@@ -12,13 +12,13 @@
 
 ## 一页结论
 
-UIFlow 实时编程已增加同 guest `/program` 入口：首次准备 UART REPL 后，后续
-源码更新在原 MicroPython VM 中传输、编译和运行，不重复刷固件或启动新 guest。
-AtomS3R 已完成初始化固件保持不变/同 PID 的程序替换、PIR 原驱动读回、不同应用帧及语法错误
-后恢复；保留独立 execution/revision、源码与停止前 evidence。其它准入主机、
-多文件/资源与二进制 `.mpy`、保存开机程序仍需分别实现或验证。interrupt-only
-不保证清空 native 模块、定时器、IRQ 或线程；断流/重连缺口保持 unknown。
-入口与证据见[源码 API 指南](unit-agent-api.md)及[实时程序验证](evidence/2026-10-26-uiflow-live-program/README.md)。
+UIFlow 实时编程已增加 `program_mode=uiflow-live` 与同 guest `/program`：首次准备
+UART REPL 后，源码在原 MicroPython VM 中传输、编译和运行，不重复刷固件。
+CoreS3/AtomS3R/StickS3/StopWatch × PIR/Relay 八会话、40次提交的预期结果通过，
+已验证同 PID/固件/VM、原驱动、应用帧、无限循环替换及 SyntaxError 恢复。
+真实 CoreS3 Web 编辑器两例另验证输入/输出、实际帧像素送达屏幕和错误恢复。
+证据见[同 guest Web 与四主机](evidence/2026-10-26-live-program-web-and-hosts/README.md)及[Agent 指南](unit-agent-api.md)。
+其它 Unit、多文件/资源、二进制 `.mpy` 与保存开机程序仍开放；interrupt-only不保证清空 native/定时器/IRQ/线程，断流/重连缺口保持 unknown。
 启动取消已有生命周期事务、pending确认与自动收尾、停止意图版本、Network
 child 收据及 draining 所有权门禁；其它后端实际同场景执行不继承宿主回归。
 拟定 Preview 编排、实时分发与共享帧缓存仍未实现，门禁见
@@ -188,10 +188,10 @@ artifact 哈希和符号化结果见[验证证据台账](validation-ledger.md)�
 
 ## 当前工作与下一门禁
 
-`UNIT-01` 在独立工作树接入固定公开模型版本：14 款主机外壳和 27 款
-Unit 已通过浏览器装配、像素、输入桥和生命周期检查；27 款芯片/控制器源码
-可从固定公开 QEMU 基线冷构建。原六层稳定运行时与新增 `0037` 的七层
-读回运行时分别保留源码指纹和验证范围。
+`UNIT-01` 外壳固定更新至公开 `48667b728736fbfd4365a06575473ce538d3c972`：
+14主机/29视觉Unit、65张许可PNG与51层主机贴纸材质通过浏览器检查；
+Scroll/Roller485仅visual-only，内部协议库仍27种，不能继承controller准入。
+见[外壳更新证据](evidence/2026-10-26-visual-refresh-48667b7/README.md)；27款控制器源码可从固定QEMU基线冷构建，各层运行时分别保留来源指纹与验证范围。
 
 CoreS3 的逐型号功能证据现已通过严格三层汇总：同 guest/controller、真实
 浏览器和全型号桥契约分别核对；每个运行例都有实际 PID→QEMU SHA、同固件、

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {materials} from '../../core/index.js';
+import {Led,materials} from '../../core/index.js';
 import {slab,mesh,disc,FACE} from '../../modeling/parts.js';
 import {usbC,microSD,audioJack} from '../../modeling/connectors.js';
 import {physicalButton} from '../../modeling/actuators.js';
@@ -30,7 +30,9 @@ export function addStampAssembly(host){
   const shape=new THREE.Shape();shape.absarc(0,0,.58,0,Math.PI*2,false);const bore=new THREE.Path();bore.absarc(0,0,.28,0,Math.PI*2,true);shape.holes.push(bore);
   mesh(group,new THREE.ExtrudeGeometry(shape,{depth:.07,bevelEnabled:false,curveSegments:16}),gold,[27.8+(i-4)*2.54,y,5.99],'StampS3A plated edge contact');
  }
- slab(group,1.5,1.5,.55,.18,[35.25,10.45,7.8],materials.glossy(0xd4d7c8,{roughness:.35}),[],.03).name='StampS3A RGB package';
+ const rgbPackage=slab(group,1.5,1.5,.55,.18,[0,0,0],materials.glossy(0xd4d7c8,{roughness:.35}),[],.03);rgbPackage.name='StampS3A RGB package';
+ const rgb=host.add(new Led({id:'stamp-rgb',label:'Stamp-S3A RGB',mesh:rgbPackage,position:[35.25,10.45,7.8],radius:0,glowSize:2.4,meta:{role:'externally-driven-visual',emitter:'WS2812B-2020',count:1,source:'Official Stamp-S3A specifications: one programmable RGB; Cardputer-ADV comparison table confirms Stamp-S3A RGB',placementEvidence:'Existing package retained in original Stamp cover aperture beside USB; local package dimensions/depth are photo-derived',electricalBehavior:false,scope:'external color/brightness only; no backlight gate, boot response or firmware'}}),group);
+ rgb.glow.position.z=.56;
  // y 12.0…20.9, z 6.1…9.6 is the true +X USB aperture. The previous
  // shallow insert at z 4.2 landed on an uninterrupted part of the white shell.
  return usbC(host,{id:'usb',position:[42.02,16.47,7.85],face:'right',w:8.65,h:3.05,depth:6.5});

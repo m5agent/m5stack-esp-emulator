@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import re
 import unittest
+from unittest import mock
 
 import project_snapshot
 
@@ -11,6 +12,26 @@ from _docs_contract_support import DocsContractBase, ROOT, DOCS
 
 
 class DocsCurrentStateContractTests(DocsContractBase):
+    def test_new_visual_shells_remain_separate_from_runtime_admission(self) -> None:
+        snapshot = project_snapshot.collect()
+        units = snapshot["external_units"]
+        self.assertTrue({"scroll", "roller485"} <= set(units["visual_source"]["visual_only_units"]))
+        catalog = project_snapshot.load_json(project_snapshot.UNIT_CATALOG)
+        registered = {unit["id"] for unit in catalog["units"]}
+        self.assertFalse(registered & set(units["visual_source"]["visual_only_units"]))
+        self.assertEqual(sum(units["runtime_status"].values()), len(registered))
+        load_json = project_snapshot.load_json
+
+        def missing_visual(path):
+            value = load_json(path)
+            if path == project_snapshot.VISUAL_VENDOR:
+                return {**value, "units": [unit for unit in value["units"] if unit != "pir"]}
+            return value
+
+        with mock.patch.object(project_snapshot, "load_json", side_effect=missing_visual):
+            with self.assertRaisesRegex(ValueError, "missing visual model: pir"):
+                project_snapshot.collect()
+
     def test_engineering_handoff_stays_a_current_navigation_summary(self) -> None:
         handoff = (DOCS / "engineering-handoff.md").read_text()
         for heading in (

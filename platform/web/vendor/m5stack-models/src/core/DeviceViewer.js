@@ -563,8 +563,15 @@ export class DeviceViewer extends EventEmitter {
       button.release(`key:${e.code}`);
       return;
     }
-    if (isEditable(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
-    if (this.opts.keyboard === 'focused' && document.activeElement !== this.renderer.domElement) return;
+    if (isEditable(e.target) || e.metaKey || e.ctrlKey) return;
+    const focused = document.activeElement === this.renderer.domElement;
+    if (this.opts.keyboard === 'focused' && !focused) return;
+    // A physical Alt key may be an explicitly mapped model key (CardKB Sym).
+    // Only its own focused keydown can reach keymap lookup; Alt combinations
+    // and unowned modifier releases keep their browser defaults untouched.
+    const altKey = e.code === 'AltLeft' || e.code === 'AltRight';
+    if (altKey && !down) return;
+    if (e.altKey && !(altKey && focused)) return;
     for (const device of this.devices) {
       const path = device.keymap[e.code] ?? device.keymap[e.key];
       if (!path) continue;

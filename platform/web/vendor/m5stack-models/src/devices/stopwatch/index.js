@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import {Device,Button,materials} from '../../core/index.js';
 import {RoundDisplay} from '../../modeling/RoundDisplay.js';
 import {addCadParts} from '../../modeling/cad.js';
-import {socket,grove,header,mark,disc,screw,slab,mesh} from '../../modeling/parts.js';
+import {socket,grove,header,disc,screw,slab,mesh} from '../../modeling/parts.js';
+import {printedFilm} from '../../modeling/artwork.js';
 import {DIM} from './dimensions.js';
 import data from './geometry-data.js';
 export class StopWatch extends Device {
@@ -22,7 +23,9 @@ export class StopWatch extends Device {
   const pcb=slab(this.body,44,44,.8,22,[0,0,-6.2],materials.plastic(0x29372e,{roughness:.9}),clearances,.06);pcb.name='Rear main PCB';
   mesh(this.body,new THREE.CylinderGeometry(6.5,6.5,.8,64).rotateX(Math.PI/2),materials.plastic(0x101413,{roughness:1}),[0,17.5,-5.85],'Speaker acoustic backing');
   for(const [x,y,count]of sockets)header(this.body,{position:[x,y,-7.52],cols:1,rows:count});
-  mark(this.body,27,29,[0,-.8,-7.55],(ctx,W,H,s)=>{ctx.fillStyle='#e7e9e6';ctx.fillRect(0,0,W,H);ctx.fillStyle='#283034';ctx.font=`800 ${2.8*s}px Arial`;ctx.textAlign='center';ctx.fillText('STOP WATCH',W/2,4*s);ctx.font=`${1.4*s}px Arial`;ctx.fillText('M5Stack · C152',W/2,6.4*s);ctx.font=`${1.15*s}px Arial`;['AMOLED 466 × 466','ESP32-S3R8','USB-C 5V · 450mAh'].forEach((t,i)=>ctx.fillText(t,W/2,(9+i*2)*s));for(let i=0;i<7;i++){ctx.fillStyle=['#dfc11c','#c84536','#444c53','#82b5c4'][i%4];ctx.fillRect(1*s,(17+i*1.25)*s,(25-i%2*3)*s,.75*s);}ctx.fillStyle='#434b4f';ctx.font=`700 ${1.3*s}px Arial`;ctx.fillText('STOPWATCH',W/2,28*s);},'back');
+  // The official uncut label bridges the four round CAD recesses. Its source
+  // alpha retains the speaker's U-shaped opening and side header notches.
+  printedFilm(this,{parent:parts['body-shell'],url:new URL('./artwork/rear.png',import.meta.url).href,size:[36.6,35.3],position:[0,0,-7.52],face:'back',holes:clearances.map(({w,h,r,cx,cy})=>({w,h,r,cx:-cx,cy})),name:'StopWatch official rear circuit sticker'});
   for(const x of [-20,20])screw(this.body,[x,0,-7.52],'back',1.3);
  }
 }

@@ -62,14 +62,16 @@ eFuse 或生产 key。
 ## 当前执行顺序
 
 最新用户场景为AIFlow实时编程/实时预览，`UNIT-01`下一块优先补预览执行闭环：
-取消事务与自动收尾已实现，同 guest UART raw REPL 程序接口与不可变源码记录
-已有 AtomS3R 实际 API 证据；继续补其它准入主机、多文件/资源传输和显式保存开机
-程序。下一块做逻辑 Preview/Run、AIFlow checkpoint 与虚拟目标接入、统一帧/事件
+取消事务与自动收尾已实现；同 guest UART raw REPL 与 Web 程序面板已完成
+四款准入主机 × PIR/Relay 的八组合/40次执行，真实 CoreS3 Web 两例另已验收。
+继续补其它 Unit、多文件/资源、二进制 `.mpy` 与显式保存开机程序；再补逻辑
+Preview/Run、AIFlow checkpoint 与虚拟目标接入、统一帧/事件
 分发；运行时不可中断、native/IRQ/thread 清理及重连缺口须保守处理。当前不承诺
 低秒级 SLA；量化证据、拟定契约及验收见
 [AIFlow API评估计划](plans/2026-10-26-aiflow-live-preview-api.md)。AIFlow本身的
 checkpoint/artifact snapshot/virtual target也需衔接；Preview/SSE 尚未实现。
 本客户端旧请求/队列与装配隔离已补齐，服务端run身份与多客户端控制权仍待实现。
+初始picker的跨主机竞态已修复并保留失败负控；范围见[新实时程序证据](evidence/2026-10-26-live-program-web-and-hosts/README.md)。
 三主机HUB数字token换行按`UNIT-HOST-23`单独改善，保留既有controller PASS。
 
 `UNIT-01` 已具备 CoreS3 27种选定场景与三主机各11种
@@ -125,7 +127,7 @@ fixture 准入；继续处理新 HUB 拓扑、视觉、原 IR GC 长期风险、
 | `HW-01` | 待做 | 代表设备的同固件 SHA 真机测试计划 | evidence 明确标为 hardware validation |
 | `TAB5-01` | 决策 | 重建或扩展 P4 backend | 缺失控制器与端到端网络有执行路径 |
 | `UI-01` | 待做 | 逐设备结构、材质、hitbox 和截图阈值 | 设备本地视觉回归，不跨设备继承 |
-| `UNIT-01` | 进行中 | 同 guest 程序的其它主机、多文件/资源与保存开机程序；AIFlow checkpoint/虚拟目标、Preview/Run及实时分发；其它后端取消场景实际会话验证；其它三款准入主机剩余 Unit 的实际源码 API 执行、三主机 IO 的 ADC app calibration/ADC2 oracle 与 Thermal fixture、新 HUB 拓扑、原 IR GC 长期风险、原 Buzzer、完整 PWM 周期语义、矩阵命令记录、Heart 零值暂态/生理算法和视觉缺口 | 新固件重新验证；逐型号同 guest 读写、Web 输入/输出、可见 session 和 evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有 UI 状态；主机问题单独记录，不以诊断、custom guest 或桥契约替代原固件结论；真机同路径另验 |
+| `UNIT-01` | 进行中 | 同 guest 程序的其它 Unit、多文件/资源、二进制 .mpy 与保存开机程序；AIFlow checkpoint/虚拟目标、Preview/Run及SSE/实时分发；其它后端取消场景实际会话验证；其它三款准入主机剩余 Unit 的实际源码 API 执行、三主机 IO 的 ADC app calibration/ADC2 oracle 与 Thermal fixture、新 HUB 拓扑、原 IR GC 长期风险、原 Buzzer、完整 PWM 周期语义、矩阵命令记录、Heart 零值暂态/生理算法和视觉缺口；Scroll/Roller485仅视觉，协议与准入未实现 | 新固件重新验证；逐型号同 guest 读写、Web 输入/输出、可见 session 和 evidence；未准入组合不能凭离线产物升级；分次帧不假称原子一致，可读性不外推所有 UI 状态；主机问题单独记录，不以诊断、custom guest 或桥契约替代原固件结论；真机同路径另验 |
 | `CZ-01` | 待做 | CardputerZero 系统、驱动和长期回归 | 启动、USB、网络、音频、摄像头和真机边界明确 |
 
 ## P0：Core2 legacy UIFlow 运行时

@@ -4,6 +4,7 @@ import {makeUnit} from '../shared/CADUnit.js';
 import {unitPcb} from '../shared/parts.js';
 import {spec} from './dimensions.js';
 import data from './geometry-data.js';
+import {addStickers} from './stickers.js';
 
 const models=makeUnit(spec,data,host=>{
  const originalBoard=host.body.getObjectByName('Unit PCB');originalBoard.removeFromParent();originalBoard.geometry.dispose();originalBoard.material.dispose();
@@ -15,6 +16,7 @@ const models=makeUnit(spec,data,host=>{
  const face=slab(host.body,...c.size,c.depth,.7,c.position,materials.plastic(0xdcded9,{roughness:.91,clearcoat:0}),[],.035);face.name='RFID dielectric front cover';
  // Public references do not show the hidden antenna trace or IC placement.
  // Keep those unspecified rather than inventing an internal circuit layout.
+ addStickers(host);
 });
 export const Model=models.Model;
 export const GroveModule=models.GroveModule;

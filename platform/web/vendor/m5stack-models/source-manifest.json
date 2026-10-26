@@ -1,6 +1,6 @@
 {
   "preparedAt": "2026-10-25T13:20:33.030Z",
-  "sourceCommit": "6e6d5e925de80508499c5680897e7084de5a7ee8",
+  "sourceCommit": "3aaeb1b076092994e77d6df0500e8e027019d3be",
   "scope": "Factual provenance only; no official reference binaries or MCP source text are included.",
   "upstreams": {
     "sticks3": {
@@ -252,8 +252,77 @@
         {
           "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1150/S007-V033_07.webp",
           "sha256": "dc70861f499aff13322523157ba22038fbc07eaed10567ed8209af7c9d66761b"
+        },
+        {
+          "url": "https://docs.m5stack.com/en/core/Stamp-S3A",
+          "sha256": "63be4497485cc3c3436788357cf54911a9e423d92e4f56c673d200b9805017b7"
         }
-      ]
+      ],
+      "visibleLedReview": {
+        "sources": [
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1150/S007-V033_01.webp",
+            "sha256": "29121b8efb07ad5dc08e036e96061ae08d4719f2d915b93f687bde742c77ff73",
+            "bytes": 177658
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1150/S007-V033_07.webp",
+            "sha256": "dc70861f499aff13322523157ba22038fbc07eaed10567ed8209af7c9d66761b",
+            "bytes": 77950
+          },
+          {
+            "url": "https://docs.m5stack.com/en/core/Stamp-S3A",
+            "sha256": "63be4497485cc3c3436788357cf54911a9e423d92e4f56c673d200b9805017b7",
+            "kind": "existing official MCP reference; Stamp-S3A HMI specification one WS2812B-2020 RGB"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K132-Adv_Cardputer-Adv/Structures/Cardputer-Adv.stl",
+            "sha256": "50c2b2a72694dd7461125489d99a2f863630bb0c224f86f98f95dda15ae45c00",
+            "bytes": 6775684,
+            "gitBlob": "a0c3f6964b471dceefee917edcbd194f52c80833"
+          }
+        ],
+        "facts": [
+          {
+            "source": "https://docs.m5stack.com/en/core/Stamp-S3A",
+            "anchor": "Specifications / HMI",
+            "fact": "One programmable WS2812B-2020 RGB LED is specified for Stamp-S3A."
+          },
+          {
+            "lines": "119-120",
+            "fact": "Cardputer-ADV uses Stamp-S3A and lists RGB LED control as a product capability.",
+            "source": "https://docs.m5stack.com/en/core/Cardputer-ADV"
+          }
+        ],
+        "implementation": {
+          "id": "stamp-rgb",
+          "count": 1,
+          "positionMm": [
+            35.25,
+            10.45,
+            7.8
+          ],
+          "packageMm": [
+            1.5,
+            1.5,
+            0.55
+          ],
+          "defaultBrightness": 0,
+          "placementEvidence": "Existing physical RGB package retained at its original position and geometry; only component ownership/emission state was added.",
+          "coverUnchanged": true,
+          "physicalBehavior": false,
+          "automaticButtonLink": false
+        },
+        "validation": {
+          "script": "scripts/check-host-visible-leds.mjs",
+          "scope": "Actual original-aperture rays including cover-lip occlusion, independent color/brightness, geometry hashes and frames, input independence and owned resource disposal. Browser pixels remain a separate root review."
+        },
+        "limitations": [
+          "Package dimensions, concealed depth and optical glow/diffusion are appearance estimates, not mechanical tolerances or an LED intensity model.",
+          "No GPIO38/backlight power gate, boot/download sequence, firmware/electrical state or automatic key-to-light response is implemented."
+        ],
+        "scope": "One independently externally driven visible Stamp-S3A RGB; geometry appearance only"
+      }
     },
     {
       "id": "cardputer-zero",
@@ -747,6 +816,26 @@
         {
           "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoSideCover.stl",
           "sha256": "b4e7906d2f4c5b4d5950c9421b8eadc9ba74b6073f5cee0a67835207d55135ce"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/StackChan/eff0d6b5109663faec8f1d98848b4b0e5246bbfc/firmware/main/hal/hal_head_touch.cpp",
+          "sha256": "427bc408a8cf639665aa2de1071df8ba0af91896105afa433a2e8c9d7ae6acc6"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/StackChan-BSP/fb5e9f5697803ca64e45fe7ad8eaea3e4100f766/src/utils/touch_sensor/touch_sensor.h",
+          "sha256": "caa199c56fb011aa20ff09268ad65c817307cc73bcad67778f59c24da266fb91"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/StackChan-BSP/fb5e9f5697803ca64e45fe7ad8eaea3e4100f766/src/utils/touch_sensor/touch_sensor.cpp",
+          "sha256": "571a8f18229541a8e16a152a03b26a39f095d62b5f4068b63fd204747be29c90"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/StackChan-BSP/fb5e9f5697803ca64e45fe7ad8eaea3e4100f766/examples/TouchSensor/TouchSensor.ino",
+          "sha256": "ffcd51f6170459e5ce34bda930effb63c3a0004d52942c49f725d2370835123b"
+        },
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/StackChan-BSP/fb5e9f5697803ca64e45fe7ad8eaea3e4100f766/examples/RGB_LED/RGB_LED.ino",
+          "sha256": "97227a70131bb8a96f930cd2e83cbb3c77378f5670e883c45948eeb3c44398d0"
         }
       ],
       "movingAssembly": {
@@ -774,10 +863,10 @@
         ],
         "limitations": [
           "No assembled PCB STEP, motor-placement assembly or cable CAD was available in the official structure directory. Hidden PCB contours/components, battery envelope, connector bodies, loom slack and servo lead routes are appearance reconstructions.",
-          "Stock pitch servo case/gear cap partially overlaps the previously photo-positioned neck/cradle rear-cover interior. This is an acknowledged concealed fit uncertainty, not a passed manufacturing or complete interference check. Official enclosure meshes and original axes were not cut or shifted to mask it.",
+          "Current finite servo-package diagnostic remains fit-unresolved despite the source-bore cover registration; relative source cover seats do not prove the concealed motor installation or manufacturing fit.",
           "95-pose checks include actual wire tube endpoints and sampled PCB/connector volume containment, not continuous collision proof, electrical behavior, hardware motion, cable physics or physical-device validation."
         ],
-        "scope": "Front Power PCB follows pitch, lower Adapter follows yaw; seven physical visual wires cross pitch; rear mechanism remains open, base USB stays fixed. Hidden servo package/routing are appearance approximations."
+        "scope": "Power PCB follows pitch, lower Adapter and registered original covers follow yaw; seven physical visual wires cross pitch, base USB is fixed and the rear stays open. Hidden packaging and routing remain appearance reconstructions."
       },
       "servoPackageReview": {
         "sources": [
@@ -853,7 +942,776 @@
           "cover Z seating conflicts with inferred battery envelope",
           "motor axial shift opens unconfirmed shaft/arm gap"
         ],
-        "scope": "ear-only runtime correction; incomplete hidden fit diagnosis"
+        "scope": "Historical pre-seat candidate review. Current relative cover registration and global remaining fit are recorded in the explicitly named currentReviewFields.",
+        "historical": true,
+        "historicalSnapshotSourceCommit": "d74ae04fb822c2dcf414834eae8e51ffd1496876",
+        "currentReviewFields": [
+          "coverSeatReview",
+          "servoOutlineReview",
+          "currentServoFit"
+        ]
+      },
+      "touchLedReview": {
+        "sources": [
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/StackChan/eff0d6b5109663faec8f1d98848b4b0e5246bbfc/firmware/main/hal/hal_head_touch.cpp",
+            "sha256": "427bc408a8cf639665aa2de1071df8ba0af91896105afa433a2e8c9d7ae6acc6",
+            "bytes": 4890,
+            "repository": "m5stack/StackChan",
+            "commit": "eff0d6b5109663faec8f1d98848b4b0e5246bbfc",
+            "gitBlob": "3847d9ec7023154e9d0115d246bbd00c35ef313b",
+            "kind": "official-software-reference-only"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/StackChan-BSP/fb5e9f5697803ca64e45fe7ad8eaea3e4100f766/src/utils/touch_sensor/touch_sensor.h",
+            "sha256": "caa199c56fb011aa20ff09268ad65c817307cc73bcad67778f59c24da266fb91",
+            "bytes": 3656,
+            "repository": "m5stack/StackChan-BSP",
+            "commit": "fb5e9f5697803ca64e45fe7ad8eaea3e4100f766",
+            "gitBlob": "a4a224519deadafd1333edb21e4df70335ca6a26",
+            "kind": "official-software-reference-only"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/StackChan-BSP/fb5e9f5697803ca64e45fe7ad8eaea3e4100f766/src/utils/touch_sensor/touch_sensor.cpp",
+            "sha256": "571a8f18229541a8e16a152a03b26a39f095d62b5f4068b63fd204747be29c90",
+            "bytes": 5781,
+            "repository": "m5stack/StackChan-BSP",
+            "commit": "fb5e9f5697803ca64e45fe7ad8eaea3e4100f766",
+            "gitBlob": "28c854d6260d5a525b04379a32474bb83d768d41",
+            "kind": "official-software-reference-only"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/StackChan-BSP/fb5e9f5697803ca64e45fe7ad8eaea3e4100f766/examples/TouchSensor/TouchSensor.ino",
+            "sha256": "ffcd51f6170459e5ce34bda930effb63c3a0004d52942c49f725d2370835123b",
+            "bytes": 974,
+            "repository": "m5stack/StackChan-BSP",
+            "commit": "fb5e9f5697803ca64e45fe7ad8eaea3e4100f766",
+            "gitBlob": "ca7f07bd36dde7b219195b4265a2ba7f9493716f",
+            "kind": "official-software-reference-only"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/StackChan-BSP/fb5e9f5697803ca64e45fe7ad8eaea3e4100f766/examples/RGB_LED/RGB_LED.ino",
+            "sha256": "97227a70131bb8a96f930cd2e83cbb3c77378f5670e883c45948eeb3c44398d0",
+            "bytes": 925,
+            "repository": "m5stack/StackChan-BSP",
+            "commit": "fb5e9f5697803ca64e45fe7ad8eaea3e4100f766",
+            "gitBlob": "dd8ddbefc22e98682cbc417530829947e3265041",
+            "kind": "official-software-reference-only"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_06.webp",
+            "sha256": "45c5621fc74f8b9ccf3c70cc7526dd6a56d86e03fdf892b024961b0152b5b22c",
+            "bytes": 31968,
+            "kind": "official-reference-only"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1255/A180_StackChan_Body_main_pictures_09.webp",
+            "sha256": "5f966319522d86fa8e0c4f52f63444fce677f14f1d50f1574e4e7bf152b5dbf9",
+            "bytes": 36238,
+            "kind": "official-reference-only"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-LightGuideBar-A.stl",
+            "sha256": "05313220a4c3734dd0c412a9de04349e4f9b55024ff3a382ea0d85c1d297d2a3",
+            "bytes": 28884,
+            "kind": "official-structure-source"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-LightGuideBar-B.stl",
+            "sha256": "ba640a41fde8b197a20579814fd8ca94eba44e7b4cbcae3096d6a1e556dd7db2",
+            "bytes": 35484,
+            "kind": "official-structure-source"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-MainBody.stl",
+            "sha256": "5495cd313847c2c135fa0309ee64747b93794e3d464a08e76d518b73b13a3107",
+            "bytes": 824784,
+            "kind": "official-structure-source"
+          }
+        ],
+        "facts": [
+          {
+            "source": "https://raw.githubusercontent.com/m5stack/StackChan-BSP/fb5e9f5697803ca64e45fe7ad8eaea3e4100f766/src/utils/touch_sensor/touch_sensor.h",
+            "lines": "19-20",
+            "fact": "Touch index 0,1,2 correspond to Front,Middle,Back physical zones. This corrects a preliminary left/middle/right assumption."
+          },
+          {
+            "source": "https://raw.githubusercontent.com/m5stack/StackChan-BSP/fb5e9f5697803ca64e45fe7ad8eaea3e4100f766/examples/RGB_LED/RGB_LED.ino",
+            "line": 27,
+            "fact": "There are twelve RGB LEDs: indices 0-5 on left and 6-11 on right. No per-side front-to-back electrical ordering is asserted."
+          },
+          {
+            "source": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/SCH_Touch.png",
+            "sha256": "4599f61bb443685aa5844104a12c968188342db6a6f71fe4b4da9c428890638f",
+            "fact": "Official Touch schematic/MCP extraction identifies Si12T three TP1/TP2/TP3 channels and twelve WS2812C_4020 LEDs. Pad-to-front/middle/back electrical mapping is not inferred."
+          },
+          {
+            "source": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-MainBody.stl",
+            "fact": "Unchanged roof edge is a 5 mm corner around X +/-22,Y30.25. Continuous guide apertures run approximately Z -18.5..10.75 around the 45-degree roof edge, corroborated by A180 top/side photographs."
+          }
+        ],
+        "limitations": [
+          "Exact capacitive electrode outline/spacing is unavailable. Three compact top-plane hit regions are inferred, have zero visual cap/travel and do not enlarge the assembled bounding box.",
+          "Per-side LED electrical sequence, actual emitter positions and optical diffusion are unconfirmed. Physical IDs deliberately do not claim U1-U12 chain mapping.",
+          "The 90 self-target hits prove raycast frame/hierarchy only. They do not replace assembled scene accessibility or physical-device touch validation.",
+          "No capacitance/intensity values, gesture recognition, touch-to-light behavior, electrical/firmware simulation, mechanical fit approval or physical hardware validation.",
+          "Source covers now register to the cradle mounting bores; the explicitly sampled 30 poses/90 normal approaches are clear. Absolute cradle/head datums and hidden motor seating remain separately unconfirmed."
+        ],
+        "sourceCoverRegistration": "coverSeatReview",
+        "registeredSourceGeometry": {
+          "geometry": "src/devices/stackchan/geometry-data.js",
+          "map": "src/devices/stackchan/cad-map.json",
+          "change": "Original two covers translated by paired source bore registration; no source shell cut or scale. Separate servo cap outline correction does not alter source CAD."
+        },
+        "sceneAccess": {
+          "status": "pass",
+          "probeCount": 90,
+          "unblocked": 90,
+          "blocked": [],
+          "scope": "Complete assembled-scene approach along local roof normal, 2 mm start offset, for the listed 30 poses. This is finite directional sampling, not arbitrary camera accessibility."
+        },
+        "scope": "Three Front/Middle/Back capacitive zones and twelve externally driven guide cells; 90/90 explicitly sampled assembled-scene normal approaches are unobstructed. This does not establish arbitrary camera access, hidden servo fit or physical touch validation."
+      },
+      "coverSeatReview": {
+        "checkedAt": "2026-10-25T16:56:14.930530+00:00",
+        "sources": [
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-BearingFixture.stl",
+            "sha256": "04f511c46afb82db49657daa8ec624e91d4d26d29712290e26d32084af6bc2f7",
+            "bytes": 58284,
+            "kind": "official-structure-source"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-MainBody.stl",
+            "sha256": "5495cd313847c2c135fa0309ee64747b93794e3d464a08e76d518b73b13a3107",
+            "bytes": 824784,
+            "kind": "official-structure-source"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoArm.stl",
+            "sha256": "e530ade0873df01ed5b8bf9275358ccf9ffddb494025f64465bf5efde886c9db",
+            "bytes": 187284,
+            "kind": "official-structure-source"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoBody.stl",
+            "sha256": "c21e35ad812b71aa44933055d3873090ae8c184479edf8e66e1fe595df598e1b",
+            "bytes": 323984,
+            "kind": "official-structure-source"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoCover.stl",
+            "sha256": "f79ff641201fdbde78767cd08b29381ebb0146fa929bdd5e1aa41406e5c6280c",
+            "bytes": 64084,
+            "kind": "official-structure-source"
+          },
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/master/Products/K151_StackChan/Structures/StackChan-ServoSideCover.stl",
+            "sha256": "b4e7906d2f4c5b4d5950c9421b8eadc9ba74b6073f5cee0a67835207d55135ce",
+            "bytes": 60884,
+            "kind": "official-structure-source"
+          }
+        ],
+        "scope": "Unchanged official CAD rigid registration, no physical/manufacturing fit claim",
+        "method": "Planar triangle-boundary loops, least-squares circle fit to actual source vertices. Two parallel bore axes and opposing mating planes constrain rigid cover translations without using the inferred Adapter or battery. No geometry scale/cut/axis change.",
+        "sourceNormalizedPreSeatSha256": "9cae418a9f71eb76c4f57e24a9d1be5550e536497b0078df3629060c6e7e4eff",
+        "white": {
+          "translationFromPreSeatMm": [
+            0,
+            1.45,
+            6.7
+          ],
+          "rotationQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "oldCadMapOrigin": [
+            229.481,
+            -329.2632,
+            16.1
+          ],
+          "correctedCadMapOrigin": [
+            229.481,
+            -322.5632,
+            14.65
+          ],
+          "pairs": [
+            {
+              "label": "front",
+              "cover": {
+                "part": "servo-rear-cover",
+                "centreMm": [
+                  10.350787162780762,
+                  5.200001,
+                  -0.099999
+                ],
+                "radiusMm": 1.099933,
+                "axisUnit": [
+                  1,
+                  0,
+                  0
+                ],
+                "matingFaceNormal": [
+                  -1,
+                  0,
+                  0
+                ],
+                "circleFitRmsMm": 0.00005
+              },
+              "cradle": {
+                "part": "neck-cradle",
+                "centreMm": [
+                  10.350787162780762,
+                  6.649999,
+                  6.600006
+                ],
+                "radiusMm": 0.915377,
+                "axisUnit": [
+                  1,
+                  0,
+                  0
+                ],
+                "matingFaceNormal": [
+                  1,
+                  0,
+                  0
+                ],
+                "circleFitRmsMm": 0.000097
+              },
+              "transformedCoverCentreMm": [
+                10.350787162780762,
+                6.6500010000000005,
+                6.600001
+              ],
+              "coaxialPerpendicularResidualMm": 0.000005385164807062579,
+              "axialPlaneOffsetMm": 0,
+              "note": "Opposite planar normals define the mating face."
+            },
+            {
+              "label": "rear",
+              "cover": {
+                "part": "servo-rear-cover",
+                "centreMm": [
+                  10.350787162780762,
+                  5.200001,
+                  -28.6
+                ],
+                "radiusMm": 1.049935,
+                "axisUnit": [
+                  1,
+                  0,
+                  0
+                ],
+                "matingFaceNormal": [
+                  -1,
+                  0,
+                  0
+                ],
+                "circleFitRmsMm": 0.000048
+              },
+              "cradle": {
+                "part": "neck-cradle",
+                "centreMm": [
+                  10.250781059265137,
+                  6.650001,
+                  -21.899994
+                ],
+                "radiusMm": 0.849886,
+                "axisUnit": [
+                  1,
+                  0,
+                  0
+                ],
+                "matingFaceNormal": [
+                  1,
+                  0,
+                  0
+                ],
+                "circleFitRmsMm": 0.000092
+              },
+              "transformedCoverCentreMm": [
+                10.350787162780762,
+                6.6500010000000005,
+                -21.900000000000002
+              ],
+              "coaxialPerpendicularResidualMm": 0.000006000000002615025,
+              "axialPlaneOffsetMm": 0.100006103515625,
+              "note": "Rear pair has an approximately 0.1 mm axial face gap; do not shift X to close it and break the front seat."
+            }
+          ]
+        },
+        "gray": {
+          "translationFromPreSeatMm": [
+            0,
+            -3.75,
+            6.7
+          ],
+          "rotationQuaternion": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "oldCadMapOrigin": [
+            229.481,
+            -329.2632,
+            -1.1
+          ],
+          "correctedCadMapOrigin": [
+            229.481,
+            -322.5632,
+            2.65
+          ],
+          "pairs": [
+            {
+              "label": "left",
+              "cover": {
+                "part": "servo-side-cover",
+                "centreMm": [
+                  -10.749219,
+                  -18,
+                  -27.74998664855957
+                ],
+                "radiusMm": 1.099933,
+                "axisUnit": [
+                  0,
+                  0,
+                  1
+                ],
+                "matingFaceNormal": [
+                  0,
+                  0,
+                  1
+                ],
+                "circleFitRmsMm": 0.000052
+              },
+              "cradle": {
+                "part": "neck-cradle",
+                "centreMm": [
+                  -10.749219,
+                  -21.749999,
+                  -21.049985885620117
+                ],
+                "radiusMm": 0.849887,
+                "axisUnit": [
+                  0,
+                  0,
+                  1
+                ],
+                "matingFaceNormal": [
+                  0,
+                  0,
+                  -1
+                ],
+                "circleFitRmsMm": 0.000091
+              },
+              "transformedCoverCentreMm": [
+                -10.749219,
+                -21.75,
+                -21.04998664855957
+              ],
+              "coaxialPerpendicularResidualMm": 0.0000010000000010279564,
+              "axialPlaneOffsetMm": -7.629394538355427e-7
+            },
+            {
+              "label": "right",
+              "cover": {
+                "part": "servo-side-cover",
+                "centreMm": [
+                  11.250781,
+                  -18,
+                  -27.74998664855957
+                ],
+                "radiusMm": 1.099933,
+                "axisUnit": [
+                  0,
+                  0,
+                  1
+                ],
+                "matingFaceNormal": [
+                  0,
+                  0,
+                  1
+                ],
+                "circleFitRmsMm": 0.000052
+              },
+              "cradle": {
+                "part": "neck-cradle",
+                "centreMm": [
+                  11.250781,
+                  -21.749999,
+                  -21.049985885620117
+                ],
+                "radiusMm": 0.849887,
+                "axisUnit": [
+                  0,
+                  0,
+                  1
+                ],
+                "matingFaceNormal": [
+                  0,
+                  0,
+                  -1
+                ],
+                "circleFitRmsMm": 0.000091
+              },
+              "transformedCoverCentreMm": [
+                11.250781,
+                -21.75,
+                -21.04998664855957
+              ],
+              "coaxialPerpendicularResidualMm": 0.0000010000000010279564,
+              "axialPlaneOffsetMm": -7.629394538355427e-7
+            }
+          ]
+        },
+        "kinematicParent": "Both covers register to the unchanged cradle; keep them rigid in the yaw neck, not on the pitching head.",
+        "samplingScope": {
+          "pitchCount": 19,
+          "yawCount": 5,
+          "wholeSceneTouchRays": 285,
+          "touchFirstHitClear": 285,
+          "voxelStepMm": 0.5,
+          "whiteMaterialPoints": 9573,
+          "grayMaterialPoints": 5890,
+          "coverVsCradleAndEachOther": "0 occupied sample points in every direction",
+          "coverVsHeadShellOverPitch": "0 occupied sample points in every sampled pitch"
+        },
+        "rejectedFormerCandidates": [
+          {
+            "candidate": "white XY[-.25,+3.1], gray XY[-.25,-2.1]",
+            "reason": "Matches global projected cover silhouette but does not preserve direct bore coaxiality to retained cradle; cannot apply to covers alone."
+          },
+          {
+            "candidate": "gray Z+3.7 with PDF XY",
+            "reason": "A volume-clearance guess with non-coincident original bore seats; actual circle/plane pairing is stronger."
+          }
+        ],
+        "integration": {
+          "sourceVertices": "Both cover index buffers retained; 1388 and 1302 vertex positions translated only, maximum float32 residual 7.63e-7 mm; other four source parts byte-identical",
+          "adapterBoard": "Appearance reconstruction front Y13.0, 0.12 mm above source white-cover maximum Y12.85; headers raised by the same 0.4 mm; lower 7P connector remains unchanged",
+          "yawWires": "Appearance route over board front edge and down the original open right-hand cover region; no source cut",
+          "fittings": {
+            "screwCentersMm": [
+              [
+                -10.749219,
+                -21.75,
+                -22.06
+              ],
+              [
+                11.250781,
+                -21.75,
+                -22.06
+              ]
+            ],
+            "orangeWindowInsertMm": [
+              0.250781,
+              -21.75,
+              -24.94
+            ],
+            "windowEmissive": false
+          },
+          "currentValidation": {
+            "movingAssembly": "scripts/check-stackchan-moving-assembly.mjs",
+            "poseCount": 95,
+            "insertSolidContainmentSamples": 326952,
+            "servoLeadClearanceSamples": 6390,
+            "coverSeats": "scripts/check-stackchan-cover-seats.mjs",
+            "touchSceneSampledApproaches": 90
+          },
+          "scope": "Current relative source-cover placement and sampled reconstructed insert clearance only; hidden motor fit remains unresolved. Independent research snapshots below predate final fitting/lead integration."
+        },
+        "limitations": [
+          "Clear sampled source cover seats do not repair the current inferred servo package, Adapter, battery, cable or total manufacturing fit.",
+          "Approximately 0.1 mm rear-white axial offset is preserved rather than forced away.",
+          "Possible global cradle Y/Z registration and right-bearing-fixture axial seat require separate evidence before changing joint axes.",
+          "PDF silhouette-based global X/Y offsets are not applied to these relative registrations."
+        ]
+      },
+      "servoOutlineReview": {
+        "checkedAt": "2026-10-25T17:26:13.402Z",
+        "sources": [
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/SCS0009.pdf",
+            "sha256": "b8ce3f28a8c12d2ad9dee697087eae03eb716219016b48be9a7e1856755213c6",
+            "bytes": 451290,
+            "page": 6,
+            "scope": "Official M5Stack-linked manufacturer drawing; raw PDF not redistributed"
+          }
+        ],
+        "facts": [
+          {
+            "id": "gearbox-cap-outline",
+            "source": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/SCS0009.pdf",
+            "page": 6,
+            "annotatedCentreSpacingMm": 5.7,
+            "fullWidthMm": 11,
+            "largeRadiusMm": 5.5,
+            "smallRadiusMm": {
+              "value": 2.8,
+              "status": "Approximate trace of top-view smaller end, roughly 2.7..2.9; not an annotated radius"
+            },
+            "profile": "Unequal circles with their external common tangents; old equal-radius stadium extended too far toward the small gear",
+            "limits": "Side-view 2.9 is an axial dimension and is not used as a radius. Cap depth and concealed steps are still appearance approximations."
+          },
+          {
+            "id": "output-spline-envelope",
+            "source": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1205/SCS0009.pdf",
+            "page": 6,
+            "annotated": {
+              "teeth": 20,
+              "outerDiameterMm": 3.95,
+              "lengthMm": 3.2
+            },
+            "interpretation": "OD3.95 is the tooth-tip envelope. A radius-1.975 solid cylinder with additional external teeth exceeds that envelope.",
+            "approximation": {
+              "rootRadiusMm": 1.75,
+              "profile": "Twenty repeated straight flanks with circular tooth-tip arcs; root radius and tooth flank geometry are appearance approximations, not dimensioned manufacturing data."
+            },
+            "unchanged": "Output axes, output face planes, motor placements, case/ears/caps and source cover seats are unchanged."
+          }
+        ],
+        "validation": {
+          "script": "scripts/check-stackchan-servo-outline.mjs",
+          "profileProbes": 22,
+          "defaultRequiresRawPdf": false,
+          "scope": "Actual output vertices retain OD3.95 and 3.2 mm length; both side-triangle profiles have twenty separated tooth-tip bands and 18-degree repetition. Root radius/flanks remain appearance estimates. This does not establish axial arm engagement, global registration or hidden complete installation fit.",
+          "servoCaps": 2,
+          "shafts": [
+            {
+              "name": "Pitch",
+              "maximumVertexRadiusMm": 1.9750000544152855,
+              "maximumVertexDiameterMm": 3.950000108830571,
+              "lengthMm": 3.200000047683716,
+              "axialBoundsMm": [
+                0,
+                3.200000047683716
+              ],
+              "radialSamples": 720,
+              "minimumSampledRadiusMm": 1.7499999739812797,
+              "maximumSampledRadiusMm": 1.9749999725213427,
+              "toothTipBands": 20,
+              "periodDeg": 18,
+              "scope": "Annotated external envelope and twenty-fold rendered relief; root radius/flanks are appearance approximations, not a spline-fit tolerance"
+            },
+            {
+              "name": "Yaw",
+              "maximumVertexRadiusMm": 1.9750000544152855,
+              "maximumVertexDiameterMm": 3.950000108830571,
+              "lengthMm": 3.200000047683716,
+              "axialBoundsMm": [
+                0,
+                3.200000047683716
+              ],
+              "radialSamples": 720,
+              "minimumSampledRadiusMm": 1.7499999739812797,
+              "maximumSampledRadiusMm": 1.9749999725213427,
+              "toothTipBands": 20,
+              "periodDeg": 18,
+              "scope": "Annotated external envelope and twenty-fold rendered relief; root radius/flanks are appearance approximations, not a spline-fit tolerance"
+            }
+          ],
+          "radialSamples": 1440,
+          "shaftEnvelopeCorrection": {
+            "checkedAt": "2026-10-25T17:26:13.402Z",
+            "script": "scripts/check-stackchan-servo-outline.mjs",
+            "before": {
+              "sourceSha256": "ddac91693ba0362f9a3e2e190cec1e8464b5bda7e407d6cd6b04e4692d4f074a",
+              "maximumVertexDiameterMm": 4.085927064643799
+            },
+            "after": {
+              "sourceSha256": "bb005356f53d826dcd8cd9a77a25b51a0b0c401ecd691cd396bfc36c3849b0d3",
+              "checkerSha256": "ac2d21d477221c6fa5f41c3288ea16bc6a4deb60a522e06b9cfb4c41ee9810a6",
+              "shafts": [
+                {
+                  "name": "Pitch",
+                  "maximumVertexRadiusMm": 1.9750000544152855,
+                  "maximumVertexDiameterMm": 3.950000108830571,
+                  "lengthMm": 3.200000047683716,
+                  "axialBoundsMm": [
+                    0,
+                    3.200000047683716
+                  ],
+                  "radialSamples": 720,
+                  "minimumSampledRadiusMm": 1.7499999739812797,
+                  "maximumSampledRadiusMm": 1.9749999725213427,
+                  "toothTipBands": 20,
+                  "periodDeg": 18,
+                  "scope": "Annotated external envelope and twenty-fold rendered relief; root radius/flanks are appearance approximations, not a spline-fit tolerance"
+                },
+                {
+                  "name": "Yaw",
+                  "maximumVertexRadiusMm": 1.9750000544152855,
+                  "maximumVertexDiameterMm": 3.950000108830571,
+                  "lengthMm": 3.200000047683716,
+                  "axialBoundsMm": [
+                    0,
+                    3.200000047683716
+                  ],
+                  "radialSamples": 720,
+                  "minimumSampledRadiusMm": 1.7499999739812797,
+                  "maximumSampledRadiusMm": 1.9749999725213427,
+                  "toothTipBands": 20,
+                  "periodDeg": 18,
+                  "scope": "Annotated external envelope and twenty-fold rendered relief; root radius/flanks are appearance approximations, not a spline-fit tolerance"
+                }
+              ]
+            },
+            "method": "Read every actual output mesh vertex in the rotary-output frame, measure radial/axial envelope; raycast actual side triangles at 720 radial directions per shaft, count 20 separated tip bands and verify 18-degree repetition.",
+            "scope": "External shaft envelope and visible twenty-fold relief only; no manufacturing spline profile, axial arm engagement or complete motor installation fit is asserted."
+          }
+        },
+        "limitations": [
+          "Annotated case dimensions and output-shaft length/axis are retained; installation seat is not proved by this silhouette and envelope check.",
+          "Small radius, axial layers and hidden mounting retain explicit appearance uncertainty.",
+          "The 20T shaft tooth-tip OD3.95 and 3.2 mm length are dimensioned; the 1.75 mm root radius and flanks are explicit appearance approximations. Correcting their visible envelope does not resolve hidden motor fit or the unconfirmed axial arm seat."
+        ],
+        "scope": "Native SCS0009 visual gearbox-cap silhouette and annotated output-spline envelope correction; hidden complete installation fit remains distinct"
+      },
+      "currentServoFit": {
+        "status": "fit-unresolved",
+        "fixture": "current runtime; source-hole cover seats and unequal-radius servo caps",
+        "stepMm": 1,
+        "voxelMethod": "centre occupancy inside actual mesh and unchanged source plastic; per-mesh approximate volume, not union volume or continuous proof",
+        "sampledServoVoxels": 6234,
+        "residuals": [
+          {
+            "part": "Pitch servo body motor case",
+            "plastic": "servo-rear-cover",
+            "occupiedVoxelSamples": 92,
+            "estimatedOverlapMm3": 92,
+            "worldSampleBounds": {
+              "min": [
+                -9.25000000134111,
+                11.65,
+                -18.650000381469727
+              ],
+              "max": [
+                -6.250000001341103,
+                11.65,
+                3.349999618530272
+              ]
+            }
+          },
+          {
+            "part": "Pitch servo body gearbox shoulder",
+            "plastic": "servo-rear-cover",
+            "occupiedVoxelSamples": 115,
+            "estimatedOverlapMm3": 115,
+            "worldSampleBounds": {
+              "min": [
+                -14.050000001341111,
+                11.65,
+                -18.650000381469727
+              ],
+              "max": [
+                -10.050000001341104,
+                11.65,
+                3.3499996185302736
+              ]
+            }
+          },
+          {
+            "part": "Pitch servo body rounded gearbox cap",
+            "plastic": "neck-cradle",
+            "occupiedVoxelSamples": 78,
+            "estimatedOverlapMm3": 78,
+            "worldSampleBounds": {
+              "min": [
+                -17.700000000000003,
+                1.6485957145690922,
+                -10
+              ],
+              "max": [
+                -17.7,
+                7.648595714569092,
+                3
+              ]
+            }
+          },
+          {
+            "part": "Pitch servo body rounded gearbox cap",
+            "plastic": "servo-rear-cover",
+            "occupiedVoxelSamples": 52,
+            "estimatedOverlapMm3": 52,
+            "worldSampleBounds": {
+              "min": [
+                -17.700000000000003,
+                8.648595714569092,
+                -9
+              ],
+              "max": [
+                -14.7,
+                11.648595714569092,
+                3
+              ]
+            }
+          },
+          {
+            "part": "Pitch servo body front mounting ear",
+            "plastic": "servo-rear-cover",
+            "occupiedVoxelSamples": 10,
+            "estimatedOverlapMm3": 10,
+            "worldSampleBounds": {
+              "min": [
+                -11.050000000670552,
+                12.200000190734864,
+                4.049999904632566
+              ],
+              "max": [
+                -10.05000000067055,
+                12.200000190734864,
+                8.049999904632566
+              ]
+            }
+          },
+          {
+            "part": "Pitch servo body rear mounting ear",
+            "plastic": "neck-cradle",
+            "occupiedVoxelSamples": 18,
+            "estimatedOverlapMm3": 18,
+            "worldSampleBounds": {
+              "min": [
+                -11.050000000670558,
+                1.2000001907348636,
+                -22.950000000000003
+              ],
+              "max": [
+                -10.050000000670558,
+                9.200000190734864,
+                -22.950000000000003
+              ]
+            }
+          },
+          {
+            "part": "Pitch servo body rear mounting ear",
+            "plastic": "servo-rear-cover",
+            "occupiedVoxelSamples": 22,
+            "estimatedOverlapMm3": 22,
+            "worldSampleBounds": {
+              "min": [
+                -11.050000000670556,
+                7.200000190734864,
+                -21.950000000000003
+              ],
+              "max": [
+                -10.050000000670556,
+                12.200000190734864,
+                -19.950000000000003
+              ]
+            }
+          }
+        ],
+        "sourceSnapshot": {
+          "sourceCommit": "6c815811ebb2b5ba33724b2f1119d27d0447ae38",
+          "report": "artifacts/stackchan-servo-fit-check.json",
+          "reportSha256": "44d00dfff4e12b56dcce6379f1c073ef26ccc9842e311b21a119d318575fbbd9",
+          "runtimeSha256": "bb005356f53d826dcd8cd9a77a25b51a0b0c401ecd691cd396bfc36c3849b0d3",
+          "scope": "Completed finite diagnostic from the frozen shaft-refined runtime; strict unresolved status is not manufacturing-fit acceptance."
+        },
+        "scope": "Current finite diagnostic retains fit-unresolved; per-part occupancy is not a continuous union-volume or manufacturing-fit result"
       }
     },
     {
@@ -969,8 +1827,190 @@
         {
           "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/680/C126_AtomS3R_main_pictures_01.jpg",
           "sha256": "c689eaddc7a906354d5947e2a3cd3315bb39467d5370345fb6783900c1d872c3"
+        },
+        {
+          "url": "https://docs.m5stack.com/en/core/AtomS3R.md",
+          "sha256": "1721eb10ae0c369cd5736da8e7a2b87f8b910f1c5ed86ff13c5ebb87c8a47e6a"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/680/Sch_M5_AtomS3R_v0.4.1.pdf",
+          "sha256": "d1a2b292411174fadf8305c57678fbe232cbb51d9a07868251e5984017a814e6"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/download%20mode.gif",
+          "sha256": "1f47f0f1610c64be71427be412dc2a1d1ee7c8d74e0847089baa13d09b2faa04"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/680/C126_AtomS3R_main_pictures_03.jpg",
+          "sha256": "b99ee2e29b98cfeed5f7ddb1db5ca91a7d40e131012ea52cd33da4bc7efc45e3"
         }
-      ]
+      ],
+      "irClosureReview": {
+        "checkedAt": "2026-10-25T18:05:06.960926+00:00",
+        "sourceCommit": "069b1a684f2fa374cc3c6f0adb04c80b23c85aee",
+        "scope": "AtomS3R D2 IR optical-package/lead/support appearance closes the official top window. No visible LED registration, optical/electrical behavior, firmware, physical or manufacturing-fit claim.",
+        "sources": [
+          {
+            "url": "https://docs.m5stack.com/en/core/AtomS3R.md",
+            "sha256": "1721eb10ae0c369cd5736da8e7a2b87f8b910f1c5ed86ff13c5ebb87c8a47e6a",
+            "bytes": 14265,
+            "role": "original-official-product-markdown"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/680/Sch_M5_AtomS3R_v0.4.1.pdf",
+            "sha256": "d1a2b292411174fadf8305c57678fbe232cbb51d9a07868251e5984017a814e6",
+            "bytes": 445185,
+            "role": "original-official-schematic-pdf"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/download%20mode.gif",
+            "sha256": "1f47f0f1610c64be71427be412dc2a1d1ee7c8d74e0847089baa13d09b2faa04",
+            "bytes": 3646369,
+            "role": "original-official-download-demo-gif"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/12.webp",
+            "sha256": "46247a9cf25b26ff0ab8e7d9370325687bdfed7f5f7231429ec99fa232e7bd40",
+            "bytes": 12920,
+            "role": "original-official-photograph"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/15.webp",
+            "sha256": "957eb81be9b2bee728beb95b21dc2d1c156cb44e8f5bd1492917fcb8e24a5a45",
+            "bytes": 19928,
+            "role": "original-official-photograph"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/680/C126_AtomS3R_main_pictures_02.jpg",
+            "sha256": "e4cf29d7c8509ba264fb7cf6de558fb827b8b8b9542ebd5046b95c4b9c448991",
+            "bytes": 117765,
+            "role": "original-official-photograph"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/7.webp",
+            "sha256": "f444f7c194ad61ab08df9a562f03755d03dda590992e703d0e82f07473074b05",
+            "bytes": 17194,
+            "role": "original-official-photograph"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/8.webp",
+            "sha256": "4ee36ac7f1ab4a10bce93d151c4b3e3745971240cf263f16497edd55fffe9818",
+            "bytes": 18186,
+            "role": "original-official-photograph"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/10.webp",
+            "sha256": "35521168d5c625ce33c51e874bb539bd1c11e734206f8ac535461e6230e729c0",
+            "bytes": 16926,
+            "role": "original-official-photograph"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/AtomS3R/11.webp",
+            "sha256": "3b9adb398c4399d692e48eaf8b7712c9d0e9230fc078c72fbcccf60da6913204",
+            "bytes": 8270,
+            "role": "original-official-photograph"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/680/C126_AtomS3R_main_pictures_01.jpg",
+            "sha256": "c689eaddc7a906354d5947e2a3cd3315bb39467d5370345fb6783900c1d872c3",
+            "bytes": 387274,
+            "role": "original-official-photograph"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/680/C126_AtomS3R_main_pictures_03.jpg",
+            "sha256": "b99ee2e29b98cfeed5f7ddb1db5ca91a7d40e131012ea52cd33da4bc7efc45e3",
+            "bytes": 264182,
+            "role": "original-official-photograph"
+          }
+        ],
+        "facts": [
+          "D2 is MEIHUA/MHS153IRCT infrared emitter.",
+          "D2 is driven by the GPIO47 IR_LED_DRV/FET2 circuit.",
+          "D1 is an internal green status LED; its external optical location is not established by the schematic.",
+          "Current official main photograph locates the IR emitter at the small top-edge aperture.",
+          "All nine existing official photographs exactly match fresh remote GET bytes."
+        ],
+        "implementation": {
+          "path": "src/devices/atoms3r/index.js",
+          "sha256": "c3bd85b9bcaf0ca1558ce9e912a338ed1505648c306257f487453e944275598d",
+          "assembly": "IR emitter assembly",
+          "positionMm": [
+            7.05,
+            8.95,
+            -2.05
+          ],
+          "face": "top",
+          "physicalMeshes": [
+            "IR emitter support PCB",
+            "IR emitter terminal",
+            "IR emitter ceramic package",
+            "IR emitter dark resin optic"
+          ],
+          "opticFirstHitYMm": 10.2,
+          "ledComponentRegistered": false,
+          "automaticBehavior": false,
+          "opticCrossSectionMm": [
+            1.7,
+            1.8
+          ],
+          "opticDepthMm": 0.45,
+          "opticEnvelopeRefinement": {
+            "initialCrossSectionMm": [
+              1.9,
+              2.5
+            ],
+            "initialFinding": "18 inset optic edge samples classified inside native rear shell by all three independent directions; top-window rays alone had passed.",
+            "correction": "Only inferred resin optic cross section reduced to 1.7 by 1.8 mm; source shells and package position/depth remain unchanged.",
+            "validation": {
+              "surfaceSamples": 669,
+              "actualShells": 2,
+              "independentTriangleDirections": 3,
+              "pointShellDirections": 4014,
+              "occupiedDirections": 0,
+              "ambiguousPoints": 0,
+              "windowRays": 20
+            },
+            "scope": "Finite sampling against actual native mesh; not complete tolerance or manufacturing fit."
+          }
+        },
+        "runtime": [
+          {
+            "path": "src/devices/atoms3r/index.js",
+            "sourceSha256": "c3bd85b9bcaf0ca1558ce9e912a338ed1505648c306257f487453e944275598d",
+            "publicSha256": "c3bd85b9bcaf0ca1558ce9e912a338ed1505648c306257f487453e944275598d"
+          },
+          {
+            "path": "scripts/check-atoms3r-closure.mjs",
+            "sourceSha256": "d13681f1541082fdf137ffc7a806fd3706c8d22c6e71451ba7aa172c0c495edd",
+            "publicSha256": "d13681f1541082fdf137ffc7a806fd3706c8d22c6e71451ba7aa172c0c495edd"
+          },
+          {
+            "path": "src/devices/atoms3r/dimensions.js",
+            "sourceSha256": "0a2051f45fd5301785245e2fd51e8f63bc5f5b6e8fa39d22d3b0cc3e44619dd4",
+            "publicSha256": "0a2051f45fd5301785245e2fd51e8f63bc5f5b6e8fa39d22d3b0cc3e44619dd4"
+          },
+          {
+            "path": "src/devices/atoms3r/geometry-data.js",
+            "sourceSha256": "022a09518501c28d3e54458434e69c68ae25373cb1a91c6c60e06a9e225232f9",
+            "publicSha256": "ec1b477ac3c00a47ea2b9e83729655ed816b829b6a3bae02d25262952f250f96"
+          }
+        ],
+        "explicitInferences": [
+          "Package dimensions, resin/ceramic appearance, support PCB, terminals and internal depth are inferred appearance details, not a confirmed component mechanical drawing or board layout.",
+          "The optic is recessed about 1.8 mm behind the nominal top shell plane.",
+          "Internal green download/status LED location is not clear in the selected photographs or the official demonstration GIF; no guessed external green lamp is added."
+        ],
+        "limits": [
+          "The separate narrow native top seam near X=-7,Z=0 retains its original geometry until its intended assembly use is confirmed.",
+          "Stickers are deferred until original user artwork; no photo crop or planar substitute closes a hole.",
+          "Visible red IR glow",
+          "IR signal transmission or receiver behavior",
+          "Electrical, firmware, sensor or download-mode emulation",
+          "Manufacturing fit or optical beam verification"
+        ],
+        "privateProvenanceSha256": "1da801f2e3751f02ec2205174fc5397ef05810bddc1f54a2d9eb99a33cae2241",
+        "privateEvidenceReportSha256": "1b11d20b2104e035cd41b7e1d470dc7a783639c4a897a61b3abfa04aa7b3dae0"
+      }
     },
     {
       "id": "nesso-n1",
@@ -1085,8 +2125,87 @@
         {
           "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1129/K141_09.webp",
           "sha256": "0a898ae44bd723d28ca4462b3b37f257777640a22d3c6cb6e6380853ca2f4c4f"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1150/S007-V033_01.webp",
+          "sha256": "29121b8efb07ad5dc08e036e96061ae08d4719f2d915b93f687bde742c77ff73"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1150/S007-V033_07.webp",
+          "sha256": "dc70861f499aff13322523157ba22038fbc07eaed10567ed8209af7c9d66761b"
+        },
+        {
+          "url": "https://docs.m5stack.com/en/core/Stamp-S3A",
+          "sha256": "63be4497485cc3c3436788357cf54911a9e423d92e4f56c673d200b9805017b7"
         }
-      ]
+      ],
+      "visibleLedReview": {
+        "sources": [
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1150/S007-V033_01.webp",
+            "sha256": "29121b8efb07ad5dc08e036e96061ae08d4719f2d915b93f687bde742c77ff73",
+            "bytes": 177658
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1150/S007-V033_07.webp",
+            "sha256": "dc70861f499aff13322523157ba22038fbc07eaed10567ed8209af7c9d66761b",
+            "bytes": 77950
+          },
+          {
+            "url": "https://docs.m5stack.com/en/core/Stamp-S3A",
+            "sha256": "63be4497485cc3c3436788357cf54911a9e423d92e4f56c673d200b9805017b7",
+            "kind": "existing official MCP reference; Stamp-S3A HMI specification one WS2812B-2020 RGB"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1129/K141_04.webp",
+            "sha256": "1a0cc7edc429a5bc36971c929caa7f10c1b565df6220f34e066fd2809b1f9966"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1129/K141_06.webp",
+            "sha256": "cdd2d19021d1f8abdd5620216976e2c3ec40b29e00d808e67c872536a12d6d4c"
+          }
+        ],
+        "facts": [
+          {
+            "source": "https://docs.m5stack.com/en/core/Stamp-S3A",
+            "anchor": "Specifications / HMI",
+            "fact": "One programmable WS2812B-2020 RGB LED is specified for Stamp-S3A."
+          },
+          {
+            "lines": "106-110",
+            "fact": "Official download-mode red indication and independently gated Stamp-S3A RGB are documented; no second monochrome emitter is inferred.",
+            "source": "https://docs.m5stack.com/en/core/StamPLC"
+          }
+        ],
+        "implementation": {
+          "id": "stamp-rgb",
+          "count": 1,
+          "positionMm": [
+            29.25,
+            6.48,
+            12.9
+          ],
+          "packageMm": [
+            1.5,
+            1.5,
+            0.55
+          ],
+          "defaultBrightness": 0,
+          "placementEvidence": "One new package is seated above the existing physical board in the native cover USB-side aperture. XY follows source-slot registration and photographs; local depth is an appearance estimate. The two native covers share a 24 x 18 x 4.7 mm envelope but have different triangulations; no complete vertex identity is claimed.",
+          "coverUnchanged": true,
+          "physicalBehavior": false,
+          "automaticButtonLink": false
+        },
+        "validation": {
+          "script": "scripts/check-host-visible-leds.mjs",
+          "scope": "Actual original-aperture rays including cover-lip occlusion, independent color/brightness, geometry hashes and frames, input independence and owned resource disposal. Browser pixels remain a separate root review."
+        },
+        "limitations": [
+          "Package dimensions, concealed depth and optical glow/diffusion are appearance estimates, not mechanical tolerances or an LED intensity model.",
+          "No GPIO38/backlight power gate, boot/download sequence, firmware/electrical state or automatic key-to-light response is implemented."
+        ],
+        "scope": "One independently externally driven visible Stamp-S3A RGB; geometry appearance only"
+      }
     },
     {
       "id": "env-iii",
@@ -1272,7 +2391,92 @@
           "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/COLOR/img-8a6ebbb4-f768-466a-b7d4-53ae5318f8ed.webp",
           "sha256": "502b4be2319e9706c27bd1c966dca914ab6df6650c4adce4f07cd97869f7808b"
         }
-      ]
+      ],
+      "visibleFunctionReview": {
+        "checkedAt": "2026-10-25T17:31:30.757167+00:00",
+        "scope": "Visual geometry and explicitly external appearance state only; no electrical, sensor, firmware or manufacturing-fit simulation",
+        "decision": "Expose the two physically white fill emitters as separately addressable visual locations, default white/off. Reflect their shared physical supply at the caller boundary.",
+        "sources": [
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/COLOR/img-5e8f77b1-0a2d-4810-8b8d-c2374bd738fb.webp",
+            "sha256": "a08c039738baf820018bc360d7ca8bd111ef4af8ce57a376c97aebf32ec4e74c",
+            "kind": "official-photo"
+          }
+        ],
+        "schematic": {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/707/U009-UNIT_COLOR-SCHE.pdf",
+          "page": 1,
+          "evidenceMode": "Fresh official MCP schematic description, figure 01245e56e695, A1; no new local PDF hash is claimed"
+        },
+        "facts": [
+          "D1 and D2 are white 0603 fill LEDs.",
+          "Each LED is fed by VCC through its own 1K resistor R1/R2 and returns to GND.",
+          "The schematic does not show independent GPIO/I2C illumination control."
+        ],
+        "implementation": {
+          "entry": "src/units/color/index.js",
+          "sourceSha256": "7f77c52191376a725466ef45537231367336b982e4b65cfcdfaeacefbc1f6d40",
+          "kind": "led",
+          "ids": [
+            "fill-left",
+            "fill-right"
+          ],
+          "defaultColor": "#ffffff",
+          "defaultBrightness": 0,
+          "addressing": "Standalone led(id) / get(id), or host.get(\"grove/fill-left\") and host.get(\"grove/fill-right\") after mounting",
+          "powerGroup": "VCC fill pair",
+          "independentElectricalControl": false,
+          "colorParameter": "The shared Led color field is a rendering override, not evidence of RGB hardware. Use white for physical appearance.",
+          "automaticBehavior": false
+        },
+        "limitations": {
+          "explicitInferences": [
+            {
+              "field": "packageXYmm",
+              "value": {
+                "fill-left": [
+                  -3.4,
+                  8
+                ],
+                "fill-right": [
+                  3.4,
+                  8
+                ]
+              },
+              "basis": "Existing photo-fitted package XY retained; not annotated dimensions."
+            },
+            {
+              "field": "packageZmm",
+              "value": 3.72,
+              "basis": "Appearance seating estimate relative to the existing optical window."
+            },
+            {
+              "field": "packageSizeMm",
+              "value": [
+                1.2,
+                1.6,
+                0.3
+              ],
+              "basis": "Photo-derived visual package envelope; not a measured 0603 drawing."
+            },
+            {
+              "field": "glowSizeMm",
+              "value": 1.8,
+              "basis": "Rendered diffusion estimate; not photometric data."
+            },
+            {
+              "field": "physicalSideToSchematicDesignator",
+              "value": null,
+              "basis": "Left/right do not assert D1/D2 correspondence."
+            }
+          ],
+          "excludedBehavior": [
+            "No automatic supply/measurement response.",
+            "No color-sensor readings, RGBC conversion, I2C registers or electrical current simulation.",
+            "No claim that the physical pair is independently addressable or RGB."
+          ]
+        }
+      }
     },
     {
       "id": "tof",
@@ -1348,7 +2552,114 @@
           "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/LIGHT/img-884c70cd-7472-465e-b3f2-1e80c3470a8a.webp",
           "sha256": "f44b536da316c4601eca875e48c0233dc82cb4eefcf265152fe4ad0dc0994f81"
         }
-      ]
+      ],
+      "visibleFunctionReview": {
+        "checkedAt": "2026-10-25T17:31:30.757167+00:00",
+        "scope": "Visual geometry and explicitly external appearance state only; no electrical, sensor, firmware or manufacturing-fit simulation",
+        "decision": "Replace the star mark with a real slotted metal trimmer head in a fixed blue carrier, driven only by the external trim joint angle.",
+        "sources": [
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/LIGHT/img-0b6d72e0-3533-4245-9c84-bfe6c24a50a6.webp",
+            "sha256": "e034667d1aa92f00cdd1546613fb121e4a606b5ad8e6422af88b38b379c931c3",
+            "kind": "official-photo"
+          }
+        ],
+        "schematic": {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/709/U201-UNIT_LIGHT_SCHE.pdf",
+          "page": 1,
+          "evidenceMode": "Fresh official MCP schematic description, figure 989a79e59186, B1-B2; no new local PDF hash is claimed"
+        },
+        "facts": [
+          "R3 is marked RPot 10K.",
+          "Its ends connect to +3.3V/GND and its wiper provides the LM393 comparator threshold.",
+          "The visible front photograph shows a slotted adjustment head in the blue trimmer carrier."
+        ],
+        "implementation": {
+          "entry": "src/units/light/index.js",
+          "sourceSha256": "643e2960b6eb7984d0d637d453a8da0b14ba69771e3fcfe6c42e0ff70e3c67ff",
+          "kind": "joint",
+          "id": "trim",
+          "positionMm": [
+            0,
+            2.5,
+            3.72
+          ],
+          "localAxis": [
+            0,
+            0,
+            1
+          ],
+          "mode": "position",
+          "continuous": false,
+          "rangeDeg": null,
+          "visualRangeDeg": [
+            -135,
+            135
+          ],
+          "defaultAngleDeg": 0,
+          "rpm": "Nonzero rpm is rejected; rpm=0 remains the generic stop command.",
+          "addressing": "Standalone get(\"trim\"), or host.get(\"grove/trim\") after mounting",
+          "rangeScope": "Viewer illustration only; manufacturer, mechanical stops, handedness and electrical zero remain unconfirmed."
+        },
+        "limitations": {
+          "explicitInferences": [
+            {
+              "field": "blueCarrierSizeMm",
+              "value": [
+                7,
+                6,
+                0.8
+              ],
+              "basis": "Photo-derived fixed housing envelope."
+            },
+            {
+              "field": "headRadiusMm",
+              "value": 1.5,
+              "basis": "Photo-derived cap radius; not a rated part dimension."
+            },
+            {
+              "field": "headDepthAndToolSlotDepthMm",
+              "value": 0.32,
+              "basis": "Appearance-only extrusion depth above the recessed floor."
+            },
+            {
+              "field": "toolSlotOpeningMm",
+              "value": [
+                2.36,
+                0.46
+              ],
+              "basis": "Appearance estimate with a real void and recessed floor."
+            },
+            {
+              "field": "headDatumMm",
+              "value": [
+                0,
+                2.5,
+                3.72
+              ],
+              "basis": "Fitted to the existing front opening; absolute mechanical datum unconfirmed."
+            },
+            {
+              "field": "positiveRotationAndNeutralPose",
+              "value": "+Z right-hand rotation, current rendered pose = 0",
+              "basis": "Visual coordinate convention; no electrical direction/zero calibration."
+            },
+            {
+              "field": "demoRangeDeg",
+              "value": [
+                -135,
+                135
+              ],
+              "basis": "Viewer convenience only; not a measured 270-degree mechanical range."
+            }
+          ],
+          "excludedBehavior": [
+            "No resistance/threshold/LM393 comparison/ADC conversion.",
+            "No light readings or automatic output state.",
+            "No claim of rated end stops, number of turns or potentiometer part number."
+          ]
+        }
+      }
     },
     {
       "id": "relay",
@@ -1385,8 +2696,296 @@
         {
           "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_06.webp",
           "sha256": "83e5d0d164339f93bab8708fb3e8e5fa782c1d3eaec41523fd498ea197037d10"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/577/UNIT-RELAY.pdf",
+          "sha256": "bf05690fbb30fc8395cc9c20c7815257ffee425b2af56eb2787805d8c59a9971"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/relay/model%20size.png",
+          "sha256": "6cd191a82515b185efbc6ffe4588db860936b853f37f4bb5ac5280af2bc2fcc4"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/4relay/Datasheet-Realy-HK4100F-DC5V-SHG(1).pdf",
+          "sha256": "437eae58d7f14110bf384f834ec279c17cb714739f6d0698118d31b3f4f00370"
         }
-      ]
+      ],
+      "visibleFunctionReview": {
+        "checkedAt": "2026-10-25T17:31:30.757167+00:00",
+        "scope": "Visual geometry and explicitly external appearance state only; no electrical, sensor, firmware or manufacturing-fit simulation",
+        "decision": "Do not add a guessed status LED to this selected U023 model. Retain the physical relay/terminal geometry and record the documentation conflict.",
+        "sources": [
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_01.webp",
+            "sha256": "34077dc27afefa893545db945932f98b56b04e8b51a4bc9b7bd7c68b409997e6",
+            "kind": "official-photo"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_06.webp",
+            "sha256": "83e5d0d164339f93bab8708fb3e8e5fa782c1d3eaec41523fd498ea197037d10",
+            "kind": "official-photo"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/577/UNIT-RELAY.pdf",
+            "sha256": "bf05690fbb30fc8395cc9c20c7815257ffee425b2af56eb2787805d8c59a9971",
+            "bytes": 60064,
+            "page": 1,
+            "kind": "official-schematic-pdf"
+          }
+        ],
+        "schematic": {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/577/UNIT-RELAY.pdf",
+          "page": 1,
+          "reviewMethods": [
+            "Root-agent pypdf text inspection",
+            "Root-agent pdftoppm render and visual inspection",
+            "Fresh official MCP schematic description, figure 53a2b49503f4"
+          ]
+        },
+        "facts": [
+          "K1 is Relay-SPDT, Q1 is SS8050 Y1, R1/R2 are driver/pulldown resistors.",
+          "D1 is 1N4148WS T4, the coil flyback diode; it is not an LED.",
+          "J1/J2 provide control/power and COM/NO/NC.",
+          "This exact official schematic does not contain a status LED."
+        ],
+        "implementation": {
+          "entry": "src/units/relay/index.js",
+          "sourceSha256": "3e409b855e08e3002f5e2d43bc5ab58dad0136f423d23a6a7c5c3aff77746c3d",
+          "kind": "none",
+          "ledIds": [],
+          "automaticBehavior": false
+        },
+        "limitations": {
+          "explicitInferences": [
+            {
+              "field": "indicatorLocation",
+              "value": null,
+              "basis": "No verified LED part or visible location for this selected source revision; no emitter invented."
+            }
+          ],
+          "excludedBehavior": [
+            "No guessed LED or indicator power behavior.",
+            "No electrical relay switching, coil physics or load simulation."
+          ]
+        },
+        "sourceConflict": {
+          "classification": "source-conflict-unconfirmed",
+          "overviewClaim": "The product overview/features state that a relay status indicator exists.",
+          "sourceSpecificConclusion": "The selected official PDF has no status LED; relay_06.webp does not locate a visible lamp.",
+          "scope": "This exact source/photographed revision only. Absence in this PDF is not a claim about every historical U023 hardware revision.",
+          "resolution": "Pending official clarification of the claimed LED, precise hardware revision/designator/PCB position or corrected overview. Legacy snapshots are preserved, not silently rewritten.",
+          "feedback": {
+            "id": "a3df6baaef22420dac639e23af0b302a",
+            "accepted": true,
+            "status": "accepted-for-human-review",
+            "qualification": "Acceptance confirms receipt only; it does not confirm a documentation correction or a physical LED."
+          }
+        }
+      },
+      "exposedAssemblyReview": {
+        "checkedAt": "2026-10-25T20:11:30.045381+00:00",
+        "sourceCommit": "b8b4746102b8bc6e098cbff1c2fd7d36cc3b1b7e",
+        "sources": [
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_01.webp",
+            "sha256": "34077dc27afefa893545db945932f98b56b04e8b51a4bc9b7bd7c68b409997e6",
+            "bytes": 122262,
+            "role": "original-official-photograph"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_02.webp",
+            "sha256": "50ba5b597aac9451328b0820c3cf77a86f167bdfbe7eed8bebae049891bbd54f",
+            "bytes": 39748,
+            "role": "original-official-photograph"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_05.webp",
+            "sha256": "31063ab5a4ac1851d3f4e81e1031c047c2c983d7234d1aecc0d1578fb20de34b",
+            "bytes": 42854,
+            "role": "original-official-photograph"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/relay/relay_06.webp",
+            "sha256": "83e5d0d164339f93bab8708fb3e8e5fa782c1d3eaec41523fd498ea197037d10",
+            "bytes": 60192,
+            "role": "original-official-photograph"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/relay/model%20size.png",
+            "sha256": "6cd191a82515b185efbc6ffe4588db860936b853f37f4bb5ac5280af2bc2fcc4",
+            "bytes": 56305,
+            "role": "original-official-dimension-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/4relay/Datasheet-Realy-HK4100F-DC5V-SHG(1).pdf",
+            "sha256": "437eae58d7f14110bf384f834ec279c17cb714739f6d0698118d31b3f4f00370",
+            "bytes": 449035,
+            "role": "original-official-component-datasheet-pdf"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/577/UNIT-RELAY.pdf",
+            "sha256": "bf05690fbb30fc8395cc9c20c7815257ffee425b2af56eb2787805d8c59a9971",
+            "bytes": 60064,
+            "role": "original-official-schematic-pdf"
+          }
+        ],
+        "facts": [
+          "This is the old single-channel Unit Relay U023; U131/Relay2/4Relay product assemblies are excluded. The linked HK4100F datasheet is component evidence, not selection of the 4Relay product.",
+          "The product table and original STL describe a 24 x 48 x 8 mm chassis. The official model-size drawing gives 14.6 mm assembled depth and 12.9 mm terminal accessory depth, both measured from the chassis rear.",
+          "The official linked HK4100F package drawing p7 gives 15.5 x 10.5 x 11.8 mm. The modeled package XY is constrained by the original shell aperture.",
+          "The selected official U023 schematic labels J2 Socket_3.96x3p with 1 COM, 2 NO, 3 NC; the front photo establishes their left-to-right placement. The library connector identifier does not claim universal cross-vendor physical compatibility.",
+          "All 3508 original assembled CAD triangles, neutral vertices, normals and placement remain unchanged. The added visible assembly is separate geometry.",
+          "The previous status-indicator documentation conflict remains unresolved. No guessed LED or automatic relay/electrical behavior is introduced."
+        ],
+        "implementation": {
+          "exports": [
+            "Model",
+            "GroveModule",
+            "TerminalPlug"
+          ],
+          "configurations": [
+            {
+              "id": "socket",
+              "options": {},
+              "appearance": "Open fixed 3P socket; no removable plug or screw joints"
+            },
+            {
+              "id": "plug",
+              "options": {
+                "terminalPlug": true
+              },
+              "appearance": "The same Relay body plus detachable screw terminal accessory"
+            }
+          ],
+          "constructorExamples": [
+            "new Model()",
+            "new Model({terminalPlug:true})",
+            "new GroveModule({cableLength:80,terminalPlug:true})"
+          ],
+          "attachment": {
+            "port": "terminal",
+            "connector": "ht3.96-3p",
+            "outwardFace": "+Z",
+            "moduleLocalOutwardAxis": "+Y",
+            "pins": [
+              "COM",
+              "NO",
+              "NC"
+            ],
+            "pitchMm": 3.96,
+            "attachExample": "relay.port('terminal').attach(new TerminalPlug())",
+            "detachExample": "relay.handle({type:'detach',target:'terminal'})",
+            "detachPreserves": [
+              "Relay body",
+              "grove",
+              "sensor"
+            ]
+          },
+          "joints": [
+            {
+              "path": "terminal/screw-1",
+              "pin": "COM",
+              "kind": "joint",
+              "continuous": false,
+              "nonzeroRpm": "rejected",
+              "ratedLimitsDeg": null,
+              "demoVisualRangeDeg": [
+                -180,
+                180
+              ],
+              "effect": "Only the actual slotted screw head rotates; no axial screw/clamp/electrical movement"
+            },
+            {
+              "path": "terminal/screw-2",
+              "pin": "NO",
+              "kind": "joint",
+              "continuous": false,
+              "nonzeroRpm": "rejected",
+              "ratedLimitsDeg": null,
+              "demoVisualRangeDeg": [
+                -180,
+                180
+              ],
+              "effect": "Only the actual slotted screw head rotates; no axial screw/clamp/electrical movement"
+            },
+            {
+              "path": "terminal/screw-3",
+              "pin": "NC",
+              "kind": "joint",
+              "continuous": false,
+              "nonzeroRpm": "rejected",
+              "ratedLimitsDeg": null,
+              "demoVisualRangeDeg": [
+                -180,
+                180
+              ],
+              "effect": "Only the actual slotted screw head rotates; no axial screw/clamp/electrical movement"
+            }
+          ],
+          "nestedJointExample": "host.handle({type:'joint',target:'grove/terminal/screw-2',angleDeg:45})",
+          "geometry": [
+            "Added relay package, relieved PCB, black Grove body, open fixed 3P socket, real pins, detachable bored plug and recessed slotted screw heads.",
+            "The specialised checker uses the two separately closed native shell solids rather than treating the original fourfold contact edges as one parity volume.",
+            "The specialised checker additionally tests the actual molded screw deck against 30 distinct metal solids in both directions; 18 regression probes and 18 positive controls retain material while excluding the prior hidden overlap."
+          ],
+          "validationScope": "Source-native equality, real opening/solid samples, separate native-shell containment, added molded-deck/metal material exclusion, joint exact return, attachment lifecycle and nested Grove routes are finite geometry/API checks. Actual browser images are separately recorded and must be refreshed after the concealed clamp refinement.",
+          "internalClearance": {
+            "moldedDeckBottomZ": 7.6,
+            "concealedClampTopZ": 7.51,
+            "minimumGapMm": 0.09,
+            "changedParts": [
+              "three pressure plates",
+              "six cage sides",
+              "three cage rear webs"
+            ],
+            "preserved": [
+              "original CAD",
+              "Grove and terminal frames",
+              "fixed socket",
+              "molded screw deck",
+              "screw exterior placement"
+            ],
+            "scope": "Appearance-only exclusion of the prior 0.10 mm hidden metal/deck overlap; no manufacturing tolerance or rated clamp travel claim"
+          }
+        },
+        "explicitInferences": [
+          "PCB outline/height, shortened relay leads, connector wall/partition shapes, plug cavities/contact depth and clamp cages are photo-constrained appearance reconstructions without production CAD or tolerances.",
+          "Screw depth/tool-slot dimensions are visual estimates. The +/-180 degree demo interval is a viewing range; thread pitch, tightening limits, clamp force and axial displacement are unconfirmed.",
+          "The full visible bounding box includes an additional 0.055 mm rear screw projection beyond the nominal 14.6 mm drawing depth; native shells are not scaled to conceal the difference.",
+          "Concealed clamp metal is capped at z7.51 beneath the molded screw deck bottom z7.60, leaving a 0.09 mm appearance gap. This corrects a prior 0.10 mm geometric overlap without moving the original shells, ports, molded deck or screw exterior; no manufacturer tolerance is inferred."
+        ],
+        "limits": [
+          "Stickers and printing remain deferred until original artwork is supplied. Official photos/PDF pixels and download material remain private.",
+          "No relay contact switching, GPIO, load circuit, coil actuation, sound, electrical compatibility, firmware, thread/clamp physics or automatic state response is implemented.",
+          "Existing selected-revision LED conflict and feedback remain historical and unresolved; no new feedback or documentation correction is claimed.",
+          "Finite ray/material samples, API checks and browser views do not establish manufacturing fit, force/tolerance, optical behavior or physical-device execution. All 43 products remain modeled."
+        ],
+        "runtime": [
+          {
+            "path": "src/units/relay/index.js",
+            "sourceSha256": "4e63b971bee7c5bf5321dc31c41b4ac44b2b951bd246e6eb02df399b3bb35c79",
+            "publicSha256": "4e63b971bee7c5bf5321dc31c41b4ac44b2b951bd246e6eb02df399b3bb35c79"
+          },
+          {
+            "path": "src/units/relay/dimensions.js",
+            "sourceSha256": "3cb033076499c67f08fa4ef84145ff836e08a954737f309def8851f7d59bc4fc",
+            "publicSha256": "3cb033076499c67f08fa4ef84145ff836e08a954737f309def8851f7d59bc4fc"
+          },
+          {
+            "path": "src/units/relay/assembly.js",
+            "sourceSha256": "0fe8671ebd10eb8ae775559fd1e6e41d6f384f66cd73cfc8a6d3570c92d5c1c6",
+            "publicSha256": "0fe8671ebd10eb8ae775559fd1e6e41d6f384f66cd73cfc8a6d3570c92d5c1c6"
+          },
+          {
+            "path": "scripts/check-relay-assembly.mjs",
+            "sourceSha256": "f21f892128097678c076f60cafc953be854d701c0bbe96c60058fe37b53e0061",
+            "publicSha256": "f21f892128097678c076f60cafc953be854d701c0bbe96c60058fe37b53e0061"
+          }
+        ],
+        "privateProvenanceSha256": "43d4d1a7e05afc5bcaeb9c1cd6d60950def82ae32da58f6da07a3ab9f4a21c47",
+        "privateEvidenceReportSha256": "e5f14d82199df23ff245785acb94c81a76b5c732c3b8d866d4680dd1dc38000b",
+        "scope": "Five-host hover material isolation, detailed controller input inspection and old U023 Relay exposed assembly with detachable 3P terminal and externally driven screw angles. Current original native stage evidence and exact matching checkers only."
+      }
     },
     {
       "id": "joystick-v11",
@@ -1606,8 +3205,326 @@
         {
           "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/heart/heart_06.webp",
           "sha256": "31caca6ebb5c5d22fd6040280f40295061527cd4104fb9a8bb4aecafdcfa9c59"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+          "sha256": "6ed78f87f53157870b1950a35ca1cc5263531cbb605ea6bee93d4e832abc556d"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/716/Unit_Heart.pdf",
+          "sha256": "ea1bba9cdd586454dea8581f34ed771c8c5fc274cb49dd5e6774c3b7f61b4329"
+        },
+        {
+          "url": "https://docs.m5stack.com/en/unit/heart",
+          "sha256": "034777170ce487b8f7c154e1a318c333c402645f0ff6a5f9b3232ff00329a89d"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/heart/%E5%B0%BA%E5%AF%B8%E5%9B%BE.jpg",
+          "sha256": "d15518e7ffed66d2fc517e3de208ce30670bddc401b7a41e591ab4d9cfaf43c8"
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0056/7689/2250/products/1_5c160a63-f9e0-414b-92bc-64f2647bc0d5.jpg?v=1669171558",
+          "sha256": "9bf9b563b61840c19e9baaa2105a8cce125c02c3b9d2a2acf678e9cde09e5bd9"
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0056/7689/2250/products/5_aae11303-6c44-4ea4-8f18-53e1f3d187aa.jpg?v=1669171558",
+          "sha256": "7f19fccd3664be5e04f965970070bce8d9309678a4ea80a7db148d09cb6f58d2"
         }
-      ]
+      ],
+      "incrementalHeartRs485Detail": {
+        "checkedAt": "2026-10-25T21:07:10.591360+00:00",
+        "sourceCommit": "f76d4579f59c3ba5995d8d8eafd59b965af41173",
+        "sources": [
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/datasheet/unit/MAX30100.pdf",
+            "sha256": "6ed78f87f53157870b1950a35ca1cc5263531cbb605ea6bee93d4e832abc556d",
+            "bytes": 895825,
+            "fetchedAt": "2026-10-25T20:41:39.704512+00:00",
+            "role": "original-official-package-datasheet"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/716/Unit_Heart.pdf",
+            "sha256": "ea1bba9cdd586454dea8581f34ed771c8c5fc274cb49dd5e6774c3b7f61b4329",
+            "bytes": 131008,
+            "fetchedAt": "2026-10-25T20:41:40.529942+00:00",
+            "role": "original-official-unit-schematic"
+          },
+          {
+            "url": "https://docs.m5stack.com/en/unit/heart",
+            "sha256": "034777170ce487b8f7c154e1a318c333c402645f0ff6a5f9b3232ff00329a89d",
+            "bytes": 130049,
+            "fetchedAt": "2026-10-25T20:41:37.167607+00:00",
+            "role": "original-official-product-page"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/heart/%E5%B0%BA%E5%AF%B8%E5%9B%BE.jpg",
+            "sha256": "d15518e7ffed66d2fc517e3de208ce30670bddc401b7a41e591ab4d9cfaf43c8",
+            "bytes": 476647,
+            "fetchedAt": "2026-10-25T20:47:12.193313+00:00",
+            "role": "original-official-dimension-image"
+          },
+          {
+            "url": "https://cdn.shopify.com/s/files/1/0056/7689/2250/products/1_5c160a63-f9e0-414b-92bc-64f2647bc0d5.jpg?v=1669171558",
+            "sha256": "9bf9b563b61840c19e9baaa2105a8cce125c02c3b9d2a2acf678e9cde09e5bd9",
+            "bytes": 31543,
+            "fetchedAt": "2026-10-25T20:46:35.920475+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://cdn.shopify.com/s/files/1/0056/7689/2250/products/5_aae11303-6c44-4ea4-8f18-53e1f3d187aa.jpg?v=1669171558",
+            "sha256": "7f19fccd3664be5e04f965970070bce8d9309678a4ea80a7db148d09cb6f58d2",
+            "bytes": 27885,
+            "fetchedAt": "2026-10-25T20:46:37.709948+00:00",
+            "role": "original-official-product-image"
+          }
+        ],
+        "facts": {
+          "source": "MAX30100.pdf page 27; drawing 21-0880 rev B; all dimensions mm",
+          "bodyNominal": [
+            2.8,
+            5.6,
+            1.2
+          ],
+          "bodyLimits": {
+            "width": [
+              2.7,
+              2.9
+            ],
+            "length": [
+              5.5,
+              5.7
+            ],
+            "height": [
+              1.1,
+              1.3
+            ]
+          },
+          "sensorCenterOffsetY": 1.7,
+          "emitterCenterOffsetY": -1.96,
+          "centerSeparation": 3.66,
+          "centerDatum": "The horizontal mid-length datum line of the complete 5.6 mm package outline, also visible in side/bottom view. The boxed 1.70 dimension runs from SENSOR circle center to this datum; boxed 1.96 runs from this datum to LED lens center. The drawing is marked not to scale, so dimensions, not raster measurement, define offsets.",
+          "sensorOpticalRingsDiameters": [
+            1.27,
+            0.95
+          ],
+          "emitterOuterRoundedBaseWidthHeight": [
+            1.32,
+            1
+          ],
+          "centralRoundedFeatureWidthHeight": [
+            2.14,
+            1.19
+          ],
+          "centralFeatureOffsetY": -0.51,
+          "limits": "The exact internal red/IR die geometry and individual positions are absent. These dimensions describe external optical/package contours."
+        },
+        "implementation": {
+          "entry": "src/units/heart/optical-assembly.js",
+          "sensorCenterY": 9.700472784,
+          "emitterCenterY": 6.040472784,
+          "seatZ": 2.76,
+          "lensSeatZ": 3.72,
+          "lensHeight": 0.24,
+          "color": "#ff2820",
+          "depthProfileMaterialsAndBrightness": "Visual inference; no observed powered state or manufacturing fit. Existing PCB and source shell unchanged.",
+          "defaultBrightness": 0,
+          "component": "red-led",
+          "noHumanVisibleIr": true,
+          "noHeartbeatOrMeasurementSimulation": true,
+          "centralFeature": {
+            "widthHeight": [
+              2.14,
+              1.19
+            ],
+            "offsetY": -0.51,
+            "reliefHeight": 0.03,
+            "reliefHeightAndMaterial": "visual inference"
+          },
+          "glow": "Product-local aperture-aligned additive disk at z3.962 with real depth test and FrontSide, replacing the default camera-facing Sprite which could cross the shell at grazing view; gradient texture retains core ownership.",
+          "materialRefinement": "Native GPU review found glossy dark package surfaces washed toward grey under the existing studio environment. Only body/central feature/LED foot use lower specular plastic; actual lenses retain gloss. Color/roughness/specular are inferred from official unpowered photos, not measured optical properties."
+        },
+        "explicitInferences": "Optical identity and longitudinal orientation are sufficiently established by the asymmetric package geometry in official U029 photographs matched to the original Maxim package top view and labeled pin configuration. Emitter is the near-Grove aperture (smaller local +Y); its present authored y=7.1 is not its correct geometric center. Use the existing canonical CAD opening center and documented package offsets.",
+        "limits": [
+          "Orientation is an image-geometry inference from two official photos plus manufacturer top-view identity; no board pin1 assembly CAD or powered red close-up was found.",
+          "The physical red die position inside the shared LED aperture remains unknown, so do not locate a guessed separate RED die within it.",
+          "Absolute installed package Z and lens protrusion heights/materials remain inferred.",
+          "No measured hardware intensity/pulse behavior or firmware mode is modeled. Default red off; brightness/on state must be externally requested.",
+          "No sensor, firmware, electrical, or IR-visible simulation is authorized by this research.",
+          "Sticker originals remain deferred; photographs are research references only and must not become model texture patches."
+        ],
+        "runtime": [
+          {
+            "path": "src/units/heart/index.js",
+            "sourceSha256": "60fc0fb0a136f1a4bccfd07224a0bc7b4a5710797663089c0514a83324e853cb",
+            "publicSha256": "507d8116e35b909538f5c34f5e7dc8158299908040d61e5bbc506cb774f11959"
+          },
+          {
+            "path": "src/units/heart/optical-assembly.js",
+            "sourceSha256": "cbdfb7080074f0d4e357a4d9a358be345b93fbc88c283ac4b1685afcacf9f82b",
+            "publicSha256": "cbdfb7080074f0d4e357a4d9a358be345b93fbc88c283ac4b1685afcacf9f82b"
+          },
+          {
+            "path": "scripts/check-heart-optics.mjs",
+            "sourceSha256": "33276ba68bfe8339e8d6f2052edcfcf390d5c79bf4aea6062143457f1782e472",
+            "publicSha256": "33276ba68bfe8339e8d6f2052edcfcf390d5c79bf4aea6062143457f1782e472"
+          }
+        ],
+        "privateProvenanceSha256": "410e6bc70d628eaf5efa6996700f662d4d52b5aaec938ac1cd6fde398841b5c4",
+        "privateEvidenceReportSha256": "48ea5a4c83aeee0f2e96a6c03b3738fc0b97edba19f210637149580665ec7bf9",
+        "scope": "Heart U029 optical assembly and RS485 U034 removable terminal detail, with external visual controls only. Preserve all 43 product identities and all historical public evidence."
+      },
+      "incrementalGroveOpenTop": {
+        "checkedAt": "2026-10-25T22:04:57.345343+00:00",
+        "sourceCommit": "6817da7fb8e0afd17d3ca17e036a9dfa4384fb00",
+        "sources": [
+          {
+            "url": "https://docs.m5stack.com/en/unit/heart",
+            "sha256": "034777170ce487b8f7c154e1a318c333c402645f0ff6a5f9b3232ff00329a89d",
+            "bytes": 130049,
+            "fetchedAt": "2026-10-25T21:38:38.252237+00:00",
+            "role": "original-official-product-page"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/heart/heart_05.webp",
+            "sha256": "2dd17090cb599df4a393df7795fb303c9c8499dcde30e16440b92c4f8352cbdd",
+            "bytes": 53616,
+            "fetchedAt": "2026-10-25T21:38:39.418899+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/heart/heart_01.webp",
+            "sha256": "77e7d027377c40f7a838b5c59ce0df832853ae753def241a9926072583924d94",
+            "bytes": 89424,
+            "fetchedAt": "2026-10-25T21:38:41.167316+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/heart/heart_06.webp",
+            "sha256": "31caca6ebb5c5d22fd6040280f40295061527cd4104fb9a8bb4aecafdcfa9c59",
+            "bytes": 32978,
+            "fetchedAt": "2026-10-25T21:38:41.427227+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/heart/%E5%B0%BA%E5%AF%B8%E5%9B%BE.jpg",
+            "sha256": "d15518e7ffed66d2fc517e3de208ce30670bddc401b7a41e591ab4d9cfaf43c8",
+            "bytes": 476647,
+            "fetchedAt": "2026-10-25T21:38:43.034087+00:00",
+            "role": "original-official-mechanical-drawing"
+          }
+        ],
+        "facts": {
+          "name": "Unit Heart",
+          "connectorName": "HY2.0-4P",
+          "shellMm": [
+            24,
+            32,
+            8
+          ],
+          "drawingMouthWidthMm": 10,
+          "drawingMouthHeightMm": 5.2
+        },
+        "implementation": {
+          "helper": "src/units/shared/open-top-grove.js",
+          "mouthCenter": [
+            0,
+            -15.65,
+            1.4
+          ],
+          "visibleSizeMm": [
+            10,
+            6.8,
+            5.2
+          ],
+          "bodyDepthMm": 6.5,
+          "innerWidthMm": 8.6,
+          "wallMm": 0.7,
+          "lockingTongue": {
+            "size": [
+              3.4,
+              0.65,
+              3
+            ],
+            "position": [
+              0,
+              1.2,
+              -4.95
+            ]
+          },
+          "heartPcbNotch": {
+            "edgeHalfWidth": 5.3,
+            "endY": -8.85,
+            "thickness": 0.8,
+            "seatZ": 0.2
+          },
+          "inferences": [
+            "Internal width/depth/walls/tongue/contact placement, visual mating clearance and hidden PCB outline are reconstruction estimates, not manufacturing CAD."
+          ],
+          "preserved": [
+            "Original native shell geometry and transform",
+            "Global parts/grove-cable/core implementation",
+            "Port IDs/quaternions/hitSize and recursive API",
+            "Heart MAX30100 assembly and RS485 terminal accessory"
+          ],
+          "upperOpeningWidthMm": 6.8,
+          "upperLipSizeMm": [
+            0.9,
+            0.8,
+            6.5
+          ],
+          "visibleContact": {
+            "depthMm": 1.2,
+            "mouthSetbackMm": 0.65,
+            "note": "Photo-inferred short visible ends; tip position retains the prior visual connector basis, not an official measurement."
+          },
+          "recessedContactSupport": {
+            "topLocalY": 0.1,
+            "frontLocalZ": -1.85,
+            "depth": 4.65,
+            "height": 2.7,
+            "scope": "Same-color inner-floor reconstruction seen behind pins; not a separately specified official part."
+          },
+          "visualRefinement": "Native first capture compared to official images found thin lips and long exposed outer pins. Prior native images/review are retained in work as before-refinement only."
+        },
+        "explicitInferences": [
+          "Internal width/depth/walls/tongue/contact placement, visual mating clearance and hidden PCB outline are reconstruction estimates, not manufacturing CAD."
+        ],
+        "limits": [
+          "Finite probes do not prove manufacturing fit or physical-device behavior.",
+          "Prior PCB outer-edge overlaps with source wall at [plus/minus11.3,0,.6] remain outside the local Grove clearance change.",
+          "Stickers deferred; no official image used as model surface."
+        ],
+        "runtime": [
+          {
+            "path": "src/units/shared/open-top-grove.js",
+            "sourceSha256": "35c74ff108d738543d68b960ccc5f8515fc0dde059e1ce3a3d06f467a115cfa2",
+            "publicSha256": "35c74ff108d738543d68b960ccc5f8515fc0dde059e1ce3a3d06f467a115cfa2"
+          },
+          {
+            "path": "src/units/heart/grove-assembly.js",
+            "sourceSha256": "7472d361d95da609f72fca5e1cdb6ffbfbe8b741342ec06e1302c7b200e709b6",
+            "publicSha256": "7472d361d95da609f72fca5e1cdb6ffbfbe8b741342ec06e1302c7b200e709b6"
+          },
+          {
+            "path": "src/units/heart/dimensions.js",
+            "sourceSha256": "0824dd3237007a8b35e099c71e5c8bad531f1aebae7dace9aa09b95c2f66798f",
+            "publicSha256": "0824dd3237007a8b35e099c71e5c8bad531f1aebae7dace9aa09b95c2f66798f"
+          },
+          {
+            "path": "src/units/heart/index.js",
+            "sourceSha256": "5af99c31adc30e7da5880866e5ee99829cf704a08129151b426ab019554cda3a",
+            "publicSha256": "e85b367803e1ea0409a26f609019ddd1699a197682ea3173469615b8ffc8ce13"
+          },
+          {
+            "path": "scripts/check-open-top-grove.mjs",
+            "sourceSha256": "aee15d5e0f0904bfbc95b9ec68e7af7ed70144b7ae239b0f3a08cda7340dc6e1",
+            "publicSha256": "aee15d5e0f0904bfbc95b9ec68e7af7ed70144b7ae239b0f3a08cda7340dc6e1"
+          }
+        ],
+        "privateProvenanceSha256": "e8b4bac841fe37a52f14097364030ede2af007d4c11bb33512d5156901ce6847",
+        "privateReviewSha256": "ad506d59b718cd1a233b1f0bf838709072be55e87f1d462f904647a657d788e7",
+        "scope": "Heart U029 and RS485 U034 product-local open-top Grove socket refinement, official bay-height alignment and Heart PCB edge clearance; no global plug, cable, electrical or firmware changes."
+      }
     },
     {
       "id": "encoder",
@@ -1644,8 +3561,194 @@
         {
           "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_05.webp",
           "sha256": "27086f1922c83d006101dd3e8b16d07699835f4ff5671977fab870b026dcc5ad"
+        },
+        {
+          "url": "https://docs.m5stack.com/en/unit/encoder",
+          "sha256": "a4844beb398e871cd4c97e8dbbcde00984aad5ba9ea804ce2b61bbfb561f23f5"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_06.webp",
+          "sha256": "31706f925db73ed7c2f549503ec26b9b6461c604c89f11d55b7fb24e4fc251b9"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/U135_Model_Size_page_01.png",
+          "sha256": "49e0f3c8a04b8765b9d745b405d81581b42afa11a9207aa8ba723f8a78b168d2"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_sch_01.webp",
+          "sha256": "49167f49ddc25e9dd166220d9c814e821b605754808cd1f851ce7d034e816c49"
         }
-      ]
+      ],
+      "incrementalEncoderDetail": {
+        "checkedAt": "2026-10-25T23:11:48.829436+00:00",
+        "sourceCommit": "3aaeb1b076092994e77d6df0500e8e027019d3be",
+        "sources": [
+          {
+            "url": "https://docs.m5stack.com/en/unit/encoder",
+            "sha256": "a4844beb398e871cd4c97e8dbbcde00984aad5ba9ea804ce2b61bbfb561f23f5",
+            "bytes": 129512,
+            "fetchedAt": "2026-10-25T22:33:49.264595+00:00",
+            "role": "original-official-product-page"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_01.webp",
+            "sha256": "0c08f0f3a5bb7f529898b55e899961637c58262083f572e7b5af32f891a6a68b",
+            "bytes": 110780,
+            "fetchedAt": "2026-10-25T22:33:50.053711+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_02.webp",
+            "sha256": "d6dbc4e054ad30e9329f2e9a93e31235b4d9e11eb34bf78912f3965e95975696",
+            "bytes": 45082,
+            "fetchedAt": "2026-10-25T22:33:49.689781+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_03.webp",
+            "sha256": "5cd35fa7e4f8b3955b10ecb252d03bcbd290935f723ccf86281ffe8a46d685b1",
+            "bytes": 87890,
+            "fetchedAt": "2026-10-25T22:33:49.728698+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_05.webp",
+            "sha256": "27086f1922c83d006101dd3e8b16d07699835f4ff5671977fab870b026dcc5ad",
+            "bytes": 41842,
+            "fetchedAt": "2026-10-25T22:33:50.886181+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_06.webp",
+            "sha256": "31706f925db73ed7c2f549503ec26b9b6461c604c89f11d55b7fb24e4fc251b9",
+            "bytes": 41842,
+            "fetchedAt": "2026-10-25T22:33:51.322529+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/801/U135_Model_Size_page_01.png",
+            "sha256": "49e0f3c8a04b8765b9d745b405d81581b42afa11a9207aa8ba723f8a78b168d2",
+            "bytes": 405667,
+            "fetchedAt": "2026-10-25T22:33:50.548016+00:00",
+            "role": "original-official-mechanical-drawing"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/encoder/encoder_sch_01.webp",
+            "sha256": "49167f49ddc25e9dd166220d9c814e821b605754808cd1f851ce7d034e816c49",
+            "bytes": 117670,
+            "fetchedAt": "2026-10-25T22:33:52.490761+00:00",
+            "role": "original-official-electrical-schematic"
+          }
+        ],
+        "facts": {
+          "officialDimensions": {
+            "nominalXyzMm": [
+              24,
+              32,
+              25.4
+            ],
+            "flatBodyThicknessMm": 8,
+            "knobMaxDiameterMm": 10,
+            "mountBoreDiameterMm": 4.85,
+            "mountBoreCentersMm": [
+              [
+                -8,
+                -4
+              ],
+              [
+                8,
+                -4
+              ]
+            ]
+          },
+          "nativeBasis": {
+            "collarAxisMm": [
+              -0.0130000268,
+              7.9499998353,
+              6
+            ],
+            "groveFloorFrontZMm": [
+              -3.2,
+              2
+            ],
+            "groveMouthMm": [
+              0,
+              -15.65,
+              -0.6
+            ],
+            "originalNativePositionsAndTopologyRetained": true
+          },
+          "officialVideo": {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/video/Product_example_video/Unit/UNIT_ENCODER_VIDEO.mp4",
+            "sha256": "65e5c7ea19f6d1dd51b4486035a80e9b8a2faf85826a006bd4eca0083b9fa7cc",
+            "bytes": 19515924,
+            "retrievedAt": "2026-10-25T22:36:25.445326+00:00",
+            "durationSeconds": 15.449999
+          },
+          "videoObservation": "Both lower white-shell corners beside Grove diffuse green/pink light in the official demonstration; no exposed front LED holes."
+        },
+        "implementation": {
+          "movingCapDiameterMm": 10,
+          "gripRidges": 24,
+          "shaftBore": "Real blind cavity; inferred shaft and roof clearance",
+          "controls": [
+            "rotation",
+            "press",
+            "led0",
+            "led1"
+          ],
+          "externalOnly": true,
+          "ledVisualAddresses": "led0 is front-left, led1 front-right; schematic LED1/LED2 order unconfirmed",
+          "nestedTargets": [
+            "grove/grove-1/press",
+            "grove/grove-1/rotation",
+            "grove/grove-1/led0",
+            "grove/grove-1/led1"
+          ],
+          "grove": "Product opt-in to physical open-top socket plus four folded tails, drillings and solder fillets; existing global plugs/four-core cable unchanged",
+          "portGuard": "Synchronous attach notifications cannot detach the currently attaching candidate; queued changes after return are supported; uncaught callbacks propagate without implicit rollback"
+        },
+        "explicitInferences": [
+          "Photo-registered LED centres ±6.8,-10.4 and concealed 3.2mm packages; board outline/thickness and hidden supports/tails.",
+          "0.35mm press travel, cap local detail and shaft/roof seating are appearance estimates, not rated actuation.",
+          "Emission on the unchanged native front material reproduces visible diffuse light only; no optical transport, electric behavior or automatic rotary-to-light mapping."
+        ],
+        "limits": [
+          "All43modeled/zeroverified; goalactive.",
+          "Finite geometry sampling and browser UI do not prove manufacturing fit, optical performance, quadrature counts or physical-device execution.",
+          "Stickers deferred; StackChan hidden production-datum and Heart prior PCB-edge issues remain."
+        ],
+        "runtime": [
+          {
+            "path": "src/units/encoder/assembly.js",
+            "sourceSha256": "cbc2125aeebf18989e4add89178e422d728704bebdb0260f0bcb3ca22a62d027",
+            "publicSha256": "cbc2125aeebf18989e4add89178e422d728704bebdb0260f0bcb3ca22a62d027"
+          },
+          {
+            "path": "src/units/encoder/dimensions.js",
+            "sourceSha256": "948c7ba8c5fcc5929814172b045dfc19e9ca977fbfae963034137996b94deac5",
+            "publicSha256": "948c7ba8c5fcc5929814172b045dfc19e9ca977fbfae963034137996b94deac5"
+          },
+          {
+            "path": "src/units/encoder/index.js",
+            "sourceSha256": "2d558cb6b64d9e6c54565c218713c3030148edd69aa233ba1036edeceef788a6",
+            "publicSha256": "3bd67b6086dd13a39e7e5c110c49fabb938881ca9910fa8a13abc63f34aaa6c1"
+          },
+          {
+            "path": "src/units/shared/open-top-grove.js",
+            "sourceSha256": "07364ba732ff38bf83ce9a2025a7ea89f9abf7b95aff65e406fc873e8f94456d",
+            "publicSha256": "07364ba732ff38bf83ce9a2025a7ea89f9abf7b95aff65e406fc873e8f94456d"
+          },
+          {
+            "path": "scripts/check-encoder-assembly.mjs",
+            "sourceSha256": "af84ca67d22d0bdaedcf59c33098589a719c828daaae80a07fdbbae858838f07",
+            "publicSha256": "af84ca67d22d0bdaedcf59c33098589a719c828daaae80a07fdbbae858838f07"
+          }
+        ],
+        "privateProvenanceSha256": "d543b42a04a52e8670af7034abc16776b545f3e8286e2fd422ccb6e478026826",
+        "privateReviewSha256": "9208dcba18843651c385cf86e67b7d1760dd3bccf5e60885e36ac024614896bd",
+        "scope": "Encoder U135 native-solid rotary/push assembly, original solid white-shell diffuse lower light, product-local open-top Grove and Port attach-callback reentrancy reliability."
+      }
     },
     {
       "id": "thermal",
@@ -1905,8 +4008,266 @@
         {
           "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_06.webp",
           "sha256": "f27ea4b3d17c7160c580fa4b67aab1de23bee45bccfdec9eb74cfe4dcb5089b9"
+        },
+        {
+          "url": "https://docs.m5stack.com/en/unit/rs485",
+          "sha256": "af2eea5281e2fb69eeab76d9c5214072630f002896cc3579c536314c20da4311"
+        },
+        {
+          "url": "https://docs.m5stack.com/en/unit/iso485",
+          "sha256": "3de0d5cab2c36ebb167e4cc8dbab53e0532a7973c1384ba84f605018d68074c7"
+        },
+        {
+          "url": "https://docs.m5stack.com/en/unit/Unit_RS485",
+          "sha256": "af2eea5281e2fb69eeab76d9c5214072630f002896cc3579c536314c20da4311"
         }
-      ]
+      ],
+      "incrementalHeartRs485Detail": {
+        "checkedAt": "2026-10-25T21:07:10.591360+00:00",
+        "sourceCommit": "f76d4579f59c3ba5995d8d8eafd59b965af41173",
+        "sources": [
+          {
+            "url": "https://docs.m5stack.com/en/unit/rs485",
+            "sha256": "af2eea5281e2fb69eeab76d9c5214072630f002896cc3579c536314c20da4311",
+            "bytes": 128665,
+            "fetchedAt": "2026-10-25T20:46:34.093810+00:00",
+            "role": "original-official-product-page"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_01.webp",
+            "sha256": "332f1be343aec646f54d873bbc543f6c14cc084504f33d1deb906c83b7c9366b",
+            "bytes": 113498,
+            "fetchedAt": "2026-10-25T20:47:16.489096+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/837/U034-package.jpg",
+            "sha256": "95abe25ff753f4cc91138e5c50e8b178f5bac84d923967b57940f07b7f4a8e27",
+            "bytes": 103674,
+            "fetchedAt": "2026-10-25T20:47:17.087913+00:00",
+            "role": "original-official-package-image"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_05.webp",
+            "sha256": "0c3ca4f8aabfd6a77ade5e2c9de1b8b98d67c6811919b75539bd8745a73d7351",
+            "bytes": 30940,
+            "fetchedAt": "2026-10-25T20:47:18.746274+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://docs.m5stack.com/en/unit/iso485",
+            "sha256": "3de0d5cab2c36ebb167e4cc8dbab53e0532a7973c1384ba84f605018d68074c7",
+            "bytes": 133896,
+            "fetchedAt": "2026-10-25T20:47:19.943329+00:00",
+            "role": "original-official-variant-boundary"
+          }
+        ],
+        "facts": {
+          "pageSKU": "U034",
+          "includedAccessory": "1 x HT3.96-4P Terminal",
+          "appearanceEvidence": "rs485_01.webp shows a separate orange four-screw plug; U034-package.jpg independently shows that plug packed beside the Unit and cable.",
+          "pitchEvidence": "HT3.96-4P official name, four equally spaced contacts in photographs and the source schematic J1 HDR_4P_3.96; existing pin centres -5.94/-1.98/1.98/5.94 mm retained.",
+          "fixedAssembly": "The page dimensions 32 x 24 x 10.2 mm and linked U020_Model_Size.png describe the fixed-socket product without the separate terminal plug. The filename is not used as SKU evidence.",
+          "variantBoundary": "U034 page itself lists MAX485/SP485EEN; these chip alternatives do not justify an unrelated housing. RS485-ISO resolves separately to SKU U094. Roller485 U182 is a separate catalogue model.",
+          "unknowns": [
+            "No manufacturer-specific 4P plug mechanical drawing or part number is confirmed beyond HT3.96-4P.",
+            "Plug wall/depth/clamp/screw dimensions, screw neutral phase, and assembled accessory envelope are visual estimates.",
+            "No thread pitch, tightening range, axial screw travel, clamping force or physical fit tolerance is asserted.",
+            "Connector-family equality is an appearance mating convention, not electrical compatibility."
+          ]
+        },
+        "implementation": "HT3.96-4P official name, four equally spaced contacts in photographs and the source schematic J1 HDR_4P_3.96; existing pin centres -5.94/-1.98/1.98/5.94 mm retained.",
+        "explicitInferences": [
+          "No manufacturer-specific 4P plug mechanical drawing or part number is confirmed beyond HT3.96-4P.",
+          "Plug wall/depth/clamp/screw dimensions, screw neutral phase, and assembled accessory envelope are visual estimates.",
+          "No thread pitch, tightening range, axial screw travel, clamping force or physical fit tolerance is asserted.",
+          "Connector-family equality is an appearance mating convention, not electrical compatibility."
+        ],
+        "limits": [
+          "No manufacturer-specific 4P plug mechanical drawing or part number is confirmed beyond HT3.96-4P.",
+          "Plug wall/depth/clamp/screw dimensions, screw neutral phase, and assembled accessory envelope are visual estimates.",
+          "No thread pitch, tightening range, axial screw travel, clamping force or physical fit tolerance is asserted.",
+          "Connector-family equality is an appearance mating convention, not electrical compatibility."
+        ],
+        "runtime": [
+          {
+            "path": "src/units/rs485/index.js",
+            "sourceSha256": "cf470351b3628db25839ffb45159e94a7110406637a9d4afa1a6e4c153ab0c5c",
+            "publicSha256": "cf470351b3628db25839ffb45159e94a7110406637a9d4afa1a6e4c153ab0c5c"
+          },
+          {
+            "path": "src/units/rs485/assembly.js",
+            "sourceSha256": "7e05e29ee3effcf1ec595ca2420ca56cd07e9fe0d0a548ca2eb710d9fe5fc213",
+            "publicSha256": "7e05e29ee3effcf1ec595ca2420ca56cd07e9fe0d0a548ca2eb710d9fe5fc213"
+          },
+          {
+            "path": "src/units/rs485/dimensions.js",
+            "sourceSha256": "071e6890c8d2f7e26e4b4d6d56bf5c5e26b42f9daa58cd7e65ab942961f9e154",
+            "publicSha256": "071e6890c8d2f7e26e4b4d6d56bf5c5e26b42f9daa58cd7e65ab942961f9e154"
+          },
+          {
+            "path": "src/units/rs485/TerminalPlug.js",
+            "sourceSha256": "c88893747b391bcffcd6c23141c682417de711d2342f844f9d582d579ecb0f1b",
+            "publicSha256": "c88893747b391bcffcd6c23141c682417de711d2342f844f9d582d579ecb0f1b"
+          },
+          {
+            "path": "scripts/check-rs485-terminal.mjs",
+            "sourceSha256": "9a25f8610b401e7b5b7a6ec31dc665fe3879a01f6d34c603873fa2d3f80bcdd4",
+            "publicSha256": "9a25f8610b401e7b5b7a6ec31dc665fe3879a01f6d34c603873fa2d3f80bcdd4"
+          }
+        ],
+        "privateProvenanceSha256": "2e47a9b80e0802085fb48d595d2e37313ba1f7d4820dc44d406a6a475448a778",
+        "privateEvidenceReportSha256": "48ea5a4c83aeee0f2e96a6c03b3738fc0b97edba19f210637149580665ec7bf9",
+        "scope": "Heart U029 optical assembly and RS485 U034 removable terminal detail, with external visual controls only. Preserve all 43 product identities and all historical public evidence."
+      },
+      "incrementalGroveOpenTop": {
+        "checkedAt": "2026-10-25T22:04:57.345343+00:00",
+        "sourceCommit": "6817da7fb8e0afd17d3ca17e036a9dfa4384fb00",
+        "sources": [
+          {
+            "url": "https://docs.m5stack.com/en/unit/Unit_RS485",
+            "sha256": "af2eea5281e2fb69eeab76d9c5214072630f002896cc3579c536314c20da4311",
+            "bytes": 128665,
+            "fetchedAt": "2026-10-25T21:38:43.781753+00:00",
+            "role": "original-official-product-page"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_06.webp",
+            "sha256": "f27ea4b3d17c7160c580fa4b67aab1de23bee45bccfdec9eb74cfe4dcb5089b9",
+            "bytes": 47014,
+            "fetchedAt": "2026-10-25T21:38:44.423308+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_01.webp",
+            "sha256": "332f1be343aec646f54d873bbc543f6c14cc084504f33d1deb906c83b7c9366b",
+            "bytes": 113498,
+            "fetchedAt": "2026-10-25T21:38:46.012227+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/rs485/rs485_05.webp",
+            "sha256": "0c3ca4f8aabfd6a77ade5e2c9de1b8b98d67c6811919b75539bd8745a73d7351",
+            "bytes": 30940,
+            "fetchedAt": "2026-10-25T21:38:46.280990+00:00",
+            "role": "original-official-product-image"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/797/U020_Model_Size.png",
+            "sha256": "8df10079b8eb0e13ac672facbc1d969b0630373a9af1d8dd8fb298b97e0caf9b",
+            "bytes": 227674,
+            "fetchedAt": "2026-10-25T21:38:46.536550+00:00",
+            "role": "original-official-mechanical-drawing"
+          }
+        ],
+        "facts": {
+          "name": "Unit RS485",
+          "connectorName": "HY2.0-4P",
+          "shellMm": [
+            24,
+            32,
+            8
+          ],
+          "productNominalMm": [
+            24,
+            32,
+            10.2
+          ],
+          "drawingMouthHeightMm": 5.2,
+          "drawingMouthWidthMm": null,
+          "drawingNameCaution": "Linked official U034 page uses U020_Model_Size.png. SKU established by product page/appearance and four-pole terminal, not filename."
+        },
+        "implementation": {
+          "helper": "src/units/shared/open-top-grove.js",
+          "mouthCenter": [
+            0,
+            -15.65,
+            1.4
+          ],
+          "visibleSizeMm": [
+            10,
+            6.8,
+            5.2
+          ],
+          "bodyDepthMm": 6.5,
+          "innerWidthMm": 8.6,
+          "wallMm": 0.7,
+          "lockingTongue": {
+            "size": [
+              3.4,
+              0.65,
+              3
+            ],
+            "position": [
+              0,
+              1.2,
+              -4.95
+            ]
+          },
+          "heartPcbNotch": null,
+          "inferences": [
+            "Internal width/depth/walls/tongue/contact placement, visual mating clearance and hidden PCB outline are reconstruction estimates, not manufacturing CAD."
+          ],
+          "preserved": [
+            "Original native shell geometry and transform",
+            "Global parts/grove-cable/core implementation",
+            "Port IDs/quaternions/hitSize and recursive API",
+            "Heart MAX30100 assembly and RS485 terminal accessory"
+          ],
+          "upperOpeningWidthMm": 6.8,
+          "upperLipSizeMm": [
+            0.9,
+            0.8,
+            6.5
+          ],
+          "visibleContact": {
+            "depthMm": 1.2,
+            "mouthSetbackMm": 0.65,
+            "note": "Photo-inferred short visible ends; tip position retains the prior visual connector basis, not an official measurement."
+          },
+          "recessedContactSupport": {
+            "topLocalY": 0.1,
+            "frontLocalZ": -1.85,
+            "depth": 4.65,
+            "height": 2.7,
+            "scope": "Same-color inner-floor reconstruction seen behind pins; not a separately specified official part."
+          },
+          "visualRefinement": "Native first capture compared to official images found thin lips and long exposed outer pins. Prior native images/review are retained in work as before-refinement only."
+        },
+        "explicitInferences": [
+          "Internal width/depth/walls/tongue/contact placement, visual mating clearance and hidden PCB outline are reconstruction estimates, not manufacturing CAD."
+        ],
+        "limits": [
+          "Finite probes do not prove manufacturing fit or physical-device behavior.",
+          "Prior PCB outer-edge overlaps with source wall at [plus/minus11.3,0,.6] remain outside the local Grove clearance change.",
+          "Stickers deferred; no official image used as model surface."
+        ],
+        "runtime": [
+          {
+            "path": "src/units/shared/open-top-grove.js",
+            "sourceSha256": "35c74ff108d738543d68b960ccc5f8515fc0dde059e1ce3a3d06f467a115cfa2",
+            "publicSha256": "35c74ff108d738543d68b960ccc5f8515fc0dde059e1ce3a3d06f467a115cfa2"
+          },
+          {
+            "path": "src/units/rs485/index.js",
+            "sourceSha256": "18a4763ba9874a2bd13bf800a8aba9a04515ea588e9dba0e311dc9dd9fda6560",
+            "publicSha256": "18a4763ba9874a2bd13bf800a8aba9a04515ea588e9dba0e311dc9dd9fda6560"
+          },
+          {
+            "path": "scripts/check-open-top-grove.mjs",
+            "sourceSha256": "aee15d5e0f0904bfbc95b9ec68e7af7ed70144b7ae239b0f3a08cda7340dc6e1",
+            "publicSha256": "aee15d5e0f0904bfbc95b9ec68e7af7ed70144b7ae239b0f3a08cda7340dc6e1"
+          },
+          {
+            "path": "scripts/check-rs485-buzzer-fan.mjs",
+            "sourceSha256": "7d367f5e679a7448283453c27dddcd9e2e7a1a0c38c92acb6ac6a5cb6846e275",
+            "publicSha256": "7d367f5e679a7448283453c27dddcd9e2e7a1a0c38c92acb6ac6a5cb6846e275"
+          }
+        ],
+        "privateProvenanceSha256": "b955489c3a81798e10e8c33713d6a639670425848727397dd5edfb22cad77ab9",
+        "privateReviewSha256": "ad506d59b718cd1a233b1f0bf838709072be55e87f1d462f904647a657d788e7",
+        "scope": "Heart U029 and RS485 U034 product-local open-top Grove socket refinement, official bay-height alignment and Heart PCB edge clearance; no global plug, cable, electrical or firmware changes."
+      }
     },
     {
       "id": "buzzer",
@@ -2305,6 +4666,411 @@
         "ledNumbering": "Physical positions only; no electrical chain mapping",
         "pcbEvidence": "Appearance reconstruction: radius 4.2 mm post clearances, radius 3.3 mm central relief, ends at Y +/-60 mm; narrow local bridges are not fabrication CAD"
       }
+    },
+    {
+      "id": "scroll",
+      "sku": "U186",
+      "officialDocs": "https://docs.m5stack.com/en/unit/UNIT-Scroll",
+      "reference": {
+        "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT-Scroll/6.webp",
+        "sha256": "17b0b78284c423a990b21aea705fafd538d4477bb4465c65c4bc86ed721cf4e9"
+      },
+      "structures": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/Products/U186_Unit_Scroll/Structures/Unit_Scroll.stl",
+          "gitBlob": "9702207157b7bfb13c69e759981960f649cd7b18",
+          "sha256": "43977dff6e24378af5fc911b05c5402649f3026057bb1fe39fc6dea920d4061e",
+          "commit": "e29c139cbc7c80b5ccc5557e5ab8025a7a19a109"
+        }
+      ],
+      "referenceSources": [
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT-Scroll/4.webp",
+          "sha256": "dda04898b2a6f334a5e1b365a2c947a52689739646d2c1ef85820a35cd70e589"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT-Scroll/6.webp",
+          "sha256": "17b0b78284c423a990b21aea705fafd538d4477bb4465c65c4bc86ed721cf4e9"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT-Scroll/12.webp",
+          "sha256": "ecc78ced5eafbc80d1eaf7ac750de5b203378604f892888b3fa23bfcaa88226b"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT-Scroll/3.webp",
+          "sha256": "543be0f3cd2292c294e70d16559138e62332c49b9b5dae73f37d4f526a42459a"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT-Scroll/5.webp",
+          "sha256": "4c788518059b1fd3808a7817c0718849003d9eda1cff628bee38b6ee2cebb189"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT-Scroll/7.webp",
+          "sha256": "a9ed72443f3279883b48a87f693b8e5c979ba7d72dc1a7c16e155097f3790d86"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT-Scroll/8.webp",
+          "sha256": "b901c63281a06d22dcef4b385898d6e52c2e8f84975a13aa70e432d74d10aedd"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT-Scroll/10.webp",
+          "sha256": "b43ad27e833b848467583170087b05f605995ab36b4d0290c5305c617f7da355"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT-Scroll/11.webp",
+          "sha256": "f54dd307b594c872d36134119a235a86483f57d56c018da9b3fa524b1054d27c"
+        },
+        {
+          "url": "https://static-cdn.m5stack.com/resource/docs/products/unit/UNIT-Scroll/img-4ec8cc89-5f89-401c-80a9-4e0c27c9f36e.jpg",
+          "sha256": "abc5f5ea99f9d9de25bd430a43f371c7bd2514c9ba31acf01dd7cf97ade7bce9"
+        }
+      ],
+      "mechanicalFacts": {
+        "sourceTableMm": [
+          32,
+          24,
+          18.9
+        ],
+        "modelAxesMm": [
+          24,
+          32,
+          18.9
+        ],
+        "selectedComponents": [
+          0,
+          3,
+          5,
+          7,
+          9
+        ],
+        "rotationAxis": [
+          1,
+          0,
+          0
+        ],
+        "pressTravelMm": 0.25,
+        "pressGroup": "Wheel plus axle insert; insert does not rotate. Appearance approximation, hidden pivot/switch support motion unconfirmed.",
+        "pcb": "Appearance board at Z -1.5..-0.7, actual-post and Grove relief; no original PCB/fabrication CAD"
+      }
+    },
+    {
+      "id": "roller485",
+      "sku": "U182",
+      "officialDocs": "https://docs.m5stack.com/en/unit/Unit_Roller485",
+      "reference": {
+        "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/4.webp",
+        "sha256": "bf028890736dde471ee56c04bfc6dc4a4b2f31c52052b462c8954bc6bdbf0a08"
+      },
+      "referenceSources": [
+        {
+          "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/Products/U182_Unit_Roller485/Structures/Unit_Roller485.stl",
+          "sha256": "39ea7e2b356fea865bb33ca2a6c99486baac972f2a165611b1193d25c6a6d135"
+        },
+        {
+          "url": "https://docs.m5stack.com/zh_CN/unit/Unit_Roller485.md",
+          "sha256": "07f88ae29f064967f42fa11057389212ddfc8a369b03fe5190fe2720622bf8e1"
+        },
+        {
+          "url": "https://docs.m5stack.com/zh_CN/guide/unit_roller485/usage.md",
+          "sha256": "3b1eaf089a2fe8b5b6a99f3e6462dcf39319a67c286fdcb409aa5f2c66c38ea8"
+        },
+        {
+          "url": "https://docs.m5stack.com/zh_CN/unit/Unit-Roller485",
+          "sha256": "a9d54d2616f1692af1b39d0b26316a2864eae29ccd67381b1b9e465958aab973"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/%E5%B0%BA%E5%AF%B8%E5%9B%BE.jpg",
+          "sha256": "443997d6d9d6a1d303edfb7892531c9c838962f692c3085604b63a9115d34873"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/%E5%B0%BA%E5%AF%B8%E5%9B%BE2.jpg",
+          "sha256": "b9410bc2bcbb79cf438222af9b2138fb11db22e055ac36b25be42585793095a9"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/%E5%B0%BA%E5%AF%B8%E5%9B%BE3.jpg",
+          "sha256": "7c3cabf5f5de0fd772d98d51b86b09f51022ee27d2350fd31a6a1eb26cd794e7"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/modelsize_01.png",
+          "sha256": "e3f8ee409fc06d487e4ae316b9270aeb7252c9c15a32a3a341f1d9552c5a22d6"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/guide/motor_ctl/roller485/roller485_i2c_port_01.jpg",
+          "sha256": "7aee368a4233a2cc0cdae111097d086a7486bc52bacc94b921a7755b0306dc48"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/guide/motor_ctl/roller485/roller485_setting_01.jpg",
+          "sha256": "cab19bd785ab8298c4f362d4c957333f797feb0010d7eed38ee08b6b37443d5e"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/4.webp",
+          "sha256": "bf028890736dde471ee56c04bfc6dc4a4b2f31c52052b462c8954bc6bdbf0a08"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/8.webp",
+          "sha256": "903452e3273722ffe2aaa1b677f6aefc89ba63e89e5c7297cba04ea4c337a5e6"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/U182-zheng-package.jpg",
+          "sha256": "effc9577ab447c41aea46769d49f5e2eb64eba6b9d516a644509c087fa2e9a91"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/U182-fan-package.jpg",
+          "sha256": "22903122c02386258a0c1ea9fccfb3b4338e7b0fc6250fd0a486d6e00238d015"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/6.webp",
+          "sha256": "6eec3bac5c360ee62c838f625e34830540973e0303267e4366e0cdc159b27fe5"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/7.webp",
+          "sha256": "e80267d96846d50d0d381faa5482442c8361fb304664e536ba440d4eef524bdd"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/5.webp",
+          "sha256": "bcb7cf66ad4ee761a2b7623f73da6b106e06c14dfd46b0372953b57895af135e"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/10.webp",
+          "sha256": "122e832efc0912867606881091144b653a647537f68b4651522fabb792bb9135"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/13.webp",
+          "sha256": "3562fb4059141ffd8a838db8a9b3b5954f3ef7521b56d0d7f8880e8aaf35e1a8"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/14.webp",
+          "sha256": "5c145972a42c29f57898d0a61bedd6eb3886b0788997b041b632ad04ea53ea9f"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/15.webp",
+          "sha256": "7a184eebcd1721a7f3f43f54ae7fc269c46bf1ccc4c996a86e6f30aff2fd0f74"
+        },
+        {
+          "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/guide/motor_ctl/roller485/roller485_rs485_port_01.jpg",
+          "sha256": "94eb4ae3465ac83c722fbb0669abb0d427cdaeb739b223be1cd0e3a75b491c3b"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/sch_Unit-Roller485_V1.0_page_01.png",
+          "sha256": "41bebec48ae362d7309b836adf0ce660991d74780b2363e1a4abc7f78e83125a"
+        },
+        {
+          "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/sch_bldc_top_v1.0_page_01.png",
+          "sha256": "b7c854e49da35b3b58efe63eea041493ea580ea8fff6a89cc2bd043f483a9015"
+        }
+      ],
+      "functionExpansion": {
+        "checkedAt": "2026-10-25T19:24:25.683986+00:00",
+        "sourceCommit": "20ccf7577f875ac01b55f6a5eb20b83ae26a3a18",
+        "sources": [
+          {
+            "url": "https://raw.githubusercontent.com/m5stack/M5_Hardware/e29c139cbc7c80b5ccc5557e5ab8025a7a19a109/Products/U182_Unit_Roller485/Structures/Unit_Roller485.stl",
+            "sha256": "39ea7e2b356fea865bb33ca2a6c99486baac972f2a165611b1193d25c6a6d135",
+            "bytes": 1600884,
+            "role": "original-official-raw-stl"
+          },
+          {
+            "url": "https://docs.m5stack.com/zh_CN/unit/Unit_Roller485.md",
+            "sha256": "07f88ae29f064967f42fa11057389212ddfc8a369b03fe5190fe2720622bf8e1",
+            "bytes": 13438,
+            "role": "original-official-raw-markdown"
+          },
+          {
+            "url": "https://docs.m5stack.com/zh_CN/guide/unit_roller485/usage.md",
+            "sha256": "3b1eaf089a2fe8b5b6a99f3e6462dcf39319a67c286fdcb409aa5f2c66c38ea8",
+            "bytes": 6458,
+            "role": "original-official-raw-markdown"
+          },
+          {
+            "url": "https://docs.m5stack.com/zh_CN/unit/Unit-Roller485",
+            "sha256": "a9d54d2616f1692af1b39d0b26316a2864eae29ccd67381b1b9e465958aab973",
+            "bytes": 143202,
+            "role": "original-official-fetched-html"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/%E5%B0%BA%E5%AF%B8%E5%9B%BE.jpg",
+            "sha256": "443997d6d9d6a1d303edfb7892531c9c838962f692c3085604b63a9115d34873",
+            "bytes": 736022,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/%E5%B0%BA%E5%AF%B8%E5%9B%BE2.jpg",
+            "sha256": "b9410bc2bcbb79cf438222af9b2138fb11db22e055ac36b25be42585793095a9",
+            "bytes": 445188,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/%E5%B0%BA%E5%AF%B8%E5%9B%BE3.jpg",
+            "sha256": "7c3cabf5f5de0fd772d98d51b86b09f51022ee27d2350fd31a6a1eb26cd794e7",
+            "bytes": 560587,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/modelsize_01.png",
+            "sha256": "e3f8ee409fc06d487e4ae316b9270aeb7252c9c15a32a3a341f1d9552c5a22d6",
+            "bytes": 592740,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/guide/motor_ctl/roller485/roller485_i2c_port_01.jpg",
+            "sha256": "7aee368a4233a2cc0cdae111097d086a7486bc52bacc94b921a7755b0306dc48",
+            "bytes": 880060,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/guide/motor_ctl/roller485/roller485_setting_01.jpg",
+            "sha256": "cab19bd785ab8298c4f362d4c957333f797feb0010d7eed38ee08b6b37443d5e",
+            "bytes": 1163040,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/4.webp",
+            "sha256": "bf028890736dde471ee56c04bfc6dc4a4b2f31c52052b462c8954bc6bdbf0a08",
+            "bytes": 93444,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/8.webp",
+            "sha256": "903452e3273722ffe2aaa1b677f6aefc89ba63e89e5c7297cba04ea4c337a5e6",
+            "bytes": 29168,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/U182-zheng-package.jpg",
+            "sha256": "effc9577ab447c41aea46769d49f5e2eb64eba6b9d516a644509c087fa2e9a91",
+            "bytes": 505016,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/U182-fan-package.jpg",
+            "sha256": "22903122c02386258a0c1ea9fccfb3b4338e7b0fc6250fd0a486d6e00238d015",
+            "bytes": 512550,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/6.webp",
+            "sha256": "6eec3bac5c360ee62c838f625e34830540973e0303267e4366e0cdc159b27fe5",
+            "bytes": 27570,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/7.webp",
+            "sha256": "e80267d96846d50d0d381faa5482442c8361fb304664e536ba440d4eef524bdd",
+            "bytes": 31486,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/5.webp",
+            "sha256": "bcb7cf66ad4ee761a2b7623f73da6b106e06c14dfd46b0372953b57895af135e",
+            "bytes": 28974,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/10.webp",
+            "sha256": "122e832efc0912867606881091144b653a647537f68b4651522fabb792bb9135",
+            "bytes": 25386,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/13.webp",
+            "sha256": "3562fb4059141ffd8a838db8a9b3b5954f3ef7521b56d0d7f8880e8aaf35e1a8",
+            "bytes": 26134,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/14.webp",
+            "sha256": "5c145972a42c29f57898d0a61bedd6eb3886b0788997b041b632ad04ea53ea9f",
+            "bytes": 34382,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/15.webp",
+            "sha256": "7a184eebcd1721a7f3f43f54ae7fc269c46bf1ccc4c996a86e6f30aff2fd0f74",
+            "bytes": 37676,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/static/assets/img/guide/motor_ctl/roller485/roller485_rs485_port_01.jpg",
+            "sha256": "94eb4ae3465ac83c722fbb0669abb0d427cdaeb739b223be1cd0e3a75b491c3b",
+            "bytes": 977865,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/sch_Unit-Roller485_V1.0_page_01.png",
+            "sha256": "41bebec48ae362d7309b836adf0ce660991d74780b2363e1a4abc7f78e83125a",
+            "bytes": 1640123,
+            "role": "original-official-original-image"
+          },
+          {
+            "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/776/sch_bldc_top_v1.0_page_01.png",
+            "sha256": "b7c854e49da35b3b58efe63eea041493ea580ea8fff6a89cc2bd043f483a9015",
+            "bytes": 370464,
+            "role": "original-official-original-image"
+          }
+        ],
+        "facts": [
+          "U182 is the standard slip-ring Roller485 with a rotating top expansion plate/Grove and a fixed control base. U182-Lite and CAN variants are excluded.",
+          "The product table states 40 x 40 x 40 mm. The official assembly/motor drawings separately specify a 41 mm motor diameter, 14.8 mm barrel height, 16 mm fixed boss, 2.5 mm boss projection and 12.6 mm shaft bore.",
+          "The rotating plate and OLED control face are opposite coaxial end faces. The official tutorial explicitly calls A the bottom button.",
+          "The product specification gives a 0.66 inch 64x48 OLED. The official powered roller485_setting_01.jpg shows white monochrome emission.",
+          "The main schematic has two WS2812C-2020 RGB devices. The separate top-ring schematic has one RED indicator and four direct slip-ring pass-through paths.",
+          "The pinned official STL contains five assembled parts and five translated flat duplicates. Assembled indices 1,2,4,6,9 retain 16008 original triangles."
+        ],
+        "implementation": [
+          "Right-handed millimetres: +Y physical rotating top, +Z fixed Grove side, -Y OLED bottom. X=sourceY, Y=sourceZ+22.25, Z=sourceX+1.0872135162353516. Nominal XYZ [40,40,40]; complete visible XYZ [41,40,41].",
+          "The native expansion plate, fixed OLED face shell, fixed motor seat, rotating power guide and fixed RGB guide retain their source neutral dimensions. No native shell or motor is scaled to hide an intersection.",
+          "Model and GroveModule use the shared Device/Module and Grove cable assembly. Fixed grove is [0,-15.15,19.8], face front, normal +Z. grove-top is initially [0,15.65,19.8] and is adopted by rotor.",
+          "rotor is a continuous +Y VisualJoint accepting external angleDeg/rpm. The expansion plate, outer bell, top-ring PCB, grove-top and top-led move together; the base, OLED/press and fixed ports/RGB remain fixed.",
+          "lcd is an external 64x48 OLED framebuffer. A product-local shader emits white according to received colour luminance; core Display is unchanged.",
+          "press bends actual native U-shaped tongue vertices with zero hinge displacement. Release restores original position and creased-normal arrays exactly. The invisible input plane stays 0.02 mm outside the neutral face through the entire actuation.",
+          "First-hit input assertions follow Viewer.pick effectively-visible semantics, including opacity-zero input surfaces, across three A-area rays during 24 press and 24 release frames plus both endpoints.",
+          "rgb-1/rgb-2 drive separate fixed packages behind the native guide. top-led is fixed red with an independently cloned material; actual emissive/colour isolation and exactly-once clone disposal are asserted.",
+          "Added motor, PCB, display stack and connector solids close missing subassemblies. PCB pillar/edge reliefs are valid open outlines, including merged circular reliefs; only genuine interior holes use hole contours.",
+          "The default specialised checker does not require research source files. Explicit --verify-source verifies original STL bytes, Git blob and SHA-256. It otherwise retains identical runtime geometry, aperture, picking, movement, nested connection and disposal assertions.",
+          "Held/tween normal updates are confined to vertices of source triangles containing displaced tongue vertices. Unit incident-face normals determine a local rotation of each original creased normal; no global computeVertexNormals call rewrites the surrounding shell. The specialised checker independently derives affected triangles from actual displacement across 51 snapshots (48 tween frames), protecting at least 5219 source normal vertices and changing at most 284 local normal vertices. Release still restores the full original normal array exactly."
+        ],
+        "explicitInferences": [
+          "Hidden PCB outlines, circuit packages, OLED carrier/glass thickness, connector details and motor grooves are appearance estimates constrained by original cavities, product photos and primary official dimensions; they are not production CAD.",
+          "Active OLED area [13.4112,10.0584] mm is derived from a 0.66 inch diagonal and 64:48 aspect ratio; no panel manufacturing drawing was located.",
+          "Button free-end travel 0.25 mm and weighted bending are visual estimates, not switch-force or material-stress models.",
+          "The outer bell follows the output based on the motor structure drawing, assembled photos and rotation indication. Internal rotor/stator, bearings and slip-ring mechanical fits are not independently certified.",
+          "RGB numbering indicates spatial placement, not U4/U5 chain order. PWR485 pin names document schematic logical numbering without an unverified physical pin-picking grid.",
+          "Colours/roughness are neutral estimates. The native STL defines a neutral rotor phase; photographs can show arbitrary phases."
+        ],
+        "limits": [
+          "Stickers are deferred until original artwork is supplied; photographic crops and planar product photos do not conceal missing geometry.",
+          "The model owns appearance, input intent, external framebuffers and externally driven visual kinematics. It does not simulate firmware, menus, measurements, motor control, buses, electrical supply or hardware physics.",
+          "Finite material samples and fixed views do not prove all-angle nonintersection, dimensional tolerances, manufacturing fit, optical transmission or physical-device function.",
+          "RPM is a visual integration input, not a claim about safe or achievable hardware speed, torque, load or lifetime.",
+          "Official images, drawings, schematics and documentation retain original rights; provenance URLs/hashes do not relicense or authorize redistribution of pixels.",
+          "Auxiliary research-viewer inspection is distinct from integrated application acceptance. The main task verifies the actual demo and saves its own screenshots/receipts."
+        ],
+        "runtime": [
+          {
+            "path": "src/units/roller485/index.js",
+            "sourceSha256": "821ef89719edc981e818e57dee8e3b9dbea4fb534bbb0532401518c3a9d1b702",
+            "publicSha256": "821ef89719edc981e818e57dee8e3b9dbea4fb534bbb0532401518c3a9d1b702"
+          },
+          {
+            "path": "src/units/roller485/dimensions.js",
+            "sourceSha256": "d67d18995d47499676e93c008a5c2096b572305bdfbe9a8979f2bce2376023e9",
+            "publicSha256": "d67d18995d47499676e93c008a5c2096b572305bdfbe9a8979f2bce2376023e9"
+          },
+          {
+            "path": "src/units/roller485/geometry-data.js",
+            "sourceSha256": "f246c7ca8ff77d83bd9788d5827615e83cfee24d02dbe06d1caf5a9e167e98d6",
+            "publicSha256": "f246c7ca8ff77d83bd9788d5827615e83cfee24d02dbe06d1caf5a9e167e98d6"
+          },
+          {
+            "path": "src/units/roller485/cad-map.json",
+            "sourceSha256": "731fbb83c945ed9ecde4a167db610a4653d19545a7d4f8142c4b7e04de543c3d",
+            "publicSha256": "4e49e298b3a4acdd5824902486d4eb7e9d9e60f7b37775a5d4a383dc1856ab04"
+          }
+        ],
+        "privateProvenanceSha256": "f1652c3669d7efddc4f8d71642c9de8a67900b40b0d91d32fb566bf4f8fea9ff",
+        "privateEvidenceReportSha256": "ca299240f2ac67f1e681f22ca48af8811148fa991cf909373702bf30ec07a716",
+        "scope": "Roller485 U182 appearance, original-shell flexure and visible rotation; recursive display targeting, fresh state reads, focused Sym input and invisible IR correction. Public source, original stage media and independent validation only."
+      }
     }
   ],
   "motionStructures": {
@@ -2345,6 +5111,6 @@
       }
     ]
   },
-  "updatedAt": "2026-10-25T15:43:10.485Z",
+  "updatedAt": "2026-10-25T20:12:39.168Z",
   "syncedAt": "2026-10-25T14:15:24.398Z"
 }

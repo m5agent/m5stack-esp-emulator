@@ -2,16 +2,16 @@
 
 Last reviewed: `2026-10-26`.
 
-Status: local MVP with unified-device runtime contract `1.36.0` and bounded
+Status: local MVP with unified-device runtime contract `1.37.0` and bounded
 storage retention implemented on `2026-10-24`.
 
 The service creates an on-demand virtual M5Stack device, flashes an exact
 firmware artifact into an isolated virtual-flash copy, and exposes serial,
 frame, input and QOM operations through HTTP.
 
-UIFlow2 live programming can opt into `program_transport="uart-repl"` at
-session creation. After a compatible guest UART REPL route is initialized
-once, `POST /sessions/{id}/program` interrupts and executes each new complete
+UIFlow2 live programming can use `program_mode="uiflow-live"` at session
+creation on admitted S3 reference devices. It initializes the guest UART REPL
+route once, then `POST /sessions/{id}/program` interrupts and executes each new complete
 single-file Python source checkpoint inside that same guest, without reflashing
 or resetting the VM. `GET /sessions/{id}/program` returns execution and immutable
 source revision identities. Source is limited to 64 KiB UTF-8; submissions require
@@ -19,6 +19,12 @@ source revision identities. Source is limited to 64 KiB UTF-8; submissions requi
 timer, callback and thread state is not guaranteed to reset. See the
 [Unit Agent API](unit-agent-api.md) for initialization and exact boundaries;
 Preview orchestration, SSE and shared frame producers remain future work.
+The mode rejects uploaded firmware/source-pin parameters and incompatible
+runtime/readiness settings. Existing caller-prepared firmware sessions can
+still opt into `program_transport="uart-repl"` explicitly; this lower-level
+option leaves the guest UART route to the caller. The Live sessions page offers
+an explicit programming checkbox and a per-session editor with execution
+identity checks. A late response never replaces the local source draft.
 
 Current scope:
 

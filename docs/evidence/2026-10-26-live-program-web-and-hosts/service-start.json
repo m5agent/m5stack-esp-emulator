@@ -1,0 +1,27 @@
+{
+  "pid": 50673,
+  "command": [
+    "${PYTHON312}",
+    "-B",
+    "platform/tools/serve.py",
+    "8787",
+    "--bind",
+    "127.0.0.1",
+    "--state-dir",
+    "${WORKTREE}/.work/unit-device-service"
+  ],
+  "environment": {
+    "M5_QEMU_XTENSA": "${WORKTREE}/.work/unit-runtime-source-pwm-route/qemu/build/qemu-system-xtensa",
+    "M5_PYTHON_DEPS": ".work/py312",
+    "PYTHONPATH": "platform/tools:platform/tests:tests/units:.work/py312"
+  },
+  "source_sha256": {
+    "platform/tools/device_service.py": "fba70db3d66af995b48eedcd77a2acfea4f4a89d11582586b01454ab4a463aed",
+    "platform/tools/serve.py": "6c16fe610cabc08f118993d44819b2d506a8a69e7ac9326cad9628c90dddc68a",
+    "platform/tools/guest_console.py": "2fdbb80585ca66e99332f77614de3fbffb2c3231a955fd5c5fd0aedf8a2fe91e",
+    "platform/tools/uiflow_runtime.py": "1bf19db1c75f7c3acd6462f1e59dac8d9f12f5e45da6a253a8eef3b8e23ebf0b",
+    "platform/tools/program_revisions.py": "bcc4352623ee73743900ee2b75141ddc630b9e1712831316206005de49db40ad"
+  },
+  "redaction": "Only local Python/worktree paths replaced with named placeholders; code hashes preserved.",
+  "source_hashes_match_at_archive": true
+}

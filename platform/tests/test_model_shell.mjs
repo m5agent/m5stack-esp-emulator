@@ -53,6 +53,16 @@ const report = { category: 'browser-visual-integration', captured_at: new Date()
 
 try {
   await page.goto(`${base}/__test__`, { waitUntil: 'networkidle' });
+  // Decode every reviewed PNG, including optional education variants. Module
+  // loading alone would miss broken new URL() paths or absent raster assets.
+  report.runtime_assets = await page.evaluate(async paths => Promise.all(paths.map(async path => {
+    const image = new Image();
+    image.src = `/platform/web/vendor/m5stack-models/${path}`;
+    await image.decode();
+    return {path, width: image.naturalWidth, height: image.naturalHeight};
+  })), Object.keys(manifest.runtime_assets.files));
+  assert.ok(report.runtime_assets.every(asset => asset.width > 0 && asset.height > 0));
+  assert.equal(report.runtime_assets.length, Object.keys(manifest.runtime_assets.files).length);
   for (const device of catalog.devices) {
     const result = await page.evaluate(async device => {
       window.testShell?.dispose();
@@ -112,8 +122,25 @@ try {
       nanoc6: 'a', stackchan: 'p', atoms3r: 'a', stamplc: 'a' };
     if (firstKeys[device.id]) assert.deepEqual(result.controls.map(event => [event.key, event.down]), [[firstKeys[device.id], true], [firstKeys[device.id], false]], `${device.id} runtime input mapping`);
     if (device.id === 'tab5') assert.equal(result.resets, 1);
+    await page.waitForFunction(() => {
+      const statuses = [];
+      window.testShell.model.root.traverse(object => {
+        if (object.userData.artworkKind?.startsWith('official-raster')) statuses.push(object.userData.textureStatus);
+      });
+      return statuses.every(status => status !== 'pending');
+    });
+    result.artwork = await page.evaluate(() => {
+      const statuses = [];
+      window.testShell.model.root.traverse(object => {
+        if (object.userData.artworkKind?.startsWith('official-raster')) statuses.push(object.userData.textureStatus);
+      });
+      return {layers: statuses.length, ready: statuses.filter(status => status === 'ready').length};
+    });
+    assert.equal(result.artwork.ready, result.artwork.layers, `${device.id} model material raster loading`);
     report.controllers.push(result);
     await page.screenshot({ path: `${output}/${device.id}.png` });
+    await page.evaluate(() => window.testShell.viewer.setView('back', { duration: 0 }));
+    await page.screenshot({ path: `${output}/${device.id}-back.png` });
   }
 
   const stick = catalog.devices.find(device => device.id === 'sticks3');

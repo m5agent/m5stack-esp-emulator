@@ -1,0 +1,1037 @@
+{
+  "category": "virtual-device-live-program-browser",
+  "status": "PASS",
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "hardware_validation": "NOT RUN",
+  "captured_at": "2026-10-26T10:01:12.816Z",
+  "source_sha256": {
+    "platform/web/sessions.js": "e51ff08ccb1db5e02ccb48275ea84f0c4f808ed784dc1321ca2ba0aaea3e91de",
+    "platform/web/sessions.html": "e8028f9aeef7ce5e824d5dc08b155beea2500ba16e82516298463be8543072dd",
+    "platform/web/program-panel.js": "4545589dfe3d954d13f152ccd0e333ea5c4e3715e6b50a9578261bfc877c2f05",
+    "platform/web/program-panel.css": "0a9a8ce32a02fa962ca6d569b1d779275dd2d5b17f79595f3cb9bb91cd4add9a",
+    "platform/web/unit-panel.js": "f26a8179150c6b5ed7457b77a0324fcd883d30842f3b0f9262ea61277b0e70b5",
+    "platform/web/model-shell.js": "5157b3df83ab0e27e7fa7bc0c591410abe51b9a25622b9564c7498b5fa5900d3",
+    "platform/web/vendor/m5stack-models/vendor-manifest.json": "a26ae90cd9f4eef4c1379cc513911650253ef226070629d8001185a38dd5386a",
+    "platform/tests/test_live_program_service_browser.mjs": "581acde327c2383c44a15833170067d5d50b398ccb09d017c9e61db72a3e470b"
+  },
+  "instrumentation": "Only window.__liveProgramProbe={state,SessionVisual}; product methods and API data remain unchanged.",
+  "cases": [
+    {
+      "unit_id": "pir",
+      "checks": {
+        "web_input_to_same_guest_gpio_and_driver": true,
+        "actual_guest_frame_updates_web_model_display": true,
+        "syntax_error_dom_status_and_serial": true,
+        "ui_replaces_program_without_reflash_or_process_change": true,
+        "syntax_error_visible_and_recoverable": true,
+        "evidence_before_stop_and_retained_history": true
+      },
+      "submissions": [
+        {
+          "request": {
+            "source": "import M5\nimport time\nM5.begin()\nfrom unit import PIRUnit\nunit = PIRUnit((1, 2))\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0xFFFFFF)\nscreen.setTextSize(2)\nscreen.setTextColor(0)\nprint(\"WEB_A_READY\")\nprevious=None\nwhile True:\n M5.update()\n value=int(unit.get_status())\n if value!=previous:\n  print(\"WEB_A_PIR\",value)\n  screen.fillRect(0,0,128,90,0xFFFFFF)\n  screen.setCursor(4,4)\n  screen.print(\"WEB A\")\n  screen.setCursor(4,32)\n  screen.print(\"PIR \"+str(value))\n  previous=value\n time.sleep_ms(25)\n",
+            "expected_execution_id": null
+          },
+          "response": {
+            "session_id": "f0244ba371394db0a6b2767672639f6f",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "ec2a92f3c6ef4781a1a03fce03590966",
+              "revision_id": "f4946bca797d6fe87e4d0dbe4a42424949f00527a74ced313b9c28c5c6f64259",
+              "source_sha256": "7cc4efb9f71585c0681eb19e8f5b0cfecb290aed1336c71fb212633fa2571d6e",
+              "source_bytes": 518,
+              "state": "running",
+              "submitted_at": "2026-10-26T10:01:39.156112+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 29037,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 491,
+              "next_offset": 556,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:01:39.432754+00:00"
+            },
+            "history_error": null
+          }
+        },
+        {
+          "request": {
+            "source": "import M5\nimport time\nM5.begin()\nfrom unit import PIRUnit\nunit = PIRUnit((1, 2))\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0x88FF88)\nscreen.setTextSize(2)\nscreen.setTextColor(0)\nprint(\"WEB_B_READY\")\nprevious=None\nwhile True:\n M5.update()\n value=int(unit.get_status())\n if value!=previous:\n  print(\"WEB_B_PIR\",value)\n  screen.fillRect(0,0,128,90,0x88FF88)\n  screen.setCursor(4,4)\n  screen.print(\"WEB B\")\n  screen.setCursor(4,32)\n  screen.print(\"PIR \"+str(value))\n  previous=value\n time.sleep_ms(25)\n",
+            "expected_execution_id": "ec2a92f3c6ef4781a1a03fce03590966"
+          },
+          "response": {
+            "session_id": "f0244ba371394db0a6b2767672639f6f",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "0d046c9a685f46a182aa800eb5064e5a",
+              "revision_id": "cf9761744b4ce3fe709cb10e043a58ce5ca3412b770b6043080f8bb051d18973",
+              "source_sha256": "206e2cb8f3c114c54f2283837b1d37c406aab51021f661b41da3557253c59216",
+              "source_bytes": 518,
+              "state": "running",
+              "submitted_at": "2026-10-26T10:01:41.991697+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 29037,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 856,
+              "next_offset": 919,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:01:42.275908+00:00"
+            },
+            "history_error": null
+          }
+        },
+        {
+          "request": {
+            "source": "def broken(:\n",
+            "expected_execution_id": "0d046c9a685f46a182aa800eb5064e5a"
+          },
+          "response": {
+            "session_id": "f0244ba371394db0a6b2767672639f6f",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "421ba19175124458a940a2136a7cc72c",
+              "revision_id": "ee6d99b65e348c103d6778bd3190b53180c45507d77744c6c6cea65514d338cf",
+              "source_sha256": "4803f262333502d83e1bed493d5e97cafb0d615e19b67a3b20548cb06c9b6299",
+              "source_bytes": 13,
+              "state": "failed",
+              "submitted_at": "2026-10-26T10:01:42.522682+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 29037,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 1195,
+              "next_offset": 1414,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:01:42.710844+00:00"
+            },
+            "history_error": null
+          }
+        },
+        {
+          "request": {
+            "source": "print(\"WEB_RECOVERED\")\n",
+            "expected_execution_id": "421ba19175124458a940a2136a7cc72c"
+          },
+          "response": {
+            "session_id": "f0244ba371394db0a6b2767672639f6f",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "2f05f2ef1c4e4e8282a0822b84058747",
+              "revision_id": "01e8cb7dba6e95ed2a0b4f88b58217a7e1b2261aa051c937f48f98740aa545e7",
+              "source_sha256": "3671b7577b432ad18d79fc8ec6eaaf4fb09e47d886b994f8012adad8eb61a6c3",
+              "source_bytes": 23,
+              "state": "completed",
+              "submitted_at": "2026-10-26T10:01:44.940331+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 29037,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 1446,
+              "next_offset": 1507,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:01:45.128136+00:00"
+            },
+            "history_error": null
+          }
+        }
+      ],
+      "unit_posts": [
+        {
+          "id": "external1",
+          "values": {
+            "motion": true
+          }
+        },
+        {
+          "id": "external1",
+          "values": {
+            "motion": false
+          }
+        },
+        {
+          "id": "external1",
+          "values": {
+            "motion": true
+          }
+        },
+        {
+          "id": "external1",
+          "values": {
+            "motion": false
+          }
+        }
+      ],
+      "creation_request": {
+        "device_id": "cores3",
+        "ttl_seconds": 600,
+        "program_mode": "uiflow-live",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a"
+          }
+        ]
+      },
+      "creation_response": {
+        "session_id": "f0244ba371394db0a6b2767672639f6f",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_artifacts": [
+          "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+        ],
+        "program_transport": "uart-repl",
+        "program": null,
+        "firmware_provenance": {
+          "kind": "uiflow",
+          "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "metadata": {
+            "schema_version": 1,
+            "kind": "uiflow2-source-composition",
+            "status": "COMPOSED_NOT_EXECUTED",
+            "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+            "entrypoint": "main.py",
+            "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+            "base_size": 16121856,
+            "flash_size": 16777216,
+            "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+            "files": [
+              {
+                "path": "boot.py",
+                "size": 245,
+                "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+                "origin": "caller"
+              },
+              {
+                "path": "main.py",
+                "size": 5,
+                "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+                "origin": "caller"
+              }
+            ],
+            "caller_file_count": 2,
+            "caller_source_bytes": 250,
+            "generated_files": [],
+            "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+            "vfs": {
+              "label": "vfs",
+              "type": 1,
+              "subtype": 129,
+              "flags": 0,
+              "offset": 11141120,
+              "size": 4980736,
+              "partition_table_offset": 32768,
+              "source": "actual-base-partition-table",
+              "filesystem": "LittleFS",
+              "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+              "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+              "base_disk_version": 131072,
+              "derived_disk_version": 131073
+            },
+            "preservation": {
+              "base_file_count": 17,
+              "preserved_file_count": 15,
+              "overwritten_files": [
+                "boot.py",
+                "main.py"
+              ],
+              "outside_vfs_unchanged": true,
+              "existing_files_readback_verified": true,
+              "source_readback_verified": true
+            },
+            "toolchain": {
+              "builder": "uiflow_source/1",
+              "python": "3.12.8",
+              "python_abi": "cpython-312",
+              "littlefs_python": "0.19.0",
+              "littlefs_library": "(2, 11)",
+              "littlefs_disk": "(2, 1)",
+              "config": {
+                "block_size": 4096,
+                "read_size": 128,
+                "prog_size": 32,
+                "lookahead_size": 128,
+                "block_cycles": 100
+              }
+            }
+          }
+        },
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T10:01:31.517613+00:00",
+        "expires_at": "2026-10-26T10:11:31.517616+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 18,
+          "lease_active": true
+        },
+        "idempotent_replay": false
+      },
+      "session_id": "f0244ba371394db0a6b2767672639f6f",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 29037,
+      "runtime_identity": {
+        "pid": 29037,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff"
+      },
+      "frame_a_corner_rgb": [
+        255,
+        255,
+        255
+      ],
+      "frame_b_corner_rgb": [
+        139,
+        255,
+        139
+      ],
+      "syntax_error_status_text": "执行失败",
+      "evidence_sha256": "c2eebea86fbe6a5d352ed804c3d1088ee28f9c6a2ba381113974aa44bfd8c210",
+      "stopped": {
+        "session_id": "f0244ba371394db0a6b2767672639f6f",
+        "device_id": "cores3",
+        "state": "stopped",
+        "pid": 29037,
+        "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_artifacts": [
+          "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+        ],
+        "program_transport": "uart-repl",
+        "program": {
+          "execution_id": "2f05f2ef1c4e4e8282a0822b84058747",
+          "revision_id": "01e8cb7dba6e95ed2a0b4f88b58217a7e1b2261aa051c937f48f98740aa545e7",
+          "source_sha256": "3671b7577b432ad18d79fc8ec6eaaf4fb09e47d886b994f8012adad8eb61a6c3",
+          "source_bytes": 23,
+          "state": "completed",
+          "submitted_at": "2026-10-26T10:01:44.940331+00:00",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "pid": 29037,
+          "execution_mode": "same-guest-uart-repl",
+          "cleanup_mode": "interrupt-only",
+          "serial_offset": 1446,
+          "next_offset": 1507,
+          "acknowledged": true,
+          "transfer_mode": "raw-paste",
+          "observed_at": "2026-10-26T10:01:45.128136+00:00"
+        },
+        "firmware_provenance": {
+          "kind": "uiflow",
+          "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "metadata": {
+            "schema_version": 1,
+            "kind": "uiflow2-source-composition",
+            "status": "COMPOSED_NOT_EXECUTED",
+            "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+            "entrypoint": "main.py",
+            "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+            "base_size": 16121856,
+            "flash_size": 16777216,
+            "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+            "files": [
+              {
+                "path": "boot.py",
+                "size": 245,
+                "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+                "origin": "caller"
+              },
+              {
+                "path": "main.py",
+                "size": 5,
+                "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+                "origin": "caller"
+              }
+            ],
+            "caller_file_count": 2,
+            "caller_source_bytes": 250,
+            "generated_files": [],
+            "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+            "vfs": {
+              "label": "vfs",
+              "type": 1,
+              "subtype": 129,
+              "flags": 0,
+              "offset": 11141120,
+              "size": 4980736,
+              "partition_table_offset": 32768,
+              "source": "actual-base-partition-table",
+              "filesystem": "LittleFS",
+              "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+              "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+              "base_disk_version": 131072,
+              "derived_disk_version": 131073
+            },
+            "preservation": {
+              "base_file_count": 17,
+              "preserved_file_count": 15,
+              "overwritten_files": [
+                "boot.py",
+                "main.py"
+              ],
+              "outside_vfs_unchanged": true,
+              "existing_files_readback_verified": true,
+              "source_readback_verified": true
+            },
+            "toolchain": {
+              "builder": "uiflow_source/1",
+              "python": "3.12.8",
+              "python_abi": "cpython-312",
+              "littlefs_python": "0.19.0",
+              "littlefs_library": "(2, 11)",
+              "littlefs_disk": "(2, 1)",
+              "config": {
+                "block_size": 4096,
+                "read_size": 128,
+                "prog_size": 32,
+                "lookahead_size": 128,
+                "block_cycles": 100
+              }
+            }
+          }
+        },
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "pir",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": {
+          "transport": "cache",
+          "verified": true,
+          "flash_size": 16777216,
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "session_isolated_copy": true
+        },
+        "flash_retained": false,
+        "serial_bytes": 1576,
+        "created_at": "2026-10-26T10:01:31.517613+00:00",
+        "expires_at": "2026-10-26T10:11:31.517616+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": true,
+        "last_frame_captured_at": "2026-10-26T10:01:45.486745+00:00",
+        "device_state_supported": true,
+        "last_device_state_available": true,
+        "last_device_state_at": "2026-10-26T10:01:45.490365+00:00",
+        "completed_at": "2026-10-26T10:01:45.502628+00:00",
+        "event_count": 25,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 18,
+          "lease_active": false
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "unit_id": "relay",
+      "checks": {
+        "guest_relay_output_to_controller_and_web_readback": true,
+        "actual_guest_frame_updates_web_model_display": true,
+        "syntax_error_dom_status_and_serial": true,
+        "ui_replaces_program_without_reflash_or_process_change": true,
+        "syntax_error_visible_and_recoverable": true,
+        "evidence_before_stop_and_retained_history": true
+      },
+      "submissions": [
+        {
+          "request": {
+            "source": "import M5\nimport time\nM5.begin()\nfrom unit import RelayUnit\nunit = RelayUnit((1, 2))\nunit.set_status(False)\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0xFFFFFF)\nscreen.setTextSize(2)\nscreen.setTextColor(0)\nprint(\"WEB_A_READY\")\nprevious=None\nwhile True:\n M5.update()\n value=int(unit.get_status())\n if value!=previous:\n  print(\"WEB_A_RELAY\",value)\n  screen.fillRect(0,0,128,90,0xFFFFFF)\n  screen.setCursor(4,4)\n  screen.print(\"WEB A\")\n  screen.setCursor(4,32)\n  screen.print(\"RELAY \"+str(value))\n  previous=value\n time.sleep_ms(25)\n",
+            "expected_execution_id": null
+          },
+          "response": {
+            "session_id": "17eefd427c2646e0b3c0b42a6a7db32a",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "2ae91023e7f141e7b24335c03bb02c80",
+              "revision_id": "eba4c61ba390dc70abdb070a1e43bbf5df357258cddbbd4e66891c0c1d7e446f",
+              "source_sha256": "b744f20ac5d2708b6d53f560ff92df6d63bffb836f4bfbb2a7f008b964b15055",
+              "source_bytes": 549,
+              "state": "running",
+              "submitted_at": "2026-10-26T10:01:50.924491+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 29166,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 491,
+              "next_offset": 556,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:01:51.206299+00:00"
+            },
+            "history_error": null
+          }
+        },
+        {
+          "request": {
+            "source": "import M5\nimport time\nM5.begin()\nfrom unit import RelayUnit\nunit = RelayUnit((1, 2))\nunit.set_status(True)\nscreen=M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(0x88FF88)\nscreen.setTextSize(2)\nscreen.setTextColor(0)\nprint(\"WEB_B_READY\")\nprevious=None\nwhile True:\n M5.update()\n value=int(unit.get_status())\n if value!=previous:\n  print(\"WEB_B_RELAY\",value)\n  screen.fillRect(0,0,128,90,0x88FF88)\n  screen.setCursor(4,4)\n  screen.print(\"WEB B\")\n  screen.setCursor(4,32)\n  screen.print(\"RELAY \"+str(value))\n  previous=value\n time.sleep_ms(25)\n",
+            "expected_execution_id": "2ae91023e7f141e7b24335c03bb02c80"
+          },
+          "response": {
+            "session_id": "17eefd427c2646e0b3c0b42a6a7db32a",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "c8b3fba383c44045bedab3383a1b0292",
+              "revision_id": "cbbac555663df177f1eee4b0da64f58d99e2304bec2c60f24c1a423865a82382",
+              "source_sha256": "e4cef58455719953d4c2132c8570eb3d2abd9282e9a9054cac2ce966893fe4f0",
+              "source_bytes": 548,
+              "state": "running",
+              "submitted_at": "2026-10-26T10:01:51.538714+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 29166,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 832,
+              "next_offset": 895,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:01:51.820975+00:00"
+            },
+            "history_error": null
+          }
+        },
+        {
+          "request": {
+            "source": "def broken(:\n",
+            "expected_execution_id": "c8b3fba383c44045bedab3383a1b0292"
+          },
+          "response": {
+            "session_id": "17eefd427c2646e0b3c0b42a6a7db32a",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "3301f2772a4145d792b1f5d6dd8fb4d2",
+              "revision_id": "ee6d99b65e348c103d6778bd3190b53180c45507d77744c6c6cea65514d338cf",
+              "source_sha256": "4803f262333502d83e1bed493d5e97cafb0d615e19b67a3b20548cb06c9b6299",
+              "source_bytes": 13,
+              "state": "failed",
+              "submitted_at": "2026-10-26T10:01:52.156567+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 29166,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 1173,
+              "next_offset": 1392,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:01:52.341491+00:00"
+            },
+            "history_error": null
+          }
+        },
+        {
+          "request": {
+            "source": "print(\"WEB_RECOVERED\")\n",
+            "expected_execution_id": "3301f2772a4145d792b1f5d6dd8fb4d2"
+          },
+          "response": {
+            "session_id": "17eefd427c2646e0b3c0b42a6a7db32a",
+            "program_transport": "uart-repl",
+            "program": {
+              "execution_id": "f997830c4c0f4af9a2afe0b05ca26c2e",
+              "revision_id": "01e8cb7dba6e95ed2a0b4f88b58217a7e1b2261aa051c937f48f98740aa545e7",
+              "source_sha256": "3671b7577b432ad18d79fc8ec6eaaf4fb09e47d886b994f8012adad8eb61a6c3",
+              "source_bytes": 23,
+              "state": "completed",
+              "submitted_at": "2026-10-26T10:01:53.122656+00:00",
+              "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+              "pid": 29166,
+              "execution_mode": "same-guest-uart-repl",
+              "cleanup_mode": "interrupt-only",
+              "serial_offset": 1424,
+              "next_offset": 1485,
+              "acknowledged": true,
+              "transfer_mode": "raw-paste",
+              "observed_at": "2026-10-26T10:01:53.311420+00:00"
+            },
+            "history_error": null
+          }
+        }
+      ],
+      "unit_posts": [],
+      "creation_request": {
+        "device_id": "cores3",
+        "ttl_seconds": 600,
+        "program_mode": "uiflow-live",
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "relay",
+            "port_id": "port-a"
+          }
+        ]
+      },
+      "creation_response": {
+        "session_id": "17eefd427c2646e0b3c0b42a6a7db32a",
+        "device_id": "cores3",
+        "state": "flashing",
+        "pid": null,
+        "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_artifacts": [
+          "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+        ],
+        "program_transport": "uart-repl",
+        "program": null,
+        "firmware_provenance": {
+          "kind": "uiflow",
+          "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "metadata": {
+            "schema_version": 1,
+            "kind": "uiflow2-source-composition",
+            "status": "COMPOSED_NOT_EXECUTED",
+            "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+            "entrypoint": "main.py",
+            "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+            "base_size": 16121856,
+            "flash_size": 16777216,
+            "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+            "files": [
+              {
+                "path": "boot.py",
+                "size": 245,
+                "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+                "origin": "caller"
+              },
+              {
+                "path": "main.py",
+                "size": 5,
+                "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+                "origin": "caller"
+              }
+            ],
+            "caller_file_count": 2,
+            "caller_source_bytes": 250,
+            "generated_files": [],
+            "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+            "vfs": {
+              "label": "vfs",
+              "type": 1,
+              "subtype": 129,
+              "flags": 0,
+              "offset": 11141120,
+              "size": 4980736,
+              "partition_table_offset": 32768,
+              "source": "actual-base-partition-table",
+              "filesystem": "LittleFS",
+              "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+              "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+              "base_disk_version": 131072,
+              "derived_disk_version": 131073
+            },
+            "preservation": {
+              "base_file_count": 17,
+              "preserved_file_count": 15,
+              "overwritten_files": [
+                "boot.py",
+                "main.py"
+              ],
+              "outside_vfs_unchanged": true,
+              "existing_files_readback_verified": true,
+              "source_readback_verified": true
+            },
+            "toolchain": {
+              "builder": "uiflow_source/1",
+              "python": "3.12.8",
+              "python_abi": "cpython-312",
+              "littlefs_python": "0.19.0",
+              "littlefs_library": "(2, 11)",
+              "littlefs_disk": "(2, 1)",
+              "config": {
+                "block_size": 4096,
+                "read_size": 128,
+                "prog_size": 32,
+                "lookahead_size": 128,
+                "block_cycles": 100
+              }
+            }
+          }
+        },
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "relay",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": null,
+        "flash_retained": false,
+        "serial_bytes": 0,
+        "created_at": "2026-10-26T10:01:45.618183+00:00",
+        "expires_at": "2026-10-26T10:11:45.618192+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": false,
+        "last_frame_captured_at": null,
+        "device_state_supported": true,
+        "last_device_state_available": false,
+        "last_device_state_at": null,
+        "completed_at": null,
+        "event_count": 3,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 18,
+          "lease_active": true
+        },
+        "idempotent_replay": false
+      },
+      "session_id": "17eefd427c2646e0b3c0b42a6a7db32a",
+      "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+      "pid": 29166,
+      "runtime_identity": {
+        "pid": 29166,
+        "executable_name": "qemu-system-xtensa",
+        "sha256": "d1ba0063f80f6f8bdeeaa831f0d16ce4004ff3692a2d0587663e121bb93f45ff"
+      },
+      "frame_a_corner_rgb": [
+        255,
+        255,
+        255
+      ],
+      "frame_b_corner_rgb": [
+        139,
+        255,
+        139
+      ],
+      "syntax_error_status_text": "执行失败",
+      "evidence_sha256": "4055290753c367931a75a8d272125b7fb80b67e0c6900a9095b05d9ac4ad3ab4",
+      "stopped": {
+        "session_id": "17eefd427c2646e0b3c0b42a6a7db32a",
+        "device_id": "cores3",
+        "state": "stopped",
+        "pid": 29166,
+        "firmware_id": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+        "firmware_source": "uploaded",
+        "artifact_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+        "source_artifacts": [
+          "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720"
+        ],
+        "program_transport": "uart-repl",
+        "program": {
+          "execution_id": "f997830c4c0f4af9a2afe0b05ca26c2e",
+          "revision_id": "01e8cb7dba6e95ed2a0b4f88b58217a7e1b2261aa051c937f48f98740aa545e7",
+          "source_sha256": "3671b7577b432ad18d79fc8ec6eaaf4fb09e47d886b994f8012adad8eb61a6c3",
+          "source_bytes": 23,
+          "state": "completed",
+          "submitted_at": "2026-10-26T10:01:53.122656+00:00",
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "pid": 29166,
+          "execution_mode": "same-guest-uart-repl",
+          "cleanup_mode": "interrupt-only",
+          "serial_offset": 1424,
+          "next_offset": 1485,
+          "acknowledged": true,
+          "transfer_mode": "raw-paste",
+          "observed_at": "2026-10-26T10:01:53.311420+00:00"
+        },
+        "firmware_provenance": {
+          "kind": "uiflow",
+          "artifact_id": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+          "metadata": {
+            "schema_version": 1,
+            "kind": "uiflow2-source-composition",
+            "status": "COMPOSED_NOT_EXECUTED",
+            "firmware_family_precondition": "caller-admitted-UIFlow2-base",
+            "entrypoint": "main.py",
+            "base_sha256": "1324f12d3ddd5392f47a9eff537f9ce0b01a8e6e36d829b6bd22cdf82d2c1264",
+            "base_size": 16121856,
+            "flash_size": 16777216,
+            "source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "effective_source_sha256": "cc33460849e985217816e5bbf0b7b862fe64e9e40b8d921ffe1f7892268b8720",
+            "source_hash_format": "canonical-json-utf8-path-to-source/v1",
+            "files": [
+              {
+                "path": "boot.py",
+                "size": 245,
+                "sha256": "ea081ccfa793e43b59f3aa558fdcee42ef62047650730f8a526d0ceaa9ed95a6",
+                "origin": "caller"
+              },
+              {
+                "path": "main.py",
+                "size": 5,
+                "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+                "origin": "caller"
+              }
+            ],
+            "caller_file_count": 2,
+            "caller_source_bytes": 250,
+            "generated_files": [],
+            "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+            "vfs": {
+              "label": "vfs",
+              "type": 1,
+              "subtype": 129,
+              "flags": 0,
+              "offset": 11141120,
+              "size": 4980736,
+              "partition_table_offset": 32768,
+              "source": "actual-base-partition-table",
+              "filesystem": "LittleFS",
+              "base_sha256": "8c8346fec8a8ecb18819fa1445b0e2043be864be6be24fb04fdd2b8d33b2a846",
+              "derived_sha256": "64f6654963cbfe4808187ad125ad819b5a917b4a11275bfcf5de35f0e4c9d8fe",
+              "base_disk_version": 131072,
+              "derived_disk_version": 131073
+            },
+            "preservation": {
+              "base_file_count": 17,
+              "preserved_file_count": 15,
+              "overwritten_files": [
+                "boot.py",
+                "main.py"
+              ],
+              "outside_vfs_unchanged": true,
+              "existing_files_readback_verified": true,
+              "source_readback_verified": true
+            },
+            "toolchain": {
+              "builder": "uiflow_source/1",
+              "python": "3.12.8",
+              "python_abi": "cpython-312",
+              "littlefs_python": "0.19.0",
+              "littlefs_library": "(2, 11)",
+              "littlefs_disk": "(2, 1)",
+              "config": {
+                "block_size": 4096,
+                "read_size": 128,
+                "prog_size": 32,
+                "lookahead_size": 128,
+                "block_cycles": 100
+              }
+            }
+          }
+        },
+        "runtime_env": {},
+        "runtime": "qemu",
+        "runtime_memory": {
+          "requested_psram_mib": null,
+          "cli_requested_psram_mib": null,
+          "effective_psram_mib": null,
+          "effective_source": "qemu-cli-request",
+          "policy": "not-configured",
+          "claim": "qemu-memory-configuration-only",
+          "physical_cache_psram_timing": "NOT RUN"
+        },
+        "network": null,
+        "storage": null,
+        "units": [
+          {
+            "id": "external1",
+            "unit_id": "relay",
+            "port_id": "port-a",
+            "pins": {
+              "yellow": 2,
+              "white": 1
+            },
+            "visual_port": "grove",
+            "initial": {}
+          }
+        ],
+        "nvs": null,
+        "flash": {
+          "transport": "cache",
+          "verified": true,
+          "flash_size": 16777216,
+          "firmware_sha256": "0ede40601c1e37b7ba32c87a3ca55e4da7a448f6cf52957f005763bc7c7c78e8",
+          "session_isolated_copy": true
+        },
+        "flash_retained": false,
+        "serial_bytes": 1554,
+        "created_at": "2026-10-26T10:01:45.618183+00:00",
+        "expires_at": "2026-10-26T10:11:45.618192+00:00",
+        "error": null,
+        "display": {
+          "driver": "ILI9342C / ILI9342E",
+          "width": 320,
+          "height": 240,
+          "shape": "rect",
+          "touch": true
+        },
+        "display_available": true,
+        "last_frame_available": true,
+        "last_frame_captured_at": "2026-10-26T10:01:54.046284+00:00",
+        "device_state_supported": true,
+        "last_device_state_available": true,
+        "last_device_state_at": "2026-10-26T10:01:54.083754+00:00",
+        "completed_at": "2026-10-26T10:01:54.092078+00:00",
+        "event_count": 21,
+        "restored": false,
+        "interrupted": false,
+        "reattached_process": false,
+        "recovery_scope": null,
+        "companions": {
+          "http_fixture": {
+            "required": false
+          },
+          "ble_probe": {
+            "required": false
+          }
+        },
+        "worker": {
+          "worker_id": "worker-b71031d2aef3428b",
+          "generation": 18,
+          "lease_active": false
+        }
+      },
+      "status": "PASS"
+    }
+  ],
+  "page_errors": [],
+  "resource_errors": [],
+  "browser_version": "156.0.8078.48"
+}

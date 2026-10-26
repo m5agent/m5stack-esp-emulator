@@ -158,6 +158,7 @@ export class ComponentHost extends EventEmitter {
   }
 
   getState() {
+    this.ensureBuilt();
     const state = {};
     for (const c of this.components.values()) {
       state[c.id] = c.getState();

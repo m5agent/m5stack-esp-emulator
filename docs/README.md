@@ -131,7 +131,7 @@
 | [CoreS3 三渲染器](cores3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [StickS3 三渲染器](sticks3-three-renderer.md) | 历史证据 | `2026-10-22` | 固定三种渲染路径的对比 |
 | [多设备模拟器设计](plans/2026-10-20-multi-device-emulator-design.md) | 历史设计 | `2026-10-20` | 早期后端和能力分层，不代表当前设备状态 |
-| [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md) | 实现设计 | `2026-10-26` | 当前优先补外部 Agent UIFlow 源码→Device Service API→可见 session/多 Unit→实时读写；固定公开模型源、控制器数据面、Web 双向状态和完整批次门禁仍分别验收 |
+| [Unit 集成计划](plans/2026-10-25-unit-runtime-integration.md) | 实现设计 | `2026-10-26` | 同guest程序已覆盖四主机PIR/Relay，Web实时编辑另验CoreS3；其余Unit、AIFlow/Preview/SSE、多文件及保存开机仍开放；14主机/29视觉Unit与27功能协议分别验收 |
 | [Unit 接入问题](unit-integration-host-issues.md) | 参考记录 | `2026-10-26` | 接入期间发现的主机问题与处理边界 |
 | [Unit 源码 API 首批验收](evidence/2026-10-26-unit-source-api-29d8/README.md) | 历史证据 | `2026-10-26` | 五例源码 API 与逐字 Button/HUB+ENV/NCIR 示例；同 guest/Web/QOM/sourcepin/ZIP 和清理，限 CoreS3，硬件 NOT RUN |
 | [Unit 源码 API 扩展验收](evidence/2026-10-26-unit-source-api-expanded-29d8/README.md) | 历史证据 | `2026-10-26` | 传感器、IO、控制类及显式 custom；原 IR 待审、原 Buzzer 自然归零失败、Thermal 负控与功能例分开，公开研究和可重放原始证据，限 CoreS3 |
@@ -140,6 +140,8 @@
 | [三主机八种 Unit 源码IO](evidence/2026-10-26-unit-source-host-io-d1ba/README.md) | 历史证据 | `2026-10-26` | 新增24源码组合，Fan3在同步前、其余21在同步后；GPIO/RMT/LEDC/UART/HUB多leaf及原host oracle、真实Web/source/PID/取证清理，两准确HEAD与精确源码omission分列，不转授其它组合/硬件 |
 | [AIFlow实时预览API评估计划](plans/2026-10-26-aiflow-live-preview-api.md) | 实现/设计 | `2026-10-26` | UIFlow同guest程序接口与旧路径时延；Preview/Run、SSE和共享帧缓存仍是方案，继承Unit/服务Backlog |
 | [UIFlow同guest实时程序验证](evidence/2026-10-26-uiflow-live-program/README.md) | 历史证据 | `2026-10-26` | AtomS3R同固件/VM程序替换、PIR原驱动、应用帧与语法错误恢复；其它主机、AIFlow接入和硬件不继承 |
+| [UIFlow实时Web与四主机](evidence/2026-10-26-live-program-web-and-hosts/README.md) | 历史证据 | `2026-10-26` | 四主机×PIR/Relay八会话/40次预期提交；真实CoreS3两例Web像素、输入输出、同PID/固件替换与语法恢复；picker失败负控及13项fixture，非AIFlow/SSE/硬件结论 |
+| [公开外壳更新48667b7](evidence/2026-10-26-visual-refresh-48667b7/README.md) | 历史证据 | `2026-10-26` | 固定公开Git、65许可PNG与依赖闭包、14主机/29视觉Unit浏览器回归；Scroll/Roller485仅视觉，内部协议仍27种，不继承固件或机械保真PASS |
 | [AIFlow实时预览API审查证据](evidence/2026-10-26-aiflow-preview-api-audit/README.md) | 历史证据 | `2026-10-26` | 两仓固定源码与调用链、24原ZIP timeline分析、确定性host取消竞态；非AIFlow端到端/首帧/性能SLA或新接口PASS |
 | [会话取消与 Unit 回归](evidence/2026-10-26-session-cancellation-f309/README.md) | 历史证据 | `2026-10-26` | 生命周期/停止意图/Network child收据与draining所有权，宿主隔离回归和真实AtomS3R源码取消/PIR新guest交互；其它后端实际执行、预览接口与硬件不继承 |
 | [预览细则与客户端响应隔离](evidence/2026-10-26-preview-client-fencing/README.md) | 历史证据 | `2026-10-26` | session/input epoch、旧队列/装配隔离和确定性旧源码负控；browser fixture与当前AIFlow消费者只读收据，无新guest、预览接口或硬件PASS |

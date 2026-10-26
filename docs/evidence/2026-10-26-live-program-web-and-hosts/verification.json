@@ -1,0 +1,48 @@
+{
+  "checked_at": "2026-10-26T10:04:25.911631+00:00",
+  "platform_tests": {
+    "tests": 824,
+    "status": "PASS",
+    "log": "verification/platform-final.txt"
+  },
+  "validators": {
+    "runtime_coverage": "PASS",
+    "peripheral_catalog": "PASS",
+    "qemu_profiles": "PASS",
+    "project_snapshot": "PASS",
+    "fixed_visual_source": "PASS"
+  },
+  "browser": {
+    "real_service": "PASS",
+    "ui_syntax_error_and_serial": "PASS",
+    "program_panel_fixtures": 13
+  },
+  "archive": {
+    "evidence_zips": 11,
+    "crc_paths_member_hashes": "PASS",
+    "rom_firmware_binaries": "NONE",
+    "source_receipt_matches": "PASS"
+  },
+  "sensitive_data_scan": {
+    "records": 480,
+    "unresolved_hits": [],
+    "classified_source_literals": [
+      {
+        "path": "sources/platform__tools__device_service.py.txt",
+        "member": "",
+        "rule": "private_endpoint",
+        "count": 9,
+        "reason": "QEMU SLiRP and controlled guest fixture literals; no machine-private endpoint"
+      }
+    ]
+  },
+  "full_peripheral_matrix": "NOT RUN - no shared QEMU/controller/build change in this block",
+  "hardware_validation": "NOT RUN",
+  "docs_after_final_archive": "PASS",
+  "upstream_sync": {
+    "remote": "origin/main",
+    "commit": "f2061759897955e6017d4aa2a41bd5ba962c35b6",
+    "fetch": "PASS",
+    "merge": "Already up to date"
+  }
+}

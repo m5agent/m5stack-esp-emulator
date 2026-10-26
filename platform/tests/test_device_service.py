@@ -215,6 +215,52 @@ class DeviceServiceUnitTests(unittest.TestCase):
         self.service.close_all()
         self.tmp.cleanup()
 
+    def test_live_mode_initializes_reference_once_and_preserves_create_idempotency(self):
+        source_sha = "a" * 64
+        firmware = {"firmware_id": "b" * 64, "sha256": "b" * 64, "device_id": "cores3",
+                    "source": {"kind": "uiflow", "artifact_id": source_sha,
+                               "metadata": {"source_sha256": source_sha}}}
+        request = {"device_id": "cores3", "program_mode": "uiflow-live", "idempotency_key": "live-mode-test"}
+        with mock.patch.object(self.service, "create_uiflow_firmware", return_value=firmware) as compose, \
+             mock.patch.object(self.service.firmware, "get", return_value=firmware), \
+             mock.patch.object(self.service.firmware, "path", return_value=self.service.specs["cores3"].reference_path), \
+             mock.patch.object(DeviceSession, "start"):
+            result = self.service.create_session(request)
+            replay = self.service.create_session(dict(request))
+        self.assertEqual(compose.call_count, 1)
+        files = compose.call_args.args[0]["files"]
+        self.assertIn("os.dupterm", files["boot.py"])
+        self.assertIn("_uiflow_run_main = False", files["boot.py"])
+        self.assertEqual(files["main.py"], "pass\n")
+        session = self.service.get_session(result["session_id"])
+        self.assertEqual(session.program_transport, "uart-repl")
+        self.assertEqual(session.ready_marker, "M5EMU_UART_REPL_READY")
+        self.assertEqual(result["session_id"], replay["session_id"])
+        self.assertTrue(replay["idempotent_replay"])
+        self.assertNotIn("firmware_id", request, "caller request must remain unchanged")
+
+    def test_live_mode_rejects_conflicts_before_composing_or_reserving_a_lease(self):
+        for extra, code in (
+            ({"program_mode": []}, "unsupported_program_mode"),
+            ({"runtime": "qemu-unified"}, "unsupported_program_mode"),
+            ({"firmware_id": "b" * 64}, "program_mode_firmware_conflict"),
+            ({"uiflow_source_sha256": "a" * 64}, "program_mode_firmware_conflict"),
+            ({"ready_marker": "USER_APPLICATION_READY"}, "program_mode_ready_conflict"),
+            ({"ready": {"frame_nonblank": True}}, "program_mode_ready_conflict"),
+        ):
+            with self.subTest(extra=extra), mock.patch.object(self.service, "create_uiflow_firmware") as compose:
+                with self.assertRaises(ServiceError) as error:
+                    self.service.create_session({"device_id": "cores3", "program_mode": "uiflow-live", **extra})
+                self.assertEqual(error.exception.code, code)
+                compose.assert_not_called()
+                self.assertEqual(self.service.capacity()["active_sessions"], 0)
+
+    def test_program_modes_are_advertised_only_on_admitted_devices(self):
+        for device_id in ("cores3", "atoms3r", "sticks3", "stopwatch"):
+            self.assertEqual(self.service.get_device(device_id)["program_modes"], ["uiflow-live"])
+        for device_id in ("core2", "tab5", "nanoc6"):
+            self.assertEqual(self.service.get_device(device_id)["program_modes"], [])
+
     def test_unit_creation_uses_one_catalog_snapshot_for_wiring_and_contract(self):
         registry = device_service_module.UnitRegistry()
         with mock.patch.object(device_service_module, "UnitRegistry", side_effect=[registry]) as factory, mock.patch.object(DeviceSession, "start"):

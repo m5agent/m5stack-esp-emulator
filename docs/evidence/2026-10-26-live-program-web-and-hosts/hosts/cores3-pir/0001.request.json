@@ -1,0 +1,14 @@
+{
+  "device_id": "cores3",
+  "runtime": "qemu",
+  "ttl_seconds": 300,
+  "ready_timeout_seconds": 30,
+  "units": [
+    {
+      "id": "external1",
+      "unit_id": "pir",
+      "port_id": "port-a"
+    }
+  ],
+  "program_mode": "uiflow-live"
+}

@@ -2,11 +2,11 @@
 
 Source: https://github.com/yuyun2000/m5stack-models
 
-Commit: `48ab992f5ff63c1a91296051e1afcb5959877903`
+Commit: `48667b728736fbfd4365a06575473ce538d3c972`
 
 Copied from Git objects with an explicit allowlist. Local changes and private research are never copied. `vendor-manifest.json` records every source file's SHA-256. The original `source-manifest.json` records geometry provenance.
 
-Preserve `LICENSE`, `THIRD_PARTY_NOTICES.md` and `licenses/` when redistributing. Official remote photos are not bundled or relicensed. All models are visual shells: firmware, controller, bus and sensor evidence come from this project's Device Service.
+Preserve `LICENSE`, `THIRD_PARTY_NOTICES.md` and `licenses/` when redistributing. Reviewed product sticker PNGs retain the provider-permission notice and per-file hashes; official remote photos are not bundled or relicensed. All models are visual shells: firmware, controller, bus and sensor evidence come from this project's Device Service.
 
 This source uses the site's single Three.js 0.186.1 import-map instance. Load `src/loaders.js` to keep models lazy; do not import `src/index.js` in the first-screen bundle.
 

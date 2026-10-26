@@ -18,14 +18,14 @@ export function addBody(host,keyCenters){
  const whiteCenter=(DIM.shell.split+DIM.shell.front)/2,whiteHeight=DIM.shell.front-DIM.shell.split;
  const p=DIM.ports;
  const sideSpecs=[
-  {face:'left',x:-40.4,holes:[
-   {w:14.8,h:5.8,r:.35,cx:-p.hdmi[1],z:p.hdmi[2]},
-   {w:5.5,h:5.5,r:2.75,cx:-p.audio[1],z:p.audio[2]},
-   {w:10.5,h:5.8,r:.3,cx:-p.grove[1],z:p.grove[2]}
-  ]},
   {face:'right',x:40.4,holes:[
-   {w:13.8,h:6.5,r:.3,cx:p.usbA[1],z:p.usbA[2]},
-   {w:16.6,h:13.8,r:.35,cx:p.ethernet[1],z:p.ethernet[2]}
+   {w:14.8,h:5.8,r:.35,cx:p.hdmi[1],z:p.hdmi[2]},
+   {w:5.5,h:5.5,r:2.75,cx:p.audio[1],z:p.audio[2]},
+   {w:10.5,h:5.8,r:.3,cx:p.grove[1],z:p.grove[2]}
+  ]},
+  {face:'left',x:-40.4,holes:[
+   {w:13.8,h:6.5,r:.3,cx:-p.usbA[1],z:p.usbA[2]},
+   {w:16.6,h:13.8,r:.35,cx:-p.ethernet[1],z:p.ethernet[2]}
   ]}
  ];
  for(const s of sideSpecs){
@@ -38,7 +38,7 @@ export function addBody(host,keyCenters){
  const lowerHoles=Array.from({length:8},(_,i)=>({w:.8,h:4.1,r:.35,cx:(i-3.5)*3,cy:1-darkCenter}));
  lowerHoles.push({w:16,h:2,r:.3,cx:0,cy:-8-darkCenter});
  const bottom=slab(host.body,79,darkHeight,1.6,.25,[0,-25.4,darkCenter],dark,lowerHoles,.06);bottom.quaternion.copy(FACE.bottom);bottom.name='Lower speaker shell';
- const topWhite=slab(host.body,79,whiteHeight,1.6,.25,[0,25.4,whiteCenter],white,[{w:12.8,h:2.1,r:.2,cx:18.1,cy:-(6-whiteCenter)},{w:5.8,h:2.4,r:.25,cx:30.4,cy:-(6.2-whiteCenter)},{w:1.3,h:1.8,r:.5,cx:-34.5,cy:-(6.1-whiteCenter)}],.05);topWhite.quaternion.copy(FACE.top);topWhite.name='Upper white lid edge';
+ const topWhite=slab(host.body,79,whiteHeight,1.6,.25,[0,25.4,whiteCenter],white,[{w:12.8,h:2.1,r:.2,cx:-18.1,cy:-(6-whiteCenter)},{w:5.8,h:2.4,r:.25,cx:-30.4,cy:-(6.2-whiteCenter)},{w:1.3,h:1.8,r:.5,cx:34.5,cy:-(6.1-whiteCenter)}],.05);topWhite.quaternion.copy(FACE.top);topWhite.name='Upper white lid edge';
  const bottomWhite=slab(host.body,79,whiteHeight,1.6,.25,[0,-25.4,whiteCenter],white,[],.05);bottomWhite.quaternion.copy(FACE.bottom);bottomWhite.name='Lower white lid edge';
  for(const x of [-39.4,39.4])for(const y of [-24.4,24.4]){
   mesh(host.body,new THREE.CylinderGeometry(2.6,2.6,darkHeight,24).rotateX(Math.PI/2),dark,[x,y,darkCenter],'Lower shell rounded corner');
@@ -53,8 +53,8 @@ export function addBody(host,keyCenters){
  for(const [x,y]of [[-29,3.2],[28,12.3]])screw(host.body,[x,y,9.88],'front',1.55);
  const mic=slab(host.body,1.8,3.6,.6,.25,[-33.1,2.55,7.7],materials.plastic(0x171e1a),[],.05);mic.name='Microphone recess backing';
  // Real internal solids back the assembled shells and vents; sizes are inferred.
- slab(host.body,54,39,6,.8,[-7,-2,-10.0],materials.metal(0xa9ada8,{roughness:.83}),[],.15).name='1750 mAh battery body';
- const pcbShape=new THREE.Shape();pcbShape.moveTo(-39.2,-24);pcbShape.lineTo(27.4,-24);pcbShape.lineTo(27.4,-4.5);pcbShape.lineTo(39.2,-4.5);pcbShape.lineTo(39.2,24);pcbShape.lineTo(-39.2,24);pcbShape.closePath();
+ slab(host.body,54,39,6,.8,[7,-2,-10.0],materials.metal(0xa9ada8,{roughness:.83}),[],.15).name='1750 mAh battery body';
+ const pcbShape=new THREE.Shape();pcbShape.moveTo(-27.4,-24);pcbShape.lineTo(39.2,-24);pcbShape.lineTo(39.2,24);pcbShape.lineTo(-39.2,24);pcbShape.lineTo(-39.2,-4.5);pcbShape.lineTo(-27.4,-4.5);pcbShape.closePath();
  mesh(host.body,new THREE.ExtrudeGeometry(pcbShape,{depth:1,bevelEnabled:false}),materials.plastic(0x284333,{roughness:.9}),[0,0,-4.1],'Main PCB with Ethernet clearance');
  const speaker=slab(host.body,24,6.4,1.3,2,[0,-24.2,1],materials.plastic(0x171f1c,{roughness:.95}),[],.12);speaker.quaternion.copy(FACE.bottom);speaker.name='Speaker acoustic enclosure';
  const grip=slab(host.body,17,3,1,.35,[0,-24.4,-8],dark,[],.08);grip.quaternion.copy(FACE.bottom);grip.name='Lower blind grip pocket';

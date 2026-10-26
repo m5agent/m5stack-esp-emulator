@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-10-25",
+  "updated": "2026-10-26",
   "scope": "visual-only",
   "products": [
     {
@@ -50,9 +50,17 @@
       "limitations": [
         "外壳与前键采用所选官方CAD，14mm壳体/15mm含键总厚，LCD有效区采用官方A183尺寸",
         "已补16个实体Hat2孔、USB包体、IR/喇叭与侧键背衬；局部PCB/电池/隐藏封装尺寸为照片推导",
-        "既有Canvas标签暂留；贴纸原文件未到，不代表最终精细外观已验收"
+        "正式栅格贴纸已接入，不代表最终精细外观已验收"
       ],
-      "nextAction": "七视图及实体排母/接口/侧键背衬已复核；继续精修照片推导局部尺寸，贴纸等待原文件"
+      "nextAction": "七视图及实体排母/接口/侧键背衬已复核；继续精修照片推导局部尺寸；正式栅格贴纸已接入，配准复核见贴纸记录",
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "cores3",
@@ -93,7 +101,7 @@
       "limitations": [
         "LCD 物理面积暂按 2.0 英寸与 4:3 推导；尚未找到面板尺寸图"
       ],
-      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件",
+      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节；正式栅格贴纸已接入，配准复核见贴纸记录",
       "configurations": [
         {
           "id": "module",
@@ -117,7 +125,15 @@
             31.5
           ]
         }
-      ]
+      ],
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "stopwatch",
@@ -157,14 +173,22 @@
       },
       "limitations": [
         "已按官方照片/CAD纠正总成方向、按钮映射、7+6 排母、两螺钉及右下径向 Grove",
-        "PCB/接口内层有照片推导；旧 Canvas 标签待原文件替换，未做贴纸像素验收"
+        "PCB/接口内层有照片推导；背面已接入正式栅格贴纸并完成本批浏览器复核"
       ],
-      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件",
+      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节；正式栅格贴纸已接入，配准复核见贴纸记录",
       "cadEnvelopeMm": [
         51.946,
         51.947,
         15
-      ]
+      ],
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "cardputer-adv",
@@ -205,9 +229,10 @@
       "limitations": [
         "原官方CAD装配配合真实USB-C、microSD、Grove、音频、IR与喇叭开口；内藏包装/接缝唇口及StampS3A天线尺寸仍部分为照片推导。",
         "60控件=58瞬时键帽+电源与Grove供电方向两稳定滑块；Grove方向只记录视觉档位，无电气行为。",
-        "LCD有效区仍需面板机械图；贴纸等待用户原文件。"
+        "LCD有效区仍需面板机械图；正式栅格贴纸已接入。",
+        "Stamp-S3A单颗RGB支持外驱颜色/亮度，默认熄灭；封装深度与光扩散为外观估计，不模拟启动/下载、GPIO38门控或按键联动。"
       ],
-      "nextAction": "接口深腔、StampS3A、接缝搭接和60控件已检查；继续核对推导包装及LCD有效区，贴纸等待原文件",
+      "nextAction": "接口深腔、StampS3A、接缝搭接和60控件已检查；继续核对推导包装及LCD有效区；正式栅格贴纸已接入，配准复核见贴纸记录",
       "cadEnvelopeMm": [
         84.07,
         54,
@@ -228,7 +253,18 @@
           "maxDistance": 11,
           "purpose": "Official CAD recessed Stamp button face stays visible at Z=9.175803 mm; detailed board/antenna closure checked separately"
         }
-      ]
+      ],
+      "externalLeds": [
+        "stamp-rgb"
+      ],
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "cardputer-zero",
@@ -269,14 +305,22 @@
       "limitations": [
         "C154 官方资料仍标 WIP，当前无官方 CAD；46键与壳体/端口均依据官方照片和名义尺寸构造",
         "已校正全尺寸HDMI、9个接口及后置相机；插座和光学件稍凸出名义外壳，保留实际视觉包络",
-        "局部机械尺寸、显示有效区仍需对应机械图，贴纸等待原文件"
+        "局部机械尺寸、显示有效区仍需对应机械图，正式栅格贴纸已接入"
       ],
-      "nextAction": "46键/九接口/后置相机七视图已复核；等待正式机械图，继续精修照片推导尺寸",
+      "nextAction": "46键/九接口/后置相机七视图已复核；等待正式机械图，继续精修照片推导尺寸；正式栅格贴纸已接入，配准复核见贴纸记录",
       "visualEnvelopeMm": [
         84.59,
         54.23,
         23.45
-      ]
+      ],
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "papermono",
@@ -319,7 +363,15 @@
       "limitations": [
         "选中官方装配体与独立按键；接口位置经过独立 CAD 射线检查"
       ],
-      "nextAction": "七视图与导光件/MIC/NFC实体盖已复核；继续校准面板与封装尺寸，贴纸等待原文件"
+      "nextAction": "七视图与导光件/MIC/NFC实体盖已复核；继续校准面板与封装尺寸；正式栅格贴纸已接入，配准复核见贴纸记录",
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "core2",
@@ -361,9 +413,9 @@
       "limitations": [
         "版本锁定Core2 v1.1 / K010-V11，对应官方v1.1结构和照片；不是旧v1.0或v1.3",
         "七视图与真实USB/Grove/底部SD、连体侧帽及后层已复核；局部封装/PCB尺寸为照片推导",
-        "LCD有效区仍按2英寸对角线推导，贴纸等待用户原文件"
+        "LCD有效区仍按2英寸对角线推导，正式栅格贴纸已接入"
       ],
-      "nextAction": "v1.1版本与七视图已复核；LCD有效区待面板图，局部机械尺寸继续精修",
+      "nextAction": "v1.1版本与七视图已复核；LCD有效区待面板图，局部机械尺寸继续精修；正式栅格贴纸已接入，配准复核见贴纸记录",
       "cadEnvelopeMm": [
         54,
         54,
@@ -399,7 +451,15 @@
           "purpose": "EXT board/lid closes rear assembly slot"
         }
       ],
-      "revision": "v1.1"
+      "revision": "v1.1",
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "papercolor",
@@ -440,7 +500,15 @@
       "limitations": [
         "选中官方装配体与独立按键；接口位置经过独立 CAD 射线检查"
       ],
-      "nextAction": "七视图与前盖/底槽/声学和传感器内层已复核；继续精修局部尺寸，贴纸等待原文件"
+      "nextAction": "七视图与前盖/底槽/声学和传感器内层已复核；继续精修局部尺寸；正式栅格贴纸已接入，配准复核见贴纸记录",
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "nanoc6",
@@ -517,7 +585,12 @@
           "maxDistance": 13.8,
           "purpose": "right-side IR aperture contains a physical emitter lens"
         }
-      ]
+      ],
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "stackchan",
@@ -563,14 +636,63 @@
       "limitations": [
         "采用官方壳体/舵机盖板，前侧Power板归pitch、下端Adapter归yaw，七线跨关节，底座USB保持固定；后部为真实开放机构。",
         "隐藏pitch舵机包装与旧照片重建颈座/盖内腔仍有局部体积交叠；保留官方壳/轴，不宣称完整干涉或制造配合通过。线束路线和接头局部尺寸为外观近似。",
-        "yaw/pitch为外部驱动的视觉关节；pitch以当前正视为0、正角抬头，绝对硬件零位未校准；贴纸等待原文件。"
+        "yaw/pitch为外部驱动的视觉关节；pitch以当前正视为0、正角抬头，绝对硬件零位未校准；正式栅格贴纸已接入。",
+        "两源盖按四对原螺孔轴与cradle相对注册，95姿态保持孔轴配准；30姿态/90条顶面法向接近采样可达。全局颈架/头壳datum与隐藏舵机配合仍未确认，不声明任意视角可达或制造配合。"
       ],
-      "nextAction": "继续校准隐藏舵机包装、线束真实走向和硬件零位；保留真实开放机构，贴纸等待原文件。",
+      "nextAction": "相对盖座孔轴与顶面触区采样已校正；继续核准全局头颈datum、右轴承轴向座与隐藏舵机/线束真实安装；正式栅格贴纸已接入，配准复核见贴纸记录",
       "cadEnvelopeMm": [
         54,
         70.5,
         61.5
-      ]
+      ],
+      "externalLeds": [
+        "rgb-left-1",
+        "rgb-left-2",
+        "rgb-left-3",
+        "rgb-left-4",
+        "rgb-left-5",
+        "rgb-left-6",
+        "rgb-right-1",
+        "rgb-right-2",
+        "rgb-right-3",
+        "rgb-right-4",
+        "rgb-right-5",
+        "rgb-right-6"
+      ],
+      "visualControls": [
+        {
+          "id": "touch-1",
+          "kind": "button",
+          "capacitive": true,
+          "travelMm": 0,
+          "physicalZone": "front",
+          "rangeEvidence": "BSP Front/Middle/Back; exact electrode boundaries inferred"
+        },
+        {
+          "id": "touch-2",
+          "kind": "button",
+          "capacitive": true,
+          "travelMm": 0,
+          "physicalZone": "middle",
+          "rangeEvidence": "BSP Front/Middle/Back; exact electrode boundaries inferred"
+        },
+        {
+          "id": "touch-3",
+          "kind": "button",
+          "capacitive": true,
+          "travelMm": 0,
+          "physicalZone": "back",
+          "rangeEvidence": "BSP Front/Middle/Back; exact electrode boundaries inferred"
+        }
+      ],
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "tab5",
@@ -611,10 +733,18 @@
       "limitations": [
         "选取官方CAD装配零件；已补独立USB-A/C、microSD、音频、GPIO_EXT、双MMCX和三脚架实体",
         "当前七视图和接口射线已复核；局部器件尺寸为照片推导，LCD有效区仍需对应面板图",
-        "贴纸等待用户原文件；印刷贴图默认关闭，不代表最终精细外观已验收",
+        "正式栅格贴纸默认启用；电池仓内标仍被机械盖遮挡，不代表最终精细外观已验收",
         "保留旧power ID但其几何为后部电池卡扣；侧面reset为真实Reset/Boot开关机键，请按组件label/meta接入"
       ],
-      "nextAction": "七视图与接口深腔已复核；继续精修照片推导尺寸及LCD有效区，贴纸等待原文件"
+      "nextAction": "七视图与接口深腔已复核；继续精修照片推导尺寸及LCD有效区；正式栅格贴纸已接入，配准复核见贴纸记录",
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "atoms3r",
@@ -653,10 +783,11 @@
         "visual": null
       },
       "limitations": [
-        "外壳采用官方装配几何；已补显示模组深度、背部 PCB、5+4 排母与天线/接口实体",
-        "显示有效区仍为官方 0.85 英寸推导；局部 PCB 厚度依据照片，贴纸等待原文件"
+        "外壳采用官方装配几何；已补显示模组深度、背部PCB、5+4排母、天线/接口实体，顶部IR原开口后增加D2暗色光学封装、端子和局部PCB支承。",
+        "IR器件身份由官方v0.4.1原理图D2/MHS153IRCT确认，封装/引脚/支承局部尺寸和安装深度为照片推导；不模拟IR信号，不注册可见红灯。",
+        "显示有效区仍为官方0.85英寸推导；局部PCB厚度依据照片。内部绿色下载灯的外部光学位置和另一顶部窄槽用途仍待核准，未加猜测灯或封槽；正式栅格贴纸已接入。"
       ],
-      "nextAction": "七视图及背面/接口闭合网格已复核；继续精修照片推导局部尺寸，贴纸等待原文件",
+      "nextAction": "完成本轮IR实体与双键/Grove的当前数字复核；继续核准绿色下载灯外部可见性、另一顶边窄槽及照片推导局部尺寸；正式栅格贴纸已接入，配准复核见贴纸记录",
       "closureChecks": [
         {
           "origin": [
@@ -784,7 +915,15 @@
           "maxDistance": 14.5,
           "purpose": "rear Grove housing closes the bottom shell notch"
         }
-      ]
+      ],
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "nesso-n1",
@@ -863,7 +1002,12 @@
           "maxDistance": 9,
           "purpose": "antenna adapter or I/O carrier occupies the end opening"
         }
-      ]
+      ],
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "stamplc",
@@ -903,7 +1047,8 @@
       },
       "limitations": [
         "已补红3+蓝8+四组灰3实体端子、进线孔、金属夹、槽螺钉及DC5521",
-        "内层夹具/端子座深度依据照片构造；LCD有效区仍需面板图，贴纸等待原文件"
+        "内层夹具/端子座深度依据照片构造；LCD有效区仍需面板图，贴纸等待原文件",
+        "Stamp-S3A单颗RGB支持外驱颜色/亮度，默认熄灭；封装深度与光扩散为外观估计，不模拟启动/下载、GPIO38门控或按键联动。"
       ],
       "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件",
       "cadEnvelopeMm": [
@@ -926,7 +1071,15 @@
           "maxDistance": 16.5,
           "purpose": "StampS3A module fills its frame"
         }
-      ]
+      ],
+      "externalLeds": [
+        "stamp-rgb"
+      ],
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "env-iii",
@@ -957,7 +1110,32 @@
       "limitations": [
         "透镜微结构或网罩局部参考照片近似；非生产 CAD"
       ],
-      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件"
+      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件；可选官方中文教学贴纸已接入，标准版正式源待补",
+      "artwork": {
+        "status": "optional-official-education-raster",
+        "variants": [
+          "standard",
+          "education-cn"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      },
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（贴纸原稿待补）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
     },
     {
       "id": "pir",
@@ -988,7 +1166,32 @@
       "limitations": [
         "透镜微结构或网罩局部参考照片近似；非生产 CAD"
       ],
-      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件"
+      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件；可选官方中文教学贴纸已接入，标准版正式源待补",
+      "artwork": {
+        "status": "optional-official-education-raster",
+        "variants": [
+          "standard",
+          "education-cn"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      },
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（贴纸原稿待补）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
     },
     {
       "id": "ultrasonic-i2c",
@@ -1019,7 +1222,15 @@
       "limitations": [
         "透镜微结构或网罩局部参考照片近似；非生产 CAD"
       ],
-      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节，贴纸等待原文件"
+      "nextAction": "当前装配细化与专用检查已复核；继续核对照片推导细节；正式栅格贴纸已接入，配准复核见贴纸记录",
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "rgb",
@@ -1070,7 +1281,15 @@
         "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
         "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
       ],
-      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+      "nextAction": "优先逐面检查装配闭合与真实开口；正式栅格贴纸已接入，配准复核见贴纸记录",
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "angle",
@@ -1086,7 +1305,7 @@
       "visualEnvelopeMm": [
         24,
         32,
-        22
+        22.3
       ],
       "cadEnvelopeMm": [
         24,
@@ -1098,7 +1317,7 @@
       "export": "Model",
       "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/angle/angle_01.webp",
       "officialDocs": "https://docs.m5stack.com/en/unit/angle",
-      "research": "source-manifest.json",
+      "research": "docs/ANGLE-MODEL-NOTES.md",
       "integration": {
         "moduleExport": "GroveModule",
         "externalRuntime": "m5agent/m5stack-esp-emulator",
@@ -1121,11 +1340,56 @@
         ]
       ],
       "limitations": [
-        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
-        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为",
-        "视觉角度由外部给定；demo滑条范围不是官方机械限位，不提供传感器换算"
+        "官方U005机械图：轴Y8、帽含筋Ø9.5、总高22.3；网页名义高度22保留。固定蓝底/金属框依自身照片；隐藏件与帽分段推导。",
+        "原CAD壳不变；新PCB/孔柱/Grove避让为推导。源壳存在非流形边，有限采样不证明制造配合。",
+        "Grove中心Z1.4及高5.2取自自身CAD槽底−1.2到前面+4包络推导，并非图纸标注口高；旧工程坐标调用者应读取当前Port。",
+        "只提供外部视觉角度定位；viewer ±150°不是官方限位，不提供ADC/固件/电气行为。贴纸等待原文件。"
       ],
-      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+      "nextAction": "继续核准隐藏包体与机械限位；本批实体/旋转/四芯接线专项证据见artifacts/angle-detail/public/review.json，stage仍modeled，贴纸等待原文件；可选官方中文教学贴纸已接入，标准版正式源待补",
+      "visualControls": [
+        {
+          "id": "rotation",
+          "kind": "joint",
+          "continuous": false,
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "positionMm": [
+            0,
+            8,
+            4
+          ],
+          "axisEvidence": "U005 own drawing: 8 mm from housing top; shell front Z4 is the library datum",
+          "rangeEvidence": "Viewer ±150° only; official travel and zero offset unconfirmed"
+        }
+      ],
+      "artwork": {
+        "status": "optional-official-education-raster",
+        "variants": [
+          "standard",
+          "education-cn"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      },
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（贴纸原稿待补）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
     },
     {
       "id": "color",
@@ -1173,10 +1437,16 @@
         ]
       ],
       "limitations": [
-        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
-        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+        "官方CAD装配壳体与原窗口保留；两白色补光封装沿用照片拟合XY，封装深度和光扩散为外观估计。",
+        "fill-left/fill-right默认白色且熄灭；原理图两灯各经1K电阻共用VCC，左右可寻址视觉入口不表示独立GPIO或RGB硬件。",
+        "统一Led接口的color仅为绘图参数；亮度由外部给定，不随上电/挂接/测量自动点灯，不实现传感器、电气或I2C行为。"
       ],
-      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+      "nextAction": "继续校准白色补光的封装深度、光扩散与窗口装配，D1/D2左右映射仍未确认；贴纸等待用户原文件。",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "tof",
@@ -1227,7 +1497,12 @@
         "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
         "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
       ],
-      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "light",
@@ -1275,10 +1550,36 @@
         ]
       ],
       "limitations": [
-        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
-        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+        "官方CAD装配壳体保留，新增真实金属槽头相对固定蓝座绕+Z外驱旋转；头半径1.5mm、槽深0.32mm及蓝座尺寸为照片估计。",
+        "trim为位置式关节，不接受非零rpm；demo范围[-135,135]不是额定机械限位，电位器型号、旋向和电气零位仍未确认。",
+        "仅显示外部给定的微调头角度，不模拟电阻、光强阈值、比较器、ADC或传感器读数；贴纸等待用户原文件。"
       ],
-      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+      "nextAction": "继续核准U021电位器具体型号、额定机械转角与微调头/蓝座局部尺寸；贴纸等待用户原文件；可选官方中文教学贴纸已接入，标准版正式源待补",
+      "artwork": {
+        "status": "optional-official-education-raster",
+        "variants": [
+          "standard",
+          "education-cn"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      },
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（贴纸原稿待补）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
     },
     {
       "id": "relay",
@@ -1294,7 +1595,7 @@
       "visualEnvelopeMm": [
         24,
         48,
-        8
+        14.6
       ],
       "cadEnvelopeMm": [
         24,
@@ -1309,7 +1610,10 @@
       "research": "source-manifest.json",
       "integration": {
         "moduleExport": "GroveModule",
-        "externalRuntime": "m5agent/m5stack-esp-emulator"
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "accessoryExports": [
+          "TerminalPlug"
+        ]
       },
       "verification": {
         "geometry": null,
@@ -1326,10 +1630,31 @@
         ]
       ],
       "limitations": [
-        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
-        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+        "对应旧单路Unit Relay U023，保留24×48×8 mm原壳；规格表的8 mm为基壳口径，官方机械图的完整装配为14.6 mm，继电器15.5×10.5×11.8 mm依据链接HK4100F封装图。",
+        "固定3.96 mm三针座和可拆螺钉插头为真实有腔实体，COM/NO/NC按官方J2和前面图排列；PCB、端子壁厚、插头接触深度/线孔和截短引脚为照片推导，不是制造CAD。",
+        "默认固定座无插头；terminalPlug:true或terminal.attach(new TerminalPlug())可显示插头，terminal/screw-1..3只接受外驱可见转角，不推导轴向螺纹运动、夹线、电气或继电器状态。",
+        "状态灯描述与旧官方原理图/照片仍矛盾，保留无猜测灯；全部印刷/贴纸等待用户原文件。"
       ],
-      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+      "nextAction": "复核固定座/可拆插头的照片推导局部和可靠装配参数；逐面官方参考验收，贴纸等待原文件。",
+      "configurations": [
+        {
+          "id": "socket",
+          "name": "固定3P座",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "name": "安装螺钉插头",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ],
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "joystick-v11",
@@ -1386,7 +1711,12 @@
         "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为",
         "视觉角度由外部给定；demo滑条范围不是官方机械限位，不提供传感器换算"
       ],
-      "nextAction": "帽面法线、压放和七视图已检查；继续校准帽形与未确认倾斜限位，贴纸等待原文件"
+      "nextAction": "帽面法线、压放和七视图已检查；继续校准帽形与未确认倾斜限位，贴纸等待原文件",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "dual-button",
@@ -1435,9 +1765,17 @@
       ],
       "limitations": [
         "官方机械图区分8 mm基壳、12 mm白色按钮座及含帽15 mm总厚；原CAD只含白色按钮座，新增闭合实体彩帽直径11.5 mm、键距14 mm。",
-        "按压行程0.35 mm及内藏开关包装为视觉估计，不实现电气或协议；贴纸等待原文件。"
+        "按压行程0.35 mm及内藏开关包装为视觉估计，不实现电气或协议；正式栅格贴纸已接入。"
       ],
-      "nextAction": "完整彩帽尺寸、压放和七视图已检查；后续校准真实按压行程，贴纸等待原文件"
+      "nextAction": "完整彩帽尺寸、压放和七视图已检查；后续校准真实按压行程；正式栅格贴纸已接入，配准复核见贴纸记录",
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "button",
@@ -1488,7 +1826,12 @@
         "原CAD的U形开口和三条凹槽完整保留，10.2 mm原生按压片按固定根部和自由端弯曲。",
         "0.35 mm自由端行程与隐藏开关包装为视觉估计，不是塑料材料/电气模型；贴纸等待原文件。"
       ],
-      "nextAction": "原生按压片弯曲、精确回位及七视图已检查；后续校准未确认行程和隐藏包装，贴纸等待原文件"
+      "nextAction": "原生按压片弯曲、精确回位及七视图已检查；后续校准未确认行程和隐藏包装，贴纸等待原文件",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "ncir",
@@ -1515,8 +1858,8 @@
       "entry": "src/units/ncir/index.js",
       "export": "Model",
       "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/ncir/ncir_01.webp",
-      "officialDocs": "https://docs.m5stack.com/en/unit/ncir",
-      "research": "source-manifest.json",
+      "officialDocs": "https://docs.m5stack.com/en/unit/Unit_NCIR",
+      "research": "docs/NCIR-MODEL-NOTES.md",
       "integration": {
         "moduleExport": "GroveModule",
         "externalRuntime": "m5agent/m5stack-esp-emulator"
@@ -1536,10 +1879,16 @@
         ]
       ],
       "limitations": [
-        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
-        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+        "U028标准TO39完整封装、Ø3.5凹入光窗、PCB真孔与开放Grove已建；原CAD和真实环隙保持",
+        "PCB平面/轮廓、法兰厚度、绕轴角、光窗凹深与裁脚仍为外观推导；有限数字检查不证明制造配合或实物光学",
+        "仅提供视觉几何与接口，不实现电气、传感器数据或协议行为；贴纸延期"
       ],
-      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+      "nextAction": "本批数字证据见artifacts/ncir-detail/public/review.json；隐藏板形/安装yaw/裁脚仍待更精确依据，贴纸等用户原文件",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "heart",
@@ -1587,10 +1936,18 @@
         ]
       ],
       "limitations": [
-        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
-        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+        "原厂MAX30100包体nominal2.8×5.6×1.2 mm、两光心偏移+1.70/−1.96 mm；朝向由官方照片的圆窗/方底非对称外形对应推导，未取得板级pin-1装配图或通电特写。",
+        "原CAD光学槽2.9×5.70 mm保持；官方尺寸图写5.75 mm高，两版差0.05 mm保留。绝对Z座位、分层透镜高度、材质与渲染亮度为外观推导。",
+        "red-led固定可见红光、默认关闭、只接受外部亮度；不模拟测量、心率、模式/寄存器、电流、IR可见效果。贴纸继续等用户原文件。",
+        "Grove开放顶槽／短舌／四针按官方图补齐，口高5.2 mm；内部8.6 mm通道、壁厚／深度和PCB切口为推导。旧PCB外边缘与原壳局部交叠仍未解决，不声明整板制造配合。",
+        "Heart原Grove中心Z=0按自身尺寸图／CAD更正为1.4 mm；默认模块按真实口对齐，显式unitPose仍是装配原点，依赖旧工程坐标的布局需更新。"
       ],
-      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+      "nextAction": "继续收敛隐藏PCB外边缘／安装柱避让及照片推导的座内结构，保持真实口面与线缆配合；贴纸等待原文件。",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "encoder",
@@ -1606,7 +1963,7 @@
       "visualEnvelopeMm": [
         24,
         32,
-        25.4
+        25.38
       ],
       "cadEnvelopeMm": [
         24,
@@ -1624,7 +1981,9 @@
         "externalRuntime": "m5agent/m5stack-esp-emulator",
         "visualComponents": [
           "rotation",
-          "press"
+          "press",
+          "led0",
+          "led1"
         ]
       },
       "verification": {
@@ -1642,10 +2001,46 @@
         ]
       ],
       "limitations": [
-        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
-        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+        "官方CAD仅为选定的装配前/后壳；PCB、Ø10滚花帽、编码器支撑/盲孔、LED包体和Grove内部按照片/图纸重建。轴线按原collar环拟合，拟合精度不是实物公差。",
+        "grove原点由旧[0,-15.65,0]更正为[0,-15.65,-0.6] mm，Z为U135自身原生5.2 mm口高的中点；直接固定旧工程坐标的布局应重读真实Port变换。内槽、焊腿、板厚和隐藏尺寸仍为外观推导。",
+        "led0/led1是正视左/右的视觉地址，电气LED1/LED2顺序未确认。官方视频确认下端白壳漫透；局部emissive响应不代表光学/材料或电气仿真，按压和旋转不自动点灯。",
+        "0.35 mm按压、照片配准LED位置、隐藏PCB轮廓/支撑和帽轴深度是外观估计；独立03报告为指定源码快照的有限实体排除/支持验证，不证明制造配合、额定行程、硬件或光学性能。",
+        "stage保持modeled；本批源码/构建绑定的七视图、双灯、压放与接线专项证据见artifacts/encoder-detail/public/review.json，未作为整款verified晋级。贴纸等待用户原始文件。"
       ],
-      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+      "nextAction": "继续核准隐藏件尺寸、额定按程与壳体透光外观；本批数字模型专项证据见artifacts/encoder-detail/public/review.json，贴纸等待原文件。",
+      "visualControls": [
+        {
+          "id": "rotation",
+          "kind": "joint",
+          "continuous": true,
+          "axis": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "id": "press",
+          "kind": "button",
+          "visualMotion": "rigid-knob-and-shaft",
+          "axis": [
+            0,
+            0,
+            -1
+          ],
+          "travelMm": 0.35,
+          "rangeEvidence": "Photo-derived visual travel; fitted encoder subtype/rated pretravel/overtravel unconfirmed"
+        }
+      ],
+      "externalLeds": [
+        "led0",
+        "led1"
+      ],
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "thermal",
@@ -1673,7 +2068,7 @@
       "export": "Model",
       "reference": "https://static-cdn.m5stack.com/resource/docs/products/unit/THERMAL/img-92fc4d7d-3b52-4ee6-b483-80d7209289e3.webp",
       "officialDocs": "https://docs.m5stack.com/en/unit/thermal",
-      "research": "source-manifest.json",
+      "research": "docs/THERMAL-MODEL-NOTES.md",
       "integration": {
         "moduleExport": "GroveModule",
         "externalRuntime": "m5agent/m5stack-esp-emulator"
@@ -1693,10 +2088,38 @@
         ]
       ],
       "limitations": [
-        "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
-        "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
+        "110°原厂黑包体5.70 mm总高、Ø2.60小窗；r4.60位于Ø9.30±0.15公差内以避让原22边孔，原CAD不变",
+        "凹面深度/大口径、header分层、装配yaw、PCB形状/高度及裁短焊脚为外观推导；没有PCB装配STEP/内部实拍",
+        "Grove口由Z0改Z1.4，10×5.2来自自身图纸；默认模块按当前口对齐，显式unitPose仍为装配原点",
+        "只提供实体外观、既有sensor视觉anchor及Grove线缆，不提供温度、热图、IR可见光、电气或固件行为",
+        "局部有限采样/渲染不证明制造或实物；贴纸延期，stage仍modeled"
       ],
-      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+      "nextAction": "本批数字证据见artifacts/thermal-detail/public/review.json；隐藏板形/包体yaw/装配细节仍待更精确依据，贴纸等用户原文件；可选官方中文教学贴纸已接入，标准版正式源待补",
+      "artwork": {
+        "status": "optional-official-education-raster",
+        "variants": [
+          "standard",
+          "education-cn"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      },
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（贴纸原稿待补）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
     },
     {
       "id": "tvoc",
@@ -1747,7 +2170,12 @@
         "官方 CAD 装配壳体；局部器件、旋钮、按键表面依据官方照片构造，尚待逐面视觉检查",
         "这里只提供视觉几何和接口，不实现电气、传感器数据或协议行为"
       ],
-      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件"
+      "nextAction": "优先逐面检查装配闭合与真实开口；贴纸等待用户原文件",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "ir",
@@ -1796,7 +2224,7 @@
       ],
       "limitations": [
         "官方壳体与5 mm双光学孔采用对应U002结构；透镜、针脚和PCB厚度为官方照片推导，非生产CAD",
-        "贴纸等待用户原文件；仅提供视觉几何，不实现红外接收/发射或GPIO行为"
+        "正式栅格贴纸已接入；仅提供视觉几何，不实现红外接收/发射或GPIO行为"
       ],
       "closureChecks": [
         {
@@ -1828,7 +2256,15 @@
           "purpose": "IR receiver package fills its optical opening"
         }
       ],
-      "nextAction": "七视图与双光学封装/接口腔体已复核；精修照片推导透镜尺寸，贴纸等待原文件"
+      "nextAction": "七视图与双光学封装/接口腔体已复核；精修照片推导透镜尺寸；正式栅格贴纸已接入，配准复核见贴纸记录",
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "hub",
@@ -1878,7 +2314,7 @@
       "limitations": [
         "对应U006官方CAD为8 mm壳体，另按官方尺寸图装配三只竖式Grove座达到10.8 mm总厚",
         "1只底端输入座和3只正面输出座均有真实内腔与四针；内部并联电气/协议行为不在本库实现",
-        "局部壁厚和PCB厚度为照片推导，贴纸等待用户原文件"
+        "局部壁厚和PCB厚度为照片推导，正式栅格贴纸已接入"
       ],
       "closureChecks": [
         {
@@ -1924,7 +2360,15 @@
           "purpose": "HUB upright socket at x=7.5 has recessed physical backing"
         }
       ],
-      "nextAction": "七视图与四接口/16针已复核；精修竖座壁厚及插入深度，贴纸等待原文件"
+      "nextAction": "七视图与四接口/16针已复核；精修竖座壁厚及插入深度；正式栅格贴纸已接入，配准复核见贴纸记录",
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "rfid2",
@@ -1992,7 +2436,15 @@
           "purpose": "RFID dielectric face fills official front-shell window"
         }
       ],
-      "nextAction": "七视图与实体面盖/接口腔体已复核；等待面盖及内部机械依据，贴纸等待原文件"
+      "nextAction": "七视图与实体面盖/接口腔体已复核；等待面盖及内部机械依据；正式栅格贴纸已接入，配准复核见贴纸记录",
+      "artwork": {
+        "status": "official-raster-integrated",
+        "variants": [
+          "standard"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "rs485",
@@ -2023,7 +2475,10 @@
       "research": "source-manifest.json",
       "integration": {
         "moduleExport": "GroveModule",
-        "externalRuntime": "m5agent/m5stack-esp-emulator"
+        "externalRuntime": "m5agent/m5stack-esp-emulator",
+        "accessoryExports": [
+          "TerminalPlug"
+        ]
       },
       "verification": {
         "geometry": null,
@@ -2098,11 +2553,31 @@
         }
       ],
       "limitations": [
-        "对应U034官方CAD仅为8 mm外壳，按官方图补HT3.96-4P固定座至10.2 mm总厚；未把可拆螺钉插头误当固定座",
-        "PCB具有上下接口避让；接插件内壁、针脚/引线尺寸依据官方照片推导，非制造CAD",
-        "UART/RS485与电源行为不在此实现；全部贴纸延期"
+        "对应U034官方8 mm原壳及HT3.96-4P固定座，默认空座与既有10.2 mm名义总厚保持；后螺钉另突出约0.045 mm。",
+        "官方包装明确随附可拆4P螺钉端子；terminalPlug:true或terminal.attach(new TerminalPlug())显示附件，terminal/screw-1..4仅接受外驱可见角度，B/A/12V+/12V-为物理标签。",
+        "附件局部舌深、壁厚、夹笼、螺钉与装配包围为照片推导，HT3.96-4P类型名不证明不同厂牌通配；不模拟螺纹升降、夹线、UART/RS485、供电或电气行为。全部贴纸延期。",
+        "Grove开放顶槽／短舌／四针按官方图补齐，口高5.2 mm；内部8.6 mm通道、壁厚／深度和PCB切口为推导。旧PCB外边缘与原壳局部交叠仍未解决，不声明整板制造配合。"
       ],
-      "nextAction": "七视图与4针固定端子深腔已复核；继续精修照片推导壁厚及针脚，贴纸等待原文件"
+      "nextAction": "继续收敛隐藏PCB外边缘／安装柱避让及照片推导的座内结构，保持真实口面与线缆配合；贴纸等待原文件。",
+      "configurations": [
+        {
+          "id": "socket",
+          "name": "固定4P座",
+          "options": {}
+        },
+        {
+          "id": "plug",
+          "name": "安装4P螺钉插头",
+          "options": {
+            "terminalPlug": true
+          }
+        }
+      ],
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "buzzer",
@@ -2226,7 +2701,12 @@
         "隐藏封装和PCB厚度为照片推导，贴纸全部延期；没有音频/PWM/蜂鸣器驱动行为",
         "官方MCP首段标题存在U+FFFD，规格字段不受影响；问题已反馈，保留原始资料"
       ],
-      "nextAction": "七视图与五条声槽后实体已复核；继续精修隐藏声学封装，贴纸等待原文件"
+      "nextAction": "七视图与五条声槽后实体已复核；继续精修隐藏声学封装，贴纸等待原文件",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "fan",
@@ -2311,7 +2791,7 @@
         "默认不装可拆叶片，propeller:true可显示60 mm双叶附件；叶片弦长/扭角与隐藏电机包尺寸为照片推导",
         "PCB具有电机与Grove避让；rotor由外部角度/rpm驱动视觉旋转，不实现PWM、气流或电气行为，贴纸延期"
       ],
-      "nextAction": "裸轴及风叶已接入外部视觉运动；继续精修照片推导叶形和电机包装，贴纸等待原文件",
+      "nextAction": "裸轴及风叶已接入外部视觉运动；继续精修照片推导叶形和电机包装，贴纸等待原文件；可选官方中文教学贴纸已接入，标准版正式源待补",
       "configurations": [
         {
           "id": "bare",
@@ -2324,8 +2804,32 @@
           "options": {
             "propeller": true
           }
+        },
+        {
+          "id": "bare-education-cn",
+          "name": "裸轴 · 官方中文教学贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        },
+        {
+          "id": "propeller-education-cn",
+          "name": "安装风叶 · 官方中文教学贴纸",
+          "options": {
+            "propeller": true,
+            "stickerVariant": "education-cn"
+          }
         }
-      ]
+      ],
+      "artwork": {
+        "status": "optional-official-education-raster",
+        "variants": [
+          "standard",
+          "education-cn"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "limit",
@@ -2423,7 +2927,12 @@
         "Grove连接器使用公共实体插口，并按U145正面图改成开放上盖/短锁扣；PCB绕开Grove与安装孔。",
         "只输出通用按下/松开/取消输入并驱动外观；不推导开关电平、LED、固件或电气状态，贴纸等待原文件。"
       ],
-      "nextAction": "原始壳体、七视图与压放动作已检查；等待量产KW4A(S)机械图校准限位与隐藏细节，贴纸等待用户原文件。"
+      "nextAction": "原始壳体、七视图与压放动作已检查；等待量产KW4A(S)机械图校准限位与隐藏细节，贴纸等待用户原文件。",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "cardkb",
@@ -2614,7 +3123,12 @@
         "没有使用官方STL/STEP；PCB轮廓和键距依据机械图，开关/连接器封装及0.2 mm按压行程为照片估计，不是生产CAD。",
         "丝印/贴纸等待原文件；各键仅输出实体按压意图，RGB由外部驱动，不扫描矩阵、不生成字符或I2C数据。"
       ],
-      "nextAction": "当前七视图、50键压放与Grove挂载已检查；继续核对封装细节和官方尺寸冲突，丝印等待原文件"
+      "nextAction": "当前七视图、50键压放与Grove挂载已检查；继续核对封装细节和官方尺寸冲突，丝印等待原文件",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "key",
@@ -2703,7 +3217,12 @@
         "Sticker artwork is deferred; geometry/browser evidence do not establish physical fit or rated switch travel.",
         "Inferred PCB uses open boss notches and a central post clearance; default runtime check samples PCB material and hidden package against both closed native shells in three directions. This is appearance geometry, not a manufacturing fit."
       ],
-      "nextAction": "核准官方表格/机械图总高冲突与开关额定行程；继续细化照片推导隐藏件，贴纸等待原文件。"
+      "nextAction": "核准官方表格/机械图总高冲突与开关额定行程；继续细化照片推导隐藏件，贴纸等待原文件。",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     },
     {
       "id": "8encoder",
@@ -2935,8 +3454,191 @@
         "Only external visual joint/button/LED commands; no encoder counts, registers, bus, firmware, stickers or hardware simulation.",
         "Hidden PCB outline is an appearance reconstruction with full boss/central relief and narrow bridges, validated by sampled shell-material containment; not fabrication CAD or a tolerance/physical-fit result."
       ],
-      "nextAction": "核准EC11A实际装配型号/额定压程与隐藏件尺寸；当前旋转、压放、稳定档位和RGB仅为外驱视觉状态。"
+      "nextAction": "核准EC11A实际装配型号/额定压程与隐藏件尺寸；当前旋转、压放、稳定档位和RGB仅为外驱视觉状态。",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
+    },
+    {
+      "id": "scroll",
+      "category": "unit",
+      "name": "Unit Scroll",
+      "sku": "U186",
+      "scope": "visual-only",
+      "nominalMm": [
+        24,
+        32,
+        18.9
+      ],
+      "cadEnvelopeMm": [
+        24,
+        32,
+        18.9
+      ],
+      "visualEnvelopeMm": [
+        24,
+        32,
+        18.935
+      ],
+      "stage": "modeled",
+      "entry": "src/units/scroll/index.js",
+      "export": "Model",
+      "reference": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/UNIT-Scroll/6.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/UNIT-Scroll",
+      "research": "source-manifest.json",
+      "integration": {
+        "moduleExport": "GroveModule",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "mountingHolesMm": [
+        [
+          -8,
+          -4
+        ],
+        [
+          8,
+          -4
+        ]
+      ],
+      "visualControls": [
+        {
+          "id": "rotation",
+          "kind": "joint",
+          "continuous": true,
+          "axis": [
+            1,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "press",
+          "kind": "button",
+          "travelMm": 0.25,
+          "rangeEvidence": "visual estimate"
+        }
+      ],
+      "externalLeds": [
+        "rgb"
+      ],
+      "limitations": [
+        "0.25 mm push stroke and the paired wheel/axle-insert press group are appearance approximations; the real concealed pivot/switch support motion is unconfirmed. PCB outline is reconstructed within measured source cavities, not fabrication CAD.",
+        "Official assembled STL wheel and axle rotate together; rotation generates no encoder counts, bus values, firmware or physics.",
+        "Source components 1/2/4/6/8 are displaced duplicates and are excluded. Original stickers remain deferred."
+      ],
+      "nextAction": "复核官方滚轮按压支撑/额定行程；核对七视图、旋转/回位与实际主机Grove连接；可选官方中文教学贴纸已接入，标准版正式源待补",
+      "artwork": {
+        "status": "optional-official-education-raster",
+        "variants": [
+          "standard",
+          "education-cn"
+        ],
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      },
+      "configurations": [
+        {
+          "id": "standard",
+          "name": "标准零售外观（贴纸原稿待补）",
+          "options": {
+            "stickerVariant": "standard"
+          }
+        },
+        {
+          "id": "education-cn",
+          "name": "官方中文教学版贴纸",
+          "options": {
+            "stickerVariant": "education-cn"
+          }
+        }
+      ]
+    },
+    {
+      "id": "roller485",
+      "category": "unit",
+      "name": "Unit Roller485",
+      "sku": "U182",
+      "variant": "standard-slip-ring",
+      "scope": "visual-only",
+      "nominalMm": [
+        40,
+        40,
+        40
+      ],
+      "visualEnvelopeMm": [
+        41,
+        40,
+        41
+      ],
+      "mountingHolesMm": [],
+      "mountingHoleCheck": "scripts/check-roller485.mjs: actual +Y/-Y axial bores and original countersinks; not the generic flat-Unit +Z hole layout",
+      "stage": "modeled",
+      "entry": "src/units/roller485/index.js",
+      "export": "Model",
+      "reference": "https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/unit/Unit-Roller485/4.webp",
+      "officialDocs": "https://docs.m5stack.com/en/unit/Unit_Roller485",
+      "research": "source-manifest.json",
+      "display": {
+        "type": "oled-monochrome",
+        "width": 64,
+        "height": 48,
+        "diagonal_in": 0.66,
+        "effective_mm": [
+          13.4112,
+          10.0584
+        ],
+        "activeAreaSource": "derived from diagonal and pixel aspect; panel drawing unconfirmed"
+      },
+      "integration": {
+        "moduleExport": "GroveModule",
+        "displayTarget": "lcd",
+        "externalRuntime": "m5agent/m5stack-esp-emulator"
+      },
+      "verification": {
+        "geometry": null,
+        "visual": null
+      },
+      "visualControls": [
+        {
+          "id": "rotor",
+          "kind": "joint",
+          "continuous": true,
+          "axis": [
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "id": "press",
+          "kind": "button",
+          "travelMm": 0.25,
+          "rangeEvidence": "visual estimate; native flexible tongue"
+        }
+      ],
+      "externalLeds": [
+        "rgb-1",
+        "rgb-2",
+        "top-led"
+      ],
+      "limitations": [
+        "标准滑环版U182；名义40 mm立方体，官方电机图标Ø41，含真实电机的可见包围为41×40×41 mm；不混用Lite或CAN。",
+        "显示有效区由0.66英寸和64:48像素比推导；PCB、隐藏包体、接头局部尺寸及0.25 mm弹舌按程为外观推导。单色OLED只显示外部帧，红色顶灯与双RGB独立外驱，不自动响应供电/电机状态。",
+        "顶部转盘、外转子、顶端Grove和顶灯随外部rotor角度/转速；底部OLED、按键、固定Grove、PWR485/debug保持固定。不模拟电机、编码器、滑环电气或协议，贴纸等待原文件。"
+      ],
+      "nextAction": "持续核对隐藏PCB/显示支撑、额定按程与生产装配依据；贴纸等待原文件，制造配合与硬件运行另行验证。",
+      "artwork": {
+        "status": "awaiting-exact-source",
+        "originalsDistributed": false,
+        "review": "docs/STICKER-COVERAGE.md"
+      }
     }
   ],
-  "artworkPolicy": "Photographic sticker crops disabled by default; awaiting user-supplied originals. Do not use artwork to conceal missing geometry."
+  "artworkPolicy": "Only reviewed raster stickers are distributed. CSV, private source mappings, vector originals and vector intermediates remain outside the repository. Photographic sticker crops remain disabled. Official physical adhesive films may span factory recesses; artwork must not substitute for missing assembly geometry."
 }

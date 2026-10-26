@@ -165,6 +165,8 @@ export class Display extends Component {
   #dirty = false;
   #ctx;
   #touchMarkers;
+  #clearingTouches = false;
+  #disposed = false;
 
   get interactive() {
     return this.touchEnabled;
@@ -320,8 +322,9 @@ export class Display extends Component {
   }
 
   setTouchEnabled(on) {
+    if (this.#disposed) return;
     this.touchEnabled = !!on;
-    if (!on) for (const id of [...this.touches.keys()]) this.#touchEnd(id);
+    if (!on) this.#clearTouches();
   }
 
   /** Convert a panel UV to integer pixel coordinates. */
@@ -334,20 +337,39 @@ export class Display extends Component {
 
   /** Inject a touch from the simulator side or tests: action 'start' | 'move' | 'end'. */
   touch(action, x, y, pointerId = 0) {
+    if (this.#disposed || this.#clearingTouches) return;
     if (action === 'end') return this.#touchEnd(pointerId);
     this.touches.set(pointerId, { x, y });
     this.#marker(pointerId, x, y);
     this.input(action, { x, y, pointerId, points: [...this.touches.values()] });
   }
 
-  #touchEnd(pointerId) {
+  #touchEnd(pointerId, notify = true) {
     const p = this.touches.get(pointerId);
-    if (!p) return;
     this.touches.delete(pointerId);
-    this.#touchMarkers.get(pointerId)?.removeFromParent();
+    const marker = this.#touchMarkers.get(pointerId);
     this.#touchMarkers.delete(pointerId);
-    this.input('end', { ...p, pointerId, points: [...this.touches.values()] });
+    if (marker) {
+      marker.removeFromParent();
+      marker.geometry.dispose();
+      marker.material.dispose();
+    }
+    if (!p) return;
+    if (notify) this.input('end', { ...p, pointerId, points: [...this.touches.values()] });
     this.requestRender();
+  }
+
+  #clearTouches(notify = true) {
+    if (this.#clearingTouches) return;
+    this.#clearingTouches = true;
+    try {
+      // End listeners run synchronously; they cannot recreate a point while
+      // disable/dispose is clearing the collection. Markers are owned here,
+      // even if a caller has already cleared the public touches Map.
+      for (const id of new Set([...this.touches.keys(), ...this.#touchMarkers.keys()])) this.#touchEnd(id, notify);
+    } finally {
+      this.#clearingTouches = false;
+    }
   }
 
   #marker(pointerId, x, y) {
@@ -430,6 +452,17 @@ export class Display extends Component {
   }
 
   dispose() {
+    if (this.#disposed) return;
+    this.#disposed = true;
+    this.touchEnabled = false;
+    this.#clearTouches(false);
+    // This class owns the framebuffer texture. Reflective displays also use
+    // it as a material map, which Component.dispose() would otherwise dispose
+    // a second time while traversing the panel.
+    this.object3d.traverse((object) => {
+      const materials = Array.isArray(object.material) ? object.material : [object.material];
+      for (const material of materials) if (material?.map === this.texture) material.map = null;
+    });
     this.texture.dispose();
     super.dispose();
   }

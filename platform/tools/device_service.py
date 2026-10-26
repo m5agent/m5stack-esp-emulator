@@ -49,7 +49,10 @@ from ble_runtime_limits import (  # noqa: E402
 from esp_flash import default_env, flash_with_esp_emu, flash_with_qemu  # noqa: E402
 from uiflow_source import UIFlowSourceError, build_uiflow_source_image  # noqa: E402
 from program_revisions import ProgramRevisionStore, RevisionError  # noqa: E402
-from uiflow_runtime import ExecutionStateScanner, UIFlowRuntimeError, run_source  # noqa: E402
+from uiflow_runtime import (  # noqa: E402
+    ExecutionStateScanner, LIVE_PROGRAM_DEVICES, LIVE_READY_MARKER,
+    UIFlowRuntimeError, live_bootstrap_files, run_source,
+)
 from firmware_analysis import (  # noqa: E402
     analyze_esp_image,
     analyze_firmware,
@@ -8756,6 +8759,7 @@ class DeviceService:
             "peripheral_status": spec.peripheral_status,
             "warnings": spec.warnings,
             "firmware_families": ["uiflow2", "generic-flash"],
+            "program_modes": ["uiflow-live"] if spec.id in LIVE_PROGRAM_DEVICES else [],
             "coverage": {
                 "peripheral_status": spec.peripheral_status,
                 "complete": spec.peripheral_status == "simulated",
@@ -9127,6 +9131,9 @@ class DeviceService:
         program_transport = payload.get("program_transport")
         if program_transport not in (None, "uart-repl"):
             raise ServiceError("unsupported_program_transport", "program_transport must be uart-repl", 400)
+        program_mode = payload.get("program_mode")
+        if program_mode not in (None, "uiflow-live"):
+            raise ServiceError("unsupported_program_mode", "program_mode must be uiflow-live", 400)
         device_id = payload.get("device_id")
         if not isinstance(device_id, str):
             raise ServiceError("invalid_request", "device_id is required", 400)
@@ -9137,6 +9144,13 @@ class DeviceService:
             raise ServiceError(
                 "unsupported_device", spec.reason or "device is not enabled", 409
             )
+        if program_mode:
+            if device_id not in LIVE_PROGRAM_DEVICES or payload.get("runtime", "qemu") != "qemu":
+                raise ServiceError("unsupported_program_mode", "uiflow-live requires an admitted S3 QEMU reference device", 409)
+            if "firmware_id" in payload or "uiflow_source_sha256" in payload:
+                raise ServiceError("program_mode_firmware_conflict", "uiflow-live prepares the cached UIFlow2 reference; omit firmware_id and source pin", 409)
+            if payload.get("ready_marker", LIVE_READY_MARKER) != LIVE_READY_MARKER or payload.get("ready"):
+                raise ServiceError("program_mode_ready_conflict", "uiflow-live waits for its UART REPL bootstrap; application readiness belongs to each program", 400)
         if not spec.backend_ready:
             missing = [
                 Path(os.path.relpath(path, ROOT)).as_posix()
@@ -9183,6 +9197,15 @@ class DeviceService:
                 503,
                 worker=worker_snapshot,
             )
+        if program_mode:
+            # Keep idempotency bound to the original caller request above.
+            # Initialization uses the established immutable source/Flash path
+            # once; subsequent /program requests only use the live guest UART.
+            bootstrap = self.create_uiflow_firmware({"device_id": device_id, "files": live_bootstrap_files()})
+            payload = {**payload, "firmware_id": bootstrap["firmware_id"],
+                       "uiflow_source_sha256": bootstrap["source"]["metadata"]["source_sha256"],
+                       "ready_marker": LIVE_READY_MARKER}
+            program_transport = "uart-repl"
         firmware_id = payload.get("firmware_id")
         manifest_psram = None
         if firmware_id:
@@ -9247,7 +9270,7 @@ class DeviceService:
 
         runtime = payload.get("runtime", "qemu")
         if program_transport and (
-            runtime != "qemu" or device_id not in {"cores3", "atoms3r", "sticks3", "stopwatch"}
+            runtime != "qemu" or device_id not in LIVE_PROGRAM_DEVICES
             or source == "uploaded" and not is_uiflow_source
         ):
             raise ServiceError("unsupported_program_transport", "UART REPL requires an admitted UIFlow2 QEMU source/reference session", 409)

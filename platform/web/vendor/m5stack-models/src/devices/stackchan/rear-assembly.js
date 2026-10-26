@@ -60,20 +60,26 @@ function roundedRoute(points){
 
 export function addNeckAdapter(host,mechanics){
  const adapter=new THREE.Group();adapter.name='Neck Adapter electronics';adapter.userData.role='yaw-adapter-board';host.body.add(adapter);
- const board=slab(adapter,24,19,.6,.8,[0,12.6,-17.8],materials.plastic(0x244736,{roughness:.9}),[],.03);board.quaternion.copy(FACE.top);board.name='Neck Adapter PCB';
+ // The reconstructed board sits just above the source cover's Y12.85 top,
+ // rather than intersecting it. No original PCB/fabrication outline is known.
+ const board=slab(adapter,24,19,.6,.8,[0,13.0,-17.8],materials.plastic(0x244736,{roughness:.9}),[],.03);board.quaternion.copy(FACE.top);board.name='Neck Adapter PCB';
  adapter.lowerHarness=connector(adapter,{name:'Lower 7P harness connector',position:[-1.3,14.9,-25],pins:7,pitch:1.25,width:11.2,height:3.4,color:0xbac5b5});
  adapter.servoConnectors=[];
- for(const side of [-1,1])adapter.servoConnectors.push(connector(adapter,{name:side<0?'Servo S1 connector':'Servo S2 connector',position:[side*8,13.2,-17.5],pins:3,pitch:2.54,width:7.8,height:3.9,color:0xc4ccc0,face:'top'}));
+ for(const side of [-1,1])adapter.servoConnectors.push(connector(adapter,{name:side<0?'Servo S1 connector':'Servo S2 connector',position:[side*8,13.6,-17.5],pins:3,pitch:2.54,width:7.8,height:3.9,color:0xc4ccc0,face:'top'}));
  host.root.updateMatrixWorld(true);
  const localPoint=o=>adapter.worldToLocal(o.getWorldPosition(new THREE.Vector3()));
  const colors=[0x121a16,0xa44832,0xb6beb2];adapter.servoLeads=[];
  for(const [which,servo]of [[0,mechanics.yawServo],[1,mechanics.pitchServo]])for(let i=0;i<3;i++){
   const start=localPoint(adapter.servoConnectors[which].contacts[i]),end=localPoint(servo.contacts[i]);
-  const points=which===0?[start,new THREE.Vector3(-13,14.5,-26),new THREE.Vector3(-19.35,14,-26+(i-1)*.45),new THREE.Vector3(-19.35,1,-26+(i-1)*.45),new THREE.Vector3(-10,.6,-26),new THREE.Vector3(0,.6,-26),new THREE.Vector3(0,.6,-20),new THREE.Vector3(0,.6,end.z),end]:[start,new THREE.Vector3(13,15,-17.5+(i-1)*.6),new THREE.Vector3(14,13,-10),new THREE.Vector3(13,6.65,end.z),end];
+  // Yaw leads pass over the reconstructed board's front edge, then descend
+  // through the source cover's open right-hand region. A former rear route
+  // crossed the correctly seated gray plate. Routing is a visual estimate.
+  const lane=i-1;
+  const points=which===0?[start,new THREE.Vector3(-13,15.5,-17.5),new THREE.Vector3(-13,15.5,-6+lane*.45),new THREE.Vector3(9+lane*.5,15.5,-6+lane*.45),new THREE.Vector3(9+lane*.5,.6,-6+lane*.45),new THREE.Vector3(0,.6,-6+lane*.45),new THREE.Vector3(0,.6,end.z),end]:[start,new THREE.Vector3(13,15,-17.5+lane*.6),new THREE.Vector3(14,13,-10),new THREE.Vector3(13,6.65,end.z),end];
   const curve=roundedRoute(points),wire=mesh(adapter,new THREE.TubeGeometry(curve,48,.18,7,false),materials.plastic(colors[i],{roughness:.8}),[0,0,0],`${which?'Pitch':'Yaw'} servo lead ${i+1}`);
   wire.userData={role:'servo-lead',startContact:adapter.servoConnectors[which].contacts[i].name,endContact:servo.contacts[i].name};adapter.servoLeads.push({wire,start:adapter.servoConnectors[which].contacts[i],end:servo.contacts[i]});
  }
- adapter.userData.placementSource='Official four-board schematic and rear loom photo; concealed adapter outline and servo lead routes inferred';return adapter;
+ adapter.userData.placementSource='Official four-board schematic and rear loom photo; board and header seat reconstructed above the source cover, not fabrication CAD. Concealed adapter outline and servo lead routes inferred';return adapter;
 }
 
 export function addTopBoard(host){

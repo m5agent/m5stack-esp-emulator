@@ -44,3 +44,5 @@ export {Model as LimitUnit,GroveModule as LimitUnitModule} from './units/limit/i
 export {Model as CardKBUnit,GroveModule as CardKBUnitModule} from './units/cardkb/index.js';
 export {Model as KeyUnit,GroveModule as KeyUnitModule} from './units/key/index.js';
 export {Model as EightEncoderUnit,GroveModule as EightEncoderUnitModule} from './units/8encoder/index.js';
+export {Model as ScrollUnit,GroveModule as ScrollUnitModule} from './units/scroll/index.js';
+export {Model as Roller485Unit,GroveModule as Roller485UnitModule} from './units/roller485/index.js';

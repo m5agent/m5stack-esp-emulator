@@ -61,8 +61,28 @@ export function cadButton(host,{source,position,face='front',w,h,r=0,depth=1,out
  return host.add(new Button({id,label,mesh:cap,position,quaternion:FACE[face],axis,travel,meta:{...meta,role:meta.role??'visual-control',actuation:'momentary',surfaceCenter:position,surfaceFace:face}}));
 }
 
+/**
+ * Give one native cap independent conventional hover materials. A palette may
+ * also color its neighbours or fixed enclosure; preserve sharing inside this
+ * cap, all render properties and texture references. Shader/output materials
+ * remain with their owning components and are never cloned here.
+ */
+export function isolateActuatorMaterials(mesh){
+ const copies=new Map();
+ const isolate=material=>{
+  if(!material?.isMeshStandardMaterial||!material.emissive)return material;
+  if(!copies.has(material))copies.set(material,material.clone());
+  return copies.get(material);
+ };
+ mesh.traverse(object=>{if(object.isMesh)object.material=Array.isArray(object.material)?object.material.map(isolate):isolate(object.material);});
+ return mesh;
+}
+
 /** Bind separately modeled geometry without leaving a stationary copy behind. */
-export function physicalButton(host,{id,label,mesh,position,quaternion,axis=[0,0,-1],travel=.2,latching=false,meta={}}){
+export function physicalButton(host,{id,label,mesh,position,quaternion,axis=[0,0,-1],travel=.2,latching=false,isolateMaterials=false,meta={}}){
+ // Opt in only for a known shared native palette. In particular AtomS3R's LCD
+ // cap retains its Display shader/glass and externally owned output references.
+ if(isolateMaterials)isolateActuatorMaterials(mesh);
  mesh.userData.role='physical-actuator-cap';
  return host.add(new Button({id,label,mesh,position,quaternion,axis,travel,latching,meta:{...meta,actuation:latching?'latching':'momentary'}}));
 }

@@ -5,6 +5,7 @@ import {makeUnit,cylinder} from '../shared/CADUnit.js';
 import {unitPcb} from '../shared/parts.js';
 import {spec} from './dimensions.js';
 import data from './geometry-data.js';
+import {addStickers} from './stickers.js';
 
 const models=makeUnit(spec,data,host=>{
  // This taller Grove mouth needs board clearance around the connector, instead
@@ -25,6 +26,7 @@ const models=makeUnit(spec,data,host=>{
   }
   for(const x of [-.65,.65])mesh(group,new THREE.BoxGeometry(.32,.32,1.5),silver,[x,0,.6],'IR optical package lead');
  }
+ addStickers(host);
 });
 export const Model=models.Model;
 export const GroveModule=models.GroveModule;

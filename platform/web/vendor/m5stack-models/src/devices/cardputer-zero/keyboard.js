@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {Button,materials,geometry} from '../../core/index.js';
 import {slab,mesh} from '../../modeling/parts.js';
+import {isolateActuatorMaterials} from '../../modeling/actuators.js';
 import {DIM} from './dimensions.js';
 
 export const KEY_CODES=[['F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','Delete'],['Symbol','KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP'],['ShiftLeft','KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','Backspace'],['Fn','ControlLeft','AltLeft','KeyZ','KeyX','KeyC','KeyV','KeyB','KeyN','KeyM','Space']];
@@ -16,6 +17,6 @@ export function addKeyboard(host,layout){
   const group=new THREE.Group();group.name=`Physical key ${id}`;
   mesh(group,geometry.roundedSlab({w:5.25,h:2.9,depth:DIM.keyboard.depth,radius:1.2,bevel:.38}),rubber,[0,0,0],'Rubber key cap');
   mesh(group,new THREE.CylinderGeometry(1.0,1.1,.7,16).rotateX(Math.PI/2),rubber,[0,0,-.25],'Key membrane stem');
-  host.add(new Button({id:`key-${id}`,label:id,mesh:group,position:[x,y,DIM.keyboard.z],axis:[0,0,-1],travel:.25,meta:{role:'keyboard-key'}}));
+  host.add(new Button({id:`key-${id}`,label:id,mesh:isolateActuatorMaterials(group),position:[x,y,DIM.keyboard.z],axis:[0,0,-1],travel:.25,meta:{role:'keyboard-key'}}));
  }
 }

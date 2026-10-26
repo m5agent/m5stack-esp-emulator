@@ -1,5 +1,3 @@
-// Derived from MarsTechHAN/sticks3.js @ 974ebaa7ff35ad0ed9079211ef21b020cf0b7bcb; upstream package SPDX declaration: MIT.
-// Preserve licenses/sticks3-upstream-package.json and THIRD_PARTY_NOTICES.md with this source.
 import * as THREE from 'three';
 import { Component } from '../Component.js';
 import { createModule } from '../registry.js';
@@ -24,7 +22,9 @@ const moduleTransactions = new WeakSet();
 export class Port extends Component {
   static kind = 'port';
 
-  #attaching = false;
+  // Candidate identity lets attach replace the old occupant normally while
+  // preventing callbacks from detaching the candidate before attach returns.
+  #attaching = null;
   #detaching = false;
 
   constructor({ connector, pins = [], pinGrid = null, hitSize = [10, 2, 6], hitOffset = [0, 0, 0], ...rest }) {
@@ -67,7 +67,7 @@ export class Port extends Component {
     if (moduleTransactions.has(module)) throw new Error('Cannot reattach a module during its attachment or detaching transaction');
     const root = this.#validateAttachment(module);
     if (this.module === module && module.attachedTo === this) return module;
-    this.#attaching = true;
+    this.#attaching = module;
     moduleTransactions.add(module);
     try {
       if (module.attachedTo) module.attachedTo.detach({ dispose: false });
@@ -93,7 +93,7 @@ export class Port extends Component {
       return module;
     } finally {
       moduleTransactions.delete(module);
-      this.#attaching = false;
+      this.#attaching = null;
     }
   }
 
@@ -117,6 +117,7 @@ export class Port extends Component {
     const module = this.module;
     if (!module) return null;
     if (this.#detaching) return module;
+    if (this.#attaching === module) throw new Error(`Cannot detach while port "${this.path}" is attaching`);
     this.#detaching = true;
     const ownsTransaction = !moduleTransactions.has(module);
     if (ownsTransaction) moduleTransactions.add(module);

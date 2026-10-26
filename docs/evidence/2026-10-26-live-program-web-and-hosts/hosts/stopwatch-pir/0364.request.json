@@ -1,0 +1,5 @@
+{
+  "source": "import sys\nimport time\nimport M5\nassert '/m5-live-2ad1f3b56a8a4e1eb8683b65661d35e5' in sys.path, \"MicroPython VM was reset\"\nM5.begin()\nscreen = M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(16777215)\nscreen.setTextSize(2)\nscreen.setTextColor(0, 16777215)\nfrom unit import PIRUnit\nunit = PIRUnit((11, 10))\nprint(\"LIVE_A_READY\")\nprevious = None\nwhile True:\n M5.update()\n value = int(unit.get_status())\n if value != previous:\n  print(\"LIVE_A_PIR\", value)\n  screen.fillRect(0, 0, 128, 80, 16777215)\n  screen.setCursor(4, 4)\n  screen.print(\"RUN A\")\n  screen.setCursor(4, 32)\n  screen.print(\"PIR \" + str(value))\n  previous = value\n time.sleep_ms(25)\n",
+  "expected_execution_id": "0977f98576424d90a650e90b2f6c4035",
+  "timeout_seconds": 15
+}

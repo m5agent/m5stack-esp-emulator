@@ -663,9 +663,15 @@ export async function createUnitPanel(container, options) { return new UnitPanel
 export async function createUnitPicker(container, {api, deviceId}) {
   const picker = {
     generation: 0,
+    deviceId: null,
+    readyDeviceId: null,
+    loadError: '',
     selections: [],
     async loadDevice(id) {
       const generation = ++this.generation;
+      this.deviceId = id;
+      this.readyDeviceId = null;
+      this.loadError = '';
       this.selections = [];
       container.textContent = '正在读取 Unit 支持情况…';
       try {
@@ -718,12 +724,21 @@ export async function createUnitPicker(container, {api, deviceId}) {
           container.append(row);
         }
         if (!ports.length) container.append(element('p', 'unit-note', '此设备暂无已确认接线的主机接口。'));
+        this.readyDeviceId = id;
       } catch (error) {
-        if (generation === this.generation) container.textContent = `Unit 目录读取失败：${error.message}`;
+        if (generation === this.generation) {
+          this.loadError = error.message;
+          container.textContent = `Unit 目录读取失败：${error.message}`;
+        }
       }
     },
-    attachments() { return copy(this.selections.flat()); },
-    dispose() { this.generation += 1; this.selections = []; container.replaceChildren(); },
+    attachments(deviceId) {
+      if (deviceId !== undefined && (deviceId !== this.deviceId || deviceId !== this.readyDeviceId)) {
+        throw new Error('Unit 配置与当前设备不匹配，请等待当前设备的配置加载完成。');
+      }
+      return copy(this.selections.flat());
+    },
+    dispose() { this.generation += 1; this.readyDeviceId = null; this.selections = []; container.replaceChildren(); },
   };
   await picker.loadDevice(deviceId);
   return picker;

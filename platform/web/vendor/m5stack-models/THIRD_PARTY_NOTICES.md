@@ -8,3 +8,7 @@ Project-authored additions to m5stack-models.js are licensed under MIT; the full
 - three.js and Vite: pinned by package-lock.json. Full notices are in licenses/three-MIT.txt and licenses/vite-LICENSE.md, including the latter's bundled dependency notices. Preserve actual bundle notices in downstream distributions.
 
 Official photographs, dimension drawings, PDFs, photographic sticker crops and MCP response text are excluded. Catalog reference images load directly from their original official URLs on request; those remote materials are not relicensed by the project MIT license. M5Stack product names/marks identify modeled products and compatibility; no trademark ownership or endorsement is claimed.
+
+## Product sticker rasters
+
+M5Stack product sticker PNGs are included with the provider's permission for public distribution. The artwork, product marks and trademarks remain the property of their respective owners; the project MIT license applies to project-authored code and does not relicense these images or marks. The input table, private source mappings, vector originals and vector conversion intermediates are excluded from the repository and builds.

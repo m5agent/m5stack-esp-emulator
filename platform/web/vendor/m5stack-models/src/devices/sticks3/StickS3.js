@@ -2,11 +2,11 @@
 // Preserve licenses/sticks3-upstream-package.json and THIRD_PARTY_NOTICES.md with this source.
 import {Device,Display,Button,Led,Port,materials} from '../../core/index.js';
 import {addCadParts} from '../../modeling/cad.js';
-import {grove,slab,mark,FACE} from '../../modeling/parts.js';
+import {grove,slab,FACE} from '../../modeling/parts.js';
 import {cadButton} from '../../modeling/actuators.js';
 import {usbC} from '../../modeling/connectors.js';
 import {addAssembly} from './assembly.js';
-import {paintBackLabel,paintSidePrint} from './labels.js';
+import {printedArtwork,printedFilm} from '../../modeling/artwork.js';
 import {DIM} from './dimensions.js';
 import data from './geometry-data.js';
 export {DIM};
@@ -26,7 +26,10 @@ export class StickS3 extends Device {
   grove(this,{position:[0,-23.95,DIM.grove.z],w:9.7,h:5.1});
   addAssembly(this);
   this.add(new Port({id:'hat',label:'Hat2-Bus 2×8',connector:'m5.hat2',pins:HAT2_PINS,position:[0,24,0],hitSize:[21,1,5.8],hitOffset:[0,0,DIM.header.z],meta:{role:'visual-connector',face:'top'}}));
-  this.add(new Led({id:'irTx',label:'IR emitter aperture',radius:.55,glowSize:3,position:[6.5,23.1,-1.2],quaternion:FACE.top,lensColor:0xd5dcdd,meta:{gpio:'G46',role:'externally-driven-visual'}}));
-  mark(this.body,21,33.5,[0,6.6,-7.52],paintBackLabel,'back');mark(this.body,26,3.6,[-12.02,1,2.8],paintSidePrint,'left');
+  this.add(new Led({id:'irTx',label:'IR emitter aperture',invisible:true,radius:.55,glowSize:3,position:[6.5,23.1,-1.2],quaternion:FACE.top,lensColor:0xd5dcdd,meta:{gpio:'G46',role:'externally-driven-visual',spectrum:'infrared',scope:'external state only; no visible emission or infrared optics simulation'}}));
+  // The supplied complete die-cut label bridges the rear enclosure window;
+  // its uncut middle is a physical adhesive film above the battery.
+  printedFilm(this,{parent:parts['rear-shell'],url:new URL('./artwork/rear.png',import.meta.url).href,size:[21,37.3],position:[0,4.7,-7.52],face:'back',name:'StickS3 official rear sticker'});
+  printedArtwork(this,{target:[parts['front-shell'],parts['rear-shell']],url:new URL('./artwork/side.png',import.meta.url).href,size:[24,5.95],position:[-11.65,1,2.8],face:'left',depth:.8,name:'StickS3 official side sticker'});
  }
 }

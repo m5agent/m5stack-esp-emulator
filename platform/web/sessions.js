@@ -1,5 +1,6 @@
 import { createDeviceShell } from './device-shell-factory.js?v=20261026a';
 import { createUnitPanel, createUnitPicker } from './unit-panel.js';
+import { createProgramPanel } from './program-panel.js';
 
 const ACTIVE_STATES = new Set(['provisioning', 'flashing', 'booting', 'running']);
 const THREE_PREVIEW_LIMIT = 4;
@@ -20,6 +21,9 @@ const state = {
   showHistory: false,
   frameLoopStarted: false,
   unitPicker: null,
+  unitPickerGeneration: 0,
+  unitPickerDeviceId: null,
+  creating: false,
 };
 
 const $ = id => document.getElementById(id);
@@ -107,6 +111,8 @@ class SessionVisual {
     this.shellLoading = false;
     this.placeholder = framePlaceholder(session);
     this.container.innerHTML = `<span class="no-frame">${escapeHtml(this.placeholder)}</span>`;
+    const programContainer = this.container.closest('.session-card')?.querySelector('[data-program-panel]');
+    if (programContainer) this.programPanel = createProgramPanel(programContainer, {session, api});
     const unitContainer = this.container.closest('.session-card')?.querySelector('[data-unit-panel]');
     if (unitContainer) {
       createUnitPanel(unitContainer, { session, shell: null, api }).then(panel => {
@@ -125,6 +131,7 @@ class SessionVisual {
   updateSession(session) {
     this.session = session;
     this.unitPanel?.updateSession(session);
+    this.programPanel?.updateSession(session);
     if (!ACTIVE_STATES.has(session.state)) this.releaseActiveControls();
     if (!this.frameBlob && !this.shell) {
       this.placeholder = framePlaceholder(session);
@@ -326,6 +333,7 @@ class SessionVisual {
     this.destroyed = true;
     this.releaseActiveControls();
     this.unitPanel?.dispose();
+    this.programPanel?.dispose();
     this.shell?.dispose();
     this.shell = null;
     if (this.frameUrl) URL.revokeObjectURL(this.frameUrl);
@@ -367,6 +375,7 @@ function createSessionCard(session, allowThree) {
       </div>
       <div class="session-runtime-note" data-field="runtime-note" hidden></div>
       <div data-unit-panel></div>
+      <div data-program-panel></div>
       <div class="session-actions">
         <button class="btn" data-action="wait" type="button">等待运行</button>
         <button class="btn" data-action="renew" type="button">续期</button>
@@ -472,6 +481,52 @@ function renderDevices() {
     <option value="${escapeHtml(device.device_id)}">
       ${escapeHtml(device.name)} (${escapeHtml(device.device_id)})${device.peripheral_status === 'partial' ? ' · partial' : ''}
     </option>`).join('');
+  updateProgramMode();
+}
+
+function updateProgramMode() {
+  const modes = deviceFor($('deviceSelect').value).program_modes;
+  const enabled = Array.isArray(modes) && modes.includes('uiflow-live');
+  const input = $('programModeInput');
+  input.disabled = !enabled;
+  if (!enabled) input.checked = false;
+  $('createBtn').textContent = input.checked ? '创建编程设备' : '创建参考设备';
+  $('programModeHint').textContent = enabled
+    ? '创建后可在当前设备中反复运行源码，屏幕和 Unit 状态随程序更新。'
+    : '该型号暂未开放实时编程，可继续创建参考设备。';
+  updateCreateControls();
+}
+
+function updateCreateControls() {
+  const deviceId = $('deviceSelect').value;
+  $('createBtn').disabled = state.creating || !deviceId
+    || state.unitPickerDeviceId !== deviceId || state.unitPicker?.readyDeviceId !== deviceId;
+}
+
+async function loadUnitPicker(deviceId) {
+  const generation = ++state.unitPickerGeneration;
+  state.unitPicker?.dispose();
+  state.unitPicker = null;
+  state.unitPickerDeviceId = null;
+  updateCreateControls();
+  // An initial createUnitPicker() can still be awaiting its first catalog.
+  // Give every load its own mount so a late old load/dispose cannot touch the
+  // selected device's controls, even before its picker has been published.
+  const mount = document.createElement('div');
+  mount.dataset.unitPickerDeviceId = deviceId;
+  $('unitPicker').replaceChildren(mount);
+  const current = () => generation === state.unitPickerGeneration && $('deviceSelect').value === deviceId;
+  try {
+    const picker = await createUnitPicker(mount, {api, deviceId});
+    if (!current()) { picker.dispose(); return; }
+    state.unitPicker = picker;
+    state.unitPickerDeviceId = deviceId;
+    if (picker.loadError) showError(`Unit 配置读取失败：${picker.loadError}`);
+  } catch (error) {
+    if (current()) showError(`Unit 配置读取失败：${error.message}`);
+  } finally {
+    if (current()) updateCreateControls();
+  }
 }
 
 function renderCapacity(capacity) {
@@ -493,8 +548,7 @@ async function loadCatalog() {
   state.devices = payload.devices || [];
   state.devicePaths = new Map(catalog.devices.map(device => [device.id, device.path]));
   renderDevices();
-  state.unitPicker?.dispose();
-  state.unitPicker = await createUnitPicker($('unitPicker'), { api, deviceId: $('deviceSelect').value });
+  await loadUnitPicker($('deviceSelect').value);
 }
 
 async function refreshSessions() {
@@ -670,15 +724,21 @@ function updateDeviceStateUi(card, payload, session) {
 async function createSession() {
   const deviceId = $('deviceSelect').value;
   const ttl = Number($('ttlInput').value || 600);
-  if (!deviceId) return;
-  const payload = { device_id: deviceId, ttl_seconds: ttl };
-  const units = state.unitPicker?.attachments() || [];
-  if (units.length) payload.units = units;
-  if (deviceId === 'tab5') {
-    payload.ready_marker = 'TAB5_UI_DRAWN';
-    payload.ready_timeout_seconds = 240;
-  }
+  if (!deviceId || state.creating) return;
   try {
+    if (state.unitPickerDeviceId !== deviceId || !state.unitPicker) {
+      throw new Error('请等待当前设备的 Unit 配置加载完成。');
+    }
+    const units = state.unitPicker.attachments(deviceId);
+    const payload = { device_id: deviceId, ttl_seconds: ttl };
+    if ($('programModeInput').checked && !$('programModeInput').disabled) payload.program_mode = 'uiflow-live';
+    if (units.length) payload.units = units;
+    if (deviceId === 'tab5') {
+      payload.ready_marker = 'TAB5_UI_DRAWN';
+      payload.ready_timeout_seconds = 240;
+    }
+    state.creating = true;
+    updateCreateControls();
     await api('/api/v1/sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -687,6 +747,9 @@ async function createSession() {
     await refreshSessions();
   } catch (error) {
     showError(error.message);
+  } finally {
+    state.creating = false;
+    updateCreateControls();
   }
 }
 
@@ -732,8 +795,10 @@ $('saveTokenBtn').addEventListener('click', () => {
 });
 
 $('createBtn').addEventListener('click', createSession);
+$('programModeInput').addEventListener('change', updateProgramMode);
 $('deviceSelect').addEventListener('change', () => {
-  state.unitPicker?.loadDevice($('deviceSelect').value).catch(error => showError(error.message));
+  updateProgramMode();
+  void loadUnitPicker($('deviceSelect').value);
 });
 $('refreshBtn').addEventListener('click', refreshSessions);
 $('historyBtn').addEventListener('click', () => {
@@ -776,6 +841,7 @@ async function init() {
 }
 
 window.addEventListener('beforeunload', () => {
+  state.unitPickerGeneration += 1;
   state.unitPicker?.dispose();
   for (const visual of state.visuals.values()) visual.destroy();
 });

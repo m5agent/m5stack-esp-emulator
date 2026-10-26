@@ -17,7 +17,7 @@ export const spec={
     "position": [
       0,
       -15.65,
-      0
+      1.4
     ],
     "color": 2107178
   },

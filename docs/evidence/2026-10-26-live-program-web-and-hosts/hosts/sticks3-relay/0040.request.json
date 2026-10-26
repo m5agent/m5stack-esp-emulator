@@ -1,0 +1,5 @@
+{
+  "source": "import sys\nimport time\nimport M5\nassert '/m5-live-65c4c90a05e4483cb1baded58d914548' in sys.path, \"MicroPython VM was reset\"\nM5.begin()\nscreen = M5.Display\nscreen.setBrightness(255)\nscreen.fillScreen(16777215)\nscreen.setTextSize(2)\nscreen.setTextColor(0, 16777215)\nfrom unit import RelayUnit\nunit = RelayUnit((10, 9))\nunit.set_status(False)\nprint(\"LIVE_A_READY\")\nprevious = None\nwhile True:\n M5.update()\n value = int(unit.get_status())\n if value != previous:\n  print(\"LIVE_A_RELAY\", value)\n  screen.fillRect(0, 0, 128, 80, 16777215)\n  screen.setCursor(4, 4)\n  screen.print(\"RUN A\")\n  screen.setCursor(4, 32)\n  screen.print(\"RELAY \" + str(value))\n  previous = value\n time.sleep_ms(25)\n",
+  "expected_execution_id": "053c5cbe645c4e73a15dd694179d5870",
+  "timeout_seconds": 15
+}

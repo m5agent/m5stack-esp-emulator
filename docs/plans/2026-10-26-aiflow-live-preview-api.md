@@ -1,7 +1,7 @@
 # AIFlow 实时编程与预览 API：评估与实施计划
 
 日期：2026-10-26。归属 `UNIT-01`，模块边界与 `SVC-03` 协同。
-状态：**已新增并验证 AtomS3R 的 UIFlow 同 guest 程序下发；Preview 编排、SSE、
+状态：**四款主机的 UIFlow 同 guest PIR/Relay 程序下发与 CoreS3 真实 Web 已验证；Preview 编排、SSE、
 共享帧生产者缓存及性能目标尚未实现/验收**。
 生命周期修复已提交并完成限定验证，结果见
 [取消与 Unit 回归](../evidence/2026-10-26-session-cancellation-f309/README.md)；
@@ -9,6 +9,19 @@
 2026-10-26 补充核对 `99e3e22c`：生命周期修复已提交；本块结束后重新 fetch/merge
 `origin/main@f2061759897955e6017d4aa2a41bd5ba962c35b6`，结果为 Already up to date。
 执行优先级只维护在[项目Backlog](../project-backlog.md)，本页定义本任务的方案与门禁。
+
+## 当前工作块：直接创建与 Web 连续运行
+
+在已有同 guest UART 路径上，增加显式 `program_mode=uiflow-live` 创建入口：
+仅从已准入 reference 初始化一次 UART boot，拒绝与上传固件/source pin 混用，
+继承原请求幂等键和 lease。Web 在同一 session 内编辑完整源码并运行，执行
+状态、帧和 Unit 均来自真实 guest；请求晚到不能跨 owner 改写面板或编辑内容。
+用 CoreS3、AtomS3R、StickS3、StopWatch 的 PIR 输入与 Relay 输出验证：同固件/
+PID/VM、程序替换、源码异常恢复、控制器读回和停止前 evidence。逐主机分别
+记录，不用已有 AtomS3R 结果替代新验证。外壳同步并行核对固定公开提交和 PNG/
+ESM 资源闭包，新视觉 Unit 不自动获得内部协议实现状态。本块的限定结果已通过，
+见[直接创建与 Web 验证](../evidence/2026-10-26-live-program-web-and-hosts/README.md)和
+[外壳更新](../evidence/2026-10-26-visual-refresh-48667b7/README.md)；Preview/SSE 协调层仍待实现。
 
 ## 结论与当前证据
 
@@ -23,11 +36,14 @@ session 路径保留为初始化、兼容运行及显式重建入口。
 Preview/Run 编排、统一实时事件与共享帧缓存仍待实现，不能从同 guest 接口的
 存在推断 AIFlow 已接入这些能力。
 
-当前实际 guest 验证仅覆盖 **AtomS3R**。CoreS3、StickS3、StopWatch 虽在代码准入
-范围内，不能继承该验证结论；同 guest 虚拟执行也不代表物理硬件验证。
-最终证据见[同 guest 实时程序验证](../evidence/2026-10-26-uiflow-live-program/README.md)：
-同一 guest 连续五次程序、PIR 新鲜串口读回、不同应用帧、语法错误恢复和停止前
-ZIP；固定固件/运行时/source SHA。提交确认时间只是单机小样本，不代表首帧或 SLA。
+当前实际 guest 验证覆盖 **CoreS3、AtomS3R、StickS3、StopWatch 各自的 PIR/Relay**，
+8组合、40次程序，均由直接模式创建。CoreS3 另有真实网页两例，验证程序 A/B 替换、
+PIR 输入、Relay 输出、实际 guest PNG 像素进入模型 display、语法错误及恢复。
+见[直接创建与 Web 证据](../evidence/2026-10-26-live-program-web-and-hosts/README.md)：
+同一 guest 的 PID/固件/VM nonce、新鲜串口窗口、不同应用帧和停止前 ZIP 分别记录。
+早期手动 bootstrap 的 AtomS3R 基线仍见
+[首轮实时程序验证](../evidence/2026-10-26-uiflow-live-program/README.md)。
+虚拟执行不代表物理硬件验证；提交确认时间是单机小样本，不代表首帧或 SLA。
 
 早期只读评估使用仿真器 `0a6a9a2`，及AIFlow SDK最终 `b4994060`；后者审查期间
 HEAD 发生推进，受影响 gateway 及行引用已重新核对。该次评估没有变更 API 行为
@@ -44,8 +60,8 @@ workspace；相关十文件前后哈希稳定。本观察不代表部署版本�
 
 | 需求 | 当前实现 | 对实时编程的影响 |
 | --- | --- | --- |
-| 源码运行 | opt-in session 的 `/program` 通过实际 UART raw REPL 在同一 guest 中编译执行单个完整源码 checkpoint | 当前主路径；以 execution/revision 身份关联观测，仍需逐主机实际验证 |
-| 初始化与兼容 | `/firmware/uiflow`把完整`.py`集合写入已知reference的LittleFS，再以source pin创建新session | 用于首次 UART 路由准备、完整文件初始化与兼容运行；不是每次编辑的必经路径 |
+| 源码运行 | opt-in session 的 `/program` 通过实际 UART raw REPL 在同一 guest 中编译执行单个完整源码 checkpoint | 当前主路径；四主机PIR/Relay分别验证，以 execution/revision 身份关联观测，其它Unit仍逐例验证 |
+| 初始化与兼容 | `program_mode=uiflow-live`一次初始化已准入reference；`/firmware/uiflow`保留完整`.py`集合手动准备入口 | 用于首次 UART 路由准备、完整文件初始化与兼容运行；每次编辑只需提交源码 |
 | 更新/取消 | `/program` 使用 `expected_execution_id` 和单个传输 owner；session 生命周期已有取消 fence | 可拒绝过期/并发提交；旧程序中断需 raw REPL 同步确认，尚无 Preview latest-wins 编排 |
 | 主机/Unit交互 | input、unit-input、QOM、真实帧/串口/设备态；Unit装配在创建时固定 | 能复用；运行中hotplug未实现，新装配需新执行实例 |
 | 实时画面 | 页面目标125ms轮询，服务每请求QMP screendump→PPM→PNG，跨session await-all | 不是保证8FPS的帧流；多个观察者会重复采集/编码，慢请求影响刷新 |
@@ -71,7 +87,8 @@ workspace；相关十文件前后哈希稳定。本观察不代表部署版本�
 
 ## 当前同 guest 接口与使用边界
 
-创建 session 时显式指定 `program_transport="uart-repl"`。当前代码只准入
+推荐创建 session 时指定 `program_mode="uiflow-live"`，自动安装一次 guest UART
+路由并选择传输；手动初始化的兼容入口指定 `program_transport="uart-repl"`。当前只准入
 `runtime="qemu"` 的 CoreS3、AtomS3R、StickS3、StopWatch UIFlow2 reference 或
 已绑定 source pin 的 UIFlow composer 固件；普通 session 的 file-backed 串口行为
 保持原样。准入名单与逐设备验证结果分开维护。
@@ -248,7 +265,8 @@ security/source SHA校验，和串口烧录验证类别分开。不要全局改�
 只读日志，不能直接把任意 file-backed session 当成 raw REPL。当前主路径是
 中断旧程序→确认 raw REPL→流控传输源码→guest 编译/执行标记；不是原子写入
 完整文件或资源。应用 READY、同 guest 程序替换、真实主机/Unit 反馈与保留证据
-还需绑定各自主机和源码验证，当前仅有 AtomS3R 实际 guest 范围，最终证据待补。
+已在上述四主机PIR/Relay逐例绑定固件、源码和运行时验证；其它Unit、固件与运行方式
+仍需各自验证，不能从本批继承同 guest 结论。
 
 完整 VM/native 模块、timer、IRQ、thread 清理尚无通用保证；native 阻塞、IRQ
 关闭或 caller 改写 UART/dupterm 时，不能承诺可靠中断或自动恢复。显式重建

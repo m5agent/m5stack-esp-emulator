@@ -6,7 +6,7 @@ import {cadButton,physicalButton} from '../../modeling/actuators.js';
 import coreData from './geometry-data.js';
 import dinData from './geometry-data-din.js';
 import {DIM} from './dimensions.js';
-import {artwork} from '../../modeling/artwork.js';
+import {printedArtwork,printedFilm} from '../../modeling/artwork.js';
 /** Independently rebuilt from the official structure. No geometry is reused from the rejected legacy CoreS3 model. */
 export class CoreS3 extends Device {
  static meta={id:'m5stack.cores3',name:'CoreS3',sku:'K128',vendor:'M5Stack',size:[54,54,15.5],keymap:{KeyP:'power'}};
@@ -32,11 +32,27 @@ export class CoreS3 extends Device {
   cadButton(this,{source:molded,id:'reset',label:'Reset / download key',position:[15.5,-27,front-7.55],face:'bottom',w:7,h:5.7,r:2.2,depth:1.8,travel:.18});
   const sd=new THREE.Mesh(new THREE.PlaneGeometry(12,1.15),materials.cavity());sd.position.set(-6.5,-27.025,front-8.25);sd.quaternion.copy(FACE.bottom);this.body.add(sd);
   if(dinBase)this.#baseBack();else this.#moduleBack();
+  printedArtwork(this,{target:molded,url:new URL('./artwork/certification.png',import.meta.url).href,size:[16,12.3],position:[7.5,27,front-7.45],face:'top',rotation:Math.PI,name:'CoreS3 official certification sticker'});
+  if(dinBase){
+   for(const [file,size,position,face] of [
+    ['din-name',[42,10],[27,0,-8.5],'right'],
+    ['din-dc',[8.8,5.9],[0,-27,-3.1],'bottom'],
+    ['din-power',[7.9,5.7],[9,-27.13,-2.5],'bottom'],
+    ['port-c',[10,3.8],[-11,27,-7.4],'top'],
+    ['port-b',[10,3.8],[11,27,-7.4],'top']
+   ]){
+    const print={url:new URL(`./artwork/${file}.png`,import.meta.url).href,size,position,face,name:`CoreS3 official ${file} sticker`};
+    // This fixed adhesive label has the supplied rectangular actuator window;
+    // the moving switch remains visible and accessible through that window.
+    if(file==='din-power')printedFilm(this,{...print,parent:this.body.getObjectByName('DinBase power switch mounting frame'),holes:[{w:4.3,h:2.4,r:0}]});
+    else printedArtwork(this,{...print,target:molded,depth:.45});
+   }
+  }
  }
  #moduleBack(){
-  const pcb=materials.plastic(0x252b28,{roughness:.86,clearcoat:0});slab(this.body,49,49,.45,3,[0,0,-4.9],pcb,[],.08);
+  const pcb=materials.plastic(0x252b28,{roughness:.86,clearcoat:0}),board=slab(this.body,49,49,.45,3,[0,0,-4.9],pcb,[],.08);board.name='CoreS3 rear main PCB';
   for(const x of [-21,21])header(this.body,{position:[x,0,-7.02],cols:1,rows:15});
-  null;
+  printedArtwork(this,{target:board,url:new URL('./artwork/rear.png',import.meta.url).href,size:[32.4,41.5],position:[0,-2.2,-4.9],face:'back',name:'CoreS3 official shield circuit sticker'});
   for(const [x,y] of [[15.8,2.65],[-16.16,3.46]]){
    mesh(this.body,new THREE.CylinderGeometry(2.8,2.8,2.5,40).rotateX(Math.PI/2),materials.metal(0xafb4b6,{roughness:.5}),[x,y,-6.1]);
    const cap=disc(this.body,2.5,[x,y,-7.37],materials.plastic(0xc5c7c3));cap.quaternion.copy(FACE.back);
@@ -60,7 +76,7 @@ export class CoreS3 extends Device {
   disc(dc,2.4,[0,0,-7.5],materials.cavity());mesh(dc,new THREE.CylinderGeometry(.55,.55,3,24).rotateX(Math.PI/2),materials.metal(0xb1b5b4,{roughness:.35}),[0,0,-3]);
   this.add(new Port({id:'dc',label:'DinBase DC input · 9–24 V',connector:'dc-barrel',position:[-10,-27.02,-3.1],quaternion:portQuaternion('bottom'),hitSize:[10.2,1,7],meta:{role:'visual-connector',face:'bottom'}}));
   const sw=new THREE.Group();sw.position.set(9,-27.02,-2.5);sw.quaternion.copy(FACE.bottom);sw.name='DinBase power switch';this.body.add(sw);
-  slab(sw,8.6,5.3,3,.35,[0,0,-3.05],materials.plastic(0x151818),[],.04);
+  slab(sw,8.6,5.3,3,.35,[0,0,-3.05],materials.plastic(0x151818),[],.04).name='DinBase power switch mounting frame';
   const slider=new THREE.Group();slider.name='DinBase movable power slider';
   slab(slider,4.2,3.2,.9,.2,[-1.5,0,-.9],materials.plastic(0x303536),[],.03);
   for(let x=-3;x<=0;x+=.6)mesh(slider,new THREE.BoxGeometry(.16,2.7,.12),materials.plastic(0x171c1d),[x,0,.03]);
